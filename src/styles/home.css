@@ -1,0 +1,323 @@
+/* ====== HOME PAGE — Dashboard + Categories ====== */
+
+.home {
+  min-height: 100vh;
+  padding: 40px 60px;
+  background: linear-gradient(180deg, #FFF7ED 0%, #FCEEF2 40%, #EDE9FE 100%);
+  overflow-y: auto;
+}
+
+/* ====== DASHBOARD ====== */
+.dashboard {
+  max-width: 1100px;
+  margin: 0 auto 36px;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.dashboard-header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+
+.dashboard-header p {
+  font-size: 1rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+/* Stats row */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-icon-wrap {
+  font-size: 2rem;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.stat-stars .stat-icon-wrap { background: #FEF3C7; }
+.stat-plays .stat-icon-wrap { background: #D1FAE5; }
+.stat-progress .stat-icon-wrap { background: #DBEAFE; }
+.stat-accuracy .stat-icon-wrap { background: #EDE9FE; }
+
+.stat-info { flex: 1; }
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+/* Suggested game */
+.suggested-game {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: white;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.3s;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.suggested-game:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateX(4px);
+  background: var(--purple-light);
+}
+
+.suggested-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.suggested-icon { font-size: 1.3rem; }
+
+.suggested-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--purple);
+  flex: 1;
+}
+
+.suggested-arrow {
+  font-size: 1.2rem;
+  color: var(--purple);
+  opacity: 0.6;
+}
+
+/* ====== CATEGORIES ====== */
+.category {
+  max-width: 1100px;
+  margin: 0 auto 32px;
+}
+
+.category-header {
+  margin-bottom: 16px;
+}
+
+.category-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.category-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.category-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+
+.category-count {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-light);
+  background: var(--bg);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+
+.category-progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.category-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+/* ====== GAME GRID ====== */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+/* ====== GAME CARD ====== */
+.game-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 28px 20px 20px;
+  text-align: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-out backwards;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card-top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.game-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  border-color: var(--purple-light);
+}
+
+.game-card:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+.game-card.played {
+  border-left: 3px solid var(--card-color, var(--purple));
+}
+
+.card-icon {
+  font-size: 2.8rem;
+  margin-bottom: 10px;
+  display: block;
+  animation: float 3s ease-in-out infinite;
+}
+
+.game-card:nth-child(odd) .card-icon { animation-delay: -1s; }
+.game-card:nth-child(3n) .card-icon { animation-delay: -2s; }
+
+.game-card h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: var(--text);
+}
+
+.game-card p {
+  font-size: 0.78rem;
+  color: var(--text-light);
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+
+/* Card progress */
+.card-progress {
+  width: 100%;
+  margin-top: auto;
+}
+
+.card-progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.card-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+.card-stats {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.card-new-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-light);
+  background: var(--bg);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  opacity: 0.7;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 1100px) {
+  .home { padding: 30px 30px; }
+  .dashboard-header h1 { font-size: 1.8rem; }
+  .dashboard-stats { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .stat-card { padding: 14px 14px; }
+  .stat-number { font-size: 1.2rem; }
+  .game-grid { grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .game-card { padding: 22px 14px 16px; }
+}
+
+@media (max-width: 900px) {
+  .dashboard-stats { grid-template-columns: repeat(2, 1fr); }
+  .game-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .home { padding: 20px 16px; }
+  .game-grid { grid-template-columns: repeat(2, 1fr); }
+  .stat-card { padding: 12px; }
+}
