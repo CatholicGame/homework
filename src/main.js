@@ -3,6 +3,11 @@
  */
 
 import { renderHome } from './games/home.js';
+import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
+
+// Init virtual keyboard globally — auto-attaches to all number inputs
+initVirtualKeyboard();
+
 
 // Router
 function navigate(gameId) {
