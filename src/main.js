@@ -32,6 +32,7 @@ function navigate(gameId) {
     'path-maze': () => import('./games/pathMaze.js'),
     'number-thinker': () => import('./games/numberThinker.js'),
     'exam': () => import('./games/exam.js'),
+    'giao-ly': () => import('./games/giaoly.js'),
   };
 
   const loader = gameModules[gameId];

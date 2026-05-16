@@ -38,6 +38,15 @@ const CATEGORIES = [
       { id: 'number-thinker', icon: '🧠', title: 'Tư Duy Số', desc: 'Phân tích & tìm số theo mô tả' },
     ],
   },
+  {
+    id: 'giao-ly',
+    title: 'Ôn Thi Giáo Lý',
+    icon: '✝️',
+    color: '#C9A227',
+    games: [
+      { id: 'giao-ly', icon: '✝️', title: 'Ôn Thi Giáo Lý', desc: 'Bộ câu hỏi trắc nghiệm — Lớp Đèn Bàn Tiệc Thánh I' },
+    ],
+  },
 ];
 
 function getAllGames() {
