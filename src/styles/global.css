@@ -126,6 +126,17 @@ body {
   color: white;
 }
 
+.btn-ghost {
+  background: var(--bg-card);
+  color: var(--text-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-ghost:hover {
+  background: var(--purple-light);
+  color: var(--text);
+}
+
 /* ====== ANIMATIONS ====== */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(12px); }

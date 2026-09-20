@@ -33,6 +33,7 @@ function navigate(gameId) {
     'number-thinker': () => import('./games/numberThinker.js'),
     'exam': () => import('./games/exam.js'),
     'giao-ly': () => import('./games/giaoly.js'),
+    'grade3-exam': () => import('./games/grade3Exam.js'),
   };
 
   const loader = gameModules[gameId];
