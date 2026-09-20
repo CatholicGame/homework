@@ -169,11 +169,13 @@ export function render(app, onBack) {
   }
 
   // ── QUIZ ──────────────────────────────────────────────────────────────────
-  function showQuestion() {
+  function showQuestion(idx = current) {
+    current = idx;
     locked = false;
     multiSelected = [];
     const q = activeQuestions[current];
-    const pct = Math.round((current / activeQuestions.length) * 100);
+    const answeredCount = userAnswers.filter(a => a !== null && a !== undefined).length;
+    const pct = Math.round((answeredCount / activeQuestions.length) * 100);
 
     app.innerHTML = `
       <div class="e3-wrap">
@@ -186,6 +188,7 @@ export function render(app, onBack) {
               </div>
               <span class="e3-progress-label">${current + 1} / ${activeQuestions.length}</span>
             </div>
+            <button class="e3-back-icon" id="e3-list-toggle" title="Danh sách câu hỏi">☰</button>
           </div>
 
           <div class="e3-question-card">
@@ -202,11 +205,63 @@ export function render(app, onBack) {
             </button>
           </div>
         </div>
+
+        ${renderQuestionList()}
       </div>
     `;
 
     app.querySelector('#e3-quit').onclick = showIntro;
+    app.querySelector('#e3-list-toggle').onclick = toggleQuestionList;
+    attachQuestionListHandlers();
     attachAnswerHandlers(q);
+  }
+
+  // ── SIDE QUESTION LIST ───────────────────────────────────────────────────────
+  function getQuestionStatus(i) {
+    const ua = userAnswers[i];
+    if (ua === null || ua === undefined) return 'unanswered';
+    return isAnswerCorrect(activeQuestions[i], i) ? 'correct' : 'wrong';
+  }
+
+  function renderQuestionList() {
+    const statusIcon = { unanswered: '', correct: '✓', wrong: '✕' };
+    return `
+      <div class="e3-qlist-overlay" id="e3-qlist-overlay" style="display:none">
+        <div class="e3-qlist-panel">
+          <div class="e3-qlist-header">
+            <span>Danh sách câu hỏi</span>
+            <button class="e3-qlist-close" id="e3-qlist-close">✕</button>
+          </div>
+          <div class="e3-qlist-grid">
+            ${activeQuestions.map((_, i) => {
+              const status = getQuestionStatus(i);
+              return `<button class="e3-qitem e3-qitem-${status} ${i === current ? 'e3-qitem-current' : ''}" data-idx="${i}">${statusIcon[status] || (i + 1)}</button>`;
+            }).join('')}
+          </div>
+          <div class="e3-qlist-legend">
+            <span><i class="e3-legend-dot e3-legend-unanswered"></i>Chưa làm</span>
+            <span><i class="e3-legend-dot e3-legend-correct"></i>Đúng</span>
+            <span><i class="e3-legend-dot e3-legend-wrong"></i>Sai</span>
+          </div>
+          <button class="e3-btn e3-btn-primary" id="e3-qlist-finish">🏁 Nộp bài / Xem kết quả</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function attachQuestionListHandlers() {
+    const overlay = app.querySelector('#e3-qlist-overlay');
+    app.querySelector('#e3-qlist-close').onclick = () => { overlay.style.display = 'none'; };
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+    app.querySelectorAll('.e3-qitem').forEach(btn => {
+      btn.onclick = () => showQuestion(parseInt(btn.dataset.idx, 10));
+    });
+    app.querySelector('#e3-qlist-finish').onclick = showResult;
+  }
+
+  function toggleQuestionList() {
+    const overlay = app.querySelector('#e3-qlist-overlay');
+    overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
   }
 
   function renderAnswerArea(q) {
@@ -239,8 +294,16 @@ export function render(app, onBack) {
   }
 
   function attachAnswerHandlers(q) {
+    const ua = userAnswers[current];
+    const alreadyAnswered = ua !== null && ua !== undefined;
+
     if (q.type === 'choice' && q.multi) {
       const submitBtn = app.querySelector('#e3-submit-multi');
+      if (alreadyAnswered) {
+        locked = true;
+        revealChoiceAnswer(q, [...q.answer], isAnswerCorrect(q, current));
+        return;
+      }
       app.querySelectorAll('.e3-option').forEach(btn => {
         btn.onclick = () => {
           if (locked) return;
@@ -265,6 +328,11 @@ export function render(app, onBack) {
     }
 
     if (q.type === 'choice') {
+      if (alreadyAnswered) {
+        locked = true;
+        revealChoiceAnswer(q, [q.answer], ua === q.answer);
+        return;
+      }
       app.querySelectorAll('.e3-option').forEach(btn => {
         btn.onclick = () => {
           if (locked) return;
@@ -279,6 +347,15 @@ export function render(app, onBack) {
 
     // fill
     const submitBtn = app.querySelector('#e3-submit-fill');
+    if (alreadyAnswered) {
+      locked = true;
+      submitBtn.disabled = true;
+      const inputs = [...app.querySelectorAll('.e3-blank-input')];
+      inputs.forEach((inp, i) => { inp.value = ua[i]; });
+      const correctFlags = q.blanks.map((b, i) => normalize(ua[i]) === normalize(b.answer));
+      revealFillAnswer(q, correctFlags, correctFlags.every(Boolean), inputs);
+      return;
+    }
     submitBtn.onclick = () => {
       if (locked) return;
       const inputs = [...app.querySelectorAll('.e3-blank-input')];
@@ -299,10 +376,12 @@ export function render(app, onBack) {
   }
 
   function revealChoiceAnswer(q, correctIndices, isRight) {
+    const ua = userAnswers[current];
+    const chosenSet = q.multi ? new Set(ua) : new Set([ua]);
     app.querySelectorAll('.e3-option').forEach((btn, i) => {
       btn.disabled = true;
       if (correctIndices.includes(i)) btn.classList.add('e3-correct');
-      else if (btn.classList.contains('e3-selected') || (userAnswers[current] === i)) btn.classList.add('e3-wrong');
+      else if (chosenSet.has(i)) btn.classList.add('e3-wrong');
     });
     app.querySelector('#e3-submit-multi')?.remove();
     showFeedback(isRight, q, correctIndices.map(i => q.options[i]).join(', '));
@@ -460,6 +539,36 @@ function injectStyles() {
       background: rgba(0,0,0,0.08); border: none; color: #1E293B; font-size: 1rem;
       width: 2.2rem; height: 2.2rem; border-radius: 0.6rem; cursor: pointer; font-weight: 700; flex-shrink: 0;
     }
+
+    /* ── QUESTION LIST DRAWER ── */
+    .e3-qlist-overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.45); z-index: 1000;
+      display: flex; justify-content: flex-end; align-items: stretch;
+    }
+    .e3-qlist-panel {
+      width: min(320px, 85vw); background: #fff; box-shadow: -8px 0 30px rgba(0,0,0,0.18);
+      padding: 1.2rem; display: flex; flex-direction: column; gap: 1rem;
+      overflow-y: auto; animation: e3SlideIn 0.2s ease;
+    }
+    @keyframes e3SlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    .e3-qlist-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: #1E293B; font-size: 1rem; }
+    .e3-qlist-close { background: rgba(0,0,0,0.08); border: none; color: #1E293B; width: 1.9rem; height: 1.9rem; border-radius: 0.5rem; cursor: pointer; font-weight: 700; }
+    .e3-qlist-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
+    .e3-qitem {
+      aspect-ratio: 1; border-radius: 0.6rem; border: 2px solid #e2e8f0; background: #f8fafc;
+      color: #475569; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-family: inherit;
+      transition: transform 0.1s, border-color 0.15s;
+    }
+    .e3-qitem:hover { transform: translateY(-2px); }
+    .e3-qitem-current { border-color: #1E293B; box-shadow: 0 0 0 2px rgba(30,41,59,0.15); }
+    .e3-qitem-correct { background: #dcfce7; border-color: #22c55e; color: #166534; }
+    .e3-qitem-wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+    .e3-qlist-legend { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.82rem; color: #475569; }
+    .e3-qlist-legend span { display: flex; align-items: center; gap: 0.5rem; }
+    .e3-legend-dot { width: 0.85rem; height: 0.85rem; border-radius: 0.25rem; display: inline-block; border: 2px solid #e2e8f0; background: #f8fafc; }
+    .e3-legend-dot.e3-legend-correct { background: #dcfce7; border-color: #22c55e; }
+    .e3-legend-dot.e3-legend-wrong { background: #fee2e2; border-color: #ef4444; }
 
     /* ── QUIZ ── */
     .e3-quiz { max-width: 640px; width: 100%; margin: 0 auto; padding-bottom: 2rem; }
