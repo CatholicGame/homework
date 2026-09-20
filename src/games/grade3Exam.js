@@ -292,6 +292,16 @@ export function render(app, onBack) {
         <div class="e3-solution-toolbar">
           ${['+', '−', '×', '÷', '=', '(', ')'].map(s => `<button type="button" class="e3-sym-btn" data-sym="${s}">${s}</button>`).join('')}
         </div>
+        <div class="e3-insert-row">
+          <div class="e3-insert-group">
+            <input type="number" inputmode="numeric" class="e3-insert-number" id="e3-insert-number" placeholder="Số">
+            <button type="button" class="e3-insert-btn" id="e3-insert-number-btn" title="Chèn số vào dòng phép tính">Chèn số</button>
+          </div>
+          <div class="e3-insert-group">
+            <input type="text" class="e3-insert-text" id="e3-insert-text" placeholder="Chữ / đơn vị">
+            <button type="button" class="e3-insert-btn" id="e3-insert-text-btn" title="Chèn chữ vào dòng phép tính">Chèn chữ</button>
+          </div>
+        </div>
         <div class="e3-solution-controls">
           <button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-add-text-row">+ Dòng chữ</button>
           <button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-add-formula-row">+ Dòng phép tính</button>
@@ -364,19 +374,36 @@ export function render(app, onBack) {
       focusLastSolutionRow();
     };
 
+    const getInsertTarget = () => (
+      lastFocusedFormulaInput && rowsContainer.contains(lastFocusedFormulaInput)
+        ? lastFocusedFormulaInput
+        : rowsContainer.querySelector('.e3-sol-row-formula-input')
+    );
+
+    const insertIntoFormula = (text) => {
+      const target = getInsertTarget();
+      if (!target || !text) return;
+      insertAtCursor(target, text);
+      const i = parseInt(target.dataset.rowIdx, 10);
+      solutionRows[current][i].value = target.value;
+      syncOkState();
+      target.focus();
+    };
+
     app.querySelectorAll('.e3-sym-btn').forEach(btn => {
-      btn.onclick = () => {
-        const target = lastFocusedFormulaInput && rowsContainer.contains(lastFocusedFormulaInput)
-          ? lastFocusedFormulaInput
-          : rowsContainer.querySelector('.e3-sol-row-formula-input');
-        if (!target) return;
-        insertAtCursor(target, btn.dataset.sym);
-        const i = parseInt(target.dataset.rowIdx, 10);
-        solutionRows[current][i].value = target.value;
-        syncOkState();
-        target.focus();
-      };
+      btn.onclick = () => insertIntoFormula(btn.dataset.sym);
     });
+
+    const numBox = app.querySelector('#e3-insert-number');
+    const textBox = app.querySelector('#e3-insert-text');
+    const insertFromBox = (box) => {
+      insertIntoFormula(box.value);
+      box.value = '';
+    };
+    app.querySelector('#e3-insert-number-btn').onclick = () => insertFromBox(numBox);
+    app.querySelector('#e3-insert-text-btn').onclick = () => insertFromBox(textBox);
+    numBox.addEventListener('keyup', (e) => { if (e.key === 'Enter') insertFromBox(numBox); });
+    textBox.addEventListener('keyup', (e) => { if (e.key === 'Enter') insertFromBox(textBox); });
 
     okBtn.onclick = () => {
       solutionConfirmed[current] = true;
@@ -823,6 +850,12 @@ function injectStyles() {
     .e3-solution-toolbar { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .e3-sym-btn { width: 2.1rem; height: 2.1rem; border-radius: 0.5rem; border: 2px solid #e2e8f0; background: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; color: #1e293b; font-family: inherit; }
     .e3-sym-btn:hover { border-color: #34D399; }
+    .e3-insert-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .e3-insert-group { display: flex; align-items: center; gap: 0.4rem; background: #fff; border: 2px solid #e2e8f0; border-radius: 0.6rem; padding: 0.25rem 0.3rem 0.25rem 0.6rem; flex: 1; min-width: 150px; }
+    .e3-insert-number, .e3-insert-text { border: none; outline: none; width: 100%; min-width: 0; font-size: 0.9rem; font-family: inherit; padding: 0.35rem 0; background: transparent; }
+    .e3-insert-number { font-family: 'Courier New', monospace; font-weight: 700; }
+    .e3-insert-btn { flex-shrink: 0; background: #34D399; color: #fff; border: none; border-radius: 0.5rem; padding: 0.45rem 0.7rem; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .e3-insert-btn:hover { background: #22c55e; }
     .e3-solution-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .e3-btn-sm { width: auto; padding: 0.5rem 0.9rem; font-size: 0.85rem; }
     .e3-solution-controls .e3-btn-sm { flex: 1; }
