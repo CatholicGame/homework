@@ -229,6 +229,32 @@ body {
   animation: bounceIn 0.5s ease-out;
 }
 
+/* ====== GLOBAL FULLSCREEN TOGGLE ====== */
+#global-fullscreen-btn {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 1200;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.92);
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s, background 0.15s;
+}
+#global-fullscreen-btn:hover {
+  background: #fff;
+  transform: scale(1.08);
+}
+
 /* ====== SCROLLBAR ====== */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

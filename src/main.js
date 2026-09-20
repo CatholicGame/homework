@@ -8,6 +8,33 @@ import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
 // Init virtual keyboard globally — auto-attaches to all number inputs
 initVirtualKeyboard();
 
+// Fullscreen toggle — persists across every page (home + all games)
+function initFullscreenButton() {
+  const btn = document.createElement('button');
+  btn.id = 'global-fullscreen-btn';
+  btn.type = 'button';
+
+  const sync = () => {
+    const active = !!document.fullscreenElement;
+    btn.textContent = active ? '⤡' : '⤢';
+    btn.title = active ? 'Thoát toàn màn hình' : 'Toàn màn hình';
+  };
+  sync();
+
+  btn.onclick = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.();
+    }
+  };
+
+  document.addEventListener('fullscreenchange', sync);
+  document.body.appendChild(btn);
+}
+
+initFullscreenButton();
+
 
 // Router
 function navigate(gameId) {

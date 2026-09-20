@@ -113,8 +113,6 @@ export function render(app, onBack) {
   let multiSelected = [];
 
   injectStyles();
-  const detachFullscreenBtn = setupFullscreenButton();
-  const goBack = () => { detachFullscreenBtn(); onBack(); };
 
   // ── INTRO ─────────────────────────────────────────────────────────────────
   function showIntro() {
@@ -169,7 +167,7 @@ export function render(app, onBack) {
       });
     });
 
-    app.querySelector('#e3-back-btn').onclick = goBack;
+    app.querySelector('#e3-back-btn').onclick = onBack;
   }
 
   function resetProgress() {
@@ -510,36 +508,6 @@ export function render(app, onBack) {
   showIntro();
 }
 
-// ── FULLSCREEN TOGGLE (persists across intro/quiz/result screens) ────────────
-function setupFullscreenButton() {
-  const btn = document.createElement('button');
-  btn.id = 'e3-global-fullscreen-btn';
-  btn.type = 'button';
-
-  const sync = () => {
-    const active = !!document.fullscreenElement;
-    btn.textContent = active ? '⤡' : '⤢';
-    btn.title = active ? 'Thoát toàn màn hình' : 'Toàn màn hình';
-  };
-  sync();
-
-  btn.onclick = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().catch(() => {});
-    } else {
-      document.exitFullscreen?.();
-    }
-  };
-
-  document.addEventListener('fullscreenchange', sync);
-  document.body.appendChild(btn);
-
-  return () => {
-    document.removeEventListener('fullscreenchange', sync);
-    btn.remove();
-  };
-}
-
 function getGrade(pct) {
   if (pct >= 90) return { emoji: '🏆', label: 'Xuất sắc!', color: '#F59E0B' };
   if (pct >= 75) return { emoji: '🌟', label: 'Giỏi!', color: '#10B981' };
@@ -562,17 +530,6 @@ function injectStyles() {
       padding: 1rem;
       box-sizing: border-box;
     }
-
-    /* ── FULLSCREEN BUTTON ── */
-    #e3-global-fullscreen-btn {
-      position: fixed; top: 14px; right: 14px; z-index: 1200;
-      width: 2.4rem; height: 2.4rem; border-radius: 50%; border: none;
-      background: rgba(255,255,255,0.92); color: #1E293B; font-size: 1.15rem; font-weight: 700;
-      cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-      display: flex; align-items: center; justify-content: center;
-      transition: transform 0.12s, background 0.15s;
-    }
-    #e3-global-fullscreen-btn:hover { background: #fff; transform: scale(1.08); }
 
     /* ── INTRO ── */
     .e3-intro {
