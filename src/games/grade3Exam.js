@@ -110,6 +110,9 @@ export function render(app, onBack) {
   let attempted = [];    // per-question: has at least one attempt been made?
   let wrongCounts = [];  // per-question: number of wrong attempts (unlocks hints)
   let lastCorrectValue = []; // per-question: the value submitted when it was solved (for review display)
+  let solutionRows = [];       // per-question: [{ type: 'text'|'formula', value }]
+  let solutionConfirmed = [];  // per-question: has the student clicked "Xong, chọn đáp án"?
+  let lastFocusedFormulaInput = null;
   let multiSelected = [];
 
   injectStyles();
@@ -175,6 +178,8 @@ export function render(app, onBack) {
     attempted = new Array(activeQuestions.length).fill(false);
     wrongCounts = new Array(activeQuestions.length).fill(0);
     lastCorrectValue = new Array(activeQuestions.length).fill(null);
+    solutionRows = Array.from({ length: activeQuestions.length }, () => [{ type: 'text', value: '' }]);
+    solutionConfirmed = new Array(activeQuestions.length).fill(false);
   }
 
   // ── QUIZ ──────────────────────────────────────────────────────────────────
@@ -184,6 +189,7 @@ export function render(app, onBack) {
     const q = activeQuestions[current];
     const visitedCount = solved.filter(Boolean).length + attempted.filter((a, i) => a && !solved[i]).length;
     const pct = Math.round((visitedCount / activeQuestions.length) * 100);
+    const answerUnlocked = solutionConfirmed[current] || solved[current];
 
     app.innerHTML = `
       <div class="e3-wrap">
@@ -205,9 +211,11 @@ export function render(app, onBack) {
             ${q.img ? `<img class="e3-q-img" src="${q.img}" alt="Hình minh họa câu ${current + 1}" loading="lazy">` : ''}
           </div>
 
-          ${renderAnswerArea(q)}
+          ${renderSolutionBlock(q)}
 
-          ${!solved[current] ? renderHints(q) : ''}
+          ${answerUnlocked ? renderAnswerArea(q) : renderAnswerLockNotice()}
+
+          ${answerUnlocked && !solved[current] ? renderHints(q) : ''}
 
           <div class="e3-nav" id="e3-nav" style="display:none">
             <button class="e3-btn e3-btn-primary" id="e3-next" style="background:linear-gradient(135deg,${activeSectionColor},${activeSectionColor}cc)">
@@ -223,7 +231,157 @@ export function render(app, onBack) {
     app.querySelector('#e3-quit').onclick = showIntro;
     app.querySelector('#e3-list-toggle').onclick = toggleQuestionList;
     attachQuestionListHandlers();
-    attachAnswerHandlers(q);
+    attachSolutionHandlers(q);
+    if (answerUnlocked) attachAnswerHandlers(q);
+  }
+
+  // ── SOLUTION EDITOR (write the working before answering) ────────────────────
+  function renderAnswerLockNotice() {
+    return `<div class="e3-answer-locked-note">🔒 Hoàn thành lời giải ở trên rồi bấm "Xong, chọn đáp án" để mở khóa phần chọn đáp án.</div>`;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function escapeAttr(str) {
+    return escapeHtml(str).replace(/"/g, '&quot;');
+  }
+
+  function renderSolutionRow(row, i) {
+    const icon = row.type === 'formula' ? '🧮' : '📝';
+    const placeholder = row.type === 'formula' ? 'Ví dụ: 40 + 15 = 55' : 'Viết giải thích...';
+    const cls = row.type === 'formula' ? 'e3-sol-row-formula-input' : 'e3-sol-row-text-input';
+    return `
+      <div class="e3-sol-row" data-row-idx="${i}">
+        <span class="e3-sol-row-icon">${icon}</span>
+        <input type="text" class="e3-sol-row-input ${cls}" data-row-idx="${i}" placeholder="${placeholder}" value="${escapeAttr(row.value)}" autocomplete="off">
+        <button type="button" class="e3-sol-row-remove" data-row-idx="${i}" title="Xóa dòng">✕</button>
+      </div>
+    `;
+  }
+
+  function renderSolutionBlock(q) {
+    const rows = solutionRows[current];
+    const confirmed = solutionConfirmed[current] || solved[current];
+
+    if (confirmed) {
+      const nonEmpty = rows.filter(r => r.value.trim() !== '');
+      return `
+        <div class="e3-solution e3-solution-locked">
+          <div class="e3-solution-label">✍️ Lời giải của em</div>
+          <div class="e3-solution-rows">
+            ${nonEmpty.length ? nonEmpty.map(r => `
+              <div class="e3-sol-row e3-sol-row-readonly">
+                <span class="e3-sol-row-icon">${r.type === 'formula' ? '🧮' : '📝'}</span>
+                <span class="e3-sol-row-text-display">${escapeHtml(r.value)}</span>
+              </div>
+            `).join('') : '<div class="e3-sol-empty">(chưa ghi nội dung)</div>'}
+          </div>
+          ${!solved[current] ? '<button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-edit-solution">✏️ Sửa lời giải</button>' : ''}
+        </div>
+      `;
+    }
+
+    return `
+      <div class="e3-solution">
+        <div class="e3-solution-label">✍️ Trình bày lời giải trước khi chọn đáp án:</div>
+        <div class="e3-solution-rows" id="e3-solution-rows">
+          ${rows.map((r, i) => renderSolutionRow(r, i)).join('')}
+        </div>
+        <div class="e3-solution-toolbar">
+          ${['+', '−', '×', '÷', '=', '(', ')'].map(s => `<button type="button" class="e3-sym-btn" data-sym="${s}">${s}</button>`).join('')}
+        </div>
+        <div class="e3-solution-controls">
+          <button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-add-text-row">+ Dòng chữ</button>
+          <button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-add-formula-row">+ Dòng phép tính</button>
+        </div>
+        <button type="button" class="e3-btn e3-btn-primary" id="e3-solution-ok" disabled>Xong, chọn đáp án →</button>
+      </div>
+    `;
+  }
+
+  function insertAtCursor(input, text) {
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    input.value = input.value.slice(0, start) + text + input.value.slice(end);
+    const pos = start + text.length;
+    input.setSelectionRange(pos, pos);
+  }
+
+  function focusLastSolutionRow() {
+    const inputs = app.querySelectorAll('.e3-sol-row-input');
+    inputs[inputs.length - 1]?.focus();
+  }
+
+  function attachSolutionHandlers(q) {
+    if (solutionConfirmed[current] || solved[current]) {
+      const editBtn = app.querySelector('#e3-edit-solution');
+      if (editBtn) {
+        editBtn.onclick = () => {
+          solutionConfirmed[current] = false;
+          showQuestion();
+        };
+      }
+      return;
+    }
+
+    const rowsContainer = app.querySelector('#e3-solution-rows');
+    const okBtn = app.querySelector('#e3-solution-ok');
+
+    const syncOkState = () => {
+      okBtn.disabled = !solutionRows[current].some(r => r.value.trim() !== '');
+    };
+
+    rowsContainer.querySelectorAll('.e3-sol-row-input').forEach(inp => {
+      inp.oninput = () => {
+        const i = parseInt(inp.dataset.rowIdx, 10);
+        solutionRows[current][i].value = inp.value;
+        syncOkState();
+      };
+      if (inp.classList.contains('e3-sol-row-formula-input')) {
+        inp.addEventListener('focus', () => { lastFocusedFormulaInput = inp; });
+      }
+    });
+    rowsContainer.querySelectorAll('.e3-sol-row-remove').forEach(btn => {
+      btn.onclick = () => {
+        const i = parseInt(btn.dataset.rowIdx, 10);
+        solutionRows[current].splice(i, 1);
+        if (solutionRows[current].length === 0) solutionRows[current].push({ type: 'text', value: '' });
+        showQuestion();
+      };
+    });
+    syncOkState();
+
+    app.querySelector('#e3-add-text-row').onclick = () => {
+      solutionRows[current].push({ type: 'text', value: '' });
+      showQuestion();
+      focusLastSolutionRow();
+    };
+    app.querySelector('#e3-add-formula-row').onclick = () => {
+      solutionRows[current].push({ type: 'formula', value: '' });
+      showQuestion();
+      focusLastSolutionRow();
+    };
+
+    app.querySelectorAll('.e3-sym-btn').forEach(btn => {
+      btn.onclick = () => {
+        const target = lastFocusedFormulaInput && rowsContainer.contains(lastFocusedFormulaInput)
+          ? lastFocusedFormulaInput
+          : rowsContainer.querySelector('.e3-sol-row-formula-input');
+        if (!target) return;
+        insertAtCursor(target, btn.dataset.sym);
+        const i = parseInt(target.dataset.rowIdx, 10);
+        solutionRows[current][i].value = target.value;
+        syncOkState();
+        target.focus();
+      };
+    });
+
+    okBtn.onclick = () => {
+      solutionConfirmed[current] = true;
+      showQuestion();
+    };
   }
 
   // ── HINTS ─────────────────────────────────────────────────────────────────
@@ -646,6 +804,29 @@ function injectStyles() {
     .e3-feedback-wrong { background: #fee2e2; color: #991b1b; border: 1.5px solid #fca5a5; }
     .e3-nav { margin-top: 1rem; justify-content: flex-end; }
     .e3-nav .e3-btn { width: auto; }
+
+    /* ── SOLUTION EDITOR ── */
+    .e3-solution { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 1rem; padding: 1rem; margin-top: 1rem; display: flex; flex-direction: column; gap: 0.7rem; }
+    .e3-solution-locked { border-style: solid; border-color: #e2e8f0; background: #fff; }
+    .e3-solution-label { font-weight: 700; font-size: 0.9rem; color: #334155; }
+    .e3-solution-rows { display: flex; flex-direction: column; gap: 0.5rem; }
+    .e3-sol-row { display: flex; align-items: center; gap: 0.5rem; }
+    .e3-sol-row-icon { font-size: 1rem; flex-shrink: 0; }
+    .e3-sol-row-input { flex: 1; border: 2px solid #e2e8f0; border-radius: 0.6rem; padding: 0.5rem 0.7rem; font-family: inherit; font-size: 0.9rem; min-width: 0; }
+    .e3-sol-row-input:focus { outline: none; border-color: #34D399; }
+    .e3-sol-row-formula-input { font-family: 'Courier New', monospace; font-weight: 700; }
+    .e3-sol-row-remove { background: none; border: none; color: #94a3b8; font-size: 0.9rem; cursor: pointer; flex-shrink: 0; width: 1.7rem; height: 1.7rem; border-radius: 0.4rem; }
+    .e3-sol-row-remove:hover { background: #fee2e2; color: #ef4444; }
+    .e3-sol-row-readonly { background: #f8fafc; border-radius: 0.6rem; padding: 0.5rem 0.7rem; }
+    .e3-sol-row-text-display { flex: 1; font-size: 0.9rem; color: #334155; white-space: pre-wrap; word-break: break-word; }
+    .e3-sol-empty { font-size: 0.85rem; color: #94a3b8; font-style: italic; }
+    .e3-solution-toolbar { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .e3-sym-btn { width: 2.1rem; height: 2.1rem; border-radius: 0.5rem; border: 2px solid #e2e8f0; background: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; color: #1e293b; font-family: inherit; }
+    .e3-sym-btn:hover { border-color: #34D399; }
+    .e3-solution-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .e3-btn-sm { width: auto; padding: 0.5rem 0.9rem; font-size: 0.85rem; }
+    .e3-solution-controls .e3-btn-sm { flex: 1; }
+    .e3-answer-locked-note { text-align: center; padding: 0.9rem; color: #94a3b8; font-size: 0.85rem; font-style: italic; background: #f8fafc; border-radius: 0.8rem; margin-top: 0.9rem; }
 
     /* ── HINTS ── */
     .e3-hints { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.9rem; }
