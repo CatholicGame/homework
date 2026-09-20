@@ -250,7 +250,7 @@ export function render(app, onBack) {
 
   function renderSolutionRow(row, i) {
     const icon = row.type === 'formula' ? '🧮' : '📝';
-    const placeholder = row.type === 'formula' ? 'Ví dụ: 40 + 15 = 55' : 'Viết giải thích...';
+    const placeholder = row.type === 'formula' ? 'VD: a + b = c' : 'Viết giải thích...';
     const cls = row.type === 'formula' ? 'e3-sol-row-formula-input' : 'e3-sol-row-text-input';
     return `
       <div class="e3-sol-row" data-row-idx="${i}">
