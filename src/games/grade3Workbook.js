@@ -152,23 +152,29 @@ function letterGroupsValidate(expectedGroups) {
   };
 }
 
-// Bài 18's "Góc đỉnh ...; cạnh ..., ..." rows have 3 slots: the vertex
-// letter, then its two rays' endpoint letters — each ray name accepts
-// either letter order (e.g. "AB" or "BA"), and the two rays can be listed
-// in either order too.
-function angleValidate(vertex, rayEnds) {
-  const V = vertex.trim().toUpperCase();
+// Bài 18's "Góc đỉnh ...; cạnh ..., ..." rows have 3 slots: the vertex letter,
+// then its two rays' endpoint letters. The book prints 2 interchangeable rows
+// under "a) Các góc vuông là" and 4 under "b) Các góc không vuông là", so a row
+// accepts ANY angle belonging to its own group — filling them in a different
+// order than the answer key is still correct. Each ray name also accepts either
+// letter order ("AB" or "BA"), and the two rays may be listed in either order.
+function angleGroupValidate(angles) {
   const normPair = (s) => String(s).trim().toUpperCase().replace(/[^A-Z]/g, '').split('').sort().join('');
-  const targetRays = rayEnds.map(e => normPair(V + e)).sort().join('|');
+  const key = (vertex, rayEnds) => {
+    const V = vertex.trim().toUpperCase();
+    return V + '#' + rayEnds.map(e => normPair(V + e)).sort().join('|');
+  };
+  const targets = angles.map(([v, ends]) => key(v, ends));
   return (value) => {
     const parts = String(value).split(',').map(s => s.trim());
     if (parts.length < 3) return false;
-    const gotVertex = parts[0].toUpperCase().replace(/[^A-Z]/g, '');
-    if (gotVertex !== V) return false;
-    const gotRays = parts.slice(1, 3).map(normPair).sort().join('|');
-    return gotRays === targetRays;
+    const got = parts[0].toUpperCase().replace(/[^A-Z]/g, '') + '#'
+      + parts.slice(1, 3).map(normPair).sort().join('|');
+    return targets.includes(got);
   };
 }
+const bai18RightAngles = angleGroupValidate([['A', ['B', 'C']], ['R', ['Q', 'P']]]);
+const bai18OtherAngles = angleGroupValidate([['I', ['L', 'T']], ['M', ['N', 'P']], ['G', ['H', 'K']], ['E', ['X', 'Y']]]);
 
 // ── CONTENT: BÀI 1–8 (Tập Một) ──────────────────────────────────────────────
 
@@ -1588,6 +1594,174 @@ const UNITS = [
         q: '3. Một cây cầu đá có 11 tảng đá. Chú chuột túi đang ở tảng đá ghi số 1 (như hình vẽ). Mỗi lần nhảy, chuột túi sẽ nhảy từ một tảng đá sang tảng đá ghi số liền sau nó. Vậy: Chuột túi cần nhảy thêm bao nhiêu lần để đến được tảng đá chính giữa của cây cầu?',
         blanks: [{ label: 'Số lần cần nhảy thêm', answer: '4' }],
         hints: ['Cây cầu có 11 tảng đá ghi số từ 0 đến 10 — tảng đá chính giữa ghi số 5.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-17', number: 17, title: 'Hình tròn. Tâm, bán kính, đường kính của hình tròn',
+    questions: [
+      {
+        type: 'fill', img: imgBai17Circles,
+        q: '1. Viết tiếp vào chỗ chấm cho thích hợp.',
+        blanks: [
+          { label: 'a) Hình tròn tâm ...', answer: 'I' },
+          { label: 'a) Bán kính là các đoạn thẳng ...', answer: 'IA, IB', validate: letterGroupsValidate(['IA', 'IB']) },
+          { label: 'b) Hình tròn tâm ...', answer: 'O' },
+          { label: 'b) Bán kính là các đoạn thẳng ...', answer: 'OM, ON', validate: letterGroupsValidate(['OM', 'ON']) },
+          { label: 'b) Đường kính là đoạn thẳng ...', answer: 'MN', validate: letterGroupsValidate(['MN']) },
+        ],
+        hints: [
+          'Bán kính nối tâm hình tròn với một điểm trên đường tròn — ở hình a) có hai bán kính là IA và IB.',
+          'Đường kính là đoạn thẳng đi qua tâm, nối hai điểm trên đường tròn — ở hình b) đó là đoạn MN, và bán kính là OM, ON.',
+        ],
+      },
+      {
+        type: 'fill', img: imgBai17Bees,
+        q: '3. Viết số thích hợp vào chỗ chấm.\nTrong hình vẽ bên có ba hình tròn, mỗi hình tròn đều có bán kính 9cm. Chú ong bay đi lấy mật từ điểm A đến điểm C theo đường gấp khúc ABC. Vậy chú ong đã bay ... cm.',
+        blanks: [{ label: 'Độ dài đường gấp khúc ABC', answer: '36' }],
+        hints: [
+          'A, B, C là tâm của ba hình tròn đôi một tiếp xúc nhau, nên AB = BC = 9 + 9 = 18cm.',
+          'Độ dài đường gấp khúc ABC = AB + BC = 18 + 18 = 36cm.',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'bai-18', number: 18, title: 'Góc, góc vuông, góc không vuông',
+    questions: [
+      {
+        type: 'fill', img: imgBai18Angles,
+        q: '1. Dùng ê ke để kiểm tra góc vuông rồi viết tiếp vào chỗ chấm cho thích hợp.\nTrong hình vẽ có:',
+        blanks: [
+          { label: 'a) Các góc vuông là: Góc đỉnh ...; cạnh ..., ...', answer: 'A, AB, AC', validate: bai18RightAngles },
+          { label: 'a) Góc vuông: Góc đỉnh ...; cạnh ..., ...', answer: 'R, RQ, RP', validate: bai18RightAngles },
+          { label: 'b) Các góc không vuông là: Góc đỉnh ...; cạnh ..., ...', answer: 'I, IL, IT', validate: bai18OtherAngles },
+          { label: 'b) Góc không vuông: Góc đỉnh ...; cạnh ..., ...', answer: 'M, MN, MP', validate: bai18OtherAngles },
+          { label: 'b) Góc không vuông: Góc đỉnh ...; cạnh ..., ...', answer: 'G, GH, GK', validate: bai18OtherAngles },
+          { label: 'b) Góc không vuông: Góc đỉnh ...; cạnh ..., ...', answer: 'E, EX, EY', validate: bai18OtherAngles },
+        ],
+        hints: [
+          'Dùng ê ke áp vào từng góc: góc vuông là góc mà ê ke áp khít vào cả hai cạnh.',
+          'Hai góc vuông trong hình là góc đỉnh A (cạnh AB, AC) và góc đỉnh R (cạnh RQ, RP) — bốn góc còn lại (đỉnh I, M, G, E) đều không vuông.',
+        ],
+      },
+      {
+        type: 'choice', img: imgBai18Shapes,
+        q: '3. Tô màu vào hình có nhiều góc vuông nhất.\nHình nào có nhiều góc vuông nhất?',
+        options: ['Hình 1', 'Hình 2', 'Hình 3'],
+        answer: 2,
+        hints: [
+          'Hình 1 (hình chữ nhật) có 4 góc vuông. Hình 2 bị cắt một góc nên chỉ còn 3 góc vuông.',
+          'Hình 3 có thêm một chỗ khuyết vuông góc nên có tới 5 góc vuông — nhiều nhất trong ba hình.',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'bai-19', number: 19, title: 'Hình tam giác, hình tứ giác. Hình chữ nhật, hình vuông',
+    questions: [
+      {
+        type: 'table', section: 'Tiết 1',
+        q: '1. Viết tên các đỉnh và các cạnh của mỗi hình (theo mẫu).',
+        headers: [
+          `<img class="e3-q-img" style="max-width:120px;margin-top:0" src="${imgBai19Shape1}" alt="Hình tam giác DEH (mẫu)">`,
+          `<img class="e3-q-img" style="max-width:120px;margin-top:0" src="${imgBai19Shape2}" alt="Hình tam giác SAC">`,
+          `<img class="e3-q-img" style="max-width:120px;margin-top:0" src="${imgBai19Shape3}" alt="Hình tứ giác IKNM">`,
+        ],
+        rows: [
+          { label: 'Các đỉnh', cells: ['D, E, H', blank('A, S, C', { validate: letterGroupsValidate(['A', 'S', 'C']) }), blank('I, K, M, N', { validate: letterGroupsValidate(['I', 'K', 'M', 'N']) })] },
+          { label: 'Các cạnh', cells: ['DE, EH, HD', blank('SA, AC, CS', { validate: letterGroupsValidate(['SA', 'AC', 'CS']) }), blank('IK, KM, MN, NI', { validate: letterGroupsValidate(['IK', 'KM', 'MN', 'NI']) })] },
+        ],
+        hints: ['Đi vòng quanh hình theo đúng thứ tự các đỉnh nối tiếp nhau, giống cách làm ở cột mẫu.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai19Trapezoid,
+        q: '2. Viết tiếp vào chỗ chấm cho thích hợp.\nTrong hình vẽ bên có:',
+        blanks: [
+          { label: 'a) Các hình tam giác là: ...', answer: 'ABI, ICD, IBC', validate: letterGroupsValidate(['ABI', 'ICD', 'IBC']) },
+          { label: 'b) Các hình tứ giác là: ...', answer: 'ABCI, IBCD, ABCD', validate: letterGroupsValidate(['ABCI', 'IBCD', 'ABCD']) },
+        ],
+        hints: [
+          'Hai tam giác nhỏ hai bên là ABI và ICD; tam giác ở giữa là IBC (hai cạnh IB, IC và đáy BC).',
+          'Ghép hai tam giác liền kề được một tứ giác: ABI + IBC = tứ giác ABCI; IBC + ICD = tứ giác IBCD. Cả hình lớn ABCD cũng là một tứ giác.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai19T2Q1aShapes,
+        q: '1a. Tô màu vàng vào hình vuông, màu xanh vào hình chữ nhật.',
+        blanks: [
+          { label: 'Hình vuông (tô màu vàng) là hình ...', answer: 'MNPQ', validate: letterGroupsValidate(['MNPQ']) },
+          { label: 'Hình chữ nhật (tô màu xanh) là hình ...', answer: 'CDIH', validate: letterGroupsValidate(['CDIH']) },
+        ],
+        hints: ['Đếm số ô vuông theo chiều ngang và chiều dọc của mỗi hình trên lưới — hình vuông có hai chiều bằng nhau.'],
+      },
+      {
+        type: 'choice', section: 'Tiết 2', img: imgBai19T2Q1bShapes,
+        q: '1b. Khoanh vào chữ đặt trước câu trả lời đúng.\nTrong hình vẽ có mấy hình chữ nhật?',
+        options: ['1 hình', '2 hình', '3 hình', '4 hình'],
+        answer: 1,
+        hints: [
+          'Hình chữ nhật phải có 4 góc vuông. Hai hình bị nghiêng (MNPQ và RTXY) không có góc vuông nên không phải hình chữ nhật.',
+          'Chỉ có ABCD và EGIH là hình chữ nhật — 2 hình.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai19T2Colored,
+        q: '2. Đ, S?\nDùng thước có vạch chia xăng-ti-mét để đo độ dài các đoạn thẳng trong hình đã cho, ta có:',
+        blanks: [
+          { label: 'a) Hình vuông có cạnh 5cm.', answer: 'Đ', validate: dsValidate(true) },
+          { label: 'b) Hình chữ nhật có chiều rộng 4cm.', answer: 'S', validate: dsValidate(false) },
+          { label: 'c) Hình chữ nhật có chiều dài 2cm.', answer: 'S', validate: dsValidate(false) },
+        ],
+        hints: [
+          'Đo hình vuông: cạnh đúng bằng 5cm.',
+          'Đo hình chữ nhật: chiều dài khoảng 5cm, chiều rộng khoảng 2,5cm — không khớp với "chiều rộng 4cm" hay "chiều dài 2cm".',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai19T2Tiles,
+        q: '4. Viết số thích hợp vào chỗ chấm.\nMỗi viên gạch hoa trang trí có cạnh 5dm. Một hình chữ nhật được ghép bởi 6 viên gạch hoa như hình vẽ.',
+        blanks: [
+          { label: 'a) Chiều dài của hình chữ nhật đó là ... dm.', answer: '15' },
+          { label: 'b) Chiều rộng của hình chữ nhật đó là ... dm.', answer: '10' },
+        ],
+        hints: ['Hình chữ nhật ghép bởi 3 viên gạch theo chiều dài và 2 viên gạch theo chiều rộng, mỗi viên cạnh 5dm.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 3', img: imgBai19T3Ant,
+        q: '1. Viết số thích hợp vào chỗ chấm.\nCho ABCD là hình chữ nhật có BC = 20cm, CD = 50cm. Một con kiến đang ở điểm A (như hình vẽ).',
+        blanks: [
+          { label: 'a) Nếu con kiến muốn bò đến điểm B theo cạnh AB thì phải bò một đoạn đường dài ... cm.', answer: '50' },
+          { label: 'b) Nếu con kiến muốn bò đến điểm D theo cạnh AD thì phải bò một đoạn đường dài ... cm.', answer: '20' },
+          { label: 'c) Nếu con kiến muốn bò đến điểm C theo đường gấp khúc ABC thì phải bò một đoạn đường dài ... cm.', answer: '70' },
+        ],
+        hints: [
+          'AB = DC = 50cm và AD = BC = 20cm (hai cặp cạnh đối diện của hình chữ nhật bằng nhau).',
+          'Đường gấp khúc ABC = AB + BC = 50 + 20 = 70cm.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 3', img: imgBai19T3Snail,
+        q: '2. Viết số thích hợp vào chỗ chấm.\nRùa và Ốc sên thi chạy. Hai bạn cùng xuất phát từ điểm M chạy đến đích ở điểm N nhưng theo hai đường khác nhau. Ốc sên chạy đến đích theo cạnh MN, còn Rùa chạy đến đích theo đường gấp khúc MQPN. Biết rằng MNPQ là hình chữ nhật có NP = 50cm.',
+        blanks: [{ label: 'Đoạn đường Rùa chạy dài hơn đoạn đường Ốc sên chạy là ... cm.', answer: '100' }],
+        hints: [
+          'Rùa chạy MQ + QP + PN; Ốc sên chạy MN. Vì QP = MN (hai cạnh đối của hình chữ nhật) nên phần chênh lệch chỉ còn lại MQ + PN.',
+          'MQ = PN = NP = 50cm, nên chênh lệch = 50 + 50 = 100cm.',
+        ],
+      },
+      {
+        type: 'choice', section: 'Tiết 3',
+        q: '3a. Khoanh vào chữ đặt trước câu trả lời đúng.\nVới số lượng các que tính giống nhau nào dưới đây thì xếp được một hình vuông (không thừa que tính nào)?',
+        options: ['6 que tính', '7 que tính', '8 que tính'],
+        answer: 2,
+        hints: ['Hình vuông có 4 cạnh bằng nhau nên tổng số que tính phải chia hết cho 4 — chỉ có 8 chia hết cho 4.'],
+      },
+      {
+        type: 'choice', section: 'Tiết 3',
+        q: '3b. Khoanh vào chữ đặt trước câu trả lời đúng.\nVới số lượng các que tính giống nhau nào dưới đây thì không thể xếp được một hình chữ nhật (không thừa que tính nào)?',
+        options: ['6 que tính', '7 que tính', '10 que tính'],
+        answer: 1,
+        hints: ['Hình chữ nhật có 2 cặp cạnh bằng nhau nên tổng số que tính phải là số chẵn — 7 là số lẻ nên không thể xếp được.'],
       },
     ],
   },
