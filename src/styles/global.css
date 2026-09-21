@@ -232,7 +232,7 @@ body {
 /* ====== GLOBAL FULLSCREEN TOGGLE ====== */
 #global-fullscreen-btn {
   position: fixed;
-  top: 14px;
+  bottom: 14px;
   right: 14px;
   z-index: 1200;
   width: 2.4rem;
@@ -254,6 +254,12 @@ body {
   background: #fff;
   transform: scale(1.08);
 }
+/* The virtual keypad is now wide enough on phones to reach this same bottom-right
+   corner — hide the button while typing rather than let them overlap. */
+body.vk-active #global-fullscreen-btn {
+  opacity: 0;
+  pointer-events: none;
+}
 
 /* ====== SCROLLBAR ====== */
 ::-webkit-scrollbar { width: 6px; }
@@ -267,7 +273,7 @@ body {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%) translateY(100%);
-  width: 35vw;
+  width: min(92vw, 440px);
   z-index: 9000;
   background: #F1F5F9;
   border-top: 2px solid var(--border);

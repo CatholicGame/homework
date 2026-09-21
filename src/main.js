@@ -4,9 +4,13 @@
 
 import { renderHome } from './games/home.js';
 import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
+import { initLightbox } from './engine/lightbox.js';
 
 // Init virtual keyboard globally — auto-attaches to all number inputs
 initVirtualKeyboard();
+
+// Init image lightbox globally — tap any question illustration to enlarge it
+initLightbox();
 
 // Fullscreen toggle — persists across every page (home + all games)
 function initFullscreenButton() {
@@ -61,6 +65,7 @@ function navigate(gameId) {
     'exam': () => import('./games/exam.js'),
     'giao-ly': () => import('./games/giaoly.js'),
     'grade3-exam': () => import('./games/grade3Exam.js'),
+    'grade3-workbook': () => import('./games/grade3Workbook.js'),
   };
 
   const loader = gameModules[gameId];

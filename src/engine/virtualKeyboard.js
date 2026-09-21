@@ -52,12 +52,14 @@ function showKeyboard(input) {
   activeInput = input;
   panel = panel || createKeyboard();
   panel.classList.add('vk-visible');
+  document.body.classList.add('vk-active'); // hides the floating fullscreen button, which sits at bottom-right and would otherwise overlap the now-wide keypad's ✓ key
   input.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function hideKeyboard() {
   activeInput = null;
   if (panel) panel.classList.remove('vk-visible');
+  document.body.classList.remove('vk-active');
 }
 
 function pressKey(key) {

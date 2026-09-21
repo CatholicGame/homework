@@ -292,16 +292,6 @@ export function render(app, onBack) {
         <div class="e3-solution-toolbar">
           ${['+', '−', '×', '÷', '=', '(', ')'].map(s => `<button type="button" class="e3-sym-btn" data-sym="${s}">${s}</button>`).join('')}
         </div>
-        <div class="e3-insert-row">
-          <div class="e3-insert-group">
-            <input type="number" inputmode="numeric" class="e3-insert-number" id="e3-insert-number" placeholder="Số">
-            <button type="button" class="e3-insert-btn" id="e3-insert-number-btn" title="Chèn số vào dòng phép tính">Chèn số</button>
-          </div>
-          <div class="e3-insert-group">
-            <input type="text" class="e3-insert-text" id="e3-insert-text" placeholder="Chữ / đơn vị">
-            <button type="button" class="e3-insert-btn" id="e3-insert-text-btn" title="Chèn chữ vào dòng phép tính">Chèn chữ</button>
-          </div>
-        </div>
         <div class="e3-solution-controls">
           <button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-add-text-row">+ Dòng chữ</button>
           <button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-add-formula-row">+ Dòng phép tính</button>
@@ -374,36 +364,19 @@ export function render(app, onBack) {
       focusLastSolutionRow();
     };
 
-    const getInsertTarget = () => (
-      lastFocusedFormulaInput && rowsContainer.contains(lastFocusedFormulaInput)
-        ? lastFocusedFormulaInput
-        : rowsContainer.querySelector('.e3-sol-row-formula-input')
-    );
-
-    const insertIntoFormula = (text) => {
-      const target = getInsertTarget();
-      if (!target || !text) return;
-      insertAtCursor(target, text);
-      const i = parseInt(target.dataset.rowIdx, 10);
-      solutionRows[current][i].value = target.value;
-      syncOkState();
-      target.focus();
-    };
-
     app.querySelectorAll('.e3-sym-btn').forEach(btn => {
-      btn.onclick = () => insertIntoFormula(btn.dataset.sym);
+      btn.onclick = () => {
+        const target = lastFocusedFormulaInput && rowsContainer.contains(lastFocusedFormulaInput)
+          ? lastFocusedFormulaInput
+          : rowsContainer.querySelector('.e3-sol-row-formula-input');
+        if (!target) return;
+        insertAtCursor(target, btn.dataset.sym);
+        const i = parseInt(target.dataset.rowIdx, 10);
+        solutionRows[current][i].value = target.value;
+        syncOkState();
+        target.focus();
+      };
     });
-
-    const numBox = app.querySelector('#e3-insert-number');
-    const textBox = app.querySelector('#e3-insert-text');
-    const insertFromBox = (box) => {
-      insertIntoFormula(box.value);
-      box.value = '';
-    };
-    app.querySelector('#e3-insert-number-btn').onclick = () => insertFromBox(numBox);
-    app.querySelector('#e3-insert-text-btn').onclick = () => insertFromBox(textBox);
-    numBox.addEventListener('keyup', (e) => { if (e.key === 'Enter') insertFromBox(numBox); });
-    textBox.addEventListener('keyup', (e) => { if (e.key === 'Enter') insertFromBox(textBox); });
 
     okBtn.onclick = () => {
       solutionConfirmed[current] = true;
@@ -799,14 +772,14 @@ function injectStyles() {
     .e3-progress-label { color: #475569; font-size: 0.85rem; white-space: nowrap; font-weight: 600; }
     .e3-question-card { background: #fff; border-radius: 1.2rem; padding: 1.4rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
     .e3-q-num { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-    .e3-q-text { font-size: clamp(0.95rem, 2.8vw, 1.1rem); font-weight: 700; color: #1E293B; line-height: 1.5; white-space: pre-line; }
+    .e3-q-text { font-size: clamp(1.05rem, 3.1vw, 1.25rem); font-weight: 700; color: #1E293B; line-height: 1.5; white-space: pre-line; }
     .e3-q-img { max-width: 100%; margin-top: 0.8rem; border-radius: 0.75rem; display: block; }
 
     .e3-options { display: flex; flex-direction: column; gap: 0.6rem; }
     .e3-option {
       display: flex; align-items: flex-start; gap: 0.8rem; background: #fff;
       border: 2px solid transparent; border-radius: 1rem; padding: 0.9rem 1rem; cursor: pointer;
-      text-align: left; font-family: inherit; font-size: 0.93rem; font-weight: 600; color: #1e293b;
+      text-align: left; font-family: inherit; font-size: 1.05rem; font-weight: 600; color: #1e293b;
       transition: background 0.15s, border-color 0.15s, transform 0.1s; box-shadow: 0 2px 8px rgba(0,0,0,0.08); line-height: 1.4;
     }
     .e3-option:hover:not(:disabled) { border-color: #34D399; transform: translateX(3px); }
@@ -821,12 +794,12 @@ function injectStyles() {
 
     .e3-blanks { display: flex; flex-direction: column; gap: 0.7rem; }
     .e3-blank-row { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; background: #fff; border-radius: 0.9rem; padding: 0.7rem 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    .e3-blank-label { font-size: 0.88rem; font-weight: 600; color: #374151; flex: 1; }
-    .e3-blank-input { width: 90px; height: 42px; text-align: center; font-size: 1.05rem; font-weight: 700; border: 2px solid #e2e8f0; border-radius: 0.6rem; }
+    .e3-blank-label { font-size: 1rem; font-weight: 600; color: #374151; flex: 1; }
+    .e3-blank-input { width: 90px; height: 42px; text-align: center; font-size: 1.2rem; font-weight: 700; border: 2px solid #e2e8f0; border-radius: 0.6rem; }
     .e3-blank-input:disabled.e3-correct-input { border-color: #22c55e; background: #dcfce7; color: #166534; }
     .e3-blank-input:disabled.e3-wrong-input { border-color: #ef4444; background: #fee2e2; color: #991b1b; }
 
-    .e3-feedback { border-radius: 0.85rem; padding: 0.85rem 1.1rem; font-size: 0.93rem; font-weight: 600; margin-top: 0.8rem; line-height: 1.45; }
+    .e3-feedback { border-radius: 0.85rem; padding: 0.85rem 1.1rem; font-size: 1.05rem; font-weight: 600; margin-top: 0.8rem; line-height: 1.45; }
     .e3-feedback-right { background: #dcfce7; color: #166534; border: 1.5px solid #86efac; }
     .e3-feedback-wrong { background: #fee2e2; color: #991b1b; border: 1.5px solid #fca5a5; }
     .e3-nav { margin-top: 1rem; justify-content: flex-end; }
@@ -835,35 +808,29 @@ function injectStyles() {
     /* ── SOLUTION EDITOR ── */
     .e3-solution { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 1rem; padding: 1rem; margin-top: 1rem; display: flex; flex-direction: column; gap: 0.7rem; }
     .e3-solution-locked { border-style: solid; border-color: #e2e8f0; background: #fff; }
-    .e3-solution-label { font-weight: 700; font-size: 0.9rem; color: #334155; }
+    .e3-solution-label { font-weight: 700; font-size: 1rem; color: #334155; }
     .e3-solution-rows { display: flex; flex-direction: column; gap: 0.5rem; }
     .e3-sol-row { display: flex; align-items: center; gap: 0.5rem; }
     .e3-sol-row-icon { font-size: 1rem; flex-shrink: 0; }
-    .e3-sol-row-input { flex: 1; border: 2px solid #e2e8f0; border-radius: 0.6rem; padding: 0.5rem 0.7rem; font-family: inherit; font-size: 0.9rem; min-width: 0; }
+    .e3-sol-row-input { flex: 1; border: 2px solid #e2e8f0; border-radius: 0.6rem; padding: 0.5rem 0.7rem; font-family: inherit; font-size: 1rem; min-width: 0; }
     .e3-sol-row-input:focus { outline: none; border-color: #34D399; }
     .e3-sol-row-formula-input { font-family: 'Courier New', monospace; font-weight: 700; }
     .e3-sol-row-remove { background: none; border: none; color: #94a3b8; font-size: 0.9rem; cursor: pointer; flex-shrink: 0; width: 1.7rem; height: 1.7rem; border-radius: 0.4rem; }
     .e3-sol-row-remove:hover { background: #fee2e2; color: #ef4444; }
     .e3-sol-row-readonly { background: #f8fafc; border-radius: 0.6rem; padding: 0.5rem 0.7rem; }
-    .e3-sol-row-text-display { flex: 1; font-size: 0.9rem; color: #334155; white-space: pre-wrap; word-break: break-word; }
+    .e3-sol-row-text-display { flex: 1; font-size: 1rem; color: #334155; white-space: pre-wrap; word-break: break-word; }
     .e3-sol-empty { font-size: 0.85rem; color: #94a3b8; font-style: italic; }
     .e3-solution-toolbar { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .e3-sym-btn { width: 2.1rem; height: 2.1rem; border-radius: 0.5rem; border: 2px solid #e2e8f0; background: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; color: #1e293b; font-family: inherit; }
     .e3-sym-btn:hover { border-color: #34D399; }
-    .e3-insert-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
-    .e3-insert-group { display: flex; align-items: center; gap: 0.4rem; background: #fff; border: 2px solid #e2e8f0; border-radius: 0.6rem; padding: 0.25rem 0.3rem 0.25rem 0.6rem; flex: 1; min-width: 150px; }
-    .e3-insert-number, .e3-insert-text { border: none; outline: none; width: 100%; min-width: 0; font-size: 0.9rem; font-family: inherit; padding: 0.35rem 0; background: transparent; }
-    .e3-insert-number { font-family: 'Courier New', monospace; font-weight: 700; }
-    .e3-insert-btn { flex-shrink: 0; background: #34D399; color: #fff; border: none; border-radius: 0.5rem; padding: 0.45rem 0.7rem; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit; }
-    .e3-insert-btn:hover { background: #22c55e; }
     .e3-solution-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .e3-btn-sm { width: auto; padding: 0.5rem 0.9rem; font-size: 0.85rem; }
     .e3-solution-controls .e3-btn-sm { flex: 1; }
-    .e3-answer-locked-note { text-align: center; padding: 0.9rem; color: #94a3b8; font-size: 0.85rem; font-style: italic; background: #f8fafc; border-radius: 0.8rem; margin-top: 0.9rem; }
+    .e3-answer-locked-note { text-align: center; padding: 0.9rem; color: #94a3b8; font-size: 0.95rem; font-style: italic; background: #f8fafc; border-radius: 0.8rem; margin-top: 0.9rem; }
 
     /* ── HINTS ── */
     .e3-hints { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.9rem; }
-    .e3-hint-item { border-radius: 0.75rem; padding: 0.7rem 0.9rem; font-size: 0.85rem; line-height: 1.45; }
+    .e3-hint-item { border-radius: 0.75rem; padding: 0.7rem 0.9rem; font-size: 0.95rem; line-height: 1.45; }
     .e3-hint-item.e3-hint-unlocked { background: #fef9c3; color: #713f12; border: 1.5px solid #fde68a; }
     .e3-hint-item.e3-hint-locked { background: #f1f5f9; color: #94a3b8; border: 1.5px dashed #cbd5e1; font-style: italic; }
 
