@@ -64,6 +64,19 @@ import imgBai19T2Colored from '../assets/grade3-workbook/bai19_t2_q2_colored.png
 import imgBai19T2Tiles from '../assets/grade3-workbook/bai19_t2_q4_tiles.png';
 import imgBai19T3Ant from '../assets/grade3-workbook/bai19_t3_q1_ant.png';
 import imgBai19T3Snail from '../assets/grade3-workbook/bai19_t3_q2_snail.png';
+import imgBai20Envelope from '../assets/grade3-workbook/bai20_q2_envelope.png';
+import imgBai21Cube from '../assets/grade3-workbook/bai21_q1_cube.png';
+import imgBai21Eraser from '../assets/grade3-workbook/bai21_q2_eraser.png';
+import imgBai21Blocks from '../assets/grade3-workbook/bai21_q3_blocks.png';
+import imgBai21Lantern from '../assets/grade3-workbook/bai21_q4_lantern.png';
+import imgBai21Artists from '../assets/grade3-workbook/bai21_q5_artists.png';
+import imgBai22T1Rects from '../assets/grade3-workbook/bai22_t1_q1_rects.png';
+import imgBai22T1Circles from '../assets/grade3-workbook/bai22_t1_q2_circles.png';
+import imgBai22T1Pond from '../assets/grade3-workbook/bai22_t1_q3_pond.png';
+import imgBai22T2Figure from '../assets/grade3-workbook/bai22_t2_q1_figure.png';
+import imgBai22T2Cube from '../assets/grade3-workbook/bai22_t2_q2_cube.png';
+import imgBai22T2ClocksA from '../assets/grade3-workbook/bai22_t2_q3a_clocks.png';
+import imgBai22T2ClocksB from '../assets/grade3-workbook/bai22_t2_q3b_clocks.png';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
 
@@ -1762,6 +1775,174 @@ const UNITS = [
         options: ['6 que tính', '7 que tính', '10 que tính'],
         answer: 1,
         hints: ['Hình chữ nhật có 2 cặp cạnh bằng nhau nên tổng số que tính phải là số chẵn — 7 là số lẻ nên không thể xếp được.'],
+      },
+    ],
+  },
+  {
+    // Bài 20 là bài "thực hành vẽ": hầu hết các bài tập đều là vẽ tay trên giấy
+    // ô vuông (vẽ góc vuông, vẽ đường tròn, vẽ hình theo mẫu, vẽ trang trí) hoặc
+    // tìm đồ vật quanh em — không thể chấm trên máy. Chỉ có Tiết 1 bài 2a là
+    // câu hỏi đếm có đáp án xác định.
+    id: 'bai-20', number: 20, title: 'Thực hành vẽ góc vuông, vẽ đường tròn, hình vuông, hình chữ nhật và vẽ trang trí',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai20Envelope,
+        q: '2. Viết tiếp vào chỗ chấm cho thích hợp.',
+        blanks: [
+          { label: 'a) Dùng ê ke để kiểm tra góc vuông, em tìm được trong hình bên có ... góc vuông.', answer: '5' },
+        ],
+        hints: [
+          'Hình chiếc phong bì có một hình chữ nhật bao ngoài — riêng bốn góc của hình chữ nhật đã là 4 góc vuông.',
+          'Nắp phong bì là hai nét chéo gặp nhau ở chính giữa cạnh dưới; áp ê ke vào đỉnh chữ V đó cũng được một góc vuông nữa, tất cả là 5 góc vuông.',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'bai-21', number: 21, title: 'Khối lập phương, khối hộp chữ nhật',
+    questions: [
+      {
+        type: 'fill', img: imgBai21Cube,
+        q: '1. Số?\nChiếc khung sắt của rạp xiếc có dạng khối lập phương với các cạnh được sơn màu xanh và đen (như hình vẽ).',
+        blanks: [
+          { label: 'a) Khung sắt đó có tất cả ... cạnh màu đen, ... cạnh màu xanh.', answer: '4,8', validate: listValidate(['4', '8']) },
+          { label: 'b) Nghệ sĩ xiếc ảo thuật cần lắp các tấm gỗ hình vuông vừa khít các mặt của chiếc khung đó. Nghệ sĩ cần dùng tất cả ... tấm gỗ như vậy.', answer: '6' },
+        ],
+        hints: [
+          'Khối lập phương có 12 cạnh. Đếm trên hình: 4 cạnh chéo được sơn màu đen, 12 − 4 = 8 cạnh còn lại màu xanh.',
+          'Khối lập phương có 6 mặt, mỗi mặt cần một tấm gỗ hình vuông nên cần 6 tấm.',
+        ],
+      },
+      {
+        type: 'fill', img: imgBai21Eraser,
+        q: '2. Số?\nMột cục tẩy dạng khối hộp chữ nhật gồm hai nửa màu xám và màu xanh (như hình vẽ).',
+        blanks: [
+          { label: 'Khối hộp chữ nhật đó có ... đỉnh ở nửa màu xanh và ... đỉnh ở nửa màu xám.', answer: '4,4', validate: listValidate(['4', '4']) },
+        ],
+        hints: ['Khối hộp chữ nhật có 8 đỉnh. Cục tẩy được chia đôi ở giữa nên mỗi nửa giữ 4 đỉnh: 4 đỉnh ở nửa màu xanh và 4 đỉnh ở nửa màu xám.'],
+      },
+      {
+        type: 'fill', img: imgBai21Blocks,
+        q: '3. Số?\nTrong hình là các khối gỗ dạng khối lập phương đặt sát nhau. Một con kiến bò từ A đến B theo đường kẻ màu trắng (như hình vẽ).',
+        blanks: [
+          { label: 'Đường đi của con kiến đã chạm vào tất cả ... cạnh của các khối gỗ.', answer: '5' },
+        ],
+        hints: [
+          'Điểm A nằm ngay trên một cạnh của khối gỗ thứ nhất và điểm B nằm ngay trên một cạnh của khối gỗ nhỏ cuối cùng — đó đã là 2 cạnh.',
+          'Trên đường đi, con kiến còn vượt qua cạnh giữa hai khối gỗ liền nhau 3 lần nữa, tất cả là 2 + 3 = 5 cạnh.',
+        ],
+      },
+      {
+        type: 'fill', img: imgBai21Lantern,
+        q: '4. Viết số thích hợp vào chỗ chấm.\nChú Tư làm những chiếc đèn lồng có khung dạng khối lập phương (như hình vẽ). Ở mỗi đỉnh của chiếc khung, chú Tư dùng một sợi dây lạt để buộc.',
+        blanks: [
+          { label: 'Để làm 5 chiếc khung đèn như vậy thì chú Tư cần dùng ... sợi dây lạt.', answer: '40' },
+        ],
+        hints: ['Mỗi khung dạng khối lập phương có 8 đỉnh nên cần 8 sợi dây lạt. Làm 5 chiếc khung cần 8 × 5 = 40 sợi dây lạt.'],
+      },
+      {
+        // Câu 5a của sách là "tô màu xanh các cạnh mà nghệ sĩ đang bám vào" —
+        // bài tô màu nên không đưa vào ứng dụng; chỉ giữ câu 5b có đáp án số.
+        type: 'fill', img: imgBai21Artists,
+        q: '5b. Số?\nBa nghệ sĩ xiếc đang biểu diễn trên chiếc khung thép dạng khối hộp chữ nhật (như hình vẽ).',
+        blanks: [
+          { label: 'Có ... cạnh của chiếc khung mà các nghệ sĩ không bám vào.', answer: '9' },
+        ],
+        hints: [
+          'Khối hộp chữ nhật có 12 cạnh. Nhìn kĩ hình: bạn gái bám hai tay vào cùng một cạnh phía trên, chú nghệ sĩ nằm ngang bám hai tay vào cùng một cạnh đứng, bạn trồng chuối chống hai tay xuống cùng một cạnh dưới.',
+          'Vậy chỉ có 3 cạnh được bám vào, còn lại 12 − 3 = 9 cạnh không có ai bám.',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'bai-22', number: 22, title: 'Luyện tập chung (hình học)',
+    questions: [
+      {
+        type: 'choice', section: 'Tiết 1', img: imgBai22T1Rects,
+        q: '1. Bạn Việt vẽ một hình chữ nhật trên giấy ô vuông rồi vẽ trung điểm mỗi cạnh của hình chữ nhật đó. Em hãy khoanh vào chữ đặt dưới hình mà bạn Việt đã vẽ.',
+        options: ['Hình A', 'Hình B', 'Hình C'],
+        answer: 2,
+        hints: [
+          'Trung điểm của một cạnh phải nằm đúng chính giữa cạnh đó — hãy đếm số ô vuông từ mỗi đầu cạnh đến chấm tròn.',
+          'Hình A có chấm ở cạnh trái và cạnh dưới bị lệch, hình B có chấm ở cạnh trên bị lệch. Chỉ hình C có cả 4 chấm đều nằm đúng chính giữa mỗi cạnh.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai22T1Circles,
+        q: '2. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: 'Dán bốn tờ giấy hình tròn bán kính 3cm vào một hình vuông (như hình vẽ). Vậy cạnh hình vuông đó dài ... cm.', answer: '12' },
+        ],
+        hints: [
+          'Mỗi hình tròn có bán kính 3cm nên đường kính là 3 + 3 = 6cm.',
+          'Theo mỗi cạnh của hình vuông có 2 hình tròn nằm sát nhau, vậy cạnh hình vuông dài 6 + 6 = 12cm.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai22T1Pond,
+        q: '3. Viết số thích hợp vào chỗ chấm.\nNgôi nhà của gọng vó là một cái ao nhỏ hình chữ nhật, trong đó có các lá súng dạng hình tròn (như hình vẽ). Biết rằng các lá to có đường kính 10cm và các lá nhỏ có đường kính 5cm.',
+        blanks: [
+          { label: 'a) Chiều dài của cái ao là ... cm.', answer: '30' },
+          { label: 'b) Chiều rộng của cái ao là ... cm.', answer: '20' },
+        ],
+        hints: [
+          'Theo chiều dài (từ trên xuống) có 2 lá to và 2 lá nhỏ xếp sát nhau: 10 + 10 + 5 + 5 = 30cm.',
+          'Theo chiều rộng (hàng trên cùng) có 2 lá nhỏ và 1 lá to xếp sát nhau: 5 + 5 + 10 = 20cm.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai22T2Figure,
+        q: '1. Quan sát hình vẽ dưới đây rồi viết tiếp vào chỗ chấm cho thích hợp.',
+        blanks: [
+          {
+            label: 'a) Trong hình vẽ có: Các hình tam giác là: ...',
+            answer: 'ACD, ABC, BCE, ABG',
+            validate: letterGroupsValidate(['ACD', 'ABC', 'BCE', 'ABG']),
+          },
+          {
+            label: 'a) Các hình tứ giác là: ...',
+            answer: 'ABCD, ACEB, ACBG, DCBG',
+            validate: letterGroupsValidate(['ABCD', 'ACEB', 'ACBG', 'DCBG']),
+          },
+          { label: 'b) Dùng ê ke, em tìm được trong hình vẽ có tất cả ... góc vuông.', answer: '4' },
+        ],
+        hints: [
+          'Ba điểm D, A, G nằm trên cùng một đường thẳng. Bốn hình tam giác là ACD, ABC, BCE và ABG.',
+          'Ghép các tam giác liền kề lại được bốn hình tứ giác: ABCD, ACEB, ACBG và DCBG.',
+          'Bốn góc vuông là: góc đỉnh C (cạnh CD, CA), góc đỉnh A (cạnh AC, AB), góc đỉnh B (cạnh BA, BG) và góc đỉnh B (cạnh BC, BE).',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai22T2Cube,
+        q: '2. Số?\nGhép 8 khối lập phương nhỏ thành một khối lập phương lớn (như hình vẽ). Người ta sơn màu xanh bốn mặt xung quanh của khối lập phương lớn.',
+        blanks: [
+          { label: 'Như vậy, có tất cả ... mặt của các khối lập phương nhỏ được sơn màu xanh.', answer: '16' },
+        ],
+        hints: [
+          'Mỗi mặt của khối lập phương lớn được ghép bởi 4 mặt của các khối lập phương nhỏ.',
+          'Sơn 4 mặt xung quanh nên có 4 × 4 = 16 mặt của các khối lập phương nhỏ được sơn màu xanh.',
+        ],
+      },
+      {
+        type: 'choice', section: 'Tiết 2', img: imgBai22T2ClocksA,
+        q: '3a. Khoanh vào chữ đặt trước câu trả lời đúng.\nĐồng hồ nào sau đây có kim giờ và kim phút tạo thành một góc vuông?',
+        options: ['Đồng hồ A', 'Đồng hồ B', 'Đồng hồ C'],
+        answer: 1,
+        hints: [
+          'Đồng hồ A chỉ 6 giờ — hai kim tạo thành một đường thẳng, không phải góc vuông. Đồng hồ C chỉ 10 giờ — góc nhỏ hơn góc vuông.',
+          'Đồng hồ B chỉ 9 giờ: kim phút chỉ số 12, kim giờ chỉ số 9 nên hai kim tạo thành một góc vuông.',
+        ],
+      },
+      {
+        type: 'choice', section: 'Tiết 2', img: imgBai22T2ClocksB,
+        q: '3b. Khoanh vào chữ đặt trước câu trả lời đúng.\nĐồng hồ nào sau đây có kim giờ và kim phút tạo thành một góc không vuông?',
+        options: ['Đồng hồ A', 'Đồng hồ B', 'Đồng hồ C'],
+        answer: 2,
+        hints: [
+          'Đồng hồ A chỉ 9 giờ và đồng hồ B chỉ 3 giờ — cả hai đều có hai kim tạo thành góc vuông.',
+          'Đồng hồ C chỉ 5 giờ: góc giữa hai kim lớn hơn góc vuông nên đó là góc không vuông.',
+        ],
       },
     ],
   },
