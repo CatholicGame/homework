@@ -80,8 +80,10 @@ function pressKey(key) {
     hideKeyboard();
     return;
   } else {
-    // Digit — max 4 chars to avoid overflow
-    if (activeInput.value.length >= 4) return;
+    // Digit — max 4 chars to avoid overflow (or the input's own maxlength,
+    // e.g. a one-digit "ô trống" box in the grade-3 workbook)
+    const maxChars = activeInput.maxLength > 0 ? Math.min(4, activeInput.maxLength) : 4;
+    if (activeInput.value.length >= maxChars) return;
     // Handle leading minus for negative answers
     if (key === '-' && activeInput.value.length === 0) {
       activeInput.value = '-';

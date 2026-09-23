@@ -77,6 +77,40 @@ import imgBai22T2Figure from '../assets/grade3-workbook/bai22_t2_q1_figure.png';
 import imgBai22T2Cube from '../assets/grade3-workbook/bai22_t2_q2_cube.png';
 import imgBai22T2ClocksA from '../assets/grade3-workbook/bai22_t2_q3a_clocks.png';
 import imgBai22T2ClocksB from '../assets/grade3-workbook/bai22_t2_q3b_clocks.png';
+import imgBai23T2Puzzle from '../assets/grade3-workbook/bai23_t2_q3_puzzle.png';
+import imgBai26T2Divisions from '../assets/grade3-workbook/bai26_t2_q2_divisions.png';
+import imgBai28T1Polyline from '../assets/grade3-workbook/bai28_t1_q2_polyline.png';
+import imgBai28T2Summary from '../assets/grade3-workbook/bai28_t2_q3_summary.png';
+import imgBai30T1Rulers from '../assets/grade3-workbook/bai30_t1_q2_rulers.png';
+import imgBai31Scales from '../assets/grade3-workbook/bai31_q1_scales.png';
+import imgBai31Dials from '../assets/grade3-workbook/bai31_q2_dials.png';
+import imgBai32Bottle from '../assets/grade3-workbook/bai32_q1_bottle.png';
+import imgBai32Flask from '../assets/grade3-workbook/bai32_q2_flask.png';
+import imgBai34T2Thermometers from '../assets/grade3-workbook/bai34_t2_q1_thermometers.png';
+import imgBai34T2Bike from '../assets/grade3-workbook/bai34_t2_q2_bike.png';
+import imgBai34T2Laptop from '../assets/grade3-workbook/bai34_t2_q2_laptop.png';
+import imgBai34T2Pen from '../assets/grade3-workbook/bai34_t2_q2_pen.png';
+import imgBai34T2Cups from '../assets/grade3-workbook/bai34_t2_q3_cups.png';
+import imgBai35T1Scales from '../assets/grade3-workbook/bai35_t1_q2_scales.png';
+import imgBai35T2Thermometer from '../assets/grade3-workbook/bai35_t2_q2_thermometer.png';
+import imgBai35T2Gifts from '../assets/grade3-workbook/bai35_t2_q4_gifts.png';
+import imgBai37T2Divisions from '../assets/grade3-workbook/bai37_t2_q3_divisions.png';
+import imgBai37T2Hexagons from '../assets/grade3-workbook/bai37_t2_q4_hexagons.png';
+import imgBai37T3Archery from '../assets/grade3-workbook/bai37_t3_q4_archery.png';
+import imgBai39T1Segments from '../assets/grade3-workbook/bai39_t1_q2_segments.png';
+import imgBai41T1Calcs from '../assets/grade3-workbook/bai41_t1_q3_calcs.png';
+import imgBai41T2Calcs from '../assets/grade3-workbook/bai41_t2_q3_calcs.png';
+import imgBai41T2Puzzles from '../assets/grade3-workbook/bai41_t2_q5_puzzles.png';
+import imgBai41T3Strawberries from '../assets/grade3-workbook/bai41_t3_q4_strawberries.png';
+import imgBai41T3Puzzle from '../assets/grade3-workbook/bai41_t3_q5_puzzle.png';
+import imgBai43T1Figure from '../assets/grade3-workbook/bai43_t1_q1_figure.png';
+import imgBai43T1Circle from '../assets/grade3-workbook/bai43_t1_q3_circle.png';
+import imgBai43T1Castle from '../assets/grade3-workbook/bai43_t1_q4_castle.png';
+import imgBai43T1Box from '../assets/grade3-workbook/bai43_t1_q5_box.png';
+import imgBai43T2Figures from '../assets/grade3-workbook/bai43_t2_q1_figures.png';
+import imgBai43T2Objects from '../assets/grade3-workbook/bai43_t2_q2_objects.png';
+import imgBai44T1Rect from '../assets/grade3-workbook/bai44_t1_q3_rect.png';
+import imgBai44T2Figures from '../assets/grade3-workbook/bai44_t2_q3_figures.png';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
 
@@ -186,8 +220,194 @@ function angleGroupValidate(angles) {
     return targets.includes(got);
   };
 }
+// Strips every Vietnamese diacritic (and đ → d) so a free-typed name/phrase is
+// accepted with or without accents: "Rô-bốt" / "Robot", "Địa đạo" / "dia dao".
+function stripVN(s) {
+  return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[đĐ]/g, 'd').toLowerCase();
+}
+
+// Bài 23 Tiết 2 Q2 (ô chữ): one letter per table cell, case-insensitive. The
+// letter "Đ" also accepts a plain "D" (same typo allowance as dsValidate).
+function letterValidate(letter) {
+  const target = stripVN(letter);
+  return (value) => stripVN(String(value).trim()) === target;
+}
+
+// A whole phrase compared without accents, case or spacing — "Địa đạo Củ Chi",
+// "ĐỊA ĐẠO CỦ CHI", "dia dao cu chi" and "ĐIA ĐAO CU CHI" (the literal
+// unaccented letters the cipher spells out) are all the same answer.
+function phraseValidate(phrase) {
+  const norm = (s) => stripVN(s).replace(/[^a-z0-9]/g, '');
+  const target = norm(phrase);
+  return (value) => norm(value) === target;
+}
+
+// An unordered set of names written in one blank ("Rô-bốt và Mai",
+// "Mai, Rô-bốt", "Robot va Mai" are all the same answer).
+function nameSetValidate(names) {
+  const norm = (s) => stripVN(s).replace(/[^a-z0-9]/g, '');
+  const target = names.map(norm).sort().join('|');
+  return (value) => stripVN(value).split(/\s*(?:,|;|&|\+|\bva\b)\s*/)
+    .map(norm).filter(Boolean).sort().join('|') === target;
+}
+
+// A given table cell printed in the book's blue "theo mẫu" color when the
+// sample is a single column/cell rather than a whole row (Bài 23, Bài 24).
+function sampleCell(value) {
+  return { sample: true, value };
+}
+
+// "Tính." / "Đặt tính rồi tính." for a division (Bài 25, Bài 26): the book's
+// long-division layout ends with the quotient under the divisor and the
+// remainder on the last line (0 for an exact division), so each one asks for
+// both. Computed here rather than hand-typed so a quotient/remainder typo is
+// impossible.
+function divBlank(dividend, divisor) {
+  const quot = Math.floor(dividend / divisor);
+  const rem = dividend % divisor;
+  return {
+    label: `${dividend} : ${divisor} = ... (dư ...)`,
+    answer: `${quot},${rem}`,
+    validate: listValidate([String(quot), String(rem)]),
+  };
+}
+
+// Several phrase blanks in one row (Bài 27 "Viết “gấp 2 lần” hoặc “giảm 3
+// lần”" — two dotted lines on one arrow chain): each slot is compared like
+// phraseValidate (no accents/case/spacing needed), in the book's order.
+function phraseListValidate(phrases) {
+  const norm = (s) => stripVN(s).replace(/[^a-z0-9]/g, '');
+  const target = phrases.map(norm).join('|');
+  return (value) => String(value).split(',').map(norm).join('|') === target;
+}
+
+// A name answer that may be written with or without the word "con" in front
+// ("cào cào" / "con cào cào" / "cao cao").
+function animalValidate(name) {
+  const check = phraseValidate(name);
+  return (value) => check(String(value).trim().replace(/^con\s+/i, ''));
+}
+
+// A measurement result whose unit the book leaves for the child to write
+// (Bài 32 "250 ml + 100 ml = ........"): "350", "350 ml" and "350ml" are all
+// accepted, but not a wrong unit ("350 g").
+function unitValidate(n, unit) {
+  const target = String(n);
+  const u = unit.toLowerCase().replace(/\s+/g, '');
+  return (value) => {
+    const v = String(value).toLowerCase().replace(/\s+/g, '');
+    return v === target || v === target + u;
+  };
+}
+
+// A temperature written in the "Viết" column (Bài 33): "35", "35 °C", "35°C",
+// "35 độ C", "35 oC" are all the same answer.
+function tempValidate(n) {
+  const re = new RegExp(`^${n}(°c?|oc|c|doc|doxe)?$`);
+  return (value) => re.test(stripVN(value).replace(/\s+/g, ''));
+}
+
+// A temperature read out in words (Bài 33 "Đọc" column): "Mười lăm độ xê",
+// also accepted as "mười lăm độ C", with or without accents/case.
+function tempReadValidate(numberWords) {
+  const n = stripVN(numberWords).replace(/[^a-z]/g, '');
+  const ok = new Set([n + 'doxe', n + 'doc']);
+  return (value) => ok.has(stripVN(value).replace(/[^a-z]/g, ''));
+}
+
+// Names that must be written in one specific order in a single blank (Bài 33
+// "từ cao nhất đến thấp nhất": "Trưa, Chiều, Sáng sớm, Đêm"). Separators,
+// accents, case and any temperatures copied from the table ("Trưa (30 °C)")
+// don't matter — only the order of the names.
+function phraseOrderValidate(phrases) {
+  const norm = (x) => stripVN(x).replace(/\d+\s*(°\s*c?|do\s*(c|xe)\b)?/g, '').replace(/[^a-z]/g, '');
+  const target = phrases.map(norm).join('');
+  return (value) => norm(value) === target;
+}
+
+// A "Mẫu:" worked example inside q, printed in the book's blue sample color
+// (the same blue as a sampleCell) — the word "Mẫu:" itself stays black.
+function mau(text) {
+  return `Mẫu: <span class="gw-sample-text">${text}</span>`;
+}
+
+// One step line of "Tính giá trị của biểu thức" (Bài 38): the book's first
+// "= ......" line holds the expression left after the first operation
+// ("162 + 29 − 18 = 191 − 18"). Spacing, a leading "=", and the ASCII/typed
+// variants of each operator (- for −, x or * for ×, / or ÷ for :) don't matter.
+function exprValidate(...exprs) {
+  const norm = (s) => String(s).replace(/\s+/g, '').replace(/^=/, '')
+    .replace(/[−–—]/g, '-').replace(/[x*]/gi, '×').replace(/[÷/]/g, ':');
+  const targets = new Set(exprs.map(norm));
+  return (value) => targets.has(norm(value));
+}
+
+// A multi-slot row whose first two slots are the two operands of a + or ×
+// and may come in either order (Bài 38 "50 − ... × ... = ...": 10 × 3 or
+// 3 × 10), followed by slots that must match exactly.
+function swapPairValidate(a, b, ...rest) {
+  return (value) => {
+    const v = String(value).split(',').map(x => x.trim());
+    const pairOk = (v[0] === String(a) && v[1] === String(b)) || (v[0] === String(b) && v[1] === String(a));
+    return pairOk && rest.every((r, i) => v[i + 2] === String(r));
+  };
+}
+
+// Bài 35 "Theo em, Nam có bị sốt không? Vì sao?" (38 °C): the reason is free
+// wording, so only the yes/no part is graded — an answer that says Nam has a
+// fever ("Có, vì ...", "Nam bị sốt vì 38 °C > 37 °C") is accepted, one that
+// starts with "Không" or says "không bị sốt" is not.
+function feverValidate() {
+  return (value) => {
+    const v = stripVN(value).trim().replace(/\s+/g, ' ');
+    if (/^khong\b/.test(v) || /khong (bi )?sot/.test(v)) return false;
+    return /^co\b/.test(v) || /\bsot\b/.test(v);
+  };
+}
+
+// Operation signs written into boxes (Bài 42 "Viết dấu phép tính “+, ×, :”").
+// Each combo lists one sign per box of the row; any listed combo is accepted
+// (Bài 42 "4 ☐ 4 ☐ 4 = 20" has two ways, Cách 1 / Cách 2, in either order).
+// The typed look-alikes count too: x, X or * for ×, ÷ or / for :, - for −.
+function opsValidate(...combos) {
+  const norm = (s) => String(s).trim().replace(/[xX*]/g, '×').replace(/[÷/]/g, ':').replace(/[-–—]/g, '−');
+  const targets = new Set(combos.map(c => c.map(norm).join('|')));
+  return (value) => targets.has(String(value).split(',').map(norm).join('|'));
+}
+
+// "Độ dài đường gấp khúc ABCD là: ........ = ........" (Bài 43): the first
+// slot is the calculation, the second its value. The sides may be added in any
+// order, equal sides may be written as a multiplication (35 × 3), and the unit
+// may be written or left out ("35 mm + 35 mm + 35 mm", "105 mm").
+function polylineValidate(sides, unit) {
+  const total = sides.reduce((a, b) => a + b, 0);
+  const strip = (s) => String(s).toLowerCase().split(unit).join('').replace(/\s+/g, '').replace(/[x*]/g, '×');
+  const sorted = (arr) => [...arr].map(Number).sort((a, b) => a - b).join('+');
+  const sumKey = sorted(sides);
+  const products = new Set();
+  if (sides.every(s => s === sides[0])) {
+    products.add(`${sides[0]}×${sides.length}`);
+    products.add(`${sides.length}×${sides[0]}`);
+  }
+  return (value) => {
+    const parts = String(value).split(',');
+    if (parts.length !== 2) return false;
+    const e = strip(parts[0]);
+    const exprOk = products.has(e) || (/^\d+(\+\d+)+$/.test(e) && sorted(e.split('+')) === sumKey);
+    return exprOk && strip(parts[1]) === String(total);
+  };
+}
+
 const bai18RightAngles = angleGroupValidate([['A', ['B', 'C']], ['R', ['Q', 'P']]]);
 const bai18OtherAngles = angleGroupValidate([['I', ['L', 'T']], ['M', ['N', 'P']], ['G', ['H', 'K']], ['E', ['X', 'Y']]]);
+// Bài 44 Tiết 1 Q3: rectangle ABCD with diagonals AC, BD crossing at O. The
+// four right angles are the rectangle's corners; the four angles at O are not
+// right (the rectangle is not a square). The book already fixes the vertex O
+// for c), so those rows only ask for the two sides.
+const bai44RightAngles = angleGroupValidate([['A', ['B', 'D']], ['B', ['A', 'C']], ['C', ['B', 'D']], ['D', ['A', 'C']]]);
+const bai44AnglesAtO = angleGroupValidate([['O', ['A', 'B']], ['O', ['B', 'C']], ['O', ['C', 'D']], ['O', ['D', 'A']]]);
+const bai44OtherAngles = (value) => bai44AnglesAtO('O,' + value);
 
 // ── CONTENT: BÀI 1–8 (Tập Một) ──────────────────────────────────────────────
 
@@ -756,7 +976,7 @@ const UNITS = [
     questions: [
       {
         type: 'fill', section: 'Tiết 1',
-        q: '1. a) Viết tên các con vật dưới đây theo thứ tự cân nặng từ lớn đến bé: Gấu đen 118 kg, Báo hoa 85 kg, Linh dương 520 kg, Cá sấu 246 kg.\nb) Viết số thành tổng các trăm, chục và đơn vị (theo mẫu). Mẫu: 457 = 400 + 50 + 7.',
+        q: '1. a) Viết tên các con vật dưới đây theo thứ tự cân nặng từ lớn đến bé: Gấu đen 118 kg, Báo hoa 85 kg, Linh dương 520 kg, Cá sấu 246 kg.\nb) Viết số thành tổng các trăm, chục và đơn vị (theo mẫu). ' + mau('457 = 400 + 50 + 7'),
         blanks: [
           { label: 'a) Thứ tự từ lớn đến bé', answer: 'Linh dương, Cá sấu, Gấu đen, Báo hoa', validate: listValidate(['Linh dương', 'Cá sấu', 'Gấu đen', 'Báo hoa']) },
           { label: 'b) 285 = ...', answer: '200+80+5', validate: sumValidate(285) },
@@ -812,7 +1032,7 @@ const UNITS = [
       },
       {
         type: 'fill', section: 'Tiết 2',
-        q: '2. Tính (theo mẫu). Mẫu: 1 × 3 = 1 + 1 + 1 = 3. Vậy: 1 × 3 = 3.',
+        q: '2. Tính (theo mẫu). ' + mau('1 × 3 = 1 + 1 + 1 = 3. Vậy: 1 × 3 = 3.'),
         blanks: [
           { label: '1 × 4 =', answer: '4' }, { label: '1 × 5 =', answer: '5' }, { label: '1 × 7 =', answer: '7' }, { label: '1 × 8 =', answer: '8' },
           { label: 'Nhận xét: Số 1 nhân với số nào cũng bằng', answer: 'chính số đó', validate: textValidate('chính số đó') },
@@ -846,7 +1066,7 @@ const UNITS = [
       },
       {
         type: 'fill', section: 'Tiết 3',
-        q: '1. a) Tính (theo mẫu). Mẫu: 0 × 3 = 0 + 0 + 0 = 0. Vậy: 0 × 3 = 0.\nb) Số?',
+        q: '1. a) Tính (theo mẫu). ' + mau('0 × 3 = 0 + 0 + 0 = 0. Vậy: 0 × 3 = 0.') + '\nb) Số?',
         blanks: [
           { label: 'a) 0 × 4 =', answer: '0' }, { label: 'a) 0 × 6 =', answer: '0' }, { label: 'a) 0 × 7 =', answer: '0' },
           { label: 'a) Nhận xét: Số 0 nhân với số nào cũng bằng', answer: '0' },
@@ -1856,7 +2076,7 @@ const UNITS = [
     ],
   },
   {
-    id: 'bai-22', number: 22, title: 'Luyện tập chung (hình học)',
+    id: 'bai-22', number: 22, title: 'Luyện tập chung',
     questions: [
       {
         type: 'choice', section: 'Tiết 1', img: imgBai22T1Rects,
@@ -1946,6 +2166,1963 @@ const UNITS = [
       },
     ],
   },
+  {
+    id: 'bai-23', number: 23, title: 'Nhân số có hai chữ số với số có một chữ số',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Tính.',
+        blanks: [
+          { label: '12 × 3 =', answer: '36' }, { label: '22 × 4 =', answer: '88' },
+          { label: '11 × 6 =', answer: '66' }, { label: '30 × 3 =', answer: '90' },
+        ],
+        hints: ['Nhân lần lượt từ phải sang trái: nhân hàng đơn vị trước, rồi nhân hàng chục.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '2. Tính nhẩm (theo mẫu).\n' + mau('40 × 2 = ?  Nhẩm: 4 chục × 2 = 8 chục. Vậy: 40 × 2 = 80.'),
+        blanks: [
+          { label: '10 × 9 =', answer: '90' }, { label: '40 × 1 =', answer: '40' },
+          { label: '20 × 2 =', answer: '40' }, { label: '30 × 2 =', answer: '60' },
+        ],
+      },
+      {
+        type: 'match', section: 'Tiết 1',
+        q: '3. Nối (theo mẫu).',
+        left: [
+          { id: 's32', text: '32 + 32 + 32' },
+          { id: 's11', text: '11 + 11 + 11 + 11' },
+          { id: 's14', text: '14 + 14' },
+        ],
+        middle: [
+          { id: 'm11', text: '11 × 4' },
+          { id: 'm32', text: '32 × 3' },
+          { id: 'm14', text: '14 × 2' },
+        ],
+        right: [
+          { id: 'r28', text: '28' },
+          { id: 'r44', text: '44' },
+          { id: 'r96', text: '96' },
+        ],
+        pairs: [['s32', 'm32'], ['m32', 'r96'], ['s11', 'm11'], ['m11', 'r44'], ['s14', 'm14'], ['m14', 'r28']],
+        hints: ['Một số được cộng lặp lại mấy lần thì viết thành phép nhân số đó với mấy, ví dụ 32 + 32 + 32 = 32 × 3 = 96.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '4. Cô Mai cần 12 giờ để đan xong một chiếc mũ len. Hỏi cô Mai cần bao nhiêu giờ để đan được 4 chiếc mũ len như vậy?',
+        wordProblem: true,
+        blanks: [{ label: 'Số giờ', answer: '48' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Tính.',
+        blanks: [
+          { label: '12 × 6 =', answer: '72' }, { label: '28 × 3 =', answer: '84' },
+          { label: '45 × 2 =', answer: '90' }, { label: '24 × 4 =', answer: '96' },
+        ],
+        hints: ['Nhân hàng đơn vị trước: nếu được kết quả từ 10 trở lên thì viết chữ số hàng đơn vị và nhớ số chục sang hàng chục.'],
+      },
+      {
+        type: 'table', section: 'Tiết 2',
+        q: '2. Kết quả của mỗi phép tính được gắn với một chữ như sau:\nA: 11 × 2;  C: 13 × 3;  Đ: 25 × 3;  H: 42 × 2;\nI: 18 × 4;  O: 27 × 3;  U: 13 × 5.\nViết các chữ cái thích hợp vào ô trống (theo mẫu) rồi viết ô chữ giải được vào chỗ chấm.',
+        tables: [
+          { rows: [[sampleCell(75), 72, 22], [sampleCell('Đ'), blank('I', { validate: letterValidate('I') }), blank('A', { validate: letterValidate('A') })]] },
+          { rows: [[75, 22, 81], [blank('Đ', { validate: letterValidate('Đ') }), blank('A', { validate: letterValidate('A') }), blank('O', { validate: letterValidate('O') })]] },
+          { rows: [[39, 65], [blank('C', { validate: letterValidate('C') }), blank('U', { validate: letterValidate('U') })]] },
+          { rows: [[39, 84, 72], [blank('C', { validate: letterValidate('C') }), blank('H', { validate: letterValidate('H') }), blank('I', { validate: letterValidate('I') })]] },
+        ],
+        blanks: [
+          { label: 'Ô chữ giải được là: ...', answer: 'Địa đạo Củ Chi', validate: phraseValidate('Địa đạo Củ Chi') },
+        ],
+        hints: [
+          'Tính kết quả của cả 7 phép tính trước: A = 22, C = 39, Đ = 75, H = 84, I = 72, O = 81, U = 65.',
+          'Ghép các chữ cái tìm được theo thứ tự từng nhóm ô: ĐIA — ĐAO — CU — CHI, rồi thêm dấu để được tên một địa danh.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai23T2Puzzle,
+        q: '3. Viết mỗi chữ số 1, 2, 3 vào một ô trống trong hình bên để được phép tính đúng.',
+        blanks: [
+          // One blank per empty box of the figure (two adjacent inline boxes
+          // for the 2-digit number read as one long dotted line on screen).
+          { label: 'Ô trống hàng trên, bên trái (chữ số hàng chục của thừa số thứ nhất):', answer: '1' },
+          { label: 'Ô trống hàng trên, bên phải (chữ số hàng đơn vị của thừa số thứ nhất):', answer: '2' },
+          { label: 'Ô trống hàng dưới (chữ số hàng chục của tích):', answer: '3' },
+        ],
+        hints: [
+          'Chữ số hàng đơn vị của thừa số thứ nhất nhân với 3 phải có tận cùng là 6 — trong ba chữ số 1, 2, 3 chỉ có 2 × 3 = 6.',
+          'Hai chữ số còn lại là 1 và 3: thử 12 × 3 = 36 (dùng đủ 1, 2, 3) và 32 × 3 = 96 (không có chữ số 9) — vậy phép tính là 12 × 3 = 36.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Mỗi ngày Nam đọc được 24 trang truyện. Hỏi sau 3 ngày, Nam đọc được bao nhiêu trang truyện?',
+        wordProblem: true,
+        blanks: [{ label: 'Số trang truyện', answer: '72' }],
+      },
+    ],
+  },
+  {
+    id: 'bai-24', number: 24, title: 'Gấp một số lên một số lần',
+    questions: [
+      {
+        type: 'table', section: 'Tiết 1',
+        q: '1. Số?',
+        rows: [
+          ['Số đã cho', sampleCell(3), 8, 11, 13, 14],
+          ['Thêm vào số đã cho 7 đơn vị', sampleCell(10), blank(15), blank(18), blank(20), blank(21)],
+          ['Gấp 7 lần số đã cho', sampleCell(21), blank(56), blank(77), blank(91), blank(98)],
+        ],
+        hints: ['"Thêm 7 đơn vị" là cộng thêm 7 (3 + 7 = 10); "gấp 7 lần" là nhân với 7 (3 × 7 = 21).'],
+      },
+      {
+        type: 'match', section: 'Tiết 1',
+        q: '2. Nối (theo mẫu).\nỞ mỗi khung, nối số bên trái với phép tính thích hợp rồi nối tới số bên phải.',
+        // Each of the book's 4 framed boxes is one left number, two stacked
+        // operation boxes and one right number; the left/right numbers span
+        // both operation rows, with an empty spacer row between boxes.
+        left: [
+          { id: 'n5', text: '5', row: 1, span: 2 },
+          { id: 'n11', text: '11', row: 4, span: 2 },
+          { id: 'n17', text: '17', row: 7, span: 2 },
+          { id: 'n24', text: '24', row: 10, span: 2 },
+        ],
+        middle: [
+          { id: 'o5a', text: 'thêm 3 đơn vị', row: 1 }, { id: 'o5b', text: 'gấp 3 lần', row: 2 },
+          { id: 'o11a', text: 'thêm 8 đơn vị', row: 4 }, { id: 'o11b', text: 'gấp 8 lần', row: 5 },
+          { id: 'o17a', text: 'thêm 2 đơn vị', row: 7 }, { id: 'o17b', text: 'gấp 2 lần', row: 8 },
+          { id: 'o24a', text: 'thêm 4 đơn vị', row: 10 }, { id: 'o24b', text: 'gấp 4 lần', row: 11 },
+        ],
+        right: [
+          { id: 'e8', text: '8', row: 1, span: 2 },
+          { id: 'e88', text: '88', row: 4, span: 2 },
+          { id: 'e34', text: '34', row: 7, span: 2 },
+          { id: 'e28', text: '28', row: 10, span: 2 },
+        ],
+        pairs: [
+          ['n5', 'o5a'], ['o5a', 'e8'],
+          ['n11', 'o11b'], ['o11b', 'e88'],
+          ['n17', 'o17b'], ['o17b', 'e34'],
+          ['n24', 'o24a'], ['o24a', 'e28'],
+        ],
+        hints: ['Thử cả hai phép tính: ví dụ 5 thêm 3 đơn vị là 5 + 3 = 8, còn 5 gấp 3 lần là 5 × 3 = 15 — chọn phép tính cho đúng số bên phải.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Năm nay con 5 tuổi, tuổi bố gấp 7 lần tuổi con. Hỏi năm nay bố bao nhiêu tuổi?',
+        wordProblem: true,
+        blanks: [{ label: 'Tuổi bố', answer: '35' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '4. Có 8 bạn nữ và một số bạn nam tham gia bữa tiệc sinh nhật của Rô-bốt. Biết số bạn nam gấp 3 lần số bạn nữ. Hỏi có bao nhiêu bạn nam tham gia bữa tiệc sinh nhật của Rô-bốt?',
+        wordProblem: true,
+        blanks: [{ label: 'Số bạn nam', answer: '24' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Số?',
+        blanks: [
+          { label: 'a) 3 —thêm 7 đơn vị→ ...', answer: '10' },
+          { label: 'b) 7 —gấp 9 lần→ ...', answer: '63' },
+          { label: 'c) 8 —thêm 3 đơn vị→ ...', answer: '11' },
+          { label: 'd) 3 —gấp 7 lần→ ...', answer: '21' },
+        ],
+        hints: ['"Thêm" là phép cộng, "gấp ... lần" là phép nhân.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Đ, S?',
+        blanks: [
+          { label: 'a) Gấp 6 lên 3 lần thì được 18.', answer: 'Đ', validate: dsValidate(true) },
+          { label: 'b) Gấp 7 lên 5 lần thì được 30.', answer: 'S', validate: dsValidate(false) },
+          { label: 'c) Thêm 3 đơn vị vào 6 thì được 18.', answer: 'S', validate: dsValidate(false) },
+          { label: 'd) Thêm 5 đơn vị vào 7 thì được 12.', answer: 'Đ', validate: dsValidate(true) },
+        ],
+        hints: ['Gấp 7 lên 5 lần là 7 × 5 = 35; thêm 3 đơn vị vào 6 là 6 + 3 = 9.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '3. Mỗi cái bánh có thể mời 3 bạn ăn chung. Hỏi với 9 cái bánh thì có thể mời bao nhiêu bạn ăn chung?',
+        wordProblem: true,
+        blanks: [{ label: 'Số bạn', answer: '27' }],
+      },
+      {
+        type: 'choice', section: 'Tiết 2',
+        q: '4. Tô màu các ô ghi phép tính có kết quả bằng 75.\nChọn tất cả các ô cần tô màu (có thể có nhiều đáp án đúng).',
+        options: ['25 × 3', '90 − 15', '20 × 4', '17 × 5', '7 × 5', '15 × 5', '57 + 8', '16 × 3'],
+        multi: true,
+        answer: [0, 1, 5],
+        hints: ['Tính kết quả của cả 8 phép tính: 25 × 3 = 75, 90 − 15 = 75, 20 × 4 = 80, 17 × 5 = 85, 7 × 5 = 35, 15 × 5 = 75, 57 + 8 = 65, 16 × 3 = 48.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-25', number: 25, title: 'Phép chia hết, phép chia có dư',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(35, 7), divBlank(45, 8), divBlank(23, 3), divBlank(45, 5)],
+        hints: ['Tìm số lớn nhất nhân với số chia mà không vượt quá số bị chia — đó là thương; lấy số bị chia trừ đi tích đó được số dư.'],
+      },
+      {
+        type: 'choice', section: 'Tiết 1',
+        q: '2. Tô màu đỏ vào ô ghi phép chia hết, màu vàng vào ô ghi phép chia có dư.\nChọn tất cả các ô cần tô màu đỏ (phép chia hết) — các ô còn lại tô màu vàng.',
+        options: ['30 : 6', '42 : 7', '18 : 5', '27 : 9', '41 : 5', '34 : 4'],
+        multi: true,
+        answer: [0, 1, 3],
+        hints: ['Phép chia hết có số dư là 0: 30 : 6 = 5, 42 : 7 = 6, 27 : 9 = 3. Còn 18 : 5 = 3 (dư 3), 41 : 5 = 8 (dư 1), 34 : 4 = 8 (dư 2) là phép chia có dư.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Viết tiếp vào chỗ chấm cho thích hợp.\nCô giáo muốn chia 20 quả táo vào các đĩa. Các bạn Rô-bốt, Nam và Mai đưa ra các ý kiến về cách chia táo như sau:\n– Rô-bốt: "Chia đều số quả táo vào 2 đĩa";\n– Nam: "Chia đều số quả táo vào 3 đĩa";\n– Mai: "Chia đều số quả táo vào 4 đĩa".',
+        blanks: [
+          { label: 'Cách chia táo của ... cho ta phép chia hết.', answer: 'Rô-bốt và Mai', validate: nameSetValidate(['Rô-bốt', 'Mai']) },
+        ],
+        hints: ['20 : 2 = 10 và 20 : 4 = 5 là phép chia hết; 20 : 3 = 6 (dư 2) là phép chia có dư.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '4. Lớp 3A có 30 học sinh được chia đều thành 6 nhóm để tổ chức hoạt động ngoại khoá. Hỏi mỗi nhóm như vậy có bao nhiêu học sinh?',
+        wordProblem: true,
+        blanks: [{ label: 'Số học sinh mỗi nhóm', answer: '5' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(18, 3), divBlank(23, 4), divBlank(41, 8), divBlank(48, 9)],
+        hints: ['Số dư luôn phải bé hơn số chia.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Đặt tính rồi tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(34, 3), divBlank(29, 5), divBlank(70, 9), divBlank(47, 8)],
+        hints: ['Số dư luôn phải bé hơn số chia.'],
+      },
+      {
+        type: 'choice', section: 'Tiết 2',
+        q: '3. Tô màu vào những ô tô ghi phép chia có số dư là 4.\nChọn tất cả các ô tô cần tô màu (có thể có nhiều đáp án đúng).',
+        options: ['49 : 5', '23 : 6', '22 : 9', '17 : 7', '42 : 7', '36 : 8', '27 : 3', '56 : 9'],
+        multi: true,
+        answer: [0, 2, 5],
+        hints: ['Tìm số dư của từng phép chia: 49 : 5 = 9 (dư 4), 23 : 6 = 3 (dư 5), 22 : 9 = 2 (dư 4), 17 : 7 = 2 (dư 3), 42 : 7 = 6, 36 : 8 = 4 (dư 4), 27 : 3 = 9, 56 : 9 = 6 (dư 2).'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Bà nướng được 36 cái bánh. Bà cho bánh nướng được vào các hộp, mỗi hộp 9 cái bánh. Hỏi bà nướng được bao nhiêu hộp bánh như vậy?',
+        wordProblem: true,
+        blanks: [{ label: 'Số hộp bánh', answer: '4' }],
+      },
+    ],
+  },
+  {
+    id: 'bai-26', number: 26, title: 'Chia số có hai chữ số cho số có một chữ số',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(46, 2), divBlank(55, 5), divBlank(96, 3), divBlank(84, 4)],
+        hints: ['Chia lần lượt từ trái sang phải: chia hàng chục trước, rồi hạ hàng đơn vị xuống để chia tiếp.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '2. Đặt tính rồi tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(39, 3), divBlank(64, 2), divBlank(63, 3), divBlank(88, 2)],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Tính nhẩm (theo mẫu).\n' + mau('60 : 2 = ?  Nhẩm: 6 chục : 2 = 3 chục. Vậy: 60 : 2 = 30.'),
+        blanks: [
+          { label: '80 : 2 =', answer: '40' }, { label: '30 : 3 =', answer: '10' },
+          { label: '90 : 3 =', answer: '30' }, { label: '40 : 2 =', answer: '20' },
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '4. Số?',
+        blanks: [
+          { label: 'a) ... × 4 = 48', answer: '12' },
+          { label: 'b) 5 × ... = 55', answer: '11' },
+          { label: 'c) ... × 3 = 93', answer: '31' },
+        ],
+        hints: ['Muốn tìm một thừa số, ta lấy tích chia cho thừa số kia: 48 : 4, 55 : 5, 93 : 3.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(57, 3), divBlank(58, 2), divBlank(86, 7), divBlank(65, 4)],
+        hints: ['Sau khi chia hàng chục, số dư của hàng chục được ghép với chữ số hàng đơn vị hạ xuống để chia tiếp (ví dụ 57 : 3: 5 : 3 = 1 dư 2, hạ 7 được 27, 27 : 3 = 9).'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai26T2Divisions,
+        q: '2. Đ, S?\nQuan sát các phép chia trong hình rồi cho biết mỗi phép chia đúng hay sai (viết Đ hoặc S).',
+        blanks: [
+          { label: 'a) 39 : 3 = 13', answer: 'Đ', validate: dsValidate(true) },
+          { label: 'b) 35 : 2 = 12 (dư 1)', answer: 'S', validate: dsValidate(false) },
+          { label: 'c) 89 : 5 = 17 (dư 4)', answer: 'Đ', validate: dsValidate(true) },
+          { label: 'd) 53 : 4 = 13 (dư 1)', answer: 'Đ', validate: dsValidate(true) },
+        ],
+        hints: [
+          'Thử lại bằng phép nhân: thương × số chia + số dư phải bằng số bị chia.',
+          'Ở b), 3 − 2 = 1 rồi hạ 5 phải được 15 chứ không phải 5; 35 : 2 = 17 (dư 1), không phải 12.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '3. Nam chia đều 60 quyển truyện vào 4 ngăn của giá sách. Hỏi mỗi ngăn chứa bao nhiêu quyển truyện?',
+        wordProblem: true,
+        blanks: [{ label: 'Số quyển truyện mỗi ngăn', answer: '15' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Bác An chia đều 40 cái kẹo cho 3 bạn nhỏ thì còn dư ra mấy cái kẹo?',
+        wordProblem: true,
+        blanks: [{ label: 'Số kẹo còn dư', answer: '1' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 3',
+        q: '1. Tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(53, 3), divBlank(67, 4), divBlank(35, 3), divBlank(99, 8)],
+        hints: ['Số dư luôn phải bé hơn số chia.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 3',
+        q: '2. Bà Huyền chuẩn bị 87 quả cam để làm các suất quà cho các hộ gia đình nghèo, mỗi suất quà có 3 quả cam. Hỏi bà Huyền chuẩn bị được bao nhiêu suất quà?',
+        wordProblem: true,
+        blanks: [{ label: 'Số suất quà', answer: '29' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 3',
+        q: '3. Có 32 khách du lịch đi thuyền tham quan. Mỗi chiếc thuyền chở được 5 hành khách. Hỏi cần ít nhất mấy chiếc thuyền để chở hết số khách du lịch đó?',
+        wordProblem: true,
+        blanks: [{ label: 'Số thuyền ít nhất', answer: '7' }],
+        hints: ['32 : 5 = 6 (dư 2): 6 thuyền chở được 30 khách, vẫn còn 2 khách nên cần thêm 1 thuyền nữa.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 3',
+        q: '4. Số?',
+        blanks: [
+          { label: 'a) ... : 8 = 12', answer: '96' },
+          { label: 'b) ... : 4 = 23', answer: '92' },
+          { label: 'c) ... : 3 = 26', answer: '78' },
+          { label: 'd) ... : 2 = 47', answer: '94' },
+        ],
+        hints: ['Muốn tìm số bị chia, ta lấy thương nhân với số chia: 12 × 8, 23 × 4, 26 × 3, 47 × 2.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-27', number: 27, title: 'Giảm một số đi một số lần',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Số?',
+        blanks: [
+          { label: 'a) 36 —giảm 2 lần→ ...', answer: '18' },
+          { label: 'b) 48 —giảm 6 lần→ ...', answer: '8' },
+          { label: 'c) 45 —giảm 3 lần→ ...', answer: '15' },
+        ],
+        hints: ['"Giảm một số đi mấy lần" là chia số đó cho số lần: 36 : 2, 48 : 6, 45 : 3.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '2. Viết “gấp” hoặc “giảm” vào chỗ chấm cho thích hợp.',
+        blanks: [
+          { label: 'a) 24 —... 4 lần→ 6', answer: 'giảm', validate: phraseValidate('giảm') },
+          { label: 'b) 72 —... 6 lần→ 12', answer: 'giảm', validate: phraseValidate('giảm') },
+          { label: 'c) 48 —... 2 lần→ 96', answer: 'gấp', validate: phraseValidate('gấp') },
+          { label: 'd) 56 —... 4 lần→ 14', answer: 'giảm', validate: phraseValidate('giảm') },
+        ],
+        hints: ['Số ở ô bên phải lớn hơn số ở hình tròn thì là "gấp", bé hơn thì là "giảm". Thử lại: 24 : 4 = 6, 48 × 2 = 96.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Bác Bình thu hoạch được 78 kg cam. Tuy nhiên, do không bảo quản đúng cách nên có một lượng cam bị hỏng. Số ki-lô-gam cam còn lại so với lúc đầu giảm đi 3 lần. Hỏi bác Bình còn lại bao nhiêu ki-lô-gam cam?',
+        wordProblem: true,
+        blanks: [{ label: 'Số ki-lô-gam cam còn lại', answer: '26' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '4. Viết “gấp 2 lần” hoặc “giảm 3 lần” vào chỗ chấm cho thích hợp.',
+        blanks: [
+          { label: 'a) 18 —...→ 6 —...→ 12', answer: 'giảm 3 lần,gấp 2 lần', validate: phraseListValidate(['giảm 3 lần', 'gấp 2 lần']) },
+          { label: 'b) 18 —...→ 36 —...→ 12', answer: 'gấp 2 lần,giảm 3 lần', validate: phraseListValidate(['gấp 2 lần', 'giảm 3 lần']) },
+        ],
+        hints: ['Từ 18 đến 6 là số bé đi (18 : 3 = 6), từ 18 đến 36 là số lớn lên (18 × 2 = 36).'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Số?',
+        blanks: [
+          { label: 'a) 52 —giảm 4 lần→ ... —gấp 6 lần→ ...', answer: '13,78', validate: listValidate(['13', '78']) },
+          { label: 'b) 26 —gấp 3 lần→ ... —giảm 2 lần→ ...', answer: '78,39', validate: listValidate(['78', '39']) },
+        ],
+        hints: ['Đi theo chiều mũi tên: tính ô vuông trước, rồi lấy kết quả đó tính tiếp ô hình lục giác (ví dụ a) 52 : 4 = 13, rồi 13 × 6).'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Viết số thích hợp vào chỗ chấm.\nMũi của bạn người gỗ rất đặc biệt. Sau mỗi lần bạn ấy nói thật, chiều dài chiếc mũi so với trước khi nói thật giảm đi 2 lần. Sau mỗi lần bạn ấy nói dối, chiều dài chiếc mũi gấp 3 lần so với trước khi nói dối.',
+        blanks: [
+          { label: 'a) Nếu mũi của bạn người gỗ đang dài 52 cm thì sau khi nói thật 1 lần, mũi của bạn ấy dài ... cm.', answer: '26' },
+          { label: 'b) Nếu mũi của bạn người gỗ đang dài 9 cm thì sau khi nói dối 2 lần liên tiếp, mũi của bạn ấy dài ... cm.', answer: '81' },
+        ],
+        hints: ['Nói thật 1 lần: 52 : 2. Nói dối 2 lần liên tiếp là gấp 3 lần hai lần: 9 × 3 = 27, rồi 27 × 3.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '3. Mai có 42 tờ giấy màu. Sau giờ học thủ công, số tờ giấy màu còn lại của Mai so với lúc đầu giảm đi 6 lần. Hỏi Mai còn lại bao nhiêu tờ giấy màu?',
+        wordProblem: true,
+        blanks: [{ label: 'Số tờ giấy màu còn lại', answer: '7' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Số?',
+        blanks: [
+          { label: 'a) 72 : ... = 8', answer: '9' },
+          { label: 'b) 48 : ... = 6', answer: '8' },
+          { label: 'c) 81 : ... = 9', answer: '9' },
+          { label: 'd) 45 : ... = 5', answer: '9' },
+        ],
+        hints: ['Muốn tìm số chia, ta lấy số bị chia chia cho thương: 72 : 8, 48 : 6, 81 : 9, 45 : 5.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-28', number: 28, title: 'Bài toán giải bằng hai bước tính',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Trong chuồng có 3 con thỏ. Số con thỏ ở ngoài sân gấp 4 lần số con thỏ ở trong chuồng. Hỏi:\na) Số thỏ ở trong chuồng và ở ngoài sân có tất cả bao nhiêu con?\nb) Số thỏ ở ngoài sân nhiều hơn số thỏ ở trong chuồng bao nhiêu con?',
+        wordProblem: true,
+        blanks: [
+          { label: 'a) Số thỏ có tất cả', answer: '15' },
+          { label: 'b) Số thỏ ở ngoài sân nhiều hơn', answer: '9' },
+        ],
+        hints: ['Bước 1: tìm số thỏ ở ngoài sân (3 × 4 = 12). Bước 2: a) cộng với số thỏ trong chuồng, b) trừ đi số thỏ trong chuồng.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai28T1Polyline,
+        q: '2. Đường gấp khúc ABC có đoạn thẳng AB dài 15 cm, đoạn thẳng BC ngắn hơn đoạn thẳng AB là 5 cm. Tính độ dài đường gấp khúc ABC.',
+        wordProblem: true,
+        blanks: [{ label: 'Độ dài đường gấp khúc ABC (cm)', answer: '25' }],
+        hints: ['Bước 1: BC = 15 − 5 = 10 (cm). Bước 2: độ dài đường gấp khúc = AB + BC.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Lớp học có 15 bạn nam. Số bạn nữ nhiều hơn số bạn nam là 2 bạn. Hỏi lớp học đó có tất cả bao nhiêu bạn?',
+        wordProblem: true,
+        blanks: [{ label: 'Số bạn của lớp học', answer: '32' }],
+        hints: ['Bước 1: số bạn nữ là 15 + 2 = 17. Bước 2: cộng số bạn nam và số bạn nữ.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Con lợn đen cân nặng 65 kg. Con lợn trắng nặng hơn con lợn đen 8 kg. Hỏi cả hai con lợn cân nặng bao nhiêu ki-lô-gam?',
+        wordProblem: true,
+        blanks: [{ label: 'Cả hai con lợn cân nặng (kg)', answer: '138' }],
+        hints: ['Bước 1: con lợn trắng nặng 65 + 8 = 73 (kg). Bước 2: cộng cân nặng của hai con lợn.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Lúc đầu trong thùng có 15 l nước mắm. Lúc sau, mẹ đổ thêm vào thùng 6 can, mỗi can 3 l nước mắm. Hỏi lúc sau trong thùng có tất cả bao nhiêu lít nước mắm?',
+        wordProblem: true,
+        blanks: [{ label: 'Số lít nước mắm lúc sau', answer: '33' }],
+        hints: ['Bước 1: 6 can có 3 × 6 = 18 (l). Bước 2: cộng với 15 l lúc đầu.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai28T2Summary,
+        q: '3. Nêu bài toán theo tóm tắt sau rồi giải bài toán đó.',
+        wordProblem: true,
+        blanks: [{ label: 'Cả hai con cân nặng (kg)', answer: '10' }],
+        hints: [
+          'Đoạn thẳng của con ngỗng gồm 4 đoạn bằng đoạn của con gà, nên con ngỗng cân nặng gấp 4 lần con gà: 2 × 4 = 8 (kg).',
+          'Dấu ngoặc "? kg" ôm cả hai dòng: hỏi cả con gà và con ngỗng cân nặng bao nhiêu ki-lô-gam.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Số?\nHiện nay, Mi 5 tuổi, chị Mai hơn Mi 3 tuổi.',
+        blanks: [{ label: 'Vậy sau 2 năm nữa, tuổi của chị Mai là ... tuổi.', answer: '10' }],
+        hints: ['Hiện nay chị Mai 5 + 3 = 8 tuổi; sau 2 năm nữa mỗi người thêm 2 tuổi.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-29', number: 29, title: 'Luyện tập chung',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Tính nhẩm.',
+        blanks: [
+          { label: '50 × 2 =', answer: '100' }, { label: '30 × 2 =', answer: '60' }, { label: '10 × 5 =', answer: '50' },
+          { label: '60 : 3 =', answer: '20' }, { label: '80 : 2 =', answer: '40' }, { label: '90 : 9 =', answer: '10' },
+        ],
+        hints: ['Nhẩm theo chục: 5 chục × 2 = 10 chục = 100; 6 chục : 3 = 2 chục = 20.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '2. Tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(32, 2), divBlank(54, 3), divBlank(84, 7), divBlank(44, 4)],
+        hints: ['Chia lần lượt từ trái sang phải: chia hàng chục trước, rồi hạ hàng đơn vị xuống để chia tiếp.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Số?',
+        blanks: [
+          { label: 'a) 72 —giảm 6 lần→ ...', answer: '12' },
+          { label: 'b) 14 —gấp 7 lần→ ...', answer: '98' },
+          { label: 'c) 81 —giảm 3 lần→ ...', answer: '27' },
+          { label: 'd) 29 —gấp 3 lần→ ...', answer: '87' },
+        ],
+        hints: ['"Giảm ... lần" là phép chia, "gấp ... lần" là phép nhân.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '4. Năm ngoái, cây sầu riêng nhà bác Ba cho 27 quả. Năm nay, bác áp dụng kĩ thuật tiên tiến nên cây sầu riêng đó cho số quả gấp 3 lần năm ngoái.\na) Hỏi năm nay cây sầu riêng nhà bác Ba cho bao nhiêu quả?\nb) Sau khi bán đi, số quả sầu riêng còn lại giảm đi 3 lần. Hỏi bác Ba còn lại bao nhiêu quả sầu riêng?',
+        wordProblem: true,
+        blanks: [
+          { label: 'a) Số quả sầu riêng năm nay', answer: '81' },
+          { label: 'b) Số quả sầu riêng còn lại', answer: '27' },
+        ],
+        hints: ['a) 27 × 3. b) Lấy số quả năm nay chia cho 3.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Đặt tính rồi tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(43, 2), divBlank(73, 3), divBlank(64, 4), divBlank(84, 5)],
+        hints: ['Số dư luôn phải bé hơn số chia.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Số?',
+        blanks: [
+          { label: 'a) 30 —giảm 6 lần→ ... —thêm 7 đơn vị→ ...', answer: '5,12', validate: listValidate(['5', '12']) },
+          { label: 'b) 21 —gấp 2 lần→ ... —giảm ... lần→ 7', answer: '42,6', validate: listValidate(['42', '6']) },
+        ],
+        hints: ['b) Tính ô vuông trước: 21 × 2 = 42. Sau đó tìm xem 42 giảm đi mấy lần thì được 7 (42 : 7).'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '3. Bờm có một cây tre dài 19 m. Để làm chiếc cổng tre, Bờm phải chặt cây tre đó thành các đoạn dài 3 m. Hỏi Bờm có thể có nhiều nhất bao nhiêu đoạn tre như vậy?',
+        wordProblem: true,
+        blanks: [{ label: 'Số đoạn tre nhiều nhất', answer: '6' }],
+        hints: ['19 : 3 = 6 (dư 1): chặt được 6 đoạn dài 3 m, còn thừa 1 m không đủ một đoạn nữa.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Hôm qua cửa hàng của bác Sáu bán được 47 kg chà bông. Hôm nay áp dụng khuyến mãi, số chà bông bác Sáu bán được gấp 2 lần so với hôm qua. Hỏi hôm nay bác Sáu bán được bao nhiêu ki-lô-gam chà bông?',
+        wordProblem: true,
+        blanks: [{ label: 'Số ki-lô-gam chà bông hôm nay', answer: '94' }],
+      },
+    ],
+  },
+  {
+    id: 'bai-30', number: 30, title: 'Mi-li-mét',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: '3 cm = ... mm', answer: '30' },
+          { label: '20 mm = ... cm', answer: '2' },
+          { label: '5 cm = ... mm', answer: '50' },
+          { label: '10 cm = ... mm', answer: '100' },
+          { label: '1 m = ... cm', answer: '100' },
+          { label: '1 m = ... mm', answer: '1000' },
+        ],
+        hints: ['1 cm = 10 mm, 1 m = 100 cm = 1000 mm.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai30T1Rulers,
+        q: '2. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: 'Đoạn thẳng AB dài ... mm.', answer: '10' },
+          { label: 'Đoạn thẳng CD dài ... mm.', answer: '40' },
+        ],
+        hints: ['Mỗi vạch nhỏ trên thước là 1 mm; từ vạch 0 đến vạch 1 cm có 10 vạch nhỏ, tức là 1 cm = 10 mm.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Viết tiếp vào chỗ chấm cho thích hợp.\nCào cào, bọ ngựa và châu chấu thi nhảy xa được thành tích lần lượt là 3 cm, 15 mm, 20 mm.',
+        blanks: [
+          { label: 'a) Thành tích nhảy xa của ... là tốt nhất.', answer: 'cào cào', validate: animalValidate('cào cào') },
+          { label: 'b) Thành tích nhảy xa của ... là kém nhất.', answer: 'bọ ngựa', validate: animalValidate('bọ ngựa') },
+        ],
+        hints: ['Đổi về cùng đơn vị mi-li-mét: 3 cm = 30 mm, rồi so sánh 30 mm, 15 mm và 20 mm.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '4. Mỗi tấm gỗ ép dày 2 mm. Người ta ghép chồng 7 tấm gỗ như vậy với nhau để làm một tấm gỗ công nghiệp. Hỏi tấm gỗ công nghiệp dày bao nhiêu mi-li-mét? (Bỏ qua độ dày của lớp keo dính.)',
+        wordProblem: true,
+        blanks: [{ label: 'Độ dày tấm gỗ công nghiệp (mm)', answer: '14' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: 'a) 150 mm + 400 mm = ... mm', answer: '550' },
+          { label: 'a) 45 mm + 2 mm = ... mm', answer: '47' },
+          { label: 'b) 450 mm − 180 mm = ... mm', answer: '270' },
+          { label: 'b) 72 mm − 34 mm = ... mm', answer: '38' },
+          { label: 'c) 37 mm × 2 = ... mm', answer: '74' },
+          { label: 'c) 72 mm : 3 = ... mm', answer: '24' },
+        ],
+        hints: ['Tính như với các số tự nhiên rồi viết thêm đơn vị mm vào kết quả.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: 'a) 24 mm —giảm 8 lần→ ... mm', answer: '3' },
+          { label: 'b) 49 mm —gấp 2 lần→ ... mm', answer: '98' },
+          { label: 'c) 96 mm —giảm 4 lần→ ... mm', answer: '24' },
+          { label: 'd) 18 mm —gấp 5 lần→ ... mm', answer: '90' },
+        ],
+        hints: ['"Giảm ... lần" là phép chia, "gấp ... lần" là phép nhân.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '3. Một búp măng ngày hôm qua cao 173 mm so với mặt đất. Ngày hôm nay búp măng đó đã cao 292 mm so với mặt đất. Hỏi sau một ngày, búp măng đó cao thêm được bao nhiêu mi-li-mét?',
+        wordProblem: true,
+        blanks: [{ label: 'Búp măng cao thêm được (mm)', answer: '119' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Lượng mưa đo được vào ngày thứ Ba là 17 mm. Ngày thứ Tư cùng tuần đó lượng mưa đo được gấp 4 lần ngày thứ Ba. Hỏi lượng mưa đo được vào ngày thứ Tư là bao nhiêu mi-li-mét?',
+        wordProblem: true,
+        blanks: [{ label: 'Lượng mưa ngày thứ Tư (mm)', answer: '68' }],
+      },
+    ],
+  },
+  {
+    id: 'bai-31', number: 31, title: 'Gam',
+    questions: [
+      {
+        type: 'fill', img: imgBai31Scales,
+        q: '1. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: 'a) Ba quả cam cân nặng ... g.', answer: '550' },
+          { label: 'b) Hộp sữa cân nặng ... g.', answer: '600' },
+          { label: 'c) Gói mì chính cân nặng ... g.', answer: '120' },
+          { label: 'd) Gói bột canh cân nặng ... g.', answer: '300' },
+        ],
+        hints: ['Cân thăng bằng nên vật ở đĩa bên phải nặng bằng tổng các quả cân ở đĩa bên trái, ví dụ a) 500 g + 50 g.'],
+      },
+      {
+        type: 'fill', img: imgBai31Dials,
+        q: '2. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: 'a) Túi táo cân nặng ... g.', answer: '750' },
+          { label: 'b) Gói bột mì cân nặng ... g.', answer: '500' },
+          { label: 'c) Gói bột mì nhẹ hơn túi táo là ... g.', answer: '250' },
+        ],
+        hints: [
+          'Xem kim của mỗi cân chỉ vào vạch nào: 1 kg ở trên cùng, 250 g bên phải, 500 g ở dưới, 750 g bên trái.',
+          'c) Lấy cân nặng của túi táo trừ đi cân nặng của gói bột mì.',
+        ],
+      },
+      {
+        type: 'fill',
+        q: '3. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: 'a) 250 g + 180 g = ... g', answer: '430' },
+          { label: 'a) 430 g − 250 g = ... g', answer: '180' },
+          { label: 'a) 430 g − 180 g = ... g', answer: '250' },
+          { label: 'b) 8 g × 9 = ... g', answer: '72' },
+          { label: 'b) 72 g : 9 = ... g', answer: '8' },
+          { label: 'b) 72 g : 8 = ... g', answer: '9' },
+        ],
+        hints: ['Tính như với các số tự nhiên rồi viết thêm đơn vị g vào kết quả.'],
+      },
+      {
+        type: 'fill',
+        q: '4. Trong lọ có 1 kg đường. Mẹ đã lấy ra hai lần, một lần 150 g và một lần 200 g để nấu chè đỗ đen. Hỏi trong lọ còn lại bao nhiêu gam đường?',
+        wordProblem: true,
+        // "Đổi: 1 kg = ... g" is the first line of the book's own Bài giải,
+        // not a second question — don't repeat it in the question card.
+        subQuestions: false,
+        blanks: [
+          { label: 'Đổi: 1 kg = ... g', answer: '1000' },
+          { label: 'Số gam đường còn lại', answer: '650' },
+        ],
+        hints: ['Đổi 1 kg = 1000 g, rồi lấy 1000 g trừ đi số đường mẹ đã lấy ra cả hai lần (150 g + 200 g).'],
+      },
+    ],
+  },
+  {
+    id: 'bai-32', number: 32, title: 'Mi-li-lít',
+    questions: [
+      {
+        type: 'fill', img: imgBai32Bottle,
+        q: '1. Viết số thích hợp vào chỗ chấm.\nRót hết nước từ bình sang 3 ca (như hình vẽ).',
+        blanks: [
+          { label: 'a) Ca A có 500 ml nước, ca B có ... ml nước, ca C có ... ml nước.', answer: '400,100', validate: listValidate(['400', '100']) },
+          { label: 'b) Lúc đầu, lượng nước trong bình có là ... ml.', answer: '1000' },
+        ],
+        hints: [
+          'Mỗi ca có vạch 500 ml ở trên cùng và 4 vạch nhỏ bên dưới: mỗi khoảng giữa hai vạch là 100 ml.',
+          'b) Cộng lượng nước của cả 3 ca: 500 ml + ca B + ca C.',
+        ],
+      },
+      {
+        type: 'fill', img: imgBai32Flask,
+        q: '2. Viết số thích hợp vào chỗ chấm.\nTrong phích có 1 l nước. Rót nước ở phích sang 3 ca (như hình vẽ).',
+        blanks: [
+          { label: 'a) 1 l = ... ml.', answer: '1000' },
+          { label: 'b) Sau khi rót, lượng nước còn lại trong phích là ... ml.', answer: '200' },
+        ],
+        hints: ['Ba ca đã rót được 400 ml + 300 ml + 100 ml = 800 ml; lấy 1000 ml trừ đi 800 ml.'],
+      },
+      {
+        type: 'fill',
+        q: '3. Tính.',
+        blanks: [
+          { label: 'a) 250 ml + 100 ml =', answer: '350 ml', validate: unitValidate(350, 'ml') },
+          { label: 'a) 350 ml − 250 ml =', answer: '100 ml', validate: unitValidate(100, 'ml') },
+          { label: 'a) 350 ml − 100 ml =', answer: '250 ml', validate: unitValidate(250, 'ml') },
+          { label: 'b) 9 ml × 3 =', answer: '27 ml', validate: unitValidate(27, 'ml') },
+          { label: 'b) 27 ml : 3 =', answer: '9 ml', validate: unitValidate(9, 'ml') },
+          { label: 'b) 27 ml : 9 =', answer: '3 ml', validate: unitValidate(3, 'ml') },
+        ],
+        hints: ['Tính như với các số tự nhiên rồi viết thêm đơn vị ml vào kết quả, ví dụ 250 ml + 100 ml = 350 ml.'],
+      },
+      {
+        type: 'fill',
+        q: '4. Trong bình có 1 l nước. Việt rót nước từ trong bình đó vào đầy một ca 500 ml và một ca 300 ml. Hỏi trong bình còn lại bao nhiêu mi-li-lít nước?',
+        wordProblem: true,
+        subQuestions: false,
+        blanks: [
+          { label: 'Đổi 1 l = ... ml', answer: '1000' },
+          { label: 'Số mi-li-lít nước còn lại', answer: '200' },
+        ],
+        hints: ['Đổi 1 l = 1000 ml, rồi lấy 1000 ml trừ đi lượng nước đã rót ra (500 ml + 300 ml).'],
+      },
+    ],
+  },
+  {
+    id: 'bai-33', number: 33, title: 'Nhiệt độ. Đơn vị đo nhiệt độ',
+    questions: [
+      {
+        type: 'table',
+        q: '1. Viết tiếp vào chỗ chấm cho thích hợp.\nCó một ngày, nhiệt độ không khí ở ba địa phương được cho như bảng bên.',
+        rows: [
+          ['Nha Trang', 'Sa Pa', 'Hạ Long'],
+          ['32 °C', '15 °C', '26 °C'],
+        ],
+        blanks: [
+          { label: 'a) Nhiệt độ không khí ở Hạ Long cao hơn nhiệt độ không khí ở ...', answer: 'Sa Pa', validate: phraseValidate('Sa Pa') },
+          { label: 'b) Nhiệt độ không khí ở ... cao nhất.', answer: 'Nha Trang', validate: phraseValidate('Nha Trang') },
+          { label: 'c) Nhiệt độ không khí ở ... thấp nhất.', answer: 'Sa Pa', validate: phraseValidate('Sa Pa') },
+        ],
+        hints: ['So sánh ba nhiệt độ: 32 °C > 26 °C > 15 °C.'],
+      },
+      {
+        type: 'table',
+        q: '2. Hoàn thành bảng (theo mẫu).',
+        headers: ['Viết', 'Đọc'],
+        rows: [
+          { sample: true, cells: ['20 °C', 'Hai mươi độ xê'] },
+          [blank('35 °C', { validate: tempValidate(35) }), 'Ba mươi lăm độ xê'],
+          [blank('31 °C', { validate: tempValidate(31) }), 'Ba mươi mốt độ xê'],
+          ['15 °C', blank('Mười lăm độ xê', { validate: tempReadValidate('mười lăm') })],
+        ],
+        hints: ['°C đọc là "độ xê": 20 °C đọc là "Hai mươi độ xê".'],
+      },
+      {
+        type: 'fill',
+        q: '3. Số?\nNhiệt độ cơ thể của ba người lần lượt đo được là 38 °C, 36 °C, 37 °C. Biết rằng nhiệt độ cơ thể của người thứ nhất cao nhất, của người thứ hai thấp nhất.',
+        blanks: [{ label: 'Người thứ ba có nhiệt độ cơ thể là ... °C.', answer: '37' }],
+        hints: ['Người thứ nhất có nhiệt độ cao nhất là 38 °C, người thứ hai thấp nhất là 36 °C.'],
+      },
+      {
+        type: 'table',
+        q: '4. Viết tiếp vào chỗ chấm cho thích hợp.\nNhiệt độ không khí trong cùng một ngày vào một số buổi ở một địa phương theo bảng bên.',
+        rows: [
+          ['Sáng sớm', 'Trưa', 'Chiều', 'Đêm'],
+          ['18 °C', '30 °C', '24 °C', '12 °C'],
+        ],
+        blanks: [
+          { label: 'Nhiệt độ không khí từng buổi viết theo thứ tự từ cao nhất đến thấp nhất là: ...', answer: 'Trưa, Chiều, Sáng sớm, Đêm', validate: phraseOrderValidate(['Trưa', 'Chiều', 'Sáng sớm', 'Đêm']) },
+        ],
+        hints: ['Sắp xếp các nhiệt độ: 30 °C > 24 °C > 18 °C > 12 °C, rồi viết tên buổi tương ứng, cách nhau bởi dấu phẩy.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-34', number: 34, title: 'Thực hành và trải nghiệm với các đơn vị mi-li-mét, gam, mi-li-lít, độ C',
+    questions: [
+      {
+        // Each row is its own "Khoanh vào chữ" with two choices, so the
+        // three rows share one screen as choice rows graded on "Kiểm tra".
+        type: 'compare', section: 'Tiết 1',
+        q: '2. Khoanh vào chữ đặt trước kết quả thích hợp.',
+        rows: [
+          { left: 'a) Quân xe trong bộ cờ vua cân nặng khoảng:', options: ['A. 10 g', 'B. 1 kg'], answer: 'A' },
+          { left: 'b) Gói đường cân nặng khoảng:', options: ['A. 10 g', 'B. 1 kg'], answer: 'B' },
+          { left: 'c) Quả tạ tay cân nặng khoảng:', options: ['A. 500 g', 'B. 5 kg'], answer: 'B' },
+        ],
+        hints: ['Hãy nghĩ tới đồ vật thật: một quân cờ rất nhẹ, cầm trong lòng bàn tay; một gói đường thường là 1 kg; quả tạ tay dùng để tập thể dục thì khá nặng.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai34T2Thermometers,
+        q: '1. Đọc số đo nhiệt độ ở mỗi nhiệt kế sau rồi viết kết quả vào chỗ chấm.',
+        blanks: [
+          { label: 'Nhiệt kế thứ nhất: ... °C', answer: '40' },
+          { label: 'Nhiệt kế thứ hai: ... °C', answer: '0' },
+          { label: 'Nhiệt kế thứ ba: ... °C', answer: '38' },
+        ],
+        hints: [
+          'Đọc số ở vạch ngang với đỉnh cột màu xám trong ống nhiệt kế, dùng các số bên phải (50, 40, 30, ..., 0).',
+          'Giữa hai số liền nhau (ví dụ 30 và 40) có 10 khoảng nhỏ, mỗi khoảng là 1 °C.',
+        ],
+      },
+      {
+        type: 'match', section: 'Tiết 2',
+        q: '2. Nối mỗi vật với cân nặng thích hợp trong thực tế.',
+        left: [
+          { id: 'bike', img: imgBai34T2Bike, text: 'Xe đạp trẻ em' },
+          { id: 'laptop', img: imgBai34T2Laptop, text: 'Máy tính xách tay' },
+          { id: 'pen', img: imgBai34T2Pen, text: 'Bút máy' },
+        ],
+        right: [
+          { id: 'w20g', text: '20 g' },
+          { id: 'w20kg', text: '20 kg' },
+          { id: 'w2kg', text: '2 kg' },
+        ],
+        pairs: [['bike', 'w20kg'], ['laptop', 'w2kg'], ['pen', 'w20g']],
+        hints: ['Vật nhỏ, nhẹ nhất cầm trên tay được là 20 g; vật to, nặng nhất là 20 kg.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai34T2Cups,
+        q: '3. Viết tiếp vào chỗ chấm cho thích hợp.',
+        blanks: [
+          { label: 'a) Ca ... đựng nhiều nước nhất.', answer: 'A', validate: letterValidate('A') },
+          { label: 'b) Hai ca ... và ... đựng tất cả 500 ml nước.', answer: 'B,C', validate: setValidate(['B', 'C']) },
+          { label: 'c) Ca A đựng nhiều hơn ca D ... ml nước.', answer: '350' },
+        ],
+        hints: ['Các ca đựng 500 ml, 200 ml, 300 ml, 150 ml. b) Tìm hai số có tổng là 500. c) 500 − 150.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-35', number: 35, title: 'Luyện tập chung',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: 'a) 832 mm − 228 mm = ... mm', answer: '604' },
+          { label: 'a) 37 g + 182 g = ... g', answer: '219' },
+          { label: 'a) 127 mm + 328 mm = ... mm', answer: '455' },
+          { label: 'b) 215 ml + 37 ml = ... ml', answer: '252' },
+          { label: 'b) 32 ml − 15 ml + 80 ml = ... ml', answer: '97' },
+          { label: 'b) 57 g − 37 g + 50 g = ... g', answer: '70' },
+        ],
+        hints: ['Tính như với các số tự nhiên rồi viết thêm đơn vị vào kết quả. Dãy có hai dấu phép tính thì tính lần lượt từ trái sang phải: 32 − 15 = 17, rồi 17 + 80.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai35T1Scales,
+        q: '2. Viết tiếp vào chỗ chấm cho thích hợp (theo mẫu).',
+        blanks: [
+          { label: 'a) Mỗi kiện hàng cân nặng ... g.', answer: '500' },
+          { label: 'b) Chiếc cốc cân nặng ... g.', answer: '250' },
+        ],
+        hints: [
+          'a) Cân thăng bằng: hai kiện hàng nặng bằng hai quả cân 500 g, nên mỗi kiện hàng nặng bằng một quả cân 500 g.',
+          'b) Chiếc cốc cùng quả cân 50 g nặng bằng 200 g + 100 g = 300 g; lấy 300 g trừ đi 50 g.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: 'a) 42 mm —giảm 2 lần→ ... mm', answer: '21' },
+          { label: 'b) 42 mm —gấp 2 lần→ ... mm', answer: '84' },
+          { label: 'c) 72 mm —giảm 3 lần→ ... mm', answer: '24' },
+          { label: 'd) 38 mm —gấp 2 lần→ ... mm', answer: '76' },
+        ],
+        hints: ['"Giảm ... lần" là phép chia, "gấp ... lần" là phép nhân.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: 'a) 24 mm —× 4→ ... mm —: 3→ ... mm', answer: '96,32', validate: listValidate(['96', '32']) },
+          { label: 'b) 60 ml —: 4→ ... ml —× 2→ ... ml', answer: '15,30', validate: listValidate(['15', '30']) },
+        ],
+        hints: ['Đi theo chiều mũi tên: tính ô thứ nhất trước (24 mm × 4), rồi lấy kết quả đó tính tiếp ô thứ hai.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai35T2Thermometer,
+        q: '2. Viết tiếp vào chỗ chấm cho thích hợp.\nBạn Nam bị ốm. Bác sĩ vừa đo nhiệt độ cơ thể của bạn Nam được kết quả như hình dưới đây.',
+        blanks: [
+          { label: 'a) Nhiệt độ cơ thể của Nam mà bác sĩ đo được là ... °C.', answer: '38' },
+          { label: 'b) Theo em, Nam có bị sốt không? Vì sao? Trả lời:', answer: 'Có, vì nhiệt độ cơ thể của Nam là 38 °C, cao hơn nhiệt độ bình thường 37 °C.', validate: feverValidate() },
+        ],
+        hints: [
+          'Đọc số ở vạch mà cột màu xanh trong ống nhiệt kế dừng lại. Giữa hai số liền nhau (ví dụ 37 và 38) có 10 vạch nhỏ.',
+          'Nhiệt độ cơ thể bình thường của người khoảng 37 °C (vạch có dấu ▼). Cao hơn thế là bị sốt.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '3. Việt dùng một hộp sữa loại 250 ml để làm bánh. Theo công thức làm bánh, bạn ấy chỉ cần dùng 80 ml sữa. Hỏi sau khi làm bánh xong, Việt còn lại bao nhiêu mi-li-lít sữa?',
+        wordProblem: true,
+        blanks: [{ label: 'Số mi-li-lít sữa còn lại', answer: '170' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai35T2Gifts,
+        q: '4. Quan sát hình sau rồi tìm cân nặng của hộp quà A và mỗi hộp quà B. Biết rằng các hộp quà B có cân nặng như nhau.',
+        wordProblem: true,
+        // Both blanks answer the single question already in q (two results of
+        // one Bài giải), not separate sub-questions to print again.
+        subQuestions: false,
+        blanks: [
+          { label: 'Mỗi hộp quà B cân nặng (g)', answer: '400' },
+          { label: 'Hộp quà A cân nặng (g)', answer: '800' },
+        ],
+        hints: [
+          'Cân bên phải: một hộp quà B và quả cân 100 g nặng bằng quả cân 500 g, nên hộp quà B nặng 500 g − 100 g.',
+          'Cân bên trái: hộp quà A nặng bằng hai hộp quà B.',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'bai-36', number: 36, title: 'Nhân số có ba chữ số với số có một chữ số',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Tính.',
+        blanks: [
+          { label: '314 × 2 =', answer: '628' }, { label: '150 × 5 =', answer: '750' },
+          { label: '251 × 3 =', answer: '753' }, { label: '224 × 4 =', answer: '896' },
+        ],
+        hints: ['Nhân lần lượt từ phải sang trái: hàng đơn vị, hàng chục rồi hàng trăm; nhân được từ 10 trở lên thì nhớ sang hàng bên trái.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '2. Đặt tính rồi tính.',
+        blanks: [
+          { label: '230 × 3 =', answer: '690' }, { label: '123 × 2 =', answer: '246' },
+          { label: '237 × 2 =', answer: '474' }, { label: '205 × 4 =', answer: '820' },
+        ],
+        hints: ['Viết thừa số thứ hai thẳng cột với hàng đơn vị của thừa số thứ nhất, rồi nhân từ phải sang trái.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Mai vừa hoàn thành quãng đường chạy dài 250 m. Cùng thời gian đó, Việt chạy được quãng đường dài gấp 3 lần quãng đường chạy của Mai. Hỏi Việt chạy được quãng đường dài bao nhiêu mét?',
+        wordProblem: true,
+        blanks: [{ label: 'Quãng đường Việt chạy được (m)', answer: '750' }],
+      },
+      {
+        type: 'choice', section: 'Tiết 1',
+        q: '4. Khoanh vào chữ đặt trước câu trả lời đúng.\nRô-bốt đã viết 4 trong 5 số: 2, 3, 5, 100, 250 vào các ô trống ở hình bên để được so sánh đúng.\n☐ × ☐ = ☐ × ☐\nHỏi Rô-bốt không viết số nào?',
+        options: ['2', '3', '5', '250'],
+        answer: 1,
+        hints: ['Tìm hai cặp số có cùng tích: 2 × 250 = 500 và 5 × 100 = 500. Số còn lại không dùng đến.'],
+      },
+      {
+        type: 'table', section: 'Tiết 2',
+        q: '1. Số?',
+        rows: [
+          ['Thừa số', 105, 120, 126, 141],
+          ['Thừa số', 2, 5, 4, 6],
+          ['Tích', blank(210), blank(600), blank(504), blank(846)],
+        ],
+        hints: ['Tích = Thừa số × Thừa số, ví dụ 105 × 2 = 210.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Tính nhẩm.\n' + mau('200 × 4 = ?  Nhẩm: 2 trăm × 4 = 8 trăm. Vậy: 200 × 4 = 800.'),
+        blanks: [
+          { label: '200 × 3 =', answer: '600' }, { label: '500 × 2 =', answer: '1000' },
+          { label: '300 × 2 =', answer: '600' }, { label: '600 × 1 =', answer: '600' },
+        ],
+        hints: ['Nhẩm theo trăm: 5 trăm × 2 = 10 trăm = 1000.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '3. Trên một hòn đảo đang có 420 con cừu. Sau mỗi năm số lượng cừu trên đảo sẽ tăng thêm 180 con. Hỏi sau 2 năm, trên đảo đó sẽ có tất cả bao nhiêu con cừu?',
+        wordProblem: true,
+        blanks: [{ label: 'Số con cừu sau 2 năm', answer: '780' }],
+        hints: ['Sau 2 năm số cừu tăng thêm 180 × 2 = 360 (con); cộng với 420 con đang có.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Mai có 1 kg bột mì. Bạn ấy đã làm 3 chiếc bánh gối, mỗi chiếc bánh dùng 200 g bột mì. Hỏi Mai còn lại bao nhiêu gam bột mì?',
+        wordProblem: true,
+        subQuestions: false,
+        blanks: [
+          { label: 'Đổi: 1 kg = ... g', answer: '1000' },
+          { label: 'Số gam bột mì còn lại', answer: '400' },
+        ],
+        hints: ['Đổi 1 kg = 1000 g. Ba chiếc bánh dùng 200 × 3 = 600 (g) bột mì; lấy 1000 g trừ đi 600 g.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '5. Tính nhẩm (theo mẫu).\n' + mau('120 × 2 = ? Nhẩm: 12 chục × 2 = 24 chục. Vậy: 120 × 2 = 240.'),
+        blanks: [
+          { label: '210 × 3 =', answer: '630' }, { label: '340 × 2 =', answer: '680' },
+          { label: '110 × 4 =', answer: '440' },
+        ],
+        hints: ['Nhẩm theo chục: 21 chục × 3 = 63 chục = 630.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-37', number: 37, title: 'Chia số có ba chữ số cho số có một chữ số',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(375, 3), divBlank(448, 2), divBlank(627, 4)],
+        hints: ['Chia lần lượt từ trái sang phải: hàng trăm, hàng chục rồi hàng đơn vị. Số dư luôn phải bé hơn số chia.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '2. Thuyền trưởng tìm được một chiếc hòm đựng rất nhiều đồng vàng. Thuyền phó tìm được chiếc hòm đựng 548 đồng vàng, nhiều gấp 2 lần số đồng vàng mà thuyền trưởng tìm được. Hỏi thuyền trưởng tìm được bao nhiêu đồng vàng?',
+        wordProblem: true,
+        blanks: [{ label: 'Số đồng vàng thuyền trưởng tìm được', answer: '274' }],
+        hints: ['548 gấp 2 lần số đồng vàng của thuyền trưởng, nên số đồng vàng của thuyền trưởng là 548 : 2.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: 'a) 124 giờ —giảm 4 lần→ ... giờ', answer: '31' },
+          { label: 'b) 702 dm —giảm 9 lần→ ... dm', answer: '78' },
+          { label: 'c) 384 kg —giảm 6 lần→ ... kg', answer: '64' },
+          { label: 'd) 343 l —giảm 7 lần→ ... l', answer: '49' },
+        ],
+        hints: ['"Giảm ... lần" là phép chia: 124 : 4, 702 : 9, 384 : 6, 343 : 7.'],
+      },
+      {
+        type: 'choice', section: 'Tiết 1',
+        q: '4. Khoanh vào chữ đặt trước câu trả lời đúng.\nRô-bốt đã điền 4 trong 5 số: 2, 4, 5, 124, 155 vào các ô trống ở hình bên để được so sánh đúng.\n☐ : ☐ = ☐ : ☐\nHỏi Rô-bốt có thể viết những số nào vào ô trống cuối cùng?',
+        options: ['2 hoặc 4', '4 hoặc 5', '2 hoặc 5', '124 hoặc 155'],
+        answer: 1,
+        hints: ['Tìm hai phép chia có cùng thương: 124 : 4 = 31 và 155 : 5 = 31. Vậy có thể viết 124 : 4 = 155 : 5 hoặc 155 : 5 = 124 : 4.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Đặt tính rồi tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(250, 2), divBlank(407, 4), divBlank(210, 7)],
+        hints: ['Ở 407 : 4, sau khi chia hàng trăm (4 : 4 = 1), hạ 0 xuống: 0 : 4 = 0, viết 0 vào thương rồi hạ tiếp 7.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Hôm qua là ngày cuối tuần nên cửa hàng bánh rất đông khách. Họ bán được 450 cái bánh. Hôm nay là ngày đi làm, nên số bánh bán được giảm đi 5 lần so với hôm qua. Hỏi hôm nay cửa hàng bán được bao nhiêu cái bánh?',
+        wordProblem: true,
+        blanks: [{ label: 'Số bánh bán được hôm nay', answer: '90' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai37T2Divisions,
+        q: '3. Đ, S?\nQuan sát các phép chia trong hình rồi cho biết mỗi kết luận đúng hay sai (viết Đ hoặc S).',
+        blanks: [
+          { label: 'a) Vậy 240 : 4 = 6 (dư 0).', answer: 'S', validate: dsValidate(false) },
+          { label: 'b) Vậy 425 : 6 = 70 (dư 5).', answer: 'Đ', validate: dsValidate(true) },
+          { label: 'c) Vậy 812 : 8 = 104.', answer: 'S', validate: dsValidate(false) },
+          { label: 'd) Vậy 354 : 5 = 7 (dư 4).', answer: 'S', validate: dsValidate(false) },
+        ],
+        hints: [
+          'Thử lại: thương × số chia + số dư phải bằng số bị chia. Ví dụ 6 × 4 = 24, không phải 240.',
+          'Mỗi lần hạ một chữ số xuống mà chia không được thì phải viết 0 vào thương: 240 : 4 = 60, 354 : 5 = 70 (dư 4). Ở c), 12 : 8 = 1 (dư 4), nên 812 : 8 = 101 (dư 4).',
+        ],
+      },
+      {
+        type: 'choice', section: 'Tiết 2', img: imgBai37T2Hexagons,
+        q: '4. Khoanh vào chữ đặt trước câu trả lời đúng.\nSố nào dưới đây thích hợp để điền vào dấu “?” trong hình trên?',
+        options: ['80', '800', '400', '440'],
+        answer: 3,
+        hints: [
+          'Hình thứ nhất có 4 ô vuông và ghi 40, nên mỗi ô vuông là 10. Hình thứ hai có 6 ô tròn và ghi 600, nên mỗi ô tròn là 100.',
+          'Thử lại với hình thứ ba: 4 ô vuông và 2 ô tròn là 40 + 200 = 240. Hình cuối cùng có 4 ô vuông và 4 ô tròn.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 3',
+        q: '1. Đặt tính rồi tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(317, 3), divBlank(625, 5), divBlank(125, 6)],
+        hints: ['Ở 125 : 6, hàng trăm 1 bé hơn 6 nên lấy 12 : 6 = 2 trước; hạ 5 xuống, 5 : 6 = 0 (dư 5), viết 0 vào thương.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 3',
+        q: '2. Tính nhẩm (theo mẫu).\n' + mau('240 : 4 = ?  Nhẩm: 24 chục : 4 = 6 chục. Vậy: 240 : 4 = 60.'),
+        blanks: [
+          { label: '270 : 3 =', answer: '90' }, { label: '450 : 9 =', answer: '50' },
+          { label: '360 : 6 =', answer: '60' },
+        ],
+        hints: ['Nhẩm theo chục: 27 chục : 3 = 9 chục = 90.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 3',
+        q: '3. Bác gấu vừa thu hoạch được 930 ml mật ong. Bác đã chia đều lượng mật ong đó vào 3 cái hũ. Hỏi mỗi hũ chứa bao nhiêu mi-li-lít mật ong?',
+        wordProblem: true,
+        blanks: [{ label: 'Số mi-li-lít mật ong mỗi hũ', answer: '310' }],
+      },
+      {
+        type: 'choice', section: 'Tiết 3', img: imgBai37T3Archery,
+        q: '4. Khoanh vào chữ đặt trước câu trả lời đúng.\nMỗi vận động viên A, B, C vừa hoàn thành 3 lượt bắn cung. Kết quả và số điểm mà họ nhận được như sau:\nSố điểm mà vận động viên C nhận được là:',
+        options: ['500 điểm', '450 điểm', '400 điểm'],
+        answer: 2,
+        hints: [
+          'A bắn cả 3 mũi vào vòng ngoài được 300 điểm, nên mỗi mũi ở vòng ngoài được 100 điểm.',
+          'B có 2 mũi ở vòng ngoài và 1 mũi ở vòng tròn nhỏ ở giữa: 350 − 200 = 150, nên mỗi mũi ở vòng giữa được 150 điểm. C có 2 mũi ở giữa và 1 mũi ở vòng ngoài.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 3',
+        q: '5. Viết số thích hợp vào chỗ chấm.\nRô-bốt đã thực hiện một dãy các phép tính như trong hình dưới đây.',
+        // The first row is the book's chain of empty boxes (480 : 3 = ☐ —: 4→
+        // ☐ × 5 = ☐ —: 2→ ☐ × 8 = ▲); the dotted line below it is the answer.
+        blanks: [
+          { label: '480 : 3 = ... —: 4→ ... × 5 = ... —: 2→ ... × 8 = ▲', answer: '160,40,200,100', validate: listValidate(['160', '40', '200', '100']) },
+          { label: 'Số được điền ở vị trí hình tam giác màu đen là:', answer: '800' },
+        ],
+        hints: ['Tính lần lượt theo mũi tên: 480 : 3 = 160, rồi 160 : 4, rồi nhân với 5, ...'],
+      },
+    ],
+  },
+  {
+    id: 'bai-38', number: 38, title: 'Biểu thức số. Tính giá trị của biểu thức số',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Tính giá trị của biểu thức (theo mẫu).\n' + mau('48 − 25 + 29 = 23 + 29\n= 52'),
+        blanks: [
+          { label: 'a) 162 + 29 − 18 = ...', answer: '191 − 18', validate: exprValidate('191 − 18') },
+          { label: '= ...', answer: '173' },
+          // One operation only — the value is the whole answer.
+          { label: 'b) 18 × 7 = ...', answer: '126' },
+          { label: 'c) 84 : 6 = ...', answer: '14' },
+        ],
+        hints: ['Biểu thức chỉ có phép cộng, phép trừ thì tính lần lượt từ trái sang phải: 162 + 29 = 191, rồi 191 − 18.'],
+      },
+      {
+        type: 'match', section: 'Tiết 1',
+        q: '2. Nối mỗi biểu thức với số là giá trị của biểu thức đó (theo mẫu).',
+        left: [
+          { id: 'e81', text: '81 : 9' },
+          { id: 'e36', text: '36 + 17 − 45' },
+          { id: 'e62', text: '62 − 45 + 28' },
+          { id: 'e17', text: '17 × 3' },
+        ],
+        right: [
+          { id: 'v51', text: '51' },
+          { id: 'v9', text: '9' },
+          { id: 'v8', text: '8' },
+          { id: 'v45', text: '45' },
+        ],
+        pairs: [['e81', 'v9'], ['e36', 'v8'], ['e62', 'v45'], ['e17', 'v51']],
+        hints: ['Tính giá trị từng biểu thức, cộng trừ lần lượt từ trái sang phải: 36 + 17 = 53, 53 − 45 = 8.'],
+      },
+      {
+        // One book question, two rings to draw: a red one and a blue one.
+        type: 'compare', section: 'Tiết 1',
+        q: '3. Khoanh màu đỏ vào chữ đặt dưới ô ghi biểu thức có giá trị lớn nhất, màu xanh vào chữ đặt dưới ô ghi biểu thức có giá trị bé nhất.\nA: 49 + 27 − 58;  B: 18 × 4;\nC: 56 − 18 + 23;  D: 93 : 3.',
+        rows: [
+          { left: 'Khoanh màu đỏ (biểu thức có giá trị lớn nhất):', options: ['A', 'B', 'C', 'D'], answer: 'B' },
+          { left: 'Khoanh màu xanh (biểu thức có giá trị bé nhất):', options: ['A', 'B', 'C', 'D'], answer: 'A' },
+        ],
+        hints: ['Tính giá trị của cả bốn biểu thức: A = 18, B = 72, C = 61, D = 31.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Tính giá trị của biểu thức (theo mẫu).\n' + mau('30 + 9 : 3 = 30 + 3\n= 33.'),
+        blanks: [
+          { label: 'a) 64 − 25 : 5 = ...', answer: '64 − 5', validate: exprValidate('64 − 5') },
+          { label: '= ...', answer: '59' },
+          { label: 'b) 15 + 4 × 9 = ...', answer: '15 + 36', validate: exprValidate('15 + 36') },
+          { label: '= ...', answer: '51' },
+          { label: 'c) 90 − 7 × 3 = ...', answer: '90 − 21', validate: exprValidate('90 − 21') },
+          { label: '= ...', answer: '69' },
+          { label: 'd) 98 + 42 : 6 = ...', answer: '98 + 7', validate: exprValidate('98 + 7') },
+          { label: '= ...', answer: '105' },
+        ],
+        hints: ['Biểu thức có phép cộng, trừ và phép nhân, chia thì thực hiện phép nhân, chia trước: 25 : 5 = 5, rồi 64 − 5.'],
+      },
+      {
+        type: 'match', section: 'Tiết 2',
+        q: '2. Nối (theo mẫu).',
+        left: [
+          { id: 'e25', text: '25 + 17 × 2' },
+          { id: 'e92', text: '92 − 26 × 3' },
+          { id: 'e40', text: '40 − 36 : 2' },
+          { id: 'e87', text: '87 + 48 : 6' },
+        ],
+        right: [
+          { id: 'v22', text: '22' },
+          { id: 'v59', text: '59' },
+          { id: 'v14', text: '14' },
+          { id: 'v95', text: '95' },
+        ],
+        pairs: [['e25', 'v59'], ['e92', 'v14'], ['e40', 'v22'], ['e87', 'v95']],
+        hints: ['Thực hiện phép nhân, chia trước: 26 × 3 = 78, rồi 92 − 78.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '3. Đ, S?',
+        blanks: [
+          { label: 'a) 40 + 60 : 2 = 100 : 2 = 50.', answer: 'S', validate: dsValidate(false) },
+          { label: 'b) 40 + 60 : 2 = 40 + 30 = 70.', answer: 'Đ', validate: dsValidate(true) },
+          { label: 'c) 70 − 30 : 5 = 70 − 6 = 64.', answer: 'Đ', validate: dsValidate(true) },
+          { label: 'd) 70 − 30 : 5 = 40 : 5 = 8.', answer: 'S', validate: dsValidate(false) },
+        ],
+        hints: ['Trong biểu thức có phép cộng, trừ và phép chia thì phải chia trước, không được cộng/trừ trước.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Số?\nTừ một thùng có 50 l dầu, người ta đã lấy ra 3 lần, mỗi lần 10 l dầu.',
+        blanks: [
+          { label: 'Số lít dầu còn lại trong thùng là: 50 − ... × ... = ... (l).', answer: '10,3,20', validate: swapPairValidate(10, 3, 20) },
+        ],
+        hints: ['Số lít dầu đã lấy ra là 10 × 3 = 30 (l); lấy 50 trừ đi số đó.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 3',
+        q: '1. Tính giá trị của biểu thức.',
+        blanks: [
+          { label: 'a) 64 : (25 − 17) = ...', answer: '64 : 8', validate: exprValidate('64 : 8') },
+          { label: '= ...', answer: '8' },
+          { label: 'b) (70 − 15) : 5 = ...', answer: '55 : 5', validate: exprValidate('55 : 5') },
+          { label: '= ...', answer: '11' },
+          { label: 'c) 26 × (71 − 68) = ...', answer: '26 × 3', validate: exprValidate('26 × 3') },
+          { label: '= ...', answer: '78' },
+          { label: 'd) 50 − (50 − 10) = ...', answer: '50 − 40', validate: exprValidate('50 − 40') },
+          { label: '= ...', answer: '10' },
+        ],
+        hints: ['Biểu thức có dấu ngoặc thì tính trong ngoặc trước: 25 − 17 = 8, rồi 64 : 8.'],
+      },
+      {
+        type: 'match', section: 'Tiết 3',
+        q: '2. Nối (theo mẫu).',
+        left: [
+          { id: 'e23', text: '23 × (42 − 38)' },
+          { id: 'e75', text: '75 : (18 − 13)' },
+          { id: 'e30', text: '(30 + 10) : 8' },
+          { id: 'e48', text: '(48 − 21) × 3' },
+        ],
+        right: [
+          { id: 'v5', text: '5' },
+          { id: 'v92', text: '92' },
+          { id: 'v81', text: '81' },
+          { id: 'v15', text: '15' },
+        ],
+        pairs: [['e23', 'v92'], ['e75', 'v15'], ['e30', 'v5'], ['e48', 'v81']],
+        hints: ['Tính trong ngoặc trước: 18 − 13 = 5, rồi 75 : 5.'],
+      },
+      {
+        type: 'choice', section: 'Tiết 3',
+        q: '3. Khoanh vào chữ đặt trước biểu thức có giá trị lớn nhất.',
+        options: ['72 : (16 − 8)', '2 × (35 − 31)', '80 : (3 + 5)'],
+        answer: 2,
+        hints: ['Tính trong ngoặc trước: 72 : 8 = 9, 2 × 4 = 8, 80 : 8 = 10.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 3',
+        q: '4. Số?\nTrên sân có 8 con thỏ và 8 con gà. Để tính tổng số chân của 8 con thỏ và 8 con gà, ta có thể làm như sau:\nGhép 1 con thỏ và 1 con gà thành 1 cặp, được 8 cặp như vậy.',
+        blanks: [
+          { label: 'Số chân thỏ và gà ở 1 cặp là: ... + ... = ... (chân).', answer: '4,2,6', validate: swapPairValidate(4, 2, 6) },
+          { label: 'Số chân thỏ và gà ở 8 cặp là: ... × ... = ... (chân).', answer: '6,8,48', validate: swapPairValidate(6, 8, 48) },
+        ],
+        hints: ['Một con thỏ có 4 chân, một con gà có 2 chân. Mỗi cặp có 6 chân, 8 cặp thì nhân với 8.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 4',
+        q: '1. Viết chữ cái thích hợp vào chỗ chấm.\nA: 12 × (7 − 4);  B: 12 × 7 − 4;\nC: (80 + 40) : 4;  D: 80 + 40 : 4.',
+        blanks: [
+          { label: 'a) Biểu thức có giá trị lớn nhất là biểu thức', answer: 'D', validate: letterValidate('D') },
+          { label: 'b) Biểu thức có giá trị bé nhất là biểu thức', answer: 'C', validate: letterValidate('C') },
+        ],
+        hints: ['Tính giá trị từng biểu thức: A = 12 × 3 = 36, B = 84 − 4 = 80, C = 120 : 4 = 30, D = 80 + 10 = 90.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 4',
+        q: '2. Lúc đầu Mai cắm được 5 lọ hoa, sau đó Mai cắm thêm được 3 lọ hoa như vậy. Hỏi có tất cả bao nhiêu bông hoa trong các lọ hoa đó? Biết mỗi lọ đều cắm 10 bông hoa.',
+        wordProblem: true,
+        blanks: [{ label: 'Số bông hoa', answer: '80' }],
+        hints: ['Có tất cả 5 + 3 = 8 lọ hoa; mỗi lọ 10 bông nên có (5 + 3) × 10 bông hoa.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 4',
+        q: '3. Tính giá trị của biểu thức bằng cách thuận tiện.',
+        blanks: [
+          { label: 'a) 476 + 70 + 30 = ...', answer: '476 + 100', validate: exprValidate('476 + 100', '100 + 476', '476 + (70 + 30)') },
+          { label: '= ...', answer: '576' },
+          { label: 'b) 67 + 125 + 75 = ...', answer: '67 + 200', validate: exprValidate('67 + 200', '200 + 67', '67 + (125 + 75)') },
+          { label: '= ...', answer: '267' },
+        ],
+        hints: ['Cộng hai số có tổng tròn trăm trước: 70 + 30 = 100, 125 + 75 = 200.'],
+      },
+      {
+        type: 'table', section: 'Tiết 4',
+        q: '4. Cho các biểu thức:\n15 × (7 − 4);  74 : (6 − 4);  (24 + 60) : 4.\nViết giá trị của các biểu thức đã cho theo thứ tự từ bé đến lớn.',
+        rows: [[blank(21), blank(37), blank(45)]],
+        hints: ['Tính trong ngoặc trước: 15 × 3 = 45, 74 : 2 = 37, 84 : 4 = 21.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-39', number: 39, title: 'So sánh số lớn gấp mấy lần số bé',
+    questions: [
+      {
+        type: 'table', section: 'Tiết 1',
+        q: '1. Số?',
+        rows: [
+          ['Số lớn', sampleCell(8), 8, 20, 70],
+          ['Số bé', sampleCell(4), 2, 5, 7],
+          ['Số lớn gấp mấy lần số bé?', sampleCell(2), blank(4), blank(4), blank(10)],
+        ],
+        hints: ['Muốn biết số lớn gấp mấy lần số bé, ta lấy số lớn chia cho số bé: 8 : 4 = 2.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai39T1Segments,
+        q: '2. Số?',
+        blanks: [
+          { label: 'a) Đoạn thẳng AB dài hơn đoạn thẳng CD là ... cm.', answer: '12' },
+          { label: 'b) Đoạn thẳng AB dài gấp ... lần đoạn thẳng CD.', answer: '3' },
+        ],
+        hints: ['a) "Dài hơn bao nhiêu" là phép trừ: 18 − 6. b) "Gấp mấy lần" là phép chia: 18 : 6.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Lớp học cờ vua có 27 bạn, lớp học đá cầu có 9 bạn. Hỏi số bạn học cờ vua gấp mấy lần số bạn học đá cầu?',
+        wordProblem: true,
+        blanks: [{ label: 'Số bạn học cờ vua gấp số bạn học đá cầu (lần)', answer: '3' }],
+      },
+      {
+        type: 'table', section: 'Tiết 2',
+        q: '1. Số?',
+        rows: [
+          ['Số lớn', sampleCell(10), 18, 35, 48],
+          ['Số bé', sampleCell(2), 6, 7, 8],
+          ['Số lớn hơn số bé bao nhiêu đơn vị?', sampleCell(8), blank(12), blank(28), blank(40)],
+          ['Số lớn gấp mấy lần số bé?', sampleCell(5), blank(3), blank(5), blank(6)],
+        ],
+        hints: ['"Hơn bao nhiêu đơn vị" là phép trừ (10 − 2 = 8); "gấp mấy lần" là phép chia (10 : 2 = 5).'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Số?',
+        blanks: [
+          { label: '21 —: 3→ ... —× 7→ ...', answer: '7,49', validate: listValidate(['7', '49']) },
+        ],
+        hints: ['Tính theo chiều mũi tên: 21 : 3 = 7, rồi lấy 7 × 7.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '3. Con chó cân nặng 18 kg. Con gà cân nặng 2 kg. Con ngỗng cân nặng 6 kg. Hỏi:\na) Con chó nặng gấp mấy lần con ngỗng?\nb) Con ngỗng nặng gấp mấy lần con gà?\nc) Con chó nặng gấp mấy lần con gà?',
+        wordProblem: true,
+        blanks: [
+          { label: 'a) Con chó nặng gấp con ngỗng (lần)', answer: '3' },
+          { label: 'b) Con ngỗng nặng gấp con gà (lần)', answer: '3' },
+          { label: 'c) Con chó nặng gấp con gà (lần)', answer: '9' },
+        ],
+        hints: ['Muốn biết con nặng hơn gấp mấy lần con nhẹ hơn, lấy cân nặng lớn chia cho cân nặng bé: 18 : 6, 6 : 2, 18 : 2.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Số?',
+        blanks: [
+          { label: 'a) Số 24 gấp ... lần số 6.', answer: '4' },
+          { label: 'b) Số 24 gấp ... lần số 2.', answer: '12' },
+          { label: 'c) Số 24 gấp ... lần số 8.', answer: '3' },
+          { label: 'd) Số 24 gấp ... lần số 4.', answer: '6' },
+        ],
+        hints: ['Lấy 24 chia cho số bé: 24 : 6, 24 : 2, 24 : 8, 24 : 4.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-40', number: 40, title: 'Luyện tập chung',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Đặt tính rồi tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [
+          { label: '116 × 5 =', answer: '580' },
+          { label: '308 × 3 =', answer: '924' },
+          divBlank(815, 5),
+          divBlank(642, 3),
+        ],
+        hints: ['Nhân, chia lần lượt từng hàng: 308 × 3 thì 8 × 3 = 24, viết 4 nhớ 2; 0 × 3 = 0, thêm 2 bằng 2; 3 × 3 = 9.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '2. Số?',
+        blanks: [
+          { label: 'a) Số 12 gấp lên 3 lần được số ....', answer: '36' },
+          { label: 'b) Số 12 giảm đi 2 lần được số ....', answer: '6' },
+          { label: 'c) Số tìm được ở câu a gấp ... lần số tìm được ở câu b.', answer: '6' },
+        ],
+        hints: ['"Gấp lên 3 lần" là nhân với 3, "giảm đi 2 lần" là chia cho 2. c) Muốn biết số lớn gấp mấy lần số bé, lấy số lớn chia cho số bé.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Can thứ nhất có 2 l nước. Số lít nước ở can thứ hai gấp 5 lần số lít nước ở can thứ nhất. Hỏi:\na) Cả hai can có bao nhiêu lít nước?\nb) Can thứ hai có nhiều hơn can thứ nhất bao nhiêu lít nước?',
+        wordProblem: true,
+        blanks: [
+          { label: 'a) Cả hai can có (l)', answer: '12' },
+          { label: 'b) Can thứ hai nhiều hơn can thứ nhất (l)', answer: '8' },
+        ],
+        hints: ['Can thứ hai có 2 × 5 = 10 (l) nước. a) Cộng số lít của hai can. b) Lấy 10 trừ đi 2.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. a) Tính giá trị của biểu thức.',
+        blanks: [
+          { label: '473 + 18 − 215 = ...', answer: '491 − 215', validate: exprValidate('491 − 215') },
+          { label: '= ...', answer: '276' },
+          { label: '370 − (319 − 270) = ...', answer: '370 − 49', validate: exprValidate('370 − 49') },
+          { label: '= ...', answer: '321' },
+          { label: '185 + 71 × 2 = ...', answer: '185 + 142', validate: exprValidate('185 + 142') },
+          { label: '= ...', answer: '327' },
+          { label: '38 + 72 × 3 = ...', answer: '38 + 216', validate: exprValidate('38 + 216') },
+          { label: '= ...', answer: '254' },
+          { label: 'b) Viết biểu thức vào chỗ chấm cho thích hợp.<br>Trong câu a, biểu thức có giá trị lớn nhất là ...', answer: '185 + 71 × 2', validate: exprValidate('185 + 71 × 2', '185 + 71 × 2 = 327') },
+          { label: 'biểu thức có giá trị bé nhất là ...', answer: '38 + 72 × 3', validate: exprValidate('38 + 72 × 3', '38 + 72 × 3 = 254') },
+        ],
+        hints: [
+          'Có dấu ngoặc thì tính trong ngoặc trước; có phép nhân thì nhân trước rồi mới cộng, trừ; chỉ có cộng, trừ thì tính từ trái sang phải.',
+          'b) So sánh bốn giá trị 276, 321, 327, 254 rồi chép lại biểu thức có giá trị lớn nhất và biểu thức có giá trị bé nhất.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Mấy tháng trước, bác Năm mua một con lợn cân nặng 9 kg về nuôi. Bây giờ con lợn đó cân nặng 36 kg. Hỏi:\na) Bây giờ con lợn cân nặng gấp mấy lần lúc mới mua về?\nb) Bây giờ con lợn đó nặng hơn lúc mới mua về bao nhiêu ki-lô-gam?',
+        wordProblem: true,
+        blanks: [
+          { label: 'a) Con lợn bây giờ nặng gấp lúc mới mua về (lần)', answer: '4' },
+          { label: 'b) Con lợn bây giờ nặng hơn lúc mới mua về (kg)', answer: '27' },
+        ],
+        hints: ['a) "Gấp mấy lần" là phép chia: 36 : 9. b) "Nặng hơn bao nhiêu" là phép trừ: 36 − 9.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '3. Tính giá trị của biểu thức bằng cách thuận tiện.',
+        blanks: [
+          { label: 'a) 9 × 2 × 5 = ...', answer: '9 × 10', validate: exprValidate('9 × 10', '10 × 9', '9 × (2 × 5)') },
+          { label: '= ...', answer: '90' },
+          { label: 'b) 5 × 7 × 2 = ...', answer: '5 × 2 × 7', validate: exprValidate('5 × 2 × 7', '2 × 5 × 7', '7 × 5 × 2', '7 × 2 × 5', '(5 × 2) × 7', '7 × (5 × 2)', '(2 × 5) × 7', '7 × (2 × 5)') },
+          { label: '= ...', answer: '10 × 7', validate: exprValidate('10 × 7', '7 × 10') },
+          { label: '= ...', answer: '70' },
+        ],
+        hints: ['Nhân hai số có tích tròn chục trước: 2 × 5 = 10. Ở câu b), đổi chỗ 7 và 2 để được 5 × 2 × 7.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Số?',
+        blanks: [
+          { label: '40 giảm đi 5 lần thì được một số. Vậy 40 gấp số đó là ... lần.', answer: '5' },
+        ],
+        hints: ['40 giảm đi 5 lần được 40 : 5 = 8. Lấy 40 chia cho 8 để biết 40 gấp 8 mấy lần.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-41', number: 41, title: 'Ôn tập phép nhân, phép chia trong phạm vi 100, 1 000',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Tính nhẩm.',
+        blanks: [
+          { label: 'a) 30 × 2 =', answer: '60' }, { label: 'a) 20 × 4 =', answer: '80' },
+          { label: 'a) 50 × 2 =', answer: '100' }, { label: 'a) 20 × 2 =', answer: '40' },
+          { label: 'b) 60 : 3 =', answer: '20' }, { label: 'b) 100 : 2 =', answer: '50' },
+          { label: 'b) 40 : 2 =', answer: '20' }, { label: 'b) 90 : 3 =', answer: '30' },
+        ],
+        hints: ['Nhẩm theo chục: 3 chục × 2 = 6 chục = 60; 6 chục : 3 = 2 chục = 20; 10 chục : 2 = 5 chục = 50.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '2. Đặt tính rồi tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [
+          { label: 'a) 46 × 2 =', answer: '92' },
+          { label: 'a) 13 × 7 =', answer: '91' },
+          { label: 'a) 29 × 3 =', answer: '87' },
+          { ...divBlank(82, 2), label: 'b) 82 : 2 = ... (dư ...)' },
+          { ...divBlank(72, 6), label: 'b) 72 : 6 = ... (dư ...)' },
+          { ...divBlank(97, 9), label: 'b) 97 : 9 = ... (dư ...)' },
+        ],
+        hints: ['Ở 97 : 9: 9 : 9 = 1, hạ 7 xuống; 7 : 9 = 0 (dư 7), viết 0 vào thương.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai41T1Calcs,
+        q: '3. Đ, S?\nQuan sát các phép tính trong hình rồi cho biết mỗi phép tính đúng hay sai (viết Đ hoặc S).',
+        blanks: [
+          { label: 'a) 23 × 4 = 62', answer: 'S', validate: dsValidate(false) },
+          { label: 'b) 18 × 5 = 90', answer: 'Đ', validate: dsValidate(true) },
+          { label: 'c) 92 : 7 = 12 (dư 8)', answer: 'S', validate: dsValidate(false) },
+          { label: 'd) 74 : 4 = 18 (dư 2)', answer: 'Đ', validate: dsValidate(true) },
+        ],
+        hints: [
+          'a) 3 × 4 = 12, viết 2 nhớ 1; 2 × 4 = 8, thêm 1 bằng 9 — phép tính đã quên số nhớ.',
+          'c) Số dư phải bé hơn số chia: 22 : 7 được 3 chứ không phải 2 (7 × 3 = 21, dư 1). Thử lại d): 18 × 4 + 2 = 74.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '4. Có 6 xe ô tô chở học sinh đi thăm Bảo tàng Lịch sử Việt Nam, mỗi xe chở 32 học sinh. Hỏi có tất cả bao nhiêu học sinh đi thăm Bảo tàng Lịch sử Việt Nam?',
+        wordProblem: true,
+        blanks: [{ label: 'Số học sinh', answer: '192' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '5. Một thùng có 46 l nước mắm. Hỏi cần ít nhất bao nhiêu cái can loại 7 l để chứa hết lượng nước mắm đó?',
+        wordProblem: true,
+        blanks: [{ label: 'Số cái can ít nhất', answer: '7' }],
+        hints: ['46 : 7 = 6 (dư 4): 6 can đựng được 42 l, còn thừa 4 l nước mắm nên cần thêm 1 can nữa.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Tính nhẩm.',
+        blanks: [
+          { label: 'a) 200 × 3 =', answer: '600' }, { label: 'a) 300 × 2 =', answer: '600' },
+          { label: 'a) 200 × 2 =', answer: '400' }, { label: 'a) 100 × 6 =', answer: '600' },
+          { label: 'b) 900 : 3 =', answer: '300' }, { label: 'b) 600 : 2 =', answer: '300' },
+          { label: 'b) 800 : 8 =', answer: '100' }, { label: 'b) 1 000 : 5 =', answer: '200' },
+        ],
+        hints: ['Nhẩm theo trăm: 2 trăm × 3 = 6 trăm = 600; 9 trăm : 3 = 3 trăm = 300; 10 trăm : 5 = 2 trăm = 200.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Đặt tính rồi tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [
+          { label: 'a) 312 × 3 =', answer: '936' },
+          { label: 'a) 105 × 7 =', answer: '735' },
+          { label: 'a) 81 × 9 =', answer: '729' },
+          { ...divBlank(936, 3), label: 'b) 936 : 3 = ... (dư ...)' },
+          { ...divBlank(852, 6), label: 'b) 852 : 6 = ... (dư ...)' },
+          { ...divBlank(690, 8), label: 'b) 690 : 8 = ... (dư ...)' },
+        ],
+        hints: ['Ở 690 : 8: hàng trăm 6 bé hơn 8 nên lấy 69 : 8 = 8 (dư 5); hạ 0 xuống được 50, 50 : 8 = 6 (dư 2).'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai41T2Calcs,
+        q: '3. Đ, S?\nQuan sát các phép tính trong hình rồi cho biết mỗi phép tính đúng hay sai (viết Đ hoặc S).',
+        blanks: [
+          { label: 'a) 96 × 8 = 728', answer: 'S', validate: dsValidate(false) },
+          { label: 'b) 108 × 5 = 540', answer: 'Đ', validate: dsValidate(true) },
+          { label: 'c) 839 : 4 = 29 (dư 3)', answer: 'S', validate: dsValidate(false) },
+          { label: 'd) 740 : 8 = 92 (dư 4)', answer: 'Đ', validate: dsValidate(true) },
+        ],
+        hints: [
+          'a) 6 × 8 = 48, viết 8 nhớ 4; 9 × 8 = 72, thêm 4 bằng 76 — tích đúng là 768.',
+          'c) Sau khi chia 8 : 4 = 2, hạ 3 xuống: 3 : 4 = 0, phải viết 0 vào thương, nên 839 : 4 = 209 (dư 3). Thử lại d): 92 × 8 + 4 = 740.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Một cửa hàng có 132 quả táo. Người ta xếp vào các khay, mỗi khay 6 quả táo. Hỏi xếp được bao nhiêu khay táo như vậy?',
+        wordProblem: true,
+        blanks: [{ label: 'Số khay táo', answer: '22' }],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai41T2Puzzles,
+        q: '5. Viết chữ số thích hợp vào ô trống.',
+        blanks: [
+          { label: 'a) 1...3 × 6 = 61...', boxes: true, answer: '0,8', validate: listValidate(['0', '8']) },
+          { label: 'b) 4... × 7 = ......8', boxes: true, answer: '4,3,0', validate: listValidate(['4', '3', '0']) },
+          { label: 'c) ......5 × 3 = 64...', boxes: true, answer: '2,1,5', validate: listValidate(['2', '1', '5']) },
+        ],
+        hints: [
+          'a) Tích bắt đầu bằng 61 nên thừa số thứ nhất chỉ có thể là 103 (vì 113 × 6 đã là 678).',
+          'b) Chữ số hàng đơn vị nhân với 7 phải có tận cùng là 8: chỉ có 4 × 7 = 28. c) Tích là 64... nên thừa số thứ nhất khoảng 640 : 3, có tận cùng là 5.',
+        ],
+      },
+      {
+        // Each row is its own "Khoanh vào chữ" with four choices, so the three
+        // rows share one screen as choice rows graded on "Kiểm tra".
+        type: 'compare', section: 'Tiết 3',
+        q: '1. Khoanh vào chữ đặt trước câu trả lời đúng.',
+        rows: [
+          { left: 'a) Kết quả của phép nhân 181 × 4 là:', options: ['A. 424', 'B. 742', 'C. 724', 'D. 721'], answer: 'C' },
+          { left: 'b) Kết quả của phép chia 806 : 2 là:', options: ['A. 43', 'B. 403', 'C. 430', 'D. 304'], answer: 'B' },
+          { left: 'c) Số dư của phép chia 465 : 7 là:', options: ['A. 6', 'B. 5', 'C. 4', 'D. 3'], answer: 'D' },
+        ],
+        hints: ['Đặt tính ra nháp: 181 × 4, 806 : 2 (nhớ viết 0 vào thương khi hạ 0 xuống), 465 : 7 = 66 (dư ...).'],
+      },
+      {
+        type: 'fill', section: 'Tiết 3',
+        q: '2. Số?',
+        blanks: [
+          { label: 'a) ... × 8 = 280', answer: '35' },
+          { label: 'b) ... : 9 = 108', answer: '972' },
+          { label: 'c) 84 : ... = 6', answer: '14' },
+          { label: 'd) ... × 7 = 161', answer: '23' },
+        ],
+        hints: ['Muốn tìm thừa số, lấy tích chia cho thừa số kia (280 : 8). Muốn tìm số bị chia, lấy thương nhân với số chia (108 × 9). Muốn tìm số chia, lấy số bị chia chia cho thương (84 : 6).'],
+      },
+      {
+        type: 'fill', section: 'Tiết 3',
+        q: '3. Trong vườn nhà An có 19 cây chanh, số cây cam gấp 4 lần số cây chanh. Hỏi trong vườn nhà An có bao nhiêu cây chanh và cây cam?',
+        wordProblem: true,
+        blanks: [{ label: 'Số cây chanh và cây cam', answer: '95' }],
+        hints: ['Bước 1: số cây cam là 19 × 4 = 76 (cây). Bước 2: cộng số cây chanh và số cây cam.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 3', img: imgBai41T3Strawberries,
+        q: '4. Số?',
+        blanks: [
+          { label: 'a) 1/6 số quả dâu tây là ... quả dâu tây.', answer: '4' },
+          { label: 'b) 1/8 số quả dâu tây là ... quả dâu tây.', answer: '3' },
+        ],
+        hints: ['Đếm số quả dâu tây: 4 hàng, mỗi hàng 6 quả. Lấy số quả chia cho 6 (câu a) và chia cho 8 (câu b).'],
+      },
+      {
+        type: 'fill', section: 'Tiết 3', img: imgBai41T3Puzzle,
+        q: '5. Viết chữ số 0, 1, 2, 3 thích hợp vào ô trống.\n(Mỗi chữ số dùng một lần.)',
+        blanks: [
+          { label: '......... × ... = 306', boxes: true, answer: '1,0,2,3', validate: listValidate(['1', '0', '2', '3']) },
+        ],
+        hints: ['Tích có tận cùng là 6 nên thử thừa số thứ hai là 2 hoặc 3: 306 : 3 = 102 dùng đúng các chữ số còn lại.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-42', number: 42, title: 'Ôn tập biểu thức số',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Tính giá trị của biểu thức.',
+        blanks: [
+          { label: 'a) 527 − 346 + 74 = ...', answer: '181 + 74', validate: exprValidate('181 + 74') },
+          { label: '= ...', answer: '255' },
+          { label: 'b) 72 × 3 : 9 = ...', answer: '216 : 9', validate: exprValidate('216 : 9', '8 × 3', '3 × 8') },
+          { label: '= ...', answer: '24' },
+          { label: 'c) 28 + 45 − 60 = ...', answer: '73 − 60', validate: exprValidate('73 − 60') },
+          { label: '= ...', answer: '13' },
+          { label: 'd) 96 : 6 × 8 = ...', answer: '16 × 8', validate: exprValidate('16 × 8') },
+          { label: '= ...', answer: '128' },
+        ],
+        hints: ['Biểu thức chỉ có phép cộng, trừ (hoặc chỉ có phép nhân, chia) thì tính lần lượt từ trái sang phải: 527 − 346 = 181, rồi 181 + 74.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '2. Tính giá trị của biểu thức.',
+        blanks: [
+          { label: 'a) 24 × 3 − 52 = ...', answer: '72 − 52', validate: exprValidate('72 − 52') },
+          { label: '= ...', answer: '20' },
+          { label: 'b) 518 + 70 : 5 = ...', answer: '518 + 14', validate: exprValidate('518 + 14') },
+          { label: '= ...', answer: '532' },
+          { label: 'c) 91 : 7 + 69 = ...', answer: '13 + 69', validate: exprValidate('13 + 69') },
+          { label: '= ...', answer: '82' },
+          { label: 'd) 200 − 18 × 5 = ...', answer: '200 − 90', validate: exprValidate('200 − 90') },
+          { label: '= ...', answer: '110' },
+        ],
+        hints: ['Biểu thức có phép cộng, trừ và phép nhân, chia thì thực hiện phép nhân, chia trước: 70 : 5 = 14, rồi 518 + 14.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '3. Khối lớp Ba của một trường tiểu học có 7 lớp, mỗi lớp có 31 học sinh và 1 lớp có 34 học sinh. Hỏi khối lớp Ba của trường đó có tất cả bao nhiêu học sinh?',
+        wordProblem: true,
+        blanks: [{ label: 'Số học sinh khối lớp Ba', answer: '251' }],
+        hints: ['Bước 1: 7 lớp, mỗi lớp 31 học sinh có 31 × 7 = 217 (học sinh). Bước 2: cộng thêm 34 học sinh của lớp còn lại.'],
+      },
+      {
+        // One book question, two colorings (a, then b in a different color) —
+        // a multi-select and a single choice can't share one choice screen.
+        type: 'choice', section: 'Tiết 1', multi: true,
+        q: '4. a) Tô màu vào các ô tô ghi biểu thức có giá trị lớn hơn 90.\nChọn tất cả các ô tô cần tô màu (có thể có nhiều đáp án đúng).',
+        options: ['20 × 3 + 30', '70 + 80 : 2', '100 : 5 + 80', '20 × 5 − 20', '30 + 40 × 2'],
+        answer: [1, 2, 4],
+        hints: ['Tính giá trị từng biểu thức (nhân, chia trước): 20 × 3 + 30 = 90, 70 + 80 : 2 = 110, 100 : 5 + 80 = 100, 20 × 5 − 20 = 80, 30 + 40 × 2 = 110. "Lớn hơn 90" thì không tính ô tô có giá trị bằng 90.'],
+      },
+      {
+        type: 'choice', section: 'Tiết 1',
+        q: '4. b) Tô màu (khác với màu đã tô ở câu a) vào ô tô ghi biểu thức có giá trị bé nhất trong các biểu thức trên.',
+        options: ['20 × 3 + 30', '70 + 80 : 2', '100 : 5 + 80', '20 × 5 − 20', '30 + 40 × 2'],
+        answer: 3,
+        hints: ['Giá trị các biểu thức là 90, 110, 100, 80, 110.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '5. Viết dấu phép tính “<span class="gw-sample-text">+</span>, <span class="gw-sample-text">×</span>” thích hợp vào ô trống.\n4 ☐ 4 ☐ 4 = 20',
+        blanks: [
+          { label: 'Cách 1: 4 ... 4 ... 4 = 20', boxes: true, answer: '×,+', validate: opsValidate(['×', '+'], ['+', '×']) },
+          { label: 'Cách 2: 4 ... 4 ... 4 = 20', boxes: true, answer: '+,×', validate: opsValidate(['+', '×'], ['×', '+']) },
+        ],
+        hints: ['Thử lần lượt: 4 + 4 + 4 = 12, 4 × 4 × 4 = 64. Khi có cả dấu + và dấu × thì nhân trước: 4 × 4 + 4 = 16 + 4.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Tính giá trị của biểu thức.',
+        blanks: [
+          { label: 'a) 75 − (68 − 23) = ...', answer: '75 − 45', validate: exprValidate('75 − 45') },
+          { label: '= ...', answer: '30' },
+          { label: 'b) 8 × (63 : 7) = ...', answer: '8 × 9', validate: exprValidate('8 × 9') },
+          { label: '= ...', answer: '72' },
+          { label: 'c) 67 + (56 + 44) = ...', answer: '67 + 100', validate: exprValidate('67 + 100') },
+          { label: '= ...', answer: '167' },
+          { label: 'd) 42 : (2 × 3) = ...', answer: '42 : 6', validate: exprValidate('42 : 6') },
+          { label: '= ...', answer: '7' },
+        ],
+        hints: ['Biểu thức có dấu ngoặc thì tính trong ngoặc trước: 68 − 23 = 45, rồi 75 − 45.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Tính giá trị của biểu thức bằng cách thuận tiện.',
+        blanks: [
+          { label: 'a) 79 + 57 + 43 = ...', answer: '79 + 100', validate: exprValidate('79 + 100', '100 + 79', '79 + (57 + 43)') },
+          { label: '= ...', answer: '179' },
+          { label: 'b) 50 × 4 × 2 = ...', answer: '50 × 8', validate: exprValidate('50 × 8', '8 × 50', '50 × (4 × 2)', '100 × 4', '4 × 100', '(50 × 2) × 4', '50 × 2 × 4') },
+          { label: '= ...', answer: '400' },
+        ],
+        hints: ['a) Cộng hai số có tổng tròn trăm trước: 57 + 43 = 100. b) Nhân 4 × 2 = 8 trước (hoặc 50 × 2 = 100).'],
+      },
+      {
+        type: 'match', section: 'Tiết 2',
+        q: '3. Nối mỗi biểu thức với số là giá trị của biểu thức đó.',
+        left: [
+          { id: 'e5', text: '5 × (35 − 25)' },
+          { id: 'e54', text: '(54 + 36) : 3' },
+          { id: 'e12', text: '(12 + 18) × 4' },
+          { id: 'e132', text: '132 − 84 : 2' },
+        ],
+        right: [
+          { id: 'v120', text: '120' },
+          { id: 'v90', text: '90' },
+          { id: 'v50', text: '50' },
+          { id: 'v30', text: '30' },
+        ],
+        pairs: [['e5', 'v50'], ['e54', 'v30'], ['e12', 'v120'], ['e132', 'v90']],
+        hints: ['Tính trong ngoặc trước; không có ngoặc thì chia trước: 84 : 2 = 42, rồi 132 − 42.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Người ta đóng 280 cái bánh vào các hộp, mỗi hộp 8 cái bánh. Sau đó đóng các hộp vào các thùng, mỗi thùng 5 hộp. Hỏi người ta đóng được bao nhiêu thùng bánh như vậy?',
+        wordProblem: true,
+        blanks: [{ label: 'Số thùng bánh', answer: '7' }],
+        hints: ['Bước 1: số hộp bánh là 280 : 8 = 35 (hộp). Bước 2: chia số hộp vào các thùng, mỗi thùng 5 hộp.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '5. Viết dấu phép tính “<span class="gw-sample-text">+</span>, <span class="gw-sample-text">×</span>, <span class="gw-sample-text">:</span>” thích hợp vào ô trống để được biểu thức:',
+        blanks: [
+          { label: 'a) Có giá trị lớn nhất có thể: 3 × (3 ... 3)', boxes: true, answer: '×', validate: opsValidate(['×']) },
+          { label: 'b) Có giá trị bé nhất có thể: 3 × (3 ... 3)', boxes: true, answer: ':', validate: opsValidate([':']) },
+        ],
+        hints: ['Thử cả ba dấu trong ngoặc: 3 + 3 = 6, 3 × 3 = 9, 3 : 3 = 1 — rồi nhân với 3.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-43', number: 43, title: 'Ôn tập hình học và đo lường',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai43T1Figure,
+        q: '1. a) Số?\nTrong hình bên có:',
+        blanks: [
+          { label: '... góc không vuông đỉnh B;', answer: '2' },
+          { label: '... góc không vuông đỉnh A;', answer: '3' },
+          { label: '... góc vuông.', answer: '11' },
+          { label: 'b) Viết tiếp vào chỗ chấm cho thích hợp.<br>Trong hình vẽ trên:<br>– Trung điểm của đoạn thẳng AC là điểm ...', answer: 'K', validate: letterValidate('K') },
+          { label: '– Trung điểm của đoạn thẳng ED là điểm ...', answer: 'I', validate: letterValidate('I') },
+          { label: '– Trung điểm của đoạn thẳng KH là điểm ...', answer: 'I', validate: letterValidate('I') },
+          { label: '– Trung điểm của đoạn thẳng BH là điểm ...', answer: 'K', validate: letterValidate('K') },
+          { label: '– Trung điểm của đoạn thẳng MN là điểm ...', answer: 'H', validate: letterValidate('H') },
+        ],
+        hints: [
+          'Đếm ô vuông: từ B xuống K là 4 ô, từ K sang A và sang C cũng là 4 ô, nên góc đỉnh B cạnh BA, BC là góc vuông; hai góc còn lại ở đỉnh B (tạo bởi BK với BA, với BC) không vuông. Ở đỉnh A có ba góc: tạo bởi AB, AC và AE.',
+          'Góc vuông: 4 góc ở đỉnh K, 4 góc ở đỉnh I, 2 góc ở đỉnh H và góc đỉnh B cạnh BA, BC. Trung điểm cách đều hai đầu đoạn thẳng — hãy đếm ô vuông.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai43T1Circle,
+        q: '3. Viết tiếp vào chỗ chấm cho thích hợp.',
+        blanks: [
+          { label: 'a) Các đường kính của hình tròn có trong hình bên là: ...', answer: 'AB, CD', validate: letterGroupsValidate(['AB', 'CD']) },
+          { label: 'b) Các bán kính của hình tròn có trong hình bên là ...', answer: 'OA, OB, OC, OD, OE', validate: letterGroupsValidate(['OA', 'OB', 'OC', 'OD', 'OE']) },
+          { label: 'c) Đường kính AB gấp ... lần bán kính OB.', answer: '2' },
+        ],
+        hints: [
+          'Đường kính là đoạn thẳng đi qua tâm O, nối hai điểm trên đường tròn. Đoạn AC không đi qua tâm O nên không phải đường kính.',
+          'Bán kính nối tâm O với một điểm trên đường tròn: O nối với A, B, C, D và E. Đường kính dài gấp 2 lần bán kính.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai43T1Castle,
+        q: '4. Số?\nTrong hình trên có:',
+        blanks: [
+          { label: '... khối lập phương nhỏ;', answer: '20' },
+          { label: '... khối trụ;', answer: '2' },
+          { label: '... khối cầu.', answer: '1' },
+        ],
+        hints: [
+          'Tầng dưới xếp thành hình vuông, mỗi cạnh 4 khối lập phương (4 hàng, mỗi hàng 4 khối); tầng trên có 4 khối lập phương ở 4 góc.',
+          'Hai khối trụ là khối to ở giữa và khối cao, nhỏ đặt trên nó; khối cầu ở trên cùng.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai43T1Box,
+        q: '5. Số?\nNgười ta xếp các khối gỗ dạng khối lập phương nhỏ thành khối hộp chữ nhật (như hình vẽ) rồi sơn màu xanh tất cả các mặt bên ngoài.\nTrong hình bên có:',
+        blanks: [
+          { label: 'a) ... khối gỗ được sơn 3 mặt.', answer: '8' },
+          { label: 'b) ... khối gỗ được sơn 2 mặt.', answer: '8' },
+        ],
+        hints: [
+          'Khối hộp gồm 2 tầng, mỗi tầng 2 hàng, mỗi hàng 4 khối gỗ. Khối gỗ ở góc được sơn 3 mặt — khối hộp chữ nhật có 8 góc.',
+          'Các khối gỗ còn lại (2 khối ở giữa mỗi hàng) nằm trên cạnh dài của khối hộp nên được sơn 2 mặt.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai43T2Figures,
+        q: '1. a) Viết tiếp vào chỗ chấm cho thích hợp.',
+        blanks: [
+          { label: 'Độ dài đường gấp khúc ABCD là: ... = ...', answer: '35 + 35 + 35,105 mm', validate: polylineValidate([35, 35, 35], 'mm') },
+          { label: 'b) Viết số thích hợp vào chỗ chấm.<br>Cả ba quả xoài cân nặng ... g.', answer: '800' },
+        ],
+        hints: [
+          'a) Độ dài đường gấp khúc bằng tổng độ dài các đoạn thẳng: 35 mm + 35 mm + 35 mm (hoặc 35 mm × 3).',
+          'b) Cân thăng bằng: ba quả xoài cùng quả cân 200 g nặng bằng 500 g + 500 g = 1 000 g. Lấy 1 000 g trừ đi 200 g.',
+        ],
+      },
+      {
+        // Four "Khoanh vào chữ" rows with three choices each, graded together.
+        type: 'compare', section: 'Tiết 2', img: imgBai43T2Objects,
+        q: '2. Khoanh vào chữ đặt trước kết quả thích hợp.',
+        rows: [
+          { left: 'a) Hộp bút dày khoảng:', options: ['A. 15 cm', 'B. 15 mm', 'C. 15 dm'], answer: 'B' },
+          { left: 'b) Cái bút bi cân nặng khoảng:', options: ['A. 8 g', 'B. 80 g', 'C. 8 kg'], answer: 'A' },
+          { left: 'c) Một bát (chén) đầy nước có khoảng:', options: ['A. 2 l nước', 'B. 20 ml nước', 'C. 200 ml nước'], answer: 'C' },
+          { left: 'd) Em nên uống nước ở nhiệt độ khoảng:', options: ['A. 25 °C', 'B. 70 °C', 'C. 100 °C'], answer: 'A' },
+        ],
+        hints: ['Hãy nghĩ tới đồ vật thật: hộp bút dày chưa tới 2 cm; cái bút bi rất nhẹ; một bát nước uống được vài ngụm lớn; nước 70 °C hay 100 °C thì rất nóng, uống sẽ bị bỏng.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '3. Tính.',
+        blanks: [
+          { label: 'a) 540 mm + 260 mm =', answer: '800 mm', validate: unitValidate(800, 'mm') },
+          { label: 'a) 180 mm × 4 =', answer: '720 mm', validate: unitValidate(720, 'mm') },
+          { label: 'a) 732 mm − 32 mm =', answer: '700 mm', validate: unitValidate(700, 'mm') },
+          { label: 'a) 720 mm : 8 =', answer: '90 mm', validate: unitValidate(90, 'mm') },
+          { label: 'b) 327 ml + 400 ml =', answer: '727 ml', validate: unitValidate(727, 'ml') },
+          { label: 'b) 150 ml × 6 =', answer: '900 ml', validate: unitValidate(900, 'ml') },
+          { label: 'b) 1 000 ml − 300 ml =', answer: '700 ml', validate: unitValidate(700, 'ml') },
+          { label: 'b) 700 ml : 7 =', answer: '100 ml', validate: unitValidate(100, 'ml') },
+          { label: 'c) 270 g + 538 g =', answer: '808 g', validate: unitValidate(808, 'g') },
+          { label: 'c) 240 g × 3 =', answer: '720 g', validate: unitValidate(720, 'g') },
+          { label: 'c) 730 g − 430 g =', answer: '300 g', validate: unitValidate(300, 'g') },
+          { label: 'c) 960 g : 6 =', answer: '160 g', validate: unitValidate(160, 'g') },
+        ],
+        hints: ['Tính như với các số rồi viết thêm tên đơn vị vào kết quả, ví dụ 540 mm + 260 mm = 800 mm.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Một gói mì tôm cân nặng 75 g, một hộp ngũ cốc cân nặng 500 g. Hỏi 5 gói mì tôm và 1 hộp ngũ cốc cân nặng bao nhiêu gam?',
+        wordProblem: true,
+        blanks: [{ label: '5 gói mì tôm và 1 hộp ngũ cốc cân nặng (g)', answer: '875' }],
+        hints: ['Bước 1: 5 gói mì tôm cân nặng 75 × 5 = 375 (g). Bước 2: cộng thêm cân nặng của hộp ngũ cốc.'],
+      },
+    ],
+  },
+  {
+    id: 'bai-44', number: 44, title: 'Ôn tập chung',
+    questions: [
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '1. Đặt tính rồi tính.',
+        blanks: [
+          { label: '132 × 4 =', answer: '528' },
+          { label: '209 × 4 =', answer: '836' },
+          { label: '113 × 6 =', answer: '678' },
+        ],
+        hints: ['Nhân lần lượt từ phải sang trái; ở 209 × 4: 9 × 4 = 36, viết 6 nhớ 3; 0 × 4 = 0, thêm 3 bằng 3; 2 × 4 = 8.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '2. Đặt tính rồi tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(75, 5), divBlank(68, 4), divBlank(96, 6)],
+        hints: ['Chia lần lượt từ trái sang phải: 7 : 5 = 1 (dư 2), hạ 5 xuống được 25, 25 : 5 = 5.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1', img: imgBai44T1Rect,
+        q: '3. Viết vào chỗ chấm cho thích hợp.\nCho hình chữ nhật ABCD và hình tròn tâm O như hình vẽ.',
+        blanks: [
+          { label: 'a) O là trung điểm của đoạn thẳng ... và đoạn thẳng ....', answer: 'AC,BD', validate: letterGroupsValidate(['AC', 'BD']) },
+          { label: 'b) Các góc vuông có trong hình vẽ là: Góc đỉnh ...; cạnh ..., ...', answer: 'A, AB, AD', validate: bai44RightAngles },
+          { label: 'b) Góc vuông: Góc đỉnh ...; cạnh ..., ...', answer: 'B, BA, BC', validate: bai44RightAngles },
+          { label: 'b) Góc vuông: Góc đỉnh ...; cạnh ..., ...', answer: 'C, CB, CD', validate: bai44RightAngles },
+          { label: 'b) Góc vuông: Góc đỉnh ...; cạnh ..., ...', answer: 'D, DA, DC', validate: bai44RightAngles },
+          { label: 'c) Các góc không vuông có chung đỉnh O là: Góc đỉnh O; cạnh ..., ...', answer: 'OA, OB', validate: bai44OtherAngles },
+          { label: 'c) Góc không vuông: Góc đỉnh O; cạnh ..., ...', answer: 'OB, OC', validate: bai44OtherAngles },
+          { label: 'c) Góc không vuông: Góc đỉnh O; cạnh ..., ...', answer: 'OC, OD', validate: bai44OtherAngles },
+          { label: 'c) Góc không vuông: Góc đỉnh O; cạnh ..., ...', answer: 'OD, OA', validate: bai44OtherAngles },
+        ],
+        hints: [
+          'a) Hai đường chéo AC và BD của hình chữ nhật cắt nhau tại O, và O là tâm hình tròn nên OA = OB = OC = OD.',
+          'b) Hình chữ nhật có 4 góc vuông ở 4 đỉnh A, B, C, D. c) Hai đường chéo cắt nhau tại O tạo thành 4 góc không vuông: cạnh OA, OB; OB, OC; OC, OD; OD, OA.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '4. Tính giá trị của biểu thức.',
+        blanks: [
+          { label: 'a) 216 + 148 − 144 = ...', answer: '364 − 144', validate: exprValidate('364 − 144', '216 + 4', '216 + (148 − 144)') },
+          { label: '= ...', answer: '220' },
+          { label: 'b) 216 × (148 − 144) = ...', answer: '216 × 4', validate: exprValidate('216 × 4') },
+          { label: '= ...', answer: '864' },
+        ],
+        hints: ['a) Chỉ có phép cộng, trừ thì tính lần lượt từ trái sang phải. b) Có dấu ngoặc thì tính trong ngoặc trước: 148 − 144 = 4.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 1',
+        q: '5. Cửa hàng có một thùng đựng 120 l nước mắm. Cửa hàng đã lấy ra 7 can, mỗi can 10 l nước mắm. Hỏi trong thùng còn lại bao nhiêu lít nước mắm?',
+        wordProblem: true,
+        blanks: [{ label: 'Số lít nước mắm còn lại (l)', answer: '50' }],
+        hints: ['Bước 1: số lít nước mắm đã lấy ra là 10 × 7 = 70 (l). Bước 2: lấy 120 trừ đi số đó.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '1. Đặt tính rồi tính.',
+        blanks: [
+          { label: '217 × 4 =', answer: '868' },
+          { label: '309 × 3 =', answer: '927' },
+          { label: '160 × 5 =', answer: '800' },
+        ],
+        hints: ['Nhân lần lượt từ phải sang trái, nhớ sang hàng bên trái khi tích từ 10 trở lên.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '2. Đặt tính rồi tính.\n(Viết thương và số dư; phép chia hết thì số dư là 0.)',
+        blanks: [divBlank(576, 3), divBlank(645, 5), divBlank(847, 7)],
+        hints: ['Ở 847 : 7: 8 : 7 = 1 (dư 1), hạ 4 được 14, 14 : 7 = 2; hạ 7 xuống, 7 : 7 = 1.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2', img: imgBai44T2Figures,
+        q: '3. Viết số thích hợp vào chỗ chấm.',
+        blanks: [
+          { label: 'a) Độ dài đường gấp khúc ABCD như hình dưới đây là ... mm.', answer: '97' },
+          { label: 'b) Túi đường trong hình bên cân nặng ... g.', answer: '800' },
+          { label: 'c) Rót hết nước từ một cái bình được 3 ca nước như hình vẽ.<br>Lượng nước ban đầu trong bình là ... ml.', answer: '600' },
+        ],
+        hints: [
+          'a) Cộng độ dài ba đoạn thẳng: 34 + 18 + 45. b) Cân thăng bằng nên túi đường nặng bằng 100 g + 200 g + 500 g.',
+          'c) Nước trong mỗi ca lên đến vạch 200 ml; có 3 ca như vậy.',
+        ],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '4. Tính giá trị của biểu thức.',
+        blanks: [
+          { label: 'a) 32 × 6 : 3 = ...', answer: '192 : 3', validate: exprValidate('192 : 3', '32 × 2', '2 × 32') },
+          { label: '= ...', answer: '64' },
+          { label: 'b) 32 × (6 − 3) = ...', answer: '32 × 3', validate: exprValidate('32 × 3') },
+          { label: '= ...', answer: '96' },
+        ],
+        hints: ['a) Chỉ có phép nhân, chia thì tính từ trái sang phải: 32 × 6 = 192. b) Tính trong ngoặc trước: 6 − 3 = 3.'],
+      },
+      {
+        type: 'fill', section: 'Tiết 2',
+        q: '5. Một đội trồng cây, ngày đầu trồng được 235 cây, ngày sau trồng được nhiều hơn ngày đầu 80 cây. Hỏi cả hai ngày đội trồng cây đó trồng được bao nhiêu cây?',
+        wordProblem: true,
+        blanks: [{ label: 'Số cây cả hai ngày', answer: '550' }],
+        hints: ['Bước 1: ngày sau trồng được 235 + 80 = 315 (cây). Bước 2: cộng số cây của hai ngày.'],
+      },
+    ],
+  },
 ];
 
 // ── PERSISTENT PROGRESS (localStorage) ──────────────────────────────────────
@@ -1974,6 +4151,16 @@ function clearUnitStorage(unitId) {
   delete data[unitId];
   saveStorage(data);
 }
+// The unit the child last opened, so the unit menu can jump back to it (after
+// ✕ / "Chọn bài khác", and also when the workbook is reopened from home).
+const LAST_UNIT_KEY = 'gw-last-unit';
+function getLastUnit() {
+  try { return localStorage.getItem(LAST_UNIT_KEY); } catch { return null; }
+}
+function setLastUnit(unitId) {
+  try { localStorage.setItem(LAST_UNIT_KEY, unitId); } catch { /* storage unavailable */ }
+}
+
 function getUnitSummary(unit) {
   let solvedCount = 0, attemptsSum = 0;
   unit.questions.forEach((_, i) => {
@@ -2049,6 +4236,7 @@ export function render(app, onBack) {
     app.querySelectorAll('.gw-unit-row').forEach(btn => {
       btn.addEventListener('click', () => {
         const uid = btn.dataset.unit;
+        setLastUnit(uid);
         if (uid === 'all') {
           activeQuestions = UNITS.flatMap(u => u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: i })));
           activeTitle = `Tất cả — ${totalQ} câu`;
@@ -2069,6 +4257,25 @@ export function render(app, onBack) {
     });
 
     app.querySelector('#e3-back-btn').onclick = onBack;
+    jumpToLastUnit();
+  }
+
+  // Scrolls the menu (the unit list and #app, the page's scroll container) so
+  // the last-opened unit's card is centered, then pulses it briefly in that
+  // unit's own color. Nothing stored yet (first visit) = stay at the top.
+  function jumpToLastUnit() {
+    const last = getLastUnit();
+    if (!last) return;
+    const card = [...app.querySelectorAll('.gw-unit-row')].find(b => b.dataset.unit === last);
+    if (!card) return;
+    const unitIdx = UNITS.findIndex(u => u.id === last);
+    card.style.setProperty('--gw-flash', unitIdx >= 0 ? PALETTE[unitIdx % PALETTE.length] : '#334155');
+    requestAnimationFrame(() => {
+      if (!card.isConnected) return;
+      card.scrollIntoView({ block: 'center' });
+      card.classList.add('gw-unit-flash');
+      setTimeout(() => card.classList.remove('gw-unit-flash'), 1600);
+    });
   }
 
   function resetProgress() {
@@ -2104,15 +4311,29 @@ export function render(app, onBack) {
     compareSelected = q.type === 'compare' ? new Array(q.rows.length).fill(null) : [];
     matchPairs = new Map();
     matchLocked = new Set();
-    if (q.type === 'match' && solved[current]) matchLocked = new Set(q.left.map(l => l.id));
+    if (q.type === 'match' && solved[current]) matchLocked = new Set(q.pairs.map(p => p[0]));
 
     const visitedCount = solved.filter(Boolean).length + attempted.filter((a, i) => a && !solved[i]).length;
     const pct = Math.round((visitedCount / activeQuestions.length) * 100);
     const answerUnlocked = !q.wordProblem || solutionConfirmed[current] || solved[current];
+    // The quiz screen is split into two zones filling the viewport: the top
+    // zone (header ✕ / progress / ☰, never moves) and the scroll zone below
+    // it, which alone scrolls. Picture / essay-style questions put their
+    // question card (text + image) in the top zone too, so the child can
+    // keep looking at the figure while scrolling through the answer boxes.
+    const pinQuestion = !!(q.img || q.wordProblem);
+    const questionCard = `
+          <div class="e3-question-card${q.img ? ' gw-card-has-img' : ''}">
+            <div class="e3-q-num" style="color:${activeColor}">${q.section ? `${q.section} — ` : ''}Câu ${current + 1}</div>
+            <div class="e3-q-text">${q.q.replace(/\n/g, '<br>')}</div>
+            ${q.img ? `<img class="e3-q-img" src="${q.img}" alt="Hình minh họa câu ${current + 1}" loading="lazy">` : ''}
+            ${q.wordProblem ? renderSubQuestions(q) : ''}
+          </div>`;
 
     app.innerHTML = `
-      <div class="e3-wrap gw-app">
+      <div class="e3-wrap gw-app gw-quiz-screen">
         <div class="e3-quiz animate-fadeIn">
+          <div class="gw-pin-zone${pinQuestion ? ' gw-pin-zone-q' : ''}">
           <div class="e3-topbar">
             <button class="e3-back-icon" id="e3-quit">✕</button>
             <div class="e3-progress-wrap">
@@ -2123,17 +4344,15 @@ export function render(app, onBack) {
             </div>
             <button class="e3-back-icon" id="e3-list-toggle" title="Danh sách câu hỏi">☰</button>
           </div>
-
-          <div class="e3-question-card">
-            <div class="e3-q-num" style="color:${activeColor}">${q.section ? `${q.section} — ` : ''}Câu ${current + 1}</div>
-            <div class="e3-q-text">${q.q.replace(/\n/g, '<br>')}</div>
-            ${q.img ? `<img class="e3-q-img" src="${q.img}" alt="Hình minh họa câu ${current + 1}" loading="lazy">` : ''}
-            ${q.wordProblem ? renderSubQuestions(q) : ''}
+          ${pinQuestion ? questionCard : ''}
           </div>
+
+          <div class="gw-scroll-zone">
+          ${pinQuestion ? '' : questionCard}
 
           ${q.wordProblem ? renderSolutionBlock(q) : ''}
 
-          ${answerUnlocked ? renderAnswerArea(q) : renderAnswerLockNotice()}
+          ${answerUnlocked ? renderAnswerArea(q) : `<div class="e3-answer-locked" inert>${renderAnswerArea(q)}</div>${renderAnswerLockNotice()}`}
 
           ${answerUnlocked && !solved[current] ? renderHints(q) : ''}
 
@@ -2141,6 +4360,7 @@ export function render(app, onBack) {
             <button class="e3-btn e3-btn-primary" id="e3-next" style="background:linear-gradient(135deg,${activeColor},${activeColor}cc)">
               ${current < activeQuestions.length - 1 ? 'Câu tiếp theo →' : 'Xem kết quả 🏅'}
             </button>
+          </div>
           </div>
         </div>
 
@@ -2171,6 +4391,13 @@ export function render(app, onBack) {
   // dangle a redundant fragment right after the question mark.
   function renderSubQuestions(q) {
     if (!q.blanks || q.blanks.length < 2) return '';
+    // q.subQuestions === false: the extra blanks are lines of the book's own
+    // Bài giải (Bài 31/32 "Đổi: 1 kg = ... g"), not questions to print here.
+    if (q.subQuestions === false) return '';
+    // q already holds the a)/b) sub-questions as the book prints them (Bài 11,
+    // 12, 28, 29) — the blank labels are then just short captions for the
+    // answer boxes, and repeating them here would print the question twice.
+    if (/(^|\n)\s*(\d+\.\s*)?a\)/.test(q.q)) return '';
     const prompts = q.blanks.map(b => `<div class="e3-subq">${b.label}</div>`).join('');
     return `<div class="e3-subquestions">${prompts}</div>`;
   }
@@ -2390,7 +4617,9 @@ export function render(app, onBack) {
   }
 
   function renderChoiceArea(q) {
-    const labels = ['A', 'B', 'C', 'D'];
+    // Multi-select "tô màu" questions can list more than 4 cells/cards
+    // (Bài 15 has 5 clouds, Bài 24/25 have 6–8 boxes/cars).
+    const labels = ['A', 'B', 'C', 'D', 'E', 'G', 'H', 'I'];
     return `
       <div class="e3-options" id="e3-options">
         ${q.options.map((opt, i) => `
@@ -2448,13 +4677,18 @@ export function render(app, onBack) {
   // middle, or after "="), and lets a row with several "..." (e.g. "35, ..., ...")
   // get one box per blank instead of forcing multiple answers into a single field.
   function renderBlankRow(b, i) {
-    const parts = b.label.split('...');
+    // A "<br>" in a label (Bài 40, 43, 44: a b) instruction line printed just
+    // above its first answer line) must really start a new line, but a plain
+    // <br> is ignored inside the inline-flex label — a full-width, zero-height
+    // flex item forces the wrap instead.
+    const label = b.label.replace(/<br\s*\/?>/g, '<span class="gw-line-break"></span>');
+    const parts = label.split('...');
     if (parts.length === 1) {
       const numeric = isPlainInt(b.answer);
       const input = `<input type="text" ${numeric ? 'inputmode="numeric"' : ''} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed gw-blank-fill" style="min-width:3ch" data-idx="${i}" autocomplete="off">`;
       return `
         <div class="e3-blank-row e3-blank-row-inline">
-          <label class="e3-blank-label e3-blank-label-inline">${b.label}${input}</label>
+          <label class="e3-blank-label e3-blank-label-inline">${label}${input}</label>
         </div>
       `;
     }
@@ -2478,7 +4712,26 @@ export function render(app, onBack) {
     // width — but that width still needs a comfortable typing floor (~9ch),
     // not just enough characters to fit the expected answer, which cramped
     // a 1-letter answer into a 3ch box that also gave away the answer length.
+    // Free-text slots in one row share the row's widest width: Bài 27's
+    // "giảm 3 lần" / "gấp 2 lần" slots sized one by one came out 12ch vs 11ch,
+    // which told the child which phrase belonged in which slot.
+    const textSlotCh = Math.max(...slotAnswers.map(inputWidthCh));
     let slot = 0;
+    // b.boxes: the book prints each slot as its own small "ô trống" square
+    // holding exactly one character, and says so in the instruction ("Viết
+    // chữ số ... vào ô trống", "Viết dấu phép tính ... vào ô trống" — Bài 41,
+    // 42), so a one-character box gives nothing away, and a 9ch dotted line per
+    // digit would break "1☐3 × 6 = 61☐" over several lines on a phone.
+    if (b.boxes) {
+      const boxHtml = parts.map((text, idx) => idx === parts.length - 1 ? text
+        : `${text}<input type="text" ${numeric ? 'inputmode="numeric"' : ''} maxlength="1" class="game-input e3-blank-input gw-blank-inline gw-blank-box" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`
+      ).join('');
+      return `
+        <div class="e3-blank-row e3-blank-row-inline">
+          <label class="e3-blank-label e3-blank-label-inline gw-blank-label-boxes">${boxHtml}</label>
+        </div>
+      `;
+    }
     const html = parts.map((text, idx) => {
       const isLast = idx === parts.length - 1;
       if (isLast) return text;
@@ -2486,7 +4739,7 @@ export function render(app, onBack) {
       const fillClass = isTrailingBlank ? ' gw-blank-fill' : '';
       const style = isTrailingBlank
         ? 'min-width:3ch'
-        : `width:${Math.max(9, numeric ? String(slotAnswer).length + 2 : inputWidthCh(slotAnswer))}ch`;
+        : `width:${Math.max(9, numeric ? String(slotAnswer).length + 2 : textSlotCh)}ch`;
       const input = `<input type="text" ${numeric ? 'inputmode="numeric"' : ''} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed${fillClass}" style="${style}" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`;
       return `${text}${input}`;
     }).join('');
@@ -2554,12 +4807,21 @@ export function render(app, onBack) {
     return Array.from({ length: dataColCount }, (_, c) => {
       const colVals = t.rows.map(row => {
         const cell = rowCells(row)[c];
-        return (cell && typeof cell === 'object' && cell.blank) ? cell.answer : cell;
+        if (cell && typeof cell === 'object') return cell.blank ? cell.answer : cell.value;
+        return cell;
       });
       const maxLen = Math.max(1, ...colVals.map(v => String(v).length));
+      // A long sentence-like row label (Bài 24's "Thêm vào số đã cho 7 đơn
+      // vị") would otherwise claim a 230px+ column that clips its own bold
+      // text on a phone and crushes the number columns; it's capped and
+      // allowed to wrap instead (see isWrapLabel / .gw-table-given-wrap).
+      if (colVals.some(isWrapLabel)) return 150;
       // ~8px/character plus the cell's own horizontal padding.
       return Math.max(32, maxLen * 8 + 18);
     });
+  }
+  function isWrapLabel(v) {
+    return typeof v === 'string' && v.length > 14 && /[^\d\s]/.test(v);
   }
 
   function renderTableArea(q) {
@@ -2589,7 +4851,12 @@ export function render(app, onBack) {
                       const numeric = isPlainInt(cell.answer);
                       return `<td class="gw-table-input-cell"><input type="text" ${numeric ? 'inputmode="numeric"' : ''} class="game-input gw-table-input" data-t="${ti}" data-r="${r}" data-c="${c}" autocomplete="off"></td>`;
                     }
-                    return `<td class="gw-table-given">${cell}</td>`;
+                    // sampleCell(): a single blue "theo mẫu" cell/column, for
+                    // when the book's sample isn't a whole row.
+                    if (cell && typeof cell === 'object' && cell.sample) {
+                      return `<td class="gw-table-given gw-table-sample-cell">${cell.value}</td>`;
+                    }
+                    return `<td class="gw-table-given${colWidths && isWrapLabel(cell) ? ' gw-table-given-wrap' : ''}">${cell}</td>`;
                   }).join('')}</tr>`).join('')}
                 </tbody>
               </table>
@@ -2598,6 +4865,7 @@ export function render(app, onBack) {
         `;
         }).join('')}
       </div>
+      ${q.blanks ? `<div class="e3-blanks gw-table-blanks" id="e3-blanks">${q.blanks.map((b, i) => renderBlankRow(b, i)).join('')}</div>` : ''}
       <button class="e3-btn e3-btn-primary" id="gw-table-check" style="margin-top:12px">Kiểm tra</button>
     `;
   }
@@ -2605,7 +4873,14 @@ export function render(app, onBack) {
   function renderCompareArea(q) {
     return `
       <div class="gw-compare" id="gw-compare">
-        ${q.rows.map((row, i) => `
+        ${q.rows.map((row, i) => row.options ? `
+          <div class="gw-compare-row gw-compare-row-opt" data-idx="${i}">
+            <span class="gw-compare-expr">${row.left}</span>
+            <div class="gw-compare-btns">
+              ${row.options.map(opt => `<button type="button" class="gw-compare-btn gw-compare-opt${opt.length <= 2 ? ' gw-compare-opt-short' : ''}" data-idx="${i}" data-sym="${opt.split('.')[0].trim()}">${opt}</button>`).join('')}
+            </div>
+          </div>
+        ` : `
           <div class="gw-compare-row" data-idx="${i}">
             <span class="gw-compare-expr">${row.left}</span>
             <div class="gw-compare-btns">
@@ -2620,20 +4895,33 @@ export function render(app, onBack) {
   }
 
   function renderMatchArea(q) {
+    // An image item may also carry a text caption printed under it, like the
+    // book's name label below each object (Bài 34 "Xe đạp trẻ em").
     const renderItem = (item) => item.img
-      ? `<img src="${item.img}" class="gw-match-img" alt="">`
+      ? `<img src="${item.img}" class="gw-match-img" alt="">${item.text ? `<span class="gw-match-cap">${escapeHtml(item.text)}</span>` : ''}`
       : `<span>${escapeHtml(item.text)}</span>`;
+    const btn = (item, col, side, style = '') =>
+      `<button type="button" class="gw-match-item" data-side="${side}" data-col="${col}" data-id="${item.id}"${style ? ` style="${style}"` : ''}>${renderItem(item)}</button>`;
+    // A 3-column "nối" (q.middle, e.g. Bài 23 "32 + 32 + 32 → 32 × 3 → 96")
+    // links each column to the next one. Items are placed explicitly on the
+    // grid so an item can span several rows (item.row / item.span, Bài 24's
+    // framed boxes: one number beside two stacked operation boxes).
+    const grid = q.middle
+      ? [q.left, q.middle, q.right].map((col, c) => col.map((item, i) =>
+          btn(item, c, ['left', 'middle', 'right'][c], `grid-column:${c + 1};grid-row:${item.row || i + 1} / span ${item.span || 1}`)
+        ).join('')).join('')
+      : Array.from({ length: Math.max(q.left.length, q.right.length) }, (_, i) => `
+            ${q.left[i] ? btn(q.left[i], 0, 'left') : '<span></span>'}
+            ${q.right[i] ? btn(q.right[i], 1, 'right') : '<span></span>'}
+          `).join('');
     return `
-      <div class="gw-match" id="gw-match">
+      <div class="gw-match${q.middle ? ' gw-match-3' : ''}" id="gw-match">
         <svg class="gw-match-svg" id="gw-match-svg"></svg>
         <div class="gw-match-grid">
-          ${q.left.map((item, i) => `
-            <button type="button" class="gw-match-item" data-side="left" data-id="${item.id}">${renderItem(item)}</button>
-            <button type="button" class="gw-match-item" data-side="right" data-id="${q.right[i].id}">${renderItem(q.right[i])}</button>
-          `).join('')}
+          ${grid}
         </div>
       </div>
-      <p class="gw-match-hint">Bấm 1 ô bên trái rồi bấm ô tương ứng bên phải để nối, sau đó bấm Kiểm tra.</p>
+      <p class="gw-match-hint">${q.middle ? 'Bấm 1 ô rồi bấm ô tương ứng ở cột bên cạnh để nối (cột trái → cột giữa → cột phải), sau đó bấm Kiểm tra.' : 'Bấm 1 ô bên trái rồi bấm ô tương ứng bên phải để nối, sau đó bấm Kiểm tra.'}</p>
       <button class="e3-btn e3-btn-primary" id="gw-match-check" style="margin-top:12px" disabled>Kiểm tra</button>
     `;
   }
@@ -2649,8 +4937,8 @@ export function render(app, onBack) {
     const svg = app.querySelector('#gw-match-svg');
     if (!container || !svg) return;
     removeMatchLine(leftId);
-    const leftBtn = container.querySelector(`.gw-match-item[data-side="left"][data-id="${leftId}"]`);
-    const rightBtn = container.querySelector(`.gw-match-item[data-side="right"][data-id="${rightId}"]`);
+    const leftBtn = container.querySelector(`.gw-match-item[data-id="${leftId}"]`);
+    const rightBtn = container.querySelector(`.gw-match-item[data-id="${rightId}"]`);
     if (!leftBtn || !rightBtn) return;
     const box = container.getBoundingClientRect();
     const lr = leftBtn.getBoundingClientRect();
@@ -2813,41 +5101,52 @@ export function render(app, onBack) {
 
   function attachTableHandlers(q) {
     const inputs = [...app.querySelectorAll('.gw-table-input')];
+    // A table question may also carry trailing fill blanks below the table
+    // (Bài 23 Tiết 2 Q2: "Ô chữ giải được là: ..." under the cipher table) —
+    // graded together with the cells on the same "Kiểm tra".
+    const blankGroups = (q.blanks || []).map((b, i) => [...app.querySelectorAll(`.e3-blank-input[data-idx="${i}"]`)]);
+    const blankInputs = blankGroups.flat();
+    const allInputs = [...inputs, ...blankInputs];
     const checkBtn = app.querySelector('#gw-table-check');
     if (solved[current]) {
       inputs.forEach(inp => {
         const cell = tableCell(q, inp.dataset.t, inp.dataset.r, inp.dataset.c);
         inp.value = cell.answer;
-        inp.disabled = true;
-        inp.classList.add('e3-correct-input');
       });
+      (q.blanks || []).forEach((b, i) => {
+        const parts = blankGroups[i].length > 1 ? splitAnswerParts(b.answer) : [b.answer];
+        blankGroups[i].forEach((inp, j) => { inp.value = parts[j] ?? ''; });
+      });
+      allInputs.forEach(inp => { inp.disabled = true; inp.classList.add('e3-correct-input'); });
       checkBtn.remove();
       showFeedback(true);
       return;
     }
 
     checkBtn.onclick = () => {
-      const values = inputs.map(inp => inp.value.trim());
+      const values = allInputs.map(inp => inp.value.trim());
       if (values.some(v => v === '')) return;
       attempted[current] = true;
       const flags = inputs.map(inp => {
         const cell = tableCell(q, inp.dataset.t, inp.dataset.r, inp.dataset.c);
         return checkBlank(cell, inp.value.trim());
       });
-      const allCorrect = flags.every(Boolean);
+      const blankFlags = (q.blanks || []).map((b, i) => checkBlank(b, blankGroups[i].map(inp => inp.value.trim()).join(',')));
+      const allCorrect = flags.every(Boolean) && blankFlags.every(Boolean);
       if (allCorrect) {
         solved[current] = true;
         persistAttempt(current, true);
-        inputs.forEach(inp => { inp.disabled = true; inp.classList.add('e3-correct-input'); });
+        allInputs.forEach(inp => { inp.disabled = true; inp.classList.add('e3-correct-input'); });
         checkBtn.remove();
         showFeedback(true);
       } else {
         wrongCounts[current]++;
         persistAttempt(current, false);
         inputs.forEach((inp, i) => { if (!flags[i]) inp.classList.add('e3-wrong-input'); });
+        blankFlags.forEach((ok, i) => { if (!ok) blankGroups[i].forEach(inp => inp.classList.add('e3-wrong-input')); });
         showFeedback(false);
         refreshHints(q);
-        setTimeout(() => inputs.forEach(inp => inp.classList.remove('e3-wrong-input')), 700);
+        setTimeout(() => allInputs.forEach(inp => inp.classList.remove('e3-wrong-input')), 700);
       }
     };
   }
@@ -2904,76 +5203,89 @@ export function render(app, onBack) {
 
   function attachMatchHandlers(q) {
     const checkBtn = app.querySelector('#gw-match-check');
+    // A link is always stored under its lower-column item's id (left→right for
+    // a 2-column nối; left→middle and middle→right for a 3-column one), so
+    // matchPairs/matchLocked keys are exactly the q.pairs[i][0] ids.
+    const itemBtn = (id) => app.querySelector(`.gw-match-item[data-id="${id}"]`);
+    const pairLocked = (p) => matchLocked.has(p[0]);
+    // An item is done (disabled) only once every expected link touching it is
+    // locked in — a middle item has two, a many-to-one right item may have
+    // several. An item with no expected link at all (a distractor) never is.
+    const isFullyLocked = (id) => {
+      const involved = q.pairs.filter(p => p[0] === id || p[1] === id);
+      return involved.length > 0 && involved.every(pairLocked);
+    };
+
     if (solved[current]) {
       app.querySelectorAll('.gw-match-item').forEach(btn => { btn.disabled = true; });
-      q.left.forEach(l => app.querySelector(`.gw-match-item[data-id="${l.id}"]`)?.classList.add('gw-match-correct'));
-      q.right.forEach(r => {
-        if (q.pairs.some(p => p[1] === r.id)) app.querySelector(`.gw-match-item[data-id="${r.id}"]`)?.classList.add('gw-match-correct');
-      });
+      q.pairs.forEach(([a, b]) => { itemBtn(a)?.classList.add('gw-match-correct'); itemBtn(b)?.classList.add('gw-match-correct'); });
       q.pairs.forEach(([leftId, rightId]) => drawMatchLine(leftId, rightId));
       checkBtn?.remove();
       showFeedback(true);
       return;
     }
 
-    const leftBtns = [...app.querySelectorAll('.gw-match-item[data-side="left"]')];
-    const rightBtns = [...app.querySelectorAll('.gw-match-item[data-side="right"]')];
+    const allBtns = [...app.querySelectorAll('.gw-match-item')];
 
     const updateCheckBtn = () => {
-      checkBtn.disabled = (matchLocked.size + matchPairs.size) < q.left.length;
+      checkBtn.disabled = (matchLocked.size + matchPairs.size) < q.pairs.length;
+    };
+
+    // Recomputes the neutral "tentatively linked" highlight from matchPairs —
+    // a middle item can be one end of two different pending links.
+    const refreshLinked = () => {
+      const linked = new Set();
+      for (const [a, b] of matchPairs) { linked.add(a); linked.add(b); }
+      allBtns.forEach(b => b.classList.toggle('gw-match-linked', linked.has(b.dataset.id)));
     };
 
     const unlinkLeft = (leftId) => {
       if (!matchPairs.has(leftId)) return;
       matchPairs.delete(leftId);
       removeMatchLine(leftId);
-      app.querySelector(`.gw-match-item[data-id="${leftId}"]`)?.classList.remove('gw-match-linked');
     };
 
     const clearSelection = () => {
-      app.querySelectorAll('.gw-match-item').forEach(b => b.classList.remove('gw-match-selected'));
+      allBtns.forEach(b => b.classList.remove('gw-match-selected'));
       selectedMatchItem = null;
     };
 
     const makePair = (leftId, rightId) => {
-      const leftBtn = app.querySelector(`.gw-match-item[data-id="${leftId}"]`);
-      const rightBtn = app.querySelector(`.gw-match-item[data-id="${rightId}"]`);
-
-      // Free up either item if it was already tentatively linked to something else.
-      for (const [otherLeft, otherRight] of matchPairs) {
-        if (otherLeft === leftId || otherRight === rightId) unlinkLeft(otherLeft);
+      // Free up either item if it was already tentatively linked to something
+      // else in this same pair of columns — except a right item the book
+      // links several left items to (Bài 7: two objects are both "khối trụ"),
+      // which keeps its other links.
+      const manyToOne = q.pairs.filter(p => p[1] === rightId).length > 1;
+      for (const [otherLeft, otherRight] of [...matchPairs]) {
+        if (otherLeft === leftId || (!manyToOne && otherRight === rightId)) unlinkLeft(otherLeft);
       }
-
       matchPairs.set(leftId, rightId);
-      leftBtn.classList.remove('gw-match-selected');
-      rightBtn.classList.remove('gw-match-selected');
-      leftBtn.classList.add('gw-match-linked');
-      rightBtn.classList.add('gw-match-linked');
+      clearSelection();
+      refreshLinked();
       drawMatchLine(leftId, rightId, '#60A5FA');
-      selectedMatchItem = null;
       updateCheckBtn();
     };
 
     const onItemClick = (btn) => {
-      const side = btn.dataset.side;
+      const col = parseInt(btn.dataset.col, 10);
       const id = btn.dataset.id;
-      if (btn.disabled || matchLocked.has(id)) return;
+      if (btn.disabled) return;
 
-      if (selectedMatchItem && selectedMatchItem.side !== side) {
-        // Completing a pair started from the other column.
-        const leftId = side === 'left' ? id : selectedMatchItem.id;
-        const rightId = side === 'right' ? id : selectedMatchItem.id;
+      if (selectedMatchItem && Math.abs(selectedMatchItem.col - col) === 1) {
+        // Completing a link started from the neighbouring column.
+        const [leftId, rightId] = selectedMatchItem.col < col ? [selectedMatchItem.id, id] : [id, selectedMatchItem.id];
+        if (matchLocked.has(leftId)) { clearSelection(); return; }
         makePair(leftId, rightId);
         return;
       }
 
       // Selecting (or re-selecting) the starting item.
       clearSelection();
-      selectedMatchItem = { side, id };
+      selectedMatchItem = { col, id };
       btn.classList.add('gw-match-selected');
     };
 
-    [...leftBtns, ...rightBtns].forEach(btn => { btn.onclick = () => onItemClick(btn); });
+    allBtns.forEach(btn => { btn.onclick = () => onItemClick(btn); });
 
     checkBtn.onclick = () => {
       if (checkBtn.disabled) return;
@@ -2983,26 +5295,27 @@ export function render(app, onBack) {
 
       pendingLeftIds.forEach(leftId => {
         const rightId = matchPairs.get(leftId);
-        const leftBtn = app.querySelector(`.gw-match-item[data-id="${leftId}"]`);
-        const rightBtn = app.querySelector(`.gw-match-item[data-id="${rightId}"]`);
         const isCorrect = q.pairs.some(p => p[0] === leftId && p[1] === rightId);
         if (isCorrect) {
           matchLocked.add(leftId);
           matchPairs.delete(leftId);
-          leftBtn.classList.remove('gw-match-linked');
-          leftBtn.classList.add('gw-match-correct');
-          leftBtn.disabled = true;
-          rightBtn.classList.remove('gw-match-linked');
-          rightBtn.classList.add('gw-match-correct');
-          rightBtn.disabled = true;
           drawMatchLine(leftId, rightId, '#22c55e');
         } else {
-          leftBtn.classList.add('gw-match-wrong');
-          rightBtn.classList.add('gw-match-wrong');
+          itemBtn(leftId)?.classList.add('gw-match-wrong');
+          itemBtn(rightId)?.classList.add('gw-match-wrong');
         }
       });
+      q.pairs.filter(pairLocked).forEach(([a, b]) => {
+        [a, b].forEach(id => {
+          const el = itemBtn(id);
+          if (!el) return;
+          el.classList.add('gw-match-correct');
+          el.disabled = isFullyLocked(id);
+        });
+      });
+      refreshLinked();
 
-      if (allCorrect && matchLocked.size === q.left.length) {
+      if (allCorrect && matchLocked.size === q.pairs.length) {
         solved[current] = true;
         persistAttempt(current, true);
         checkBtn.remove();
@@ -3014,14 +5327,9 @@ export function render(app, onBack) {
         refreshHints(q);
         checkBtn.disabled = true;
         setTimeout(() => {
-          [...matchPairs.keys()].forEach(leftId => {
-            const rightId = matchPairs.get(leftId);
-            const leftBtn = app.querySelector(`.gw-match-item[data-id="${leftId}"]`);
-            const rightBtn = app.querySelector(`.gw-match-item[data-id="${rightId}"]`);
-            leftBtn?.classList.remove('gw-match-wrong', 'gw-match-linked');
-            rightBtn?.classList.remove('gw-match-wrong', 'gw-match-linked');
-            unlinkLeft(leftId);
-          });
+          [...matchPairs.keys()].forEach(leftId => unlinkLeft(leftId));
+          allBtns.forEach(b => b.classList.remove('gw-match-wrong'));
+          refreshLinked();
           updateCheckBtn();
         }, 700);
       }
@@ -3220,6 +5528,7 @@ function injectStyles() {
       .e3-solution-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
       .e3-btn-sm { width: auto; padding: 0.5rem 0.9rem; font-size: 0.85rem; }
       .e3-solution-controls .e3-btn-sm { flex: 1; }
+      .e3-answer-locked { opacity: 0.6; }
       .e3-answer-locked-note { text-align: center; padding: 0.9rem; color: #94a3b8; font-size: 0.95rem; font-style: italic; background: #f8fafc; border-radius: 0.8rem; margin-top: 0.9rem; }
       .e3-subquestions { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.9rem; }
       .e3-subq { font-size: clamp(1.05rem, 3.1vw, 1.25rem); font-weight: 700; color: #1E293B; line-height: 1.5; }
@@ -3276,17 +5585,77 @@ function injectStyles() {
       .gw-app .gw-table-input { height: 48px; font-size: 1.2rem; }
       .gw-app .gw-compare-expr { font-size: 1.2rem; }
       .gw-app .gw-compare-btn { width: 3rem; height: 3rem; font-size: 1.35rem; }
+      .gw-app .gw-compare-btn.gw-compare-opt { width: auto; font-size: 1.15rem; }
       .gw-app .gw-match-item { font-size: 1.15rem; padding: 1rem 1.1rem; min-height: 3.4rem; }
       .gw-app .gw-match-img { max-height: 90px; }
       .gw-app .gw-unit-row { padding: 1rem 1.2rem; }
       .gw-app .gw-unit-info strong { font-size: 1.05rem; }
       .gw-app .gw-unit-sub { font-size: 0.88rem; }
     }
+    /* Quiz screen = two zones filling #app's height: the top zone (header
+       always, plus the question card for picture / essay questions) never
+       moves, and only the scroll zone below it scrolls — with its own
+       scrollbar, so nothing in the top zone ever scrolls with the page.
+       The top zone is capped in height so the answer zone keeps enough
+       room; the image shrinks to fit (tap it to open the full-size
+       lightbox) and a long question scrolls inside its own card. */
+    .gw-app.gw-quiz-screen { height: 100%; min-height: 0; padding-bottom: 0; overflow: hidden; }
+    .gw-quiz-screen .e3-quiz { display: flex; flex-direction: column; height: 100%; min-height: 0; padding-bottom: 0; }
+    .gw-quiz-screen .gw-pin-zone { flex: 0 0 auto; display: flex; flex-direction: column; min-height: 0; }
+    .gw-quiz-screen .gw-pin-zone-q { max-height: 55%; padding-bottom: 0.75rem; }
+    .gw-quiz-screen .gw-scroll-zone {
+      flex: 1 1 auto; min-height: 0;
+      overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      padding: 2px 2px 2rem; margin: 0 -2px;
+    }
+    .gw-app .gw-pin-zone .e3-topbar { flex-shrink: 0; }
+    /* The card is itself a flex column so the image (the only shrinkable
+       child) gives up height first: on short screens (landscape laptop /
+       tablet) it scales down to whatever the zone has left after the text,
+       instead of being cut off at the bottom. Only when even the 120px
+       floor doesn't fit does the card fall back to scrolling inside. */
+    .gw-app .gw-pin-zone .e3-question-card {
+      flex: 0 1 auto; min-height: 0; margin-bottom: 0;
+      display: flex; flex-direction: column;
+      overflow-y: auto; overscroll-behavior: contain;
+    }
+    .gw-app .gw-pin-zone .e3-question-card > * { flex-shrink: 0; }
+    .gw-app .gw-pin-zone .e3-question-card > .e3-q-img {
+      flex: 0 1 auto; min-height: 120px;
+      width: 100%; height: auto; max-height: 30vh; max-height: 30dvh;
+      object-fit: contain; object-position: center;
+    }
+    @media (min-width: 720px) {
+      .gw-app .gw-pin-zone .e3-question-card > .e3-q-img { max-height: 34vh; max-height: 34dvh; }
+    }
+    /* Short, wide screens (landscape laptop / tablet): stacking text above
+       the image leaves the image only a sliver of height, so put the image
+       in its own column to the right of the text, sized to the zone's
+       height (zone 62% − header − card padding ≈ 62dvh − 9.5rem). */
+    @media (min-width: 720px) and (max-height: 760px) {
+      .gw-quiz-screen .gw-pin-zone-q { max-height: 62%; }
+      .gw-app .gw-pin-zone .e3-question-card.gw-card-has-img {
+        display: grid; grid-template-columns: minmax(0, 1fr) auto;
+        column-gap: 1.5rem; align-items: start;
+      }
+      .gw-app .gw-pin-zone .gw-card-has-img > * { grid-column: 1; }
+      .gw-app .gw-pin-zone .gw-card-has-img > .e3-q-img {
+        grid-column: 2; grid-row: 1 / span 12; margin-top: 0;
+        width: auto; max-width: 48vw; min-height: 120px;
+        height: calc(62dvh - 9.5rem); max-height: none;
+      }
+    }
     .gw-intro-wide { max-width: 640px; }
     .gw-unit-list { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.2rem; max-height: 55vh; overflow-y: auto; padding-right: 2px; }
     .gw-unit-row { display: flex; align-items: center; gap: 0.8rem; padding: 0.75rem 0.9rem; border: 2px solid #e2e8f0; border-radius: 1rem; background: #f8fafc; cursor: pointer; font-family: inherit; text-align: left; transition: border-color 0.15s, background 0.15s, transform 0.1s; }
     .gw-unit-row:hover { border-color: #34D399; background: #fff; transform: translateY(-1px); }
     .gw-unit-row.gw-unit-all { background: #f1f5f9; }
+    .gw-unit-row.gw-unit-flash { border-color: var(--gw-flash, #34D399); animation: gw-unit-flash 1.5s ease-out; }
+    @keyframes gw-unit-flash {
+      0%, 25% { box-shadow: 0 0 0 4px var(--gw-flash, #34D399); background: #fff; }
+      100% { box-shadow: 0 0 0 0 transparent; }
+    }
     .gw-unit-badge { width: 2.3rem; height: 2.3rem; border-radius: 0.7rem; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
     .gw-unit-info { flex: 1; display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
     .gw-unit-info strong { font-size: 0.92rem; color: #1E293B; line-height: 1.3; }
@@ -3299,7 +5668,17 @@ function injectStyles() {
     .gw-table th { background: #e0f2fe; color: #0c4a6e; font-size: 0.88rem; font-weight: 700; padding: 0.5rem 0.4rem; border: 1.5px solid #bae6fd; white-space: nowrap; }
     .gw-table td { border: 1.5px solid #bae6fd; padding: 0.35rem; text-align: center; }
     .gw-table-given { background: #e0f2fe; color: #0c4a6e; font-weight: 700; font-size: 1.02rem; white-space: nowrap; padding: 0.55rem 0.6rem !important; }
-    .gw-table-sample-row .gw-table-given { background: #dbeafe; color: #2563eb; }
+    .gw-table-sample-row .gw-table-given,
+    .gw-table-given.gw-table-sample-cell { background: #dbeafe; color: #2563eb; }
+    .gw-sample-text { color: #2563eb; }
+    .gw-line-break { flex-basis: 100%; height: 0; }
+    .gw-blank-label-boxes { gap: 0.3rem; }
+    .gw-blank-inline.gw-blank-box { flex: 0 0 auto; width: 2.6rem; height: 2.6rem; padding: 0; border: 2px solid #475569; border-radius: 0.55rem; background: #fff; text-align: center; font-size: 1.25rem; }
+    .gw-blank-inline.gw-blank-box:focus { outline: none; border-color: #34D399; box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25); }
+    .gw-blank-inline.gw-blank-box.e3-wrong-input { border-color: #ef4444; background: #fee2e2; color: #991b1b; }
+    .gw-blank-inline.gw-blank-box:disabled.e3-correct-input { border-color: #22c55e; background: #dcfce7; color: #166534; }
+    .gw-table-blanks { margin-top: 0.9rem; }
+    .gw-table-given.gw-table-given-wrap { white-space: normal; line-height: 1.25; }
     .gw-table-input-cell { padding: 0 !important; min-width: 52px; }
     .gw-table-input { display: block; width: 100%; height: 40px; text-align: center; font-size: 1.05rem; font-weight: 700; font-family: inherit; color: inherit; background: transparent; border: none; border-radius: 0; box-sizing: border-box; }
     .gw-table-input:focus { outline: none; box-shadow: inset 0 0 0 2px #34D399; }
@@ -3320,6 +5699,12 @@ function injectStyles() {
     .gw-compare-btn.gw-compare-correct { border-color: #22c55e; background: #dcfce7; color: #166534; }
     .gw-compare-btn.gw-compare-wrong { border-color: #ef4444; background: #fee2e2; color: #991b1b; }
     .gw-compare-btn:disabled { cursor: default; }
+    /* "Khoanh vào chữ" rows (Bài 34): each row has its own lettered options. */
+    .gw-compare-row-opt { justify-content: space-between; }
+    .gw-compare-row-opt .gw-compare-expr { flex: 1 1 14rem; font-weight: 600; }
+    .gw-compare-btn.gw-compare-opt { width: auto; min-width: 5.5rem; padding: 0 0.8rem; font-size: 1.05rem; font-weight: 700; white-space: nowrap; }
+    .gw-compare-row-opt .gw-compare-btns { flex-wrap: wrap; }
+    .gw-compare-btn.gw-compare-opt.gw-compare-opt-short { min-width: 3rem; }
 
     /* A wide, visible gutter between the two columns so the connecting line
        (drawn on a correct match) actually reads as a "nối" line, instead of
@@ -3328,6 +5713,8 @@ function injectStyles() {
     .gw-match-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
     .gw-match-line { fill: none; stroke-width: 3; opacity: 0.9; }
     .gw-match-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: clamp(1.5rem, 8vw, 5rem); row-gap: 0.6rem; align-items: stretch; position: relative; z-index: 1; }
+    .gw-match.gw-match-3 { max-width: 860px; }
+    .gw-match-3 .gw-match-grid { grid-template-columns: 1fr 1fr 1fr; column-gap: clamp(1.1rem, 6vw, 4.5rem); }
     .gw-match-item { display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.6rem 0.7rem; border: 2px solid #e2e8f0; border-radius: 0.8rem; background: #fff; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 1rem; color: #1e293b; box-shadow: 0 2px 6px rgba(0,0,0,0.06); text-align: center; min-height: 2.6rem; height: 100%; box-sizing: border-box; }
     .gw-match-item:hover:not(:disabled) { border-color: #60A5FA; }
     .gw-match-item.gw-match-selected,
@@ -3336,6 +5723,8 @@ function injectStyles() {
     .gw-match-item.gw-match-wrong { border-color: #ef4444; background: #fee2e2; color: #991b1b; }
     .gw-match-item:disabled { cursor: default; }
     .gw-match-img { max-width: 100%; max-height: 64px; object-fit: contain; border-radius: 0.4rem; }
+    .gw-match-item:has(.gw-match-cap) { flex-direction: column; gap: 0.3rem; }
+    .gw-match-cap { display: inline-block; background: #bae6fd; color: #1e293b; padding: 0.1rem 0.6rem; font-weight: 600; }
     .gw-match-hint { font-size: 0.8rem; color: #94a3b8; text-align: center; margin-top: 0.6rem; font-style: italic; }
   `;
   document.head.appendChild(gwStyle);
