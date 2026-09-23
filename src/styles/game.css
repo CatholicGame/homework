@@ -2,8 +2,8 @@
 
 /* Game Layout */
 .game-container {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #FFF7ED 0%, #FCEEF2 50%, #EDE9FE 100%);
@@ -78,8 +78,10 @@
 /* Game Body */
 .game-body {
   flex: 1;
+  min-height: 0; /* let the flex item shrink so overflow-y actually scrolls */
   display: flex;
   align-items: center;
+  align-items: safe center; /* tall content: start at top instead of being cut off above the scroll area */
   justify-content: center;
   padding: 20px 40px;
   overflow-y: auto;

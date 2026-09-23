@@ -19,9 +19,9 @@ const EXAMS = [
         questions: [
           { type: 'fill', q: 'My dành 40 phút mỗi ngày để làm bài tập về nhà. Lan dành thời gian làm bài tập về nhà mỗi ngày nhiều hơn My 15 phút.\nCả hai bạn dành ..... phút để làm bài tập về nhà mỗi ngày.', blanks: [{ label: 'Số phút', answer: '95' }], hints: ['Hãy tìm xem mỗi bạn dành ra bao nhiêu phút để học bài trước khi tính tổng.', '"Nhiều hơn" nghĩa là Lan có thêm thời gian so với My — cộng phần thêm đó vào rồi mới gộp hai bạn lại.'] },
           { type: 'choice', q: 'Hương có 24 quyển vở. Trà có nhiều hơn Hương 6 quyển vở. Hỏi cả hai bạn có tất cả bao nhiêu quyển vở?', options: ['52 quyển', '48 quyển', '42 quyển', '54 quyển'], answer: 3, hints: ['Tìm số vở của từng bạn trước khi cộng lại.', '"Nhiều hơn" nghĩa là Trà có thêm vở so với Hương.'] },
-          { type: 'fill', q: 'Mẹ cho em 8 chiếc bút. Mẹ cho anh ít hơn em 3 chiếc bút.', blanks: [{ label: 'Mẹ cho anh … chiếc bút', answer: '5' }, { label: 'Cả hai anh em được mẹ cho … chiếc bút', answer: '13' }], hints: ['Tìm số bút mẹ cho anh trước.', '"Ít hơn" nghĩa là anh nhận được ít bút hơn em.'] },
+          { type: 'fill', q: 'Mẹ cho em 8 chiếc bút. Mẹ cho anh ít hơn em 3 chiếc bút.\nMẹ cho anh ……chiếc bút.\nCả hai anh em được mẹ cho …. chiếc bút.', blanks: [{ label: 'Mẹ cho anh … chiếc bút', answer: '5' }, { label: 'Cả hai anh em được mẹ cho … chiếc bút', answer: '13' }], hints: ['Tìm số bút mẹ cho anh trước.', '"Ít hơn" nghĩa là anh nhận được ít bút hơn em.'] },
           { type: 'fill', q: 'Linh có 8 con gấu bông. Thảo có nhiều hơn Linh 3 con gấu bông và ít hơn Ngọc 2 con gấu bông.\nVậy Ngọc có ... con gấu bông.', blanks: [{ label: 'Số gấu bông của Ngọc', answer: '13' }], hints: ['Có ba bạn trong bài — hãy tìm số của Thảo trước, vì cả Linh và Ngọc đều được so sánh với Thảo.', '"Nhiều hơn" và "ít hơn" đều liên quan đến việc cộng thêm hoặc bớt đi một phần.'] },
-          { type: 'fill', q: 'Lan có 30 tấm bưu thiếp. Minh có ít hơn Lan 8 tấm bưu thiếp.', blanks: [{ label: 'Minh có … tấm bưu thiếp', answer: '22' }, { label: 'Cả hai bạn có … tấm bưu thiếp', answer: '52' }], hints: ['Tìm số bưu thiếp của Minh trước khi tính tổng hai bạn.', '"Ít hơn" nghĩa là Minh có ít bưu thiếp hơn Lan.'] },
+          { type: 'fill', q: 'Lan có 30 tấm bưu thiếp. Minh có ít hơn Lan 8 tấm bưu thiếp.\nVậy Minh có …… tấm bưu thiếp.\nCả hai bạn có ………… tấm bưu thiếp.', blanks: [{ label: 'Minh có … tấm bưu thiếp', answer: '22' }, { label: 'Cả hai bạn có … tấm bưu thiếp', answer: '52' }], hints: ['Tìm số bưu thiếp của Minh trước khi tính tổng hai bạn.', '"Ít hơn" nghĩa là Minh có ít bưu thiếp hơn Lan.'] },
           { type: 'fill', q: 'Minh có hai sợi dây thừng. Sợi dây thứ nhất dài 4dm, sợi dây thứ hai dài hơn sợi thứ nhất 28cm. Hỏi tổng độ dài của hai sợi dây thừng bằng bao nhiêu xăng-ti-mét?', blanks: [{ label: 'Tổng độ dài (cm)', answer: '108' }], hints: ['Hai độ dài đang ở hai đơn vị đo khác nhau — hãy đưa chúng về cùng một đơn vị trước.', 'Sau khi cùng đơn vị, dùng phần "dài hơn" để tìm độ dài dây thứ hai, rồi mới cộng hai sợi dây lại.'] },
           { type: 'choice', q: 'Bạn Yến dành thời gian mỗi ngày 1 giờ để học đàn. Bạn Linh dành thời gian học đàn mỗi ngày ít hơn bạn Yến 20 phút. Hỏi cả hai bạn dành bao nhiêu thời gian để học đàn mỗi ngày?', options: ['120 phút', '140 phút', '100 phút', '160 phút'], answer: 2, hints: ['Một mốc thời gian đang tính bằng giờ, mốc kia bằng phút — hãy đưa về cùng một đơn vị trước.', '"Ít hơn" nghĩa là Linh dành ít thời gian hơn Yến.'] },
           { type: 'choice', q: 'Người ta đựng 60 lít nước vào hai can. Can thứ nhất đựng 32 lít nước. Hỏi can thứ hai đựng ít hơn can thứ nhất bao nhiêu lít nước?', options: ['6 lít', '4 lít', '8 lít', '10 lít'], answer: 1, hints: ['Trước tiên, hãy tìm xem can thứ hai đựng bao nhiêu lít.', 'Sau khi biết số lít của cả hai can, so sánh chúng để biết can nào ít hơn và ít hơn bao nhiêu.'] },
@@ -29,20 +29,20 @@ const EXAMS = [
           { type: 'choice', q: 'Một người đi xe máy đi từ A đến B. Trong giờ đầu tiên người đó đi được 35km. Giờ tiếp theo, người đó đi thêm được 32km. Biết quãng đường AB dài 90km. Hỏi sau hai giờ đi người đó còn cách B bao nhiêu ki-lô-mét?', options: ['23km', '22km', '25km', '24km'], answer: 0, hints: ['Trước tiên, tính xem người đó đã đi được tất cả bao nhiêu ki-lô-mét sau hai giờ.', 'So sánh quãng đường đã đi với quãng đường AB để biết còn cách bao xa.'] },
           { type: 'choice', q: 'Ba lớp 3A, 3B, 3C tham gia đợt quyên góp vở ủng hộ trẻ em vùng cao. Lớp 3A quyên góp được 215 quyển vở, lớp 3B quyên góp được 415 quyển vở. Hỏi lớp 3C quyên góp được bao nhiêu quyển vở? Biết rằng số quyển vở cả ba lớp quyên góp được là số lớn nhất có ba chữ số.', options: ['369 quyển', '389 quyển', '379 quyển', '359 quyển'], answer: 0, hints: ['Hãy xác định "số lớn nhất có ba chữ số" là số nào — đó chính là tổng số vở của cả ba lớp.', 'Biết tổng của cả ba lớp và số vở của hai lớp kia, em có thể tìm ra số vở của lớp còn lại.'] },
           { type: 'fill', q: 'Số mét vải một xưởng dệt đã dệt được trong một buổi sáng là số nhỏ nhất có ba chữ số và số mét vải xưởng dệt đã dệt được trong buổi chiều ít hơn buổi sáng là 50 mét vải.\nCả ngày hôm đó, xưởng dệt đã dệt được .. dam vải.', blanks: [{ label: 'Số dam vải', answer: '15' }], hints: ['Hãy xác định "số nhỏ nhất có ba chữ số" — đó là số mét vải dệt được buổi sáng.', 'Tìm số mét vải buổi chiều, cộng với buổi sáng để ra tổng cả ngày, rồi nhớ đổi đơn vị mét sang đam.'] },
-          { type: 'fill', q: 'Bà có một túi bánh và một túi kẹo, biết túi kẹo có 45 cái, sau khi thêm 26 cái bánh thì số bánh gấp 2 lần số kẹo.', blanks: [{ label: 'Số bánh sau khi thêm', answer: '90' }, { label: 'Số bánh trước khi thêm', answer: '64' }], hints: ['Hãy tìm xem sau khi thêm bánh thì số bánh là bao nhiêu, dựa vào mối quan hệ "gấp 2 lần" với số kẹo.', 'Biết số bánh sau khi thêm rồi, em dùng thông tin "đã thêm 26 cái" để tìm số bánh lúc đầu.'] },
+          { type: 'fill', q: 'Bà có một túi bánh và một túi kẹo, biết túi kẹo có 45 cái, sau khi thêm 26 cái bánh thì số bánh gấp 2 lần số kẹo nên số bánh sau khi thêm là ... cái. Vậy, trước khi thêm thì bà có ... cái bánh.', blanks: [{ label: 'Số bánh sau khi thêm', answer: '90' }, { label: 'Số bánh trước khi thêm', answer: '64' }], hints: ['Hãy tìm xem sau khi thêm bánh thì số bánh là bao nhiêu, dựa vào mối quan hệ "gấp 2 lần" với số kẹo.', 'Biết số bánh sau khi thêm rồi, em dùng thông tin "đã thêm 26 cái" để tìm số bánh lúc đầu.'] },
           { type: 'fill', q: 'Một cửa hàng bán gạo, ông chủ thống kê số lượng gạo bán được trong ngày bằng sơ đồ sau. Giá trị của dấu ? là ....', img: 'https://st.vndoc.com/data/image/2024/03/11/Vioedu-lop-3-1.jpg', blanks: [{ label: 'Giá trị dấu ?', answer: '159' }], hints: ['Quan sát các số đã có trong sơ đồ và cách chúng liên hệ với nhau.', 'Thử xem hai phần của sơ đồ có bằng nhau hay theo một quy luật cộng/trừ nào không.'] },
-          { type: 'fill', q: 'Hùng và Đức cùng chơi bi. Hùng có 15 viên bi, Đức có số bi gấp ba lần số bi của Hùng.', blanks: [{ label: 'Cả hai bạn có (viên bi)', answer: '60' }, { label: 'Đức có nhiều hơn Hùng (viên bi)', answer: '30' }], hints: ['Hãy tìm số bi của Đức trước, dựa vào mối quan hệ với Hùng.', '"Gấp ba lần" nghĩa là số bi của Đức lớn hơn Hùng theo một tỉ lệ nhất định.'] },
+          { type: 'fill', q: 'Hùng và Đức cùng chơi bi. Hùng có 15 viên bi, Đức có số bi gấp ba lần số bi của Hùng.\nKhi đó:\nCả hai bạn có……. ?\nĐức có nhiều hơn Hùng…. ?', blanks: [{ label: 'Cả hai bạn có (viên bi)', answer: '60' }, { label: 'Đức có nhiều hơn Hùng (viên bi)', answer: '30' }], hints: ['Hãy tìm số bi của Đức trước, dựa vào mối quan hệ với Hùng.', '"Gấp ba lần" nghĩa là số bi của Đức lớn hơn Hùng theo một tỉ lệ nhất định.'] },
           { type: 'choice', q: 'Năm nay, tổng số tuổi của bà, mẹ và Lan là 130 tuổi. Biết Lan năm nay 14 tuổi. Tuổi bà gấp 5 lần tuổi Lan. Hỏi mẹ năm nay bao nhiêu tuổi?', options: ['46 tuổi', '48 tuổi', '45 tuổi', '51 tuổi'], answer: 0, hints: ['Hãy tìm tuổi bà trước, dựa vào mối quan hệ "gấp 5 lần" với tuổi Lan.', 'Biết tuổi bà và tuổi Lan rồi, em dùng tổng số tuổi ba người để tìm ra tuổi mẹ.'] },
-          { type: 'fill', q: 'Để chuẩn bị cho một buổi biểu diễn, người ta xếp chỗ cho một vũ đoàn 40 người thành 5 hàng. Vì cần thêm hỗ trợ nên xếp thêm mỗi hàng 3 người nữa.', blanks: [{ label: 'Số thành viên sau khi bổ sung', answer: '55' }, { label: 'Số hàng nếu xếp mỗi hàng 5 người', answer: '11' }], hints: ['Hãy tìm xem ban đầu mỗi hàng có bao nhiêu người trước khi tính số người sau khi bổ sung.', 'Biết số người mỗi hàng lúc sau rồi, em tính được tổng số người mới, từ đó suy ra số hàng nếu xếp theo cách khác.'] },
-          { type: 'fill', q: 'Một khu vườn được chia thành hai lô đất, mỗi lô trồng 6 hàng cây hồng xiêm mỗi hàng có 5 cây và 4 hàng cây táo mỗi hàng có 7 cây.', blanks: [{ label: 'Số cây hồng xiêm', answer: '60' }, { label: 'Số cây táo', answer: '56' }], hints: ['Hãy tính số cây mỗi loại trong MỘT lô đất trước.', 'Vì khu vườn có hai lô giống nhau, hãy nghĩ xem cần làm gì với kết quả một lô để ra cả vườn.'] },
-          { type: 'fill', q: 'Yến cần xếp 16 quyển sách toán, 24 quyển sách tiếng việt và 32 quyển sách tiếng anh vào 2 tủ, mỗi tủ có 2 ngăn. Số sách mỗi loại trong các ngăn là như nhau.', blanks: [{ label: 'Sách toán / 1 ngăn', answer: '4' }, { label: 'Sách tiếng việt / 1 ngăn', answer: '6' }, { label: 'Sách tiếng anh / 1 ngăn', answer: '8' }], hints: ['Trước tiên, hãy tìm xem tất cả có bao nhiêu ngăn tủ.', 'Chia đều số sách mỗi loại cho tổng số ngăn vừa tìm được.'] },
-          { type: 'fill', q: 'Có 6 thùng dầu, mỗi thùng có 14 lít.', blanks: [{ label: 'Số thùng nhỏ nếu chia mỗi thùng 4 lít', answer: '21' }, { label: 'Số lít mỗi thùng nếu chia đều vào 2 thùng lớn', answer: '42' }], hints: ['Hãy tính tổng số lít dầu trước khi chia vào các thùng khác.', 'Từ tổng số lít, chia theo yêu cầu của từng câu hỏi nhỏ (thùng 4 lít, hoặc chia đều vào 2 thùng lớn).'] },
+          { type: 'fill', q: 'Để chuẩn bị cho một buổi biểu diễn, người ta xếp chỗ cho một vũ đoàn 40 người thành 5 hàng. Nhưng vì độ khó của bài biểu diễn nên cần thêm một số người hỗ trợ, vì vậy người ta phải xếp thêm mỗi hàng 3 người nữa.\nVậy, số thành viên của vũ đoàn sau khi bổ sung là ... người.\nNếu xếp số thành viên của vũ đoàn sau khi bổ sung người thành các hàng, mỗi hàng 5 người thì được ... hàng.', blanks: [{ label: 'Số thành viên sau khi bổ sung', answer: '55' }, { label: 'Số hàng nếu xếp mỗi hàng 5 người', answer: '11' }], hints: ['Hãy tìm xem ban đầu mỗi hàng có bao nhiêu người trước khi tính số người sau khi bổ sung.', 'Biết số người mỗi hàng lúc sau rồi, em tính được tổng số người mới, từ đó suy ra số hàng nếu xếp theo cách khác.'] },
+          { type: 'fill', q: 'Một khu vườn được chia thành hai lô đất, mỗi lô trồng 6 hàng cây hồng xiêm mỗi hàng có 5 cây và 4 hàng cây táo mỗi hàng có 7 cây.\nVậy khu vườn có ... cây hồng xiêm và ... cây táo.', blanks: [{ label: 'Số cây hồng xiêm', answer: '60' }, { label: 'Số cây táo', answer: '56' }], hints: ['Hãy tính số cây mỗi loại trong MỘT lô đất trước.', 'Vì khu vườn có hai lô giống nhau, hãy nghĩ xem cần làm gì với kết quả một lô để ra cả vườn.'] },
+          { type: 'fill', q: 'Yến cần xếp 16 quyển sách toán, 24 quyển sách tiếng việt và 32 quyển sách tiếng anh vào 2 tủ, mỗi tủ có 2 ngăn. Biết rằng số sách mỗi loại trong các ngăn là như nhau.\nKhi đó:\nSố sách toán được xếp vào 1 ngăn là ? quyển\nSố sách tiếng việt được xếp vào 1 ngăn là ? quyển\nSố sách tiếng anh được xếp vào 1 ngăn là ? quyển', blanks: [{ label: 'Sách toán / 1 ngăn', answer: '4' }, { label: 'Sách tiếng việt / 1 ngăn', answer: '6' }, { label: 'Sách tiếng anh / 1 ngăn', answer: '8' }], hints: ['Trước tiên, hãy tìm xem tất cả có bao nhiêu ngăn tủ.', 'Chia đều số sách mỗi loại cho tổng số ngăn vừa tìm được.'] },
+          { type: 'fill', q: 'Có 6 thùng dầu, mỗi thùng có 14 lít.\nNếu lấy số dầu trên chia đều vào các thùng nhỏ, mỗi thùng 4 lít thì được ... thùng.\nNếu lấy số dầu trên chia đều vào 2 thùng lớn thì mỗi thùng có ... lít.', blanks: [{ label: 'Số thùng nhỏ nếu chia mỗi thùng 4 lít', answer: '21' }, { label: 'Số lít mỗi thùng nếu chia đều vào 2 thùng lớn', answer: '42' }], hints: ['Hãy tính tổng số lít dầu trước khi chia vào các thùng khác.', 'Từ tổng số lít, chia theo yêu cầu của từng câu hỏi nhỏ (thùng 4 lít, hoặc chia đều vào 2 thùng lớn).'] },
           { type: 'fill', q: 'Cho phép tính: 125+321. Kết quả của phép tính đã cho là ……', blanks: [{ label: 'Kết quả', answer: '446' }], hints: ['Đặt hai số thẳng cột theo hàng đơn vị, hàng chục, hàng trăm.', 'Cộng lần lượt từ hàng đơn vị, nhớ ghi nhớ khi tổng một hàng lớn hơn 9.'] },
           { type: 'choice', q: 'Cho phép tính: 935−761. Kết quả của phép tính đã cho là bao nhiêu?', options: ['174', '184', '284', '274'], answer: 0, hints: ['Đặt tính theo cột rồi trừ lần lượt từ hàng đơn vị.', 'Nếu số bị trừ ở một hàng nhỏ hơn số trừ, em cần mượn 1 từ hàng bên trái.'] },
           { type: 'choice', q: 'Cho: A=531−215; B=639−445. Khi đó: A .. B', options: ['>', '<', '='], answer: 0, hints: ['Hãy tính riêng giá trị của A và giá trị của B trước.', 'Sau khi có hai kết quả, so sánh chúng để chọn dấu thích hợp.'] },
           { type: 'fill', q: 'Số thích hợp để điền vào dấu hỏi chấm là ……..', img: 'https://st.vndoc.com/data/image/2024/03/11/Vioedu-lop-3-2.jpg', blanks: [{ label: 'Giá trị dấu ?', answer: '4' }], hints: ['Quan sát các số đã cho trong hình.', 'Tìm quy luật giữa chúng (cộng, trừ, nhân hoặc chia) rồi áp dụng vào phần còn thiếu.'] },
           { type: 'fill', q: 'Số 32 giảm đi 8 lần thì được ......', blanks: [{ label: 'Kết quả', answer: '4' }], hints: ['Hãy nhớ ý nghĩa của cụm từ "giảm đi ... lần".', 'Nó khác với "giảm đi ... đơn vị" — hãy nghĩ xem phép tính nào phù hợp.'] },
-          { type: 'fill', q: 'Cho phép chia: 42:2=21', blanks: [{ label: 'Số bị chia', answer: '42' }, { label: 'Số chia', answer: '2' }, { label: 'Thương', answer: '21' }], hints: ['Hãy nhớ lại tên gọi của từng thành phần trong một phép chia.', 'Số đứng trước dấu hai chấm, số đứng sau dấu hai chấm và kết quả phép chia có tên gọi khác nhau.'] },
+          { type: 'fill', q: 'Cho phép chia: 42:2=21\nSố bị chia là ?\nSố chia là ?\nThương là ?', blanks: [{ label: 'Số bị chia', answer: '42' }, { label: 'Số chia', answer: '2' }, { label: 'Thương', answer: '21' }], hints: ['Hãy nhớ lại tên gọi của từng thành phần trong một phép chia.', 'Số đứng trước dấu hai chấm, số đứng sau dấu hai chấm và kết quả phép chia có tên gọi khác nhau.'] },
           { type: 'fill', q: 'Cho một số, biết rằng nếu lấy số lớn nhất có 2 chữ số khác nhau chia cho số đó thì được thương là số liền trước của 8. Số đó là ...', blanks: [{ label: 'Số cần tìm', answer: '14' }], hints: ['Hãy xác định "số lớn nhất có hai chữ số khác nhau" và "số liền trước của 8" là những số nào.', 'Khi đã biết số bị chia và thương, em có thể tìm ra số chia.'] },
           { type: 'fill', q: 'Số thích hợp để điền vào dấu hỏi chấm là ...', img: 'https://st.vndoc.com/data/image/2024/03/11/Vioedu-lop-3-3.jpg', blanks: [{ label: 'Giá trị dấu ?', answer: '5' }], hints: ['So sánh các số đã có trong hình để tìm quy luật.', 'Áp dụng quy luật đó vào phần còn thiếu để tìm giá trị của dấu ?.'] },
           { type: 'fill', q: '2dam+15dam=... dam', blanks: [{ label: 'Kết quả (dam)', answer: '17' }], hints: ['Kiểm tra xem hai số đã cùng đơn vị đo chưa.', 'Khi cùng đơn vị, chỉ cần cộng hai số lại với nhau.'] },
@@ -213,7 +213,9 @@ export function render(app, onBack) {
 
           ${renderSolutionBlock(q)}
 
-          ${answerUnlocked ? renderAnswerArea(q) : renderAnswerLockNotice()}
+          ${renderAnswerArea(q, !answerUnlocked)}
+
+          ${answerUnlocked ? '' : renderAnswerLockNotice()}
 
           ${answerUnlocked && !solved[current] ? renderHints(q) : ''}
 
@@ -237,7 +239,7 @@ export function render(app, onBack) {
 
   // ── SOLUTION EDITOR (write the working before answering) ────────────────────
   function renderAnswerLockNotice() {
-    return `<div class="e3-answer-locked-note">🔒 Hoàn thành lời giải ở trên rồi bấm "Xong, chọn đáp án" để mở khóa phần chọn đáp án.</div>`;
+    return `<div class="e3-answer-locked-note">🔒 Hoàn thành lời giải ở trên rồi bấm "Xong, chọn đáp án" để mở khóa phần trả lời.</div>`;
   }
 
   function escapeHtml(str) {
@@ -452,13 +454,15 @@ export function render(app, onBack) {
     overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
   }
 
-  function renderAnswerArea(q) {
+  function renderAnswerArea(q, locked = false) {
+    // Locked = still writing the solution: show what will be asked, but keep it inert.
+    const dis = locked ? ' disabled' : '';
     if (q.type === 'choice') {
       const labels = ['A', 'B', 'C', 'D'];
       return `
-        <div class="e3-options" id="e3-options">
+        <div class="e3-options${locked ? ' e3-answer-locked' : ''}" id="e3-options">
           ${q.options.map((opt, i) => `
-            <button class="e3-option" data-idx="${i}">
+            <button class="e3-option" data-idx="${i}"${dis}>
               <span class="e3-option-label">${labels[i]}</span>
               <span class="e3-option-text">${opt}</span>
             </button>
@@ -469,15 +473,15 @@ export function render(app, onBack) {
     }
     // fill
     return `
-      <div class="e3-blanks" id="e3-blanks">
+      <div class="e3-blanks${locked ? ' e3-answer-locked' : ''}" id="e3-blanks">
         ${q.blanks.map((b, i) => `
           <div class="e3-blank-row">
             <label class="e3-blank-label">${b.label}</label>
-            <input type="number" inputmode="numeric" class="game-input e3-blank-input" data-idx="${i}" autocomplete="off">
+            <input type="number" inputmode="numeric" class="game-input e3-blank-input" data-idx="${i}" autocomplete="off"${dis}>
           </div>
         `).join('')}
       </div>
-      <button class="e3-btn e3-btn-primary" id="e3-submit-fill" style="margin-top:12px">Kiểm tra</button>
+      <button class="e3-btn e3-btn-primary" id="e3-submit-fill" style="margin-top:12px"${dis}>Kiểm tra</button>
     `;
   }
 
@@ -826,6 +830,7 @@ function injectStyles() {
     .e3-solution-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .e3-btn-sm { width: auto; padding: 0.5rem 0.9rem; font-size: 0.85rem; }
     .e3-solution-controls .e3-btn-sm { flex: 1; }
+    .e3-answer-locked { opacity: 0.6; }
     .e3-answer-locked-note { text-align: center; padding: 0.9rem; color: #94a3b8; font-size: 0.95rem; font-style: italic; background: #f8fafc; border-radius: 0.8rem; margin-top: 0.9rem; }
 
     /* ── HINTS ── */
