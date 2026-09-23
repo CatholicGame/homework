@@ -70,6 +70,7 @@ function navigate(gameId) {
     'giao-ly': () => import('./games/giaoly.js'),
     'grade3-exam': () => import('./games/grade3Exam.js'),
     'grade3-workbook': () => import('./games/grade3Workbook.js'),
+    'grade3-practice': () => import('./games/grade3Practice.js'),
   };
 
   const loader = gameModules[gameId];

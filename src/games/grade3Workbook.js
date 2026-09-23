@@ -114,7 +114,7 @@ import imgBai44T2Figures from '../assets/grade3-workbook/bai44_t2_q3_figures.png
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
 
-function soDoc(n) {
+export function soDoc(n) {
   const ones = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
   const h = Math.floor(n / 100), rem = n % 100, t = Math.floor(rem / 10), u = rem % 10;
   const parts = [];
@@ -127,17 +127,17 @@ function soDoc(n) {
   return parts.join(' ');
 }
 
-function foldVN(s) {
+export function foldVN(s) {
   return String(s).toLowerCase().trim().replace(/\s+/g, ' ')
     .replace(/mốt/g, 'một').replace(/lăm/g, 'năm').replace(/linh/g, 'lẻ');
 }
 
-function textValidate(expected) {
+export function textValidate(expected) {
   const target = foldVN(expected);
   return (value) => foldVN(value) === target;
 }
 
-function sumValidate(target) {
+export function sumValidate(target) {
   return (value) => {
     const parts = String(value).split('+').map(s => parseFloat(s.trim().replace(',', '.')));
     if (parts.some(Number.isNaN)) return false;
@@ -145,19 +145,19 @@ function sumValidate(target) {
   };
 }
 
-function setValidate(expectedArr) {
+export function setValidate(expectedArr) {
   const norm = (arr) => arr.map(x => String(x).trim().toUpperCase()).filter(Boolean).sort().join(',');
   const target = norm(expectedArr);
   return (value) => norm(String(value).split(/[,;\s]+/)) === target;
 }
 
-function listValidate(expectedArr) {
+export function listValidate(expectedArr) {
   const norm = (arr) => arr.map(x => foldVN(x)).filter(Boolean).join('|');
   const target = norm(expectedArr);
   return (value) => norm(String(value).split(/[,;>]+/)) === target;
 }
 
-function blank(answer, opts = {}) {
+export function blank(answer, opts = {}) {
   return { blank: true, answer: String(answer), ...opts };
 }
 
@@ -165,7 +165,7 @@ function blank(answer, opts = {}) {
 // reject a very likely typo — typing the plain ASCII "d" instead of the
 // Vietnamese "Đ" (they look alike, and not every on-screen keyboard makes
 // "Đ" easy to reach) — so accept both, plus the written-out words.
-function dsValidate(isTrue) {
+export function dsValidate(isTrue) {
   const accepted = isTrue ? ['đ', 'd', 'đúng', 'dung'] : ['s', 'sai'];
   return (value) => accepted.includes(String(value).trim().toLowerCase());
 }
@@ -174,7 +174,7 @@ function dsValidate(isTrue) {
 // three of the given numbers has 4 equally-valid written forms (a × b = p,
 // b × a = p, p : a = b, p : b = a) — accept any one of them, in either ×/x
 // or :/÷ notation.
-function factFamilyValidate(a, b, product) {
+export function factFamilyValidate(a, b, product) {
   const valid = new Set([
     `${a}x${b}=${product}`, `${b}x${a}=${product}`,
     `${product}:${a}=${b}`, `${product}:${b}=${a}`,
@@ -190,7 +190,7 @@ function factFamilyValidate(a, b, product) {
 // and the order the groups are listed in doesn't matter either). Reused for:
 // Bài 17 radii/diameter ("IA, IB", "MN"), Bài 19 shape edges ("DE, EH, HD")
 // and shape enumeration ("ABI, ICD, IBC").
-function letterGroupsValidate(expectedGroups) {
+export function letterGroupsValidate(expectedGroups) {
   const normGroup = (s) => String(s).trim().toUpperCase().replace(/[^A-ZÀ-Ỹ]/g, '').split('').sort().join('');
   const target = expectedGroups.map(normGroup).sort().join('|');
   return (value) => {
@@ -205,7 +205,7 @@ function letterGroupsValidate(expectedGroups) {
 // accepts ANY angle belonging to its own group — filling them in a different
 // order than the answer key is still correct. Each ray name also accepts either
 // letter order ("AB" or "BA"), and the two rays may be listed in either order.
-function angleGroupValidate(angles) {
+export function angleGroupValidate(angles) {
   const normPair = (s) => String(s).trim().toUpperCase().replace(/[^A-Z]/g, '').split('').sort().join('');
   const key = (vertex, rayEnds) => {
     const V = vertex.trim().toUpperCase();
@@ -222,14 +222,14 @@ function angleGroupValidate(angles) {
 }
 // Strips every Vietnamese diacritic (and đ → d) so a free-typed name/phrase is
 // accepted with or without accents: "Rô-bốt" / "Robot", "Địa đạo" / "dia dao".
-function stripVN(s) {
+export function stripVN(s) {
   return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[đĐ]/g, 'd').toLowerCase();
 }
 
 // Bài 23 Tiết 2 Q2 (ô chữ): one letter per table cell, case-insensitive. The
 // letter "Đ" also accepts a plain "D" (same typo allowance as dsValidate).
-function letterValidate(letter) {
+export function letterValidate(letter) {
   const target = stripVN(letter);
   return (value) => stripVN(String(value).trim()) === target;
 }
@@ -237,7 +237,7 @@ function letterValidate(letter) {
 // A whole phrase compared without accents, case or spacing — "Địa đạo Củ Chi",
 // "ĐỊA ĐẠO CỦ CHI", "dia dao cu chi" and "ĐIA ĐAO CU CHI" (the literal
 // unaccented letters the cipher spells out) are all the same answer.
-function phraseValidate(phrase) {
+export function phraseValidate(phrase) {
   const norm = (s) => stripVN(s).replace(/[^a-z0-9]/g, '');
   const target = norm(phrase);
   return (value) => norm(value) === target;
@@ -245,7 +245,7 @@ function phraseValidate(phrase) {
 
 // An unordered set of names written in one blank ("Rô-bốt và Mai",
 // "Mai, Rô-bốt", "Robot va Mai" are all the same answer).
-function nameSetValidate(names) {
+export function nameSetValidate(names) {
   const norm = (s) => stripVN(s).replace(/[^a-z0-9]/g, '');
   const target = names.map(norm).sort().join('|');
   return (value) => stripVN(value).split(/\s*(?:,|;|&|\+|\bva\b)\s*/)
@@ -254,7 +254,7 @@ function nameSetValidate(names) {
 
 // A given table cell printed in the book's blue "theo mẫu" color when the
 // sample is a single column/cell rather than a whole row (Bài 23, Bài 24).
-function sampleCell(value) {
+export function sampleCell(value) {
   return { sample: true, value };
 }
 
@@ -263,7 +263,7 @@ function sampleCell(value) {
 // remainder on the last line (0 for an exact division), so each one asks for
 // both. Computed here rather than hand-typed so a quotient/remainder typo is
 // impossible.
-function divBlank(dividend, divisor) {
+export function divBlank(dividend, divisor) {
   const quot = Math.floor(dividend / divisor);
   const rem = dividend % divisor;
   return {
@@ -276,7 +276,7 @@ function divBlank(dividend, divisor) {
 // Several phrase blanks in one row (Bài 27 "Viết “gấp 2 lần” hoặc “giảm 3
 // lần”" — two dotted lines on one arrow chain): each slot is compared like
 // phraseValidate (no accents/case/spacing needed), in the book's order.
-function phraseListValidate(phrases) {
+export function phraseListValidate(phrases) {
   const norm = (s) => stripVN(s).replace(/[^a-z0-9]/g, '');
   const target = phrases.map(norm).join('|');
   return (value) => String(value).split(',').map(norm).join('|') === target;
@@ -284,7 +284,7 @@ function phraseListValidate(phrases) {
 
 // A name answer that may be written with or without the word "con" in front
 // ("cào cào" / "con cào cào" / "cao cao").
-function animalValidate(name) {
+export function animalValidate(name) {
   const check = phraseValidate(name);
   return (value) => check(String(value).trim().replace(/^con\s+/i, ''));
 }
@@ -292,7 +292,7 @@ function animalValidate(name) {
 // A measurement result whose unit the book leaves for the child to write
 // (Bài 32 "250 ml + 100 ml = ........"): "350", "350 ml" and "350ml" are all
 // accepted, but not a wrong unit ("350 g").
-function unitValidate(n, unit) {
+export function unitValidate(n, unit) {
   const target = String(n);
   const u = unit.toLowerCase().replace(/\s+/g, '');
   return (value) => {
@@ -303,14 +303,14 @@ function unitValidate(n, unit) {
 
 // A temperature written in the "Viết" column (Bài 33): "35", "35 °C", "35°C",
 // "35 độ C", "35 oC" are all the same answer.
-function tempValidate(n) {
+export function tempValidate(n) {
   const re = new RegExp(`^${n}(°c?|oc|c|doc|doxe)?$`);
   return (value) => re.test(stripVN(value).replace(/\s+/g, ''));
 }
 
 // A temperature read out in words (Bài 33 "Đọc" column): "Mười lăm độ xê",
 // also accepted as "mười lăm độ C", with or without accents/case.
-function tempReadValidate(numberWords) {
+export function tempReadValidate(numberWords) {
   const n = stripVN(numberWords).replace(/[^a-z]/g, '');
   const ok = new Set([n + 'doxe', n + 'doc']);
   return (value) => ok.has(stripVN(value).replace(/[^a-z]/g, ''));
@@ -320,7 +320,7 @@ function tempReadValidate(numberWords) {
 // "từ cao nhất đến thấp nhất": "Trưa, Chiều, Sáng sớm, Đêm"). Separators,
 // accents, case and any temperatures copied from the table ("Trưa (30 °C)")
 // don't matter — only the order of the names.
-function phraseOrderValidate(phrases) {
+export function phraseOrderValidate(phrases) {
   const norm = (x) => stripVN(x).replace(/\d+\s*(°\s*c?|do\s*(c|xe)\b)?/g, '').replace(/[^a-z]/g, '');
   const target = phrases.map(norm).join('');
   return (value) => norm(value) === target;
@@ -328,7 +328,7 @@ function phraseOrderValidate(phrases) {
 
 // A "Mẫu:" worked example inside q, printed in the book's blue sample color
 // (the same blue as a sampleCell) — the word "Mẫu:" itself stays black.
-function mau(text) {
+export function mau(text) {
   return `Mẫu: <span class="gw-sample-text">${text}</span>`;
 }
 
@@ -336,7 +336,7 @@ function mau(text) {
 // "= ......" line holds the expression left after the first operation
 // ("162 + 29 − 18 = 191 − 18"). Spacing, a leading "=", and the ASCII/typed
 // variants of each operator (- for −, x or * for ×, / or ÷ for :) don't matter.
-function exprValidate(...exprs) {
+export function exprValidate(...exprs) {
   const norm = (s) => String(s).replace(/\s+/g, '').replace(/^=/, '')
     .replace(/[−–—]/g, '-').replace(/[x*]/gi, '×').replace(/[÷/]/g, ':');
   const targets = new Set(exprs.map(norm));
@@ -346,7 +346,7 @@ function exprValidate(...exprs) {
 // A multi-slot row whose first two slots are the two operands of a + or ×
 // and may come in either order (Bài 38 "50 − ... × ... = ...": 10 × 3 or
 // 3 × 10), followed by slots that must match exactly.
-function swapPairValidate(a, b, ...rest) {
+export function swapPairValidate(a, b, ...rest) {
   return (value) => {
     const v = String(value).split(',').map(x => x.trim());
     const pairOk = (v[0] === String(a) && v[1] === String(b)) || (v[0] === String(b) && v[1] === String(a));
@@ -358,7 +358,7 @@ function swapPairValidate(a, b, ...rest) {
 // wording, so only the yes/no part is graded — an answer that says Nam has a
 // fever ("Có, vì ...", "Nam bị sốt vì 38 °C > 37 °C") is accepted, one that
 // starts with "Không" or says "không bị sốt" is not.
-function feverValidate() {
+export function feverValidate() {
   return (value) => {
     const v = stripVN(value).trim().replace(/\s+/g, ' ');
     if (/^khong\b/.test(v) || /khong (bi )?sot/.test(v)) return false;
@@ -370,7 +370,7 @@ function feverValidate() {
 // Each combo lists one sign per box of the row; any listed combo is accepted
 // (Bài 42 "4 ☐ 4 ☐ 4 = 20" has two ways, Cách 1 / Cách 2, in either order).
 // The typed look-alikes count too: x, X or * for ×, ÷ or / for :, - for −.
-function opsValidate(...combos) {
+export function opsValidate(...combos) {
   const norm = (s) => String(s).trim().replace(/[xX*]/g, '×').replace(/[÷/]/g, ':').replace(/[-–—]/g, '−');
   const targets = new Set(combos.map(c => c.map(norm).join('|')));
   return (value) => targets.has(String(value).split(',').map(norm).join('|'));
@@ -380,7 +380,7 @@ function opsValidate(...combos) {
 // slot is the calculation, the second its value. The sides may be added in any
 // order, equal sides may be written as a multiplication (35 × 3), and the unit
 // may be written or left out ("35 mm + 35 mm + 35 mm", "105 mm").
-function polylineValidate(sides, unit) {
+export function polylineValidate(sides, unit) {
   const total = sides.reduce((a, b) => a + b, 0);
   const strip = (s) => String(s).toLowerCase().split(unit).join('').replace(/\s+/g, '').replace(/[x*]/g, '×');
   const sorted = (arr) => [...arr].map(Number).sort((a, b) => a - b).join('+');
@@ -4127,52 +4127,76 @@ const UNITS = [
 
 // ── PERSISTENT PROGRESS (localStorage) ──────────────────────────────────────
 
-const STORAGE_KEY = 'gw-progress-v1';
 const PALETTE = ['#34D399', '#60A5FA', '#F59E0B', '#F472B6', '#A78BFA', '#22D3EE', '#FB923C', '#4ADE80'];
 
-function loadStorage() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
-}
-function saveStorage(data) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch { /* ignore */ }
-}
-function getRecord(unitId, idx) {
-  const data = loadStorage();
-  return (data[unitId] && data[unitId][idx]) || null;
-}
-function setRecord(unitId, idx, rec) {
-  const data = loadStorage();
-  if (!data[unitId]) data[unitId] = {};
-  data[unitId][idx] = rec;
-  saveStorage(data);
-}
-function clearUnitStorage(unitId) {
-  const data = loadStorage();
-  delete data[unitId];
-  saveStorage(data);
-}
-// The unit the child last opened, so the unit menu can jump back to it (after
-// ✕ / "Chọn bài khác", and also when the workbook is reopened from home).
-const LAST_UNIT_KEY = 'gw-last-unit';
-function getLastUnit() {
-  try { return localStorage.getItem(LAST_UNIT_KEY); } catch { return null; }
-}
-function setLastUnit(unitId) {
-  try { localStorage.setItem(LAST_UNIT_KEY, unitId); } catch { /* storage unavailable */ }
-}
+// Each book keeps its own progress + last-opened unit under its own keys
+// (cfg.storageKey / cfg.lastUnitKey), so the same engine serves several books.
+function makeStore(storageKey, lastUnitKey) {
+  function loadStorage() {
+    try { return JSON.parse(localStorage.getItem(storageKey)) || {}; } catch { return {}; }
+  }
+  function saveStorage(data) {
+    try { localStorage.setItem(storageKey, JSON.stringify(data)); } catch { /* ignore */ }
+  }
+  function getRecord(unitId, idx) {
+    const data = loadStorage();
+    return (data[unitId] && data[unitId][idx]) || null;
+  }
+  function setRecord(unitId, idx, rec) {
+    const data = loadStorage();
+    if (!data[unitId]) data[unitId] = {};
+    data[unitId][idx] = rec;
+    saveStorage(data);
+  }
+  function clearUnitStorage(unitId) {
+    const data = loadStorage();
+    delete data[unitId];
+    saveStorage(data);
+  }
+  // The unit the child last opened, so the unit menu can jump back to it (after
+  // ✕ / "Chọn bài khác", and also when the workbook is reopened from home).
+  function getLastUnit() {
+    try { return localStorage.getItem(lastUnitKey); } catch { return null; }
+  }
+  function setLastUnit(unitId) {
+    try { localStorage.setItem(lastUnitKey, unitId); } catch { /* storage unavailable */ }
+  }
 
-function getUnitSummary(unit) {
-  let solvedCount = 0, attemptsSum = 0;
-  unit.questions.forEach((_, i) => {
-    const rec = getRecord(unit.id, i);
-    if (rec) { if (rec.solved) solvedCount++; attemptsSum += rec.attempts || 0; }
-  });
-  return { solvedCount, total: unit.questions.length, attemptsSum };
+  function getUnitSummary(unit) {
+    let solvedCount = 0, attemptsSum = 0;
+    unit.questions.forEach((_, i) => {
+      const rec = getRecord(unit.id, i);
+      if (rec) { if (rec.solved) solvedCount++; attemptsSum += rec.attempts || 0; }
+    });
+    return { solvedCount, total: unit.questions.length, attemptsSum };
+  }
+  return { getRecord, setRecord, clearUnitStorage, getLastUnit, setLastUnit, getUnitSummary };
 }
 
 // ── ENGINE ───────────────────────────────────────────────────────────────────
 
+// The Vở Bài Tập book (this file's own UNITS). Other books reuse the engine via
+// renderWorkbook() with their own cfg — see grade3Practice.js.
+const WORKBOOK_CONFIG = {
+  units: UNITS,
+  storageKey: 'gw-progress-v1',
+  lastUnitKey: 'gw-last-unit',
+  badge: '📗',
+  title: 'Vở Bài Tập Toán 3',
+  subtitle: 'Tập Một — Kết nối tri thức với cuộc sống',
+  menuLabel: 'Chọn bài để luyện tập:',
+  unitWord: 'bài',
+  unitName: (u) => `Bài ${u.number}. ${u.title}`,
+  note: 'Nguồn: Vở bài tập Toán 3 — Tập một, bộ sách Kết nối tri thức với cuộc sống (NXB Giáo dục Việt Nam).',
+};
+
 export function render(app, onBack) {
+  renderWorkbook(app, onBack, WORKBOOK_CONFIG);
+}
+
+export function renderWorkbook(app, onBack, cfg) {
+  const UNITS = cfg.units;
+  const { getRecord, setRecord, clearUnitStorage, getLastUnit, setLastUnit, getUnitSummary } = makeStore(cfg.storageKey, cfg.lastUnitKey);
   let activeQuestions = [];
   let activeTitle = '';
   let activeColor = '#34D399';
@@ -4198,15 +4222,15 @@ export function render(app, onBack) {
     app.innerHTML = `
       <div class="e3-wrap gw-app">
         <div class="e3-intro animate-fadeIn gw-intro-wide">
-          <div class="e3-badge">📗</div>
-          <h1 class="e3-title">Vở Bài Tập Toán 3</h1>
-          <p class="e3-sub">Tập Một — Kết nối tri thức với cuộc sống</p>
+          <div class="e3-badge">${cfg.badge}</div>
+          <h1 class="e3-title">${cfg.title}</h1>
+          <p class="e3-sub">${cfg.subtitle}</p>
 
-          <div class="e3-section-label">Chọn bài để luyện tập:</div>
+          <div class="e3-section-label">${cfg.menuLabel}</div>
           <div class="gw-unit-list">
             <button class="gw-unit-row gw-unit-all" data-unit="all">
               <span class="gw-unit-badge" style="background:#334155">📋</span>
-              <span class="gw-unit-info"><strong>Tất cả</strong><span class="gw-unit-sub">${totalQ} câu — ${UNITS.length} bài hiện có</span></span>
+              <span class="gw-unit-info"><strong>Tất cả</strong><span class="gw-unit-sub">${totalQ} câu — ${UNITS.length} ${cfg.unitWord} hiện có</span></span>
               <span class="gw-unit-arrow">›</span>
             </button>
             ${UNITS.map((u, idx) => {
@@ -4219,7 +4243,7 @@ export function render(app, onBack) {
               return `
                 <button class="gw-unit-row" data-unit="${u.id}">
                   <span class="gw-unit-badge" style="background:${color}">${u.number}</span>
-                  <span class="gw-unit-info"><strong>Bài ${u.number}. ${u.title}</strong><span class="gw-unit-sub">${badges}</span></span>
+                  <span class="gw-unit-info"><strong>${cfg.unitName(u)}</strong><span class="gw-unit-sub">${badges}</span></span>
                   <span class="gw-unit-arrow">›</span>
                 </button>
               `;
@@ -4227,7 +4251,7 @@ export function render(app, onBack) {
           </div>
 
           <div class="e3-divider"></div>
-          <p class="e3-note">Nguồn: Vở bài tập Toán 3 — Tập một, bộ sách Kết nối tri thức với cuộc sống (NXB Giáo dục Việt Nam).</p>
+          <p class="e3-note">${cfg.note}</p>
           <button class="e3-btn e3-btn-ghost" id="e3-back-btn">← Quay lại</button>
         </div>
       </div>
@@ -4246,7 +4270,7 @@ export function render(app, onBack) {
           const unitIdx = UNITS.findIndex(u => u.id === uid);
           const u = UNITS[unitIdx];
           activeQuestions = u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: i }));
-          activeTitle = `Bài ${u.number}. ${u.title}`;
+          activeTitle = cfg.unitName(u);
           activeColor = PALETTE[unitIdx % PALETTE.length];
           activeUnitIds = [u.id];
         }
@@ -4827,7 +4851,11 @@ export function render(app, onBack) {
   function renderTableArea(q) {
     const groups = tableGroups(q);
     const isGroup = !!q.tables;
+    const blanksHtml = q.blanks ? `<div class="e3-blanks gw-table-blanks" id="e3-blanks">${q.blanks.map((b, i) => renderBlankRow(b, i)).join('')}</div>` : '';
+    // q.blanksFirst: the book prints the fill-in part a) above the table b)
+    // (Luyện tập Tuần 5 Tiết 1 Q1, Tuần 6 Tiết 2 Q1).
     return `
+      ${q.blanksFirst ? blanksHtml : ''}
       <div class="${isGroup ? 'gw-table-group' : ''}" id="gw-table">
         ${groups.map((t, ti) => {
           const colWidths = t.headers ? null : tableColWidthsPx(t);
@@ -4865,7 +4893,7 @@ export function render(app, onBack) {
         `;
         }).join('')}
       </div>
-      ${q.blanks ? `<div class="e3-blanks gw-table-blanks" id="e3-blanks">${q.blanks.map((b, i) => renderBlankRow(b, i)).join('')}</div>` : ''}
+      ${q.blanksFirst ? '' : blanksHtml}
       <button class="e3-btn e3-btn-primary" id="gw-table-check" style="margin-top:12px">Kiểm tra</button>
     `;
   }
@@ -5718,7 +5746,7 @@ function injectStyles() {
     .gw-table-rowlabel { border: none !important; background: transparent !important; font-weight: 700; color: #334155; white-space: nowrap; text-align: right !important; padding-right: 0.5rem !important; }
     .gw-table-group { display: flex; flex-direction: column; gap: 1rem; }
     .gw-table-group-label { font-weight: 700; color: #334155; margin-bottom: 0.3rem; }
-    @media (min-width: 720px) { .gw-table-group { flex-direction: row; align-items: flex-start; } .gw-table-group-item { flex: 1; min-width: 0; } }
+    @media (min-width: 720px) { .gw-table-group { flex-direction: row; flex-wrap: wrap; align-items: flex-start; } .gw-table-group-item { flex: 1 1 auto; min-width: 0; max-width: 100%; } }
 
     .gw-compare { display: flex; flex-direction: column; gap: 0.6rem; }
     .gw-compare-row { display: flex; align-items: center; justify-content: center; gap: 0.7rem; background: #fff; border-radius: 0.9rem; padding: 0.7rem 0.9rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); flex-wrap: wrap; }

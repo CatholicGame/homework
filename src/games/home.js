@@ -10,6 +10,7 @@ const GRADES = [
     games: [
       { id: 'grade3-exam', icon: '📝', title: 'Ôn Luyện Đề', desc: 'Đề 1 — Bộ đề ôn luyện VioEdu khối 3' },
       { id: 'grade3-workbook', icon: '📗', title: 'Vở Bài Tập Toán 3', desc: 'Tập Một — Kết nối tri thức với cuộc sống' },
+      { id: 'grade3-practice', icon: '📘', title: 'Luyện Tập Toán 3', desc: 'Tập Một — Luyện tập theo tuần (Kết nối tri thức)' },
     ],
   },
   { id: 'grade-4', title: 'Lớp 4', icon: '4️⃣', color: '#C084FC', games: [] },
