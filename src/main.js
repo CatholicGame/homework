@@ -1,8 +1,11 @@
 /**
- * Main Entry Point — Toán Lớp 2 Interactive Games
+ * Main Entry Point — Toán Tiểu Học
  */
 
 import { renderHome } from './games/home.js';
+import { renderLogin } from './games/login.js';
+import { getCurrentUser, signOut } from './engine/auth.js';
+import { creditLegacyProgress } from './engine/stars.js';
 import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
 import { initLightbox } from './engine/lightbox.js';
 import { initKeyboardInset } from './engine/keyboardInset.js';
@@ -49,8 +52,19 @@ function navigate(gameId) {
   const app = document.getElementById('app');
   app.innerHTML = '';
 
+  // Chỉ cho truy cập ứng dụng sau khi đăng nhập
+  const user = getCurrentUser();
+  if (!user) {
+    renderLogin(app, () => navigate('home'));
+    return;
+  }
+
   if (!gameId || gameId === 'home') {
-    renderHome(app, navigate);
+    creditLegacyProgress();
+    renderHome(app, navigate, {
+      user,
+      onSignOut: () => { signOut(); navigate('home'); },
+    });
     return;
   }
 

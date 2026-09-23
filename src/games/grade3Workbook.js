@@ -111,6 +111,7 @@ import imgBai43T2Figures from '../assets/grade3-workbook/bai43_t2_q1_figures.png
 import imgBai43T2Objects from '../assets/grade3-workbook/bai43_t2_q2_objects.png';
 import imgBai44T1Rect from '../assets/grade3-workbook/bai44_t1_q3_rect.png';
 import imgBai44T2Figures from '../assets/grade3-workbook/bai44_t2_q3_figures.png';
+import { awardStars, getQuestionStars, earnedFor, getTotalStars, renderStarRating } from '../engine/stars.js';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
 
@@ -4180,6 +4181,7 @@ function makeStore(storageKey, lastUnitKey) {
 const WORKBOOK_CONFIG = {
   units: UNITS,
   storageKey: 'gw-progress-v1',
+  starBook: 'workbook',
   lastUnitKey: 'gw-last-unit',
   badge: '📗',
   title: 'Vở Bài Tập Toán 3',
@@ -4207,6 +4209,9 @@ export function renderWorkbook(app, onBack, cfg) {
   let wrongCounts = [];
   let solutionRows = [];
   let solutionConfirmed = [];
+  const starKey = (unitId, idx) => `${cfg.starBook}:${unitId}:${idx}`;
+  const qStars = (q) => getQuestionStars(starKey(q.__unitId, q.__qIdx), q);
+  const qEarned = (q) => earnedFor(starKey(q.__unitId, q.__qIdx));
   let lastFocusedFormulaInput = null;
   let multiSelected = [];
   let compareSelected = [];
@@ -4225,6 +4230,7 @@ export function renderWorkbook(app, onBack, cfg) {
           <div class="e3-badge">${cfg.badge}</div>
           <h1 class="e3-title">${cfg.title}</h1>
           <p class="e3-sub">${cfg.subtitle}</p>
+          <div class="star-total-chip" title="Tổng số sao bạn đã nhận">⭐ ${getTotalStars()} sao</div>
 
           <div class="e3-section-label">${cfg.menuLabel}</div>
           <div class="gw-unit-list">
@@ -4236,8 +4242,14 @@ export function renderWorkbook(app, onBack, cfg) {
             ${UNITS.map((u, idx) => {
               const color = PALETTE[idx % PALETTE.length];
               const sum = getUnitSummary(u);
+              const starSum = u.questions.reduce((acc, q, i) => {
+                acc.max += getQuestionStars(starKey(u.id, i), q);
+                acc.got += earnedFor(starKey(u.id, i));
+                return acc;
+              }, { got: 0, max: 0 });
               const badges = [
                 sum.solvedCount ? `✓ ${sum.solvedCount}/${sum.total}` : `${sum.total} câu`,
+                `⭐ ${starSum.got}/${starSum.max}`,
                 sum.attemptsSum ? `🔁 ${sum.attemptsSum} lượt` : '',
               ].filter(Boolean).join(' · ');
               return `
@@ -4324,6 +4336,10 @@ export function renderWorkbook(app, onBack, cfg) {
     rec.attempts++;
     if (isSolve) rec.solved = true;
     setRecord(q.__unitId, q.__qIdx, rec);
+    if (isSolve && awardStars(starKey(q.__unitId, q.__qIdx), q) && idx === current) {
+      const rating = app.querySelector('.e3-q-num .star-rating');
+      if (rating) rating.outerHTML = renderStarRating(qStars(q), true);
+    }
   }
 
   // ── QUIZ ──────────────────────────────────────────────────────────────────
@@ -4348,7 +4364,7 @@ export function renderWorkbook(app, onBack, cfg) {
     const pinQuestion = !!(q.img || q.wordProblem);
     const questionCard = `
           <div class="e3-question-card${q.img ? ' gw-card-has-img' : ''}">
-            <div class="e3-q-num" style="color:${activeColor}">${q.section ? `${q.section} — ` : ''}Câu ${current + 1}</div>
+            <div class="e3-q-num" style="color:${activeColor}">${q.section ? `${q.section} — ` : ''}Câu ${current + 1}${renderStarRating(qStars(q), qEarned(q) > 0)}</div>
             <div class="e3-q-text">${q.q.replace(/\n/g, '<br>')}</div>
             ${q.img ? `<img class="e3-q-img" src="${q.img}" alt="Hình minh họa câu ${current + 1}" loading="lazy">` : ''}
             ${q.wordProblem ? renderSubQuestions(q) : ''}
@@ -5402,6 +5418,7 @@ export function renderWorkbook(app, onBack, cfg) {
           <h2 class="e3-result-grade" style="color:${color}">${label}</h2>
           <div class="e3-result-score">${correctCount} / ${total}</div>
           <div class="e3-result-pct">${pct}% câu đúng</div>
+          <div class="star-result">⭐ ${activeQuestions.reduce((n, q) => n + qEarned(q), 0)} / ${activeQuestions.reduce((n, q) => n + qStars(q), 0)} sao</div>
 
           <div class="e3-result-list">
             ${activeQuestions.map((q, i) => {
@@ -5410,6 +5427,7 @@ export function renderWorkbook(app, onBack, cfg) {
                 <div class="e3-result-row ${ok ? 'e3-row-ok' : 'e3-row-fail'}">
                   <span class="e3-row-num">${i + 1}</span>
                   <span class="e3-row-q">${q.q.split('\n')[0]}</span>
+                  ${renderStarRating(qStars(q), qEarned(q) > 0)}
                   <span class="e3-row-mark">${ok ? '✅' : '❌'}</span>
                 </div>
               `;

@@ -389,3 +389,69 @@ input[data-vk-attached][type=number] {
   appearance: textfield;
 }
 
+
+/* ====== STARS (phần thưởng ảo) ====== */
+.star-rating {
+  display: inline-flex;
+  margin-left: 0.6em;
+  font-size: 1.25em;
+  letter-spacing: 1px;
+  line-height: 1;
+  vertical-align: -0.1em;
+  white-space: nowrap;
+}
+/* Chưa nhận: sao vàng nhạt; đã nhận: vàng đậm, phát sáng. */
+.star-rating .star-full { color: #FCD34D; }
+.star-rating .star-empty { color: #E2E8F0; }
+.star-rating-earned .star-full { color: #F59E0B; text-shadow: 0 0 6px rgba(245, 158, 11, 0.45); }
+.e3-result-row .star-rating { font-size: 0.95rem; margin-left: 0; }
+
+.star-total-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 4px auto 12px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: #FEF3C7;
+  color: #92400E;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.star-result {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #B45309;
+  margin: -0.75rem 0 1.25rem;
+}
+
+.star-toast {
+  position: fixed;
+  left: 50%;
+  top: 40%;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #FDE68A, #FBBF24);
+  color: #78350F;
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 2rem;
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.45);
+  pointer-events: none;
+  animation: starToast 1.8s ease-out forwards;
+}
+.star-toast-icon { font-size: 2.2rem; }
+
+@keyframes starToast {
+  0%   { opacity: 0; transform: translate(-50%, 20px) scale(0.6); }
+  15%  { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
+  30%  { transform: translate(-50%, 0) scale(1); }
+  75%  { opacity: 1; transform: translate(-50%, -30px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -80px) scale(0.9); }
+}

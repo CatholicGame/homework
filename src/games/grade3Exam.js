@@ -4,6 +4,8 @@
  * Nguồn: https://vndoc.com/bo-de-on-luyen-vioedu-khoi-3-316472
  */
 
+import { awardStars, getQuestionStars, earnedFor, getTotalStars, renderStarRating } from '../engine/stars.js';
+
 const EXAMS = [
   {
     id: 'de-1',
@@ -117,6 +119,22 @@ export function render(app, onBack) {
 
   injectStyles();
 
+  // Each question carries its star-ledger key (exam:<đề>:<phần>:<câu>) so the
+  // "Tất Cả" mix keeps pointing at the right rating.
+  const withKeys = (exam, sec) => sec.questions.map((q, i) => ({ ...q, __starKey: `exam:${exam.id}:${sec.id}:${i}` }));
+  const qStars = (q) => getQuestionStars(q.__starKey, q);
+  const qEarned = (q) => earnedFor(q.__starKey);
+  const sumStars = (qs) => qs.reduce((acc, q) => ({ got: acc.got + qEarned(q), max: acc.max + qStars(q) }), { got: 0, max: 0 });
+
+  function markSolved() {
+    solved[current] = true;
+    const q = activeQuestions[current];
+    if (awardStars(q.__starKey, q)) {
+      const rating = app.querySelector('.e3-q-num .star-rating');
+      if (rating) rating.outerHTML = renderStarRating(qStars(q), true);
+    }
+  }
+
   // ── INTRO ─────────────────────────────────────────────────────────────────
   function showIntro() {
     const exam = activeExam;
@@ -127,19 +145,20 @@ export function render(app, onBack) {
           <div class="e3-badge">📝</div>
           <h1 class="e3-title">Ôn Luyện Đề — ${exam.title}</h1>
           <p class="e3-sub">${exam.subtitle}</p>
+          <div class="star-total-chip" title="Tổng số sao bạn đã nhận">⭐ ${getTotalStars()} sao</div>
 
           <div class="e3-section-label">Chọn phần ôn tập:</div>
           <div class="e3-section-grid">
             <button class="e3-section-btn e3-section-all" data-section="all">
               <span class="e3-sec-icon">📋</span>
               <span class="e3-sec-title">Tất Cả</span>
-              <span class="e3-sec-count">${totalQ} câu</span>
+              <span class="e3-sec-count">${totalQ} câu · ⭐ ${(s => `${s.got}/${s.max}`)(sumStars(exam.sections.flatMap(sec => withKeys(exam, sec))))}</span>
             </button>
             ${exam.sections.map(sec => `
               <button class="e3-section-btn" data-section="${sec.id}" style="--sec-color:${sec.color}">
                 <span class="e3-sec-icon">${sec.icon}</span>
                 <span class="e3-sec-title">${sec.title}</span>
-                <span class="e3-sec-count">${sec.questions.length} câu</span>
+                <span class="e3-sec-count">${sec.questions.length} câu · ⭐ ${(s => `${s.got}/${s.max}`)(sumStars(withKeys(exam, sec)))}</span>
               </button>
             `).join('')}
           </div>
@@ -155,12 +174,12 @@ export function render(app, onBack) {
       btn.addEventListener('click', () => {
         const sid = btn.dataset.section;
         if (sid === 'all') {
-          activeQuestions = exam.sections.flatMap(s => s.questions);
+          activeQuestions = exam.sections.flatMap(s => withKeys(exam, s));
           activeSectionTitle = `Tất Cả — ${totalQ} câu`;
           activeSectionColor = '#34D399';
         } else {
           const sec = exam.sections.find(s => s.id === sid);
-          activeQuestions = sec.questions;
+          activeQuestions = withKeys(exam, sec);
           activeSectionTitle = sec.title;
           activeSectionColor = sec.color;
         }
@@ -206,7 +225,7 @@ export function render(app, onBack) {
           </div>
 
           <div class="e3-question-card">
-            <div class="e3-q-num" style="color:${activeSectionColor}">Câu ${current + 1}</div>
+            <div class="e3-q-num" style="color:${activeSectionColor}">Câu ${current + 1}${renderStarRating(qStars(q), qEarned(q) > 0)}</div>
             <div class="e3-q-text">${q.q.replace(/\n/g, '<br>')}</div>
             ${q.img ? `<img class="e3-q-img" src="${q.img}" alt="Hình minh họa câu ${current + 1}" loading="lazy">` : ''}
           </div>
@@ -521,7 +540,7 @@ export function render(app, onBack) {
         const isRight = chosen.length === correct.length && chosen.every((v, i) => v === correct[i]);
         attempted[current] = true;
         if (isRight) {
-          solved[current] = true;
+          markSolved();
           lastCorrectValue[current] = chosen;
           submitBtn.disabled = true;
           revealChoiceAnswer(q, correct, chosen);
@@ -547,7 +566,7 @@ export function render(app, onBack) {
           const idx = parseInt(btn.dataset.idx);
           attempted[current] = true;
           if (idx === q.answer) {
-            solved[current] = true;
+            markSolved();
             lastCorrectValue[current] = idx;
             revealChoiceAnswer(q, [q.answer], [idx]);
             showFeedback(true);
@@ -573,7 +592,7 @@ export function render(app, onBack) {
       const correctFlags = q.blanks.map((b, i) => normalize(values[i]) === normalize(b.answer));
       const allCorrect = correctFlags.every(Boolean);
       if (allCorrect) {
-        solved[current] = true;
+        markSolved();
         lastCorrectValue[current] = values;
         inputs.forEach(inp => { inp.disabled = true; inp.classList.add('e3-correct-input'); });
         showFeedback(true);
@@ -637,6 +656,7 @@ export function render(app, onBack) {
           <h2 class="e3-result-grade" style="color:${color}">${label}</h2>
           <div class="e3-result-score">${correctCount} / ${total}</div>
           <div class="e3-result-pct">${pct}% câu đúng</div>
+          <div class="star-result">⭐ ${sumStars(activeQuestions).got} / ${sumStars(activeQuestions).max} sao</div>
 
           <div class="e3-result-list">
             ${activeQuestions.map((q, i) => {
@@ -645,6 +665,7 @@ export function render(app, onBack) {
                 <div class="e3-result-row ${ok ? 'e3-row-ok' : 'e3-row-fail'}">
                   <span class="e3-row-num">${i + 1}</span>
                   <span class="e3-row-q">${q.q.split('\n')[0]}</span>
+                  ${renderStarRating(qStars(q), qEarned(q) > 0)}
                   <span class="e3-row-mark">${ok ? '✅' : '❌'}</span>
                 </div>
               `;

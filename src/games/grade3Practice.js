@@ -18,6 +18,7 @@ const UNITS = [...WEEKS_1_4, ...WEEKS_5_8, ...WEEKS_9_12, ...WEEKS_13_15, ...WEE
 const PRACTICE_CONFIG = {
   units: UNITS,
   storageKey: 'gp-progress-v1',
+  starBook: 'practice',
   lastUnitKey: 'gp-last-unit',
   badge: '📘',
   title: 'Luyện Tập Toán 3',
