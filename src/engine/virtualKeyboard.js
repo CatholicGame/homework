@@ -101,15 +101,17 @@ function attachToInput(input) {
   if (input.dataset.vkAttached) return;
   input.dataset.vkAttached = '1';
 
-  // Prevent native keyboard
+  // Prevent the native keyboard — permanently. readonly only blocks the
+  // user's own typing; pressKey() still sets .value from JS. It must never be
+  // lifted while the input is focused: even a one-tick gap (the old
+  // remove-then-setTimeout re-add) is enough for iPadOS to start opening its
+  // own keyboard on top of ours, flashing a black keyboard area for 2–3s.
+  // inputmode="none" is a second guard for browsers that ignore readonly.
   input.setAttribute('readonly', 'readonly');
+  input.setAttribute('inputmode', 'none');
 
   input.addEventListener('focus', (e) => {
-    // remove readonly temporarily so value can be set programmatically
-    input.removeAttribute('readonly');
     showKeyboard(input);
-    // re-apply readonly so native keyboard doesn't open
-    setTimeout(() => input.setAttribute('readonly', 'readonly'), 0);
     e.stopPropagation();
   });
 
@@ -157,7 +159,7 @@ function installHandlers() {
     }
     // Click outside keyboard + outside an input → hide
     if (!e.target.closest('#virtual-keyboard') &&
-        !e.target.matches('input[type="number"], input[inputmode="numeric"]')) {
+        !e.target.matches('input[type="number"], input[inputmode="numeric"], input[data-vk-attached]')) {
       hideKeyboard();
     }
   }, true);

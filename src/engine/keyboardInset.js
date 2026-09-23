@@ -21,8 +21,9 @@ export function initKeyboardInset() {
   const vv = window.visualViewport;
   let wasOpen = false;
 
+  // readonly inputs are the number-pad ones: they never bring up the native keyboard.
   const isEditable = (el) =>
-    !!el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !['button', 'checkbox', 'radio', 'submit'].includes(el.type)) || el.isContentEditable);
+    !!el && !el.readOnly && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !['button', 'checkbox', 'radio', 'submit'].includes(el.type)) || el.isContentEditable);
 
   function update() {
     const layoutH = root.clientHeight;
@@ -55,7 +56,7 @@ export function initKeyboardInset() {
       // (after the new layout has been applied).
       requestAnimationFrame(() => {
         const el = document.activeElement;
-        if (isEditable(el) && el.closest('#app')) el.scrollIntoView({ block: 'center', behavior: wasOpen ? 'smooth' : 'auto' });
+        if (el && /^(INPUT|TEXTAREA)$/.test(el.tagName) && el.closest('#app')) el.scrollIntoView({ block: 'center', behavior: wasOpen ? 'smooth' : 'auto' });
         wasOpen = true;
       });
     } else {
