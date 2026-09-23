@@ -10,6 +10,7 @@
 import { getCurrentUser } from './auth.js';
 import { STAR_RATINGS } from '../data/starRatings.js';
 import { recordSolve, dayKey, weekKey, monthKey } from './activity.js';
+import { recordSolveForSpin, showSpinToast } from './stickers.js';
 
 export const MAX_STARS = 5;
 
@@ -115,6 +116,8 @@ export function awardStars(key, q, { silent = false } = {}) {
   if (!silent) {
     recordSolve(n);
     showStarToast(n);
+    // Cứ đủ 5 bài thì được 1 lượt quay sticker (báo sau khi hiệu ứng sao bay xong).
+    if (recordSolveForSpin()) setTimeout(showSpinToast, 1200);
   }
   return n;
 }

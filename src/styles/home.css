@@ -191,20 +191,27 @@
 /* ====== GAME GRID ====== */
 .game-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 
 /* ====== GAME CARD ====== */
+/* Mỗi sách một màu riêng (--card-color) để bé nhận ra ngay. */
 .game-card {
+  --tint: color-mix(in srgb, var(--card-color, var(--purple)) 14%, white);
+  font: inherit;
+  color: inherit;
+  width: 100%;
   background: var(--bg-card);
+  background: linear-gradient(160deg, var(--tint) 0%, var(--bg-card) 65%);
   border-radius: var(--radius-lg);
-  padding: 28px 20px 20px;
+  padding: 26px 20px 20px;
   text-align: center;
   cursor: pointer;
-  border: 2px solid transparent;
-  box-shadow: var(--shadow-md);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid var(--card-color, var(--purple));
+  border-bottom-width: 6px;
+  box-shadow: 0 8px 20px -8px var(--card-color, var(--purple));
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
   position: relative;
   overflow: hidden;
   animation: fadeIn 0.5s ease-out backwards;
@@ -213,23 +220,16 @@
   align-items: center;
 }
 
-.card-top-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-}
-
-.game-card:hover {
+.game-card:hover,
+.game-card:focus-visible {
   transform: translateY(-6px);
-  box-shadow: var(--shadow-lg), var(--shadow-glow);
-  border-color: var(--purple-light);
+  box-shadow: 0 16px 30px -10px var(--card-color, var(--purple));
+  outline: none;
 }
 
 .game-card:active {
-  transform: translateY(-2px) scale(0.98);
+  transform: translateY(-1px) scale(0.98);
+  border-bottom-width: 3px;
 }
 
 .game-card.played {
@@ -237,9 +237,16 @@
 }
 
 .card-icon {
-  font-size: 2.8rem;
-  margin-bottom: 10px;
-  display: block;
+  font-size: 2.6rem;
+  width: 76px;
+  height: 76px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-card);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--card-color, var(--purple)) 25%, transparent);
   animation: float 3s ease-in-out infinite;
 }
 
@@ -247,19 +254,33 @@
 .game-card:nth-child(3n) .card-icon { animation-delay: -2s; }
 
 .game-card h3 {
-  font-size: 0.95rem;
-  font-weight: 700;
-  margin-bottom: 5px;
-  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  color: var(--card-color, var(--text));
+  color: color-mix(in srgb, var(--card-color, var(--text)) 75%, black);
 }
 
 .game-card p {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: var(--text-light);
   font-weight: 500;
-  line-height: 1.3;
-  margin-bottom: 10px;
+  line-height: 1.35;
+  margin-bottom: 16px;
 }
+
+.card-go {
+  margin-top: auto;
+  padding: 8px 20px;
+  border-radius: var(--radius-full);
+  background: var(--card-color, var(--purple));
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: transform 0.2s ease;
+}
+
+.game-card:hover .card-go { transform: scale(1.06); }
 
 /* Card progress */
 .card-progress {
@@ -318,18 +339,17 @@
   .dashboard-stats { grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .stat-card { padding: 14px 14px; }
   .stat-number { font-size: 1.2rem; }
-  .game-grid { grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .game-grid { gap: 14px; }
   .game-card { padding: 22px 14px 16px; }
 }
 
 @media (max-width: 900px) {
   .dashboard-stats { grid-template-columns: repeat(2, 1fr); }
-  .game-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 600px) {
   .home { padding: 20px 16px; }
-  .game-grid { grid-template-columns: repeat(2, 1fr); }
+  .game-grid { grid-template-columns: 1fr; }
   .stat-card { padding: 12px; }
 }
 

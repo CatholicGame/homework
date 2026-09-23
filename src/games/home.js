@@ -6,6 +6,7 @@ import { getTotalStars } from '../engine/stars.js';
 import { getDashboard, getLastGame, DAILY_GOAL_STARS } from '../engine/activity.js';
 import { getProfile, getProfileGrade, avatarUrl, displayName } from '../engine/profile.js';
 import { getGrade } from '../data/grades.js';
+import { getSpinStatus, countOwned, getSets } from '../engine/stickers.js';
 
 const WEEKDAYS = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
 const WEEKDAYS_SHORT = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -44,12 +45,12 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
           ${games.length ? `
           <div class="game-grid">
             ${games.map((g, gIdx) => `
-              <div class="game-card" data-game="${g.id}" style="animation-delay: ${0.15 + gIdx * 0.05}s; --card-color: ${grade.color}">
-                <div class="card-top-bar" style="background: ${grade.color}"></div>
+              <button type="button" class="game-card" data-game="${g.id}" style="animation-delay: ${0.15 + gIdx * 0.05}s; --card-color: ${g.color || grade.color}">
                 <span class="card-icon">${g.icon}</span>
                 <h3>${g.title}</h3>
                 <p>${g.desc}</p>
-              </div>
+                <span class="card-go">Vào học ➜</span>
+              </button>
             `).join('')}
           </div>` : '<p class="daily-message">Bài tập của lớp này sắp ra mắt. Hẹn gặp lại bé nhé! 🚀</p>'}
         </div>
@@ -143,6 +144,8 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
 
         <p class="daily-message">${message}</p>
 
+        ${stickerPanel()}
+
         <div class="dchart">
           <div class="dchart-head">
             <h3>Sao nhận được 7 ngày qua</h3>
@@ -158,7 +161,24 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
     `;
   }
 
+  // ── Sticker phần thưởng: 5 bài → 1 lượt quay ───────────────────────────
+  function stickerPanel() {
+    const { spins, progress, need } = getSpinStatus();
+    const total = getSets().reduce((n, s) => n + s.stickers.length, 0);
+    const dots = Array.from({ length: need }, (_, i) => `<span class="stk-dot${i < progress ? ' is-on' : ''}"></span>`).join('');
+    return `
+      <button type="button" class="stk-banner${spins ? ' has-spins' : ''}" id="stk-banner">
+        <span class="stk-banner-icon">${spins ? '🎡' : '🎁'}</span>
+        <span class="stk-banner-text">
+          <strong>${spins ? `Em có ${spins} lượt quay sticker!` : `Còn ${need - progress} bài nữa là được 1 lượt quay sticker`}</strong>
+          <span class="stk-banner-sub">${spins ? 'Bấm để quay và nhận sticker nhé' : `<span class="stk-dots">${dots}</span> ${progress}/${need} bài`} · Bộ sưu tập ${countOwned()}/${total}</span>
+        </span>
+        <span class="stk-banner-go">${spins ? 'Quay ngay ➜' : 'Xem sticker ➜'}</span>
+      </button>`;
+  }
+
   function bindDailyPanel() {
+    app.querySelector('#stk-banner')?.addEventListener('click', () => navigate('stickers'));
     app.querySelector('#daily-continue')?.addEventListener('click', (e) => navigate(e.currentTarget.dataset.game));
 
     // Tooltip cho từng cột (chuột: rê vào; iPad: chạm).
@@ -199,6 +219,7 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
         : initial;
     return `
       <div class="user-bar animate-fadeIn">
+        <button type="button" class="user-rank-btn" id="user-sticker-btn" title="Vòng quay sticker">🎁 <span>Sticker</span>${getSpinStatus().spins ? `<b class="user-badge">${getSpinStatus().spins}</b>` : ''}</button>
         <button type="button" class="user-rank-btn" id="user-rank-btn" title="Bảng xếp hạng">🏆 <span>Xếp hạng</span></button>
         <span class="user-stars" title="Tổng số sao đã nhận">⭐ ${getTotalStars()}</span>
         <div class="user-menu-wrap">
@@ -232,6 +253,7 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
     };
     const onOutside = (e) => { if (!e.target.closest('.user-menu-wrap')) setOpen(false); };
     app.querySelector('#user-rank-btn').addEventListener('click', () => navigate('leaderboard'));
+    app.querySelector('#user-sticker-btn').addEventListener('click', () => navigate('stickers'));
     btn.addEventListener('click', () => setOpen(menu.hidden));
     app.querySelector('#user-edit-profile').addEventListener('click', () => { setOpen(false); navigate('profile'); });
     app.querySelector('#user-signout').addEventListener('click', () => { setOpen(false); openSignOutDialog(); });

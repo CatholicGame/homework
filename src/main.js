@@ -79,7 +79,9 @@ function renderLoadError(app, onRetry, onBack) {
 // Router
 let navToken = 0;
 let profileReturn = 'home'; // màn quay về sau khi sửa hồ sơ
+let currentPage = null;
 function navigate(gameId) {
+  currentPage = gameId || 'home';
   const app = document.getElementById('app');
   app.innerHTML = '';
   const token = ++navToken;
@@ -110,6 +112,16 @@ function navigate(gameId) {
       mod.render(app, () => navigate('home'), {
         onEditProfile: () => { profileReturn = 'leaderboard'; navigate('profile'); },
       });
+    }).catch(() => {
+      if (token === navToken) renderLoadError(app, () => navigate(gameId), () => navigate('home'));
+    });
+    return;
+  }
+
+  if (gameId === 'stickers') {
+    import('./games/stickers.js').then(mod => {
+      if (token !== navToken) return;
+      mod.render(app, () => navigate('home'));
     }).catch(() => {
       if (token === navToken) renderLoadError(app, () => navigate(gameId), () => navigate('home'));
     });
@@ -161,6 +173,14 @@ function navigate(gameId) {
       renderLoadError(app, () => navigate(gameId), () => navigate('home'));
     });
   }
+}
+
+// Bản dev: phím tắt thử nghiệm sticker (Ctrl+Alt+H xem danh sách). Không có trong bản build.
+if (import.meta.env.DEV) {
+  import('./engine/devShortcuts.js').then(({ initDevShortcuts }) => initDevShortcuts({
+    navigate,
+    refresh: () => { if (currentPage === 'home' || currentPage === 'stickers') navigate(currentPage); },
+  }));
 }
 
 // Start
