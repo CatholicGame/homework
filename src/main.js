@@ -5,12 +5,16 @@
 import { renderHome } from './games/home.js';
 import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
 import { initLightbox } from './engine/lightbox.js';
+import { initKeyboardInset } from './engine/keyboardInset.js';
 
 // Init virtual keyboard globally — auto-attaches to all number inputs
 initVirtualKeyboard();
 
 // Init image lightbox globally — tap any question illustration to enlarge it
 initLightbox();
+
+// Keep #app above the native (iPad) keyboard / our number pad while one is open
+initKeyboardInset();
 
 // Fullscreen toggle — persists across every page (home + all games)
 function initFullscreenButton() {

@@ -84,6 +84,16 @@ body {
   overscroll-behavior: contain;
 }
 
+/* A keyboard (iPad native one, or our own number pad) is covering the bottom
+   of the screen: shrink #app to the part still visible so nothing is hidden
+   underneath it. Values come from src/engine/keyboardInset.js. */
+html.kb-open #app {
+  top: var(--kb-app-top, 0px);
+  bottom: auto;
+  height: var(--kb-app-h, 100%);
+}
+html.kb-open body { background: #F1F5F9; }
+
 /* ====== UTILITIES ====== */
 .hidden { display: none !important; }
 
