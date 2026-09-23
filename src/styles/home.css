@@ -282,6 +282,15 @@
 
 .game-card:hover .card-go { transform: scale(1.06); }
 
+/* Chữ của thẻ: máy tính/iPad xếp dọc như cũ; điện thoại chuyển sang hàng ngang (xem bên dưới). */
+.card-text { display: flex; flex-direction: column; align-items: center; }
+
+/* Đầu trang (lời chào + sticker) nằm trên danh sách sách */
+.dashboard-top { margin-bottom: 24px; }
+.daily-greet .stk-banner { margin-bottom: 0; }
+.daily-greet .daily-head { margin-bottom: 14px; }
+.daily-stats-title { margin-bottom: 14px; }
+
 /* Card progress */
 .card-progress {
   width: 100%;
@@ -349,7 +358,24 @@
 
 @media (max-width: 600px) {
   .home { padding: 20px 16px; }
-  .game-grid { grid-template-columns: 1fr; }
+  .dashboard-header { margin-bottom: 16px; }
+  .dashboard-header h1 { font-size: 1.6rem; }
+  .game-grid { grid-template-columns: 1fr; gap: 12px; }
+
+  /* Thẻ sách dạng hàng ngang gọn: 3 sách vừa một màn hình điện thoại */
+  .game-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    text-align: left;
+  }
+  .game-card .card-icon { width: 56px; height: 56px; font-size: 1.9rem; margin: 0; flex: none; }
+  .card-text { align-items: flex-start; flex: 1; min-width: 0; }
+  .game-card h3 { font-size: 1.05rem; margin-bottom: 2px; }
+  .game-card p { margin-bottom: 0; font-size: 0.78rem; }
+  .game-card .card-go { margin: 0; padding: 8px 12px; flex: none; font-size: 0;  }
+  .game-card .card-go::before { content: '➜'; font-size: 1rem; }
   .stat-card { padding: 12px; }
 }
 

@@ -317,8 +317,10 @@
 @keyframes stkSpinIcon { to { transform: rotate(360deg); } }
 
 @media (max-width: 600px) {
-  .stk-banner { flex-wrap: wrap; }
-  .stk-banner-go { width: 100%; text-align: center; }
+  .stk-banner { gap: 10px; padding: 10px 12px; }
+  .stk-banner-text strong { font-size: 0.92rem; }
+  .stk-banner-go { flex: none; padding: 8px 12px; font-size: 0; }
+  .stk-banner-go::before { content: '➜'; font-size: 1rem; }
   .stk-grid { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); }
 }
 

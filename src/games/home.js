@@ -30,11 +30,11 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
     app.innerHTML = `
       <div class="home">
         ${userBar()}
-        <div class="dashboard animate-fadeIn">
+        <div class="dashboard dashboard-top animate-fadeIn">
           <div class="dashboard-header">
             <h1>🎓 Toán Tiểu Học</h1>
           </div>
-          ${dailyPanel()}
+          ${greetingPanel()}
         </div>
 
         <div class="category animate-fadeIn" style="animation-delay: 0.1s">
@@ -47,12 +47,18 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
             ${games.map((g, gIdx) => `
               <button type="button" class="game-card" data-game="${g.id}" style="animation-delay: ${0.15 + gIdx * 0.05}s; --card-color: ${g.color || grade.color}">
                 <span class="card-icon">${g.icon}</span>
-                <h3>${g.title}</h3>
-                <p>${g.desc}</p>
+                <span class="card-text">
+                  <h3>${g.title}</h3>
+                  <p>${g.desc}</p>
+                </span>
                 <span class="card-go">Vào học ➜</span>
               </button>
             `).join('')}
           </div>` : '<p class="daily-message">Bài tập của lớp này sắp ra mắt. Hẹn gặp lại bé nhé! 🚀</p>'}
+        </div>
+
+        <div class="dashboard animate-fadeIn" style="animation-delay: 0.2s">
+          ${statsPanel()}
         </div>
       </div>
     `;
@@ -65,15 +71,32 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
     });
   }
 
-  // ── Bảng theo dõi học hằng ngày ─────────────────────────────────────────
-  function dailyPanel() {
-    const { today, streak, last7 } = getDashboard();
+  // ── Đầu trang: lời chào, nút "Tiếp tục", tiến độ sticker ─────────────────
+  // Đặt trước danh sách sách để trên điện thoại/iPad bé vào bài ngay, không phải cuộn.
+  function greetingPanel() {
     const now = new Date();
     const firstName = escapeHtml(displayName());
+    const last = findGame(grade, getLastGame());
+    return `
+      <section class="daily daily-greet" aria-label="Lời chào">
+        <div class="daily-head">
+          <div>
+            <h2 class="daily-hello">Chào ${firstName}! 👋</h2>
+            <p class="daily-date">${WEEKDAYS[now.getDay()]}, ${ddmm(now)}/${now.getFullYear()}</p>
+          </div>
+          ${last ? `<button type="button" class="daily-continue" id="daily-continue" data-game="${last.id}">▶ Tiếp tục: <strong>${escapeHtml(last.title)}</strong></button>` : ''}
+        </div>
+        ${stickerPanel()}
+      </section>
+    `;
+  }
+
+  // ── Bảng theo dõi học hằng ngày ─────────────────────────────────────────
+  function statsPanel() {
+    const { today, streak, last7 } = getDashboard();
     const goalPct = Math.min(100, Math.round((today.stars / DAILY_GOAL_STARS) * 100));
     const goalDone = today.stars >= DAILY_GOAL_STARS;
     const accuracy = today.attempts ? Math.round((today.correct / today.attempts) * 100) : null;
-    const last = findGame(grade, getLastGame());
 
     const message = goalDone
       ? '🎉 Em đã hoàn thành mục tiêu hôm nay. Giỏi quá!'
@@ -100,13 +123,7 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
 
     return `
       <section class="daily" aria-label="Theo dõi học hằng ngày">
-        <div class="daily-head">
-          <div>
-            <h2 class="daily-hello">Chào ${firstName}! 👋</h2>
-            <p class="daily-date">${WEEKDAYS[now.getDay()]}, ${ddmm(now)}/${now.getFullYear()}</p>
-          </div>
-          ${last ? `<button type="button" class="daily-continue" id="daily-continue" data-game="${last.id}">▶ Tiếp tục: <strong>${escapeHtml(last.title)}</strong></button>` : ''}
-        </div>
+        <h2 class="section-title daily-stats-title">📊 Kết quả học tập</h2>
 
         <div class="dashboard-stats">
           <div class="stat-card stat-streak">
@@ -143,8 +160,6 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
         </div>
 
         <p class="daily-message">${message}</p>
-
-        ${stickerPanel()}
 
         <div class="dchart">
           <div class="dchart-head">
