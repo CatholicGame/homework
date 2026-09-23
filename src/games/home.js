@@ -1,92 +1,218 @@
 /**
- * Home Page — Grade Picker (Lớp 1–5)
+ * Home Page — bảng theo dõi + các sách/trò chơi của lớp bé đã chọn trong hồ sơ.
  */
 
 import { getTotalStars } from '../engine/stars.js';
+import { getDashboard, getLastGame, DAILY_GOAL_STARS } from '../engine/activity.js';
+import { getProfile, getProfileGrade, avatarUrl, displayName } from '../engine/profile.js';
+import { getGrade } from '../data/grades.js';
 
-const GRADES = [
-  { id: 'grade-1', title: 'Lớp 1', icon: '1️⃣', color: '#FF6B9D', games: [] },
-  { id: 'grade-2', title: 'Lớp 2', icon: '2️⃣', color: '#60A5FA', games: [] },
-  {
-    id: 'grade-3', title: 'Lớp 3', icon: '3️⃣', color: '#34D399',
-    games: [
-      { id: 'grade3-exam', icon: '📝', title: 'Ôn Luyện Đề', desc: 'Đề 1 — Bộ đề ôn luyện VioEdu khối 3' },
-      { id: 'grade3-workbook', icon: '📗', title: 'Vở Bài Tập Toán 3', desc: 'Tập Một — Kết nối tri thức với cuộc sống' },
-      { id: 'grade3-practice', icon: '📘', title: 'Luyện Tập Toán 3', desc: 'Tập Một — Luyện tập theo tuần (Kết nối tri thức)' },
-    ],
-  },
-  { id: 'grade-4', title: 'Lớp 4', icon: '4️⃣', color: '#C084FC', games: [] },
-  { id: 'grade-5', title: 'Lớp 5', icon: '5️⃣', color: '#FBBF24', games: [] },
-];
+const WEEKDAYS = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+const WEEKDAYS_SHORT = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+const ddmm = (d) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+
+/** Trò chơi trong lớp đang học (không gợi ý "Tiếp tục" sang sách của lớp khác). */
+function findGame(grade, gameId) {
+  return grade?.games.find(x => x.id === gameId) || null;
+}
 
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 export function renderHome(app, navigate, { user, onSignOut } = {}) {
-  renderGradeGrid();
+  const grade = getGrade(getProfileGrade());
+  renderPage();
 
-  function renderGradeGrid() {
+  function renderPage() {
+    const games = grade?.games || [];
     app.innerHTML = `
       <div class="home">
         ${userBar()}
         <div class="dashboard animate-fadeIn">
           <div class="dashboard-header">
             <h1>🎓 Toán Tiểu Học</h1>
-            <p>Chọn lớp học để bắt đầu 🚀</p>
           </div>
+          ${dailyPanel()}
         </div>
 
         <div class="category animate-fadeIn" style="animation-delay: 0.1s">
-          <div class="game-grid">
-            ${GRADES.map((grade, idx) => {
-              const hasGames = grade.games.length > 0;
-              return `
-                <div class="game-card ${hasGames ? '' : 'grade-card-empty'}" data-grade="${grade.id}" style="animation-delay: ${0.15 + idx * 0.05}s; --card-color: ${grade.color}">
-                  <div class="card-top-bar" style="background: ${grade.color}"></div>
-                  <span class="card-icon">${grade.icon}</span>
-                  <h3>${grade.title}</h3>
-                  <div class="card-progress">
-                    <div class="card-new-badge">${hasGames ? `${grade.games.length} trò chơi` : '🚧 Sắp ra mắt'}</div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
+          <div class="home-grade-head">
+            <h2 class="section-title">📚 ${grade ? `${grade.title} — chọn bài để học` : 'Chọn bài để học'}</h2>
+            <button type="button" class="home-grade-change" id="home-grade-change">🔄 Đổi lớp</button>
           </div>
+          ${games.length ? `
+          <div class="game-grid">
+            ${games.map((g, gIdx) => `
+              <div class="game-card" data-game="${g.id}" style="animation-delay: ${0.15 + gIdx * 0.05}s; --card-color: ${grade.color}">
+                <div class="card-top-bar" style="background: ${grade.color}"></div>
+                <span class="card-icon">${g.icon}</span>
+                <h3>${g.title}</h3>
+                <p>${g.desc}</p>
+              </div>
+            `).join('')}
+          </div>` : '<p class="daily-message">Bài tập của lớp này sắp ra mắt. Hẹn gặp lại bé nhé! 🚀</p>'}
         </div>
       </div>
     `;
 
     bindUserBar();
-    app.querySelectorAll('.game-card:not(.grade-card-empty)').forEach(card => {
-      card.addEventListener('click', () => {
-        const grade = GRADES.find(g => g.id === card.dataset.grade);
-        if (grade) renderGradeGames(grade);
-      });
+    bindDailyPanel();
+    app.querySelector('#home-grade-change').addEventListener('click', () => navigate('profile'));
+    app.querySelectorAll('.game-card').forEach(card => {
+      card.addEventListener('click', () => navigate(card.dataset.game));
     });
+  }
+
+  // ── Bảng theo dõi học hằng ngày ─────────────────────────────────────────
+  function dailyPanel() {
+    const { today, streak, last7 } = getDashboard();
+    const now = new Date();
+    const firstName = escapeHtml(displayName());
+    const goalPct = Math.min(100, Math.round((today.stars / DAILY_GOAL_STARS) * 100));
+    const goalDone = today.stars >= DAILY_GOAL_STARS;
+    const accuracy = today.attempts ? Math.round((today.correct / today.attempts) * 100) : null;
+    const last = findGame(grade, getLastGame());
+
+    const message = goalDone
+      ? '🎉 Em đã hoàn thành mục tiêu hôm nay. Giỏi quá!'
+      : today.solved === 0
+        ? 'Hôm nay em chưa làm bài nào — bắt đầu thôi nào! 💪'
+        : `Còn ${DAILY_GOAL_STARS - today.stars} ⭐ nữa là đạt mục tiêu hôm nay!`;
+
+    // Cột: chung một thang, tối thiểu bằng mục tiêu để đường mục tiêu luôn nằm trong khung.
+    const scaleMax = Math.max(DAILY_GOAL_STARS, ...last7.map(d => d.stars));
+    const goalBottom = (DAILY_GOAL_STARS / scaleMax) * 100;
+    const bars = last7.map((d, i) => {
+      const isToday = i === last7.length - 1;
+      const h = d.stars ? Math.max(4, (d.stars / scaleMax) * 100) : 0;
+      const tip = `${WEEKDAYS[d.date.getDay()]} ${ddmm(d.date)}: ${d.stars} ⭐ · ${d.solved} bài đúng`;
+      return `
+        <div class="dchart-col${isToday ? ' dchart-today' : ''}" data-tip="${escapeHtml(tip)}" tabindex="0" aria-label="${escapeHtml(tip)}">
+          <div class="dchart-track">
+            ${isToday && d.stars ? `<span class="dchart-value" style="bottom:${h}%">${d.stars}</span>` : ''}
+            <div class="dchart-bar" style="height:${h}%"></div>
+          </div>
+          <span class="dchart-day">${isToday ? 'Hôm nay' : WEEKDAYS_SHORT[d.date.getDay()]}</span>
+        </div>`;
+    }).join('');
+
+    return `
+      <section class="daily" aria-label="Theo dõi học hằng ngày">
+        <div class="daily-head">
+          <div>
+            <h2 class="daily-hello">Chào ${firstName}! 👋</h2>
+            <p class="daily-date">${WEEKDAYS[now.getDay()]}, ${ddmm(now)}/${now.getFullYear()}</p>
+          </div>
+          ${last ? `<button type="button" class="daily-continue" id="daily-continue" data-game="${last.id}">▶ Tiếp tục: <strong>${escapeHtml(last.title)}</strong></button>` : ''}
+        </div>
+
+        <div class="dashboard-stats">
+          <div class="stat-card stat-streak">
+            <div class="stat-icon-wrap">🔥</div>
+            <div class="stat-info">
+              <div class="stat-number">${streak} ngày</div>
+              <div class="stat-label">Học liên tiếp</div>
+            </div>
+          </div>
+          <div class="stat-card stat-stars">
+            <div class="stat-icon-wrap">⭐</div>
+            <div class="stat-info">
+              <div class="stat-number">${today.stars}<span class="stat-of">/${DAILY_GOAL_STARS}</span></div>
+              <div class="stat-label">Sao hôm nay</div>
+              <div class="goal-track" role="progressbar" aria-valuemin="0" aria-valuemax="${DAILY_GOAL_STARS}" aria-valuenow="${today.stars}" aria-label="Mục tiêu sao hôm nay">
+                <div class="goal-fill${goalDone ? ' goal-done' : ''}" style="width:${goalPct}%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="stat-card stat-plays">
+            <div class="stat-icon-wrap">✅</div>
+            <div class="stat-info">
+              <div class="stat-number">${today.solved}</div>
+              <div class="stat-label">Bài giải đúng hôm nay</div>
+            </div>
+          </div>
+          <div class="stat-card stat-accuracy">
+            <div class="stat-icon-wrap">🎯</div>
+            <div class="stat-info">
+              <div class="stat-number">${accuracy === null ? '—' : `${accuracy}%`}</div>
+              <div class="stat-label">Trả lời đúng hôm nay</div>
+            </div>
+          </div>
+        </div>
+
+        <p class="daily-message">${message}</p>
+
+        <div class="dchart">
+          <div class="dchart-head">
+            <h3>Sao nhận được 7 ngày qua</h3>
+            <span class="dchart-total">Tổng cộng: ⭐ ${getTotalStars()}</span>
+          </div>
+          <div class="dchart-plot">
+            <div class="dchart-goal" style="bottom:calc(24px + (100% - 42px) * ${(goalBottom / 100).toFixed(3)})"><span>Mục tiêu ${DAILY_GOAL_STARS} ⭐</span></div>
+            ${bars}
+          </div>
+          <div class="dchart-tip" id="dchart-tip" hidden></div>
+        </div>
+      </section>
+    `;
+  }
+
+  function bindDailyPanel() {
+    app.querySelector('#daily-continue')?.addEventListener('click', (e) => navigate(e.currentTarget.dataset.game));
+
+    // Tooltip cho từng cột (chuột: rê vào; iPad: chạm).
+    const chart = app.querySelector('.dchart');
+    const tip = app.querySelector('#dchart-tip');
+    if (!chart || !tip) return;
+    const show = (col) => {
+      tip.textContent = col.dataset.tip;
+      tip.hidden = false;
+      const cr = chart.getBoundingClientRect(), r = col.getBoundingClientRect();
+      const x = Math.min(Math.max(r.left + r.width / 2 - cr.left, 80), cr.width - 80);
+      tip.style.left = `${x}px`;
+      chart.querySelectorAll('.dchart-col').forEach(c => c.classList.toggle('dchart-active', c === col));
+    };
+    const hide = () => {
+      tip.hidden = true;
+      chart.querySelectorAll('.dchart-active').forEach(c => c.classList.remove('dchart-active'));
+    };
+    chart.querySelectorAll('.dchart-col').forEach(col => {
+      col.addEventListener('pointerenter', () => show(col));
+      col.addEventListener('pointerdown', () => show(col));
+      col.addEventListener('focus', () => show(col));
+      col.addEventListener('blur', hide);
+    });
+    chart.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hide(); });
   }
 
   function userBar() {
     if (!user) return '';
-    const initial = `<span class="user-avatar user-avatar-fallback">${escapeHtml((user.name || '?').charAt(0).toUpperCase())}</span>`;
-    // Ảnh Google lỗi/không tải được → thay bằng chữ cái đầu của tên.
-    const avatar = user.picture
-      ? `<img class="user-avatar" src="${escapeHtml(user.picture)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML=this.dataset.fallback" data-fallback="${escapeHtml(initial)}">`
-      : initial;
+    const name = displayName();
+    const initial = `<span class="user-avatar user-avatar-fallback">${escapeHtml(name.charAt(0).toUpperCase())}</span>`;
+    // Ưu tiên avatar bé đã chọn; chưa chọn thì dùng ảnh Google, ảnh lỗi thì chữ cái đầu.
+    const chosen = avatarUrl(getProfile().avatar);
+    const avatar = chosen
+      ? `<img class="user-avatar user-avatar-kid" src="${chosen}" alt="">`
+      : user.picture
+        ? `<img class="user-avatar" src="${escapeHtml(user.picture)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML=this.dataset.fallback" data-fallback="${escapeHtml(initial)}">`
+        : initial;
     return `
       <div class="user-bar animate-fadeIn">
+        <button type="button" class="user-rank-btn" id="user-rank-btn" title="Bảng xếp hạng">🏆 <span>Xếp hạng</span></button>
         <span class="user-stars" title="Tổng số sao đã nhận">⭐ ${getTotalStars()}</span>
         <div class="user-menu-wrap">
           <button type="button" class="user-menu-btn" id="user-menu-btn" aria-haspopup="menu" aria-expanded="false">
             ${avatar}
-            <span class="user-name">${escapeHtml(user.name)}</span>
+            <span class="user-name">${escapeHtml(name)}</span>
             <span class="user-caret">▾</span>
           </button>
           <div class="user-menu" id="user-menu" role="menu" hidden>
             <div class="user-menu-head">
-              <strong>${escapeHtml(user.name)}</strong>
+              <strong>${escapeHtml(name)}</strong>
               <span>${escapeHtml(user.email)}</span>
             </div>
+            <button type="button" class="user-menu-item user-menu-edit" id="user-edit-profile" role="menuitem">✏️ Đổi lớp, avatar và biệt danh</button>
             <button type="button" class="user-menu-item" id="user-signout" role="menuitem">🚪 Đăng xuất</button>
           </div>
         </div>
@@ -105,7 +231,9 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
       else document.removeEventListener('click', onOutside, true);
     };
     const onOutside = (e) => { if (!e.target.closest('.user-menu-wrap')) setOpen(false); };
+    app.querySelector('#user-rank-btn').addEventListener('click', () => navigate('leaderboard'));
     btn.addEventListener('click', () => setOpen(menu.hidden));
+    app.querySelector('#user-edit-profile').addEventListener('click', () => { setOpen(false); navigate('profile'); });
     app.querySelector('#user-signout').addEventListener('click', () => { setOpen(false); openSignOutDialog(); });
   }
 
@@ -135,42 +263,5 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
     document.addEventListener('keydown', onKey);
     document.body.appendChild(overlay);
     overlay.querySelector('[data-act="cancel"]').focus();
-  }
-
-  function renderGradeGames(grade) {
-    app.innerHTML = `
-      <div class="home">
-        ${userBar()}
-        <div class="dashboard animate-fadeIn">
-          <div class="dashboard-header">
-            <h1>${grade.icon} ${grade.title}</h1>
-            <p>Chọn một trò chơi để bắt đầu luyện tập nào! 🚀</p>
-          </div>
-        </div>
-
-        <div class="category animate-fadeIn" style="animation-delay: 0.1s">
-          <div class="game-grid">
-            ${grade.games.map((g, gIdx) => `
-              <div class="game-card" data-game="${g.id}" style="animation-delay: ${0.15 + gIdx * 0.05}s; --card-color: ${grade.color}">
-                <div class="card-top-bar" style="background: ${grade.color}"></div>
-                <span class="card-icon">${g.icon}</span>
-                <h3>${g.title}</h3>
-                <p>${g.desc}</p>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-
-        <div style="max-width:1100px;margin:0 auto;">
-          <button class="btn btn-ghost" id="back-to-grades">← Chọn lớp khác</button>
-        </div>
-      </div>
-    `;
-
-    bindUserBar();
-    app.querySelectorAll('.game-card').forEach(card => {
-      card.addEventListener('click', () => navigate(card.dataset.game));
-    });
-    app.querySelector('#back-to-grades').addEventListener('click', renderGradeGrid);
   }
 }

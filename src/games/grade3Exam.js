@@ -5,6 +5,7 @@
  */
 
 import { awardStars, getQuestionStars, earnedFor, getTotalStars, renderStarRating } from '../engine/stars.js';
+import { recordAttempt } from '../engine/activity.js';
 
 const EXAMS = [
   {
@@ -128,6 +129,7 @@ export function render(app, onBack) {
 
   function markSolved() {
     solved[current] = true;
+    recordAttempt(true);
     const q = activeQuestions[current];
     if (awardStars(q.__starKey, q)) {
       const rating = app.querySelector('.e3-q-num .star-rating');
@@ -547,6 +549,7 @@ export function render(app, onBack) {
           showFeedback(true);
         } else {
           wrongCounts[current]++;
+          recordAttempt(false);
           app.querySelectorAll('.e3-option').forEach((btn, i) => { if (chosen.includes(i)) btn.classList.add('e3-wrong'); });
           showFeedback(false);
           refreshHints(q);
@@ -572,6 +575,7 @@ export function render(app, onBack) {
             showFeedback(true);
           } else {
             wrongCounts[current]++;
+            recordAttempt(false);
             btn.classList.add('e3-wrong');
             showFeedback(false);
             refreshHints(q);
@@ -598,6 +602,7 @@ export function render(app, onBack) {
         showFeedback(true);
       } else {
         wrongCounts[current]++;
+        recordAttempt(false);
         inputs.forEach((inp, i) => { if (!correctFlags[i]) inp.classList.add('e3-wrong-input'); });
         showFeedback(false);
         refreshHints(q);

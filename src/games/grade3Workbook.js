@@ -112,6 +112,7 @@ import imgBai43T2Objects from '../assets/grade3-workbook/bai43_t2_q2_objects.png
 import imgBai44T1Rect from '../assets/grade3-workbook/bai44_t1_q3_rect.png';
 import imgBai44T2Figures from '../assets/grade3-workbook/bai44_t2_q3_figures.png';
 import { awardStars, getQuestionStars, earnedFor, getTotalStars, renderStarRating } from '../engine/stars.js';
+import { recordAttempt } from '../engine/activity.js';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
 
@@ -4336,6 +4337,7 @@ export function renderWorkbook(app, onBack, cfg) {
     rec.attempts++;
     if (isSolve) rec.solved = true;
     setRecord(q.__unitId, q.__qIdx, rec);
+    recordAttempt(isSolve);
     if (isSolve && awardStars(starKey(q.__unitId, q.__qIdx), q) && idx === current) {
       const rating = app.querySelector('.e3-q-num .star-rating');
       if (rating) rating.outerHTML = renderStarRating(qStars(q), true);

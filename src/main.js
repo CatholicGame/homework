@@ -6,6 +6,10 @@ import { renderHome } from './games/home.js';
 import { renderLogin } from './games/login.js';
 import { getCurrentUser, signOut } from './engine/auth.js';
 import { creditLegacyProgress } from './engine/stars.js';
+import { setLastGame } from './engine/activity.js';
+import { isSetupDone } from './engine/profile.js';
+import { renderProfileSetup } from './games/profileSetup.js';
+import { syncMyScore, signOutLeaderboard } from './engine/leaderboard.js';
 import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
 import { initLightbox } from './engine/lightbox.js';
 import { initKeyboardInset } from './engine/keyboardInset.js';
@@ -47,10 +51,38 @@ function initFullscreenButton() {
 initFullscreenButton();
 
 
+// Màn hình chờ khi đang tải một sách/trò chơi (file lớn, mạng chậm)
+function renderLoading(app) {
+  app.innerHTML = `
+    <div class="page-loading" role="status" aria-live="polite">
+      <div class="page-loading-spinner"></div>
+      <p>Đang tải bài tập…</p>
+    </div>
+  `;
+}
+
+function renderLoadError(app, onRetry, onBack) {
+  app.innerHTML = `
+    <div class="page-loading">
+      <div class="page-loading-icon">📡</div>
+      <p>Không tải được bài tập. Kiểm tra kết nối mạng rồi thử lại nhé.</p>
+      <div class="page-loading-actions">
+        <button type="button" class="btn btn-ghost" id="load-back">← Quay lại</button>
+        <button type="button" class="btn btn-primary" id="load-retry">🔄 Thử lại</button>
+      </div>
+    </div>
+  `;
+  app.querySelector('#load-retry').onclick = onRetry;
+  app.querySelector('#load-back').onclick = onBack;
+}
+
 // Router
+let navToken = 0;
+let profileReturn = 'home'; // màn quay về sau khi sửa hồ sơ
 function navigate(gameId) {
   const app = document.getElementById('app');
   app.innerHTML = '';
+  const token = ++navToken;
 
   // Chỉ cho truy cập ứng dụng sau khi đăng nhập
   const user = getCurrentUser();
@@ -59,11 +91,37 @@ function navigate(gameId) {
     return;
   }
 
+  // Lần đầu đăng nhập: cho bé chọn trai/gái, avatar và tên (có thể bỏ qua).
+  if (!isSetupDone()) {
+    renderProfileSetup(app, { mode: 'onboard', onDone: () => navigate(gameId || 'home') });
+    return;
+  }
+
+  if (gameId === 'profile') {
+    const back = profileReturn;
+    profileReturn = 'home';
+    renderProfileSetup(app, { mode: 'edit', onDone: () => { syncMyScore({ delay: 0 }); navigate(back); } });
+    return;
+  }
+
+  if (gameId === 'leaderboard') {
+    import('./games/leaderboard.js').then(mod => {
+      if (token !== navToken) return;
+      mod.render(app, () => navigate('home'), {
+        onEditProfile: () => { profileReturn = 'leaderboard'; navigate('profile'); },
+      });
+    }).catch(() => {
+      if (token === navToken) renderLoadError(app, () => navigate(gameId), () => navigate('home'));
+    });
+    return;
+  }
+
   if (!gameId || gameId === 'home') {
     creditLegacyProgress();
+    syncMyScore();
     renderHome(app, navigate, {
       user,
-      onSignOut: () => { signOut(); navigate('home'); },
+      onSignOut: () => { signOutLeaderboard(); signOut(); navigate('home'); },
     });
     return;
   }
@@ -89,8 +147,18 @@ function navigate(gameId) {
 
   const loader = gameModules[gameId];
   if (loader) {
+    setLastGame(gameId);
+    // Chỉ hiện màn chờ nếu tải lâu hơn một chút, tránh nháy khi đã có sẵn trong bộ nhớ đệm.
+    const loadingTimer = setTimeout(() => { if (token === navToken) renderLoading(app); }, 120);
     loader().then(mod => {
+      clearTimeout(loadingTimer);
+      if (token !== navToken) return;
+      app.innerHTML = '';
       mod.render(app, () => navigate('home'));
+    }).catch(() => {
+      clearTimeout(loadingTimer);
+      if (token !== navToken) return;
+      renderLoadError(app, () => navigate(gameId), () => navigate('home'));
     });
   }
 }

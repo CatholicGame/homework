@@ -19,7 +19,10 @@ const NATIVE_KB_MIN = 120; // px of viewport lost before we call it a keyboard
 export function initKeyboardInset() {
   const root = document.documentElement;
   const vv = window.visualViewport;
-  let wasOpen = false;
+  // Last applied state: re-center the input only when one of these changes.
+  // Re-centering on every visualViewport scroll event made a feedback loop
+  // on iPad (our scroll → vv scroll → update → scroll …) = shaking content.
+  let last = { open: false, top: null, h: null, focus: null };
 
   // readonly inputs are the number-pad ones: they never bring up the native keyboard.
   const isEditable = (el) =>
@@ -40,28 +43,47 @@ export function initKeyboardInset() {
     const padH = pad ? pad.offsetHeight : 0;
 
     const open = nativeOpen || padH > 0;
-    root.classList.toggle('kb-open', open);
-    if (open) {
-      const top = nativeOpen ? vvTop : 0;
-      const h = (nativeOpen ? vvH : layoutH) - padH;
-      root.style.setProperty('--kb-app-top', `${Math.round(top)}px`);
-      root.style.setProperty('--kb-app-h', `${Math.max(160, Math.round(h))}px`);
-    } else {
-      root.style.removeProperty('--kb-app-top');
-      root.style.removeProperty('--kb-app-h');
+    const focus = document.activeElement;
+    if (!open) {
+      if (last.open) {
+        root.classList.remove('kb-open');
+        root.style.removeProperty('--kb-app-top');
+        root.style.removeProperty('--kb-app-h');
+      }
+      last = { open: false, top: null, h: null, focus: null };
+      return;
     }
 
-    if (open) {
-      // Layout just changed under the focused input — bring it back into view
-      // (after the new layout has been applied).
-      requestAnimationFrame(() => {
-        const el = document.activeElement;
-        if (el && /^(INPUT|TEXTAREA)$/.test(el.tagName) && el.closest('#app')) el.scrollIntoView({ block: 'center', behavior: wasOpen ? 'smooth' : 'auto' });
-        wasOpen = true;
-      });
-    } else {
-      wasOpen = false;
+    const top = Math.round(nativeOpen ? vvTop : 0);
+    const h = Math.max(160, Math.round((nativeOpen ? vvH : layoutH) - padH));
+    // Only touch the DOM when a value really changed (avoids layout thrash).
+    if (!last.open) root.classList.add('kb-open');
+    if (top !== last.top) root.style.setProperty('--kb-app-top', `${top}px`);
+    if (h !== last.h) root.style.setProperty('--kb-app-h', `${h}px`);
+
+    // Re-center only when the keyboard just opened, the focused input changed
+    // or the visible height changed — a pure viewport pan (top only) must not
+    // trigger another scroll.
+    const needCenter = !last.open || focus !== last.focus || Math.abs(h - (last.h ?? h)) > 1;
+    last = { open: true, top, h, focus };
+    if (needCenter) requestAnimationFrame(() => centerInApp(document.activeElement));
+  }
+
+  // Scroll the input to the middle of its own scroll container inside #app,
+  // instantly. Unlike scrollIntoView this never scrolls the page / visual
+  // viewport, so it can't feed back into the vv scroll listener.
+  function centerInApp(el) {
+    if (!el || !/^(INPUT|TEXTAREA)$/.test(el.tagName) || !el.closest('#app')) return;
+    let box = el.parentElement;
+    while (box && box.id !== 'app') {
+      const oy = getComputedStyle(box).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && box.scrollHeight > box.clientHeight) break;
+      box = box.parentElement;
     }
+    if (!box) return;
+    const r = el.getBoundingClientRect(), br = box.getBoundingClientRect();
+    const delta = (r.top + r.height / 2) - (br.top + br.height / 2);
+    if (Math.abs(delta) > 4) box.scrollTop += delta;
   }
 
   let raf = 0;

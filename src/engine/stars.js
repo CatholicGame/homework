@@ -9,6 +9,7 @@
 
 import { getCurrentUser } from './auth.js';
 import { STAR_RATINGS } from '../data/starRatings.js';
+import { recordSolve, dayKey, weekKey, monthKey } from './activity.js';
 
 export const MAX_STARS = 5;
 
@@ -16,12 +17,16 @@ function ledgerKey() {
   return `tth_stars_${getCurrentUser()?.id || 'guest'}`;
 }
 
+/**
+ * { earned: { key: sao }, at: { key: 'YYYY-MM-DD' } } — `at` là ngày nhận sao
+ * (dùng cho bảng xếp hạng ngày/tuần/tháng; bài cộng bù từ trước không có ngày).
+ */
 function loadLedger() {
   try {
     const d = JSON.parse(localStorage.getItem(ledgerKey()));
-    if (d && d.earned) return d;
+    if (d && d.earned) return { at: {}, ...d };
   } catch { /* ignore */ }
-  return { earned: {} };
+  return { earned: {}, at: {} };
 }
 
 function saveLedger(d) {
@@ -56,6 +61,40 @@ export function earnedFor(key) {
   return loadLedger().earned[key] || 0;
 }
 
+// Tiền tố khoá sao của từng sách → lớp (1–5). Thêm sách mới thì thêm một dòng.
+const BOOK_GRADE = { exam: 3, workbook: 3, practice: 3 };
+
+/**
+ * Sao của một lớp theo từng khoảng thời gian (giờ máy):
+ * { all, day: { key, stars }, week: { key, stars }, month: { key, stars } }.
+ */
+export function getGradePeriodStars(grade) {
+  const now = new Date();
+  const keys = { day: dayKey(now), week: weekKey(now), month: monthKey(now) };
+  const out = { all: 0, day: { key: keys.day, stars: 0 }, week: { key: keys.week, stars: 0 }, month: { key: keys.month, stars: 0 } };
+  const { earned, at } = loadLedger();
+  for (const [key, n] of Object.entries(earned)) {
+    if (BOOK_GRADE[key.split(':')[0]] !== grade) continue;
+    out.all += n;
+    const day = at[key];
+    if (!day) continue;
+    if (day === keys.day) out.day.stars += n;
+    if (day >= keys.week) out.week.stars += n; // tuần hiện tại: từ thứ Hai tới nay
+    if (day.startsWith(keys.month)) out.month.stars += n;
+  }
+  return out;
+}
+
+/** Sao đã nhận theo từng lớp: { 3: 120, … } (chỉ gồm lớp có sao). */
+export function getStarsByGrade() {
+  const out = {};
+  for (const [key, n] of Object.entries(loadLedger().earned)) {
+    const g = BOOK_GRADE[key.split(':')[0]];
+    if (g) out[g] = (out[g] || 0) + n;
+  }
+  return out;
+}
+
 /** Tổng số sao của người dùng hiện tại. */
 export function getTotalStars() {
   return Object.values(loadLedger().earned).reduce((s, n) => s + n, 0);
@@ -70,8 +109,13 @@ export function awardStars(key, q, { silent = false } = {}) {
   if (key in d.earned) return 0;
   const n = getQuestionStars(key, q);
   d.earned[key] = n;
+  if (!silent) d.at[key] = dayKey();
   saveLedger(d);
-  if (!silent) showStarToast(n);
+  window.dispatchEvent(new CustomEvent('tth:stars-changed'));
+  if (!silent) {
+    recordSolve(n);
+    showStarToast(n);
+  }
   return n;
 }
 

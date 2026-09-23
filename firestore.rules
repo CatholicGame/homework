@@ -1,0 +1,53 @@
+rules_version = '2';
+
+// Bảng xếp hạng sao (so sánh trong cùng lớp, theo ngày/tuần/tháng/mọi lúc): ai đăng nhập cũng xem được; mỗi bé chỉ ghi được hồ sơ của mình,
+// dữ liệu đúng khuôn, và tổng sao không được giảm.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function validStars(n) {
+      return n is int && n >= 0 && n <= 20000;
+    }
+
+    // Sao theo lớp 1–5: { g1?, g2?, g3?, g4?, g5? }
+    function validGradeStars(m) {
+      return m is map && m.keys().hasOnly(['g1', 'g2', 'g3', 'g4', 'g5'])
+        && (!('g1' in m) || validStars(m.g1))
+        && (!('g2' in m) || validStars(m.g2))
+        && (!('g3' in m) || validStars(m.g3))
+        && (!('g4' in m) || validStars(m.g4))
+        && (!('g5' in m) || validStars(m.g5));
+    }
+
+    // Khoá ngày/tuần 'YYYY-MM-DD', khoá tháng 'YYYY-MM'
+    function validPeriod(key, stars, len) {
+      return key is string && key.size() == len && validStars(stars);
+    }
+
+    function validEntry(d) {
+      return d.keys().hasOnly(['nickname', 'avatar', 'grade', 'totalStars', 'gradeStars',
+                               'dayKey', 'dayStars', 'weekKey', 'weekStars', 'monthKey', 'monthStars', 'updatedAt'])
+        && d.nickname is string && d.nickname.size() <= 20
+        && d.avatar is string && d.avatar.size() <= 40
+        && d.grade is int && d.grade >= 1 && d.grade <= 5
+        && validStars(d.totalStars)
+        && validGradeStars(d.gradeStars)
+        && validPeriod(d.dayKey, d.dayStars, 10)
+        && validPeriod(d.weekKey, d.weekStars, 10)
+        && validPeriod(d.monthKey, d.monthStars, 7)
+        && d.updatedAt == request.time;
+    }
+
+    match /leaderboard/{uid} {
+      allow read: if request.auth != null;
+      allow create: if isOwner(uid) && validEntry(request.resource.data);
+      allow update: if isOwner(uid) && validEntry(request.resource.data)
+        && request.resource.data.totalStars >= resource.data.totalStars;
+      allow delete: if isOwner(uid);
+    }
+  }
+}

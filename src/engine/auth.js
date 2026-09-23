@@ -8,7 +8,7 @@
  */
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
-  || '266854321584-4qp25dcr9pouaao3vmlq5839ujjk6380.apps.googleusercontent.com';
+  || '500123229695-se84qoeglj63vr8vserhqfmfmcfafia4.apps.googleusercontent.com';
 
 const SCOPES = [
   'openid',
@@ -91,6 +91,7 @@ function requestToken({ hint, consent } = {}) {
       accessToken: resp.access_token,
       expiresAt: Date.now() + (Number(resp.expires_in) || 3600) * 1000,
       scope: resp.scope,
+      clientId: CLIENT_ID,
     };
     writeJSON(TOKEN_KEY, token);
     return token;
@@ -119,11 +120,23 @@ export async function signIn() {
  * Nếu hết hạn sẽ xin lại (có thể mở popup ngắn) — nên gọi từ thao tác của người dùng.
  */
 export async function getAccessToken() {
-  const t = readJSON(TOKEN_KEY);
-  if (t && t.expiresAt - Date.now() > 60_000) return t.accessToken;
-  await loadGis();
-  const fresh = await requestToken({ hint: getCurrentUser()?.email });
+  const t = getStoredAccessToken();
+  if (t) return t;
+  const hint = getCurrentUser()?.email;
+  // Như signIn: thư viện đã tải thì mở popup ngay, không await trước (Safari iPad).
+  const fresh = window.google?.accounts?.oauth2
+    ? await requestToken({ hint })
+    : await loadGis().then(() => requestToken({ hint }));
   return fresh.accessToken;
+}
+
+/**
+ * Access token đã lưu nếu còn hạn, không bao giờ mở popup; hết hạn thì null.
+ * Token cấp cho Client ID cũ cũng coi như hết hạn (Firebase chỉ nhận token của project mình).
+ */
+export function getStoredAccessToken() {
+  const t = readJSON(TOKEN_KEY);
+  return t && t.clientId === CLIENT_ID && t.expiresAt - Date.now() > 60_000 ? t.accessToken : null;
 }
 
 /** Đăng xuất: thu hồi quyền truy cập và xoá phiên đăng nhập trên máy này. */
