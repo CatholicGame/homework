@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 200" width="1140" height="200"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAPAAA8AAAAAB0gAAANpAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAG2AcKgZgP1NUQVQqAEQRCAqDaIMmATYCJAMUCwwABCAFhDoHIAwHG/QFUVRQUgG+OLCNZQ0eDJtkCTCsTBfHMNvwAJf+pW/Ly3ieb7//7TNz3/uOiDXxpBYKiVAg4aGIhuyr/4hl8Qyr49Fkrta2h6fP4Dskt+TJLL+I9UaJDOhpukqpBsmXcRoX7MsOgALEnf9z6dbAe/7Fh9OZ9lVQNHVaJNgEDyzL+3ny9AAPZ3NtgNV6GKYIp7nWuxsFw5YZSew+nl5AHaM9AygdfB0ajvKOATmU0inGkOCdXcxQRupUVM72dTd/GYO9QoPMWxW7u7Iy73qUy+UwgEMySo7AKOKIGdz/IKsaftZZ1evW113PaiCQH+UhFkmKGBRMQzBP4owoeQSKQGq+goKKaZKCaVLWAIMGFayzsGoN68yzatrr9rw9EwCR1kxE9MAwBnAHTwAdIKIqq7IYuQkEEPTJbwO0YnB57ZAsBoftfUjWHiZvYWRWRSPGvLWeoWN9H5u/uwvYsbWlt3N1hjCFuDuweAAbNfAKB9APbbpFdjB5e3spe39dgNo81t8Q4zN6R+wzJxfVuTw9RnDHKX9fbFNrW+3KBGDXJa8dAgljuQkNcrR9xY4xaAeCtmAI2ZcMjlx+0qTd+dQMDdVY7If3UxFoYiwB219v+mjMwqvpLiXjoi6nkaGm1T1ZKx2YS0IrQgz7tCH0pNMVRPbjEwkBJqaA48kmHsOpLSCv7Owrp67uI1d/nLwYr07xg0Xd7YmAvJyDm7Sikou0vIO80P/1VyEvvIiLO5zGK6urLS9/X5V8pW5uIMfn+CzA/+zIJ9ceD4jVtEAalRZAQ9E7sKIjPdL4dD2AswQ1l+71r+x7TNz8bbDWD/Bmpcca3r2tGxq1P/lTHqGvgPDWZZT9MFLyUBCFvteb3SgSVgWvtRxG/jYj9AtbJUHIviHHk9INkVmgDWJBGEExIZtAtSG6vZ0f6JmTRH2/DysrCqMZZ7g+4KFdphU7sih5aGRgaAm9rDB/7t2XWdWlDQ7dHFPh2cjtG9+TTMdFDcRtnuWu9PWJstd8n+lhTb2fteXwYZdFi5ps0CFt9OegP9b1Oie1uIde3NSBwpHORQ/e5Z2A59DRNDx0weCeb0j9aG4PoNM6cehaE32NdsZ6BgZm1i7Xy2GNQu/CH26tjPKsehCnnVjoKxN8/itO9vUk0BqsU+TeTTs3nroG) format('woff2')}</style><!--/embedded-font-->
+<defs><path id="ah" d="M0 0L-31 -16L-22 0L-31 16Z" fill="#231F20"/></defs>
+<path d="M174 106.5H360M499 106.5H682M801.5 106.5H982" stroke="#231F20" stroke-width="6"/>
+<use href="#ah" x="379" y="106.5"/><use href="#ah" x="701.5" y="106.5"/><use href="#ah" x="1001" y="106.5"/>
+<g stroke="#231F20" stroke-width="6" stroke-linejoin="round">
+<circle cx="125.5" cy="113.5" r="48.5" fill="#B8E5FC"/>
+<path d="M379 105L405 52H472L499 105L472 158H405Z" fill="#fff"/>
+<rect x="701.5" y="56.5" width="100" height="97.5" fill="#fff"/>
+<circle cx="1052.5" cy="105.5" r="48.5" fill="#fff"/>
+</g>
+<path d="M873 69L895 91M895 69L873 91" stroke="#231F20" stroke-width="2"/>
+<g font-family="Quicksand" font-weight="500" font-size="57" fill="#231F20" text-anchor="middle">
+<text x="124" y="130">8</text>
+<text x="229.5" y="92">:</text><text x="267" y="92">2</text>
+<text x="556.5" y="92">:</text><text x="594" y="92">2</text>
+<text x="932" y="92">7</text>
+</g>
+</svg>

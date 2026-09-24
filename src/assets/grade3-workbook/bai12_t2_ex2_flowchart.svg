@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 130" width="700" height="130"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAARgAA8AAAAACAQAAAQGAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAG1YcKgZgP1NUQVQqAEQRCAqFJIRMATYCJAMYCw4ABCAFhDoHIAwHG5QGAI7CtrVzTCiTvM11BYR4+H4/2rnvy4pKE4tqoe9s300mmIZCpFRCg0iF6Qyhbfz/k2f9jJjOa7pQamUkJimYdgWeZAyPC2HicvqrAdr50sDCNLOfS5uTts0F9oBh4G+18ed55yUcZm6NKbhHiObm7VpBvbMpUG+Sjs9OVkEFRJy3eh0QIYevw9AZyTggiBGQS0JIdKMcoR3fxTtY4MyJ0yS+/orpfJ6UyBcF6atPDYDj9SlxArpQgcQH/C+QL8NZC+KyF1UA+XdEDTjdeE4ngVG+IlfjdEIwyOeWNnkRQBIQGfIF3zAZOvlGvczPPFCrVsICvbjqPxYQM179ru5UN4SaDIERWoq9EjSiDv+JaQCQE/GwTJJ6k3gREQIURUPnbEf8sYplIWuDk8XVK1dic7dB/npr9dzl2LZroXM7O5HJjx+HzNm4EdVa2a96QNiR3BEaDm5/vYxdIVt5pEU8egSvHz4sPpatWAOo0ZxD97zs49bZeUfM3nx6vyF2wtv2nqyadO7aUG9c6OxjXOFh7dxOVc/ftjpunoXXj6yFYECVSm58R78bnZ188aqbpM3OyjkPH8LlW1ly9VA8MzD0mNdbQ2p8n/qsfSQr9pSrcEU4axTKKdhg8n52RWWxrKyZcHoZ8OSTtpIvzxYpstV6RUrGUFGEJzMYxdBgx6hz9z4NRitRtALN4sREBi+kzt1vTyfCYhqN0a2pOalmJjZHUtD/yOXJwZFWYE6HqDx4mpiIq+swJiW1G9fuEUpB+sK3xWte9YkJY3WjLia2XkdUE9I/L57nC/wXcHkOTGDISCOI8zeNeZ5UlG0U1nwQiz7UCI1F2cD5GVsli80dUq+VY2aFPbujvTgFmxKITmVHsJ+Ut1XkMKdH/krKGCJLbUzU08mJcRSZlJwnTREJMxQyPPOFUp0uFWTJpPy0NCnQ3zATxsZoLIhTLZo1nEDn2wHwBEEWs3XYeP/myISvQb6+L+DPTPNtwL+/ay9BT/U1/qdfKCUQvBtqOkD46TSEiSt3X5XEKOiXUFCmYaBLOojWZQXClV3jqwvqpToXfEUeDKIXwA6G4egfTJqDCGaWI2M7xwUL/TGKK/eQJQMIaIy9BfR14SRsc3IZjWFGM/HC6WhoxcJV8IKk0VLDmbWz8mjl0AFXguFkQWqP5FJxxr1MnBgeOAkTLy8XjzhqajRz0x+ujUo7Jzs156sM0khKLq1oNmYOrUYiDqlz4LJk2M7MZjQV+xApBdzIKxmAK0PyIDFGIHXAZXFyZCwUceD3d4Cni/15XMFzwtk5GvVPNq0YeioaGoR4RYoVyRTPEqsEq/BnJZiz2sJ5VokFqhkBC3+qg9lwdr5AtQ4WTd0/kP8f9vrNBwAAAA==) format('woff2')}</style><!--/embedded-font-->
+<defs><path id="ah" d="M0 0 L-27 -9.5 L-27 9.5 Z" fill="#231F20"/></defs>
+<g stroke="#231F20" fill="none">
+<circle cx="77" cy="81" r="46.5" fill="#B8E5FC" stroke-width="4.5"/>
+<path d="M124 80 H262 M369 80 H508" stroke-width="4"/>
+<rect x="277" y="37" width="90" height="88.5" stroke-width="4"/>
+<rect x="522" y="37" width="90" height="88.5" stroke-width="4"/>
+<path d="M416.5 51.5 L432.5 68.5 M432.5 51.5 L416.5 68.5" stroke-width="1.8"/>
+</g>
+<use href="#ah" x="276" y="80"/><use href="#ah" x="521" y="80"/>
+<g font-family="Quicksand" font-weight="500" font-size="52" fill="#231F20" text-anchor="middle">
+<text x="75" y="100">81</text>
+<text x="174" y="71">:</text>
+<text x="208" y="71">9</text>
+<text x="465" y="71">3</text>
+</g>
+</svg>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 165" width="1050" height="165"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAQAAA8AAAAAB1AAAAOnAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGyAcKgZgP1NUQVQqAEQRCAqEMINyATYCJAMUCwwABCAFhDoHIAwHGwAGUVQwNkG+KLCNaYMXEWINi3w/9W0P+MZRFnp6LlvWjEuJEFrLEE7w4DUe/n8Ove8nBQJVByyrgDyxbFWHcpPAkoXdmSIQZnoeFbDMz+/vPXcQ7wjUR3+25f26tAxVO8FVPv24esuTwCQ1I8SbvvUHQEKYjA2dSxelEziayHCIVd8JGqmRYBMc+OwzQB8jxR4fYrOxQbRP4MOpnjbi3/kClbqlQTO9w9MQIIeCAIhgGJDPy1nYMWFTISEONjlPg/EHGKTL1DUAy5qT2IHKGCLcIP7N8RfDRaXG7CthQv6QMgwExH+vM0A/byGUCzRD6OZ1juNtCElAZPEHgIQMzbwFmvkYAcqVSxhXq7EgYOx5l+I9eSR3QABCFAQfQgmoRCnegf8AOSCEJA1Nhz0b6tcrqy9vxkWxubdv1PAV1HlzkrC0UmlcbKpt++kruOvzAxY+poPjwjwjLZuPy/yOFC7P8tLHcq1ERmqrqoZYNdw8XTi2n6i/j+JX4eiyW99XeaFRw3d6bqw2uHRCeOddIt3KZazXBM8KH3ridy3qPz83F7cobDhYbHbUvOWa3z0jQvj5g/mzBJMF+c9+WCKVsSo27u42UqEHX9V+gXWneYMfT3l/G0xWto81MIqyNbGrs3HYvZxAfBHzv81gRknLTVXbTc9I295ZVpXXcuGIaOHnUMuvX35Jo1/dVdScL/BG6tvXwy5T7vptE7MEB3eHjEILd3Vv8cO7Bo7wI6RxNKxoWnjIRBloiWRo57qlJPnbizT4R1yIC4v5WDtsbu+tG97nrGybkdHQ9lKZw5M6Npapybb2nhr2qirO2hoKLv/Fek4ayq5a6kpOjhrgxmJ5EWGRNBH2uFXNNlyUzXRxAM4DgQxdKtz+yIrja/7L7p19BfigE/cE4PPfnSAlhCWOCPUeoFQCwfcbSAt+CrYBhRglvv3z07DGVK8k9anz3QyhxDSnjUyrcOIt8gqiHexA6I12kNTGFMhMxMxgHgVKdMZ5o9SD3a4KquPRhLM3fAEnTXebAsfbsErlKjTApnkGm7ALlGQRKo2Nm5rIUDasw27jNdPC8vE2m241KlOGE2Lc7WQpSlPKiOuajLOETnCyoBJO/7iyDtx7CUWQ3aXs6gLFMGed9bFJxmJMB0NjvZrarzVKEN9uTObd3prHhk9JZP8bZ5cJs0qpcuVqNRkdG+1pYrBL4FnxpCyhpwFM6SYTmtMGPPJTtGBXvIFiGoak9AmlaNnPrwEAAA==) format('woff2')}</style><!--/embedded-font-->
+<g stroke="#231F20" fill="none">
+<path d="M179 115.5H330M460 115.5H610M723 115.5H874" stroke-width="4.5"/>
+<g stroke-width="5">
+<circle cx="135" cy="122" r="41" fill="#B8E5FC"/>
+<path d="M352 115L377 70.5H437L460 115L435 159.5H379Z" stroke-linejoin="miter"/>
+<rect x="636.5" y="71.5" width="84.5" height="87.5"/>
+<circle cx="941" cy="116" r="42"/>
+</g>
+<path d="M224 87L242 105M242 87L224 105" stroke-width="3"/>
+</g>
+<g fill="#231F20">
+<path d="M326 102L353 115.5L326 129Z"/>
+<path d="M608 102L635 115.5L608 129Z"/>
+<path d="M872 102L899 115.5L872 129Z"/>
+</g>
+<g font-family="Quicksand" font-weight="500" font-size="52" fill="#231F20" text-anchor="middle">
+<text x="135" y="139">6</text>
+<text x="274" y="106">3</text>
+<text x="509" y="106">:</text>
+<text x="542" y="106">2</text>
+<text x="786" y="106">:</text>
+<text x="819" y="106">3</text>
+</g>
+</svg>

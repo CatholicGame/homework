@@ -185,6 +185,29 @@ adding it unconditionally — a table can hold a non-numeric answer (e.g.
 the "Đọc số" word-form blank at line ~91, validated with `textValidate`),
 which must stay free-typing.
 
+## Rule 7 — geometric figures are redrawn as SVG, not scan crops
+
+Figures that are geometry/diagrams (shapes, grids, flowcharts, clocks,
+rulers, column calculations, 3D boxes…) live as hand-written SVG next to
+where the PNG crop would be (`src/assets/grade3-*/X.svg`), imported like
+any image so `.e3-q-img` and the lightbox keep working. Only detailed
+illustrations (animals, objects, people, scales with objects) stay PNG.
+
+- Same pixel size as the crop (`viewBox="0 0 W H" width="W" height="H"`),
+  same layout, labels, blanks and colours as the book; drop the publisher
+  watermark, show-through text and crop slivers of neighbouring content.
+- Palette: light fill `#B8E5FC`, cyan `#00AEEF`, practice-book line
+  `#4BA3E3`, dark `#231F20` (sample the scan when it clearly differs).
+- Text uses `font-family="Quicksand"`; after writing/editing an SVG run
+  `python scripts/embed-svg-fonts.py <file.svg>` — an SVG inside `<img>`
+  can't use the page's web font, so the script embeds a per-file subset
+  (re-runnable; it replaces the previous embedded block).
+- Verify side by side against the PDF crop before swapping the import.
+- Keep the scan crop as `src/assets/grade3-*/orig/X.png`: the lightbox
+  (`src/engine/lightbox.js`) shows a "📷 Ảnh gốc" toggle whenever an SVG has
+  an `orig/` twin, loaded lazily only when tapped. SVGs must stay separate
+  files (`assetsInlineLimit` in vite.config.js) for that URL lookup to work.
+
 ## Incidents this came from
 
 - A "139 = ..." blank was fixed to flex-grow into its row (2026-09-21).

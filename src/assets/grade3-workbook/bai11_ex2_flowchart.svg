@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 160" width="750" height="160"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAN8AA8AAAAABpAAAAMkAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGyAcKgZgP1NUQVQqAEQRCAqCdIJJATYCJAMQCwoABCAFhDoHIAwHG1MFKK4HbGMU+j/ERZyhRUpTzhndrnkYW1IR82fJCJWcoFoje/b2AVkBSSRhXr1QwIlCFZYExqIySfkIG3lTOvdpEJOvWzDR6ietJ98W2BjVb2cT3XSYmBk2GH2DYnj3BSSpDQxn1NjawzVDCaKRCM2ldDLTCcksi+p0eGufFoClSXJz3/8AzZzzf79w6Fy6KJITHw4x2g5wXgHUPDzBgX2WPZY2v+Dj8EVetwmFp+FhLhsh0Vd5hlcVqNWvBLFt7R4GcTKUAgK1JsnwqG4pp2HsA3ksbn1OavKrgvSCcgzgaOoSJzCkgQmDHB3/KfBiSeV+YJC/kVkAAfE//QbDSCFUC7Qj0I93P0ljApKAKIhfkFCgHSnQLsocoFq1hCXlKj99Y7cwLwCEKNWEkEE1KvEA8AZABoRCGlKnpKSJkleLpCLblZO8VsDjPKc+jDxRJo9yXDGzHJh0vz97fDrVvrhc4sl1OyU76zS9ed2zzutQveWoPwdwOUzMC2mf3C+vHg42MnzV8/jsfVEksVziSkwb5xjuc1+M0oV/fxnDaSNpqcOic+FTd+SpJZsSn+5Id6cjwF6xhoONUqpy0m6urbWZ5XSUWtS09Wv/+PWa0pjHZgzlFVMGaoyS/7/PoG+q1L5skam5kaLGvKX3VVubWTz+OTX56Zowg8EAPXkqOysbZcflOBtyPCc2vjkAuESgiJX4aXMwdfmfVZAf4c908BX+/f00RkN5quY9gEoJBL8B0z7D6UOAYFbOeyIbIZJTKQzeLCOQrSJBsE01rpEixwPRDQBAGCwPJI1BgcJSzc1Mggq9LViVKbWbIYD6uAI4+XkP2OIXsIjFQGgYZKCjVwEaRnOABoQwbNw4Fj52UD+Wn4uDDQY1CMFofiwOJEPDsABOJS0thOEmh1hp2Ph5aUsPZjlEqAVYIB4MH4sIBk3riQ1aWXgxPBZp6rNyKlDk1u+ABjlwHFhhDnZQKz8fDOpl4eUACW7kJ2LHu3FEYgtxffKwYBlp6OhQqvTq06tFVQ1fjY86LA7zVgNqmWNszAB4z1fZMUK8SKAcFlj8Oymr014DAA==) format('woff2')}</style><!--/embedded-font-->
+<defs><path id="ah" d="M0 0 L-27 -14 L-18 0 L-27 14 Z" fill="#231F20"/></defs>
+<g stroke="#231F20" fill="none">
+<circle cx="126" cy="89" r="42" fill="#B8E5FC" stroke-width="3.5"/>
+<path d="M168 83 H336 M451 83 H614" stroke-width="4"/>
+<path d="M371 36 H428 L452 83 L428 128 H371 L348 83 Z" stroke-width="4.5" stroke-linejoin="miter"/>
+<rect x="628" y="40" width="85" height="87" stroke-width="4.5"/>
+<path d="M492 55 L507 70 M507 55 L492 70" stroke-width="1.8"/>
+</g>
+<use href="#ah" x="348" y="83"/><use href="#ah" x="627" y="83"/>
+<g font-family="Quicksand" font-weight="500" font-size="51" fill="#231F20" text-anchor="middle">
+<text x="124" y="106">48</text>
+<text x="216" y="73">:</text>
+<text x="249.5" y="73">8</text>
+<text x="542" y="73">8</text>
+</g>
+</svg>

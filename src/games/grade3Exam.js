@@ -458,15 +458,17 @@ export function render(app, onBack) {
             <button class="e3-qlist-close" id="e3-qlist-close">✕</button>
           </div>
           <div class="e3-qlist-grid">
-            ${activeQuestions.map((_, i) => {
+            ${activeQuestions.map((q, i) => {
               const status = getQuestionStatus(i);
-              return `<button class="e3-qitem e3-qitem-${status} ${i === current ? 'e3-qitem-current' : ''}" data-idx="${i}">${statusIcon[status] || (i + 1)}</button>`;
+              const pic = hasPicture(q) ? '<span class="e3-qitem-pic" aria-label="Có hình">🖼️</span>' : '';
+              return `<button class="e3-qitem e3-qitem-${status} ${i === current ? 'e3-qitem-current' : ''}" data-idx="${i}">${statusIcon[status] || (i + 1)}${pic}</button>`;
             }).join('')}
           </div>
           <div class="e3-qlist-legend">
             <span><i class="e3-legend-dot e3-legend-unanswered"></i>Chưa làm</span>
             <span><i class="e3-legend-dot e3-legend-correct"></i>Đúng</span>
             <span><i class="e3-legend-dot e3-legend-wrong"></i>Sai</span>
+            ${activeQuestions.some(hasPicture) ? '<span><i class="e3-legend-pic">🖼️</i>Có hình</span>' : ''}
           </div>
           <button class="e3-btn e3-btn-primary" id="e3-qlist-finish">🏁 Nộp bài / Xem kết quả</button>
         </div>
@@ -799,6 +801,9 @@ function injectStyles() {
       transition: transform 0.1s, border-color 0.15s;
     }
     .e3-qitem:hover { transform: translateY(-2px); }
+    .e3-qitem { position: relative; }
+    .e3-qitem-pic { position: absolute; top: -7px; right: -7px; font-size: 0.8rem; line-height: 1; background: #fff; border-radius: 50%; padding: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .e3-legend-pic { font-style: normal; font-size: 0.85rem; margin-right: 2px; }
     .e3-qitem-current { border-color: #1E293B; box-shadow: 0 0 0 2px rgba(30,41,59,0.15); }
     .e3-qitem-correct { background: #dcfce7; border-color: #22c55e; color: #166534; }
     .e3-qitem-wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
@@ -907,4 +912,9 @@ function injectStyles() {
     }
   `;
   document.head.appendChild(style);
+}
+
+/** Câu có hình minh hoạ (hình câu hỏi hoặc hình trong các ô nối) — đánh dấu 🖼️ trong danh sách câu hỏi. */
+function hasPicture(q) {
+  return !!q.img || [q.left, q.middle, q.right].some(col => col?.some(item => item?.img));
 }

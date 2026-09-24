@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1340 400" width="1340" height="400"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAOkAA8AAAAAB0gAAANLAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAG1YcKgZgP1NUQVQqADwRCAqDeIMsATYCJAMUCwwABCAFhDoHIAwHG+gFUVRQ+iC+OLDbdiwMVhCohHTBaiUGr9lywgAWyllE1H6fPbv7/t2FiBSSMFERJlFhYYFVXMqzRA1soTxbku9qbXuYZeIO6QWV5Mksv4j1RgDM65+VyO9r0pM1Sp7sEfZUaD7MYNoX/s//5fTGAr3nX/wA7wznwrFBr7JsTLAPFiaQbVrDw+gSDDO3xgkjiaKBzdtpEr27UzDKEmO5/UHnN7ROpYU2tDT4OHSdzPJtqHCxmmIH5hh0EpOQI6s9YeEyFN32YXUra/NHR7lcjuPAsebinMCNs47zhfQTyI2Fv03W9Uc/0O5mPRDI//ICC+RFDAumIJgjdyFHDQkUgdT8AQUVU+QFUxSsAAaaKLZY92MTGtB/6t8KINJvPKIDo9DhHt4AGiAiSouVlzYAGd1LuNZFBqtrGd8miJEq8W0KRtfj6YyRWUZ0t2nBilDJ7JbLca2yyEgU0z0Kl56qpaSK5sxWYzzZVhWJV5hsyY4RfqTZ+EGmIUOlMBub6jfZ5xwZxiL2sFXO+AIzZJDMTICkIu0SZVps6JNlYSAKgEhQwMvkgdPnf7gp2dAzJMRTPXpf2UihcyvHMbenI97D1A18km3tE7wcvVs8fdevJqVWUN7aN0bpmwcbWQRb21v4BGgZcSoO0AEE9OKLV+JvDe3XBiEXLr0/+0qS4e/EcklydE7zDfHNK3cNMYlQObhvG+EWqMFyMP2/d2f36iyEG65x21v7T3lN5iI6Fo0VYDm4nHGYC/kwB9JQjEFjETX2dl2AiwQ1l9bd+e2dMn773+Faf8CXtSkf8e3r1CbNXhkuLzFQQHjlgnKYwJgNEW52nYdTZb11maBXFmv6bDuCzk6hHmXdiNN5aSNkBrgFMS8zQDEu20C1JfvHGw10ZuWiOegibneEMXlc0Pp9L+xz3MzXFDVEY0MjK+itSugRaYIRcLaI7r6jS0KItlGoOn6AKGoYusHawICikZZHfJ/gWAPJvX0p6XE5xdRsLiHAB6aw5sRZmpn1xTtpXSgZ6FL0lALJjyURnRw7RFcJ6fFmdLbe4QKdl0kS/zclMjl/om9oaG7jerseNyLcHvqVlsrWJjWGMoOkIj8d6OWnRC2y8kA/YxOvP0nf43YNAAA=) format('woff2')}</style><!--/embedded-font-->
+<defs><path id="ah" d="M0 0L-32 -14L-23 0L-32 14Z" fill="#231F20"/></defs>
+<path d="M129 316.5L413.3 127.4M531 106.3L703.2 295.7M823.5 314.3L1134.3 141.0" stroke="#231F20" stroke-width="5"/>
+<use href="#ah" transform="translate(431.6 115.2) rotate(-33.6)"/><use href="#ah" transform="translate(718 312) rotate(47.7)"/><use href="#ah" transform="translate(1153.5 130.3) rotate(-29.1)"/>
+<g stroke="#231F20" stroke-width="6" stroke-linejoin="round">
+<circle cx="77.5" cy="325.5" r="48.5" fill="#B8E5FC"/>
+<path d="M418 90.25L447 37H511L540 90.25L511 143.5H447Z" fill="#fff"/>
+<rect x="720.5" y="268.5" width="100" height="97.5" fill="#fff"/>
+<circle cx="1187" cy="90.25" r="49" fill="#fff"/>
+</g>
+<g font-family="Quicksand" font-weight="500" font-size="57" fill="#231F20" text-anchor="middle">
+<text x="78.5" y="344">32</text>
+<g font-size="52" dominant-baseline="central"><text x="202" y="210" transform="rotate(-35 202 210)">:</text><text x="235" y="179.5" transform="rotate(-35 235 179.5)">4</text><text x="617.5" y="151.5" transform="rotate(47 617.5 151.5)">:</text><text x="649.5" y="182" transform="rotate(47 649.5 182)">4</text><text x="953.5" y="204.5" transform="rotate(-23 953.5 204.5)">:</text><text x="987" y="185" transform="rotate(-23 987 185)">2</text></g>
+</g>
+</svg>

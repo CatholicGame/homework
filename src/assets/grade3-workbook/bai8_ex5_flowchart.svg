@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 240" width="1500" height="240"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAATQABAAAAAACKgAAAR2AAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhQbIBwqBmA/U1RBVCoAVBEICoZIhVwBNgIkAxwLEAAEIAWEOgcgDAcbFgcjESZ8cYniH4mxsazHu/ZUt440VouRfq9NSnfvg4d/3PTvSzDJ2QEqFuqSigpUxIBtX1wkALCiM3tPQDWpzvD3M10k2LwFBzjDv7fq9EiwCQVQF9WBRVIk6OGByWnNaS2A5cUcBvvkMrkBAdgAAJFdDSxEiyUamjoGMKED+D8AQMRkqaTOHGvToQ3CUTjLdVKW+AU9SEdJfqB90l5MkL9sFCMC8MvjlTxArrL3RQZ054sc8OMgfpfuAVQyAoEJAbgIIJq0e3EpJAAkBICQxS8ASIAMuMgIwEVHDWDDhISOXAU0JcoK5MqXfqyvF3quZ3uGOLdAOLwsJyAwAuAArCBUEHsBADoAQEIgkJCRFCW7KlmJdzgUZfqo114TB77+uvXoV1/lgFdeGTr69dfFga+9ZjnqlVc44NVXZ4++kgOusNiOukocmD/M9zIAJUlP3BN+yiWWBe/ZYVc/T5gwMODxHX2q+8onrSTxJajr9DBfRGO82mqnZp3iGkg//XbPUOh4Lf20s9aAE4GUqUy+063+9a5bXlHq6ERfNS+eE/Ocd9Fz64s0wGjxfIrrsvtuulncDfcMHfDgk4Lz6YfFgb1i+OhN4A/hn3lAMNqC08Gt4Lr1/GK3THP/xnjJxQtLJRdOBP0CTfGFSwvFF+f39RS11CftM+QbEFrqiooIyfv4hiDLs+aVNmVQUQaU1R1zO5R7PvzNnT+RVNnSUhk1dNvr+xjMzpDDetPZHd+1RSXWTOQVjFYVVe9fWXvdg2cyFTR8cnjeYEJGc3Jmc05BZk1DbLIj2GhW3Ip5Y48HX/wpevt/oclT4jQfv/DgS7P1mq1kvKh4uraldjlQ2pLaEX77YweanavEmkuH0ktbY0bzMtzLmRvN87M9Ne4DjcoBHofrk/06Smo6sv3H77ZUN8SkZbYnna/2ZVWWLcxV1bSl1SQnNWQypXkbv8rMqU9LbMpITaivSyMwFZMdVOtStLKRuaKqqtmiycPRshLrj/+2+6yv3knRinzj+SWlo/maT0v754vfj03UH+eN33AnFjbUaVpD3V6fV3U1FyX5f0hJ/sGfVNTVzOLp7iW3y73oNnl8k6Z+j3H+2gHYDwHI4siLP35ofNJZ8atJlr8AvJk1+RzAZ2+d1ZfVL6VITwMDEgACPq9cGkZw1CYIVMAotZAa9s6/HMpOIeviKB4k53uDCgLzUkVm1kWtMhNARujMIMJBIAtiF06WcAiNLFO4hmodSNYTuT0EBivqpAwBNnGDAJePv4d6Lm9u7RlYXlwKqfm5eaXqgAyfP7d35/LsanB6Y07tCWyuzM+6CmrB80NLm4GgmroUCm0Fy3JyFpez0Ttnsmc313Oohwbmd2dtTS+uLW9M70Ya5ZxC0DQRrFsia3tm8zPTMtXde+WpffPBQSiwa/7koabNjTOLuijghg3i88IWm9rxUoAvWMT+0tp0oCA7N1cr7+ruaizn0GfBh0KB4PK5qtS2FGeYjyfAO3/V3PLOdRng/3PIV8l3iP8PvUF3LAA=) format('woff2')}</style><!--/embedded-font-->
+<g stroke="#231F20" stroke-width="5">
+<path d="M137 158H390M599 158H857M1007 158H1266"/>
+<circle cx="70" cy="158" r="64" fill="#B8E5FC"/>
+<circle cx="1370" cy="157" r="64" fill="#B8E5FC"/>
+<path d="M513 76L598 158L513 242L428 158Z" fill="none"/>
+<path d="M950 58L1037 205H864Z" fill="none" stroke-linejoin="miter"/>
+<rect x="1133" y="70" width="73" height="76" fill="none" stroke-width="6"/>
+</g>
+<path d="M232 116L258 143M258 116L232 143M1083 110L1107 135M1107 110L1083 135" stroke="#231F20" stroke-width="3.5"/>
+<g fill="#231F20">
+<path d="M386 136L432 158L386 180Z"/>
+<path d="M853 138L897 158L853 179Z"/>
+<path d="M1263 137L1308 157L1263 178Z"/>
+</g>
+<g font-family="Quicksand" font-weight="500" font-size="58" fill="#231F20" text-anchor="middle">
+<text x="70" y="174">3</text>
+<text x="1369" y="174">20</text>
+<text x="291" y="144">8</text>
+<text x="692" y="147">:</text>
+<text x="733" y="147">6</text>
+</g>
+</svg>

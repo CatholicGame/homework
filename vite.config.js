@@ -8,6 +8,9 @@ export default defineConfig({
     open: true
   },
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    // Hình SVG vẽ lại từ sách luôn là file riêng (không nhúng vào JS): trang phóng to
+    // cần tra ngược URL → ảnh gốc, và gói JS chính không phình vì ~100 hình.
+    assetsInlineLimit: (file) => (file.endsWith('.svg') ? false : undefined)
   }
 });

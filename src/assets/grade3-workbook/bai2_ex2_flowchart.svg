@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1680 240" width="1680" height="240"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAU4ABAAAAAACcgAAATeAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhQbgSIcKgZgP1NUQVQqAEwRCAqHWIYdATYCJAMoCxYABCAFhDoHIAwHG90HUVRQSgm+OLCJTPfAiiAjaFGGFYzD1tBmMe7AXRThb7+VhqJ5jYevMdr7u3sijpmEIp4heYSKh2KhXsRCVm8M0y3uffutwTxCnEdyS57MLuH7TVaQ3o4Kus0tUIDvgcYccyr9+G4W5qVIXiaqKWWucmJmXxeA//+9qnnZgMnxJRjQgEXwJvtlrtEJ9MW+1vaiOUCKFSvWbDqgNnnu8VRlGXqBQDsg8qfQao4G75754gDJ83duQVKBT6PvHKEWhIFcRdKFwqMS2XqRmoGplT+XBHkfEzIatMhCY70mDfWfFgCY0B9Pqj8l9ZXFUrPuQZDni5WG2xMVnyfHyow1Ti9p6f5oIN3sCIDDlDxOQWNOpOR1guynyWfDv/uoK36oKpRHW851z/jfc8zgE0v30k/OMM57VVa4B1JQPMcfWGcTdP25jN7MbwPQqlmSLNbSO+rLAOSt6aIN6496s17/+XeSnhDOOin4nlbQD3QQuwHiHqAAkmgdk4XUfek4+RrrmEnSS5ydPunePcHA/fvs5Lt30Z07qZMRYDCZhZOQGclOdtImgbJm8hwh3XrAOm3+fM3JG1HZUJRCahWK9F7ttNuhkOYuHBmesyYguVh783XuA5KTtdImz9XceJEdQr/GWTOfQafL5N3Minmb5mgk283fPyaQkXt28xZZ6cRTIaRriYeOl81fz45Jl6JWVzEOaZTPWVOmtfdmKlsqyXVrjXXHds26bMeR1P6TF5H58mmTbNnlGZPvCwZOXQOkV06gu2msxA3CLIiSsWIG0oyS3MyBSarN4VeXlvMrKU5CQrKV5aWy1e2J8TQ8yLI7Na3NCQ+klGPVnZYKpt+K3pE2kB+tj5knhnasFb2svPl3PQmFKhhD7yJxCsbJuIoUE3zk5T9Nt1xLn/BwH/3Uffe7VRhps4TdtTj6W6S+hX+uq3uWL/Xr8wnYdnKhM00qb8ZWppjbh1k5hDm7O/gHG1lJmkIYrImZ2vaTN38Z9PC6oVq8lJleevJWURAn4nOorCAgPKCiUR5uE62z/9xAi7QKtUEZmP/9tt6r1ZcivfVW6RiWLvJdWK7FQCpUQRk6oICHgeEF4TsDcTJUngpSgi8pKYuKRo35hk5NJoHWnGdmMfX1LaL05ThHi6DpX+MWfXpizdG0HDdenuXGpXG2/z/8n2qhPM3UrFbTwiM4kOPah3W+940No5bpP6ytfqRbUnQtlPcNmoE0gT8pIlBMUJIVzMgOi7o/7uorMkaWqo+pq5epL1FvUwVw7TPkuPGGv9PX1POHc/4Nn5deX8CvL4uqEvVf8zuHRgkEN9+cjjqxjRF5NMq0pgOQk58KjbVDOmeDsHLmEqnDpow1QtYnU+ZBq218A8xQZ7W4wCdKCzEMEC9MToeXdMY6XrZmwSuLK6/B6Npxo5k+qyFoj2mE8u2f283m+KFUMgWHGmrq+tDBgMh9twTVk465s7ygDcqmIZ7BnhFBsWLqohiUw3os52AGqqpkKse9hYeKJ5upWt6UIj7KHHcyg8py93FarzoNPJfYTAqGn8oAjXkl6DPYfdEOwRDUG/GC5mwWDq14ZEtcJ1vMNoXQYqtkA/w3mWC4o5oqamo6hlbWVmaGTKJldMK01KkTW4Fci4RTzmqJln/qRSWYfEC9b5VG9ePVkelyBw==) format('woff2')}</style><!--/embedded-font-->
+<defs><path id="ah" d="M0 0L-34 -14L-25 0L-34 14Z" fill="#231F20"/></defs>
+<g stroke="#231F20" stroke-width="5.5" stroke-linejoin="round">
+<circle cx="139.5" cy="176.5" r="49" fill="#B8E5FC"/>
+<path d="M383.5 96.5L414 43.5H474L504.5 96.5L474 149.5H414Z" fill="#fff"/>
+<rect x="677" y="127" width="97" height="99" fill="#fff"/>
+<rect x="918" y="23" width="123" height="97" fill="#B8E5FC"/>
+<path d="M1213.5 158.5L1244 105.5H1304L1334.5 158.5L1304 211.5H1244Z" fill="#fff"/>
+<circle cx="1575.5" cy="87.5" r="48.5" fill="#fff"/>
+</g>
+<g stroke="#231F20" stroke-width="5.5">
+<line x1="187" y1="161" x2="366" y2="103"/>
+<line x1="506" y1="97" x2="660" y2="170"/>
+<line x1="1042" y1="78.5" x2="1197" y2="150"/>
+<line x1="1336" y1="156" x2="1510" y2="93"/>
+</g>
+<use href="#ah" transform="translate(381 98) rotate(-18)"/>
+<use href="#ah" transform="translate(676 177.5) rotate(25.6)"/>
+<use href="#ah" transform="translate(1212 157.5) rotate(24.8)"/>
+<use href="#ah" transform="translate(1526 87) rotate(-20)"/>
+<g font-family="Quicksand" font-weight="500" fill="#231F20" font-size="54" text-anchor="middle">
+<text x="138.5" y="193">34</text>
+<text x="976.5" y="91">100</text>
+<g font-size="58">
+<text x="258" y="117" transform="rotate(-18 258 99)">+ 48</text>
+<text x="584" y="117" transform="rotate(25.6 584 99)">– 27</text>
+<text x="1117" y="100" transform="rotate(24.8 1117 82)">– 42</text>
+<text x="1398" y="108" transform="rotate(-20 1398 90)">– 33</text>
+</g></g>
+</svg>

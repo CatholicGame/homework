@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 330" width="1440" height="330">
+<defs><path id="t" d="M89 20 L11 101 H148.5 Z M238 19.5 L164.8 101 H298.2 Z M394.4 20.5 L319.2 101 H453.7 Z M548.9 20.6 L469.5 101 H608.2 Z"/><circle id="c" cx="0" cy="0" r="34"/></defs>
+<g fill="none" stroke="#1FB2EA" stroke-width="3" stroke-linejoin="round">
+<use href="#t"/><use href="#t" y="102"/><use href="#t" y="211.5"/>
+<use href="#c" x="1048" y="52.5"/><use href="#c" x="1164.7" y="52.5"/><use href="#c" x="1281" y="52.5"/><use href="#c" x="1396" y="52.5"/><use href="#c" x="1048" y="129.3"/><use href="#c" x="1164.7" y="129.3"/><use href="#c" x="1281" y="129.3"/><use href="#c" x="1396" y="129.3"/><use href="#c" x="1048" y="207.5"/><use href="#c" x="1164.7" y="207.5"/><use href="#c" x="1281" y="207.5"/><use href="#c" x="1396" y="207.5"/><use href="#c" x="1048" y="284.5"/><use href="#c" x="1164.7" y="284.5"/><use href="#c" x="1281" y="284.5"/><use href="#c" x="1396" y="284.5"/>
+</g>
+</svg>

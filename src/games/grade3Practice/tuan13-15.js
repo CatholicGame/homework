@@ -12,7 +12,7 @@ import imgT13Dog from '../../assets/grade3-practice/tuan13_t1_q4_dog.png';
 import imgT13Buffalo from '../../assets/grade3-practice/tuan13_t1_q4_buffalo.png';
 import imgT13T2Jug from '../../assets/grade3-practice/tuan13_t2_q1_jug.png';
 import imgT13T3Coffee from '../../assets/grade3-practice/tuan13_t3_q4_coffee.png';
-import imgT14T1Temps from '../../assets/grade3-practice/tuan14_t1_q1_temps.png';
+import imgT14T1Temps from '../../assets/grade3-practice/tuan14_t1_q1_temps.svg';
 import imgT14T1Scales from '../../assets/grade3-practice/tuan14_t1_q3_scales.png';
 import imgT14T2Jug from '../../assets/grade3-practice/tuan14_t2_q3_jug.png';
 import imgT14T3Scales from '../../assets/grade3-practice/tuan14_t3_q1_scales.png';

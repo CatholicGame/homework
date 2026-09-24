@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 255" width="1360" height="255"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAANgAA8AAAAABpAAAAMHAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAG2QcKgZgP1NUQVQqADwRCAqCOIIPATYCJAMQCwoABCAFhDoHIAwHG1UFIC4KbGPa4EW4oA1m1nB68CKSceBvsnj4//3x7XPf/RgZTWhMEOKfNM5G+2sSUaUGpZ8G8c3//t77BvGOxn0A/o9DBENjaCxlZ6GuCy289B5ohLSJm7V1Te4CjIo7X1aYQboGtzHgaP/vLoy3/zd1U2sTvXiYZjY2Fsi2t8b5WMAJBjbpLyrOOk8TDQPTdFu16BsIlXNKwb3vpEB9PdULmDx1chHEbFiq8iBGho/DzvUrZR6EIRCypFq0K5oKQqG9DBCmEJJCKMqEKE0j7K2UTTPsgJwGxa8K0kFoIWDWckgsUl818IP8S8iPBR+GabzvEiOfBYcAAuL/7gJ0FSiEaoGWMHQUsHs1qWKQBEQRf0BCgZYCBVoK0hdQKQvJcI1/DMOtypflLgAhyjVByKAaBVYCdgEgA0KItoNzI0/7qGg1N6rfxveqbnq0VXhdrmmXD3E49Rt6PN69P8B8seD60ja6REaWbYYXXw0OPT/VPBatlGghc+EyFxgF6dUGev/8M2E32fa6Zc5Vo2Z7iJTJZs2Ony3UMMmQR97OJJaIuEWCoQ6puJcv/62Gbytdo2ZX5vLywcXqNdnRuMGNcnbdTLmw16tr2DCaevx63/zo1u5HkAV/ddoEnVgiYhebPjfZR+B3Rr6mdXj8fJIhCQBgCwxFHPjfP/b82Il/q4viN3watHiDn59PzBVNqk7PUSmB4FXtNJ2AdegRzMrOj5RmSl2N9hWIFsgGw0DAVj3bBIpcj2gLbEHoXBpIGsdoUBjZYDfTQIX2mValizrLBA2jtuPFPe4CkwhEFhmFQFJB9WrVaQMtIiHQHA3lAEOxh3cImiUT0BDkQHQfjYokkCmgUkGUSqRoV6MGgSKta/ZVOyDg1My9MsRQRbSHwKLw9hgEkVZSwvqwPRwKy1Itni1TCTISoaB5iAKR6VDZcJiAL9iZJjEYgfIlKD92oclrksW/RtCw9sgaVKtVq1mHaTOmDekQ4Vbhy1CmoIrqwFknFFsxgE+96hBFwwkEyspwFr8JltTmIwAA) format('woff2')}</style><!--/embedded-font-->
+<g fill="none" stroke="#0DADF1" stroke-width="2.5">
+<path d="M106 194L417.7 80.1"/>
+<path d="M564 76L871.4 161.8"/>
+<path d="M960 164.6L1239.6 76.6"/>
+<circle cx="59.5" cy="193" r="46.5" fill="#BEE6FD" stroke-width="3"/>
+<circle cx="1298" cy="55" r="46.5" fill="#BEE6FD" stroke-width="3"/>
+<path d="M495.5 11L562.5 76.5L495.5 142L428.5 76.5Z"/>
+<path d="M923 97.5L999 233H847Z"/>
+<path d="M1055.5 35L1132 11.5L1156 88L1079.5 112Z"/>
+</g>
+<path d="M429.0 76.0L414.5 88.8L409.7 75.6ZM883.0 165.0L863.8 166.9L867.5 153.4ZM1251.0 73.0L1235.9 85.1L1231.7 71.7Z" fill="#0DADF1"/>
+<g fill="#231F20">
+<path d="M-10 -10L10 10M10 -10L-10 10" stroke="#231F20" stroke-width="3" transform="translate(219 121.5) rotate(-20)"/>
+<circle cx="695" cy="66" r="3.5"/><circle cx="688" cy="89.5" r="3.5"/>
+<circle cx="1037" cy="75.5" r="3.5"/><circle cx="1044.5" cy="99" r="3.5"/>
+</g>
+<g font-family="Quicksand" font-weight="500" font-size="58" fill="#231F20" text-anchor="middle" dominant-baseline="central">
+<text transform="translate(261 97) rotate(-20)">1</text>
+<text transform="translate(730 85) rotate(16)">2</text>
+<text x="61" y="192">4</text><text x="1300" y="53">1</text>
+</g></svg>

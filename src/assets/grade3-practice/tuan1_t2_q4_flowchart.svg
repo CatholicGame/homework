@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 215" width="1120" height="215"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAPcABAAAAAAB6QAAAODAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhQbdBwqBmA/U1RBVCoATBEICoN8gzABNgIkAxgLDgAEIAWEOgcgDAcbMgZRFPEA+XGQk6H2Euu8G/7RopSymTwKWFdyZcVD//vR7syXFcfEqmgorknMQibRN2KN7glOJySL72CdryGtgjfAyUnKD6i3Denl5aUGFcTNq7lJm64u1f9PBbxgqfhgAUzMNrVhqLVqFLBubbwJlSYYfHW2IDqPX5Gm67ID8e0JgV5AHLfQbZYxbNMWe3eQOHc4PREk1PC9aDh7PDURxOEctTQHuCMQVE9R1TaEMlJItQapfBYaUFoMZflB1aviHE1Wys7217k4fjXk89wFsdNbHAeMQ5HJC6q/Rj4M/hZaVO+FRP06lsraGf/zI6bBxTzukVFQTIJdORmdDkEKiCr+gESFUXCBUQjrILp1SmmhkZlFKVhoyN6j/Cpn5bgcCQCEKMUAQgt60YE3+AKoASmEkBUY5tbhZrFCaq+voZKbG3rd1RW4e3npWccgAlEHrRYAQDW9dhYicri307zlJVJeXV0cdTOAUDzt0TJDtrMXKpkrYYmZPfrl3F3Nle7l8uuaozNhb6ExuNx5uzZ2ujB5SPm44ngYnjYtxh7dPu636ZsZ3bkRX1DdDMAtk6e6JQZoj0VGa494RjcmoTUSHak1VunqrGFtJpHv6fVE1qYaGkgy38sTou8FXtEsRGcr2aGTiWTDnPaD0ek/BmqJxCFV4Bsv7cr9ntlBY1giTIazG5+2i4ycnZqitLm1hJJYeAUbpuxDk8TJu8EysAcCu8Mc3eIPvzOfFoRMInX1IkxtjBLS9cEqDi5HqNqQ9Yppkup2xaARkRWsKDt74DYH8YDjll7n3o5O0Sp0AKvCsCisH8sCADdBgAqqadTL0Qti0/+L4/Hv8FMh6Bh+3/e6A67yn1K4bTxaCYK30JG769myqtgky9DmNk3cYhzZkilvm302pJYeFK31tPrgUJfzcFF3EeMgTBimBLcw9ccaYWVVmE/WWcLGhMg2tjX01qKgN4aBV7/30UY6Q8gi4gkcYGxoZAW8CVjgwSWiyWwkDQPcWXQSFs0BtlwOgc5iA00Ch8NgWxsY4Ik5u12UPppONVCkloXl6zGQeAqRhuQjaQYjMJ48o4qkItTXLm7pAn4/54Inlo1l8bAY4ESncYCrgmp2c8pn/6gbnFdJpU01nktBskz0DQ3NbVzdXB1tNGR7+Fe1UmZxTBOgMkxL7Kdn+OWvGCKXCgdKvxUs922UR8P1Kw==) format('woff2')}</style><!--/embedded-font-->
+<g stroke="#555B5A" stroke-width="4">
+<path d="M143 127.5H462M600 124.5H917"/>
+</g>
+<g fill="#555B5A">
+<path d="M459 117L481 127.5L459 138Z"/>
+<path d="M914 113L943 124L914 134Z"/>
+</g>
+<g stroke="#3D8BDD" stroke-width="3">
+<rect x="24.5" y="71.5" width="117" height="117" rx="20" fill="none"/>
+<circle cx="541" cy="126" r="58.5" fill="none"/>
+<path d="M1010 25L1099 189.5H913Z" fill="#D2E4FC" stroke-linejoin="miter"/>
+</g>
+<g font-family="Quicksand" font-weight="500" font-size="57" fill="#3A3F3E" text-anchor="middle">
+<text x="311" y="110">+ 15</text>
+<text x="781" y="107">+ 75</text>
+<text x="1013" y="163">100</text>
+</g>
+</svg>

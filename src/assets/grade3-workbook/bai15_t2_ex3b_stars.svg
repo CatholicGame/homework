@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1545 660" width="1545" height="660">
+<defs><path id="st" d="M0 -55 L16.5 -19 L58 -13 L30.5 14 L36.5 55 L0 34 L-36.5 55 L-30.5 14 L-58 -13 L-16.5 -19 Z" fill="#00AEEF" stroke="#231F20" stroke-width="4.5" stroke-linejoin="miter"/></defs>
+<path d="M22.75 -2 V15 Q22.75 22 29.75 22 H118 Q125 22 125 15 V-2" fill="none" stroke="#1F9DD3" stroke-width="4.5"/>
+<use href="#st" x="111" y="107"/>
+<use href="#st" x="302" y="107"/>
+<use href="#st" x="493" y="107"/>
+<use href="#st" x="685" y="107"/>
+<use href="#st" x="876.5" y="107"/>
+<use href="#st" x="1067" y="107"/>
+<use href="#st" x="1258" y="107"/>
+<use href="#st" x="1449.5" y="107"/>
+<use href="#st" x="107.5" y="333.5"/>
+<use href="#st" x="299.5" y="333.5"/>
+<use href="#st" x="491.5" y="333.5"/>
+<use href="#st" x="683" y="333.5"/>
+<use href="#st" x="872.5" y="333.5"/>
+<use href="#st" x="1064" y="333.5"/>
+<use href="#st" x="1256" y="333.5"/>
+<use href="#st" x="1448" y="333.5"/>
+<use href="#st" x="99.5" y="563"/>
+<use href="#st" x="291.5" y="563"/>
+<use href="#st" x="482.5" y="563"/>
+<use href="#st" x="674.5" y="563"/>
+<use href="#st" x="865.5" y="563"/>
+<use href="#st" x="1055.5" y="563"/>
+<use href="#st" x="1247.5" y="563"/>
+<use href="#st" x="1439" y="563"/>
+</svg>

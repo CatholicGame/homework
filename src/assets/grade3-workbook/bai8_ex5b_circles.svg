@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 480" width="660" height="480"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAMQAA8AAAAABfwAAAK2AAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGyAcKgZgP1NUQVQqADwRCAqBcIFjATYCJAMMCwgABCAFhDoHIAwHG+EEUZTtyTzRVwk8mavGGwgXBo0CO9pubEDMEnHwDTYPYLgVz1P78Tt3930RhSQiTTTRSJZUO01DJtQfsUa2CtMZplvc6/db+/BEhcTskMzkLH8R6+0GxukgRAARQoUPR6mJ2d0ZSkO+kP4FQHz1fyE/56GbaWORTLEwxLHtAtqWtX0DJxjgsu/5PaBfRI8Hpq/bLBLsEfzCI2SISEc9f5cKBi0rICdO3b4ho4MGEAzaoCTmL8vevurqkIdQt7uyPR09lJflInB+LcklncipPLRfju/Cv9369bP16t5mJ/IF+V8usF5cRL9gGsGy2LNrokugCKTmDyiomBYPrCdsAnp1olQlDet52vf2RQCRxhiigl4UXABXAXSASIRhQs8fAKHU2DKqPTAmSK6tURf2AZDRvfh8S7y6CRw7RC/w9m8maLctaLUg7/oEFG/Ss2uHaKxCDRSGHmOtnV/Rn2w2AaONxjtpmGi67PGvYokjBJpvtzTw30NyEKvEGcBvFUYYn0MrKIyDiMWEomxjWCTxauRCm4un4OSm8GRlGsUHSaMEESFOJMQI1HXuU2f/8/E618yFydG85by8MzADuEJQ8+L48+/t+GN/+8H1N/zY/ohfPzdH5NrzVy7Rq4DwJlDOuIzJjFC3Ol4p0ZMitSaoDiPcMs4GPIxLN0DmgWVjNQy2GM0BttoX27RD2B6LGXF798RiKQxnzaL1OT45bpiRLQmiizpa2sbQt8ihtycxikPpLHrZhsx1LXTN2nNFw3ZQiei6pjPR1CRIwLFHNzCG1syDy+aCOpMSVEmnAkpv1h8fKE1So0ZyuawGBSVN9OEcTiDxORYdDN1FD0rjUJHbdz663UhLhk3wVMruamhpGZh6PB/7aYK0jv6mtiMdNEHpE0P+bIvef4qVPC0OtNlDs+/SWuveAAAAAA==) format('woff2')}</style><!--/embedded-font-->
+<g stroke="#231F20" stroke-width="4.5">
+<circle cx="335.0" cy="89" r="61" fill="#fff"/>
+<circle cx="273.2" cy="197" r="61" fill="#fff"/>
+<circle cx="396.8" cy="197" r="61" fill="#fff"/>
+<circle cx="211.5" cy="305" r="61" fill="#B8E5FC"/>
+<circle cx="335.0" cy="305" r="61" fill="#B8E5FC"/>
+<circle cx="458.5" cy="305" r="61" fill="#fff"/>
+<circle cx="149.8" cy="413" r="61" fill="#B8E5FC"/>
+<circle cx="273.2" cy="413" r="61" fill="#B8E5FC"/>
+<circle cx="396.8" cy="413" r="61" fill="#B8E5FC"/>
+<circle cx="520.2" cy="413" r="61" fill="#B8E5FC"/>
+</g>
+<g font-family="Quicksand" font-weight="500" font-size="58" fill="#231F20" text-anchor="middle" dominant-baseline="central">
+<text x="214.5" y="305">5</text>
+<text x="338.0" y="305">1</text>
+<text x="152.8" y="413">5</text>
+<text x="276.2" y="413">1</text>
+<text x="399.8" y="413">1</text>
+<text x="523.2" y="413">5</text>
+</g>
+</svg>

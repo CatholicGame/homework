@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 730 690" width="730" height="690"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAUgABAAAAAACVAAAATEAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbgSAcKgZgP1NUQVQqAEwRCAqGdIVaATYCJAMcCxAABCAFhDoHIAwHG44HUZRQThTFFwe2Ma2hC3FzwWiBExoJsawfHe4oC/qHyFMYYWYVQbXfZ8/uHlCIWAG7qK8CwCqKwUbYiyNUiOVTVz4g3yCdlhKpNeNGpN18E/ggMDg3xNIzcRGTBhmaSZ75RdtyhOlgfKYczP99zv//XtVk69ccn57jOaFozPJuxlw0aKxlFKA9Sj3hjgneghYLpqWuc7p3WWUV9DI+h58i0ApIQqgTAs1G8ERcvBSlg2jX+rYGECnwaRTt3NzSAEZANEViD42SOWEWe54464BqCyMPEkPOkJCSU2pCFuSkkKaQFBzFnjquWvaXNDH+qCOdq6Zl1WmUWGO3SVL+AP9MPgz+pqu/jqdSbm8yyeL430PAEAQh9oegBwIGIB7dWtVGgCQgcvyBKEBeQ8K5yObEgzVKeaaLhNkcAaTwL1afHbO8modA92GjqnRGaACd0ESMBWK/FiiAVKHxVT7Rn6xksV2cIkJq82atap6wIeZIa+eu7Tlxdc/q2SCsa56wpldBFs7JqJ14W7j1JUox8fbbc+DNLSYbcwlleGNLBlMJJKyJN2P4Ro0pJfa4u2tOvOpcvbjHrFW9DtxpnnBrwUC4jfhj5s9d3XP2oh6rzn1p5HcWjDB8V5jqb+8c1Y+sBm/1mrMHZwSh8u/tvXbjPrReuJRCgRQiQ5nKhTeVnV9Bp4rZEKThHe/KIZ+CoG28lv3Ck+8v4hNn91x/Pi28+50wfOcbc8Kq8CPDc3vj8shQoeRYjpnVI91x7l5XEDV44Rg3Z4HIv3BF2gcMC2YJhVyqHbHdio5xrBih0Y4uaOOxg9FnbMX8oVYHrhWMOlgryElztotHTs1KY7zwoyXWJ8CMviChHQ1WwlpYAf/Z7m7/v+nehHf+nnMcHR5UULqeYAlYqEfbS3CbTI88MunOt5woccSK7WPj7cpDIhwq4+KKzAEOiWLRnZ0Ln6z+O+VfFMcYN+hRnO8/Ks3mM1xUOOST6F2iBG7QK0X8W8aR8riMr6f33O3tl+rlhvv7u+ApXr7GhXf7GvnQzBdI05W+qDkmpAehsO7WWBDGjkqPesIrPjhzld4hItFfV4BBWAkFOOTZNZicHSJNA3Y8iAs4+RYkcrYPN/VZINT+WbtgBRRkQoQHkLD/oKiV+mqsR4bRKdbiHOvm5RwWpbFwW6MZfDGf0dB1/PqPAfwMPj+dHyPx5zGmVhy/URrpy/bP9/FTrDg8Lry6JSDOHsn2nhlmdN6phePayHG20rJ1LW/BX3rOHfBz4tor8PvXPIzk/+WV6SXqJRC82e/IN0hIbqW25bKGtNykEyRdlNVJLjWYhGFLqAsXKRos1DXZYDnU5ICuKE1EHwCgh0HrQ086xSx6NmOLu4skvU6/HVPUc0nXUoLWaM/w+f4PRfJijZTECTnAkzsPAXTSYTy9NUVBwrQM5BBAspSnUBh7QbhCTvBSGcCeSZTdHMscuHFTScoJBWSllGetjXeWoipLTSDOkByokhm0JrH4DLIko7EynzrlTKfTVRhIRVGJVKpEiUdjeI6y0cYIRDjAUDfm+AD0UGD+t3EFA0rtuXLnzhfG5ubq5GiGe4n/wmMZJVpdwFAraNxPluIvP4qQClYXqOJpib8b1cn2chEAAA==) format('woff2')}</style><!--/embedded-font-->
+<g fill="none" stroke="#1FA5EC" stroke-width="3" stroke-linejoin="miter">
+<circle cx="192" cy="196" r="177"/><circle cx="545.7" cy="196.4" r="177"/><circle cx="368.9" cy="502.2" r="177.5"/>
+<path d="M191 196.5 H547 L369 503 Z"/>
+</g>
+<g font-family="Quicksand" font-weight="500" font-size="58" fill="#231F20" text-anchor="middle">
+<text x="161.5" y="204">A</text><text x="569.5" y="215">B</text><text x="368" y="553">C</text>
+<text x="286.5" y="189">3 cm</text><text x="455" y="189">3 cm</text>
+</g>
+<g font-family="Quicksand" font-weight="500" font-size="58" fill="#231F20" text-anchor="middle" dominant-baseline="central">
+<text transform="translate(203 305.5) rotate(60)">3 cm</text>
+<text transform="translate(282 439.5) rotate(60)">3 cm</text>
+<text transform="translate(442 450.5) rotate(-60)">3 cm</text>
+<text transform="translate(527.5 299.5) rotate(-60)">3 cm</text>
+</g>
+</svg>

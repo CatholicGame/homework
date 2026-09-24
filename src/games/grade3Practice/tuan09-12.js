@@ -5,11 +5,11 @@
 import {
   blank, listValidate, setValidate, dsValidate, letterValidate, divBlank, mau, stripVN,
 } from '../grade3Workbook.js';
-import imgT9T1Frames from '../../assets/grade3-practice/tuan9_t1_q2_frames.png';
-import imgT9T1Cube from '../../assets/grade3-practice/tuan9_t1_q4_cube.png';
-import imgT9T2Box from '../../assets/grade3-practice/tuan9_t2_q2_box.png';
+import imgT9T1Frames from '../../assets/grade3-practice/tuan9_t1_q2_frames.svg';
+import imgT9T1Cube from '../../assets/grade3-practice/tuan9_t1_q4_cube.svg';
+import imgT9T2Box from '../../assets/grade3-practice/tuan9_t2_q2_box.svg';
 import imgT9T3Rubik from '../../assets/grade3-practice/tuan9_t3_q4_rubik.png';
-import imgT12T1Diagram from '../../assets/grade3-practice/tuan12_t1_q3_diagram.png';
+import imgT12T1Diagram from '../../assets/grade3-practice/tuan12_t1_q3_diagram.svg';
 
 // Long division laid out "theo mẫu" (Tuần 10 Tiết 2 bài 2): the book's blanks
 // are the product written under the dividend, the quotient and the remainder.
