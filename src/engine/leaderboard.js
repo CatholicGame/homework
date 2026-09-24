@@ -100,6 +100,7 @@ export function connectLeaderboard() {
 /** Đăng xuất Firebase cùng lúc với đăng xuất Google. */
 export function signOutLeaderboard() {
   lastPushed = null;
+  lastProfile = null;
   cache = null;
   fbPromise?.then(fb => fb.auth.signOut()).catch(() => {});
 }
@@ -169,6 +170,66 @@ export function syncMyScore({ delay = 1500 } = {}) {
 }
 
 window.addEventListener('tth:stars-changed', () => syncMyScore());
+
+// ── Hồ sơ riêng của bé (đồng bộ giữa các máy) ───────────────────────────────
+// `profiles/{firebaseUid}`: { gender, avatar, name, grade, updatedAt } — chỉ chính bé đọc/ghi được.
+const PROFILES = 'profiles';
+let lastProfile = null; // { uid, json }
+
+function profileEntry() {
+  const p = getProfile();
+  return {
+    gender: p.gender === 'boy' || p.gender === 'girl' ? p.gender : '',
+    avatar: p.avatar || '',
+    name: (p.name || '').trim().slice(0, NAME_MAX),
+    grade: p.grade || 0,
+  };
+}
+
+async function pushProfileNow() {
+  const fb = await ensureSignedInSilently();
+  if (!fb) return;
+  const { db, fs, auth } = fb;
+  const uid = auth.currentUser.uid;
+  const entry = profileEntry();
+  if (!entry.grade) return;
+  const json = JSON.stringify(entry);
+  if (lastProfile?.uid === uid && lastProfile.json === json) return;
+  await fs.setDoc(fs.doc(db, PROFILES, uid), { ...entry, updatedAt: fs.serverTimestamp() });
+  lastProfile = { uid, json };
+}
+
+/** Đưa hồ sơ trên máy này lên Firebase. Không bao giờ ném lỗi. */
+export function syncMyProfile() {
+  if (!isLeaderboardConfigured() || !getCurrentUser()) return;
+  pushProfileNow().catch(() => {});
+}
+
+window.addEventListener('tth:profile-changed', () => syncMyProfile());
+
+/**
+ * Hồ sơ đã thiết lập trên máy khác của cùng tài khoản, hoặc null (chưa có / không kết nối được).
+ * Máy cũ chưa kịp đưa hồ sơ lên thì lấy tạm từ bảng xếp hạng (biệt danh, avatar, lớp).
+ */
+export async function fetchRemoteProfile() {
+  const fb = await ensureSignedInSilently();
+  if (!fb) return null;
+  const { db, fs, auth } = fb;
+  const uid = auth.currentUser.uid;
+  const snap = await fs.getDoc(fs.doc(db, PROFILES, uid));
+  if (snap.exists() && snap.data().grade) {
+    const { gender, avatar, name, grade } = snap.data();
+    lastProfile = { uid, json: JSON.stringify({ gender, avatar, name, grade }) };
+    return { gender: gender || undefined, avatar: avatar || undefined, name: name || '', grade };
+  }
+  const lb = await fs.getDoc(fs.doc(db, COLLECTION, uid));
+  if (lb.exists() && lb.data().grade) {
+    const { nickname, avatar, grade } = lb.data();
+    const gender = avatar?.startsWith('boys/') ? 'boy' : avatar?.startsWith('girls/') ? 'girl' : undefined;
+    return { gender, avatar: avatar || undefined, name: nickname || '', grade };
+  }
+  return null;
+}
 
 // ── Đọc bảng xếp hạng ───────────────────────────────────────────────────────
 let cache = null; // { at, grade, data }

@@ -49,5 +49,21 @@ service cloud.firestore {
         && request.resource.data.totalStars >= resource.data.totalStars;
       allow delete: if isOwner(uid);
     }
+
+    // Hồ sơ riêng của bé (trai/gái, avatar, tên, lớp) để máy khác cùng tài khoản không hỏi lại.
+    // Chỉ chính bé đọc/ghi được.
+    function validProfile(d) {
+      return d.keys().hasOnly(['gender', 'avatar', 'name', 'grade', 'updatedAt'])
+        && d.gender in ['', 'boy', 'girl']
+        && d.avatar is string && d.avatar.size() <= 40
+        && d.name is string && d.name.size() <= 20
+        && d.grade is int && d.grade >= 1 && d.grade <= 5
+        && d.updatedAt == request.time;
+    }
+
+    match /profiles/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validProfile(request.resource.data);
+    }
   }
 }

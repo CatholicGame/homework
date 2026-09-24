@@ -7,9 +7,9 @@ import { renderLogin } from './games/login.js';
 import { getCurrentUser, signOut } from './engine/auth.js';
 import { creditLegacyProgress } from './engine/stars.js';
 import { setLastGame } from './engine/activity.js';
-import { isSetupDone } from './engine/profile.js';
+import { isSetupDone, saveProfile } from './engine/profile.js';
 import { renderProfileSetup } from './games/profileSetup.js';
-import { syncMyScore, signOutLeaderboard } from './engine/leaderboard.js';
+import { syncMyScore, syncMyProfile, fetchRemoteProfile, signOutLeaderboard } from './engine/leaderboard.js';
 import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
 import { initLightbox } from './engine/lightbox.js';
 import { initKeyboardInset } from './engine/keyboardInset.js';
@@ -76,6 +76,18 @@ function renderLoadError(app, onRetry, onBack) {
   app.querySelector('#load-back').onclick = onBack;
 }
 
+// Hồ sơ đã thiết lập trên máy khác (điện thoại…) — hỏi Firebase một lần cho mỗi tài khoản.
+const remoteChecked = new Set();
+function restoreRemoteProfile(userId) {
+  remoteChecked.add(userId);
+  const timeout = new Promise(resolve => setTimeout(() => resolve(null), 6000));
+  return Promise.race([fetchRemoteProfile().catch(() => null), timeout]).then((p) => {
+    if (!p || getCurrentUser()?.id !== userId) return false;
+    saveProfile(p, { fromRemote: true });
+    return true;
+  });
+}
+
 // Router
 let navToken = 0;
 let profileReturn = 'home'; // màn quay về sau khi sửa hồ sơ
@@ -95,6 +107,14 @@ function navigate(gameId) {
 
   // Lần đầu đăng nhập: cho bé chọn trai/gái, avatar và tên (có thể bỏ qua).
   if (!isSetupDone()) {
+    if (!remoteChecked.has(user.id)) {
+      const loadingTimer = setTimeout(() => { if (token === navToken) renderLoading(app); }, 120);
+      restoreRemoteProfile(user.id).then(() => {
+        clearTimeout(loadingTimer);
+        if (token === navToken) navigate(gameId);
+      });
+      return;
+    }
     renderProfileSetup(app, { mode: 'onboard', onDone: () => navigate(gameId || 'home') });
     return;
   }
@@ -131,6 +151,7 @@ function navigate(gameId) {
   if (!gameId || gameId === 'home') {
     creditLegacyProgress();
     syncMyScore();
+    syncMyProfile();
     renderHome(app, navigate, {
       user,
       onSignOut: () => { signOutLeaderboard(); signOut(); navigate('home'); },

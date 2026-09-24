@@ -2,7 +2,8 @@
  * Hồ sơ của bé: bạn trai/bạn gái, avatar và biệt danh.
  *
  * Hỏi một lần sau lần đăng nhập đầu tiên; bé có thể bỏ qua và chỉnh lại sau
- * trong menu avatar. Lưu theo từng tài khoản (sau này đồng bộ lên Google Drive).
+ * trong menu avatar. Lưu theo từng tài khoản trên máy, và đồng bộ lên Firebase
+ * (leaderboard.js) để máy khác đăng nhập cùng tài khoản không phải hỏi lại.
  */
 
 import { getCurrentUser } from './auth.js';
@@ -27,9 +28,10 @@ export function getProfile() {
   try { return JSON.parse(localStorage.getItem(storeKey())) || {}; } catch { return {}; }
 }
 
-export function saveProfile(patch) {
+export function saveProfile(patch, { fromRemote = false } = {}) {
   const p = { ...getProfile(), ...patch, setupDone: true };
   try { localStorage.setItem(storeKey(), JSON.stringify(p)); } catch { /* storage unavailable */ }
+  if (!fromRemote) window.dispatchEvent(new CustomEvent('tth:profile-changed'));
   return p;
 }
 
