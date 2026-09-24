@@ -15,7 +15,7 @@
 import { getCurrentUser } from './auth.js';
 import { firebaseSession } from './leaderboard.js';
 
-export const ADMIN_EMAILS = ['hapagonmolie@gmail.com'];
+export const ADMIN_EMAILS = ['nguyencongnam506@gmail.com'];
 
 export function isAdminUser() {
   const email = getCurrentUser()?.email?.trim().toLowerCase();

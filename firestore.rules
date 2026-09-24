@@ -12,7 +12,7 @@ service cloud.firestore {
     // Admin xem được sổ đăng ký học sinh (trang #admin). Giữ khớp với ADMIN_EMAILS trong src/engine/admin.js.
     function isAdmin() {
       return request.auth != null && request.auth.token.email_verified == true
-        && request.auth.token.email in ['hapagonmolie@gmail.com'];
+        && request.auth.token.email in ['nguyencongnam506@gmail.com'];
     }
 
     function validStars(n) {
