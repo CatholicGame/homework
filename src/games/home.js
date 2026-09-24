@@ -237,7 +237,7 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
       <div class="user-bar animate-fadeIn">
         <button type="button" class="user-rank-btn" id="user-sticker-btn" title="Vòng quay sticker">🎁 <span>Sticker</span>${getSpinStatus().spins ? `<b class="user-badge">${getSpinStatus().spins}</b>` : ''}</button>
         <button type="button" class="user-rank-btn" id="user-rank-btn" title="Bảng xếp hạng">🏆 <span>Xếp hạng</span></button>
-        <span class="user-stars" title="Tổng số sao đã nhận">⭐ ${getTotalStars()}</span>
+        <span class="user-stars" title="Tổng số sao đã nhận"><span class="user-stars-icon">⭐</span>${getTotalStars()}</span>
         <div class="user-menu-wrap">
           <button type="button" class="user-menu-btn" id="user-menu-btn" aria-haspopup="menu" aria-expanded="false">
             ${avatar}
