@@ -232,3 +232,29 @@ export function gateCheckButton(btn, inputs) {
   inputs.forEach(inp => inp.addEventListener('input', sync));
   sync();
 }
+
+/**
+ * Giữ thông báo "Chưa đúng" (kèm số sao còn nhận) cho tới khi bé sửa đáp án
+ * (gõ vào ô, chọn lại đáp án, nối lại) hoặc tự bấm ✕ — không tự biến mất.
+ */
+export function keepWrongBanner(root, banner) {
+  const ctrl = new AbortController();
+  const dismiss = () => { ctrl.abort(); banner.remove(); };
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'e3-feedback-close';
+  close.setAttribute('aria-label', 'Đóng');
+  close.textContent = '✕';
+  close.onclick = dismiss;
+  banner.classList.add('e3-feedback-closable');
+  banner.appendChild(close);
+  // Gắn sau lượt sự kiện hiện tại, để chính cú bấm vừa báo sai không đóng luôn thông báo.
+  setTimeout(() => {
+    if (!banner.isConnected) return;
+    const { signal } = ctrl;
+    root.addEventListener('input', dismiss, { signal });
+    root.addEventListener('click', (e) => {
+      if (e.target.closest('.e3-option, .gw-compare-btn, .gw-match-item')) dismiss();
+    }, { signal });
+  }, 0);
+}

@@ -504,3 +504,22 @@ input[data-vk-attached][type=number] {
 }
 
 @keyframes pageSpin { to { transform: rotate(360deg); } }
+
+/* Thông báo "Chưa đúng" giữ lại tới khi bé sửa đáp án hoặc bấm ✕ */
+.e3-feedback.e3-feedback-closable { position: relative; padding-right: 2.6rem; }
+.e3-feedback-close {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  width: 1.9rem;
+  height: 1.9rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(153, 27, 27, 0.1);
+  color: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.e3-feedback-close:hover { background: rgba(153, 27, 27, 0.2); }

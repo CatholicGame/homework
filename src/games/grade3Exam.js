@@ -8,7 +8,7 @@ import {
   awardStars, getQuestionStars, earnedFor, getTotalStars,
   recordWrong, wrongStarsText, renderStarRule, renderQuestionStars, refreshQuestionStars,
 } from '../engine/stars.js';
-import { gateCheckButton } from '../engine/gameEngine.js';
+import { gateCheckButton, keepWrongBanner } from '../engine/gameEngine.js';
 import { recordAttempt } from '../engine/activity.js';
 
 const EXAMS = [
@@ -657,7 +657,7 @@ export function render(app, onBack) {
         else showQuestion();
       };
     } else {
-      setTimeout(() => banner.remove(), 2600);
+      keepWrongBanner(app, banner);
     }
   }
 
