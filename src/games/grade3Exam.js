@@ -4,7 +4,11 @@
  * Nguồn: https://vndoc.com/bo-de-on-luyen-vioedu-khoi-3-316472
  */
 
-import { awardStars, getQuestionStars, earnedFor, getTotalStars, renderStarRating } from '../engine/stars.js';
+import {
+  awardStars, getQuestionStars, earnedFor, getTotalStars,
+  recordWrong, wrongStarsText, renderStarRule, renderQuestionStars, refreshQuestionStars,
+} from '../engine/stars.js';
+import { gateCheckButton } from '../engine/gameEngine.js';
 import { recordAttempt } from '../engine/activity.js';
 
 const EXAMS = [
@@ -131,10 +135,17 @@ export function render(app, onBack) {
     solved[current] = true;
     recordAttempt(true);
     const q = activeQuestions[current];
-    if (awardStars(q.__starKey, q)) {
-      const rating = app.querySelector('.e3-q-num .star-rating');
-      if (rating) rating.outerHTML = renderStarRating(qStars(q), true);
-    }
+    awardStars(q.__starKey, q);
+    refreshQuestionStars(app, q.__starKey, q);
+  }
+
+  // Một lần "Kiểm tra" sai: mở gợi ý tiếp theo và bớt 1 sao (còn ít nhất 1).
+  let lastWrongStars = '';
+  function markWrong() {
+    wrongCounts[current]++;
+    const q = activeQuestions[current];
+    lastWrongStars = wrongStarsText(recordWrong(q.__starKey, q), q.__starKey, q);
+    refreshQuestionStars(app, q.__starKey, q);
   }
 
   // ── INTRO ─────────────────────────────────────────────────────────────────
@@ -226,7 +237,8 @@ export function render(app, onBack) {
           </div>
 
           <div class="e3-question-card">
-            <div class="e3-q-num" style="color:${activeSectionColor}">Câu ${current + 1}${renderStarRating(qStars(q), qEarned(q) > 0)}</div>
+            <div class="e3-q-num" style="color:${activeSectionColor}">Câu ${current + 1}${renderQuestionStars(q.__starKey, q)}</div>
+            ${renderStarRule(q.__starKey, q)}
             <div class="e3-q-text">${q.q.replace(/\n/g, '<br>')}</div>
             ${q.img ? `<img class="e3-q-img" src="${q.img}" alt="Hình minh họa câu ${current + 1}" loading="lazy">` : ''}
           </div>
@@ -550,7 +562,7 @@ export function render(app, onBack) {
           revealChoiceAnswer(q, correct, chosen);
           showFeedback(true);
         } else {
-          wrongCounts[current]++;
+          markWrong();
           recordAttempt(false);
           app.querySelectorAll('.e3-option').forEach((btn, i) => { if (chosen.includes(i)) btn.classList.add('e3-wrong'); });
           showFeedback(false);
@@ -576,7 +588,7 @@ export function render(app, onBack) {
             revealChoiceAnswer(q, [q.answer], [idx]);
             showFeedback(true);
           } else {
-            wrongCounts[current]++;
+            markWrong();
             recordAttempt(false);
             btn.classList.add('e3-wrong');
             showFeedback(false);
@@ -590,6 +602,7 @@ export function render(app, onBack) {
 
     // fill
     const submitBtn = app.querySelector('#e3-submit-fill');
+    gateCheckButton(submitBtn, [...app.querySelectorAll('.e3-blank-input')]);
     submitBtn.onclick = () => {
       const inputs = [...app.querySelectorAll('.e3-blank-input')];
       const values = inputs.map(inp => inp.value.trim());
@@ -603,7 +616,7 @@ export function render(app, onBack) {
         inputs.forEach(inp => { inp.disabled = true; inp.classList.add('e3-correct-input'); });
         showFeedback(true);
       } else {
-        wrongCounts[current]++;
+        markWrong();
         recordAttempt(false);
         inputs.forEach((inp, i) => { if (!correctFlags[i]) inp.classList.add('e3-wrong-input'); });
         showFeedback(false);
@@ -632,7 +645,7 @@ export function render(app, onBack) {
     app.querySelector('.e3-feedback')?.remove();
     const banner = document.createElement('div');
     banner.className = `e3-feedback ${isRight ? 'e3-feedback-right' : 'e3-feedback-wrong'}`;
-    banner.innerHTML = isRight ? '✅ Đúng rồi! Giỏi lắm!' : '❌ Chưa đúng! Thử lại nhé.';
+    banner.innerHTML = isRight ? '✅ Đúng rồi! Giỏi lắm!' : `❌ Chưa đúng! Thử lại nhé. ${lastWrongStars}`;
     const anchor = app.querySelector('#e3-blanks') || app.querySelector('#e3-options');
     anchor.after(banner);
 
@@ -644,7 +657,7 @@ export function render(app, onBack) {
         else showQuestion();
       };
     } else {
-      setTimeout(() => banner.remove(), 1600);
+      setTimeout(() => banner.remove(), 2600);
     }
   }
 
@@ -672,7 +685,7 @@ export function render(app, onBack) {
                 <div class="e3-result-row ${ok ? 'e3-row-ok' : 'e3-row-fail'}">
                   <span class="e3-row-num">${i + 1}</span>
                   <span class="e3-row-q">${q.q.split('\n')[0]}</span>
-                  ${renderStarRating(qStars(q), qEarned(q) > 0)}
+                  ${renderQuestionStars(q.__starKey, q)}
                   <span class="e3-row-mark">${ok ? '✅' : '❌'}</span>
                 </div>
               `;

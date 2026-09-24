@@ -221,3 +221,14 @@ export function renderInstruction(icon, text) {
     </div>
   `;
 }
+
+/**
+ * Nút "Kiểm tra" chỉ sáng (bấm được) khi mọi ô đáp án đã có chữ.
+ * Bàn phím ảo cũng phát sự kiện 'input' nên được tính luôn.
+ */
+export function gateCheckButton(btn, inputs) {
+  if (!btn) return;
+  const sync = () => { btn.disabled = inputs.some(inp => inp.value.trim() === ''); };
+  inputs.forEach(inp => inp.addEventListener('input', sync));
+  sync();
+}

@@ -111,7 +111,11 @@ import imgBai43T2Figures from '../assets/grade3-workbook/bai43_t2_q1_figures.png
 import imgBai43T2Objects from '../assets/grade3-workbook/bai43_t2_q2_objects.png';
 import imgBai44T1Rect from '../assets/grade3-workbook/bai44_t1_q3_rect.png';
 import imgBai44T2Figures from '../assets/grade3-workbook/bai44_t2_q3_figures.png';
-import { awardStars, getQuestionStars, earnedFor, getTotalStars, renderStarRating } from '../engine/stars.js';
+import {
+  awardStars, getQuestionStars, earnedFor, getTotalStars,
+  recordWrong, wrongStarsText, renderStarRule, renderQuestionStars, refreshQuestionStars,
+} from '../engine/stars.js';
+import { gateCheckButton } from '../engine/gameEngine.js';
 import { recordAttempt } from '../engine/activity.js';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
@@ -4208,6 +4212,7 @@ export function renderWorkbook(app, onBack, cfg) {
   let solved = [];
   let attempted = [];
   let wrongCounts = [];
+  let lastWrongStars = ''; // lời nhắc số sao còn nhận được sau lần sai vừa rồi
   let solutionRows = [];
   let solutionConfirmed = [];
   const starKey = (unitId, idx) => `${cfg.starBook}:${unitId}:${idx}`;
@@ -4338,10 +4343,10 @@ export function renderWorkbook(app, onBack, cfg) {
     if (isSolve) rec.solved = true;
     setRecord(q.__unitId, q.__qIdx, rec);
     recordAttempt(isSolve);
-    if (isSolve && awardStars(starKey(q.__unitId, q.__qIdx), q) && idx === current) {
-      const rating = app.querySelector('.e3-q-num .star-rating');
-      if (rating) rating.outerHTML = renderStarRating(qStars(q), true);
-    }
+    const key = starKey(q.__unitId, q.__qIdx);
+    if (isSolve) awardStars(key, q);
+    else lastWrongStars = wrongStarsText(recordWrong(key, q), key, q);
+    if (idx === current) refreshQuestionStars(app, key, q);
   }
 
   // ── QUIZ ──────────────────────────────────────────────────────────────────
@@ -4365,7 +4370,8 @@ export function renderWorkbook(app, onBack, cfg) {
     const pinQuestion = !!(q.img || q.wordProblem);
     const questionCard = `
           <div class="e3-question-card${q.img ? ' gw-card-has-img' : ''}">
-            <div class="e3-q-num" style="color:${activeColor}">${q.section ? `${q.section} — ` : ''}Câu ${current + 1}${renderStarRating(qStars(q), qEarned(q) > 0)}</div>
+            <div class="e3-q-num" style="color:${activeColor}">${q.section ? `${q.section} — ` : ''}Câu ${current + 1}${renderQuestionStars(starKey(q.__unitId, q.__qIdx), q)}</div>
+            ${renderStarRule(starKey(q.__unitId, q.__qIdx), q)}
             <div class="e3-q-text">${q.q.replace(/\n/g, '<br>')}</div>
             ${q.img ? `<img class="e3-q-img" src="${q.img}" alt="Hình minh họa câu ${current + 1}" loading="lazy">` : ''}
             ${q.wordProblem ? renderSubQuestions(q) : ''}
@@ -5125,6 +5131,7 @@ export function renderWorkbook(app, onBack, cfg) {
       return;
     }
 
+    gateCheckButton(submitBtn, inputs);
     submitBtn.onclick = () => {
       const valuesPerBlank = groups.map(group => group.map(inp => inp.value.trim()));
       if (valuesPerBlank.some(vals => vals.some(v => v === ''))) return;
@@ -5172,6 +5179,7 @@ export function renderWorkbook(app, onBack, cfg) {
       return;
     }
 
+    gateCheckButton(checkBtn, allInputs);
     checkBtn.onclick = () => {
       const values = allInputs.map(inp => inp.value.trim());
       if (values.some(v => v === '')) return;
@@ -5391,7 +5399,7 @@ export function renderWorkbook(app, onBack, cfg) {
     app.querySelector('.e3-feedback')?.remove();
     const banner = document.createElement('div');
     banner.className = `e3-feedback ${isRight ? 'e3-feedback-right' : 'e3-feedback-wrong'}`;
-    banner.innerHTML = isRight ? '✅ Đúng rồi! Giỏi lắm!' : '❌ Chưa đúng! Thử lại nhé.';
+    banner.innerHTML = isRight ? '✅ Đúng rồi! Giỏi lắm!' : `❌ Chưa đúng! Thử lại nhé. ${lastWrongStars}`;
     const anchor = app.querySelector('#e3-blanks') || app.querySelector('#e3-options')
       || app.querySelector('#gw-table') || app.querySelector('#gw-compare') || app.querySelector('#gw-match');
     anchor.after(banner);
@@ -5404,7 +5412,7 @@ export function renderWorkbook(app, onBack, cfg) {
         else showQuestion();
       };
     } else {
-      setTimeout(() => banner.remove(), 1600);
+      setTimeout(() => banner.remove(), 2600);
     }
   }
 
@@ -5432,7 +5440,7 @@ export function renderWorkbook(app, onBack, cfg) {
                 <div class="e3-result-row ${ok ? 'e3-row-ok' : 'e3-row-fail'}">
                   <span class="e3-row-num">${i + 1}</span>
                   <span class="e3-row-q">${q.q.split('\n')[0]}</span>
-                  ${renderStarRating(qStars(q), qEarned(q) > 0)}
+                  ${renderQuestionStars(starKey(q.__unitId, q.__qIdx), q)}
                   <span class="e3-row-mark">${ok ? '✅' : '❌'}</span>
                 </div>
               `;

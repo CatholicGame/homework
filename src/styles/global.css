@@ -405,6 +405,17 @@ input[data-vk-attached][type=number] {
 .star-rating .star-empty { color: #E2E8F0; }
 .star-rating-earned .star-full { color: #F59E0B; text-shadow: 0 0 6px rgba(245, 158, 11, 0.45); }
 .e3-result-row .star-rating { font-size: 0.95rem; margin-left: 0; }
+/* Sao đã mất vì trả lời sai: xám, gạch chéo. */
+.star-rating .star-lost { color: #CBD5E1; text-decoration: line-through; text-decoration-color: #F87171; }
+
+/* Luật sao trên câu chưa nhận sao. */
+.star-rule {
+  margin: 4px 0 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #92400E;
+}
+.star-rule strong { color: #B45309; }
 
 .star-total-chip {
   display: inline-flex;
