@@ -210,7 +210,6 @@ export function render(app, onBack) {
     const q = activeQuestions[current];
     const visitedCount = solved.filter(Boolean).length + attempted.filter((a, i) => a && !solved[i]).length;
     const pct = Math.round((visitedCount / activeQuestions.length) * 100);
-    const answerUnlocked = solutionConfirmed[current] || solved[current];
 
     app.innerHTML = `
       <div class="e3-wrap">
@@ -232,13 +231,11 @@ export function render(app, onBack) {
             ${q.img ? `<img class="e3-q-img" src="${q.img}" alt="Hình minh họa câu ${current + 1}" loading="lazy">` : ''}
           </div>
 
-          ${renderSolutionBlock(q)}
+          <div id="e3-solution-wrap">${renderSolutionBlock(q)}</div>
 
-          ${renderAnswerArea(q, !answerUnlocked)}
+          ${renderAnswerArea(q, false)}
 
-          ${answerUnlocked ? '' : renderAnswerLockNotice()}
-
-          ${answerUnlocked && !solved[current] ? renderHints(q) : ''}
+          ${!solved[current] ? renderHints(q) : ''}
 
           <div class="e3-nav" id="e3-nav" style="display:none">
             <button class="e3-btn e3-btn-primary" id="e3-next" style="background:linear-gradient(135deg,${activeSectionColor},${activeSectionColor}cc)">
@@ -255,13 +252,10 @@ export function render(app, onBack) {
     app.querySelector('#e3-list-toggle').onclick = toggleQuestionList;
     attachQuestionListHandlers();
     attachSolutionHandlers(q);
-    if (answerUnlocked) attachAnswerHandlers(q);
+    attachAnswerHandlers(q);
   }
 
   // ── SOLUTION EDITOR (write the working before answering) ────────────────────
-  function renderAnswerLockNotice() {
-    return `<div class="e3-answer-locked-note">🔒 Hoàn thành lời giải ở trên rồi bấm "Xong, chọn đáp án" để mở khóa phần trả lời.</div>`;
-  }
 
   function escapeHtml(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -308,7 +302,7 @@ export function render(app, onBack) {
 
     return `
       <div class="e3-solution">
-        <div class="e3-solution-label">✍️ Trình bày lời giải trước khi chọn đáp án:</div>
+        <div class="e3-solution-label">✍️ Trình bày lời giải ở đây hoặc trên giấy, rồi chọn đáp án ở phía dưới:</div>
         <div class="e3-solution-rows" id="e3-solution-rows">
           ${rows.map((r, i) => renderSolutionRow(r, i)).join('')}
         </div>
@@ -319,7 +313,7 @@ export function render(app, onBack) {
           <button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-add-text-row">+ Dòng chữ</button>
           <button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-add-formula-row">+ Dòng phép tính</button>
         </div>
-        <button type="button" class="e3-btn e3-btn-primary" id="e3-solution-ok" disabled>Xong, chọn đáp án →</button>
+        <button type="button" class="e3-btn e3-btn-primary" id="e3-solution-ok" disabled>✅ Đã giải xong</button>
       </div>
     `;
   }
@@ -337,13 +331,21 @@ export function render(app, onBack) {
     inputs[inputs.length - 1]?.focus();
   }
 
+  // Chỉ vẽ lại phần lời giải — không đụng tới ô đáp án bé đang nhập bên dưới.
+  function refreshSolution(q) {
+    const wrap = app.querySelector('#e3-solution-wrap');
+    if (!wrap) return;
+    wrap.innerHTML = renderSolutionBlock(q);
+    attachSolutionHandlers(q);
+  }
+
   function attachSolutionHandlers(q) {
     if (solutionConfirmed[current] || solved[current]) {
       const editBtn = app.querySelector('#e3-edit-solution');
       if (editBtn) {
         editBtn.onclick = () => {
           solutionConfirmed[current] = false;
-          showQuestion();
+          refreshSolution(q);
         };
       }
       return;
@@ -371,19 +373,19 @@ export function render(app, onBack) {
         const i = parseInt(btn.dataset.rowIdx, 10);
         solutionRows[current].splice(i, 1);
         if (solutionRows[current].length === 0) solutionRows[current].push({ type: 'text', value: '' });
-        showQuestion();
+        refreshSolution(q);
       };
     });
     syncOkState();
 
     app.querySelector('#e3-add-text-row').onclick = () => {
       solutionRows[current].push({ type: 'text', value: '' });
-      showQuestion();
+      refreshSolution(q);
       focusLastSolutionRow();
     };
     app.querySelector('#e3-add-formula-row').onclick = () => {
       solutionRows[current].push({ type: 'formula', value: '' });
-      showQuestion();
+      refreshSolution(q);
       focusLastSolutionRow();
     };
 
@@ -403,7 +405,7 @@ export function render(app, onBack) {
 
     okBtn.onclick = () => {
       solutionConfirmed[current] = true;
-      showQuestion();
+      refreshSolution(q);
     };
   }
 

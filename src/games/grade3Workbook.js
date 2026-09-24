@@ -4357,7 +4357,6 @@ export function renderWorkbook(app, onBack, cfg) {
 
     const visitedCount = solved.filter(Boolean).length + attempted.filter((a, i) => a && !solved[i]).length;
     const pct = Math.round((visitedCount / activeQuestions.length) * 100);
-    const answerUnlocked = !q.wordProblem || solutionConfirmed[current] || solved[current];
     // The quiz screen is split into two zones filling the viewport: the top
     // zone (header ✕ / progress / ☰, never moves) and the scroll zone below
     // it, which alone scrolls. Picture / essay-style questions put their
@@ -4392,11 +4391,11 @@ export function renderWorkbook(app, onBack, cfg) {
           <div class="gw-scroll-zone">
           ${pinQuestion ? '' : questionCard}
 
-          ${q.wordProblem ? renderSolutionBlock(q) : ''}
+          ${q.wordProblem ? `<div id="e3-solution-wrap">${renderSolutionBlock(q)}</div>` : ''}
 
-          ${answerUnlocked ? renderAnswerArea(q) : `<div class="e3-answer-locked" inert>${renderAnswerArea(q)}</div>${renderAnswerLockNotice()}`}
+          ${renderAnswerArea(q)}
 
-          ${answerUnlocked && !solved[current] ? renderHints(q) : ''}
+          ${!solved[current] ? renderHints(q) : ''}
 
           <div class="e3-nav" id="e3-nav" style="display:none">
             <button class="e3-btn e3-btn-primary" id="e3-next" style="background:linear-gradient(135deg,${activeColor},${activeColor}cc)">
@@ -4414,7 +4413,7 @@ export function renderWorkbook(app, onBack, cfg) {
     app.querySelector('#e3-list-toggle').onclick = toggleQuestionList;
     attachQuestionListHandlers();
     if (q.wordProblem) attachSolutionHandlers(q);
-    if (answerUnlocked) attachAnswerHandlers(q);
+    attachAnswerHandlers(q);
   }
 
   // ── SOLUTION EDITOR (write the working before answering) ────────────────────
@@ -4442,10 +4441,6 @@ export function renderWorkbook(app, onBack, cfg) {
     if (/(^|\n)\s*(\d+\.\s*)?a\)/.test(q.q)) return '';
     const prompts = q.blanks.map(b => `<div class="e3-subq">${b.label}</div>`).join('');
     return `<div class="e3-subquestions">${prompts}</div>`;
-  }
-
-  function renderAnswerLockNotice() {
-    return `<div class="e3-answer-locked-note">🔒 Hoàn thành lời giải ở trên rồi bấm "Xong, chọn đáp án" để mở khóa phần trả lời.</div>`;
   }
 
   function escapeHtml(str) {
@@ -4492,7 +4487,7 @@ export function renderWorkbook(app, onBack, cfg) {
 
     return `
       <div class="e3-solution">
-        <div class="e3-solution-label">✍️ Trình bày lời giải trước khi trả lời:</div>
+        <div class="e3-solution-label">✍️ Trình bày lời giải ở đây hoặc trên giấy, rồi nhập đáp án ở phía dưới:</div>
         <div class="e3-solution-rows" id="e3-solution-rows">
           ${rows.map((r, i) => renderSolutionRow(r, i)).join('')}
         </div>
@@ -4504,7 +4499,7 @@ export function renderWorkbook(app, onBack, cfg) {
           <button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-add-text-row">+ Dòng chữ</button>
           <button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-add-formula-row">+ Dòng phép tính</button>
         </div>
-        <button type="button" class="e3-btn e3-btn-primary" id="e3-solution-ok" disabled>Xong, chọn đáp án →</button>
+        <button type="button" class="e3-btn e3-btn-primary" id="e3-solution-ok" disabled>✅ Đã giải xong</button>
       </div>
     `;
   }
@@ -4522,10 +4517,18 @@ export function renderWorkbook(app, onBack, cfg) {
     inputs[inputs.length - 1]?.focus();
   }
 
+  // Chỉ vẽ lại phần lời giải — không đụng tới ô đáp án bé đang nhập bên dưới.
+  function refreshSolution(q) {
+    const wrap = app.querySelector('#e3-solution-wrap');
+    if (!wrap) return;
+    wrap.innerHTML = renderSolutionBlock(q);
+    attachSolutionHandlers(q);
+  }
+
   function attachSolutionHandlers(q) {
     if (solutionConfirmed[current] || solved[current]) {
       const editBtn = app.querySelector('#e3-edit-solution');
-      if (editBtn) editBtn.onclick = () => { solutionConfirmed[current] = false; showQuestion(); };
+      if (editBtn) editBtn.onclick = () => { solutionConfirmed[current] = false; refreshSolution(q); };
       return;
     }
 
@@ -4548,19 +4551,19 @@ export function renderWorkbook(app, onBack, cfg) {
       btn.onclick = () => {
         const i = parseInt(btn.dataset.rowIdx, 10);
         solutionRows[current].splice(i, 1);
-        showQuestion();
+        refreshSolution(q);
       };
     });
     syncOkState();
 
     app.querySelector('#e3-add-text-row').onclick = () => {
       solutionRows[current].push({ type: 'text', value: '' });
-      showQuestion();
+      refreshSolution(q);
       focusLastSolutionRow();
     };
     app.querySelector('#e3-add-formula-row').onclick = () => {
       solutionRows[current].push({ type: 'formula', value: '' });
-      showQuestion();
+      refreshSolution(q);
       focusLastSolutionRow();
     };
 
@@ -4578,7 +4581,7 @@ export function renderWorkbook(app, onBack, cfg) {
       };
     });
 
-    okBtn.onclick = () => { solutionConfirmed[current] = true; showQuestion(); };
+    okBtn.onclick = () => { solutionConfirmed[current] = true; refreshSolution(q); };
   }
 
   // ── HINTS ─────────────────────────────────────────────────────────────────
