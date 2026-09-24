@@ -1544,3 +1544,193 @@
 @media (max-width: 520px) {
   .lb-tab { font-size: 0.82rem; padding: 8px 4px; }
 }
+
+/* ====== TRANG ADMIN (#admin) ====== */
+.adm-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px 16px 40px;
+}
+
+.adm-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+
+.adm-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.adm-tile {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 14px 16px;
+}
+
+.adm-tile-label { font-size: 0.9rem; font-weight: 600; color: var(--text-light); }
+.adm-tile-value { font-size: 2rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+.adm-tile-note { font-size: 0.8rem; color: var(--text-light); }
+
+.adm-section { margin-bottom: 16px; }
+.adm-h2 { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+
+.adm-chart-sub { font-size: 0.9rem; color: var(--text-light); margin-bottom: 10px; }
+
+.adm-chart { position: relative; padding-left: 24px; }
+.adm-chart-max {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.adm-bars {
+  display: flex;
+  align-items: flex-end;
+  height: 140px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(var(--border), var(--border)) top / 100% 1px no-repeat;
+}
+
+.adm-bar-hit {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 1px; /* khe 2px giữa các cột */
+  cursor: pointer;
+}
+
+.adm-bar {
+  width: 100%;
+  background: var(--purple);
+  border-radius: 4px 4px 0 0;
+}
+
+.adm-bar-hit.is-hover .adm-bar { background: #9333EA; }
+.adm-bar-hit.is-hover { background: rgba(192, 132, 252, 0.12); }
+
+.adm-chart-axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  margin-top: 4px;
+}
+
+.adm-tip {
+  position: absolute;
+  top: -8px;
+  transform: translate(-50%, -100%);
+  background: var(--text);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.adm-table-view { margin-top: 10px; font-size: 0.9rem; color: var(--text-light); }
+.adm-table-view summary { cursor: pointer; }
+
+.adm-chips { margin-bottom: 10px; }
+
+.adm-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.adm-input {
+  flex: 1 1 220px;
+  min-width: 0;
+  font-family: var(--font);
+  font-size: 16px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: white;
+  color: var(--text);
+}
+
+.adm-select { flex: 0 1 190px; }
+.adm-csv { flex: 0 0 auto; }
+
+.adm-count { font-size: 0.9rem; color: var(--text-light); margin-bottom: 6px; }
+.adm-empty { color: var(--text-light); padding: 12px 0; }
+.adm-muted { color: var(--text-light); font-style: italic; }
+
+.adm-table-wrap { overflow-x: auto; }
+
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.adm-table th {
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-light);
+  padding: 8px 10px 8px 0;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.adm-table td {
+  padding: 8px 10px 8px 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.adm-table .adm-num { text-align: right; white-space: nowrap; }
+.adm-email { word-break: break-all; }
+.adm-table-small { max-width: 260px; margin-top: 6px; }
+
+.adm-who { display: flex; align-items: center; gap: 8px; }
+.adm-who small { display: block; color: var(--text-light); font-size: 0.8rem; }
+.adm-avatar { width: 32px; height: 32px; flex: 0 0 32px; font-size: 0.9rem; }
+
+.adm-cards { display: none; flex-direction: column; gap: 8px; }
+
+.adm-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: white;
+  padding: 10px 12px;
+}
+
+.adm-card-email { font-size: 0.9rem; margin: 4px 0; word-break: break-all; }
+.adm-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+.adm-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+@media (max-width: 640px) {
+  .adm-table-wrap { display: none; }
+  .adm-cards { display: flex; }
+  .adm-tiles { grid-template-columns: repeat(2, 1fr); }
+  .adm-tile-value { font-size: 1.6rem; }
+}

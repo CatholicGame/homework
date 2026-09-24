@@ -7,6 +7,7 @@ import { getDashboard, getLastGame, DAILY_GOAL_STARS } from '../engine/activity.
 import { getProfile, getProfileGrade, avatarUrl, displayName } from '../engine/profile.js';
 import { getGrade } from '../data/grades.js';
 import { getSpinStatus, countOwned, getSets } from '../engine/stickers.js';
+import { isAdminUser } from '../engine/admin.js';
 
 const WEEKDAYS = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
 const WEEKDAYS_SHORT = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -249,6 +250,7 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
               <span>${escapeHtml(user.email)}</span>
             </div>
             <button type="button" class="user-menu-item user-menu-edit" id="user-edit-profile" role="menuitem">✏️ Đổi lớp, avatar và biệt danh</button>
+            ${isAdminUser() ? '<button type="button" class="user-menu-item" id="user-admin" role="menuitem">📊 Quản lý học sinh</button>' : ''}
             <button type="button" class="user-menu-item" id="user-signout" role="menuitem">🚪 Đăng xuất</button>
           </div>
         </div>
@@ -271,6 +273,7 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
     app.querySelector('#user-sticker-btn').addEventListener('click', () => navigate('stickers'));
     btn.addEventListener('click', () => setOpen(menu.hidden));
     app.querySelector('#user-edit-profile').addEventListener('click', () => { setOpen(false); navigate('profile'); });
+    app.querySelector('#user-admin')?.addEventListener('click', () => { setOpen(false); location.hash = 'admin'; });
     app.querySelector('#user-signout').addEventListener('click', () => { setOpen(false); openSignOutDialog(); });
   }
 

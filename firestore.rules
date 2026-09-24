@@ -9,6 +9,12 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == uid;
     }
 
+    // Admin xem được sổ đăng ký học sinh (trang #admin). Giữ khớp với ADMIN_EMAILS trong src/engine/admin.js.
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.email in ['hapagonmolie@gmail.com'];
+    }
+
     function validStars(n) {
       return n is int && n >= 0 && n <= 20000;
     }
@@ -62,8 +68,27 @@ service cloud.firestore {
     }
 
     match /profiles/{uid} {
-      allow read, delete: if isOwner(uid);
+      allow read: if isOwner(uid) || isAdmin();
+      allow delete: if isOwner(uid);
       allow create, update: if isOwner(uid) && validProfile(request.resource.data);
+    }
+
+    // Sổ đăng ký học sinh: mỗi bé tự ghi khi mở app (tối đa 1 lần/ngày) — admin đếm số bé đã đăng ký
+    // và số bé đang hoạt động. createdAt ghi một lần, không đổi được; email phải đúng tài khoản đăng nhập.
+    function validUser(d) {
+      return d.keys().hasOnly(['email', 'name', 'grade', 'createdAt', 'lastSeenAt'])
+        && d.email == request.auth.token.email
+        && d.name is string && d.name.size() <= 100
+        && d.grade is int && d.grade >= 0 && d.grade <= 5
+        && d.lastSeenAt == request.time;
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid) && validUser(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if isOwner(uid) && validUser(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt;
     }
   }
 }

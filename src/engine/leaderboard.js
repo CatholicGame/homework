@@ -83,6 +83,9 @@ async function ensureSignedInSilently() {
   }
 }
 
+/** Phiên Firebase dùng chung cho các module khác (đăng ký học sinh, trang admin). */
+export const firebaseSession = ensureSignedInSilently;
+
 /** Có cần bé bấm nút kết nối (có thể mở popup Google) trước khi xem bảng không. */
 export async function needsConnect() {
   return !(await ensureSignedInSilently());
@@ -101,6 +104,7 @@ export function connectLeaderboard() {
 export function signOutLeaderboard() {
   lastPushed = null;
   lastProfile = null;
+  lastRegistered = null;
   cache = null;
   fbPromise?.then(fb => fb.auth.signOut()).catch(() => {});
 }
@@ -229,6 +233,47 @@ export async function fetchRemoteProfile() {
     return { gender, avatar: avatar || undefined, name: nickname || '', grade };
   }
   return null;
+}
+
+// ── Sổ đăng ký học sinh (cho trang admin) ────────────────────────────────────
+// `users/{firebaseUid}`: { email, name, grade, createdAt, lastSeenAt } — chỉ chính bé và admin đọc được.
+// Ghi tối đa một lần mỗi ngày trên mỗi máy (lastSeenAt dùng để đếm học sinh đang hoạt động).
+const USERS = 'users';
+let lastRegistered = null; // `${uid}|${dayKey}`
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+async function registerNow() {
+  const fb = await ensureSignedInSilently();
+  if (!fb) return;
+  const { db, fs, auth } = fb;
+  const fbUser = auth.currentUser;
+  const mark = `${fbUser.uid}|${todayKey()}`;
+  const storeKey = `tth_registered_${fbUser.uid}`;
+  let stored = null;
+  try { stored = localStorage.getItem(storeKey); } catch { /* storage unavailable */ }
+  if (lastRegistered === mark || stored === mark) return;
+  const ref = fs.doc(db, USERS, fbUser.uid);
+  const snap = await fs.getDoc(ref);
+  const entry = {
+    email: fbUser.email || '',
+    name: (getCurrentUser()?.name || fbUser.displayName || '').slice(0, 100),
+    grade: getProfile().grade || 0,
+    lastSeenAt: fs.serverTimestamp(),
+  };
+  if (snap.exists()) await fs.updateDoc(ref, entry);
+  else await fs.setDoc(ref, { ...entry, createdAt: fs.serverTimestamp() });
+  lastRegistered = mark;
+  try { localStorage.setItem(storeKey, mark); } catch { /* storage unavailable */ }
+}
+
+/** Ghi nhận bé đã đăng ký / vừa mở app hôm nay. Không bao giờ ném lỗi. */
+export function registerUser() {
+  if (!isLeaderboardConfigured() || !getCurrentUser()) return;
+  registerNow().catch(() => {});
 }
 
 // ── Đọc bảng xếp hạng ───────────────────────────────────────────────────────

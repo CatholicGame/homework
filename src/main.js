@@ -9,7 +9,7 @@ import { creditLegacyProgress } from './engine/stars.js';
 import { setLastGame } from './engine/activity.js';
 import { isSetupDone, saveProfile } from './engine/profile.js';
 import { renderProfileSetup } from './games/profileSetup.js';
-import { syncMyScore, syncMyProfile, fetchRemoteProfile, signOutLeaderboard } from './engine/leaderboard.js';
+import { syncMyScore, syncMyProfile, registerUser, fetchRemoteProfile, signOutLeaderboard } from './engine/leaderboard.js';
 import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
 import { initLightbox } from './engine/lightbox.js';
 import { initKeyboardInset } from './engine/keyboardInset.js';
@@ -101,7 +101,18 @@ function navigate(gameId) {
   // Chỉ cho truy cập ứng dụng sau khi đăng nhập
   const user = getCurrentUser();
   if (!user) {
-    renderLogin(app, () => navigate('home'));
+    renderLogin(app, () => navigate(gameId || 'home'));
+    return;
+  }
+
+  // Trang admin (#admin) không cần hồ sơ bé; trang tự kiểm tra quyền.
+  if (gameId === 'admin') {
+    import('./games/admin.js').then(mod => {
+      if (token !== navToken) return;
+      mod.render(app, () => { history.replaceState(null, '', location.pathname + location.search); navigate('home'); });
+    }).catch(() => {
+      if (token === navToken) renderLoadError(app, () => navigate(gameId), () => navigate('home'));
+    });
     return;
   }
 
@@ -152,6 +163,7 @@ function navigate(gameId) {
     creditLegacyProgress();
     syncMyScore();
     syncMyProfile();
+    registerUser();
     renderHome(app, navigate, {
       user,
       onSignOut: () => { signOutLeaderboard(); signOut(); navigate('home'); },
@@ -205,4 +217,6 @@ if (import.meta.env.DEV) {
 }
 
 // Start
-navigate('home');
+const hashPage = () => (location.hash === '#admin' ? 'admin' : 'home');
+window.addEventListener('hashchange', () => navigate(hashPage()));
+navigate(hashPage());
