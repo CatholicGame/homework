@@ -52,7 +52,11 @@ function getTokenClient() {
     },
     error_callback: (err) => {
       const p = pending; pending = null;
-      p?.reject(new Error(err?.type === 'popup_closed' ? 'Bạn đã đóng cửa sổ đăng nhập' : (err?.message || 'Đăng nhập thất bại')));
+      const e = new Error(err?.type === 'popup_closed' ? 'Bạn đã đóng cửa sổ đăng nhập'
+        : err?.type === 'popup_failed_to_open' ? 'Trình duyệt này không mở được cửa sổ đăng nhập Google'
+        : (err?.message || 'Đăng nhập thất bại'));
+      e.code = err?.type;
+      p?.reject(e);
     },
   });
   return tokenClient;

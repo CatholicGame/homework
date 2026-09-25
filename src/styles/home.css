@@ -466,6 +466,56 @@
   font-size: 0.95rem;
 }
 
+.login-inapp {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md, 14px);
+  background: #FFF7ED;
+  border: 1.5px solid #FDBA74;
+  text-align: left;
+}
+
+.login-inapp-title {
+  font-weight: 700;
+  color: #C2410C;
+  margin-bottom: 6px;
+}
+
+.login-inapp-text {
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.login-inapp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.login-inapp-btn {
+  flex: 1 1 140px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid #EA580C;
+  background: #EA580C;
+  color: white;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.login-inapp-btn.is-ghost {
+  background: white;
+  color: #C2410C;
+}
+
 .login-note {
   margin-top: 22px;
   font-size: 0.85rem;
@@ -480,7 +530,12 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+  min-width: 0;
 }
+
+/* Nút và ô sao giữ nguyên cỡ; chỉ ô tên co lại (cắt "…") khi thiếu chỗ. */
+.user-bar > * { flex: none; }
+.user-bar > .user-menu-wrap { flex: 0 1 auto; min-width: 0; }
 
 .user-avatar {
   width: 36px;
@@ -488,6 +543,7 @@
   border-radius: 50%;
   object-fit: cover;
   box-shadow: var(--shadow-sm);
+  flex: none;
 }
 
 .user-avatar-fallback {
@@ -502,7 +558,8 @@
 .user-name {
   font-weight: 600;
   color: var(--text);
-  max-width: 40vw;
+  min-width: 0;
+  max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -516,6 +573,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  max-width: 100%;
   padding: 4px 12px 4px 4px;
   border: none;
   border-radius: var(--radius-full);
@@ -533,6 +591,7 @@
 
 .user-caret {
   font-size: 0.75rem;
+  flex: none;
   color: var(--text-light);
 }
 
@@ -1241,6 +1300,10 @@
 
 @media (max-width: 520px) {
   .user-rank-btn span { display: none; }
+  .user-bar { gap: 6px; }
+  .user-rank-btn { padding: 6px 10px; }
+  .user-stars { padding: 3px 10px 3px 6px; font-size: 0.95rem; }
+  .user-menu-btn { gap: 6px; padding-right: 8px; }
 }
 
 .lb-page {

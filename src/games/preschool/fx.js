@@ -18,28 +18,44 @@ export function setMuted(on) {
 }
 
 // ── Giọng đọc ────────────────────────────────────────────────────────────────
+// Có trình duyệt (Edge trên điện thoại, webview iOS…) không liệt kê giọng nào nhưng vẫn
+// đọc được theo `lang` — khi đó cứ đọc bằng vi-VN. Chỉ im lặng khi máy CÓ liệt kê giọng
+// mà không có giọng tiếng Việt (tránh giọng Anh đọc sai).
 let viVoice = null;
+let noVoiceList = true;
 function pickVoice() {
   const voices = window.speechSynthesis?.getVoices() || [];
+  noVoiceList = voices.length === 0;
   viVoice = voices.find(v => /^vi/i.test(v.lang) && /natural|online|google/i.test(v.name))
     || voices.find(v => /^vi/i.test(v.lang)) || null;
 }
 if ('speechSynthesis' in window) {
   pickVoice();
   window.speechSynthesis.addEventListener?.('voiceschanged', pickVoice);
+  // Safari iOS chỉ cho đọc sau khi được "mở khoá" trong một lần chạm của người dùng.
+  const unlock = () => {
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0;
+    window.speechSynthesis.speak(u);
+    pickVoice();
+  };
+  document.addEventListener('pointerdown', unlock, { once: true, capture: true });
 }
 
-/** Máy có giọng tiếng Việt không (không có thì chỉ hiện chữ, tránh giọng Anh đọc sai). */
-export const canSpeak = () => !!viVoice;
+/** Máy đọc được tiếng Việt không (không có thì chỉ hiện chữ, tránh giọng Anh đọc sai). */
+export const canSpeak = () => 'speechSynthesis' in window && (!!viVoice || noVoiceList);
 
 /** Đọc một câu; `queue` = đọc nối sau câu đang đọc thay vì cắt ngang. */
 export function say(text, { queue = false, rate = 0.9 } = {}) {
-  if (muted || !viVoice || !text) return;
+  if (muted || !text || !('speechSynthesis' in window)) return;
+  if (!viVoice) pickVoice(); // danh sách giọng có thể tới muộn mà không báo voiceschanged
+  if (!canSpeak()) return;
   const synth = window.speechSynthesis;
   if (!queue) synth.cancel();
+  synth.resume(); // Chrome/Edge Android đôi khi kẹt ở trạng thái paused
   const u = new SpeechSynthesisUtterance(text);
-  u.voice = viVoice;
-  u.lang = viVoice.lang;
+  if (viVoice) u.voice = viVoice;
+  u.lang = viVoice?.lang || 'vi-VN';
   u.rate = rate;
   u.pitch = 1.15;
   synth.speak(u);

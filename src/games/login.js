@@ -4,6 +4,28 @@
 
 import { signIn, preloadAuth } from '../engine/auth.js';
 
+/**
+ * Trình duyệt nhúng trong app khác (Zalo, Facebook, Messenger, Instagram, TikTok…):
+ * không mở được popup, và Google cũng chặn đăng nhập trong webview — phải mở bằng
+ * Safari / Chrome.
+ */
+function isInAppBrowser() {
+  const ua = navigator.userAgent || '';
+  if (/Zalo|FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|Line\/|musical_ly|BytedanceWebview|TikTok|MicroMessenger|KAKAOTALK|Snapchat|Twitter|; wv\)/i.test(ua)) return true;
+  // iOS: Safari và các trình duyệt thật (Chrome, Firefox, Edge) đều có "Safari" trong UA; webview thì không.
+  return /iPhone|iPad|iPod/.test(ua) && !/Safari\//.test(ua);
+}
+
+const IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent)
+  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+/** Link mở trang hiện tại bằng trình duyệt ngoài (iOS 17+: Safari; Android: Chrome). */
+function externalBrowserUrl() {
+  const url = location.href;
+  if (IS_IOS) return `x-safari-${url}`;
+  return `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=${location.protocol.slice(0, -1)};action=android.intent.action.VIEW;end`;
+}
+
 export function renderLogin(app, onSignedIn) {
   app.innerHTML = `
     <div class="login-page">
@@ -24,6 +46,20 @@ export function renderLogin(app, onSignedIn) {
 
         <p class="login-error" id="login-error" hidden></p>
 
+        <div class="login-inapp" id="login-inapp" hidden>
+          <p class="login-inapp-title">⚠️ Hãy mở trang này bằng ${IS_IOS ? 'Safari' : 'Chrome'}</p>
+          <p class="login-inapp-text">
+            Trình duyệt trong ứng dụng (Zalo, Facebook, Messenger…) không cho đăng nhập Google.
+            ${IS_IOS
+              ? 'Bấm nút <b>⋯</b> ở góc trên rồi chọn <b>Mở bằng trình duyệt</b> / <b>Mở trong Safari</b>, hoặc bấm nút dưới đây.'
+              : 'Bấm nút <b>⋮</b> ở góc trên rồi chọn <b>Mở bằng trình duyệt</b>, hoặc bấm nút dưới đây.'}
+          </p>
+          <div class="login-inapp-actions">
+            <a class="login-inapp-btn" id="login-open-ext" href="${externalBrowserUrl()}">🧭 Mở bằng ${IS_IOS ? 'Safari' : 'Chrome'}</a>
+            <button type="button" class="login-inapp-btn is-ghost" id="login-copy">📋 Sao chép link</button>
+          </div>
+        </div>
+
         <p class="login-note">
           Tiến trình học sẽ được lưu vào Google Drive của bạn để dùng trên mọi thiết bị.
         </p>
@@ -34,6 +70,27 @@ export function renderLogin(app, onSignedIn) {
   const btn = app.querySelector('#login-google');
   const errEl = app.querySelector('#login-error');
   const label = btn.querySelector('span');
+  const inappEl = app.querySelector('#login-inapp');
+  const showInApp = () => { inappEl.hidden = false; };
+  if (isInAppBrowser()) showInApp();
+
+  app.querySelector('#login-copy').addEventListener('click', async (e) => {
+    const b = e.currentTarget;
+    try {
+      await navigator.clipboard.writeText(location.href);
+    } catch {
+      // Webview cũ không có Clipboard API: chọn chữ trong ô ẩn rồi copy.
+      const ta = Object.assign(document.createElement('textarea'), { value: location.href });
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      try { document.execCommand('copy'); } catch { /* ignore */ }
+      ta.remove();
+    }
+    b.textContent = '✅ Đã sao chép — dán vào Safari/Chrome';
+  });
 
   preloadAuth().then(() => { btn.disabled = false; });
 
@@ -47,6 +104,7 @@ export function renderLogin(app, onSignedIn) {
     } catch (e) {
       errEl.textContent = e.message || 'Đăng nhập thất bại, vui lòng thử lại.';
       errEl.hidden = false;
+      if (e.code === 'popup_failed_to_open') showInApp();
       btn.disabled = false;
       label.textContent = 'Đăng nhập bằng Google';
     }
