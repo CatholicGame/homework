@@ -8,13 +8,18 @@
  * number pad (#virtual-keyboard, fixed to the bottom) on screens that opt in
  * with a .kb-inset-pad element. While either one is
  * open, this shrinks #app to the visible area (visualViewport minus the
- * number pad) and flags <html class="kb-open"> so screens can switch to a
- * more compact layout, then re-centers the focused input.
+ * number pad) and flags <html class="kb-open"> (plus "kb-tight" when the
+ * visible strip is short) so screens can switch to a more compact layout,
+ * then re-centers the focused input.
  *
  * Usage: call initKeyboardInset() once at app startup.
  */
 
 const NATIVE_KB_MIN = 120; // px of viewport lost before we call it a keyboard
+// Below this visible height screens switch to their compact keyboard layout
+// (html.kb-tight). Above it (desktop / tall screens) the normal layout still
+// fits, so it stays as is instead of jumping to a squeezed one.
+const KB_TIGHT_MAX = 620;
 
 export function initKeyboardInset() {
   const root = document.documentElement;
@@ -46,7 +51,7 @@ export function initKeyboardInset() {
     const focus = document.activeElement;
     if (!open) {
       if (last.open) {
-        root.classList.remove('kb-open');
+        root.classList.remove('kb-open', 'kb-tight');
         root.style.removeProperty('--kb-app-top');
         root.style.removeProperty('--kb-app-h');
       }
@@ -58,6 +63,7 @@ export function initKeyboardInset() {
     const h = Math.max(160, Math.round((nativeOpen ? vvH : layoutH) - padH));
     // Only touch the DOM when a value really changed (avoids layout thrash).
     if (!last.open) root.classList.add('kb-open');
+    root.classList.toggle('kb-tight', h < KB_TIGHT_MAX);
     if (top !== last.top) root.style.setProperty('--kb-app-top', `${top}px`);
     if (h !== last.h) root.style.setProperty('--kb-app-h', `${h}px`);
 

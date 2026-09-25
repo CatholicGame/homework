@@ -5712,36 +5712,36 @@ function injectStyles() {
       /* Nút "Ảnh gốc" (src/engine/lightbox.js) nằm ngay dưới hình, cùng cột với hình. */
       .gw-app .gw-pin-zone .gw-card-has-img > .e3-orig-toggle { grid-column: 2; grid-row: 13; }
     }
-    /* Keyboard open (html.kb-open, see src/engine/keyboardInset.js): #app
-       has shrunk to the strip above the keyboard, so every pixel of height
-       counts. Tighten the header; on narrow screens keep the stacked zones
+    /* Keyboard open and the strip left above it is short (html.kb-open.kb-tight,
+       see src/engine/keyboardInset.js), so every pixel of height counts.
+       Tall screens (desktop) keep the normal layout. Tighten the header; on narrow screens keep the stacked zones
        but give the answers more of the height; on wide screens (iPad
        landscape) switch a pinned question to two columns — question + image
        on the left at full height, answers scrolling on the right — so both
        stay visible above the keyboard. */
-    html.kb-open .gw-quiz-screen.e3-wrap { padding-top: 0.4rem; }
-    html.kb-open .gw-quiz-screen .e3-topbar { padding: 0.2rem 0 0.4rem; }
-    html.kb-open .gw-quiz-screen .gw-pin-zone-q { max-height: 42%; padding-bottom: 0.4rem; }
-    html.kb-open .gw-quiz-screen .gw-pin-zone .e3-question-card { padding: 0.8rem 1rem; }
-    html.kb-open .gw-quiz-screen .gw-pin-zone .e3-question-card > .e3-q-img { min-height: 70px; }
+    html.kb-open.kb-tight .gw-quiz-screen.e3-wrap { padding-top: 0.4rem; }
+    html.kb-open.kb-tight .gw-quiz-screen .e3-topbar { padding: 0.2rem 0 0.4rem; }
+    html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone-q { max-height: 42%; padding-bottom: 0.4rem; }
+    html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone .e3-question-card { padding: 0.8rem 1rem; }
+    html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone .e3-question-card > .e3-q-img { min-height: 70px; }
     @media (min-width: 720px) {
-      html.kb-open .gw-quiz-pinned .e3-quiz {
+      html.kb-open.kb-tight .gw-quiz-pinned .e3-quiz {
         display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
         grid-template-rows: auto minmax(0, 1fr); column-gap: 1rem;
       }
-      html.kb-open .gw-quiz-pinned .gw-pin-zone { display: contents; }
-      html.kb-open .gw-quiz-pinned .e3-topbar { grid-column: 1 / -1; grid-row: 1; }
-      html.kb-open .gw-quiz-pinned .gw-pin-zone .e3-question-card,
-      html.kb-open .gw-quiz-pinned .gw-pin-zone .e3-question-card.gw-card-has-img {
+      html.kb-open.kb-tight .gw-quiz-pinned .gw-pin-zone { display: contents; }
+      html.kb-open.kb-tight .gw-quiz-pinned .e3-topbar { grid-column: 1 / -1; grid-row: 1; }
+      html.kb-open.kb-tight .gw-quiz-pinned .gw-pin-zone .e3-question-card,
+      html.kb-open.kb-tight .gw-quiz-pinned .gw-pin-zone .e3-question-card.gw-card-has-img {
         grid-column: 1; grid-row: 2; align-self: start;
         display: flex; flex-direction: column;
         max-height: calc(100% - 0.5rem); min-height: 0; overflow-y: auto;
       }
-      html.kb-open .gw-quiz-pinned .gw-pin-zone .gw-card-has-img > .e3-q-img {
+      html.kb-open.kb-tight .gw-quiz-pinned .gw-pin-zone .gw-card-has-img > .e3-q-img {
         flex: 0 1 auto; width: 100%; height: auto; max-height: none;
         max-width: 100%; min-height: 90px; margin-top: 0.6rem;
       }
-      html.kb-open .gw-quiz-pinned .gw-scroll-zone { grid-column: 2; grid-row: 2; }
+      html.kb-open.kb-tight .gw-quiz-pinned .gw-scroll-zone { grid-column: 2; grid-row: 2; }
     }
     .gw-intro-wide { max-width: 640px; }
     .gw-unit-list { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.2rem; max-height: 55vh; overflow-y: auto; padding-right: 2px; }
