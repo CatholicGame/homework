@@ -44,7 +44,14 @@ function loadFirebase() {
       import('firebase/firestore'),
     ]).then(([appMod, authMod, fs]) => {
       const app = appMod.initializeApp(firebaseConfig);
-      return { auth: authMod.getAuth(app), db: fs.getFirestore(app), authMod, fs };
+      // Không dùng getAuth(): nó gắn popupRedirectResolver, và trên điện thoại / iPad / Safari
+      // Firebase chờ tải iframe OAuth (authDomain) trước khi authStateReady() xong — iframe đó
+      // bị treo trên domain chưa khai báo, bé chờ hết giờ rồi bị hỏi lại hồ sơ. App đăng nhập
+      // bằng token Google (signInWithCredential), không cần popup/redirect của Firebase.
+      const auth = authMod.initializeAuth(app, {
+        persistence: [authMod.indexedDBLocalPersistence, authMod.browserLocalPersistence],
+      });
+      return { auth, db: fs.getFirestore(app), authMod, fs };
     }).catch((e) => { fbPromise = null; throw e; });
   }
   return fbPromise;
