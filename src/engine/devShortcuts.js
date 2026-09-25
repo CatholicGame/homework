@@ -1,15 +1,15 @@
 /**
  * Phím tắt thử nghiệm — CHỈ nạp ở bản dev (`npm run dev`), không có trong bản build.
  *
- *   Ctrl+Alt+1  +1 bài giải đúng (đủ 5 bài sẽ hiện thông báo lượt quay)
- *   Ctrl+Alt+5  +1 lượt quay sticker (= +5 bài)
+ *   Ctrl+Alt+1  +1 bài giải đúng (đủ số bài sẽ hiện thông báo lượt quay)
+ *   Ctrl+Alt+5  +1 lượt quay sticker
  *   Ctrl+Alt+0  Xoá hết lượt quay và sticker
  *   Ctrl+Alt+G  Đổi vòng quay bạn trai ⇄ bạn gái (chỉ trong tab này)
  *   Ctrl+Alt+S  Mở trang sticker
  *   Ctrl+Alt+H  Hiện danh sách phím tắt
  */
 
-import { devAddSolves, devReset, recordSolveForSpin, showSpinToast, getGender, getSpinStatus } from './stickers.js';
+import { devAddSpins, devReset, recordSolveForSpin, showSpinToast, getGender, getSpinStatus } from './stickers.js';
 
 const HELP = [
   ['Ctrl+Alt+1', '+1 bài giải đúng'],
@@ -48,7 +48,7 @@ export function initDevShortcuts({ navigate, refresh }) {
         msg = `+1 bài · ${status()}`;
         break;
       case 'Digit5':
-        devAddSolves(5);
+        devAddSpins(1);
         msg = `+1 lượt quay · ${status()}`;
         break;
       case 'Digit0':

@@ -163,7 +163,7 @@ export function awardStars(key, q, { silent = false } = {}) {
   if (!silent) {
     recordSolve(n);
     showStarToast(n);
-    // Cứ đủ 5 bài thì được 1 lượt quay sticker (báo sau khi hiệu ứng sao bay xong).
+    // Cứ đủ số bài (solvesPerSpin) thì được 1 lượt quay sticker (báo sau khi hiệu ứng sao bay xong).
     if (recordSolveForSpin()) setTimeout(showSpinToast, 1200);
   }
   return n;

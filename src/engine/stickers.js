@@ -1,5 +1,5 @@
 /**
- * Sticker phần thưởng — cứ giải đúng SOLVES_PER_SPIN bài (lần đầu, có nhận sao)
+ * Sticker phần thưởng — cứ giải đúng solvesPerSpin() bài (lần đầu, có nhận sao)
  * thì được 1 lượt quay; mỗi lượt quay trúng một bộ trên vòng quay và nhận
  * 1 sticker của bộ đó (ưu tiên sticker bé chưa có).
  *
@@ -8,11 +8,18 @@
  */
 
 import { getCurrentUser } from './auth.js';
-import { getProfile } from './profile.js';
+import { getProfile, getProfileGrade } from './profile.js';
 // CSS đi kèm module: trang chủ (banner) và trang vòng quay đều nạp module này.
 import '../styles/stickers.css';
 
-export const SOLVES_PER_SPIN = 5;
+/**
+ * Số bài cho 1 lượt quay, theo khối trong hồ sơ. Lớp 2–3 có ~650–750 câu, bộ sưu tập
+ * ~65 sticker → 10 bài/lượt để gần hết sách mới đủ bộ; Tiền tiểu học (~260 câu) giữ 5.
+ */
+export function solvesPerSpin() {
+  const grade = getProfileGrade();
+  return grade == null || grade === -1 ? 5 : 10;
+}
 
 const FILES = import.meta.glob('../assets/sticker/{boy,girl}/*/*.png', { eager: true, import: 'default' });
 
@@ -69,13 +76,25 @@ function storeKey() {
   return `tth_stickers_${getCurrentUser()?.id || 'guest'}`;
 }
 
-/** { solves: số bài giải đúng từ khi có sticker, spinsUsed, owned: { id: số lần nhận }, at: { id: 'YYYY-MM-DD' } } */
+/**
+ * { solves: số bài giải đúng từ khi có sticker, earned: số lượt quay đã được, spinsUsed,
+ *   progress: số bài đã làm tới lượt kế tiếp, owned: { id: số lần nhận }, at: { id: 'YYYY-MM-DD' } }
+ * Lượt đã được lưu riêng (không tính lại từ solves) để đổi số bài/lượt không làm mất lượt cũ.
+ */
 function load() {
   try {
     const d = JSON.parse(localStorage.getItem(storeKey()));
-    if (d && typeof d.solves === 'number') return { spinsUsed: 0, owned: {}, at: {}, ...d };
+    if (d && typeof d.solves === 'number') {
+      const out = { spinsUsed: 0, owned: {}, at: {}, ...d };
+      // Dữ liệu cũ (luôn 5 bài/lượt) chưa có earned/progress.
+      if (typeof out.earned !== 'number') {
+        out.earned = Math.floor(out.solves / 5);
+        out.progress = out.solves % 5;
+      }
+      return out;
+    }
   } catch { /* ignore */ }
-  return { solves: 0, spinsUsed: 0, owned: {}, at: {} };
+  return { solves: 0, earned: 0, spinsUsed: 0, progress: 0, owned: {}, at: {} };
 }
 
 function save(d) {
@@ -83,14 +102,14 @@ function save(d) {
   window.dispatchEvent(new CustomEvent('tth:stickers-changed'));
 }
 
-/** Tiến độ: { spins: lượt quay còn lại, progress: số bài đã làm tới lượt kế tiếp (0–4), need: 5 } */
+/** Tiến độ: { spins: lượt quay còn lại, progress: số bài đã làm tới lượt kế tiếp (0…need-1), need } */
 export function getSpinStatus() {
   const d = load();
-  const earned = Math.floor(d.solves / SOLVES_PER_SPIN);
+  const need = solvesPerSpin();
   return {
-    spins: Math.max(0, earned - d.spinsUsed),
-    progress: d.solves % SOLVES_PER_SPIN,
-    need: SOLVES_PER_SPIN,
+    spins: Math.max(0, d.earned - d.spinsUsed),
+    progress: Math.min(d.progress, need - 1),
+    need,
   };
 }
 
@@ -100,8 +119,14 @@ export function getSpinStatus() {
 export function recordSolveForSpin() {
   const d = load();
   d.solves++;
+  d.progress++;
+  const got = d.progress >= solvesPerSpin();
+  if (got) {
+    d.earned++;
+    d.progress = 0;
+  }
   save(d);
-  return d.solves % SOLVES_PER_SPIN === 0;
+  return got;
 }
 
 /** { id: số lần nhận } của các sticker bé đã có. */
@@ -127,7 +152,7 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
  */
 export function spin(gender = getGender()) {
   const d = load();
-  if (Math.floor(d.solves / SOLVES_PER_SPIN) - d.spinsUsed <= 0) return null;
+  if (d.earned - d.spinsUsed <= 0) return null;
   const sets = getSets(gender);
   const missing = (s) => s.stickers.filter(st => !d.owned[st.id]);
   const open = sets.map((s, i) => i).filter(i => missing(sets[i]).length);
@@ -146,10 +171,11 @@ export function spin(gender = getGender()) {
   return { setIndex, set, sticker, isNew, segments: sets.length };
 }
 
-/** Chỉ dùng ở bản dev (phím tắt thử nghiệm): cộng `n` bài giải đúng. */
-export function devAddSolves(n) {
+/** Chỉ dùng ở bản dev (phím tắt thử nghiệm): cộng `n` lượt quay. */
+export function devAddSpins(n) {
   const d = load();
-  d.solves += n;
+  d.solves += n * solvesPerSpin();
+  d.earned += n;
   save(d);
 }
 
@@ -159,7 +185,7 @@ export function devReset() {
   window.dispatchEvent(new CustomEvent('tth:stickers-changed'));
 }
 
-/** Thông báo nhỏ khi vừa đủ 5 bài để nhận lượt quay. */
+/** Thông báo nhỏ khi vừa đủ số bài để nhận lượt quay. */
 export function showSpinToast() {
   const el = document.createElement('div');
   el.className = 'spin-toast';

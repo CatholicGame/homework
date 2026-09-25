@@ -1,10 +1,10 @@
 /**
  * Vòng quay sticker + bộ sưu tập sticker của bé.
- * Cứ giải đúng 5 bài được 1 lượt quay; mỗi lượt nhận 1 sticker của bộ mà kim chỉ vào.
+ * Cứ giải đúng solvesPerSpin() bài (5 hoặc 10 tuỳ khối) được 1 lượt quay; mỗi lượt nhận 1 sticker của bộ mà kim chỉ vào.
  */
 
 import {
-  getGender, getSets, getOwned, getSpinStatus, spin, countOwned, getReceivedDates,
+  getGender, getSets, getOwned, getSpinStatus, solvesPerSpin, spin, countOwned, getReceivedDates,
   WHEEL_IMG, CONFETTI_IMG, CONFETTI_SFX,
 } from '../engine/stickers.js';
 
@@ -23,7 +23,7 @@ export function render(app, onBack) {
       </div>
       <div class="stk-card stk-card-${gender}">
         <h1 class="stk-title">🎁 Vòng quay sticker</h1>
-        <p class="stk-subtitle">Cứ làm đúng <strong>5 bài</strong> là em được <strong>1 lượt quay</strong> và nhận 1 sticker!</p>
+        <p class="stk-subtitle">Cứ làm đúng <strong>${solvesPerSpin()} bài</strong> là em được <strong>1 lượt quay</strong> và nhận 1 sticker!</p>
         <div class="stk-status" id="stk-status"></div>
         <div class="stk-wheel-wrap">
           <div class="stk-pointer" aria-hidden="true"></div>
