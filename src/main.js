@@ -9,7 +9,7 @@ import { creditLegacyProgress } from './engine/stars.js';
 import { setLastGame } from './engine/activity.js';
 import { isSetupDone, saveProfile } from './engine/profile.js';
 import { renderProfileSetup } from './games/profileSetup.js';
-import { syncMyScore, syncMyProfile, registerUser, fetchRemoteProfile, signOutLeaderboard } from './engine/leaderboard.js';
+import { syncMyScore, syncMyProfile, registerUser, fetchRemoteProfile, signOutLeaderboard, connectLeaderboard, NEEDS_CONNECT } from './engine/leaderboard.js';
 import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
 import { initLightbox } from './engine/lightbox.js';
 import { initKeyboardInset } from './engine/keyboardInset.js';
@@ -91,10 +91,43 @@ function restoreRemoteProfile(userId) {
     return null;
   });
   return Promise.race([remote, timeout]).then((p) => {
-    if (!p || getCurrentUser()?.id !== userId) return false;
+    if (getCurrentUser()?.id !== userId) return 'none';
+    if (p === NEEDS_CONNECT) return 'connect';
+    if (!p) return 'none';
     saveProfile(p, { fromRemote: true });
-    return true;
+    return 'restored';
   });
+}
+
+// Token Google đã hết hạn (đăng nhập từ hơn 1 giờ trước) và máy này chưa có phiên Firebase:
+// chỉ xin lại token được khi bé bấm nút, nên hỏi bé kết nối trước khi bắt thiết lập hồ sơ lại.
+function renderReconnect(app, userId, onDone) {
+  app.innerHTML = `
+    <div class="page-loading">
+      <div class="page-loading-icon">🔗</div>
+      <p>Bé đã có hồ sơ rồi? Bấm <b>Kết nối</b> để lấy lại avatar và lớp đã chọn nhé.</p>
+      <div class="page-loading-actions">
+        <button type="button" class="btn btn-ghost" id="rc-new">Tạo hồ sơ mới</button>
+        <button type="button" class="btn btn-primary" id="rc-connect">🔗 Kết nối</button>
+      </div>
+      <p class="lb-error" id="rc-err" hidden></p>
+    </div>
+  `;
+  const btn = app.querySelector('#rc-connect');
+  btn.onclick = () => {
+    btn.disabled = true;
+    // Gọi ngay trong click để Safari (iPad) cho mở popup Google.
+    connectLeaderboard().then(() => {
+      remoteChecked.delete(userId);
+      onDone();
+    }).catch((e) => {
+      btn.disabled = false;
+      const err = app.querySelector('#rc-err');
+      err.textContent = e?.message || 'Kết nối thất bại, thử lại nhé.';
+      err.hidden = false;
+    });
+  };
+  app.querySelector('#rc-new').onclick = () => renderProfileSetup(app, { mode: 'onboard', onDone });
 }
 
 // Router
@@ -129,9 +162,11 @@ function navigate(gameId) {
   if (!isSetupDone()) {
     if (!remoteChecked.has(user.id)) {
       const loadingTimer = setTimeout(() => { if (token === navToken) renderLoading(app); }, 120);
-      restoreRemoteProfile(user.id).then(() => {
+      restoreRemoteProfile(user.id).then((result) => {
         clearTimeout(loadingTimer);
-        if (token === navToken) navigate(gameId);
+        if (token !== navToken) return;
+        if (result === 'connect') renderReconnect(app, user.id, () => navigate(gameId || 'home'));
+        else navigate(gameId);
       });
       return;
     }

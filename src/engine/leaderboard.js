@@ -218,15 +218,19 @@ export function syncMyProfile() {
 
 window.addEventListener('tth:profile-changed', () => syncMyProfile());
 
+/** fetchRemoteProfile() trả về giá trị này khi phải để bé bấm "Kết nối" (token Google đã hết hạn). */
+export const NEEDS_CONNECT = 'needs-connect';
+
 /**
- * Hồ sơ đã thiết lập trên máy khác của cùng tài khoản, hoặc null (chưa có / không kết nối được).
+ * Hồ sơ đã thiết lập trên máy khác của cùng tài khoản, null nếu chưa có, hoặc
+ * NEEDS_CONNECT nếu chưa có phiên Firebase mà token Google đã hết hạn.
  * Máy cũ chưa kịp đưa hồ sơ lên thì lấy tạm từ bảng xếp hạng (biệt danh, avatar, lớp).
  */
 export async function fetchRemoteProfile() {
   const fb = await ensureSignedInSilently();
   if (!fb) {
-    console.warn('[profile] Không khôi phục được hồ sơ: chưa có phiên Firebase và token Google đã hết hạn.');
-    return null;
+    console.warn('[profile] Chưa có phiên Firebase và token Google đã hết hạn — cần bấm Kết nối.');
+    return isLeaderboardConfigured() ? NEEDS_CONNECT : null;
   }
   const { db, fs, auth } = fb;
   const uid = auth.currentUser.uid;
