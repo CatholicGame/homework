@@ -193,6 +193,16 @@ function navigate(gameId) {
     return;
   }
 
+  if (gameId === 'reviews') {
+    import('./games/reviews.js').then(mod => {
+      if (token !== navToken) return;
+      mod.render(app, () => navigate('home'));
+    }).catch(() => {
+      if (token === navToken) renderLoadError(app, () => navigate(gameId), () => navigate('home'));
+    });
+    return;
+  }
+
   if (gameId === 'stickers') {
     import('./games/stickers.js').then(mod => {
       if (token !== navToken) return;
