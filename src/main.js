@@ -80,8 +80,17 @@ function renderLoadError(app, onRetry, onBack) {
 const remoteChecked = new Set();
 function restoreRemoteProfile(userId) {
   remoteChecked.add(userId);
-  const timeout = new Promise(resolve => setTimeout(() => resolve(null), 6000));
-  return Promise.race([fetchRemoteProfile().catch(() => null), timeout]).then((p) => {
+  // Máy mới phải tải Firebase + đăng nhập + đọc 1–2 tài liệu: mạng chậm có thể quá 6 giây,
+  // hết giờ là bé bị hỏi lại hồ sơ đã có — nên chờ lâu hơn.
+  const timeout = new Promise(resolve => setTimeout(() => {
+    console.warn('[profile] Hết 15 giây chờ Firebase — hiện màn thiết lập hồ sơ.');
+    resolve(null);
+  }, 15000));
+  const remote = fetchRemoteProfile().catch((e) => {
+    console.warn('[profile] Lỗi khi đọc hồ sơ từ Firebase:', e?.code || e);
+    return null;
+  });
+  return Promise.race([remote, timeout]).then((p) => {
     if (!p || getCurrentUser()?.id !== userId) return false;
     saveProfile(p, { fromRemote: true });
     return true;

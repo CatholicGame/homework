@@ -217,7 +217,10 @@ window.addEventListener('tth:profile-changed', () => syncMyProfile());
  */
 export async function fetchRemoteProfile() {
   const fb = await ensureSignedInSilently();
-  if (!fb) return null;
+  if (!fb) {
+    console.warn('[profile] Không khôi phục được hồ sơ: chưa có phiên Firebase và token Google đã hết hạn.');
+    return null;
+  }
   const { db, fs, auth } = fb;
   const uid = auth.currentUser.uid;
   const snap = await fs.getDoc(fs.doc(db, PROFILES, uid));
@@ -232,6 +235,7 @@ export async function fetchRemoteProfile() {
     const gender = avatar?.startsWith('boys/') ? 'boy' : avatar?.startsWith('girls/') ? 'girl' : undefined;
     return { gender, avatar: avatar || undefined, name: nickname || '', grade };
   }
+  console.warn(`[profile] Firebase chưa có hồ sơ cho uid ${uid}.`);
   return null;
 }
 
