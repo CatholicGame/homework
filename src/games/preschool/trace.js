@@ -49,8 +49,12 @@ export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTo
         ${strokes.map(d => `<path class="pk-trace-fill" d="${d}" style="stroke:${color}"/>`).join('')}
       </g>
       <g class="pk-trace-start"><circle r="9"/><circle class="pk-trace-start-ring" r="9"/></g>
-      <path class="pk-trace-arrow" d="M0 -5 L8 0 L0 5 Z"/>
       <circle class="pk-trace-finger" r="7"/>
+      <!-- Mũi tên luôn nằm trên cùng: nét màu, chấm xanh, ngón tay đều đi dưới nó. -->
+      <g class="pk-trace-arrow">
+        <path class="pk-trace-arrow-case"/><path class="pk-trace-arrow-line"/>
+        <path class="pk-trace-arrow-head" d="M-5 -7 L8 0 L-5 7 Z"/>
+      </g>
     </svg>`;
   const svg = host.querySelector('svg');
   const fills = [...svg.querySelectorAll('.pk-trace-fill')];
@@ -78,15 +82,24 @@ export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTo
   let drawing = false;
   let done = false;
 
+  // Mũi tên chỉ chiều viết: thân chạy dọc theo đầu nét (ngay sau chấm xanh), đầu nhọn ở cuối.
+  const arrowLines = [...arrow.querySelectorAll('.pk-trace-arrow-case, .pk-trace-arrow-line')];
+  const arrowHead = arrow.querySelector('.pk-trace-arrow-head');
   function placeStart() {
     if (stroke >= samples.length) { start.style.display = 'none'; arrow.style.display = 'none'; return; }
-    const { pts } = samples[stroke];
+    const { pts, len } = samples[stroke];
     const p0 = pts[0];
-    const p1 = pts[Math.min(6, pts.length - 1)];
     start.setAttribute('transform', `translate(${p0.x} ${p0.y})`);
-    const ang = Math.atan2(p1.y - p0.y, p1.x - p0.x) * 180 / Math.PI;
-    arrow.setAttribute('transform', `translate(${p0.x + Math.cos(ang * Math.PI / 180) * 16} ${p0.y + Math.sin(ang * Math.PI / 180) * 16}) rotate(${ang})`);
     start.style.display = '';
+    // Nét quá ngắn (dấu chấm): chỉ cần chạm, không cần mũi tên.
+    if (len < 12) { arrow.style.display = 'none'; return; }
+    const from = Math.min(13, len * 0.3), to = Math.min(from + 26, len * 0.95);
+    const run = pts.filter(p => p.s >= from && p.s <= to);
+    const a = run[run.length - 2] || pts[0], b = run[run.length - 1] || pts[pts.length - 1];
+    const ang = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+    const d = run.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+    arrowLines.forEach(l => l.setAttribute('d', d));
+    arrowHead.setAttribute('transform', `translate(${b.x.toFixed(1)} ${b.y.toFixed(1)}) rotate(${ang.toFixed(1)})`);
     arrow.style.display = '';
   }
   placeStart();
@@ -99,13 +112,18 @@ export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTo
 
   function advance(p) {
     const { pts, len } = samples[stroke];
-    let best = -1;
+    // Điểm trên nét gần ngón tay nhất (chỉ tiến, không lùi): nét màu dừng đúng dưới ngón tay,
+    // không vọt lên trước.
+    let best = -1, bestD = REACH;
     for (let i = idx; i < Math.min(pts.length, idx + LOOKAHEAD); i++) {
-      if (Math.hypot(pts[i].x - p.x, pts[i].y - p.y) <= REACH) best = i;
+      const d = Math.hypot(pts[i].x - p.x, pts[i].y - p.y);
+      if (d <= bestD) { best = i; bestD = d; }
     }
-    if (best < 0) return;
+    if (best <= idx) return;
     idx = best;
     fills[stroke].style.strokeDashoffset = `${len - pts[idx].s}`;
+    // Chấm xanh đi theo đầu nét: là chỗ ngón tay đang ở, và là chỗ đặt tay lại nếu nhấc lên.
+    start.setAttribute('transform', `translate(${pts[idx].x} ${pts[idx].y})`);
     if (idx >= pts.length - 2) {
       fills[stroke].style.strokeDashoffset = '0';
       onStroke?.(stroke);

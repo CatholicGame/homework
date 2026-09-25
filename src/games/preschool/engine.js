@@ -951,20 +951,55 @@ export function renderPreschool(app, onBack, book) {
     `<button type="button" class="pk-abc ${cls}" style="--c:${item.color}" ${attrs}><span class="pk-abc-ch">${item.ch}</span></button>`;
 
   // ── Bảng chữ: chạm từng chữ để nghe đọc ────────────────────────────────
+  // Điện thoại: chia trang (mỗi trang 2 cột × 3 hàng chữ to), vuốt / bấm mũi tên để sang trang.
   function playChart({ round, stage, talk, solve }) {
     const { items, kind } = round;
-    stage.innerHTML = `<div class="pk-abc-grid${items.length < 15 ? ' is-few' : ''}">${items.map((it, k) => letterTile(it, 'pk-abc-card', `data-k="${k}"`)).join('')}</div>`;
+    const phone = window.matchMedia('(max-width: 600px)').matches;
+    const per = phone ? 6 : items.length;
+    const pages = Math.ceil(items.length / per);
     const seen = new Set();
-    stage.querySelectorAll('.pk-abc-card').forEach(b => {
-      b.onclick = () => {
-        const k = Number(b.dataset.k);
-        sfx.pop(3 + (k % 8));
-        say(items[k].name);
-        b.classList.remove('is-seen'); void b.offsetWidth; b.classList.add('is-seen');
-        seen.add(k);
-        if (seen.size === items.length) solve(`Giỏi quá! Bé đã nghe hết các ${kind} rồi!`);
-      };
+    let page = 0;
+    stage.innerHTML = `
+      <div class="pk-abc-chart${items.length < 15 ? ' is-few' : ''}${pages > 1 ? ' is-paged' : ''}">
+        ${pages > 1 ? '<button type="button" class="pk-abc-nav" data-d="-1" aria-label="Trang trước">◀</button>' : ''}
+        <div class="pk-abc-grid"></div>
+        ${pages > 1 ? '<button type="button" class="pk-abc-nav" data-d="1" aria-label="Trang sau">▶</button>' : ''}
+      </div>
+      ${pages > 1 ? `<div class="pk-abc-dots">${Array.from({ length: pages }, (_, i) => `<span data-p="${i}"></span>`).join('')}</div>` : ''}`;
+    const grid = stage.querySelector('.pk-abc-grid');
+    const pageDone = (p) => items.slice(p * per, p * per + per).every((_, j) => seen.has(p * per + j));
+    const show = (p) => {
+      page = (p + pages) % pages;
+      const from = page * per;
+      grid.innerHTML = items.slice(from, from + per)
+        .map((it, j) => letterTile(it, `pk-abc-card${seen.has(from + j) ? ' is-seen' : ''}`, `data-k="${from + j}"`)).join('');
+      grid.querySelectorAll('.pk-abc-card').forEach(b => { b.onclick = () => tap(b); });
+      stage.querySelectorAll('.pk-abc-dots span').forEach((d, i) => {
+        d.classList.toggle('is-on', i === page);
+        d.classList.toggle('is-done', pageDone(i));
+      });
+      stage.querySelector('.pk-abc-nav[data-d="1"]')?.classList.remove('is-hint');
+    };
+    const tap = (b) => {
+      const k = Number(b.dataset.k);
+      sfx.pop(3 + (k % 8));
+      say(items[k].name);
+      b.classList.remove('is-seen'); void b.offsetWidth; b.classList.add('is-seen');
+      seen.add(k);
+      stage.querySelector(`.pk-abc-dots span[data-p="${page}"]`)?.classList.toggle('is-done', pageDone(page));
+      if (seen.size === items.length) { solve(`Giỏi quá! Bé đã nghe hết các ${kind} rồi!`); return; }
+      if (pages > 1 && pageDone(page)) stage.querySelector('.pk-abc-nav[data-d="1"]').classList.add('is-hint');
+    };
+    stage.querySelectorAll('.pk-abc-nav').forEach(b => { b.onclick = () => { sfx.tap(); show(page + Number(b.dataset.d)); }; });
+    stage.querySelectorAll('.pk-abc-dots span').forEach(d => { d.onclick = () => show(Number(d.dataset.p)); });
+    // Vuốt ngang để sang trang.
+    let x0 = null;
+    grid.addEventListener('pointerdown', (e) => { x0 = e.clientX; });
+    grid.addEventListener('pointerup', (e) => {
+      if (x0 !== null && Math.abs(e.clientX - x0) > 50) show(page + (e.clientX < x0 ? 1 : -1));
+      x0 = null;
     });
+    show(0);
     talk(`Bé chạm vào từng ${kind} để nghe đọc nhé!`);
   }
 

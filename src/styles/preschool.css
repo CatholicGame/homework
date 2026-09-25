@@ -43,7 +43,7 @@
 .pk-topbar {
   position: relative; z-index: 2;
   display: flex; align-items: center; gap: 0.6rem;
-  max-width: 960px; margin: 0 auto 0.8rem;
+  width: 100%; max-width: 960px; margin: 0 auto 0.8rem;
 }
 .pk-title { flex: 1; min-width: 0; text-align: center; }
 .pk-title h1 {
@@ -52,12 +52,12 @@
 }
 .pk-title p { margin-top: 0.15rem; font-size: clamp(1rem, 2.8vw, 1.2rem); font-weight: 700; color: #075985; line-height: 1.4; }
 .pk-round-btn {
-  flex: none; width: 52px; height: 52px; border-radius: 50%;
-  border: 3px solid #fff; background: #FDE68A; font-size: 1.5rem;
-  box-shadow: 0 4px 0 #F59E0B, 0 6px 12px rgba(0, 0, 0, 0.12);
+  flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%;
+  border: 4px solid #fff; background: #FCD34D; font-size: 1.7rem; line-height: 1;
+  box-shadow: 0 5px 0 #D97706, 0 8px 16px rgba(0, 0, 0, 0.18);
   cursor: pointer; transition: transform 0.12s;
 }
-.pk-round-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #F59E0B; }
+.pk-round-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #D97706; }
 .pk-star-count {
   flex: none; padding: 0.3rem 0.8rem; border-radius: 999px;
   background: #fff; font-weight: 800; font-size: 1.1rem;
@@ -253,6 +253,7 @@
 .pk-paint-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.4rem; }
 .pk .pk-outline {
   width: 84px; height: 104px; border: none; border-radius: 18px; background: rgba(255, 255, 255, 0.7);
+  display: grid; place-items: center; padding: 0;
   font-size: 5.2rem; font-weight: 800; line-height: 1; cursor: pointer;
   color: #fff; -webkit-text-stroke: 3px #1E293B; paint-order: stroke fill;
   transition: color 0.3s, transform 0.2s;
@@ -309,17 +310,29 @@
   touch-action: none;
 }
 .pk-trace-svg { display: block; width: 100%; height: 100%; touch-action: none; cursor: pointer; }
-.pk-trace-track { fill: none; stroke: #E2E8F0; stroke-width: 20; stroke-linecap: round; stroke-linejoin: round; }
+.pk-trace-track { fill: none; stroke: #E2E8F0; stroke-width: 16; stroke-linecap: round; stroke-linejoin: round; }
 .pk-trace-dash { fill: none; stroke: #94A3B8; stroke-width: 2.4; stroke-dasharray: 4 5; stroke-linecap: round; }
-.pk-trace-fill { fill: none; stroke-width: 16; stroke-linecap: round; stroke-linejoin: round; }
-.pk-trace-start circle { fill: #22C55E; stroke: #fff; stroke-width: 3; }
+.pk-trace-fill { fill: none; stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; }
+.pk-trace-start circle { r: 8; fill: #22C55E; stroke: #fff; stroke-width: 3; }
 .pk-trace-start .pk-trace-start-ring { fill: none; stroke: #22C55E; stroke-width: 3; animation: pk-ring 1.2s ease-out infinite; transform-origin: center; transform-box: fill-box; }
 .pk-trace-start.is-hint circle:first-child { animation: pk-pulse 0.35s ease 3; transform-origin: center; transform-box: fill-box; }
 @keyframes pk-ring { from { transform: scale(1); opacity: 0.9; } to { transform: scale(2.6); opacity: 0; } }
-.pk-trace-arrow { fill: #16A34A; }
+.pk-trace-arrow { pointer-events: none; animation: pk-arrow 1s ease-in-out infinite; }
+.pk-trace-arrow-case, .pk-trace-arrow-line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.pk-trace-arrow-case { stroke: #fff; stroke-width: 7; }
+.pk-trace-arrow-line { stroke: #F97316; stroke-width: 3.5; }
+.pk-trace-arrow-head { fill: #F97316; stroke: #fff; stroke-width: 2; stroke-linejoin: round; paint-order: stroke fill; }
+@keyframes pk-arrow { 50% { opacity: 0.55; } }
+/* Chữ cái: chữ thường chỉ cao 48 đơn vị nên nét mảnh hơn nét tô số. */
+.pk-trace-svg.has-guides .pk-trace-track { stroke-width: 13; }
+.pk-trace-svg.has-guides .pk-trace-fill { stroke-width: 10; }
+.pk-trace-svg.has-guides .pk-trace-dash { stroke-width: 1.8; stroke-dasharray: 3 4; }
+.pk-trace-svg.has-guides .pk-trace-start circle { r: 7; }
+.pk-trace-svg.has-guides.is-done .pk-trace-fill { animation-name: pk-shine-thin; }
+@keyframes pk-shine-thin { 50% { stroke-width: 13; filter: brightness(1.25); } }
 .pk-trace-finger { fill: rgba(249, 115, 22, 0.35); stroke: #F97316; stroke-width: 2; opacity: 0; pointer-events: none; }
 .pk-trace-svg.is-done .pk-trace-fill { animation: pk-shine 0.8s ease 2; }
-@keyframes pk-shine { 50% { stroke-width: 20; filter: brightness(1.25); } }
+@keyframes pk-shine { 50% { stroke-width: 16; filter: brightness(1.25); } }
 
 /* Hình có ô (đoàn tàu, bóng bay, dâu tây…) */
 .pk-scene {
@@ -438,7 +451,7 @@
 
 @media (max-width: 600px) {
   .pk { padding: 0.5rem 0.6rem 5rem; }
-  .pk-round-btn { width: 44px; height: 44px; font-size: 1.25rem; }
+  .pk-round-btn { width: 50px; height: 50px; font-size: 1.5rem; }
   .pk-mascot { width: 56px; height: 56px; font-size: 2.1rem; }
   .pk-star-count { display: none; }
   .pk-match { gap: 0.7rem 4.2rem; }
@@ -565,14 +578,29 @@
   color: var(--c); font-weight: 800; line-height: 1;
   -webkit-text-stroke: 1.5px rgba(30, 58, 95, 0.55); paint-order: stroke fill;
 }
-.pk-abc-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.6rem; max-width: 760px; margin: 0 auto; }
-.pk-abc-grid.is-few { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 640px; }
-.pk-abc-card { height: clamp(64px, 11vh, 96px); }
-.pk-abc-card .pk-abc-ch { font-size: clamp(2.4rem, 7vh, 3.6rem); padding-bottom: 0.15em; }
+.pk-abc-chart { display: flex; align-items: center; justify-content: center; gap: 0.6rem; max-width: 1200px; margin: 0 auto; }
+.pk-abc-grid {
+  --cols: 6; --tile: clamp(64px, 11vh, 110px);
+  flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 0.7rem;
+  max-width: calc(var(--cols) * var(--tile) * 1.15); margin: 0 auto; touch-action: pan-y;
+}
+.pk-abc-chart.is-few .pk-abc-grid { --cols: 4; }
+.pk-abc-card { height: var(--tile); }
+.pk-abc-card .pk-abc-ch { font-size: calc(var(--tile) * 0.62); padding-bottom: 0.15em; }
+.pk-abc-chart.is-few .pk-abc-card .pk-abc-ch { font-size: calc(var(--tile) * 0.5); }
 .pk-abc-card.is-seen { border-color: #22C55E; animation: pk-jump 0.5s ease; }
 .pk-abc-card.is-seen::after {
-  content: '✓'; position: absolute; top: 3px; right: 7px; color: #16A34A; font-size: 1rem; font-weight: 800;
+  content: '✓'; position: absolute; top: 4px; right: 9px; color: #16A34A; font-size: calc(var(--tile) * 0.16); font-weight: 800;
 }
+.pk-abc-nav {
+  flex: none; width: 48px; height: 48px; border-radius: 50%; border: 3px solid #fff; cursor: pointer;
+  background: #FDE68A; font-size: 1.3rem; box-shadow: 0 4px 0 #F59E0B;
+}
+.pk-abc-nav.is-hint { background: #22C55E; color: #fff !important; box-shadow: 0 4px 0 #15803D; animation: pk-pulse 1s ease-in-out infinite; }
+.pk-abc-dots { display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.9rem; }
+.pk-abc-dots span { width: 14px; height: 14px; border-radius: 50%; background: rgba(255, 255, 255, 0.8); border: 2px solid #93C5FD; cursor: pointer; }
+.pk-abc-dots span.is-done { background: #86EFAC; border-color: #22C55E; }
+.pk-abc-dots span.is-on { background: #F97316; border-color: #fff; transform: scale(1.3); }
 .pk-abc-find { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; max-width: 860px; margin: 0 auto; }
 .pk-abc-pick { min-width: 120px; height: 130px; padding: 0 1rem; border-width: 4px; border-radius: 24px; }
 .pk-abc-pick .pk-abc-ch { font-size: 5rem; padding-bottom: 0.15em; }
@@ -589,10 +617,10 @@
 .pk-trace-line { stroke: #DBEAFE; stroke-width: 2; vector-effect: non-scaling-stroke; }
 .pk-trace-line.is-base { stroke: #93C5FD; }
 @media (max-width: 600px) {
-  .pk-abc-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.45rem; }
-  .pk-abc-grid.is-few { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .pk-abc-card { height: 62px; }
-  .pk-abc-card .pk-abc-ch { font-size: 2.3rem; }
+  /* Điện thoại: mỗi trang 2 cột × 3 hàng chữ to (engine chia trang). */
+  .pk-abc-chart { gap: 0.3rem; }
+  .pk-abc-grid, .pk-abc-chart.is-few .pk-abc-grid { --cols: 2; --tile: min(15vh, 34vw, 130px); gap: 0.6rem; }
+  .pk-abc-nav { width: 40px; height: 40px; font-size: 1.1rem; }
   .pk-abc-pick { min-width: 92px; height: 104px; }
   .pk-abc-pick .pk-abc-ch { font-size: 3.8rem; }
 }
@@ -607,6 +635,10 @@
   display: flex; flex-direction: column; justify-content: safe center;
 }
 .pk-play-page .pk-stage > * { flex: none; }
+/* Trong cột flex, margin: 0 auto làm khối co lại vừa nội dung: cho các khối rộng hết
+   hàng (max-width vẫn giữ). :where để các khối tự đặt width (fit-content) vẫn thắng. */
+:where(.pk-play-page .pk-stage) > * { width: 100%; }
+.pk-play-page > .pk-topbar, .pk-play-page > .pk-steps, .pk-play-page > .pk-guide { width: 100%; }
 
 /* Màn hình lớn (máy tính, iPad ngang): hình và nút to hơn cho bé dễ chạm.
    Chiều cao hình = phần còn trống thật sự của màn hình (--pk-free) trừ đi các
@@ -628,13 +660,18 @@
   .pk-choices.is-pad { max-width: 900px; gap: 0.7rem; }
   .pk-choices.is-pad .pk-choice { width: 70px; height: 70px; font-size: 2rem; border-width: 4px; }
 
-  .pk-intro-pic .pk-pic img { max-height: min(40vh, max(140px, calc(var(--pk-free) - 170px))); }
+  /* Làm quen số: hình + chú thích (~60px) ở trên, hàng số rỗng để tô (~150px) ở dưới. */
+  .pk-intro-pic .pk-pic img { max-height: min(40vh, max(120px, calc(var(--pk-free) - 240px))); }
   .pk-card img { max-height: min(28vh, max(110px, calc((var(--pk-free) - 60px) / 2))); }
   .pk-match { max-width: 960px; }
   .pk-trace-board { width: min(92vw, 640px); max-height: max(260px, calc(var(--pk-free) - 80px)); }
   .pk-trace-board.is-letter { width: min(94vw, calc(max(260px, var(--pk-free) - 90px) * var(--ar)), 1100px); max-height: none; }
   .pk-scene img { max-height: max(220px, calc(var(--pk-free) - 120px)); }
   .pk-tile { width: 90px; height: 90px; font-size: 2.9rem; }
+  .pk-abc-grid { --cols: 8; --tile: min(150px, max(80px, calc((var(--pk-free) - 70px) / 4))); gap: 0.9rem; }
+  .pk-abc-chart.is-few .pk-abc-grid { --cols: 4; --tile: min(170px, max(90px, calc((var(--pk-free) - 60px) / 3))); }
+  .pk-abc-pick { min-width: 170px; height: min(200px, max(130px, calc(var(--pk-free) - 60px))); border-radius: 30px; }
+  .pk-abc-pick .pk-abc-ch { font-size: 7.5rem; }
   .pk-rows .pk-pic img { max-height: max(140px, calc(var(--pk-free) - 240px)); }
 
   .pk-cmp { gap: 1.4rem; }
