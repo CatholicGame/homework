@@ -4873,6 +4873,31 @@ export function renderWorkbook(app, onBack, cfg) {
       return Math.max(32, maxLen * 8 + 18);
     });
   }
+  // A table WITH headers that mixes number columns ("Chục", "Đơn vị", "Viết
+  // số") with a words column ("Đọc số": "hai mươi lăm"): auto layout shares
+  // the spare width out evenly, so the 1–2 digit columns end up as wide as
+  // the words one and the words get squeezed. Pin every number column to just
+  // what its digits need and hand all the rest to the words column(s).
+  // Picture / other columns stay auto. Returns null when there's no words
+  // column (nothing to rebalance → plain auto layout as before).
+  function headerColWidths(t) {
+    const dataColCount = rowCells(t.rows[0]).length;
+    const kinds = Array.from({ length: dataColCount }, (_, c) => {
+      const vals = t.rows.map(row => {
+        const cell = rowCells(row)[c];
+        if (cell && typeof cell === 'object') return String(cell.blank ? cell.answer : cell.value ?? '');
+        return String(cell ?? '');
+      }).filter(v => v !== '');
+      if (!vals.length || vals.some(v => /<img|<svg/i.test(v))) return { kind: 'auto' };
+      if (vals.every(v => /^[\d\s.,+\-×x:=<>()]*$/.test(v))) {
+        return { kind: 'num', px: Math.max(56, Math.max(...vals.map(v => v.length)) * 11 + 28) };
+      }
+      return { kind: 'text' };
+    });
+    const textCount = kinds.filter(k => k.kind === 'text').length;
+    if (!textCount) return null;
+    return kinds.map(k => k.kind === 'num' ? `${k.px}px` : k.kind === 'text' ? `${Math.floor(100 / textCount)}%` : null);
+  }
   function isWrapLabel(v) {
     return typeof v === 'string' && v.length > 14 && /[^\d\s]/.test(v);
   }
@@ -4889,10 +4914,16 @@ export function renderWorkbook(app, onBack, cfg) {
         ${groups.map((t, ti) => {
           const colWidths = t.headers ? null : tableColWidthsPx(t);
           const hasRowLabel = t.rows.some(rowLabelOf);
+          const headerWidths = t.headers ? headerColWidths(t) : null;
           const colgroup = colWidths ? `
             <colgroup>
               ${hasRowLabel ? '<col style="width:1.8rem">' : ''}
               ${colWidths.map(w => `<col style="width:${w}px">`).join('')}
+            </colgroup>
+          ` : headerWidths ? `
+            <colgroup>
+              ${hasRowLabel ? '<col>' : ''}
+              ${headerWidths.map(w => (w ? `<col style="width:${w}">` : '<col>')).join('')}
             </colgroup>
           ` : '';
           return `
