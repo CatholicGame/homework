@@ -4420,6 +4420,24 @@ export function renderWorkbook(app, onBack, cfg) {
     attachQuestionListHandlers();
     if (q.wordProblem) attachSolutionHandlers(q);
     attachAnswerHandlers(q);
+    revealPinnedImageOnKeyboard();
+  }
+
+  // Phone portrait + number pad open (html.kb-tight): the question image keeps
+  // its full size (see the kb-tight CSS) so it sits below the fold of the
+  // short question card — scroll the card to it, the child needs the picture
+  // more than the question text they've already read.
+  function revealPinnedImageOnKeyboard() {
+    const card = app.querySelector('.gw-pin-zone .e3-question-card');
+    const img = card?.querySelector(':scope > .e3-q-img');
+    if (!img) return;
+    // keyboardInset.js sets kb-tight a frame or two after the focus, so wait a beat.
+    const reveal = () => setTimeout(() => {
+      if (!img.isConnected || !document.documentElement.classList.contains('kb-tight') || innerWidth >= 720) return;
+      const below = img.getBoundingClientRect().bottom - card.getBoundingClientRect().bottom;
+      if (below > 0) card.scrollTop += below + 8;
+    }, 80);
+    app.querySelector('.gw-scroll-zone')?.addEventListener('focusin', reveal);
   }
 
   // ── SOLUTION EDITOR (write the working before answering) ────────────────────
@@ -5767,6 +5785,14 @@ function injectStyles() {
     html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone-q { max-height: 42%; padding-bottom: 0.4rem; }
     html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone .e3-question-card { padding: 0.8rem 1rem; }
     html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone .e3-question-card > .e3-q-img { min-height: 70px; }
+    /* Phone portrait: the strip above the number pad is so short that a
+       shrinking image ends up at the 70px floor — too small for a child to
+       read (Lớp 2 Bài 9 seating plan). Keep it the size it had before the
+       pad opened (30dvh is the whole screen, not the shrunken #app) and let
+       the question card scroll instead. */
+    @media (max-width: 719px) {
+      html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone .e3-question-card > .e3-q-img { flex: 0 0 auto; min-height: 0; }
+    }
     @media (min-width: 720px) {
       html.kb-open.kb-tight .gw-quiz-pinned .e3-quiz {
         display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
