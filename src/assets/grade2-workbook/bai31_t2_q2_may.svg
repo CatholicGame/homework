@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 690 400" width="690" height="400"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAYQABAAAAAACxwAAAW1AAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhQbgTwcKgZgP1NUQVQqADQRCAqKKIhOATYCJAMsCxgABCAFhDoHIAwHGxQJyI7Cca9EYYnJLShlMEQ8BGvf3szaiXky3NIRkliH5JHfkFIoVTtZLREqcYfHM/+lneqknivwwGpzoUPuBkEf5v8cM13k87RI3MCG05n9rf/+IuIqgg53QvcOqIsiLQEP7AAPzG7TrUuxzbR4PhUDRpbhLxHoA0T6HHqs0cFcCFXFAPl2ejgKyEr4KMbcyg9FQRdWMqWkYDgDTOdtM7AJSBgMNRzpngqVhme69ex3aR8KVfub7GBt+ItStj+qrWn3j/S038gd/sa69yikLVLqtebcJutAHDSn35YbJHz2lPLsMpXQLyryGSYFgIvDZuI60IUKgHmw/XfyheCyPazFF21N+RxS4/vG/zwPWIIVd80y1u0/B/OwWBoOASSxroB+sUZkDWOwzR0sARGVjI56HdrTlvSENRNib0xB6CUzAcCAeAPk+fs5h2KKysa3KuQQzFa5eltF/VV5ZLIATs99+RKa8uoVYd6LF6Dz/HliHsAa9iH8XA4M2BDC3L1QR0ZsOcCw/RRxctUqxrw9oOzszsYQR/DEowwr+YwOcevt8+zl20kN61j7Huk7JBZjJuetYOy5Q9Dr207wrJKirtKZfQSSrgHL6THZqlNuAJRfylauvSCS/ZoUk2SvrrhqF8GNQJwC62VCA8Lbp+vWsvqt0myTGsCKdVt17lbBSDsChzKbXEW4TtGPP4dYD4Hjy568Bu+hN56vZTXHE+il5duLzBNPYpvGDR6J6TsvHn3XLofPJyZfucMr965BU4pUn3mv8m2uPsTPvX8ZdF4043ZJKJ0PPXEf696rV3zx6vvKYq/i1gMPwttKgWtEB1i2FUqWLQM2cj3zllLBvG1oQ50x4heOTyQbacRnNEpF45MJ2P9U8NnIKMR6ob16JQkZDTOrNpaG/9xODSHNyCzwcReOw3AMbqbmqPD5D39j6AYKnZGIs3vi5KvxnXCU4WTC0XVV3+12F3gGavX9XEb3JKf34JU14ObdTp881sb58rBIEVbrFZ5ALxF5WBAHM2AcOvrKu596KH3bENNCwS0qXHmf9ZuIlgFGc9ob8ZaHWiOSKvapm1NwlGYwariI8H/9zmwf+TuDkjpAmdX/u2tda0pMHJJAmpEi+KaQNLC/GLkCTwwhJGJdY3dLvVReqVdJAhGhmp+bQaFp+uBFGEUjLIXjCByDGasFH/6y59qB3t6CzZ73Rd2twx2gV7c1IbNGe/bTyhllBRrOZ+s8jCmd4clMMv2TiVUWT5UqtWgU3h3oKVVUCjdxGpROWyHn8lRIPSJhQCHlBr/aVPulgpBcwvf7pOA0Bp6O4CxQ5IgPjllMl6n59RXJxcoqMPRmT9Uwjk9ssvXNGV2urHF4R5NS4F/0be3ar94Rm4zJATqLtZ/OlDRJ//ni9wWCjgu5PJQhMAR8JlPAN/bzUzVhozD1g1j0Q0po5DWA+dZveWs4l61lTBVOow9tzMQiQy+O+suVdpd5Bzj1RXcsyrvcKhkn+MWWTCbl+74d4NFfgSLmLG794dkgiuPXLljsF/Bta9BD+PfjqAWQ2l9TjLmHWoLgEwzlJURgdh0AKZt7MwIkcDddjAasVANbwkCZfEBKBfBmb2BOEjg2nKdLHTCD0OsUrOZZyvO63YEVJQ6IKQC4JiwEW5MGwqQpHIjA0hLXVGZiNNZnnKX9IKAvDnMm9m7nwXlt2o0xVFlRyXAcOhpa1hRjO2Y+XW8EdvusZsOkoXI46gzVpkleVgK9OAxY2uNQQpZDoum04doNY6OmVlRGm0fIUEF7m1bq7LZD5Y2i1C6tqEUZKm0UspraNoZgfKuyFmOotPaXUuAYZeE0jgZ5w+QNNVLeXwylhHpKNbK2e63Cy2bfFzmq3semFYvoX2qRNpSeioaGiV2NWjWC7NKmSmbC9kZU9mYJR34+MsykC5jVmEt/bYRWWKBdD/Ype76A/p9xuMMCAA==) format('woff2')}@font-face{font-family:'Quicksand';font-weight:600;src:url(data:font/woff2;base64,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) format('woff2')}@font-face{font-family:'Quicksand';font-weight:700;src:url(data:font/woff2;base64,d09GMgABAAAAAAUYABAAAAAACUAAAAS8AAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbehwqBmA/U1RBVCoAVBEICoZshSsBNgIkAyoLGAAEIAWENgcgDAcbSwdRVFCiAf5awMkY6PjVqjIMC6GwoulYZdG2Ez9CS2iLMLy27tN2qh7KWwGDF+KJoojYyidAXQOSfyp4nt/ff2vvc76gBDFEAA0a3peHIYFxHMpkkEn3p/3VW8iz4kkJUFt6/j8lJrjki2QHUxJRcdv7CjygvAk04UDKA08kEMz6fsFq/Fdfsvng49z/hfv2GxDna2NynrOb3HLV2RKDTBSrJHQtClFoH/JXF+WBXHuA93YEx8a2H6vxwS0IU82A9rbKPTXuEtsculTNXCJPiUAwGrMxL589bewFFsGArUnZ7bZSgVvQFgvSpXbHxM3p3acgIBAAKKF8CQH+MlWj7l0DEyC8wmQBhCzgm1FyxnEB2FiNLH/Ql0qkPj+TD5UBuIE7ySiUpYVly2x5EShVO3c2F16tJu63VaNXMKCPCkD38ThyQHUCDJw+BP+PfATc0R4179ob7CsAeTHy6XWAVDRi53kQiQISUe9kiqQAKAdqOgAoMCASjevZdA2AQL6U1WHIhHtRF9BuEORb7g333D1yWwHJgPl9GyFABACIBgRCCmQFSAREAgC0N0bEcqS+h6wbvVIYbHMRMThSNVjnm/bOLHb4rcG9MTpTm92I5cvQ3NZQV0udDI9cbxhYuYnh5lXTET8ecc4zaZMnR/defji3P7l544xFZnGdQ+wcMcBz4MCpuH0ZPLPR7eNkXrVfIF/bQRC+OZHqcxrnyONUUzrjGjfXpDVEUlXJF+kdxzNDw0MRenQCewURUERCt5q2MydiQcA6ZTm72NljkGfHB/mAWwneXOudItB3qle5XL3nOnBybvDMVPfGrDMFTz+ozF/2J3//8RSWEOYR8/4nCaxZ+jn8u3OArKvgso6X7/yqDNOkGNGvZy22syNupbB7z1t45zcU2abZ7T8fVP2j8TUrG8MprQNpKbmM9JR8nJgu7Sant+d0QWuG3fpxYMFlZN7WQy4VNq6VDCjeMaGedUiuvjFYJIg3HlceDt1ErF/XL36sSf4Jj1FQLmoHqVishJvJW2XO0n/3nG+6/tsPbVw+t1nYjnBN8BLbDhagnuo99HtXf40DxtIetP4V8NKdQokRkOXMim/769BWAFhh//D/IYafR4wwWLOJ6sLpMQlr4tML1Z1R4yuIj5qKCrvXl8zmOk8Pg+IqC053ozhJXkuFXRvMBQrw4eeneNjfnPNKAPDv6xptb3wvp/8ZAkwOF4Qrp+a3rzHvAPeLDPDm4TgY03d7ALwpAMGrqDEbBeHfHUFsqv2rA1y1BNweXIb5nnUPxZFYT3/aMhgB2fwoIEAlmjI0abAmm59lbNnoBzID55BIjhpSwSmDjJJ09Fo6yEt8FoA3DnPAIhCYS+8kXvjmOu2KShZhaUkpJKRapSpNkAkoMv7YUbPSorIIYQUxyAisKCMuygla83RSShFGQFwSdyKVEJpVqJCUnhbPigiIKsqrmI/F4ub5lYQl5aQVhM1TDKuwAXTF8ry0nEUB6eluPsi8puORMXGEOGxOXAzSpahgMTwkQ+DfEEvbHO5GBq6TQPpfS5qVE4bVCKhUqV6LIcOGdGqRwu5HTgE8w2mrepCcdngR09L4q9oU5cTQAOCi2ibxMuUu2QAAAAA=) format('woff2')}</style><!--/embedded-font-->
+<rect x="8" y="30" width="674" height="362" rx="6" fill="#6CCBF2" stroke="#1E88C8" stroke-width="3"/>
+<path d="M14 48 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 70 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 92 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 114 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 136 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 158 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 180 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 202 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 224 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 246 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 268 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 290 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 312 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 334 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 356 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<path d="M14 378 q 12 -8 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0 t 24 0" fill="none" stroke="#A5E0F8" stroke-width="3" opacity="0.8"/>
+<ellipse cx="22.0" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="41.3" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="60.6" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="79.9" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="99.2" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="118.5" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="137.8" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="157.1" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="176.4" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="195.7" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="215.0" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="234.3" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="253.6" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="272.9" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="292.2" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="311.5" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="330.8" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="350.1" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="369.4" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="388.7" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="408.0" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="427.3" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="446.6" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="465.9" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="485.2" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="504.5" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="523.8" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="543.1" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="562.4" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="581.7" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="601.0" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="620.3" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="639.6" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<ellipse cx="658.9" cy="28" rx="7" ry="15" fill="none" stroke="#5A5C5E" stroke-width="3.5"/>
+<text x="118.0" y="110.0" font-family="Quicksand" font-size="34" font-weight="700" fill="#1B4F7A" text-anchor="middle" >THÁNG</text>
+<text x="118.0" y="150.0" font-family="Quicksand" font-size="34" font-weight="700" fill="#1B4F7A" text-anchor="middle" >NĂM</text>
+<rect x="222" y="70" width="434" height="308" fill="#fff" stroke="#231F20" stroke-width="2"/>
+<text x="253.0" y="88.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >THỨ</text>
+<text x="253.0" y="106.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >HAI</text>
+<text x="315.0" y="88.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >THỨ</text>
+<text x="315.0" y="106.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >BA</text>
+<text x="377.0" y="88.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >THỨ</text>
+<text x="377.0" y="106.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >TƯ</text>
+<text x="439.0" y="88.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >THỨ</text>
+<text x="439.0" y="106.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >NĂM</text>
+<text x="501.0" y="88.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >THỨ</text>
+<text x="501.0" y="106.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >SÁU</text>
+<text x="563.0" y="88.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >THỨ</text>
+<text x="563.0" y="106.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >BẢY</text>
+<text x="625.0" y="88.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >CHỦ</text>
+<text x="625.0" y="106.0" font-family="Quicksand" font-size="14" font-weight="600" fill="#333" text-anchor="middle" >NHẬT</text>
+<line x1="284" y1="70" x2="284" y2="378" stroke="#231F20" stroke-width="1.5"/>
+<line x1="346" y1="70" x2="346" y2="378" stroke="#231F20" stroke-width="1.5"/>
+<line x1="408" y1="70" x2="408" y2="378" stroke="#231F20" stroke-width="1.5"/>
+<line x1="470" y1="70" x2="470" y2="378" stroke="#231F20" stroke-width="1.5"/>
+<line x1="532" y1="70" x2="532" y2="378" stroke="#231F20" stroke-width="1.5"/>
+<line x1="594" y1="70" x2="594" y2="378" stroke="#231F20" stroke-width="1.5"/>
+<line x1="222" y1="114" x2="656" y2="114" stroke="#231F20" stroke-width="1.5"/>
+<line x1="222" y1="158" x2="656" y2="158" stroke="#231F20" stroke-width="1.5"/>
+<line x1="222" y1="202" x2="656" y2="202" stroke="#231F20" stroke-width="1.5"/>
+<line x1="222" y1="246" x2="656" y2="246" stroke="#231F20" stroke-width="1.5"/>
+<line x1="222" y1="290" x2="656" y2="290" stroke="#231F20" stroke-width="1.5"/>
+<line x1="222" y1="334" x2="656" y2="334" stroke="#231F20" stroke-width="1.5"/>
+<line x1="222" y1="378" x2="656" y2="378" stroke="#231F20" stroke-width="1.5"/>
+<text x="625.0" y="146.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#00AEEF" text-anchor="middle" >1</text>
+<text x="253.0" y="190.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >2</text>
+<text x="315.0" y="190.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >3</text>
+<text x="377.0" y="190.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >4</text>
+<text x="439.0" y="190.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >5</text>
+<text x="501.0" y="190.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >6</text>
+<text x="563.0" y="190.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >7</text>
+<text x="625.0" y="190.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#00AEEF" text-anchor="middle" >8</text>
+<text x="253.0" y="234.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >9</text>
+<text x="315.0" y="234.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >10</text>
+<text x="377.0" y="234.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >11</text>
+<text x="439.0" y="234.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >12</text>
+<text x="501.0" y="234.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >13</text>
+<text x="563.0" y="234.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >14</text>
+<text x="625.0" y="234.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#00AEEF" text-anchor="middle" >15</text>
+<text x="253.0" y="278.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >16</text>
+<text x="315.0" y="278.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >17</text>
+<text x="377.0" y="278.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >18</text>
+<text x="439.0" y="278.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >19</text>
+<text x="501.0" y="278.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >20</text>
+<text x="563.0" y="278.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >21</text>
+<text x="625.0" y="278.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#00AEEF" text-anchor="middle" >22</text>
+<text x="253.0" y="322.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >23</text>
+<text x="315.0" y="322.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >24</text>
+<text x="377.0" y="322.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >25</text>
+<text x="439.0" y="322.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >26</text>
+<text x="501.0" y="322.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >27</text>
+<text x="563.0" y="322.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >28</text>
+<text x="625.0" y="322.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#00AEEF" text-anchor="middle" >29</text>
+<text x="253.0" y="366.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >30</text>
+<text x="315.0" y="366.0" font-family="Quicksand" font-size="30" font-weight="500" fill="#231F20" text-anchor="middle" >31</text>
+</svg>

@@ -41,4 +41,4 @@ Thumbs.db
 *.tsbuildinfo
 
 # Sách nguồn (bản quét, dung lượng lớn ~71MB) — chỉ dùng để số hóa cục bộ
-docs/*.pdf
+docs/**/*.pdf

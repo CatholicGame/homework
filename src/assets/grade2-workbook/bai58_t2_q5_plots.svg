@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 870 710" width="435" height="355" font-family="Quicksand" font-size="44" fill="#231F20"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:400;src:url(data:font/woff2;base64,d09GMgABAAAAAAWEABAAAAAAChgAAAUqAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbgQgcKgZgP1NUQVQuAEwRCAqIUIcFATYCJAMkCxQABCAFhC4HIAwHGyEIQB6FccNdSrDE5EpRH+u9Fc///37/m2uf+/1+wUSTNkInqkdeJtE1VKJGqlXLPjqNd/y7WROglrxAHaoSVOpQUU3Fjd09h7UvU+fomUj+F0ZNHDNdtA13HiUwnA54IhlBWdqis9ks8qPt/7xC9PkBH0RfdYoEjXIOTcEhxnD03qMIekCJ6EQwaSM5xpmkjAJgX63t7wS2Dt4YBVfo3k6w54vRKeIYV7b+KPvFYGkAw78NwY5AsdI0DB3NRimh3ywczqsYu7sKwV4EG+oRowTAWW+WnAN5xGC0wf4vyR8crsBeHe2L/23pXmASAIH8Y1wAsBZTxLhgIQwrMR40NfdjgNJQYWAvAtQ7ABQaFmLmnY/lKDBpXCkHqBh0nEK4d4ain/u/xXNXmDQ+RWQIOIgJMB/oyU2AfACgA5QmN/kQWcHyIpDB0ZEnjtG1Vbz6Kr5qcjdx28xmwviaW8trML0DW1FVoiAD2oyvw8BiSfD0xA/76R9YcLS6D7OZ2U/U4l4Md+L2GjbzrATnNqBRdc2akxzg6rXl+RrRmOaqwR78cTJnrI+8ASwWBLj5HPsJ416AnU+uP16rXbVasZk1Cvb2yiLjTIhVsFU4QMWEBLNbwatUC2a4xWaz22ubgFXM9ca94s1odVdA/DyL+THfucA7Igv0m7n7n7MuKShwLza+5rb3LsGu2rFDCnududgNUTt3E6TxyZ9+1bUg1HxaTBK+auWbTFW3v9Cd3kIYeRB3zoRNm7nlZgLAXtceHHG7/v7tdpvkzp/KdW86sN/DWe52C2lfTOJfaW1n3WzZvsi/tz+qd+1ZVZ+D+fMFVWW5/KD0RLFcEZLkOhGQIFMGph1Md6NI5ISmf98FHP971OvQV9IkvV7zn0L1daJfyXcnCuOS5VsSPUBZMcVx/z/v4ftMv/DYDFVgmc4LYSSJIR7lET8kodLCxPEUD7yQF8XVF4mplFChnvJCToj9I7oSW125Q0RUJ3hD+EROW7VqG91Yk9qqcvJaqzxlI22LWqtzoyOzUsMXS8sK09SRETNUWelZ4SO2EyrbO18y4ICCkOMfuzrzr5648ln794E3dQj6aQ4aIsUcYuSz/23qhnBDdnaC390v75XeHke+hF1Hs+/PWb6hcRVSeUm0Mm40Nuna1y1Qct5m+2CiKUSWI5BkKSLkSVmBFGFwsSGfkHZlSfe+X5Yg6HsOynGy4LZlidC/VxEYimtqFFE1yUn65i5dApXt9TZdbotY8Buj8jz/Kuiww38iiT2v3PSLLBZK8jQKQVoOXxO8cxeJvtZ78HF7NilC0E9Dv2Y5/Bvvu8xHgXpaG9FgSI1p74kCwMMBYGhZ4U7t/7maE/WrPZP5BeCLqPoR/Hj72GngDX9rBsYtYFSB8HpRtsdxBJ9pwIy/wkSlQHgtgXcZoaq9CNmVD5r0Aq/4EFkI9lYA6GGYcAoTRGEa8LYynReTpQAzbKwOD1tmosY2B5PQ2a3CjlieYdFoBPIyBQb6HJFiTLeN16XbiF4tmjTr509OSkbHXwEGpO+aa0CLem361OrUwF+OXl1a0erzXPQGPFEzmtmrj79wvm39uvWJICHRpGVN0oA6Yhbr0kHSz9uLNkSkW60m7Vp0qjUU7ydRIEoyUQcaazdCzJ1LEfI3tM82f3lofWi9BtGqI0m6dOoVZzFwTtcnsNdHHf4ybonN/duaDGhXq5eCmJSUWqQs2bIkiuSgFgGL2DelbqGpw5+lmUxAscA0TIPRcCu59FfY/79krQc=) format('woff2')}</style><!--/embedded-font-->
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#231F20"/></marker></defs>
+  <rect width="870" height="710" fill="#fff"/>
+  <path d="M110,40 Q430,26 750,30 L750,205 L110,205 Z" fill="#B8E5FC"/>
+  <line x1="110" y1="205" x2="750" y2="205" stroke="#00AEEF" stroke-width="5"/>
+  <g stroke="#00AEEF" stroke-width="4" fill="none" stroke-linecap="round">
+    <path d="M180,60 q20,-8 40,0"/><path d="M300,75 q25,-10 50,0"/><path d="M470,60 q20,-8 40,0"/><path d="M630,62 q25,-10 50,0"/>
+    <path d="M150,120 q25,-10 50,0"/><path d="M250,110 q20,-8 40,0"/><path d="M410,95 q25,-10 50,0"/><path d="M560,95 q20,-8 40,0"/><path d="M660,100 q20,-8 40,0"/>
+    <path d="M120,178 q25,-10 50,0"/><path d="M330,160 q25,-10 50,0"/><path d="M480,150 q25,-10 50,0"/><path d="M620,165 q25,-10 50,0"/>
+  </g>
+  <polygon points="178,205 413,205 413,555 295,688 178,555" fill="#8ACFF0" stroke="#231F20" stroke-width="6" stroke-linejoin="round"/>
+  <rect x="413" y="205" width="239" height="350" fill="#B8E5FC" stroke="#231F20" stroke-width="6"/>
+  <g stroke="#231F20" stroke-width="3" fill="none">
+    <line x1="158" y1="210" x2="158" y2="550" marker-start="url(#ah)" marker-end="url(#ah)"/>
+    <line x1="398" y1="210" x2="398" y2="550" marker-start="url(#ah)" marker-end="url(#ah)"/>
+    <line x1="670" y1="210" x2="670" y2="550" marker-start="url(#ah)" marker-end="url(#ah)"/>
+    <line x1="420" y1="568" x2="648" y2="568" marker-start="url(#ah)" marker-end="url(#ah)"/>
+    <line x1="167" y1="572" x2="279" y2="699" marker-start="url(#ah)" marker-end="url(#ah)"/>
+    <line x1="311" y1="699" x2="423" y2="572" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  </g>
+  <text x="90" y="390" text-anchor="middle">30 m</text>
+  <text x="332" y="390" text-anchor="middle">30 m</text>
+  <text x="742" y="390" text-anchor="middle">30 m</text>
+  <text x="534" y="612" text-anchor="middle">20 m</text>
+  <text transform="translate(170,678) rotate(48.7)" text-anchor="middle">15 m</text>
+  <text transform="translate(422,678) rotate(-48.7)" text-anchor="middle">15 m</text>
+  <text x="295" y="640" text-anchor="middle">A</text>
+  <text x="533" y="530" text-anchor="middle">B</text>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 190" width="576" height="190"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,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) format('woff2')}</style><!--/embedded-font-->
+<text x="8.0" y="60.0" font-family="Quicksand" font-weight="500" font-size="28" fill="#231F20" text-anchor="start">a)</text>
+<circle cx="90" cy="50" r="26" stroke="#231F20" stroke-width="2.5" fill="#fff"/>
+<text x="90.0" y="60.0" font-family="Quicksand" font-weight="500" font-size="27" fill="#231F20" text-anchor="middle">2</text>
+<line x1="116" y1="50" x2="196" y2="50" stroke="#231F20" stroke-width="2.5"/>
+<polygon points="208,50 194,44 194,56" fill="#231F20"/>
+<text x="162.0" y="38.0" font-family="Quicksand" font-weight="500" font-size="26" fill="#231F20" text-anchor="middle">× 5</text>
+<polygon points="240,18 272,50 240,82 208,50" stroke="#231F20" stroke-width="2.5" fill="#fff" stroke-linejoin="round"/>
+<line x1="272" y1="50" x2="348" y2="50" stroke="#231F20" stroke-width="2.5"/>
+<polygon points="360,50 346,44 346,56" fill="#231F20"/>
+<text x="316.0" y="38.0" font-family="Quicksand" font-weight="500" font-size="26" fill="#231F20" text-anchor="middle">: 2</text>
+<polygon points="390,18 424,76 356,76" stroke="#231F20" stroke-width="2.5" fill="#fff" stroke-linejoin="round"/>
+<line x1="420" y1="50" x2="502" y2="50" stroke="#231F20" stroke-width="2.5"/>
+<polygon points="514,50 500,44 500,56" fill="#231F20"/>
+<text x="467.0" y="38.0" font-family="Quicksand" font-weight="500" font-size="26" fill="#231F20" text-anchor="middle">× 7</text>
+<rect x="514" y="24" width="52" height="52" rx="3" stroke="#231F20" stroke-width="2.5" fill="#fff"/>
+<text x="8.0" y="150.0" font-family="Quicksand" font-weight="500" font-size="28" fill="#231F20" text-anchor="start">b)</text>
+<polygon points="90.0,113.0 118.5,133.7 107.6,167.3 72.4,167.3 61.5,133.7" stroke="#231F20" stroke-width="2.5" fill="#fff" stroke-linejoin="round"/>
+<text x="90.0" y="150.0" font-family="Quicksand" font-weight="500" font-size="27" fill="#231F20" text-anchor="middle">40</text>
+<line x1="119" y1="140" x2="196" y2="140" stroke="#231F20" stroke-width="2.5"/>
+<polygon points="208,140 194,134 194,146" fill="#231F20"/>
+<text x="163.5" y="128.0" font-family="Quicksand" font-weight="500" font-size="26" fill="#231F20" text-anchor="middle">: 5</text>
+<polygon points="240,108 272,140 240,172 208,140" stroke="#231F20" stroke-width="2.5" fill="#fff" stroke-linejoin="round"/>
+<line x1="272" y1="140" x2="348" y2="140" stroke="#231F20" stroke-width="2.5"/>
+<polygon points="360,140 346,134 346,146" fill="#231F20"/>
+<text x="316.0" y="128.0" font-family="Quicksand" font-weight="500" font-size="26" fill="#231F20" text-anchor="middle">: 2</text>
+<polygon points="390,108 424,166 356,166" stroke="#231F20" stroke-width="2.5" fill="#fff" stroke-linejoin="round"/>
+<line x1="420" y1="140" x2="502" y2="140" stroke="#231F20" stroke-width="2.5"/>
+<polygon points="514,140 500,134 500,146" fill="#231F20"/>
+<text x="467.0" y="128.0" font-family="Quicksand" font-weight="500" font-size="26" fill="#231F20" text-anchor="middle">: 2</text>
+<rect x="514" y="114" width="52" height="52" rx="3" stroke="#231F20" stroke-width="2.5" fill="#fff"/>
+</svg>

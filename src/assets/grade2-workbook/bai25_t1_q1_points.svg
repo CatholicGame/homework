@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="450" height="210"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAARkABAAAAAACBQAAAQLAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbdhwqBmA/U1RBVCoAPBEICoR0g3oBNgIkAxgLDgAEIAWEOgcgDAcbcAZRVFHiQL4u4IYM/MDMEA+horbWFNXiXxStbfRVHbguQrULA+MdlgExXMIfXzGxjxEEdn1fPTO7B0CZ6EjK7jIoBCP4wyGYvfv8y/m7B0UoJ4Ar8eD207OHtsxLlS75T1yITLjVheVs/bDuvZ/gd1/WRES3q4MilFbnuLbkKuU1IMGTxcdOMM0g1EQDioNKKMD6M7g28+f/cnq39evxbbHDwzuzaw7KxqRoLRsTs0CjwPbCwANJZGGA1kudjuQarMMeuta0iHh7F4HigEQIOSFQVH2nWP+XrzZMLpQpgEkZfDEqFuhJAAUOSiYRh8IS1Z9PffuYFAo+ICRAA079JHXVDW2Tyx62O0taxN9yJPuTyQCGnQ2PmXCallwp6P8c+ReDf31U77flyc5HKyAg/usD1MaFUFigPAnVsTWmRRIkAiKNv0GCFOVxgfIyGgN5mZDopzro43v2bgtAiAJKIeRBcRTGY/wHyACJVAhRLatWrHiLxtjf37B0hbTfcaehf/U6G9th9y5zg7TfOE011dQJC7C3vHnTvyp2+2qFX74pWjz/nNy2IE8oWg1GPjCxrScXrcQmtCvq+ZqrZ1lL25yTu6L7jwPe6mIjup3ZYS9vsbav3wzrI4htqwHcWQeKOz3dmw2WD5AK68W9DfoC+g58dca9+LaYPpChBWR9Wju5YxuLf3ruuK+7bmFyuTlavhFbNaLgamJEN9ySRoSyRC/e4+v37tK6vFBPG2Hn/ZqZdeUmbW6BcVSozGV+bw5y+9UFf1/ltPgyJvRDF/xX3//MD81/u267YtA/Gbm139wNDUbtE8/wQ4X7PTp4fJcOq2gItuqyudrOSELfnZPTovbr89msu1+XZf/J/1Si3tuMvbXRt1g+0j3XMmu2Q76rTYh4QBwyiXAUyUeq9+9cth+mUXQapIvfsycSixSp0v0whrigGiAL/YweZMb9Mi7GIHMKiBWfjzoEDYwUMFyMYbSTQWz4stPiZqt0yhfARhLS2Dfo76Nonur+TyFNf4OPLZpfwy+fb/5Bxf3b7zvyEhC8v960s2nU0Efw5HwyGLa705IPmdxdWuTS/X4ymc5ri/cI3FfEclxkRYjK4IoNNVOZTZSMjmyqffq3ZllsTtWsteUj2PGsoHjcIpw+3gP9hCJjCZvJQtCpYyduoDaLDjUINpUrJQtoUF0i5NCpCLonEEsokULbLIREUreOHDHZOfMFxSFVyHekeG1CN3QgIjN5bAHZMN7tqAPbCyp9Ns/YoXalHfvQUJ1bUZMupUsM6DToRShAUFVhgA6t6lffDaKvp6TX/jaT4JElzhw6duzSnaqaqmd3GtIDuJtIpOyeWnDVcyfUswD+/iiNTfBxoEC15al3oqBbHQI=) format('woff2')}</style><!--/embedded-font-->
+<rect x="0" y="0" width="900" height="420" fill="#FFFFFF"/>
+<line x1="245" y1="72" x2="785" y2="215" stroke="#0096D6" stroke-width="5.5" stroke-linecap="round"/>
+<line x1="38" y1="252" x2="847" y2="403" stroke="#0096D6" stroke-width="5.5" stroke-linecap="round"/>
+<circle cx="245" cy="72" r="7" fill="#231F20"/>
+<circle cx="785" cy="215" r="7" fill="#231F20"/>
+<circle cx="38" cy="252" r="7" fill="#231F20"/>
+<circle cx="847" cy="403" r="7" fill="#231F20"/>
+<circle cx="500" cy="200" r="7" fill="#231F20"/>
+<text x="247" y="58" font-size="56" font-weight="500" fill="#231F20" text-anchor="middle" font-family="Quicksand">A</text>
+<text x="790" y="198" font-size="56" font-weight="500" fill="#231F20" text-anchor="middle" font-family="Quicksand">B</text>
+<text x="462" y="205" font-size="56" font-weight="500" fill="#231F20" text-anchor="middle" font-family="Quicksand">C</text>
+<text x="40" y="232" font-size="56" font-weight="500" fill="#231F20" text-anchor="middle" font-family="Quicksand">M</text>
+<text x="852" y="386" font-size="56" font-weight="500" fill="#231F20" text-anchor="middle" font-family="Quicksand">N</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 570 414" width="570" height="414"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAATUABAAAAAACRAAAAR5AAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbgRAcKgZgP1NUQVQqAEQRCAqGRIUcATYCJAMgCxIABCAFhDoHIAwHGzwHUVRQwoG+SshwDFwdq2S9ONz+rMin1wotN9uBCVGe+r0mHur3vju796X1YlsXMsIkqgASDcYgLLIqgzAM45v8F9tELBF3i39LbskT+CQjYr1tCE+7EpeC2JxJzhvtgyKieGnnPiC+y3n9Xwh8uxp3/+eY6bJ0z1NsOJ3ZXyQ1V1pk8AQH1I0DHeUd6OHhgfHZtkQJGoyoz6JTvYLtvbsItAJSCA1CoNmsNew0iXsj7FNtGSOsCr4XSY+NeYwwdKZK8oZGaXETu14IBWq/hYKxdsPHF1KV85ZULxGgCKEIJB/heUN8P2tsrnItX5DIjy0BiJtnP/EA1nESwSD+o+TtyB/EkubFkak+xcUmOf53D2ASK3QjujdzFPau2S1RwPM6UeIPgERBL9zjHMImRKNGiVMCib3lCG+W6Xbc4DDUCvxbcRAaQSdEK9FE3AMEVIBUhBRCnpYRZQymA2Gb1UIWVjFlCX3UKtw0ETZ9uWD0UkHrVOBbQR+1TFhVUswqxEZfBb4rVxKko6+eVcuZK3Sm9TEk/2pGIV0GhIzRl3H+SyV0Ef5GXF9w6FTPpXP5U5YId12jj7oyGMB3VYQMQKcvFUydw19y4sqlvKYMnP86iOYq1tRXw0LB0jWVowFARSawcoaIKKwevVTQGNw82zB1JSD6VjSdoYSxc5mwzKbgZuw5GodlgTaTmrEfFV8hj7x0iQAaXzr6/Gacf9M5Ov1/OjX/FYpGMng8NtmE756ZcYCVieI6mqhINw4zMuMtumimJtPCzgRDdpdUleXbTakZts4yXSrvtTE5KMyQ8S6DZ6LAZojBJvgj6/rGn2tu2F+EeqdZLbeaSL3uoWlotKfbY5CNGr9vzMZrhHShFa01J6eaGqPiLM0pKTWGMEu6gH9t8+z9ed/H/Uhg6VIGemorQ4fkZwX5a6p9QemBdTLQe2qH4NRa/YCkmth5/qr6Xxm/7Pv2mTWp9r5pweK6wPQ8W/jZngGlwLeHllpMnaBmjD8U86E7gsGeCNITqoa8biqi0WiSohdNqYGwGMJkiHFbQGUYyG3P6wFpwsTVQaiVmwC5gdyOSCOXZkxa6jhv4iaA1iHFQd7KCNRbXRwSchr7445AxAwe7GWhhndXb7yJaE63KVt9AQTvoSjxYfOXqjkRn0oovwF+OqrPAfy6vSlc7771YY8A6iUI3jNNOUShgvSAM45tzEsw7BDCjlXSoRw9p2RC56pbHVH8M1A02oaDoNuaPMNF1UQMQpQVxiNmpfbYZxW7SaiubFh1htNLVb+OmRQStMZnRZZv+EO8RKqT8zhcJbC2tHIC3lwWIKt4DIGCJmYCklzCZzGUwFWl5ErkCmDIVSqlCmcLCw6PxfSKbs6QiCzinZuzNGZSGkfIE9M0aKNF/ukvmogn1JlHDh2ZAk2WdUBhKVhyNYuz7yURs1UL/mp7azCohddMgDsjceS/5qiENLmNuaWlvQuBSPB0icA/Q37F56T2GHWBGKX4IX4KQfKA/iJPJYIDtTm8hv+X/O8RxwIA) format('woff2')}</style><!--/embedded-font-->
+<line x1="51.0" y1="78.0" x2="510.0" y2="78.0" stroke="#00AEEF" stroke-width="3.5"/>
+<line x1="510.0" y1="78.0" x2="510.0" y2="330.0" stroke="#00AEEF" stroke-width="3.5"/>
+<line x1="510.0" y1="330.0" x2="51.0" y2="330.0" stroke="#00AEEF" stroke-width="3.5"/>
+<line x1="51.0" y1="330.0" x2="51.0" y2="78.0" stroke="#00AEEF" stroke-width="3.5"/>
+<line x1="339.0" y1="78.0" x2="165.0" y2="330.0" stroke="#00AEEF" stroke-width="3.5"/>
+<line x1="51.0" y1="78.0" x2="510.0" y2="330.0" stroke="#00AEEF" stroke-width="3.5"/>
+<circle cx="51.0" cy="78.0" r="5" fill="#231F20"/>
+<text x="33.0" y="48.0" font-family="Quicksand" font-size="38" font-weight="500" fill="#231F20" text-anchor="middle" >A</text>
+<circle cx="339.0" cy="78.0" r="5" fill="#231F20"/>
+<text x="339.0" y="48.0" font-family="Quicksand" font-size="38" font-weight="500" fill="#231F20" text-anchor="middle" >M</text>
+<circle cx="510.0" cy="78.0" r="5" fill="#231F20"/>
+<text x="528.0" y="48.0" font-family="Quicksand" font-size="38" font-weight="500" fill="#231F20" text-anchor="middle" >B</text>
+<circle cx="51.0" cy="330.0" r="5" fill="#231F20"/>
+<text x="33.0" y="396.0" font-family="Quicksand" font-size="38" font-weight="500" fill="#231F20" text-anchor="middle" >D</text>
+<circle cx="165.0" cy="330.0" r="5" fill="#231F20"/>
+<text x="165.0" y="396.0" font-family="Quicksand" font-size="38" font-weight="500" fill="#231F20" text-anchor="middle" >N</text>
+<circle cx="510.0" cy="330.0" r="5" fill="#231F20"/>
+<text x="534.0" y="390.0" font-family="Quicksand" font-size="38" font-weight="500" fill="#231F20" text-anchor="middle" >C</text>
+<circle cx="259.8" cy="192.7" r="5" fill="#231F20"/>
+<text x="277.8" y="234.7" font-family="Quicksand" font-size="38" font-weight="500" fill="#231F20" text-anchor="middle" >P</text>
+</svg>

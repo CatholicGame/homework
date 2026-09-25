@@ -5,7 +5,9 @@ export default defineConfig({
   publicDir: 'public',
   server: {
     port: 5173,
-    open: true
+    open: true,
+    // Sách nguồn PDF (bản quét lớn) không phải mã nguồn — đừng theo dõi, tránh lỗi EBUSY khi file đang mở/chép.
+    watch: { ignored: ['**/docs/**'] }
   },
   build: {
     outDir: 'dist',

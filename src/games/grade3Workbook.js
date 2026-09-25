@@ -4906,7 +4906,11 @@ export function renderWorkbook(app, onBack, cfg) {
                   ${t.rows.map((row, r) => `<tr class="${isSampleRow(row) ? 'gw-table-sample-row' : ''}">${rowLabelOf(row) ? `<td class="gw-table-rowlabel">${rowLabelOf(row)}</td>` : ''}${rowCells(row).map((cell, c) => {
                     if (cell && typeof cell === 'object' && cell.blank) {
                       const numeric = isPlainInt(cell.answer);
-                      return `<td class="gw-table-input-cell"><input type="text" ${numeric ? 'inputmode="numeric"' : ''} class="game-input gw-table-input" data-t="${ti}" data-r="${r}" data-c="${c}" autocomplete="off"></td>`;
+                      const inputHtml = `<input type="text" ${numeric ? 'inputmode="numeric"' : ''} class="game-input gw-table-input" data-t="${ti}" data-r="${r}" data-c="${c}" autocomplete="off">`;
+                      // cell.prefix: the book's blue sample already written at the start of
+                      // the cell, before the dotted part (Lớp 2 Bài 25 "MN, ........").
+                      if (cell.prefix) return `<td class="gw-table-input-cell"><div class="gw-table-prefix-wrap"><span class="gw-sample-text gw-table-prefix">${cell.prefix}</span>${inputHtml}</div></td>`;
+                      return `<td class="gw-table-input-cell">${inputHtml}</td>`;
                     }
                     // sampleCell(): a single blue "theo mẫu" cell/column, for
                     // when the book's sample isn't a whole row.
@@ -5028,6 +5032,14 @@ export function renderWorkbook(app, onBack, cfg) {
 
   function checkBlank(b, value) {
     if (b.validate) return b.validate(value);
+    // Ô nhiều chỗ trống: giá trị được nối bằng dấu phẩy ("7,5,4") — so từng phần,
+    // không để parseFloat đọc "7,5,4" thành 7.5 (bỏ qua các ô sau).
+    const ans = String(b.answer);
+    if (ans.includes(',')) {
+      const want = ans.split(',').map(normalize);
+      const got = String(value).split(',').map(normalize);
+      return got.length === want.length && got.every((g, i) => g === want[i]);
+    }
     return normalize(value) === normalize(b.answer);
   }
 
@@ -5777,6 +5789,9 @@ function injectStyles() {
     .gw-table-blanks { margin-top: 0.9rem; }
     .gw-table-given.gw-table-given-wrap { white-space: normal; line-height: 1.25; }
     .gw-table-input-cell { padding: 0 !important; min-width: 52px; }
+    .gw-table-prefix-wrap { display: flex; align-items: center; }
+    .gw-table-prefix { padding-left: 0.6rem; white-space: nowrap; font-weight: 700; }
+    .gw-table-prefix-wrap .gw-table-input { flex: 1 1 auto; min-width: 4.5rem; text-align: left; padding-left: 0.4rem; }
     .gw-table-input { display: block; width: 100%; height: 40px; text-align: center; font-size: 1.05rem; font-weight: 700; font-family: inherit; color: inherit; background: transparent; border: none; border-radius: 0; box-sizing: border-box; }
     .gw-table-input:focus { outline: none; box-shadow: inset 0 0 0 2px #34D399; }
     .gw-table-input.e3-wrong-input { background: #fee2e2; color: #991b1b; box-shadow: inset 0 0 0 2px #ef4444; }

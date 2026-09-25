@@ -10,8 +10,8 @@
  * useful on a phone/tablet.
  */
 // Hình vẽ lại (SVG) → ảnh scan gốc của sách (thư mục orig/, chỉ tải khi bé bấm "Ảnh gốc").
-const SVG_URLS = import.meta.glob('../assets/grade3-*/*.svg', { eager: true, query: '?url', import: 'default' });
-const ORIGINALS = import.meta.glob('../assets/grade3-*/orig/*.png', { query: '?url', import: 'default' });
+const SVG_URLS = import.meta.glob('../assets/grade[23]-*/*.svg', { eager: true, query: '?url', import: 'default' });
+const ORIGINALS = import.meta.glob('../assets/grade[23]-*/orig/*.png', { query: '?url', import: 'default' });
 const SVG_BY_URL = new Map(Object.entries(SVG_URLS).map(([path, url]) => [url, path]));
 
 function originalLoader(src) {

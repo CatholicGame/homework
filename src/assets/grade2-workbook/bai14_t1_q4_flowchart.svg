@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 874 150" width="874" height="150"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAARwAA8AAAAACFgAAAQYAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAG3wcKgZgP1NUQVQqAFQRCAqFQIRjATYCJAMcCxAABCAFhDoHIAwHG+UGUZQwSjnIz4RMZfDFYonL/vXUzFOI6+K1KOFD2jUent/ff2ufe9+Hh0JkAtnkrD6ODG3ipHFj/ojnYpuIJSqLf0vYzJMn84iI9baJcfmQBtKNaiAj1XYLgJ/uV/pnI8JafEHXbP5svs2g1c6rBjvBA6ukKvAoPeAvdOZsyJmo4MPmkZprGgvbb7BXCtQZaghbunztOuzBbScPY5Xw3TB1YNfxwxiaUSkFA9AVt6NiMNnQ3ByqIqTfFqEEvGlC5HbBoHupz2Z3Ho7nt+bZxWUaF60qpJtpE8Qabyex2TDGgyBIF5J/inypvzGDOxd/M0z5NCawDhcdaRYD4eJ9wInQT9QXdmbP3pMBSUAU0QoSCnSFC3RFWIhoUCMpjTEwtRjcOWf0WfO/5a/5MO/mnR+twch6vJ2sGaEaNKEe/4kZEFACQlJIkug5vGVwU9PQlqampvqbz6KyjerYiPJOyhNxaWmhVgwAytx+v/JzUwLzLvBjQCvWHGX6VIocwaGDi7t4dnQGyNUh54qLC2De+f54fGOpnp2F0GZCSVS5tByIUHrnJ10yiJZdxmedc5e20BU7K43WuFtFArQs3F2ECBa5aPOUNHuIvnNxISDSupsydeE0V2oPPXfy3IOYRGNrjKMc+wDeMWKAhEWiv/qBlEJUm4u1asYSUwk0y+7QxN9YkjExglgC6I9UcxZXM+PykJOghklGmwQF2OpS8+CEXBqOcpdtqaprKe1ak4LSMeQSk7QQ6uG1l9JSDw7U1jUX0xUWMpQU4zN6kZQxEBM0lhAVMNAXA8T7ckkn8OqLKKu7Byppawcoef9NWUrQoObdpv3lVkRZycVLXlXNQ17ZRVns/6mjShBazccfTRVUNNRXVjbUT3/UtjZREnL9EhH+chVSsjYB0DYqNEWZBAbYUPnCAsqwg7+jafx8yp/20Squ56WlEKKj2iBtHas4r9GTlFFcTEB/2kGY6EQgOBLbnZP3DkklJN+6yCVk8h7yI3IK4EegduV3Ek/iMzTv6gTBZRRF3LjwwObXlua5bTXg4i98GbdlH35/e+WAy22Jmj6hSgLBByiWVsYFYBsog+rYKB9ncWmAWcsP02SPMTN00khDKKrNh4Mgl9U6jouylugJ6dlD/+hpT5piur0wNZauL1n2it5xFqoinIc9QUO82VDxNj5aEsVN6lh2Dob6BhbA0zbArXA0L1NCHVzTyDVAxsGa9fTcjtIM8Ow8j7Olnh7L4RxeqF1aFPQyXjU1qo5YsXwnVKr4Vr0K4IDpwPGbbu5pgQxU8zwV3I3MSEtDB4cozME5A3m7Ldrn0k8L4LhKJDdYHPCjTEtHuvr6plbOl/N+lcOxg95kpYJOTesgy0pGUh8f0IlRulMEOJAfmcza30a+8qa8AwA=) format('woff2')}</style><!--/embedded-font-->
+<g fill="none" stroke="#231F20" stroke-width="3">
+<circle cx="60" cy="88" r="38" fill="#fff"/>
+<path d="M98 88H253"/><path d="M255 88l-18 -7v14z" fill="#231F20"/>
+<path d="M310 33L365 88L310 143L255 88Z" fill="#fff"/>
+<path d="M365 88H515"/><path d="M517 88l-18 -7v14z" fill="#231F20"/>
+<path d="M566 38L617 128H515Z" fill="#fff"/>
+<path d="M595 88H761"/><path d="M763 88l-18 -7v14z" fill="#231F20"/>
+<polygon points="800.0,14.0 814.7,55.8 859.0,56.8 823.8,83.7 836.4,126.2 800.0,101.0 763.6,126.2 776.2,83.7 741.0,56.8 785.3,55.8" fill="#fff"/>
+</g>
+<g font-family="Quicksand" font-weight="500" font-size="30" fill="#231F20" text-anchor="middle">
+<text x="60" y="99">16</text>
+<text x="165" y="72">− 8</text>
+<text x="435" y="72">+ 6</text>
+<text x="668" y="72">− 9</text>
+</g>
+</svg>

@@ -5,7 +5,13 @@
 
 export const GRADES = [
   { num: 1, title: 'Lớp 1', icon: '1️⃣', color: '#FF6B9D', games: [] },
-  { num: 2, title: 'Lớp 2', icon: '2️⃣', color: '#60A5FA', games: [] },
+  {
+    num: 2, title: 'Lớp 2', icon: '2️⃣', color: '#60A5FA',
+    games: [
+      { id: 'grade2-workbook', icon: '📒', color: '#0EA5E9', title: 'Vở Bài Tập Toán 2 — Tập Một', desc: 'Bài 1–36 — Kết nối tri thức với cuộc sống' },
+      { id: 'grade2-workbook-2', icon: '📙', color: '#F59E0B', title: 'Vở Bài Tập Toán 2 — Tập Hai', desc: 'Bài 37–75 — Kết nối tri thức với cuộc sống' },
+    ],
+  },
   {
     num: 3, title: 'Lớp 3', icon: '3️⃣', color: '#34D399',
     games: [

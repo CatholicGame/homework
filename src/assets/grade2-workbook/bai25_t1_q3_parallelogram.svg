@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 460" width="430" height="230"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAQUABAAAAAAB7AAAAO5AAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbbhwqBmA/U1RBVCoAPBEICoQgg1ABNgIkAxQLDAAEIAWEOgcgDAcbOgZArgpsY9hkhzitxcOGsVfsl6avHcqKEcHTfrR5u/8MN0/iFiERGplkHtJl8CbmP+wvD0qIF98BTk7WPqC2/mtZbDveP70f1+/iraQmUBu5Jt4KbpA2aC3U6ijJJOHAyvB0b2J79Ecm3HqieIcYAw58QF9ssQGgq0v1vyf2GqsVMPgasy/V9jD0FHpL6dbJYwEPlmaZgLZm8WDwwTzmdJEMFQvSG/J5KSLOHkSgGiAJoRACVbTT4hu3jEmB6EakvhKiCvhidGwgaishwvIopNhQLmkUSysFPg12SHIHK4tu2pHfQYFN6NhCkbrHvxLSCdp4PKZak8RiTyt2hB+kP0beG/5Mt++L/6UUp6jiERDf002g1b4SywXq/d1mfHuo4noKkoDI8QUkZNTjF6gnoBOPUoWQzLAfTLeb/xf/XwBC/KcmQgmogjJcxCNAAQghyZ1aCXVM65H8AamgwK1owXRKCcVRhSYqKtovmpRoIhNmWceKx9RNboWQ4JWam1oEqISvH5W5d7cdvXWrSjY0mta9uBBaPI83JuGmASUcvXlY1MJ9ZWUVJJKzQebpqSnWA0fIruot0Yw66/dWrBGECz1wVX0H8475UIUEODqhquc7HL2p0VfOSQOtke1RH4yUYROX24T6/X+rF2hUVDRe8L16sgumI4ZjGSmG96MLqeA1ooZwvNrV24qEIHEhVdwComE2QWp70bFWCDDvnu7qlOvj7ZSf7u5+suEPAc49ISzEn/mteW/tOjzVaX2yvkUJ/HevURDnBakDYs2Gx4hHinO8hbY4Fus1WbsW+OCc9l42fzj0vFPb95evVtYZiG32ZiJtrpFRra6W4KHYTcT4EYiKjAqWoCukrpMCOqrCo6Kqw/07khL9O6s9IXIDAZ3gwV5e5Diu1Htzl+gN+1qe8wu4333JOTx7eOad7puS66d9lEogeCtRHpTH3rh5dTShJE3yFKRwuwcLW+ht6O4LlJjMDwJmVdjOL4oKohGPFwotIg4lNWJAKOuXkNGiKlSiSZrN0gw1XhVUi7OK5ze8CWNJZA4Vg0LTgZaGpiFwQiOAPQMDw9EgRDiwo5KwCBgdmDDoaBKVBhTQdDqZZqSujsKomcGAqsFIBHVGZ6kIlioZgsJjiBAWhKi+g+lLCAGD56hxVxdVAKvPruCAoCGoTAQcWJKIdGDDMIYAUvzdoxZYPSWJ22kUAw+haqtpaOgZ29jaWBhz5Fbxi63SMHsagaufO7GrLvj6p3AMg8AP/J8+UHo1fs8yDgAA) format('woff2')}</style><!--/embedded-font-->
+<rect x="0" y="0" width="860" height="460" fill="#FFFFFF"/>
+<polygon points="215,82 802,82 627,387 38,387" fill="none" stroke="#0096D6" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="215" cy="82" r="7" fill="#231F20"/>
+<circle cx="802" cy="82" r="7" fill="#231F20"/>
+<circle cx="627" cy="387" r="7" fill="#231F20"/>
+<circle cx="38" cy="387" r="7" fill="#231F20"/>
+<text x="212" y="66" font-size="56" font-weight="500" fill="#231F20" text-anchor="middle" font-family="Quicksand">M</text>
+<text x="808" y="60" font-size="56" font-weight="500" fill="#231F20" text-anchor="middle" font-family="Quicksand">N</text>
+<text x="38" y="440" font-size="56" font-weight="500" fill="#231F20" text-anchor="middle" font-family="Quicksand">Q</text>
+<text x="632" y="440" font-size="56" font-weight="500" fill="#231F20" text-anchor="middle" font-family="Quicksand">P</text>
+</svg>
