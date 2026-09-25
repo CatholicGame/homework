@@ -19,9 +19,15 @@ service cloud.firestore {
       return n is int && n >= 0 && n <= 20000;
     }
 
-    // Sao theo lớp 1–5: { g1?, g2?, g3?, g4?, g5? }
+    // Lớp 1–5, hoặc -1 = Tiền tiểu học (0 = chưa chọn lớp). Giữ khớp với PRESCHOOL trong src/data/grades.js.
+    function validGrade(g) {
+      return g is int && (g == -1 || (g >= 1 && g <= 5));
+    }
+
+    // Sao theo lớp: { 'g-1'?, g1?, g2?, g3?, g4?, g5? }
     function validGradeStars(m) {
-      return m is map && m.keys().hasOnly(['g1', 'g2', 'g3', 'g4', 'g5'])
+      return m is map && m.keys().hasOnly(['g-1', 'g1', 'g2', 'g3', 'g4', 'g5'])
+        && (!('g-1' in m) || validStars(m['g-1']))
         && (!('g1' in m) || validStars(m.g1))
         && (!('g2' in m) || validStars(m.g2))
         && (!('g3' in m) || validStars(m.g3))
@@ -39,7 +45,7 @@ service cloud.firestore {
                                'dayKey', 'dayStars', 'weekKey', 'weekStars', 'monthKey', 'monthStars', 'updatedAt'])
         && d.nickname is string && d.nickname.size() <= 20
         && d.avatar is string && d.avatar.size() <= 40
-        && d.grade is int && d.grade >= 1 && d.grade <= 5
+        && validGrade(d.grade)
         && validStars(d.totalStars)
         && validGradeStars(d.gradeStars)
         && validPeriod(d.dayKey, d.dayStars, 10)
@@ -63,7 +69,7 @@ service cloud.firestore {
         && d.gender in ['', 'boy', 'girl']
         && d.avatar is string && d.avatar.size() <= 40
         && d.name is string && d.name.size() <= 20
-        && d.grade is int && d.grade >= 1 && d.grade <= 5
+        && validGrade(d.grade)
         && d.updatedAt == request.time;
     }
 
@@ -79,7 +85,7 @@ service cloud.firestore {
       return d.keys().hasOnly(['email', 'name', 'grade', 'createdAt', 'lastSeenAt'])
         && d.email == request.auth.token.email
         && d.name is string && d.name.size() <= 100
-        && d.grade is int && d.grade >= 0 && d.grade <= 5
+        && d.grade is int && (d.grade == 0 || validGrade(d.grade))
         && d.lastSeenAt == request.time;
     }
 

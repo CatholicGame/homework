@@ -1,9 +1,20 @@
 /**
- * Danh sách lớp 1–5 và các sách/trò chơi của từng lớp.
+ * Danh sách lớp (Tiền tiểu học, lớp 1–5) và các sách/trò chơi của từng lớp.
  * Bé chọn lớp trong hồ sơ; trang chủ chỉ hiện card của lớp đó.
  */
 
+// Mã lớp của Tiền tiểu học. Không dùng 0: 0 / thiếu nghĩa là "chưa chọn lớp" (hồ sơ, bảng xếp hạng,
+// firestore.rules). Mã này phải khớp với firestore.rules và BOOK_GRADE trong engine/stars.js.
+export const PRESCHOOL = -1;
+
 export const GRADES = [
+  {
+    num: PRESCHOOL, title: 'Tiền tiểu học', short: '🧸', sub: 'Tiền TH', icon: '🧸', color: '#EC4899',
+    games: [
+      { id: 'pre1-math', icon: '🐰', color: '#EC4899', title: 'Bé Học Vui Toán — Tập 1', desc: 'Đếm và viết số 1–20' },
+      { id: 'pre2-math', icon: '🐊', color: '#7C3AED', title: 'Bé Học Vui Toán — Tập 2', desc: 'So sánh: bằng nhau, nhiều hơn – ít hơn, dấu > < =' },
+    ],
+  },
   { num: 1, title: 'Lớp 1', icon: '1️⃣', color: '#FF6B9D', games: [] },
   {
     num: 2, title: 'Lớp 2', icon: '2️⃣', color: '#60A5FA',
@@ -26,4 +37,9 @@ export const GRADES = [
 
 export function getGrade(num) {
   return GRADES.find(g => g.num === num) || null;
+}
+
+/** Tên lớp để hiển thị: "Lớp 3", "Tiền tiểu học"; `fallback` khi chưa chọn lớp. */
+export function gradeTitle(num, fallback = '') {
+  return getGrade(num)?.title || (num ? `Lớp ${num}` : fallback);
 }

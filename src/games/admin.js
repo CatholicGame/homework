@@ -8,6 +8,7 @@ import { isLeaderboardConfigured, needsConnect, connectLeaderboard } from '../en
 import { preloadAuth, getCurrentUser } from '../engine/auth.js';
 import { avatarUrl } from '../engine/profile.js';
 import { isAdminUser, fetchStudents } from '../engine/admin.js';
+import { PRESCHOOL, gradeTitle } from '../data/grades.js';
 
 const PAGE_SIZE = 20;
 const CHART_DAYS = 30;
@@ -22,7 +23,7 @@ const fmtDate = (ms) => (ms ? new Date(ms).toLocaleDateString('vi-VN') : '—');
 const fmtDateTime = (ms) => (ms
   ? new Date(ms).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
   : '—');
-const gradeLabel = (g) => (g ? `Lớp ${g}` : 'Chưa chọn');
+const gradeLabel = (g) => gradeTitle(g, 'Chưa chọn');
 
 const SORTS = [
   { id: 'created', label: 'Mới đăng ký', key: (r) => r.createdAt },
@@ -119,7 +120,7 @@ export function render(app, onBack) {
       { label: 'Hoạt động hôm nay', value: count(r => r.lastSeenAt >= today) },
       { label: 'Hoạt động 7 ngày', value: count(r => r.lastSeenAt >= since(7)) },
     ];
-    const gradeCounts = [1, 2, 3, 4, 5, 0].map(g => ({ g, n: count(r => (r.grade || 0) === g) }));
+    const gradeCounts = [PRESCHOOL, 1, 2, 3, 4, 5, 0].map(g => ({ g, n: count(r => (r.grade || 0) === g) }));
 
     body.innerHTML = `
       <div class="adm-tiles">
@@ -297,7 +298,7 @@ function downloadCsv(rows) {
   const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
   const lines = [
     ['Biệt danh', 'Tên Google', 'Email', 'Lớp', 'Sao', 'Ngày đăng ký', 'Lần cuối'],
-    ...rows.map(r => [r.nickname, r.name, r.email, r.grade || '', r.stars, fmtDate(r.createdAt), fmtDateTime(r.lastSeenAt)]),
+    ...rows.map(r => [r.nickname, r.name, r.email, r.grade ? gradeLabel(r.grade) : '', r.stars, fmtDate(r.createdAt), fmtDateTime(r.lastSeenAt)]),
   ].map(l => l.map(cell).join(','));
   const blob = new Blob([`﻿${lines.join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');

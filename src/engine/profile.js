@@ -23,7 +23,7 @@ function storeKey() {
   return `tth_profile_${getCurrentUser()?.id || 'guest'}`;
 }
 
-/** { gender?: 'boy'|'girl', avatar?: 'boys/boy3', name?: string, grade?: 1–5, setupDone?: true } */
+/** { gender?: 'boy'|'girl', avatar?: 'boys/boy3', name?: string, grade?: 1–5 | -1 (Tiền tiểu học), setupDone?: true } */
 export function getProfile() {
   try { return JSON.parse(localStorage.getItem(storeKey())) || {}; } catch { return {}; }
 }
@@ -44,7 +44,7 @@ export function isSetupDone() {
   return !!p.setupDone && !!p.grade;
 }
 
-/** Lớp bé đang học (1–5), null nếu chưa chọn. */
+/** Lớp bé đang học (1–5, -1 = Tiền tiểu học), null nếu chưa chọn. */
 export function getProfileGrade() {
   return getProfile().grade || null;
 }

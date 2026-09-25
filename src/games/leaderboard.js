@@ -9,6 +9,7 @@ import {
 import { preloadAuth } from '../engine/auth.js';
 import { getProfile, getProfileGrade, avatarUrl } from '../engine/profile.js';
 import { dayKey, weekKey, monthKey } from '../engine/activity.js';
+import { gradeTitle } from '../data/grades.js';
 
 const TOP_N = 100;
 const MEDALS = ['🥇', '🥈', '🥉'];
@@ -72,8 +73,8 @@ export function render(app, onBack, { onEditProfile } = {}) {
         <button type="button" class="lb-refresh" id="lb-refresh" title="Tải lại" aria-label="Tải lại bảng xếp hạng" hidden>🔄</button>
       </div>
       <div class="lb-card">
-        <h1 class="lb-title">🏆 Bảng xếp hạng Lớp ${grade}</h1>
-        <p class="lb-subtitle">Các bạn cùng học lớp ${grade} · <button type="button" class="lb-link" data-act="edit-profile">Đổi lớp</button></p>
+        <h1 class="lb-title">🏆 Bảng xếp hạng ${gradeTitle(grade)}</h1>
+        <p class="lb-subtitle">Các bạn cùng học ${gradeTitle(grade).toLowerCase()} · <button type="button" class="lb-link" data-act="edit-profile">Đổi lớp</button></p>
         <div class="lb-tabs" role="tablist">
           ${PERIODS.map(p => `<button type="button" role="tab" class="lb-tab" data-tab="${p.id}">${p.label}</button>`).join('')}
         </div>
@@ -174,7 +175,7 @@ export function render(app, onBack, { onEditProfile } = {}) {
         ${top.map(r => studentRow(r, r.uid === myUid)).join('')}
       </ol>
       ${meOutside ? `<div class="lb-me-sep">⋯</div><ol class="lb-list">${studentRow(me, true)}</ol>` : ''}
-      ${me ? '' : `<p class="lb-hint">Em chưa có tên trên bảng này — làm bài lớp ${grade} để nhận sao nhé! 💪</p>`}
+      ${me ? '' : `<p class="lb-hint">Em chưa có tên trên bảng này — làm bài ${gradeTitle(grade).toLowerCase()} để nhận sao nhé! 💪</p>`}
       ${me && !getProfile().name ? `<div class="lb-note">Em đang hiện là "${ANON}". <button type="button" class="lb-link" data-act="edit-profile">Đặt biệt danh</button></div>` : ''}
     `;
     body.querySelectorAll('[data-act="edit-profile"]').forEach(b => { b.onclick = () => onEditProfile?.(); });

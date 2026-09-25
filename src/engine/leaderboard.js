@@ -5,7 +5,7 @@
  *   { nickname, avatar, grade, totalStars, gradeStars: { g3: 120, … },
  *     dayKey, dayStars, weekKey, weekStars, monthKey, monthStars, updatedAt }
  * grade = lớp bé chọn trong hồ sơ; bảng chỉ so sánh các bạn cùng lớp.
- * gradeStars = sao ở sách của từng lớp (1–5) — "Mọi lúc" dùng gradeStars của lớp đó.
+ * gradeStars = sao ở sách của từng lớp (1–5, g-1 = Tiền tiểu học) — "Mọi lúc" dùng gradeStars của lớp đó.
  * day/week/month = sao của lớp đang học trong ngày/tuần/tháng có khoá tương ứng
  * (khoá theo giờ máy: 'YYYY-MM-DD', thứ Hai đầu tuần, 'YYYY-MM').
  * Chỉ biệt danh và avatar được công khai — không lưu email hay tên thật.

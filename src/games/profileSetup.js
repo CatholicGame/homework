@@ -77,8 +77,8 @@ export function renderProfileSetup(app, { mode = 'onboard', onDone }) {
                 return `
                   <button type="button" role="radio" class="profile-grade-btn${on ? ' is-selected' : ''}" data-grade="${g.num}"
                     aria-checked="${on}" style="--grade-color: ${g.color}" ${open ? '' : 'disabled'}>
-                    <span class="profile-grade-num">${g.num}</span>
-                    <span class="profile-grade-sub">${open ? `Lớp ${g.num}` : 'Sắp có'}</span>
+                    <span class="profile-grade-num">${g.short || g.num}</span>
+                    <span class="profile-grade-sub">${open ? (g.sub || g.title) : 'Sắp có'}</span>
                   </button>`;
               }).join('')}
             </div>
