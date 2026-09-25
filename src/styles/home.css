@@ -1352,12 +1352,17 @@
   gap: 4px;
   padding: 4px;
   background: #F1F5F9;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-lg);
   margin-bottom: 16px;
 }
 
 .lb-tab {
   flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   border: none;
   background: none;
   padding: 9px 8px;
@@ -1616,6 +1621,19 @@
 
 @media (max-width: 520px) {
   .lb-tab { font-size: 0.82rem; padding: 8px 4px; }
+}
+
+/* Thanh tab hẹp (điện thoại, hoặc app chạy trong khung hẹp): biểu tượng nằm trên chữ
+   để 4 tab vừa một hàng. Đo theo bề rộng thanh tab chứ không theo màn hình. */
+.lb-tabs { container-type: inline-size; }
+.lb-tab > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+@container (max-width: 400px) {
+  .lb-tab { flex: 1 1 auto; flex-direction: column; gap: 1px; padding: 6px 4px; font-size: 0.78rem; border-radius: 12px; }
+  .lb-tab > span:last-child { max-width: 100%; }
+  .lb-tab-icon { font-size: 1.05rem; line-height: 1.1; }
+}
+@container (max-width: 300px) {
+  .lb-tab { font-size: 0.7rem; padding: 6px 2px; }
 }
 
 /* ====== TRANG ADMIN (#admin) ====== */

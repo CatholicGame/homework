@@ -76,7 +76,10 @@ export function render(app, onBack, { onEditProfile } = {}) {
         <h1 class="lb-title">🏆 Bảng xếp hạng ${gradeTitle(grade)}</h1>
         <p class="lb-subtitle">Các bạn cùng học ${gradeTitle(grade).toLowerCase()} · <button type="button" class="lb-link" data-act="edit-profile">Đổi lớp</button></p>
         <div class="lb-tabs" role="tablist">
-          ${PERIODS.map(p => `<button type="button" role="tab" class="lb-tab" data-tab="${p.id}">${p.label}</button>`).join('')}
+          ${PERIODS.map((p) => {
+            const [icon, ...words] = p.label.split(' ');
+            return `<button type="button" role="tab" class="lb-tab" data-tab="${p.id}"><span class="lb-tab-icon">${icon}</span><span>${words.join(' ')}</span></button>`;
+          }).join('')}
         </div>
         <div class="lb-body" id="lb-body"></div>
       </div>
