@@ -96,5 +96,36 @@ service cloud.firestore {
       allow update: if isOwner(uid) && validUser(request.resource.data)
         && request.resource.data.createdAt == resource.data.createdAt;
     }
+
+    // Đánh giá ứng dụng: mỗi tài khoản một đánh giá (gửi lại = sửa), ai đăng nhập cũng xem được.
+    // `reply` là phản hồi của admin — bé không tạo/sửa được; admin chỉ sửa được `reply` hoặc xoá cả đánh giá.
+    function validReview(d) {
+      return d.keys().hasOnly(['rating', 'comment', 'name', 'avatar', 'grade', 'createdAt', 'updatedAt', 'reply'])
+        && d.rating is int && d.rating >= 1 && d.rating <= 5
+        && d.comment is string && d.comment.size() <= 1000
+        && d.name is string && d.name.size() <= 40
+        && d.avatar is string && d.avatar.size() <= 40
+        && d.grade is int && (d.grade == 0 || validGrade(d.grade))
+        && d.updatedAt == request.time;
+    }
+
+    function validReply(r) {
+      return r is map && r.keys().hasOnly(['message', 'updatedAt'])
+        && r.message is string && r.message.size() >= 1 && r.message.size() <= 1000
+        && r.updatedAt == request.time;
+    }
+
+    match /reviews/{uid} {
+      allow read: if request.auth != null;
+      allow create: if isOwner(uid) && validReview(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && !('reply' in request.resource.data);
+      allow update: if (isOwner(uid) && validReview(request.resource.data)
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.get('reply', null) == resource.data.get('reply', null))
+        || (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reply'])
+          && (!('reply' in request.resource.data) || validReply(request.resource.data.reply)));
+      allow delete: if isOwner(uid) || isAdmin();
+    }
   }
 }

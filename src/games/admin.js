@@ -1,6 +1,7 @@
 /**
- * Trang admin (mở bằng #admin): theo dõi có bao nhiêu học sinh đã đăng ký,
- * mới đăng ký / hoạt động gần đây, chia theo lớp, và danh sách chi tiết.
+ * Trang admin (mở bằng #admin), hai tab:
+ *   Học sinh — bao nhiêu học sinh đã đăng ký, mới đăng ký / hoạt động gần đây, chia theo lớp, danh sách chi tiết.
+ *   Đánh giá — xem đánh giá ứng dụng, trả lời (hiện công khai dưới đánh giá) hoặc xoá.
  * Chỉ tài khoản trong ADMIN_EMAILS vào được (Firestore rules chặn phần còn lại).
  */
 
@@ -9,6 +10,8 @@ import { preloadAuth, getCurrentUser } from '../engine/auth.js';
 import { avatarUrl } from '../engine/profile.js';
 import { isAdminUser, fetchStudents } from '../engine/admin.js';
 import { PRESCHOOL, gradeTitle } from '../data/grades.js';
+import { fetchReviews, replyReview, deleteReview, reviewStats, REPLY_MAX } from '../engine/reviews.js';
+import { starsHtml, reviewerHtml } from './reviews.js';
 
 const PAGE_SIZE = 20;
 const CHART_DAYS = 30;
@@ -32,7 +35,8 @@ const SORTS = [
 ];
 
 export function render(app, onBack) {
-  const state = { rows: null, search: '', grade: 'all', sort: 'created', page: 1 };
+  const state = { tab: 'students', rows: null, search: '', grade: 'all', sort: 'created', page: 1,
+    reviews: null, rvFilter: 'all', replying: null };
 
   preloadAuth();
 
@@ -42,7 +46,11 @@ export function render(app, onBack) {
         <button type="button" class="btn btn-ghost" id="adm-back">← Trang chủ</button>
         <button type="button" class="lb-refresh" id="adm-refresh" title="Tải lại" aria-label="Tải lại" hidden>🔄</button>
       </div>
-      <h1 class="adm-title">📊 Quản lý học sinh</h1>
+      <h1 class="adm-title">📊 Quản lý</h1>
+      <div class="lb-tabs adm-tabs" role="tablist">
+        <button type="button" role="tab" class="lb-tab" data-tab="students">👧 Học sinh</button>
+        <button type="button" role="tab" class="lb-tab" data-tab="reviews">⭐ Đánh giá</button>
+      </div>
       <div id="adm-body"></div>
     </div>
   `;
@@ -51,6 +59,20 @@ export function render(app, onBack) {
   const refreshBtn = app.querySelector('#adm-refresh');
   app.querySelector('#adm-back').onclick = onBack;
   refreshBtn.onclick = () => load();
+  const tabs = [...app.querySelectorAll('.adm-tabs .lb-tab')];
+  const paintTabs = () => tabs.forEach(t => {
+    t.classList.toggle('is-active', t.dataset.tab === state.tab);
+    t.setAttribute('aria-selected', String(t.dataset.tab === state.tab));
+  });
+  tabs.forEach(t => {
+    t.onclick = () => {
+      if (t.dataset.tab === state.tab) return;
+      state.tab = t.dataset.tab;
+      paintTabs();
+      load();
+    };
+  });
+  paintTabs();
 
   if (!isAdminUser()) {
     showMessage('🔒', `Tài khoản ${escapeHtml(getCurrentUser()?.email || '')} không có quyền xem trang này.`);
@@ -73,13 +95,25 @@ export function render(app, onBack) {
 
   async function load() {
     refreshBtn.hidden = true;
-    body.innerHTML = '<div class="lb-loading" role="status"><div class="page-loading-spinner"></div><p>Đang tải danh sách học sinh…</p></div>';
+    const tab = state.tab;
+    body.innerHTML = `<div class="lb-loading" role="status"><div class="page-loading-spinner"></div><p>${
+      tab === 'reviews' ? 'Đang tải đánh giá…' : 'Đang tải danh sách học sinh…'}</p></div>`;
     try {
       if (await needsConnect()) return showConnect();
-      state.rows = await fetchStudents();
+      if (tab === 'reviews') {
+        // Ghép email từ sổ đăng ký để admin biết ai viết (đánh giá công khai chỉ có tên hiển thị).
+        const [{ reviews }, rows] = await Promise.all([fetchReviews(), fetchStudents().catch(() => [])]);
+        const byUid = new Map(rows.map(r => [r.uid, r]));
+        state.reviews = reviews.map(r => ({ ...r, email: byUid.get(r.id)?.email || '' }));
+      } else {
+        state.rows = await fetchStudents();
+      }
+      if (tab !== state.tab) return; // đã chuyển tab trong lúc tải
       refreshBtn.hidden = false;
-      drawAll();
+      if (tab === 'reviews') drawReviews();
+      else drawAll();
     } catch (e) {
+      if (tab !== state.tab) return;
       if (e?.message === 'need-connect') return showConnect();
       const denied = e?.code === 'permission-denied';
       showMessage(denied ? '🔒' : '📡', denied
@@ -91,7 +125,7 @@ export function render(app, onBack) {
   }
 
   function showConnect() {
-    showMessage('🔗', 'Kết nối Firebase để xem danh sách học sinh.',
+    showMessage('🔗', 'Kết nối Firebase để xem dữ liệu.',
       '<button type="button" class="btn btn-primary" id="adm-connect">🔗 Kết nối</button><p class="lb-error" id="adm-connect-err" hidden></p>');
     const btn = body.querySelector('#adm-connect');
     btn.onclick = () => {
@@ -281,6 +315,129 @@ export function render(app, onBack) {
     list.querySelectorAll('[data-page]').forEach(b => {
       b.onclick = () => { state.page = Number(b.dataset.page); drawList(); };
     });
+  }
+
+  // ── Tab Đánh giá ──────────────────────────────────────────────────────────
+  const RV_FILTERS = [
+    { id: 'all', label: 'Tất cả', test: () => true },
+    { id: 'noreply', label: 'Chưa trả lời', test: r => !r.reply },
+    ...[5, 4, 3, 2, 1].map(n => ({ id: `s${n}`, label: `${n}★`, test: r => r.rating === n })),
+  ];
+
+  function drawReviews() {
+    const all = state.reviews;
+    const stats = reviewStats(all);
+    const today = startOfDay(Date.now());
+    const tiles = [
+      { label: 'Số đánh giá', value: stats.count },
+      { label: 'Điểm trung bình', value: stats.count ? `${stats.average.toFixed(1)} ⭐` : '—' },
+      { label: 'Chưa trả lời', value: all.filter(r => !r.reply).length },
+      { label: 'Mới 7 ngày', value: all.filter(r => r.updatedAt >= today - 6 * DAY).length },
+    ];
+    const filter = RV_FILTERS.find(f => f.id === state.rvFilter) || RV_FILTERS[0];
+    const items = all.filter(filter.test);
+
+    body.innerHTML = `
+      <div class="adm-tiles">
+        ${tiles.map(t => `
+          <div class="adm-tile">
+            <div class="adm-tile-label">${t.label}</div>
+            <div class="adm-tile-value">${t.value}</div>
+          </div>`).join('')}
+      </div>
+      <section class="lb-card adm-section">
+        <h2 class="adm-h2">Đánh giá (bé xem được trong menu ⭐ Đánh giá ứng dụng)</h2>
+        <div class="lb-chips adm-chips">
+          ${RV_FILTERS.map(f => `
+            <button type="button" class="lb-chip${f.id === filter.id ? ' is-active' : ''}" data-rv="${f.id}">${f.label}
+              <span class="lb-chip-count">${all.filter(f.test).length}</span></button>`).join('')}
+        </div>
+        ${items.length ? `<div class="rv-list">${items.map(reviewItemHtml).join('')}</div>`
+          : '<p class="adm-empty">Không có đánh giá nào.</p>'}
+      </section>
+    `;
+
+    body.querySelectorAll('[data-rv]').forEach(c => {
+      c.onclick = () => { state.rvFilter = c.dataset.rv; state.replying = null; drawReviews(); };
+    });
+    body.querySelectorAll('[data-reply]').forEach(b => {
+      b.onclick = () => { state.replying = b.dataset.reply; drawReviews(); body.querySelector('#rv-reply-text')?.focus(); };
+    });
+    body.querySelector('[data-reply-cancel]')?.addEventListener('click', () => { state.replying = null; drawReviews(); });
+    body.querySelector('[data-reply-save]')?.addEventListener('click', (e) => {
+      saveReply(e.currentTarget.dataset.replySave, body.querySelector('#rv-reply-text').value, e.currentTarget);
+    });
+    body.querySelector('[data-reply-clear]')?.addEventListener('click', (e) => {
+      saveReply(e.currentTarget.dataset.replyClear, '', e.currentTarget);
+    });
+    body.querySelectorAll('[data-delete]').forEach(b => { b.onclick = () => removeReview(b.dataset.delete, b); });
+  }
+
+  function reviewItemHtml(r) {
+    const editing = state.replying === r.id;
+    const meta = [r.email ? escapeHtml(r.email) : 'Email chưa ghi nhận', r.grade ? gradeLabel(r.grade) : ''].filter(Boolean).join(' · ');
+    return `
+      <article class="rv-item">
+        <div class="rv-item-head">
+          ${reviewerHtml(r)}
+          <span class="rv-date">${fmtDateTime(r.updatedAt)}</span>
+        </div>
+        <div class="rv-admin-meta">${meta}</div>
+        ${starsHtml(r.rating, 'rv-stars-sm')}
+        ${r.comment ? `<p class="rv-comment">${escapeHtml(r.comment)}</p>` : ''}
+        ${r.reply && !editing ? `
+          <div class="rv-reply">
+            <span class="rv-reply-from">💬 Phản hồi từ Toán Tiểu Học · ${fmtDate(r.reply.updatedAt)}</span>
+            <p>${escapeHtml(r.reply.message)}</p>
+          </div>` : ''}
+        ${editing ? `
+          <div class="rv-reply-box">
+            <textarea class="rv-input rv-textarea" id="rv-reply-text" maxlength="${REPLY_MAX}"
+              placeholder="Viết phản hồi (hiện công khai dưới đánh giá này)…">${escapeHtml(r.reply?.message || '')}</textarea>
+            <p class="lb-error" id="rv-reply-err" hidden></p>
+            <div class="rv-admin-actions">
+              <button type="button" class="btn btn-primary" data-reply-save="${r.id}">💾 Lưu phản hồi</button>
+              <button type="button" class="btn btn-ghost" data-reply-cancel>Huỷ</button>
+              ${r.reply ? `<button type="button" class="btn btn-ghost rv-danger" data-reply-clear="${r.id}">Xoá phản hồi</button>` : ''}
+            </div>
+          </div>` : `
+          <div class="rv-admin-actions">
+            <button type="button" class="btn btn-ghost" data-reply="${r.id}">${r.reply ? '✏️ Sửa phản hồi' : '↩ Trả lời'}</button>
+            <button type="button" class="btn btn-ghost rv-danger" data-delete="${r.id}">🗑 Xoá đánh giá</button>
+          </div>`}
+      </article>`;
+  }
+
+  const deniedMsg = 'Firestore từ chối. Kiểm tra đã triển khai firestore.rules mới (phần reviews) chưa.';
+
+  async function saveReply(id, message, btn) {
+    btn.disabled = true;
+    try {
+      await replyReview(id, message);
+      const r = state.reviews.find(x => x.id === id);
+      r.reply = message.trim() ? { message: message.trim(), updatedAt: Date.now() } : null;
+      state.replying = null;
+      drawReviews();
+    } catch (e) {
+      btn.disabled = false;
+      const err = body.querySelector('#rv-reply-err');
+      err.textContent = e?.code === 'permission-denied' ? deniedMsg : 'Lưu thất bại, thử lại nhé.';
+      err.hidden = false;
+    }
+  }
+
+  async function removeReview(id, btn) {
+    const r = state.reviews.find(x => x.id === id);
+    if (!confirm(`Xoá đánh giá ${r.rating}★ của "${r.name || 'Ẩn danh'}"? Không khôi phục được.`)) return;
+    btn.disabled = true;
+    try {
+      await deleteReview(id);
+      state.reviews = state.reviews.filter(x => x.id !== id);
+      drawReviews();
+    } catch (e) {
+      btn.disabled = false;
+      alert(e?.code === 'permission-denied' ? deniedMsg : 'Xoá thất bại, thử lại nhé.');
+    }
   }
 
   function who(r) {

@@ -177,7 +177,7 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
     `;
   }
 
-  // ── Sticker phần thưởng: 5 bài → 1 lượt quay ───────────────────────────
+  // ── Sticker phần thưởng: N bài → 1 lượt quay ───────────────────────────
   function stickerPanel() {
     const { spins, progress, need } = getSpinStatus();
     const total = getSets().reduce((n, s) => n + s.stickers.length, 0);
@@ -250,7 +250,8 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
               <span>${escapeHtml(user.email)}</span>
             </div>
             <button type="button" class="user-menu-item user-menu-edit" id="user-edit-profile" role="menuitem">✏️ Đổi lớp, avatar và biệt danh</button>
-            ${isAdminUser() ? '<button type="button" class="user-menu-item" id="user-admin" role="menuitem">📊 Quản lý học sinh</button>' : ''}
+            <button type="button" class="user-menu-item" id="user-reviews" role="menuitem">⭐ Đánh giá ứng dụng</button>
+            ${isAdminUser() ? '<button type="button" class="user-menu-item" id="user-admin" role="menuitem">📊 Trang quản lý</button>' : ''}
             <button type="button" class="user-menu-item" id="user-signout" role="menuitem">🚪 Đăng xuất</button>
           </div>
         </div>
@@ -273,6 +274,7 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
     app.querySelector('#user-sticker-btn').addEventListener('click', () => navigate('stickers'));
     btn.addEventListener('click', () => setOpen(menu.hidden));
     app.querySelector('#user-edit-profile').addEventListener('click', () => { setOpen(false); navigate('profile'); });
+    app.querySelector('#user-reviews').addEventListener('click', () => { setOpen(false); navigate('reviews'); });
     app.querySelector('#user-admin')?.addEventListener('click', () => { setOpen(false); location.hash = 'admin'; });
     app.querySelector('#user-signout').addEventListener('click', () => { setOpen(false); openSignOutDialog(); });
   }

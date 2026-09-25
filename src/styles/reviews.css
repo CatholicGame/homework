@@ -1,0 +1,152 @@
+/* ====== ĐÁNH GIÁ ỨNG DỤNG (trang #reviews + tab admin) ====== */
+.rv-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 16px 16px 40px;
+}
+
+.rv-card { padding: 0; overflow: hidden; }
+.rv-card > * { padding: 20px 18px; }
+.rv-card > * + * { border-top: 1px solid var(--border); }
+
+.rv-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Tổng quan: điểm trung bình + phân bố */
+.rv-summary {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.rv-score { flex: none; text-align: center; min-width: 96px; }
+.rv-score-value { font-size: 2.6rem; font-weight: 700; line-height: 1; color: var(--text); }
+.rv-score-count { margin-top: 4px; font-size: 0.9rem; color: var(--text-light); font-weight: 600; }
+
+.rv-stars { display: inline-flex; gap: 1px; font-size: 1rem; line-height: 1; }
+.rv-stars-sm { font-size: 0.9rem; }
+.rv-star { color: var(--border); }
+.rv-star.is-on { color: var(--yellow); }
+.rv-star.is-half {
+  background: linear-gradient(90deg, var(--yellow) 50%, var(--border) 50%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.rv-bars { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.rv-bar-row { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-light); font-weight: 600; }
+.rv-bar-label { flex: none; width: 24px; }
+.rv-bar-count { flex: none; width: 28px; text-align: right; }
+.rv-bar { flex: 1; height: 8px; border-radius: var(--radius-full); background: var(--border); overflow: hidden; }
+.rv-bar-fill { display: block; height: 100%; border-radius: inherit; background: var(--grad-orange); }
+
+/* Form gửi đánh giá */
+.rv-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.rv-picker { display: flex; gap: 6px; }
+.rv-pick {
+  border: none;
+  background: none;
+  padding: 0 2px;
+  font-size: 2.6rem;
+  line-height: 1;
+  color: var(--border);
+  cursor: pointer;
+  transition: transform 0.15s, color 0.15s;
+}
+.rv-pick:hover { transform: scale(1.12); }
+.rv-pick:active { transform: scale(0.95); }
+.rv-pick.is-on { color: var(--yellow); text-shadow: 0 2px 6px rgba(251, 191, 36, 0.45); }
+
+.rv-caption { font-weight: 700; color: var(--text-light); min-height: 1.4em; }
+.rv-caption.is-set { color: #C2410C; }
+
+.rv-input {
+  width: 100%;
+  max-width: 360px;
+  font-family: var(--font);
+  font-size: 16px; /* ≥16px để iPhone không tự phóng to khi gõ */
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--text);
+}
+.rv-input:focus { outline: none; border-color: var(--purple); }
+#rv-name { text-align: center; }
+.rv-textarea { resize: vertical; min-height: 84px; }
+
+.rv-submit { width: 100%; max-width: 360px; }
+.rv-submit:disabled { opacity: 0.45; cursor: default; }
+
+.rv-thanks { text-align: center; }
+.rv-thanks p { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+
+/* Danh sách */
+.rv-h2 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin-bottom: 10px;
+}
+
+.rv-empty { color: var(--text-light); }
+
+.rv-list { display: flex; flex-direction: column; }
+.rv-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.rv-item:last-child { border-bottom: none; }
+.rv-item.is-mine { background: linear-gradient(90deg, rgba(254, 240, 138, 0.35), transparent); margin: 0 -18px; padding: 12px 18px; }
+
+.rv-item-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.rv-who { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.rv-who strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rv-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex: none; background: var(--purple-light); }
+.rv-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  background: var(--grad-primary);
+}
+.rv-date { flex: none; font-size: 0.85rem; color: var(--text-light); }
+
+.rv-comment { margin-top: 6px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; }
+
+.rv-reply {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--purple);
+  background: rgba(233, 213, 255, 0.35);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.rv-reply-from { font-size: 0.8rem; font-weight: 700; color: #7C3AED; }
+.rv-reply p { margin-top: 2px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Admin */
+.rv-admin-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.rv-admin-actions .btn { padding: 6px 14px; font-size: 0.9rem; }
+.rv-admin-meta { font-size: 0.8rem; color: var(--text-light); margin-left: 38px; }
+.rv-reply-box { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.rv-reply-box .rv-input { max-width: none; }
+.rv-danger { color: #DC2626 !important; }
+
+@media (max-width: 480px) {
+  .rv-summary { gap: 14px; }
+  .rv-score { min-width: 80px; }
+  .rv-score-value { font-size: 2.2rem; }
+  .rv-pick { font-size: 2.3rem; }
+}
+
+.adm-tabs { max-width: 360px; margin-bottom: 14px; }
