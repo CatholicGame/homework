@@ -554,6 +554,49 @@
   .pk-lesson { grid-template-columns: 1fr; }
 }
 
+/* ── Làm quen chữ cái ───────────────────────────────────────────────────── */
+.pk-abc {
+  position: relative; display: grid; place-items: center; padding: 0;
+  border-radius: 18px; border: 3px solid #D9E27A; background: #fff; cursor: pointer;
+  box-shadow: 0 4px 0 rgba(14, 165, 233, 0.22); transition: transform 0.12s;
+}
+.pk-abc:active { transform: translateY(3px); }
+.pk-abc-ch {
+  color: var(--c); font-weight: 800; line-height: 1;
+  -webkit-text-stroke: 1.5px rgba(30, 58, 95, 0.55); paint-order: stroke fill;
+}
+.pk-abc-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.6rem; max-width: 760px; margin: 0 auto; }
+.pk-abc-grid.is-few { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 640px; }
+.pk-abc-card { height: clamp(64px, 11vh, 96px); }
+.pk-abc-card .pk-abc-ch { font-size: clamp(2.4rem, 7vh, 3.6rem); padding-bottom: 0.15em; }
+.pk-abc-card.is-seen { border-color: #22C55E; animation: pk-jump 0.5s ease; }
+.pk-abc-card.is-seen::after {
+  content: '✓'; position: absolute; top: 3px; right: 7px; color: #16A34A; font-size: 1rem; font-weight: 800;
+}
+.pk-abc-find { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; max-width: 860px; margin: 0 auto; }
+.pk-abc-pick { min-width: 120px; height: 130px; padding: 0 1rem; border-width: 4px; border-radius: 24px; }
+.pk-abc-pick .pk-abc-ch { font-size: 5rem; padding-bottom: 0.15em; }
+.pk-abc-pick.is-right { border-color: #22C55E; background: #F0FDF4; box-shadow: 0 4px 0 #16A34A; animation: pk-jump 0.5s ease; }
+.pk-letter-card { min-width: 64px; height: 56px; padding: 0 0.7rem 0 0.5rem; grid-auto-flow: column; gap: 0.3rem; }
+.pk-letter-card .pk-abc-ch { font-size: 2.3rem; padding-bottom: 0.12em; }
+.pk-letter-say { font-size: 1.1rem; }
+.pk-letter .pk-trace-rep { width: auto; min-width: 48px; padding: 0 0.5rem; }
+.pk-trace-board.is-letter {
+  --ar: 1; aspect-ratio: var(--ar); width: min(94vw, calc(58vh * var(--ar)), 900px); max-height: none;
+  background-image: none; overflow: hidden;
+}
+.pk-trace-svg.has-guides { overflow: visible; }
+.pk-trace-line { stroke: #DBEAFE; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.pk-trace-line.is-base { stroke: #93C5FD; }
+@media (max-width: 600px) {
+  .pk-abc-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.45rem; }
+  .pk-abc-grid.is-few { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pk-abc-card { height: 62px; }
+  .pk-abc-card .pk-abc-ch { font-size: 2.3rem; }
+  .pk-abc-pick { min-width: 92px; height: 104px; }
+  .pk-abc-pick .pk-abc-ch { font-size: 3.8rem; }
+}
+
 /* ── Vùng chơi lấp đầy màn hình ─────────────────────────────────────────
    Trang chơi là cột flex: vùng chơi giãn hết phần còn lại và căn giữa theo
    chiều dọc, thay vì dồn lên trên để trống nửa dưới màn hình. */
@@ -589,6 +632,7 @@
   .pk-card img { max-height: min(28vh, max(110px, calc((var(--pk-free) - 60px) / 2))); }
   .pk-match { max-width: 960px; }
   .pk-trace-board { width: min(92vw, 640px); max-height: max(260px, calc(var(--pk-free) - 80px)); }
+  .pk-trace-board.is-letter { width: min(94vw, calc(max(260px, var(--pk-free) - 90px) * var(--ar)), 1100px); max-height: none; }
   .pk-scene img { max-height: max(220px, calc(var(--pk-free) - 120px)); }
   .pk-tile { width: 90px; height: 90px; font-size: 2.9rem; }
   .pk-rows .pk-pic img { max-height: max(140px, calc(var(--pk-free) - 240px)); }

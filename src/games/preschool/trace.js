@@ -32,13 +32,15 @@ const REACH = 17;       // ngón tay cách nét bao nhiêu vẫn tính là đang
 const LOOKAHEAD = 14;   // số điểm mẫu phía trước được "nhảy" tới mỗi lần di chuyển
 
 /**
- * Gắn khung tô số vào `host`. Gọi `onStroke(i)` khi xong một nét, `onDone()` khi xong cả số.
+ * Gắn khung tô số vào `host`. `n` là một số (1–10) hoặc nét dựng sẵn
+ * { width, strokes, guides? } (chữ cái, letters.js); `guides` = các dòng kẻ ngang (toạ độ y). Gọi `onStroke(i)` khi xong một nét, `onDone()` khi xong cả số.
  * Trả về { destroy }.
  */
 export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTouch } = {}) {
-  const { width, strokes } = numberStrokes(n);
+  const { width, strokes, guides = [] } = typeof n === 'object' ? n : numberStrokes(n);
   host.innerHTML = `
-    <svg class="pk-trace-svg" viewBox="-6 0 ${width + 12} 142" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <svg class="pk-trace-svg${guides.length ? ' has-guides' : ''}" viewBox="-6 0 ${width + 12} 142" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      ${guides.map((y, i) => `<line class="pk-trace-line${i === 2 ? ' is-base' : ''}" x1="-600" x2="${width + 600}" y1="${y}" y2="${y}"/>`).join('')}
       <g class="pk-trace-guides">
         ${strokes.map(d => `<path class="pk-trace-track" d="${d}"/>`).join('')}
         ${strokes.map(d => `<path class="pk-trace-dash" d="${d}"/>`).join('')}

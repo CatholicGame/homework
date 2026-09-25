@@ -13,6 +13,7 @@ export const GRADES = [
     games: [
       { id: 'pre1-math', icon: '🐰', color: '#EC4899', title: 'Bé Học Vui Toán — Tập 1', desc: 'Đếm và viết số 1–20' },
       { id: 'pre2-math', icon: '🐊', color: '#7C3AED', title: 'Bé Học Vui Toán — Tập 2', desc: 'So sánh: bằng nhau, nhiều hơn – ít hơn, dấu > < =' },
+      { id: 'pre3-abc', icon: '🔤', color: '#0EA5E9', title: 'Làm quen chữ cái', desc: 'Tô chữ cái, chữ ghép, dấu thanh' },
     ],
   },
   { num: 1, title: 'Lớp 1', icon: '1️⃣', color: '#FF6B9D', games: [] },

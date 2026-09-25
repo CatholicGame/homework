@@ -7,17 +7,19 @@
  * chạm là một lần trả lời, sai thì rung nhẹ và bớt sao (luật sao chung, stars.js).
  *
  * Mỗi tập là một cấu hình `book`: { key (tiền tố khoá sao), title, subtitle, note, stations, parts }.
- * Tô số: trace.js · âm thanh: fx.js.
+ * Tô số / tô chữ: trace.js, letters.js · âm thanh: fx.js.
  */
 
 import '../../styles/preschool.css';
 import { NUMBER_COLORS, numberWord } from './numbers.js';
 import { say, stopSpeaking, sfx, burst, rain, shake, centerOf, isMuted, setMuted } from './fx.js';
 import { mountTracer } from './trace.js';
+import { letterGlyph } from './letters.js';
 import { awardStars, recordWrong, hasEarned, earnedFor, getQuestionStars, availableStars } from '../../engine/stars.js';
 import { recordAttempt } from '../../engine/activity.js';
 
 const TRACE_REPS = 3;
+const LETTER_REPS = 2;
 const PAINT_COUNT = 5;
 
 const colorOf = (n) => NUMBER_COLORS[n] || '#F97316';
@@ -255,6 +257,7 @@ export function renderPreschool(app, onBack, book) {
     const players = {
       intro: playIntro, match: playMatch, count: playCount, trace: playTrace, order: playOrder, fill: playFill, rows: playRows,
       compare: playCompare, crossout: playCrossout, pairs: playPairs, pick: playPick, lesson: playLesson,
+      chart: playChart, letter: playLetter, find: playFind,
     };
     players[round.type](ctx);
   }
@@ -937,5 +940,94 @@ export function renderPreschool(app, onBack, book) {
       };
     });
     talk('Bé chạm vào từng hình để nghe về dấu bé và dấu lớn nhé!');
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // Làm quen chữ cái (data3.js)
+  // ════════════════════════════════════════════════════════════════════════
+  // Chữ màu vàng nhạt khó nhìn trên nền trắng khi tô: tô bằng vàng đậm hơn.
+  const inkOf = (color) => (color === '#FACC15' ? '#EAB308' : color);
+  const letterTile = (item, cls, attrs = '') =>
+    `<button type="button" class="pk-abc ${cls}" style="--c:${item.color}" ${attrs}><span class="pk-abc-ch">${item.ch}</span></button>`;
+
+  // ── Bảng chữ: chạm từng chữ để nghe đọc ────────────────────────────────
+  function playChart({ round, stage, talk, solve }) {
+    const { items, kind } = round;
+    stage.innerHTML = `<div class="pk-abc-grid${items.length < 15 ? ' is-few' : ''}">${items.map((it, k) => letterTile(it, 'pk-abc-card', `data-k="${k}"`)).join('')}</div>`;
+    const seen = new Set();
+    stage.querySelectorAll('.pk-abc-card').forEach(b => {
+      b.onclick = () => {
+        const k = Number(b.dataset.k);
+        sfx.pop(3 + (k % 8));
+        say(items[k].name);
+        b.classList.remove('is-seen'); void b.offsetWidth; b.classList.add('is-seen');
+        seen.add(k);
+        if (seen.size === items.length) solve(`Giỏi quá! Bé đã nghe hết các ${kind} rồi!`);
+      };
+    });
+    talk(`Bé chạm vào từng ${kind} để nghe đọc nhé!`);
+  }
+
+  // ── Tô chữ bằng ngón tay ───────────────────────────────────────────────
+  function playLetter({ round, stage, talk, solve }) {
+    const { ch, name, read, color, kind } = round;
+    const glyph = letterGlyph(ch);
+    const intro = kind === 'dấu' ? `Đây là ${name}. ${read}.` : `Đây là ${kind} ${name}.`;
+    let rep = 0;
+    stage.innerHTML = `
+      <div class="pk-trace pk-letter">
+        <div class="pk-trace-reps">
+          <button type="button" class="pk-abc pk-letter-card" style="--c:${color}" aria-label="Nghe đọc"><span class="pk-abc-ch">${ch}</span><span class="pk-letter-say">🔊</span></button>
+          ${Array.from({ length: LETTER_REPS }, (_, i) => `<span class="pk-trace-rep" data-i="${i}">${ch}</span>`).join('')}
+        </div>
+        <div class="pk-trace-board is-letter" id="pk-board" style="--ar:${Math.max(1, (glyph.width + 12) / 142).toFixed(3)}"></div>
+      </div>`;
+    stage.querySelector('.pk-letter-card').onclick = () => { sfx.tap(); say(kind === 'dấu' ? `${name}. ${read}` : name); };
+    const board = stage.querySelector('#pk-board');
+    let tracer = null;
+    const start = () => {
+      tracer?.destroy();
+      tracer = mountTracer(board, glyph, {
+        color: inkOf(color),
+        onTouch: (ok) => { if (!ok) talk('Bé đặt ngón tay vào chấm xanh nhé!', { keep: true }); },
+        onStroke: () => sfx.swish(),
+        onDone: () => {
+          stage.querySelector(`.pk-trace-rep[data-i="${rep}"]`).classList.add('is-done');
+          const [x, y] = centerOf(board);
+          burst(x, y, { count: 16, emoji: '⭐' });
+          rep++;
+          if (rep >= LETTER_REPS) { solve(`Giỏi quá! Bé đã viết được ${kind === 'dấu' ? `chữ ${read.split(' ').pop()}` : `${kind} ${name}`}!`); return; }
+          sfx.ding();
+          say('Giỏi quá! Tô lại lần nữa nào!');
+          setTimeout(start, 900);
+        },
+      });
+    };
+    start();
+    addCleanup(() => tracer?.destroy());
+    talk(`${intro} Bé đặt ngón tay vào chấm xanh, rồi tô theo nét nhé!`);
+  }
+
+  // ── Nghe đọc, chạm đúng chữ ────────────────────────────────────────────
+  function playFind({ round, stage, talk, wrong, right, solve }) {
+    const { items, kind } = round;
+    const order = shuffle(items.map((_, k) => k));
+    let step = 0;
+    stage.innerHTML = `<div class="pk-abc-find">${shuffle(items.map((it, k) => letterTile(it, 'pk-abc-pick', `data-k="${k}"`))).join('')}</div>`;
+    const ask = () => talk(`Bé chạm vào ${kind} ${items[order[step]].name} nhé!`);
+    stage.querySelectorAll('.pk-abc-pick').forEach(b => {
+      b.onclick = () => {
+        if (step >= order.length || b.classList.contains('is-right')) return;
+        const k = Number(b.dataset.k);
+        const want = items[order[step]];
+        if (k !== order[step]) { wrong(b, `Đây là ${kind} ${items[k].name}. Bé tìm ${kind} ${want.name} nhé!`); return; }
+        b.classList.add('is-right');
+        right(b);
+        step++;
+        if (step >= order.length) { solve(`Giỏi quá! Bé đã tìm đúng hết các ${kind} rồi!`); return; }
+        setTimeout(ask, 700);
+      };
+    });
+    ask();
   }
 }
