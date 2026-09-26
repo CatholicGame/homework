@@ -13,7 +13,7 @@
 
 import '../../styles/preschool.css';
 import { NUMBER_COLORS, numberWord } from './numbers.js';
-import { say, stopSpeaking, sfx, burst, rain, shake, centerOf, isMuted, setMuted } from './fx.js';
+import { say, stopSpeaking, whenQuiet, sfx, burst, rain, shake, centerOf, isMuted, setMuted } from './fx.js';
 import { mountTracer } from './trace.js';
 import { letterGlyph } from './letters.js';
 import { PLAYERS4 } from './play4.js';
@@ -254,13 +254,14 @@ export function renderPreschool(app, onBack, book) {
       next.hidden = false;
       next.innerHTML = `<button type="button" class="pk-next-btn" id="pk-next-btn" aria-label="${last ? 'Hoàn thành' : 'Lượt tiếp theo'}">${last ? '🏆' : '➜'}</button>`;
       const go = () => {
-        clearTimeout(timer);
+        cancel();
         if (last) stationComplete(station);
         else playRound(station, idx + 1);
       };
       next.querySelector('button').onclick = () => { sfx.tap(); go(); };
-      const timer = setTimeout(go, last ? 2600 : 3200);
-      addCleanup(() => clearTimeout(timer));
+      // Tự sang lượt sau khi Thỏ đọc xong lời khen (bấm ➜ để sang ngay).
+      const cancel = whenQuiet(go, { min: last ? 2000 : 2600, gap: 800 });
+      addCleanup(cancel);
     }
 
     const players = {
@@ -331,7 +332,22 @@ export function renderPreschool(app, onBack, book) {
       onCount?.(count);
     };
 
+    // Ngón tay nhún nhảy trên đồ vật đầu tiên: bé biết là chạm vào hình để đếm. Ẩn sau lần chạm đầu.
+    const hint = document.createElement('span');
+    hint.className = 'pk-tap-hint';
+    hint.setAttribute('aria-hidden', 'true');
+    hint.innerHTML = '<i>👆</i><b>Chạm để đếm</b>';
+    const showHint = (on) => {
+      hint.hidden = !on;
+      wrap.classList.toggle('is-hinting', on);
+    };
+
     if (items?.length) {
+      const [hx, hy, hw, hh] = items[0];
+      hint.style.left = `${hx + hw / 2}%`;
+      hint.style.top = `${hy + hh / 2}%`;
+      layer.appendChild(hint);
+      showHint(true);
       items.forEach(([x, y, w, h, g = 0]) => {
         const hit = document.createElement('button');
         hit.type = 'button';
@@ -342,6 +358,7 @@ export function renderPreschool(app, onBack, book) {
           e.stopPropagation();
           if (hit.classList.contains('is-counted')) { shake(hit); return; }
           hit.classList.add('is-counted');
+          showHint(false);
           mark(hit, g);
         };
         layer.appendChild(hit);
@@ -354,6 +371,7 @@ export function renderPreschool(app, onBack, book) {
       e.stopPropagation();
       count = 0;
       perGroup = {};
+      if (items?.length) showHint(true);
       layer.querySelectorAll('.pk-mark').forEach(m => m.remove());
       layer.querySelectorAll('.pk-item').forEach(m => m.classList.remove('is-counted'));
       recount.hidden = true;

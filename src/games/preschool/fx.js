@@ -61,6 +61,29 @@ export function say(text, { queue = false, rate = 0.9 } = {}) {
   synth.speak(u);
 }
 
+/**
+ * Gọi `fn` khi Thỏ đã đọc xong (và đã qua ít nhất `min` ms), để không chuyển câu khi lời khen
+ * còn dang dở: im lặng liền `gap` ms mới tính là đọc xong. Tắt tiếng / máy không đọc được thì
+ * chỉ chờ `min`; chờ tối đa `max` ms.
+ * Trả về hàm huỷ.
+ */
+export function whenQuiet(fn, { min = 1200, max = 15000, gap = 400 } = {}) {
+  const t0 = Date.now();
+  let quietSince = 0;
+  const busy = () => !muted && canSpeak() && (window.speechSynthesis.speaking || window.speechSynthesis.pending);
+  const timer = setInterval(() => {
+    const now = Date.now();
+    if (busy()) { quietSince = 0; if (now - t0 < max) return; }
+    else if (!quietSince) quietSince = now;
+    // Giữa hai câu đọc nối có khoảng nghỉ ngắn, nên phải im lặng liền `gap` ms.
+    if (now - t0 >= max || (now - t0 >= min && quietSince && now - quietSince >= gap)) {
+      clearInterval(timer);
+      fn();
+    }
+  }, 100);
+  return () => clearInterval(timer);
+}
+
 export function stopSpeaking() {
   window.speechSynthesis?.cancel();
 }
