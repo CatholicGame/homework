@@ -69,6 +69,9 @@ function fitBig(root) {
   window.addEventListener('resize', run);
 }
 
+/** Bản sao ẩn của đáp án, giữ sẵn bề rộng ô để ô không nở ra (và rớt dòng) khi bé ghép xong. */
+const ghost = (html) => `<span class="pk3-ghost" aria-hidden="true">${html}</span>`;
+
 /** Nút 🔊 to để nghe lại tiếng Thỏ vừa đọc. */
 const earButton = () => '<button type="button" class="pk3-ear" aria-label="Nghe lại">🔊</button>';
 
@@ -179,10 +182,10 @@ function playBuild({ round, stage, talk, wrong, right, solve, addCleanup }) {
       <div class="pk3-build">
         <div class="pk3-ask">${earButton()}<span class="pk3-count">${step + 1} / ${targets.length}</span></div>
         <div class="pk3-slots">
-          <span class="pk3-slot is-on" data-p="0"></span><span class="pk3-plus">+</span>
-          <span class="pk3-slot" data-p="1"></span><span class="pk3-plus">+</span>
-          <span class="pk3-slot is-tone" data-p="2"></span>
-          <span class="pk3-eq">=</span><span class="pk3-result">?</span>
+          <span class="pk3-slot is-on" data-p="0">${ghost(`<span class="pk3-on">${esc(onset)}</span>`)}<span class="pk3-fill"></span></span><span class="pk3-plus">+</span>
+          <span class="pk3-slot" data-p="1">${ghost(`<span class="pk3-rh">${esc(rhyme)}</span>`)}<span class="pk3-fill"></span></span><span class="pk3-plus">+</span>
+          <span class="pk3-slot is-tone" data-p="2"><span class="pk3-fill"></span></span>
+          <span class="pk3-eqres"><span class="pk3-eq">=</span><span class="pk3-result">${ghost(colorSyl(target, [onset, rhyme]))}<span class="pk3-fill">?</span></span></span>
         </div>
         <div class="pk3-pad" data-p="0">${onsets.map(o => `<button type="button" class="pk3-key" data-v="${esc(o)}"><span class="pk3-on">${esc(o)}</span></button>`).join('')}</div>
         <div class="pk3-pad" data-p="1" hidden>${rhymes.map(r => `<button type="button" class="pk3-key" data-v="${esc(r)}"><span class="pk3-rh">${esc(r)}</span></button>`).join('')}</div>
@@ -204,7 +207,7 @@ function playBuild({ round, stage, talk, wrong, right, solve, addCleanup }) {
             return;
           }
           right(b);
-          slot(p).innerHTML = b.innerHTML;
+          slot(p).querySelector('.pk3-fill').innerHTML = b.innerHTML;
           slot(p).classList.replace('is-on', 'is-done');
           pad.hidden = true;
           part++;
@@ -212,13 +215,13 @@ function playBuild({ round, stage, talk, wrong, right, solve, addCleanup }) {
           if (part === 2) {
             // Ghép âm đầu với vần được tiếng không dấu; tiếng thanh ngang thì xong luôn.
             say(`${soundName(onset)}, ${rhyme}, ${base}`, { rate: 0.8 });
-            stage.querySelector('.pk3-result').textContent = base;
+            stage.querySelector('.pk3-result .pk3-fill').textContent = base;
             slot(2).classList.add('is-on');
             stage.querySelector('.pk3-pad[data-p="2"]').hidden = false;
             return;
           }
           const res = stage.querySelector('.pk3-result');
-          res.innerHTML = colorSyl(target, [onset, rhyme]);
+          res.querySelector('.pk3-fill').innerHTML = colorSyl(target, [onset, rhyme]);
           res.classList.add('is-done');
           say(spellOf(target), { rate: 0.8 });
           const [x, y] = centerOf(res);

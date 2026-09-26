@@ -1141,3 +1141,15 @@ button.pk4-box { cursor: pointer; }
 /* Khối học đọc được play3.js phóng to (zoom) trên màn hình rộng: luôn căn giữa ngang. */
 .pk-play-page .pk-stage > .pk3-spell, .pk-play-page .pk-stage > .pk3-hear, .pk-play-page .pk-stage > .pk3-build,
 .pk-play-page .pk-stage > .pk3-words, .pk-play-page .pk-stage > .pk3-sort, .pk-play-page .pk-stage > .pk3-read { margin-left: auto; margin-right: auto; }
+
+/* Một thẻ chữ (tiếng, từ, âm) luôn nằm trên một dòng — không để chữ tràn xuống dòng dưới trong thẻ. */
+.pk3-head, .pk3-syl, .pk3-word, .pk3-card, .pk3-key, .pk3-badge, .pk3-onset, .pk3-slot, .pk3-result { white-space: nowrap; }
+.pk3-word, .pk3-card { max-width: 100%; }
+
+/* Ghép tiếng: ô và ô kết quả giữ sẵn bề rộng của đáp án (bản sao ẩn chồng cùng chỗ),
+   "= kết quả" luôn đi liền nhau, không rớt xuống dòng dưới. */
+.pk3-slot > *, .pk3-result > * { grid-area: 1 / 1; }
+.pk3-ghost { visibility: hidden; }
+.pk3-eqres { display: inline-flex; align-items: center; gap: inherit; flex-wrap: nowrap; }
+.pk3-slots { gap: 0.45rem; }
+@media (min-width: 1024px) { .pk3-slots { flex-wrap: nowrap; } .pk3-eqres { gap: 0.8rem; } }
