@@ -329,6 +329,11 @@ body.vk-active #global-fullscreen-btn {
   margin-bottom: 0;
 }
 
+/* "," key: hidden unless the focused blank takes a list of numbers */
+.vk-comma { display: none; }
+.vk-with-comma .vk-comma { display: flex; }
+.vk-with-comma .vk-row:last-child { grid-template-columns: repeat(4, 1fr); }
+
 .vk-key {
   display: flex;
   align-items: center;

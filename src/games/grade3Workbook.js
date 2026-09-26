@@ -4768,6 +4768,9 @@ export function renderWorkbook(app, onBack, cfg) {
     // keypad. A "+" (sum expressions like "100+30+9") or a letter (like "A và E")
     // must fall back to a normal free-typing field, or that character could never be entered.
     const numeric = /^[\d\s,;-]+$/.test(String(b.answer));
+    // One blank holding several numbers ("59, 56, 51, 53") needs a "," key
+    // on the keypad to separate them.
+    const listInOne = numeric && slotCount === 1 && /[,;]/.test(String(b.answer));
     // Best-effort per-slot expected value, just to size each box to its own
     // content (a short number vs. a full sum like "100+30+9") — never shown to the student.
     const slotAnswers = slotCount > 1 ? splitAnswerParts(b.answer) : [b.answer];
@@ -4811,7 +4814,7 @@ export function renderWorkbook(app, onBack, cfg) {
       const style = isTrailingBlank
         ? 'min-width:3ch'
         : `width:${Math.max(9, numeric ? String(slotAnswer).length + 2 : textSlotCh)}ch`;
-      const input = `<input type="text" ${numeric ? 'inputmode="numeric"' : ''} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed${fillClass}" style="${style}" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`;
+      const input = `<input type="text" ${numeric ? 'inputmode="numeric"' : ''}${listInOne ? ' data-vk-comma="1"' : ''} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed${fillClass}" style="${style}" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`;
       return `${text}${input}`;
     }).join('');
     return `

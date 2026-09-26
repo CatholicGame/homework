@@ -24,13 +24,13 @@ function createKeyboard() {
     ['7', '8', '9'],
     ['4', '5', '6'],
     ['1', '2', '3'],
-    ['⌫', '0', '✓'],
+    ['⌫', '0', ',', '✓'],
   ];
 
   panel.innerHTML = keys.map(row => `
     <div class="vk-row">
       ${row.map(k => `
-        <button class="vk-key ${k === '⌫' ? 'vk-backspace' : ''} ${k === '✓' ? 'vk-confirm' : ''}"
+        <button class="vk-key ${k === '⌫' ? 'vk-backspace' : ''} ${k === '✓' ? 'vk-confirm' : ''} ${k === ',' ? 'vk-comma' : ''}"
                 data-key="${k}" type="button">
           ${k}
         </button>
@@ -51,6 +51,9 @@ function showKeyboard(input) {
   if (suppressReshow) return;          // cooldown after ✓ → don't reopen
   activeInput = input;
   panel = panel || createKeyboard();
+  // The "," key only shows for a blank whose answer is a list of numbers in
+  // one field (e.g. "59, 56, 51, 53") — elsewhere it would just invite typos.
+  panel.classList.toggle('vk-with-comma', !!input.dataset.vkComma);
   panel.classList.add('vk-visible');
   document.body.classList.add('vk-active'); // hides the floating fullscreen button, which sits at bottom-right and would otherwise overlap the now-wide keypad's ✓ key
   input.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -67,8 +70,9 @@ function pressKey(key) {
 
   if (key === '⌫') {
     // Backspace
+    // ", " is typed as one key, so it is erased as one too
     const v = activeInput.value;
-    activeInput.value = v.slice(0, -1);
+    activeInput.value = v.endsWith(', ') ? v.slice(0, -2) : v.slice(0, -1);
   } else if (key === '✓') {
     // Confirm — suppress keyboard reshow for 600ms (games call focus() internally)
     suppressReshow = true;
@@ -82,10 +86,17 @@ function pressKey(key) {
   } else {
     // Digit — max 4 chars to avoid overflow (or the input's own maxlength,
     // e.g. a one-digit "ô trống" box in the grade-3 workbook)
-    const maxChars = activeInput.maxLength > 0 ? Math.min(4, activeInput.maxLength) : 4;
+    // A comma list holds several numbers, so it gets a much longer cap.
+    const cap = activeInput.dataset.vkComma ? 40 : 4;
+    const maxChars = activeInput.maxLength > 0 ? Math.min(cap, activeInput.maxLength) : cap;
     if (activeInput.value.length >= maxChars) return;
-    // Handle leading minus for negative answers
-    if (key === '-' && activeInput.value.length === 0) {
+    if (key === ',') {
+      // No leading or doubled comma; add the space the book writes after it
+      const v = activeInput.value;
+      if (!v || v.endsWith(', ')) return;
+      activeInput.value = v + ', ';
+    } else if (key === '-' && activeInput.value.length === 0) {
+      // Handle leading minus for negative answers
       activeInput.value = '-';
     } else {
       activeInput.value += key;
