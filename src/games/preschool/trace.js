@@ -1,7 +1,8 @@
 /**
  * Tô số bằng ngón tay: bé kéo theo nét chấm, nét màu hiện dần phía sau ngón tay.
  * Mỗi chữ số gồm 1–2 nét (đường SVG trong khung 100×140), tô theo đúng thứ tự
- * và chiều viết; chấm xanh nhấp nháy là chỗ đặt bút.
+ * và chiều viết. Chỗ đặt bút là chiếc ô tô (chạy theo đầu nét, nhả khói) hoặc
+ * chấm xanh nhấp nháy như cũ — bé chọn một trong hai (getPen / setPen).
  */
 
 // Nét viết từng chữ số (khung 100×140).
@@ -30,16 +31,48 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const STEP = 2.5;       // khoảng cách giữa các điểm mẫu trên nét
 const REACH = 17;       // ngón tay cách nét bao nhiêu vẫn tính là đang tô
 const LOOKAHEAD = 14;   // số điểm mẫu phía trước được "nhảy" tới mỗi lần di chuyển
+const PUFF_GAP = 70;    // ms tối thiểu giữa hai cụm khói khi đang chạy
+const IDLE_PUFF = 900;  // ms giữa hai cụm khói khi xe đứng chờ (máy vẫn nổ)
+
+// Kiểu chỗ đặt bút: 'car' (ô tô) hoặc 'dot' (chấm xanh), nhớ trên máy.
+const PEN_KEY = 'pk-trace-pen';
+export const PENS = ['car', 'dot'];
+export function getPen() {
+  try { return localStorage.getItem(PEN_KEY) === 'dot' ? 'dot' : 'car'; } catch { return 'car'; }
+}
+export function setPen(pen) {
+  try { localStorage.setItem(PEN_KEY, pen); } catch { /* storage unavailable */ }
+}
+
+// Ô tô nhìn từ trên xuống, đầu xe hướng về +x, tâm ở gốc toạ độ; rộng đúng 16
+// (kể cả bánh, gương) = bề rộng nét số, để xe nằm vừa trong nét.
+const CAR_W = 16;
+export const CAR = `
+  <g class="pk-car">
+    ${[-9, 8.5].flatMap(x => [-7.8, 4.8].map(y => `<rect class="pk-car-wheel" x="${x - 3.2}" y="${y}" width="6.4" height="3" rx="1.2"/>`)).join('')}
+    <rect class="pk-car-mirror" x="2" y="-8" width="2.4" height="2.4" rx="0.9"/>
+    <rect class="pk-car-mirror" x="2" y="5.6" width="2.4" height="2.4" rx="0.9"/>
+    <rect class="pk-car-body" x="-15" y="-6.2" width="30" height="12.4" rx="5"/>
+    <path class="pk-car-glass" d="M3.4 -4.6 Q8.4 -4 9.2 0 Q8.4 4 3.4 4.6 Z"/>
+    <path class="pk-car-glass" d="M-8.6 -4.2 Q-11.4 -3.4 -11.6 0 Q-11.4 3.4 -8.6 4.2 Z"/>
+    <rect class="pk-car-roof" x="-8.2" y="-4.4" width="11.2" height="8.8" rx="2.4"/>
+    <circle class="pk-car-light" cx="13.8" cy="-3.8" r="1.2"/>
+    <circle class="pk-car-light" cx="13.8" cy="3.8" r="1.2"/>
+    <rect class="pk-car-tail" x="-15.2" y="-4.8" width="1.5" height="2.2" rx="0.7"/>
+    <rect class="pk-car-tail" x="-15.2" y="2.6" width="1.5" height="2.2" rx="0.7"/>
+  </g>`;
 
 /**
  * Gắn khung tô số vào `host`. `n` là một số (1–10) hoặc nét dựng sẵn
  * { width, strokes, guides? } (chữ cái, letters.js); `guides` = các dòng kẻ ngang (toạ độ y). Gọi `onStroke(i)` khi xong một nét, `onDone()` khi xong cả số.
- * Trả về { destroy }.
+ * `pen`: 'car' | 'dot' (mặc định: lựa chọn đã lưu). Trả về { destroy, setPen }.
  */
-export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTouch } = {}) {
+export function mountTracer(host, n, { color = '#2563EB', pen = getPen(), onStroke, onDone, onTouch } = {}) {
   const { width, strokes, guides = [] } = typeof n === 'object' ? n : numberStrokes(n);
+  // Bán kính chấm xanh đặt thẳng vào SVG: Safari/iPad không đọc thuộc tính CSS `r`.
+  const dotR = guides.length ? 7 : 8;
   host.innerHTML = `
-    <svg class="pk-trace-svg${guides.length ? ' has-guides' : ''}" viewBox="-6 0 ${width + 12} 142" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <svg class="pk-trace-svg${guides.length ? ' has-guides' : ''} pen-${pen}" viewBox="-6 0 ${width + 12} 142" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       ${guides.map((y, i) => `<line class="pk-trace-line${i === 2 ? ' is-base' : ''}" x1="-600" x2="${width + 600}" y1="${y}" y2="${y}"/>`).join('')}
       <g class="pk-trace-guides">
         ${strokes.map(d => `<path class="pk-trace-track" d="${d}"/>`).join('')}
@@ -48,18 +81,36 @@ export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTo
       <g class="pk-trace-ink">
         ${strokes.map(d => `<path class="pk-trace-fill" d="${d}" style="stroke:${color}"/>`).join('')}
       </g>
-      <g class="pk-trace-start"><circle r="9"/><circle class="pk-trace-start-ring" r="9"/></g>
-      <circle class="pk-trace-finger" r="7"/>
-      <!-- Mũi tên luôn nằm trên cùng: nét màu, chấm xanh, ngón tay đều đi dưới nó. -->
+      <g class="pk-trace-smoke"></g>
+      <!-- Mũi tên chiều viết nằm dưới chỗ đặt bút: chấm xanh / ô tô luôn thấy rõ trên cùng. -->
       <g class="pk-trace-arrow">
         <path class="pk-trace-arrow-case"/><path class="pk-trace-arrow-line"/>
         <path class="pk-trace-arrow-head" d="M-5 -7 L8 0 L-5 7 Z"/>
+      </g>
+      <circle class="pk-trace-finger" r="7"/>
+      <g class="pk-trace-start">
+        <!-- Mũi tên nhỏ nhún tới ngay trước chấm / đầu xe: hướng phải tô tiếp. SMIL (không phải CSS) để chạy cả trên iPad. -->
+        <g class="pk-trace-dir"><g>
+          <animateTransform attributeName="transform" type="translate" values="0 0;4 0;0 0" dur="0.7s" repeatCount="indefinite"/>
+          <path d="M-2 -7 L8 0 L-2 7 Z"/>
+        </g></g>
+        <g class="pk-trace-dot">
+          <circle class="pk-trace-start-ring" r="${dotR}">
+            <animate attributeName="r" values="${dotR};${dotR * 2.6}" dur="1.2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.9;0" dur="1.2s" repeatCount="indefinite"/>
+          </circle>
+          <circle class="pk-trace-dot-core" r="${dotR}"/>
+        </g>
+        <g class="pk-trace-car">${CAR}</g>
       </g>
     </svg>`;
   const svg = host.querySelector('svg');
   const fills = [...svg.querySelectorAll('.pk-trace-fill')];
   const start = svg.querySelector('.pk-trace-start');
   const arrow = svg.querySelector('.pk-trace-arrow');
+  const smoke = svg.querySelector('.pk-trace-smoke');
+  const car = svg.querySelector('.pk-trace-car');
+  const dir = svg.querySelector('.pk-trace-dir');
   const finger = svg.querySelector('.pk-trace-finger');
 
   // Điểm mẫu dọc theo từng nét.
@@ -81,6 +132,53 @@ export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTo
   let idx = 0;      // điểm mẫu xa nhất đã tô tới trên nét hiện tại
   let drawing = false;
   let done = false;
+  let carAt = null;  // { x, y, dx, dy }: vị trí và hướng chạy (vector đơn vị) của xe
+  let lastPuff = 0;
+  // Dài theo nét: số to hơn chữ cái một chút; rộng: bằng bề rộng nét (16 số, 13 chữ cái có dòng kẻ).
+  const carScale = guides.length ? 0.7 : 0.8;
+  const carWide = (guides.length ? 13 : 16) / CAR_W;
+
+  const unit = (a, b) => {
+    const dx = b.x - a.x, dy = b.y - a.y, n = Math.hypot(dx, dy);
+    return n > 0.01 ? { dx: dx / n, dy: dy / n } : null;
+  };
+  const deg = ({ dx, dy }) => (Math.atan2(dy, dx) * 180 / Math.PI).toFixed(1);
+  let dirAt = { dx: 1, dy: 0 };
+  // Mũi tên nhỏ đứng ngay trước mũi chấm xanh / đầu xe.
+  function placeDir() {
+    const ahead = pen === 'car' ? 15 * carScale + 3 : dotR + 4;
+    dir.setAttribute('transform', `rotate(${deg(dirAt)}) translate(${ahead.toFixed(1)} 0)`);
+  }
+  // Đặt chỗ đặt bút tại điểm mẫu i của nét hiện tại. Xe quay theo hướng vừa đi
+  // (xe nhìn từ trên xuống nên không cần lật); mũi tên nhỏ chỉ hướng sắp đi.
+  function placeCursor(pts, i) {
+    const { x, y } = pts[i];
+    const last = pts.length - 1;
+    const back = unit(pts[Math.max(0, i - 3)], pts[Math.min(last, i + 1)]) || carAt || { dx: 1, dy: 0 };
+    dirAt = unit(pts[i], pts[Math.min(last, i + 6)]) || back;
+    carAt = { x, y, ...back };
+    start.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+    car.setAttribute('transform', `rotate(${deg(back)}) scale(${carScale} ${carWide})`);
+    placeDir();
+  }
+
+  // Một cụm khói sau đuôi xe, tự bay lên, phình ra rồi tan.
+  function puff(now = performance.now()) {
+    if (pen !== 'car' || !carAt || now - lastPuff < PUFF_GAP) return;
+    lastPuff = now;
+    const { x, y, dx, dy } = carAt;
+    const c = document.createElementNS(SVG_NS, 'circle');
+    c.setAttribute('class', 'pk-trace-puff');
+    c.setAttribute('cx', (x - dx * 16 * carScale + (Math.random() - 0.5) * 3).toFixed(1));
+    c.setAttribute('cy', (y - dy * 16 * carScale + (Math.random() - 0.5) * 3).toFixed(1));
+    c.setAttribute('r', (2.2 + Math.random() * 1.4).toFixed(1));
+    c.addEventListener('animationend', () => c.remove());
+    smoke.appendChild(c);
+  }
+  const idleTimer = setInterval(() => {
+    if (!svg.isConnected) { clearInterval(idleTimer); return; }
+    if (!drawing && !done) { lastPuff = 0; puff(); }
+  }, IDLE_PUFF);
 
   // Mũi tên chỉ chiều viết: thân chạy dọc theo đầu nét (ngay sau chấm xanh), đầu nhọn ở cuối.
   const arrowLines = [...arrow.querySelectorAll('.pk-trace-arrow-case, .pk-trace-arrow-line')];
@@ -89,11 +187,13 @@ export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTo
     if (stroke >= samples.length) { start.style.display = 'none'; arrow.style.display = 'none'; return; }
     const { pts, len } = samples[stroke];
     const p0 = pts[0];
-    start.setAttribute('transform', `translate(${p0.x} ${p0.y})`);
+    placeCursor(pts, 0);
     start.style.display = '';
     // Nét quá ngắn (dấu chấm): chỉ cần chạm, không cần mũi tên.
+    dir.style.display = len < 12 ? 'none' : '';
     if (len < 12) { arrow.style.display = 'none'; return; }
-    const from = Math.min(13, len * 0.3), to = Math.min(from + 26, len * 0.95);
+    // Bắt đầu sau mũi tên nhỏ nhún trước chấm xanh / đầu xe, để hai mũi tên không chồng lên nhau.
+    const from = Math.min(28, len * 0.3), to = Math.min(from + 26, len * 0.95);
     const run = pts.filter(p => p.s >= from && p.s <= to);
     const a = run[run.length - 2] || pts[0], b = run[run.length - 1] || pts[pts.length - 1];
     const ang = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
@@ -122,8 +222,9 @@ export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTo
     if (best <= idx) return;
     idx = best;
     fills[stroke].style.strokeDashoffset = `${len - pts[idx].s}`;
-    // Chấm xanh đi theo đầu nét: là chỗ ngón tay đang ở, và là chỗ đặt tay lại nếu nhấc lên.
-    start.setAttribute('transform', `translate(${pts[idx].x} ${pts[idx].y})`);
+    // Xe chạy theo đầu nét: là chỗ ngón tay đang ở, và là chỗ đặt tay lại nếu nhấc lên.
+    placeCursor(pts, idx);
+    puff();
     if (idx >= pts.length - 2) {
       fills[stroke].style.strokeDashoffset = '0';
       onStroke?.(stroke);
@@ -150,6 +251,7 @@ export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTo
       return;
     }
     drawing = true;
+    svg.classList.add('is-driving');
     onTouch?.(true);
     svg.setPointerCapture?.(e.pointerId);
     move(e);
@@ -157,6 +259,7 @@ export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTo
 
   function move(e) {
     const p = toSvg(e);
+    // Chấm xanh: vòng cam theo ngón tay như cũ (ô tô thì chính xe đã đi theo ngón tay).
     finger.setAttribute('cx', p.x);
     finger.setAttribute('cy', p.y);
     finger.style.opacity = drawing ? '1' : '0';
@@ -165,6 +268,7 @@ export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTo
 
   function up() {
     drawing = false;
+    svg.classList.remove('is-driving');
     finger.style.opacity = '0';
   }
 
@@ -175,6 +279,12 @@ export function mountTracer(host, n, { color = '#2563EB', onStroke, onDone, onTo
   svg.addEventListener('lostpointercapture', up);
 
   return {
-    destroy() { host.innerHTML = ''; },
+    destroy() { clearInterval(idleTimer); host.innerHTML = ''; },
+    setPen(next) {
+      svg.classList.replace(`pen-${pen}`, `pen-${next}`);
+      pen = next;
+      placeDir();
+      if (next !== 'car') smoke.replaceChildren();
+    },
   };
 }

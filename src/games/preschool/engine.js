@@ -15,7 +15,7 @@ import '../../styles/preschool.css';
 import { NUMBER_COLORS, numberWord } from './numbers.js';
 import { say, stopSpeaking, whenQuiet, sfx, burst, rain, shake, centerOf, isMuted, setMuted, voiceStatus, onVoiceStatus, voiceInfo } from './fx.js';
 import { reportVoiceStatus } from '../../engine/voiceReport.js';
-import { mountTracer } from './trace.js';
+import { mountTracer, getPen, setPen, CAR } from './trace.js';
 import { letterGlyph } from './letters.js';
 import { soundName } from './phonics.js';
 import { PLAYERS3 } from './play3.js';
@@ -519,6 +519,20 @@ export function renderPreschool(app, onBack, book) {
       : circle ? 'Bé đếm xem có bao nhiêu, rồi khoanh vào số đúng nhé!' : 'Bé hãy đếm đồ vật, rồi chọn số để điền vào ô trống nhé!');
   }
 
+  // ── Chỗ đặt bút khi tô: ô tô hoặc chấm xanh ────────────────────────────
+  const PEN_PICK = `
+    <div class="pk-pen-pick" role="group" aria-label="Chọn chỗ đặt bút">
+      <button type="button" data-pen="car" aria-label="Ô tô"><svg class="pk-pen-car" viewBox="-17 -10 34 20">${CAR}</svg></button>
+      <button type="button" data-pen="dot" aria-label="Chấm xanh"><span class="pk-pen-dot"></span></button>
+    </div>`;
+  const penSpot = () => (getPen() === 'car' ? 'ô tô' : 'chấm xanh');
+  function bindPenPick(stage, getTracer) {
+    const btns = [...stage.querySelectorAll('.pk-pen-pick button')];
+    const mark = () => btns.forEach(b => b.classList.toggle('is-on', b.dataset.pen === getPen()));
+    btns.forEach(b => { b.onclick = () => { sfx.tap(); setPen(b.dataset.pen); getTracer()?.setPen(b.dataset.pen); mark(); }; });
+    mark();
+  }
+
   // ── Tô số ──────────────────────────────────────────────────────────────
   function playTrace({ round, stage, talk, solve }) {
     const { n } = round;
@@ -526,7 +540,7 @@ export function renderPreschool(app, onBack, book) {
     let rep = 0;
     stage.innerHTML = `
       <div class="pk-trace">
-        <div class="pk-trace-reps">${Array.from({ length: TRACE_REPS }, (_, i) => `<span class="pk-trace-rep" data-i="${i}">${n}</span>`).join('')}</div>
+        <div class="pk-trace-reps">${Array.from({ length: TRACE_REPS }, (_, i) => `<span class="pk-trace-rep" data-i="${i}">${n}</span>`).join('')}${PEN_PICK}</div>
         <div class="pk-trace-board" id="pk-board"></div>
       </div>`;
     const board = stage.querySelector('#pk-board');
@@ -535,7 +549,7 @@ export function renderPreschool(app, onBack, book) {
       tracer?.destroy();
       tracer = mountTracer(board, n, {
         color: colorOf(n),
-        onTouch: (ok) => { if (!ok) talk('Bé đặt ngón tay vào chấm xanh nhé!', { keep: true }); },
+        onTouch: (ok) => { if (!ok) talk(`Bé đặt ngón tay vào ${penSpot()} nhé!`, { keep: true }); },
         onStroke: () => sfx.swish(),
         onDone: () => {
           const repEl = stage.querySelector(`.pk-trace-rep[data-i="${rep}"]`);
@@ -552,7 +566,8 @@ export function renderPreschool(app, onBack, book) {
     };
     start();
     addCleanup(() => tracer?.destroy());
-    talk(`Bé đặt ngón tay vào chấm xanh, rồi tô theo nét số ${w} nhé!`);
+    bindPenPick(stage, () => tracer);
+    talk(`Bé đặt ngón tay vào ${penSpot()}, rồi tô theo nét số ${w} nhé!`);
   }
 
   // ── Chạm theo thứ tự ───────────────────────────────────────────────────
@@ -1055,6 +1070,7 @@ export function renderPreschool(app, onBack, book) {
         <div class="pk-trace-reps">
           <button type="button" class="pk-abc pk-letter-card" style="--c:${color}" aria-label="Nghe đọc"><span class="pk-abc-ch">${ch}</span><span class="pk-letter-say">🔊</span></button>
           ${Array.from({ length: LETTER_REPS }, (_, i) => `<span class="pk-trace-rep" data-i="${i}">${ch}</span>`).join('')}
+          ${PEN_PICK}
         </div>
         <div class="pk-trace-board is-letter" id="pk-board" style="--ar:${Math.max(1, (glyph.width + 12) / 142).toFixed(3)}"></div>
       </div>`;
@@ -1070,7 +1086,7 @@ export function renderPreschool(app, onBack, book) {
       tracer?.destroy();
       tracer = mountTracer(board, glyph, {
         color: inkOf(color),
-        onTouch: (ok) => { if (!ok) talk('Bé đặt ngón tay vào chấm xanh nhé!', { keep: true }); },
+        onTouch: (ok) => { if (!ok) talk(`Bé đặt ngón tay vào ${penSpot()} nhé!`, { keep: true }); },
         onStroke: (i) => {
           sfx.swish();
           const p = multi && parts.find(q => q.last === i);
@@ -1097,7 +1113,8 @@ export function renderPreschool(app, onBack, book) {
     };
     start();
     addCleanup(() => tracer?.destroy());
-    talk(`${intro} Bé đặt ngón tay vào chấm xanh, rồi tô theo nét nhé!`);
+    bindPenPick(stage, () => tracer);
+    talk(`${intro} Bé đặt ngón tay vào ${penSpot()}, rồi tô theo nét nhé!`);
   }
 
   // ── Nghe đọc, chạm đúng chữ ────────────────────────────────────────────

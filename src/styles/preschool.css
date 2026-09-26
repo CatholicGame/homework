@@ -354,10 +354,37 @@
 .pk-trace-track { fill: none; stroke: #E2E8F0; stroke-width: 16; stroke-linecap: round; stroke-linejoin: round; }
 .pk-trace-dash { fill: none; stroke: #94A3B8; stroke-width: 2.4; stroke-dasharray: 4 5; stroke-linecap: round; }
 .pk-trace-fill { fill: none; stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; }
-.pk-trace-start circle { r: 8; fill: #22C55E; stroke: #fff; stroke-width: 3; }
-.pk-trace-start .pk-trace-start-ring { fill: none; stroke: #22C55E; stroke-width: 3; animation: pk-ring 1.2s ease-out infinite; transform-origin: center; transform-box: fill-box; }
-.pk-trace-start.is-hint circle:first-child { animation: pk-pulse 0.35s ease 3; transform-origin: center; transform-box: fill-box; }
-@keyframes pk-ring { from { transform: scale(1); opacity: 0.9; } to { transform: scale(2.6); opacity: 0; } }
+.pk-trace-start { pointer-events: none; }
+/* Chỗ đặt bút: ô tô hoặc chấm xanh, theo lựa chọn của bé */
+.pk-trace-svg.pen-car .pk-trace-dot, .pk-trace-svg.pen-dot .pk-trace-car,
+.pk-trace-svg.pen-car .pk-trace-finger { display: none; }
+.pk-trace-dot-core { fill: #22C55E; stroke: #fff; stroke-width: 3; }
+.pk-trace-start-ring { fill: none; stroke: #22C55E; stroke-width: 3; }
+.pk-trace-start.is-hint .pk-trace-dot-core { animation: pk-pulse 0.35s ease 3; transform-origin: center; transform-box: fill-box; }
+.pk-trace-dir path { fill: #F97316; stroke: #fff; stroke-width: 1.8; stroke-linejoin: round; paint-order: stroke fill; }
+.pk-trace-svg.has-guides .pk-trace-dir path { transform: scale(0.85); }
+.pk-trace-finger { fill: rgba(249, 115, 22, 0.35); stroke: #F97316; stroke-width: 2; opacity: 0; pointer-events: none; }
+/* Nút chọn chỗ đặt bút (🚗 / chấm xanh) phía trên khung tô */
+.pk-pen-pick { display: inline-flex; align-self: center; gap: 4px; padding: 4px; margin-left: 0.4rem; border-radius: 999px; background: #F1F5F9; }
+.pk-pen-pick button { display: flex; align-items: center; justify-content: center; width: 44px; height: 34px; border: none; border-radius: 999px; background: transparent; font-size: 1.25rem; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.pk-pen-pick button.is-on { background: #fff; box-shadow: 0 2px 0 #CBD5E1; }
+.pk-pen-car { width: 32px; height: 20px; }
+.pk-pen-dot { width: 16px; height: 16px; border-radius: 50%; background: #22C55E; border: 3px solid #fff; box-shadow: 0 0 0 2px #22C55E; }
+/* Ô tô nhìn từ trên xuống (chỗ đặt bút): rung nhẹ khi chờ, rung nhanh khi chạy */
+.pk-car { animation: pk-car-idle 0.9s ease-in-out infinite; }
+.pk-car-body { fill: #EF4444; stroke: #fff; stroke-width: 1.6; paint-order: stroke fill; }
+.pk-car-roof { fill: #F87171; }
+.pk-car-glass { fill: #1E293B; }
+.pk-car-wheel { fill: #111827; }
+.pk-car-mirror { fill: #DC2626; }
+.pk-car-light { fill: #FDE047; }
+.pk-car-tail { fill: #991B1B; }
+.pk-trace-svg.is-driving .pk-car { animation: pk-car-drive 0.18s linear infinite; }
+.pk-trace-start.is-hint .pk-car { animation: pk-pulse 0.35s ease 3; transform-origin: center; transform-box: fill-box; }
+.pk-trace-puff { fill: #9CA3AF; stroke: #fff; stroke-width: 0.8; pointer-events: none; transform-origin: center; transform-box: fill-box; animation: pk-puff 0.8s ease-out forwards; }
+@keyframes pk-car-idle { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(0.8px); } }
+@keyframes pk-car-drive { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(0.5px); } }
+@keyframes pk-puff { from { opacity: 0.9; transform: scale(0.6); } to { opacity: 0; transform: translateY(-7px) scale(2.3); } }
 .pk-trace-arrow { pointer-events: none; animation: pk-arrow 1s ease-in-out infinite; }
 .pk-trace-arrow-case, .pk-trace-arrow-line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
 .pk-trace-arrow-case { stroke: #fff; stroke-width: 7; }
@@ -368,10 +395,8 @@
 .pk-trace-svg.has-guides .pk-trace-track { stroke-width: 13; }
 .pk-trace-svg.has-guides .pk-trace-fill { stroke-width: 10; }
 .pk-trace-svg.has-guides .pk-trace-dash { stroke-width: 1.8; stroke-dasharray: 3 4; }
-.pk-trace-svg.has-guides .pk-trace-start circle { r: 7; }
 .pk-trace-svg.has-guides.is-done .pk-trace-fill { animation-name: pk-shine-thin; }
 @keyframes pk-shine-thin { 50% { stroke-width: 13; filter: brightness(1.25); } }
-.pk-trace-finger { fill: rgba(249, 115, 22, 0.35); stroke: #F97316; stroke-width: 2; opacity: 0; pointer-events: none; }
 .pk-trace-svg.is-done .pk-trace-fill { animation: pk-shine 0.8s ease 2; }
 @keyframes pk-shine { 50% { stroke-width: 16; filter: brightness(1.25); } }
 
