@@ -31,7 +31,7 @@ function pickVoice() {
 }
 if ('speechSynthesis' in window) {
   pickVoice();
-  window.speechSynthesis.addEventListener?.('voiceschanged', pickVoice);
+  window.speechSynthesis.addEventListener?.('voiceschanged', () => { pickVoice(); emitStatus(); });
   // Safari iOS chỉ cho đọc sau khi được "mở khoá" trong một lần chạm của người dùng.
   const unlock = () => {
     const u = new SpeechSynthesisUtterance(' ');
@@ -55,6 +55,7 @@ const ONLINE_MAX = 180; // dịch vụ nhận tối đa ~200 ký tự mỗi lầ
 let onlineFrame = null;
 let onlineQueue = [];
 let player = null;
+let onlineFailures = 0; // số lần liền dịch vụ trực tuyến không trả về tiếng (mất mạng, bị chặn…)
 const useOnline = () => !viVoice && !noVoiceList;
 
 let frameReady = false;
@@ -100,8 +101,8 @@ function playNextOnline() {
   const a = doc.createElement('audio');
   a.src = `https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&ttsspeed=${item.rate < 0.85 ? 0.8 : 1}&q=${encodeURIComponent(item.text)}`;
   const done = () => { if (player === a) { a.remove(); playNextOnline(); } };
-  a.onended = done;
-  a.onerror = done;
+  a.onended = () => { if (onlineFailures) { onlineFailures = 0; emitStatus(); } done(); };
+  a.onerror = () => { onlineFailures++; if (onlineFailures === 2) emitStatus(); done(); };
   player = a;
   doc.body.appendChild(a);
   a.play().catch(done);
@@ -111,6 +112,41 @@ function sayOnline(text, rate, queue) {
   if (!queue) stopOnline();
   onlineQueue.push(...chunksOf(text).map(t => ({ text: t, rate })));
   if (!player) playNextOnline();
+}
+
+// ── Tình trạng giọng đọc (để hướng dẫn bố mẹ) ───────────────────────────────
+const statusListeners = new Set();
+function emitStatus() { const s = voiceStatus(); statusListeners.forEach(fn => fn(s)); }
+
+/**
+ * Máy này đọc tiếng Việt bằng gì:
+ *   'local'   — có giọng tiếng Việt của máy (tốt nhất)
+ *   'online'  — không có, đang dùng giọng trực tuyến (cần mạng)
+ *   'none'    — không đọc được (không hỗ trợ, mất mạng, dịch vụ trực tuyến lỗi)
+ *   'unknown' — trình duyệt không liệt kê giọng nào (vẫn thử đọc theo vi-VN)
+ */
+export function voiceStatus() {
+  if (!('speechSynthesis' in window)) return 'none';
+  pickVoice();
+  if (viVoice) return 'local';
+  if (noVoiceList) return 'unknown';
+  if (navigator.onLine === false || onlineFailures >= 2) return 'none';
+  return 'online';
+}
+/** Số giọng trình duyệt liệt kê và các ngôn ngữ của chúng (để báo admin). */
+export function voiceInfo() {
+  const voices = window.speechSynthesis?.getVoices() || [];
+  return { voices: voices.length, langs: [...new Set(voices.map(v => v.lang))].sort() };
+}
+/** Báo khi tình trạng giọng đọc đổi (danh sách giọng tải xong, dịch vụ lỗi / chạy lại). Trả về hàm huỷ. */
+export function onVoiceStatus(fn) {
+  statusListeners.add(fn);
+  window.addEventListener('online', emitStatus);
+  window.addEventListener('offline', emitStatus);
+  return () => {
+    statusListeners.delete(fn);
+    if (!statusListeners.size) { window.removeEventListener('online', emitStatus); window.removeEventListener('offline', emitStatus); }
+  };
 }
 
 /** Máy đọc được tiếng Việt không (bằng giọng của máy hoặc giọng trực tuyến). */

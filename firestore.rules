@@ -127,5 +127,33 @@ service cloud.firestore {
           && (!('reply' in request.resource.data) || validReply(request.resource.data.reply)));
       allow delete: if isOwner(uid) || isAdmin();
     }
+
+    // Máy không có giọng đọc tiếng Việt (src/engine/voiceReport.js): mỗi máy một bản ghi
+    // `{uid}_{mã máy}`, bé chỉ đọc/ghi được bản của mình; admin đọc tất cả và xoá.
+    function validVoiceIssue(d) {
+      return d.keys().hasOnly(['uid', 'email', 'status', 'browser', 'os', 'device', 'model', 'ua',
+                               'voices', 'langs', 'online', 'createdAt', 'lastSeenAt'])
+        && d.uid == request.auth.uid
+        && d.email is string && d.email.size() <= 200
+        && d.status in ['online', 'none', 'local']
+        && d.browser is string && d.browser.size() <= 60
+        && d.os is string && d.os.size() <= 60
+        && d.device is string && d.device.size() <= 40
+        && d.model is string && d.model.size() <= 80
+        && d.ua is string && d.ua.size() <= 400
+        && d.voices is int && d.voices >= 0 && d.voices <= 9999
+        && d.langs is string && d.langs.size() <= 400
+        && d.online is bool
+        && d.lastSeenAt == request.time;
+    }
+
+    match /voiceIssues/{id} {
+      allow read: if isAdmin() || (request.auth != null && id.matches(request.auth.uid + '_[A-Za-z0-9]+'));
+      allow delete: if isAdmin();
+      allow create: if request.auth != null && id.matches(request.auth.uid + '_[A-Za-z0-9]+')
+        && validVoiceIssue(request.resource.data) && request.resource.data.createdAt == request.time;
+      allow update: if request.auth != null && id.matches(request.auth.uid + '_[A-Za-z0-9]+')
+        && validVoiceIssue(request.resource.data) && request.resource.data.createdAt == resource.data.createdAt;
+    }
   }
 }

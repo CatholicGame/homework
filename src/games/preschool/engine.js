@@ -13,7 +13,8 @@
 
 import '../../styles/preschool.css';
 import { NUMBER_COLORS, numberWord } from './numbers.js';
-import { say, stopSpeaking, whenQuiet, sfx, burst, rain, shake, centerOf, isMuted, setMuted } from './fx.js';
+import { say, stopSpeaking, whenQuiet, sfx, burst, rain, shake, centerOf, isMuted, setMuted, voiceStatus, onVoiceStatus, voiceInfo } from './fx.js';
+import { reportVoiceStatus } from '../../engine/voiceReport.js';
 import { mountTracer } from './trace.js';
 import { letterGlyph } from './letters.js';
 import { soundName } from './phonics.js';
@@ -51,9 +52,17 @@ export function renderPreschool(app, onBack, book) {
   const runCleanup = () => { cleanup.forEach(fn => fn()); cleanup = []; };
 
   // Rời trang (về trang chủ) thì dừng đọc.
-  const leave = () => { runCleanup(); stopSpeaking(); onBack(); };
+  const leave = () => { runCleanup(); stopSpeaking(); clearTimeout(voiceTimer); stopVoiceWatch?.(); onBack(); };
 
   showMap();
+
+  // Máy không có giọng tiếng Việt: lặng lẽ báo admin (không hiện gì cho bé). Chờ danh sách
+  // giọng của trình duyệt tải xong rồi mới kết luận; giọng trực tuyến hỏng giữa chừng thì báo lại.
+  const voiceTimer = setTimeout(() => {
+    reportVoiceStatus(voiceStatus(), voiceInfo());
+    stopVoiceWatch = onVoiceStatus(s => reportVoiceStatus(s, voiceInfo()));
+  }, 2500);
+  let stopVoiceWatch = null;
 
   // ════════════════════════════════════════════════════════════════════════
   // Bản đồ

@@ -1825,3 +1825,19 @@
   .adm-tiles { grid-template-columns: repeat(2, 1fr); }
   .adm-tile-value { font-size: 1.6rem; }
 }
+
+/* Tab Giọng đọc (#admin) */
+.adm-vc-breaks { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.adm-vc-break h3 { font-size: 0.95rem; color: var(--text-light); margin-bottom: 6px; }
+.adm-vc-break ul { list-style: none; padding: 0; margin: 0; }
+.adm-vc-break li { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; border-bottom: 1px dashed var(--border); }
+.adm-vc-table td { vertical-align: top; }
+.adm-vc-sub { display: block; color: var(--text-light); font-size: 0.8rem; word-break: break-all; }
+.adm-vc-status { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; white-space: nowrap; background: #F1F5F9; }
+.adm-vc-status.is-bad { background: #FEE2E2; color: #B91C1C; }
+.adm-vc-status.is-warn { background: #FEF3C7; color: #92400E; }
+.adm-vc-status.is-ok { background: #DCFCE7; color: #15803D; }
+.adm-vc-del { padding: 4px 8px; }
+@media (max-width: 640px) {
+  .adm-table-wrap.adm-vc-wrap { display: block; }
+}

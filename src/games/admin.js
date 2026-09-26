@@ -1,7 +1,8 @@
 /**
- * Trang admin (mở bằng #admin), hai tab:
+ * Trang admin (mở bằng #admin), ba tab:
  *   Học sinh — bao nhiêu học sinh đã đăng ký, mới đăng ký / hoạt động gần đây, chia theo lớp, danh sách chi tiết.
  *   Đánh giá — xem đánh giá ứng dụng, trả lời (hiện công khai dưới đánh giá) hoặc xoá.
+ *   Giọng đọc — các máy không có giọng đọc tiếng Việt (sách Tiền tiểu học): trình duyệt, thiết bị gì.
  * Chỉ tài khoản trong ADMIN_EMAILS vào được (Firestore rules chặn phần còn lại).
  */
 
@@ -12,6 +13,7 @@ import { isAdminUser, fetchStudents } from '../engine/admin.js';
 import { PRESCHOOL, gradeTitle } from '../data/grades.js';
 import { fetchReviews, replyReview, deleteReview, reviewStats, REPLY_MAX } from '../engine/reviews.js';
 import { starsHtml, reviewerHtml } from './reviews.js';
+import { fetchVoiceIssues, deleteVoiceIssue } from '../engine/voiceReport.js';
 
 const PAGE_SIZE = 20;
 const CHART_DAYS = 30;
@@ -36,7 +38,7 @@ const SORTS = [
 
 export function render(app, onBack) {
   const state = { tab: 'students', rows: null, search: '', grade: 'all', sort: 'created', page: 1,
-    reviews: null, rvFilter: 'all', replying: null };
+    reviews: null, rvFilter: 'all', replying: null, voice: null, vcFilter: 'open' };
 
   preloadAuth();
 
@@ -50,6 +52,7 @@ export function render(app, onBack) {
       <div class="lb-tabs adm-tabs" role="tablist">
         <button type="button" role="tab" class="lb-tab" data-tab="students">👧 Học sinh</button>
         <button type="button" role="tab" class="lb-tab" data-tab="reviews">⭐ Đánh giá</button>
+        <button type="button" role="tab" class="lb-tab" data-tab="voice">🔊 Giọng đọc</button>
       </div>
       <div id="adm-body"></div>
     </div>
@@ -97,7 +100,7 @@ export function render(app, onBack) {
     refreshBtn.hidden = true;
     const tab = state.tab;
     body.innerHTML = `<div class="lb-loading" role="status"><div class="page-loading-spinner"></div><p>${
-      tab === 'reviews' ? 'Đang tải đánh giá…' : 'Đang tải danh sách học sinh…'}</p></div>`;
+      tab === 'reviews' ? 'Đang tải đánh giá…' : tab === 'voice' ? 'Đang tải danh sách máy…' : 'Đang tải danh sách học sinh…'}</p></div>`;
     try {
       if (await needsConnect()) return showConnect();
       if (tab === 'reviews') {
@@ -105,19 +108,24 @@ export function render(app, onBack) {
         const [{ reviews }, rows] = await Promise.all([fetchReviews(), fetchStudents().catch(() => [])]);
         const byUid = new Map(rows.map(r => [r.uid, r]));
         state.reviews = reviews.map(r => ({ ...r, email: byUid.get(r.id)?.email || '' }));
+      } else if (tab === 'voice') {
+        const [issues, rows] = await Promise.all([fetchVoiceIssues(), fetchStudents().catch(() => [])]);
+        const byUid = new Map(rows.map(r => [r.uid, r]));
+        state.voice = issues.map(v => ({ ...v, student: byUid.get(v.uid) || null }));
       } else {
         state.rows = await fetchStudents();
       }
       if (tab !== state.tab) return; // đã chuyển tab trong lúc tải
       refreshBtn.hidden = false;
       if (tab === 'reviews') drawReviews();
+      else if (tab === 'voice') drawVoice();
       else drawAll();
     } catch (e) {
       if (tab !== state.tab) return;
       if (e?.message === 'need-connect') return showConnect();
       const denied = e?.code === 'permission-denied';
       showMessage(denied ? '🔒' : '📡', denied
-        ? 'Firestore từ chối quyền đọc. Kiểm tra đã triển khai firestore.rules mới (hàm isAdmin) chưa.'
+        ? `Firestore từ chối quyền đọc. Kiểm tra đã triển khai firestore.rules mới (${tab === 'voice' ? 'phần voiceIssues' : 'hàm isAdmin'}) chưa.`
         : 'Không tải được dữ liệu. Kiểm tra kết nối mạng rồi thử lại.',
       '<button type="button" class="btn btn-primary" id="adm-retry">🔄 Thử lại</button>');
       body.querySelector('#adm-retry').onclick = () => load();
@@ -437,6 +445,110 @@ export function render(app, onBack) {
     } catch (e) {
       btn.disabled = false;
       alert(e?.code === 'permission-denied' ? deniedMsg : 'Xoá thất bại, thử lại nhé.');
+    }
+  }
+
+  // ── Tab Giọng đọc ─────────────────────────────────────────────────────────
+  const VC_STATUS = {
+    none: { label: '🔇 Không đọc được', cls: 'is-bad' },
+    online: { label: '🌐 Giọng trực tuyến', cls: 'is-warn' },
+    local: { label: '✅ Đã có giọng', cls: 'is-ok' },
+  };
+  const VC_FILTERS = [
+    { id: 'open', label: 'Chưa có giọng', test: v => v.status !== 'local' },
+    { id: 'none', label: 'Không đọc được', test: v => v.status === 'none' },
+    { id: 'online', label: 'Giọng trực tuyến', test: v => v.status === 'online' },
+    { id: 'local', label: 'Đã khắc phục', test: v => v.status === 'local' },
+    { id: 'all', label: 'Tất cả', test: () => true },
+  ];
+  const browserName = (b) => String(b || '—').replace(/\s[\d.]+$/, '');
+
+  function drawVoice() {
+    const all = state.voice;
+    const count = (fn) => all.filter(fn).length;
+    // Máy chưa có giọng, gom theo trình duyệt / hệ điều hành / thiết bị.
+    const group = (keyOf) => {
+      const m = new Map();
+      all.filter(v => v.status !== 'local').forEach(v => { const k = keyOf(v) || '—'; m.set(k, (m.get(k) || 0) + 1); });
+      return [...m].sort((a, b) => b[1] - a[1]).slice(0, 6);
+    };
+    const tiles = [
+      { label: 'Số máy đã báo', value: all.length },
+      { label: 'Không đọc được', value: count(v => v.status === 'none') },
+      { label: 'Dùng giọng trực tuyến', value: count(v => v.status === 'online') },
+      { label: 'Đã khắc phục', value: count(v => v.status === 'local') },
+    ];
+    const filter = VC_FILTERS.find(f => f.id === state.vcFilter) || VC_FILTERS[0];
+    const items = all.filter(filter.test);
+    const breakdown = (title, rows) => `
+      <div class="adm-vc-break"><h3>${title}</h3>${rows.length
+        ? `<ul>${rows.map(([k, n]) => `<li><span>${escapeHtml(k)}</span><b>${n}</b></li>`).join('')}</ul>`
+        : '<p class="adm-empty">—</p>'}</div>`;
+
+    body.innerHTML = `
+      <div class="adm-tiles">
+        ${tiles.map(t => `
+          <div class="adm-tile">
+            <div class="adm-tile-label">${t.label}</div>
+            <div class="adm-tile-value">${t.value}</div>
+          </div>`).join('')}
+      </div>
+      <section class="lb-card adm-section">
+        <h2 class="adm-h2">Máy chưa có giọng đọc tiếng Việt</h2>
+        <div class="adm-vc-breaks">
+          ${breakdown('Trình duyệt', group(v => browserName(v.browser)))}
+          ${breakdown('Hệ điều hành', group(v => v.os))}
+          ${breakdown('Thiết bị', group(v => v.device))}
+        </div>
+      </section>
+      <section class="lb-card adm-section">
+        <h2 class="adm-h2">Danh sách máy (mỗi máy của một tài khoản là một dòng)</h2>
+        <div class="lb-chips adm-chips">
+          ${VC_FILTERS.map(f => `
+            <button type="button" class="lb-chip${f.id === filter.id ? ' is-active' : ''}" data-vc="${f.id}">${f.label}
+              <span class="lb-chip-count">${count(f.test)}</span></button>`).join('')}
+        </div>
+        ${items.length ? `
+        <div class="adm-table-wrap adm-vc-wrap">
+          <table class="adm-table adm-vc-table">
+            <thead><tr><th>Học sinh</th><th>Tình trạng</th><th>Trình duyệt</th><th>Hệ điều hành</th><th>Thiết bị</th><th>Giọng trên máy</th><th>Lần cuối</th><th></th></tr></thead>
+            <tbody>${items.map(vcRowHtml).join('')}</tbody>
+          </table>
+        </div>` : '<p class="adm-empty">Chưa có máy nào trong mục này.</p>'}
+      </section>
+    `;
+
+    body.querySelectorAll('[data-vc]').forEach(c => { c.onclick = () => { state.vcFilter = c.dataset.vc; drawVoice(); }; });
+    body.querySelectorAll('[data-vc-del]').forEach(b => { b.onclick = () => removeVoiceIssue(b.dataset.vcDel, b); });
+  }
+
+  function vcRowHtml(v) {
+    const st = VC_STATUS[v.status] || { label: escapeHtml(v.status), cls: '' };
+    const email = v.email || v.student?.email || '';
+    return `<tr>
+      <td>${v.student ? who(v.student) : ''}${email ? `<small class="adm-vc-sub">${escapeHtml(email)}</small>` : ''}</td>
+      <td><span class="adm-vc-status ${st.cls}">${st.label}</span></td>
+      <td>${escapeHtml(v.browser)}</td>
+      <td>${escapeHtml(v.os)}</td>
+      <td>${escapeHtml(v.device)}${v.model ? `<small class="adm-vc-sub">${escapeHtml(v.model)}</small>` : ''}</td>
+      <td title="${escapeHtml(v.langs || '')}">${v.voices || 0} giọng${v.online === false ? '<small class="adm-vc-sub">mất mạng</small>' : ''}</td>
+      <td title="${escapeHtml(v.ua || '')}">${fmtDateTime(v.lastSeenAt)}<small class="adm-vc-sub">từ ${fmtDate(v.createdAt)}</small></td>
+      <td><button type="button" class="btn btn-ghost rv-danger adm-vc-del" data-vc-del="${escapeHtml(v.id)}" title="Xoá dòng này" aria-label="Xoá">🗑</button></td>
+    </tr>`;
+  }
+
+  async function removeVoiceIssue(id, btn) {
+    if (!confirm('Xoá dòng này? Nếu máy vẫn chưa có giọng đọc, lần sau mở sách sẽ báo lại.')) return;
+    btn.disabled = true;
+    try {
+      await deleteVoiceIssue(id);
+      state.voice = state.voice.filter(v => v.id !== id);
+      drawVoice();
+    } catch (e) {
+      btn.disabled = false;
+      alert(e?.code === 'permission-denied'
+        ? 'Firestore từ chối. Kiểm tra đã triển khai firestore.rules mới (phần voiceIssues) chưa.'
+        : 'Xoá thất bại, thử lại nhé.');
     }
   }
 
