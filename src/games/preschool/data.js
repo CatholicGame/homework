@@ -77,7 +77,7 @@ const FRUITS = ['quả cam', 'quả táo', 'quả bí ngô', 'quả măng cụt'
 
 // Đáp án các ô đếm (đếm tay trên hình, theo thứ tự trái → phải, trên → dưới).
 const COUNT_28 = [3, 4, 7, 8, 5, 6, 3, 5, 7, 2, 4, 6];
-const COUNT_29 = [8, 5, 6, 4, 7, 3, 2, 5, 8, 3, 10, 4];
+const COUNT_29 = [8, 5, 6, 4, 7, 3, 2, 5, 8, 3, 11, 4]; // ô 10: 4 + 4 + 3 quả mâm xôi
 const PICK_1_5 = { 30: [3, 2, 2, 1, 5, 4], 31: [3, 1, 4, 5, 3, 2] };
 const PICK_6_10 = { 32: [6, 10, 8, 6, 7, 9], 33: [6, 10, 8, 9, 7, 8] };
 const PICK_11_20 = { 38: [15, 13, 12, 14], 39: [12, 13, 14, 15], 40: [13, 12, 14, 15], 41: [13, 15, 12, 14] };
@@ -113,7 +113,7 @@ const PART2 = [
   },
   {
     id: 'dem-dien-2', color: '#14B8A6', icon: '🫖', title: 'Đếm và điền', name: 'Bé hãy đếm đồ vật và điền số',
-    rounds: countRounds(29, COUNT_29, range(1, 10)),
+    rounds: countRounds(29, COUNT_29, range(1, 11)),
   },
   {
     id: 'khoanh-1-5', color: '#8B5CF6', icon: '🍭', title: 'Số 1 – 5', name: 'Đếm rồi khoanh vào số đúng',

@@ -1,5 +1,6 @@
 /**
- * Bé Học Vui Toán — engine dùng chung cho các tập Tiền tiểu học (Tập 1: data.js, Tập 2: data2.js).
+ * Bé Học Vui Toán — engine dùng chung cho các tập Tiền tiểu học (Tập 1: data.js, Tập 2: data2.js,
+ * Chữ cái: data3.js, 99 đề toán: data4.js — dạng lượt chơi riêng ở play4.js).
  *
  * Thiết kế cho bé mầm non (chưa đọc được chữ): bản đồ phiêu lưu với các trạm,
  * bạn Thỏ đọc to lời dặn, bé chạm đếm từng đồ vật, kéo số, tô số bằng ngón tay;
@@ -15,8 +16,15 @@ import { NUMBER_COLORS, numberWord } from './numbers.js';
 import { say, stopSpeaking, sfx, burst, rain, shake, centerOf, isMuted, setMuted } from './fx.js';
 import { mountTracer } from './trace.js';
 import { letterGlyph } from './letters.js';
+import { PLAYERS4 } from './play4.js';
+import COUNT_ITEMS from './count-items.json';
 import { awardStars, recordWrong, hasEarned, earnedFor, getQuestionStars, availableStars } from '../../engine/stars.js';
 import { recordAttempt } from '../../engine/activity.js';
+
+// Khung đồ vật của hình đếm Tập 1–2 (scripts/count-detect.py), tra theo đường dẫn hình.
+const COUNT_NAME = Object.fromEntries(Object.entries(
+  import.meta.glob('../../assets/pre[12]/*.webp', { eager: true, import: 'default' }),
+).map(([path, url]) => [url, path.match(/(pre\d\/[^/]+)\.webp$/)[1]]));
 
 const TRACE_REPS = 3;
 const LETTER_REPS = 2;
@@ -95,6 +103,7 @@ export function renderPreschool(app, onBack, book) {
 
   function mapPart(part, current) {
     const list = STATIONS.filter(s => s.part === part.num);
+    if (!list.length) return '';
     const ROW = 118;
     const xs = list.map((_, i) => 50 + 30 * Math.sin(i * 1.15));
     const ys = list.map((_, i) => ROW / 2 + i * ROW);
@@ -205,7 +214,7 @@ export function renderPreschool(app, onBack, book) {
     mascot.onclick = () => { sfx.tap(); talk(instruction); };
 
     const ctx = {
-      station, round, key, stage, talk,
+      station, round, key, stage, talk, addCleanup, countingPicture, numberChoices, circleIt,
       wrong(el, text = 'Chưa đúng rồi, bé thử lại nhé!') {
         if (finished) return;
         sfx.boing();
@@ -258,6 +267,7 @@ export function renderPreschool(app, onBack, book) {
       intro: playIntro, match: playMatch, count: playCount, trace: playTrace, order: playOrder, fill: playFill, rows: playRows,
       compare: playCompare, crossout: playCrossout, pairs: playPairs, pick: playPick, lesson: playLesson,
       chart: playChart, letter: playLetter, find: playFind,
+      ...PLAYERS4,
     };
     players[round.type](ctx);
   }
@@ -290,9 +300,11 @@ export function renderPreschool(app, onBack, book) {
 
   // ════════════════════════════════════════════════════════════════════════
   // Chạm để đếm: mỗi lần chạm một đồ vật hiện số thứ tự và đọc to số đếm.
-  // `items` = khung từng đồ vật (% của hình); không có thì chạm chỗ nào đặt dấu chỗ đó.
+  // `items` = khung từng đồ vật [x%, y%, w%, h%, nhóm?], mặc định tra trong count-items.json. Chỉ chạm
+  // vào đồ vật mới được đếm, mỗi đồ vật một số; hình không có khung thì chỉ để xem.
   // ════════════════════════════════════════════════════════════════════════
   function countingPicture(src, items, { alt = '', onCount } = {}) {
+    items = items || COUNT_ITEMS[COUNT_NAME[src]] || null;
     const wrap = document.createElement('div');
     wrap.className = 'pk-pic';
     wrap.innerHTML = `
@@ -302,50 +314,46 @@ export function renderPreschool(app, onBack, book) {
     const layer = wrap.querySelector('.pk-pic-layer');
     const recount = wrap.querySelector('.pk-recount');
     let count = 0;
+    let perGroup = {};
 
-    const mark = (x, y, host) => {
+    // Đồ vật chia nhóm (số thứ 5 của khung = nhóm): mỗi nhóm đếm lại từ 1, để bé cộng các nhóm.
+    const mark = (host, g) => {
       count++;
+      const n = (perGroup[g] = (perGroup[g] || 0) + 1);
       const b = document.createElement('span');
       b.className = 'pk-mark';
-      b.textContent = count;
-      b.style.background = NUMBER_COLORS[(count % 10) || 10];
-      if (host) host.appendChild(b);
-      else { b.style.left = `${x}%`; b.style.top = `${y}%`; b.classList.add('is-free'); layer.appendChild(b); }
-      sfx.pop(Math.min(count, 12));
-      say(numberWord(Math.min(count, 20)));
+      b.textContent = n;
+      b.style.background = NUMBER_COLORS[(n % 10) || 10];
+      host.appendChild(b);
+      sfx.pop(Math.min(n, 12));
+      say(numberWord(Math.min(n, 20)));
       recount.hidden = false;
       onCount?.(count);
     };
 
     if (items?.length) {
-      items.forEach(([x, y, w, h]) => {
+      items.forEach(([x, y, w, h, g = 0]) => {
         const hit = document.createElement('button');
         hit.type = 'button';
         hit.className = 'pk-item';
+        hit.dataset.g = g % 4;
         hit.style.cssText = `left:${x}%;top:${y}%;width:${w}%;height:${h}%`;
         hit.onclick = (e) => {
           e.stopPropagation();
           if (hit.classList.contains('is-counted')) { shake(hit); return; }
           hit.classList.add('is-counted');
-          mark(0, 0, hit);
+          mark(hit, g);
         };
         layer.appendChild(hit);
       });
     } else {
-      layer.addEventListener('click', (e) => {
-        if (e.target.closest('.pk-mark')) { // chạm lại dấu vừa đặt: xoá dấu cuối
-          const marks = layer.querySelectorAll('.pk-mark');
-          if (e.target === marks[marks.length - 1]) { marks[marks.length - 1].remove(); count--; sfx.tap(); onCount?.(count); }
-          return;
-        }
-        const r = layer.getBoundingClientRect();
-        mark(((e.clientX - r.left) / r.width) * 100, ((e.clientY - r.top) / r.height) * 100);
-      });
+      layer.style.cursor = 'default';
     }
 
     recount.onclick = (e) => {
       e.stopPropagation();
       count = 0;
+      perGroup = {};
       layer.querySelectorAll('.pk-mark').forEach(m => m.remove());
       layer.querySelectorAll('.pk-item').forEach(m => m.classList.remove('is-counted'));
       recount.hidden = true;
@@ -429,10 +437,14 @@ export function renderPreschool(app, onBack, book) {
     const num = stage.querySelector('.pk-match-num');
     const found = new Set();
 
+    // Nét nối từ mép ô số đến mép thẻ hình (phía đối diện nhau), để cả nét nằm trong khoảng trống.
     const drawLine = (card) => {
       const b = box.getBoundingClientRect();
-      const [x1, y1] = centerOf(num);
-      const [x2, y2] = centerOf(card);
+      const n = num.getBoundingClientRect();
+      const c = card.getBoundingClientRect();
+      const left = c.right <= n.left;
+      const [x1, y1] = [left ? n.left : n.right, n.top + n.height / 2];
+      const [x2, y2] = [left ? c.right : c.left, c.top + c.height / 2];
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       line.setAttribute('x1', x1 - b.left); line.setAttribute('y1', y1 - b.top);
       line.setAttribute('x2', x2 - b.left); line.setAttribute('y2', y2 - b.top);

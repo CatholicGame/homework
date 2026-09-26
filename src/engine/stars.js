@@ -109,7 +109,7 @@ export function earnedFor(key) {
 
 // Tiền tố khoá sao của từng sách → lớp (1–5; -1 = Tiền tiểu học, xem PRESCHOOL trong data/grades.js).
 // Thêm sách mới thì thêm một dòng.
-const BOOK_GRADE = { exam: 3, workbook: 3, practice: 3, workbook2: 2, pre1: -1, pre2: -1, pre3: -1 };
+const BOOK_GRADE = { exam: 3, workbook: 3, practice: 3, workbook2: 2, pre1: -1, pre2: -1, pre3: -1, pre4: -1 };
 
 /**
  * Sao của một lớp theo từng khoảng thời gian (giờ máy):
