@@ -1,6 +1,6 @@
 /**
  * Bé Học Vui Toán — engine dùng chung cho các tập Tiền tiểu học (Tập 1: data.js, Tập 2: data2.js,
- * Chữ cái: data3.js, 99 đề toán: data4.js — dạng lượt chơi riêng ở play4.js).
+ * Chữ cái: data3.js — dạng lượt chơi học đọc ở play3.js, 99 đề toán: data4.js — dạng lượt chơi riêng ở play4.js).
  *
  * Thiết kế cho bé mầm non (chưa đọc được chữ): bản đồ phiêu lưu với các trạm,
  * bạn Thỏ đọc to lời dặn, bé chạm đếm từng đồ vật, kéo số, tô số bằng ngón tay;
@@ -16,6 +16,8 @@ import { NUMBER_COLORS, numberWord } from './numbers.js';
 import { say, stopSpeaking, whenQuiet, sfx, burst, rain, shake, centerOf, isMuted, setMuted } from './fx.js';
 import { mountTracer } from './trace.js';
 import { letterGlyph } from './letters.js';
+import { soundName } from './phonics.js';
+import { PLAYERS3 } from './play3.js';
 import { PLAYERS4 } from './play4.js';
 import COUNT_ITEMS from './count-items.json';
 import { awardStars, recordWrong, hasEarned, earnedFor, getQuestionStars, availableStars } from '../../engine/stars.js';
@@ -268,7 +270,7 @@ export function renderPreschool(app, onBack, book) {
       intro: playIntro, match: playMatch, count: playCount, trace: playTrace, order: playOrder, fill: playFill, rows: playRows,
       compare: playCompare, crossout: playCrossout, pairs: playPairs, pick: playPick, lesson: playLesson,
       chart: playChart, letter: playLetter, find: playFind,
-      ...PLAYERS4,
+      ...PLAYERS3, ...PLAYERS4,
     };
     players[round.type](ctx);
   }
@@ -1049,21 +1051,37 @@ export function renderPreschool(app, onBack, book) {
       </div>`;
     stage.querySelector('.pk-letter-card').onclick = () => { sfx.tap(); say(kind === 'dấu' ? `${name}. ${read}` : name); };
     const board = stage.querySelector('#pk-board');
+    // Chữ nhiều con chữ (vần "oi", chữ ghép "ch"): tô xong con chữ nào đọc con chữ đó,
+    // tô xong cả chữ thì đánh vần lại: "o – i – oi", "cờ – hờ – chờ".
+    const parts = kind === 'dấu' ? [] : (glyph.parts || []);
+    const multi = parts.length > 1;
+    const doneSay = kind === 'dấu' ? read : multi ? `${parts.map(p => soundName(p.ch)).join(', ')}, ${name}` : name;
     let tracer = null;
     const start = () => {
       tracer?.destroy();
       tracer = mountTracer(board, glyph, {
         color: inkOf(color),
         onTouch: (ok) => { if (!ok) talk('Bé đặt ngón tay vào chấm xanh nhé!', { keep: true }); },
-        onStroke: () => sfx.swish(),
+        onStroke: (i) => {
+          sfx.swish();
+          const p = multi && parts.find(q => q.last === i);
+          if (p && i < glyph.strokes.length - 1) say(soundName(p.ch), { rate: 0.8 });
+        },
         onDone: () => {
           stage.querySelector(`.pk-trace-rep[data-i="${rep}"]`).classList.add('is-done');
           const [x, y] = centerOf(board);
           burst(x, y, { count: 16, emoji: '⭐' });
-          rep++;
-          if (rep >= LETTER_REPS) { solve(`Giỏi quá! Bé đã viết được ${kind === 'dấu' ? `chữ ${read.split(' ').pop()}` : `${kind} ${name}`}!`); return; }
           sfx.ding();
-          say('Giỏi quá! Tô lại lần nữa nào!');
+          // Con chữ cuối: đọc nó rồi đánh vần cả chữ.
+          if (multi) say(soundName(parts[parts.length - 1].ch), { rate: 0.8 });
+          say(doneSay, { rate: 0.8, queue: multi });
+          rep++;
+          if (rep >= LETTER_REPS) {
+            const text = `Giỏi quá! Bé đã viết được ${kind === 'dấu' ? `chữ ${read.split(' ').pop()}` : `${kind} ${name}`}!`;
+            addCleanup(whenQuiet(() => solve(text), { min: 700, gap: 300 }));
+            return;
+          }
+          say('Giỏi quá! Tô lại lần nữa nào!', { queue: true });
           setTimeout(start, 900);
         },
       });

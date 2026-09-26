@@ -15,6 +15,7 @@
   color: var(--pk-ink);
   background: linear-gradient(180deg, var(--pk-sky-top) 0%, var(--pk-sky-bottom) 55%, #F0FDF4 100%);
   overflow: hidden;
+  overflow: clip; /* clip (không phải hidden) để thanh trên position: sticky bám theo #app */
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -39,11 +40,21 @@
 .pk-cloud.c3 { top: 520px; left: -160px; animation-duration: 45s; animation-delay: -34s; transform: scale(0.85); }
 @keyframes pk-cloud { from { translate: 0 0; } to { translate: calc(100vw + 320px) 0; } }
 
-/* Thanh trên */
+/* Thanh trên — luôn dính trên cùng khi cuộn (#app là khung cuộn) để nút 🏠/🗺️
+   luôn bấm được. Nền màu trời trải hết chiều ngang bằng box-shadow + clip-path. */
 .pk-topbar {
-  position: relative; z-index: 2;
+  position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; gap: 0.6rem;
-  width: 100%; max-width: 960px; margin: 0 auto 0.8rem;
+  width: 100%; max-width: 960px; margin: 0 auto 0.4rem;
+  padding: 0.2rem 0;
+}
+/* Nền thanh trên: trải hết chiều ngang màn hình, viền trắng mảnh + bóng mềm ở mép dưới
+   để tách khỏi nội dung cuộn phía sau. */
+.pk-topbar::before {
+  content: ''; position: absolute; z-index: -1; top: 0; bottom: 0; left: -100vmax; right: -100vmax;
+  background: var(--pk-sky-top);
+  border-bottom: 3px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 6px 14px -4px rgba(2, 132, 199, 0.35);
 }
 .pk-title { flex: 1; min-width: 0; text-align: center; }
 .pk-title h1 {
@@ -668,6 +679,163 @@
   .pk-abc-pick .pk-abc-ch { font-size: 3.8rem; }
 }
 
+/* ── Học đọc (play3.js): âm đầu đỏ, vần xanh ────────────────────────────── */
+.pk3-on { color: #DC2626; }
+.pk3-rh { color: #1D4ED8; }
+.pk3-spell { display: flex; align-items: center; justify-content: center; gap: 1rem; max-width: 1100px; margin: 0 auto; }
+.pk3-onset, .pk3-head, .pk3-syl, .pk3-word, .pk3-card, .pk3-key, .pk3-badge {
+  position: relative; border: 3px solid #D9E27A; border-radius: 18px; background: #fff; cursor: pointer;
+  font-weight: 800; line-height: 1.1; color: var(--pk-ink);
+  box-shadow: 0 4px 0 rgba(14, 165, 233, 0.22); transition: transform 0.12s;
+}
+.pk3-onset:active, .pk3-head:active, .pk3-syl:active, .pk3-word:active, .pk3-card:active, .pk3-key:active { transform: translateY(3px); }
+.pk3-onset { flex: none; width: 96px; height: 110px; font-size: 4rem; border-width: 4px; border-color: #FCA5A5; }
+.pk3-rows { flex: 1; min-width: 0; display: grid; gap: 0.7rem; }
+.pk3-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.5rem 0.6rem;
+  border-radius: 20px; background: rgba(255, 255, 255, 0.55); border: 2px solid #BAE6FD;
+}
+.pk3-head { min-width: 64px; height: 60px; padding: 0 0.7rem; font-size: 2.1rem; background: #EFF6FF; border-color: #93C5FD; }
+.pk3-syl { min-width: 70px; height: 60px; padding: 0 0.7rem; font-size: 2.1rem; }
+.pk3-syl.is-seen, .pk3-word.is-seen, .pk3-head.is-seen, .pk3-onset.is-seen { border-color: #22C55E; animation: pk-jump 0.5s ease; }
+.pk3-syl.is-seen::after, .pk3-word.is-seen::after {
+  content: '✓'; position: absolute; top: -4px; right: 3px; color: #16A34A; font-size: 0.9rem;
+}
+
+.pk3-ask { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
+.pk3-ear {
+  width: 84px; height: 84px; border-radius: 50%; border: 5px solid #fff; background: #F97316; cursor: pointer;
+  font-size: 2.4rem; box-shadow: 0 5px 0 #C2410C; animation: pk-pulse 1.4s ease-in-out infinite;
+}
+.pk3-ear:active { transform: translateY(4px); }
+.pk3-count {
+  padding: 0.2rem 0.8rem; border-radius: 999px; background: rgba(255, 255, 255, 0.85);
+  font-weight: 800; font-size: 1.2rem; color: #0369A1;
+}
+.pk3-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; max-width: 640px; margin: 0 auto; }
+.pk3-card { min-height: 110px; padding: 0.4rem 0.8rem; font-size: 3.4rem; border-width: 4px; border-radius: 24px; }
+.pk3-card.is-long { font-size: 2.3rem; }
+.pk3-card.is-right, .pk3-word.is-right { border-color: #22C55E; background: #F0FDF4; box-shadow: 0 4px 0 #16A34A; animation: pk-jump 0.5s ease; }
+
+.pk3-build { max-width: 760px; margin: 0 auto; }
+.pk3-slots { display: flex; align-items: center; justify-content: center; gap: 0.45rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.pk3-slot {
+  display: grid; place-items: center; min-width: 76px; height: 76px; padding: 0 0.5rem; border-radius: 18px;
+  border: 3px dashed #93C5FD; background: rgba(255, 255, 255, 0.6); font-size: 2.4rem; font-weight: 800;
+}
+/* Ô âm đầu viền đỏ, ô vần viền xanh, ô dấu viền tím — cùng màu với chữ. */
+.pk3-slot[data-p="0"] { border-color: #FCA5A5; }
+.pk3-slot[data-p="2"] { border-color: #C4B5FD; }
+.pk3-slot.is-on { border-color: #F97316; background: #FFF7ED; animation: pk-hint 1.2s ease-in-out infinite; }
+.pk3-slot.is-done { border-style: solid; border-color: #22C55E; background: #fff; }
+.pk3-plus, .pk3-eq { font-size: 2rem; font-weight: 800; color: #0369A1; }
+.pk3-result {
+  display: grid; place-items: center; min-width: 110px; height: 86px; padding: 0 0.8rem; border-radius: 22px;
+  background: #fff; border: 4px solid #FDE68A; font-size: 3rem; font-weight: 800; color: #94A3B8;
+}
+.pk3-result.is-done { color: var(--pk-ink); border-color: #22C55E; animation: pk-jump 0.6s ease 2; }
+.pk3-pad { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; }
+.pk3-pad[hidden] { display: none; }
+.pk3-key { min-width: 96px; height: 96px; padding: 0 0.8rem; font-size: 3rem; border-width: 4px; border-radius: 22px; }
+.pk3-pad.is-tones .pk3-key { min-width: 76px; width: 76px; height: 86px; padding: 0; }
+.pk3-tone-mark { font-size: 3rem; color: #7C3AED; font-family: 'Times New Roman', serif; }
+.pk3-tone-mark.is-flat { color: #CBD5E1; }
+.pk3-slot .pk3-tone-mark { font-size: 2.4rem; }
+
+.pk3-words { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; max-width: 1000px; margin: 0 auto; }
+.pk3-word { min-height: 72px; padding: 0.3rem 1.1rem; font-size: 2.2rem; }
+.pk3-sort-goal { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
+.pk3-badge { min-width: 90px; height: 80px; padding: 0 1rem; font-size: 3rem; border-width: 4px; border-color: #93C5FD; background: #EFF6FF; }
+
+.pk3-read {
+  max-width: 900px; margin: 0 auto; padding: 1rem 1.2rem; border-radius: 26px; background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 6px 0 rgba(14, 165, 233, 0.25);
+}
+.pk3-read-title { margin: 0 0 0.5rem; text-align: center; font-size: 1.9rem; color: #C2410C; }
+.pk3-line { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.35rem 0; }
+.pk3-line + .pk3-line { border-top: 2px dashed #E0F2FE; }
+.pk3-line p { margin: 0; font-size: 2rem; font-weight: 700; line-height: 1.55; }
+.pk3-play {
+  flex: none; width: 52px; height: 52px; margin-top: 0.15rem; border-radius: 50%; border: 3px solid #fff;
+  background: #38BDF8; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 0 #0284C7;
+}
+.pk3-play.is-on { background: #F97316; box-shadow: 0 4px 0 #C2410C; animation: pk-pulse 1s ease-in-out infinite; }
+.pk3-line.is-done .pk3-play { background: #22C55E; box-shadow: 0 4px 0 #15803D; }
+.pk3-tok { border-radius: 10px; padding: 0 2px; cursor: pointer; transition: background 0.15s; }
+.pk3-tok.is-heard { background: #FEF9C3; }
+.pk3-tok.is-now { background: #FDBA74; box-shadow: 0 0 0 3px #FDBA74; }
+
+/* Màn hình rộng (máy tính, iPad ngang): thẻ chữ to và dàn rộng ra để bé dễ đọc, dễ chạm. */
+@media (min-width: 1024px) and (min-height: 700px) {
+  .pk3-onset, .pk3-head, .pk3-syl, .pk3-word, .pk3-card, .pk3-key, .pk3-badge { border-width: 4px; border-radius: 24px; }
+  .pk3-spell { max-width: 1400px; gap: 1.4rem; }
+  .pk3-rows { gap: 0.9rem; }
+  .pk3-row { gap: 0.8rem; padding: 0.7rem 0.9rem; border-radius: 26px; }
+  .pk3-head, .pk3-syl { height: 92px; min-width: 112px; padding: 0 1rem; font-size: 3.4rem; }
+  .pk3-onset { width: 150px; height: 180px; font-size: 6.5rem; }
+  .pk3-syl.is-seen::after, .pk3-word.is-seen::after { font-size: 1.3rem; top: -2px; right: 6px; }
+
+  .pk3-ear { width: 104px; height: 104px; font-size: 3rem; }
+  .pk3-count { font-size: 1.5rem; }
+  .pk3-opts { max-width: 1200px; gap: 1.4rem; }
+  .pk3-card { min-height: min(210px, max(140px, calc((var(--pk-free) - 150px) / 2))); font-size: 6rem; border-radius: 30px; }
+  .pk3-card.is-long { font-size: 4rem; }
+
+  .pk3-build { max-width: 1200px; }
+  .pk3-slots { gap: 0.8rem; margin-bottom: 1.4rem; }
+  .pk3-slot { min-width: 116px; height: 116px; font-size: 3.6rem; border-radius: 24px; }
+  .pk3-plus, .pk3-eq { font-size: 3rem; }
+  .pk3-result { min-width: 170px; height: 130px; font-size: 4.6rem; border-radius: 28px; }
+  .pk3-pad { gap: 1.2rem; }
+  .pk3-key { min-width: 150px; height: 150px; font-size: 4.8rem; }
+  .pk3-pad.is-tones .pk3-key { min-width: 116px; width: 116px; height: 130px; }
+  .pk3-tone-mark { font-size: 4.2rem; }
+  .pk3-slot .pk3-tone-mark { font-size: 3.4rem; }
+
+  .pk3-words { max-width: 1400px; gap: 1.2rem; }
+  .pk3-word { min-height: 112px; padding: 0.5rem 1.8rem; font-size: 3.6rem; }
+  .pk3-badge { min-width: 130px; height: 116px; font-size: 4.4rem; }
+
+  .pk3-read { max-width: 1300px; padding: 1.4rem 2rem; }
+  .pk3-read-title { font-size: 2.6rem; }
+  .pk3-line { gap: 1rem; }
+  .pk3-line p { font-size: 3rem; }
+  .pk3-play { width: 66px; height: 66px; font-size: 1.9rem; }
+
+  /* Chữ lớn theo bề ngang màn hình: còn chỗ thì chữ to hết cỡ để bé dễ đọc. */
+  .pk-play-page .pk-stage { max-width: min(1600px, 96vw); }
+  .pk3-spell, .pk3-words, .pk3-opts, .pk3-build, .pk3-read { max-width: min(1600px, 96vw); }
+  .pk3-head, .pk3-syl { height: auto; min-height: 92px; font-size: clamp(3.4rem, 4vw, 5rem); padding: 0.1em 0.35em; }
+  .pk3-word { font-size: clamp(3.6rem, 4.4vw, 5.6rem); padding: 0.12em 0.5em; }
+  .pk3-card { font-size: clamp(6rem, 7vw, 9rem); }
+  .pk3-card.is-long { font-size: clamp(4rem, 4.6vw, 6rem); }
+  .pk3-read-title { font-size: clamp(2.6rem, 3.2vw, 4rem); }
+  .pk3-line p { font-size: clamp(3rem, 3.8vw, 4.8rem); line-height: 1.5; }
+  .pk3-play { width: clamp(66px, 5vw, 90px); height: clamp(66px, 5vw, 90px); font-size: clamp(1.9rem, 2.2vw, 2.6rem); }
+  .pk3-key { min-width: clamp(150px, 11vw, 190px); height: clamp(150px, 11vw, 190px); font-size: clamp(4.8rem, 5.6vw, 6.6rem); }
+  .pk3-result { font-size: clamp(4.6rem, 5.4vw, 6.4rem); height: auto; min-height: 130px; }
+  .pk3-slot { font-size: clamp(3.6rem, 4.2vw, 5rem); height: auto; min-height: 116px; }
+}
+@media (max-width: 600px) {
+  .pk3-spell { flex-direction: column; gap: 0.6rem; }
+  .pk3-onset { width: 72px; height: 80px; font-size: 3rem; }
+  .pk3-row { gap: 0.35rem; padding: 0.4rem; }
+  .pk3-head, .pk3-syl { min-width: 54px; height: 50px; font-size: 1.6rem; padding: 0 0.45rem; }
+  .pk3-ear { width: 70px; height: 70px; font-size: 2rem; }
+  .pk3-card { min-height: 88px; font-size: 2.5rem; }
+  .pk3-card.is-long { font-size: 1.6rem; }
+  .pk3-slot { min-width: 58px; height: 60px; font-size: 1.8rem; }
+  .pk3-result { min-width: 80px; height: 66px; font-size: 2.2rem; }
+  .pk3-key { min-width: 76px; height: 76px; font-size: 2.3rem; }
+  .pk3-pad.is-tones { gap: 0.5rem; }
+  .pk3-pad.is-tones .pk3-key { min-width: 54px; width: 54px; height: 66px; }
+  .pk3-tone-mark { font-size: 2.3rem; }
+  .pk3-word { min-height: 58px; font-size: 1.6rem; padding: 0.2rem 0.8rem; }
+  .pk3-read { padding: 0.7rem; }
+  .pk3-line p { font-size: 1.45rem; }
+  .pk3-play { width: 44px; height: 44px; font-size: 1.2rem; }
+}
+
 /* ── Vùng chơi lấp đầy màn hình ─────────────────────────────────────────
    Trang chơi là cột flex: vùng chơi giãn hết phần còn lại và căn giữa theo
    chiều dọc, thay vì dồn lên trên để trống nửa dưới màn hình. */
@@ -969,3 +1137,7 @@ button.pk4-box { cursor: pointer; }
   .pk4-link.is-tb .pk4-node img { max-height: min(24vh, max(90px, calc((var(--pk-free) - 200px) / 2))); max-width: 220px; }
   .pk4-node { font-size: 1.9rem; min-height: 68px; }
 }
+
+/* Khối học đọc được play3.js phóng to (zoom) trên màn hình rộng: luôn căn giữa ngang. */
+.pk-play-page .pk-stage > .pk3-spell, .pk-play-page .pk-stage > .pk3-hear, .pk-play-page .pk-stage > .pk3-build,
+.pk-play-page .pk-stage > .pk3-words, .pk-play-page .pk-stage > .pk3-sort, .pk-play-page .pk-stage > .pk3-read { margin-left: auto; margin-right: auto; }

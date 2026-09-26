@@ -80,6 +80,7 @@ const shift = (d, dx) => d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, (_, x
 export function letterGlyph(text) {
   const chars = [...text.normalize('NFD')];
   const strokes = [];
+  const parts = []; // từng chữ: { ch, last } — last = chỉ số nét cuối của chữ đó (để đọc khi tô xong chữ)
   let x = 0;
   for (let i = 0; i < chars.length; i++) {
     // Giữ nguyên các chữ có dấu phụ (ă, â, ê, ô, ơ, ư, đ) — chỉ tách dấu thanh.
@@ -90,7 +91,8 @@ export function letterGlyph(text) {
     if (x) x += GAP;
     strokes.push(...L.s.map(d => shift(d, x)));
     if (TONES[chars[i + 1]]) strokes.push(shift(TONES[chars[++i]], x));
+    parts.push({ ch: ch.normalize('NFC'), last: strokes.length - 1 });
     x += L.w;
   }
-  return { width: x, strokes, guides: LETTER_GUIDES };
+  return { width: x, strokes, parts, guides: LETTER_GUIDES };
 }

@@ -14,7 +14,7 @@ export const isMuted = () => muted;
 export function setMuted(on) {
   muted = on;
   try { localStorage.setItem(MUTE_KEY, on ? '1' : '0'); } catch { /* storage unavailable */ }
-  if (on) window.speechSynthesis?.cancel();
+  if (on) stopSpeaking();
 }
 
 // ── Giọng đọc ────────────────────────────────────────────────────────────────
@@ -38,18 +38,90 @@ if ('speechSynthesis' in window) {
     u.volume = 0;
     window.speechSynthesis.speak(u);
     pickVoice();
+    if (useOnline()) onlineDoc(); // tạo sẵn iframe cho giọng trực tuyến
   };
   document.addEventListener('pointerdown', unlock, { once: true, capture: true });
 }
 
-/** Máy đọc được tiếng Việt không (không có thì chỉ hiện chữ, tránh giọng Anh đọc sai). */
-export const canSpeak = () => 'speechSynthesis' in window && (!!viVoice || noVoiceList);
+/** Giọng của máy đọc được tiếng Việt không. */
+const canSpeakLocal = () => 'speechSynthesis' in window && (!!viVoice || noVoiceList);
+
+// ── Giọng đọc trực tuyến (dự phòng) ─────────────────────────────────────────
+// Chrome trên Windows không có giọng tiếng Việt nào (giọng Google của Chrome không có tiếng
+// Việt, giọng tải thêm của Windows Chrome không thấy) → đọc bằng dịch vụ đọc của Google
+// Dịch, phát qua thẻ <audio>. Dịch vụ này từ chối yêu cầu có Referer của trang khác, nên
+// thẻ <audio> nằm trong một iframe ẩn đặt "no-referrer" (không đổi chính sách của cả trang).
+const ONLINE_MAX = 180; // dịch vụ nhận tối đa ~200 ký tự mỗi lần
+let onlineFrame = null;
+let onlineQueue = [];
+let player = null;
+const useOnline = () => !viVoice && !noVoiceList;
+
+let frameReady = false;
+/** Tài liệu của iframe "no-referrer"; null khi iframe chưa tải xong (srcdoc tải bất đồng bộ). */
+function onlineDoc() {
+  if (!onlineFrame?.isConnected) {
+    frameReady = false;
+    onlineFrame = document.createElement('iframe');
+    onlineFrame.hidden = true;
+    onlineFrame.setAttribute('aria-hidden', 'true');
+    onlineFrame.onload = () => { frameReady = true; if (!player && onlineQueue.length) playNextOnline(); };
+    onlineFrame.srcdoc = '<!doctype html><meta name="referrer" content="no-referrer"><body></body>';
+    document.body.appendChild(onlineFrame);
+  }
+  return frameReady ? onlineFrame.contentDocument : null;
+}
+
+/** Chia câu dài thành các đoạn ngắn, ngắt ở dấu câu hoặc khoảng trắng. */
+function chunksOf(text) {
+  const out = [];
+  let rest = text.trim();
+  while (rest.length > ONLINE_MAX) {
+    const head = rest.slice(0, ONLINE_MAX);
+    const cut = Math.max(head.search(/[.!?…;,][^.!?…;,]*$/) + 1, head.lastIndexOf(' '));
+    const at = cut > 20 ? cut : ONLINE_MAX;
+    out.push(rest.slice(0, at).trim());
+    rest = rest.slice(at).trim();
+  }
+  if (rest) out.push(rest);
+  return out;
+}
+
+function stopOnline() {
+  onlineQueue = [];
+  if (player) { player.pause(); player.remove(); player = null; }
+}
+
+function playNextOnline() {
+  const doc = onlineDoc();
+  if (!doc) { player = null; return; } // chờ iframe tải xong (onload gọi lại)
+  const item = onlineQueue.shift();
+  if (!item) { player = null; return; }
+  const a = doc.createElement('audio');
+  a.src = `https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&ttsspeed=${item.rate < 0.85 ? 0.8 : 1}&q=${encodeURIComponent(item.text)}`;
+  const done = () => { if (player === a) { a.remove(); playNextOnline(); } };
+  a.onended = done;
+  a.onerror = done;
+  player = a;
+  doc.body.appendChild(a);
+  a.play().catch(done);
+}
+
+function sayOnline(text, rate, queue) {
+  if (!queue) stopOnline();
+  onlineQueue.push(...chunksOf(text).map(t => ({ text: t, rate })));
+  if (!player) playNextOnline();
+}
+
+/** Máy đọc được tiếng Việt không (bằng giọng của máy hoặc giọng trực tuyến). */
+export const canSpeak = () => canSpeakLocal() || (useOnline() && navigator.onLine !== false);
 
 /** Đọc một câu; `queue` = đọc nối sau câu đang đọc thay vì cắt ngang. */
 export function say(text, { queue = false, rate = 0.9 } = {}) {
   if (muted || !text || !('speechSynthesis' in window)) return;
   if (!viVoice) pickVoice(); // danh sách giọng có thể tới muộn mà không báo voiceschanged
-  if (!canSpeak()) return;
+  if (useOnline()) { if (canSpeak()) sayOnline(text, rate, queue); return; }
+  if (!canSpeakLocal()) return;
   const synth = window.speechSynthesis;
   if (!queue) synth.cancel();
   synth.resume(); // Chrome/Edge Android đôi khi kẹt ở trạng thái paused
@@ -70,7 +142,8 @@ export function say(text, { queue = false, rate = 0.9 } = {}) {
 export function whenQuiet(fn, { min = 1200, max = 15000, gap = 400 } = {}) {
   const t0 = Date.now();
   let quietSince = 0;
-  const busy = () => !muted && canSpeak() && (window.speechSynthesis.speaking || window.speechSynthesis.pending);
+  const busy = () => !muted && canSpeak() && (!!player || onlineQueue.length > 0
+    || window.speechSynthesis.speaking || window.speechSynthesis.pending);
   const timer = setInterval(() => {
     const now = Date.now();
     if (busy()) { quietSince = 0; if (now - t0 < max) return; }
@@ -86,6 +159,7 @@ export function whenQuiet(fn, { min = 1200, max = 15000, gap = 400 } = {}) {
 
 export function stopSpeaking() {
   window.speechSynthesis?.cancel();
+  stopOnline();
 }
 
 // ── Tiếng động ───────────────────────────────────────────────────────────────
