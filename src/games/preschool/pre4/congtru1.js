@@ -61,7 +61,7 @@ export const STATIONS = [
       // Trang 7: các khinh khí cầu tính đúng là 1, 3, 4, 6, 9.
       {
         type: 'choice', answer: [0, 2, 3, 5, 8], cols: 5,
-        options: ['9+6=15', '13-1=10', '4+12=16', '7+5=12', '18-8=9', '19-9=10', '14+3=18', '13-6=8', '18-7=11', '4+13=16'].map(t => ({ text: `🎈 ${t}`, say: t })),
+        options: ['9+6=15', '13-1=10', '4+12=16', '7+5=12', '18-8=9', '19-9=10', '14+3=18', '13-6=8', '18-7=11', '4+13=16'].map(t => ({ img: img('khinhkhicau'), over: t.split(/(?<==)/), say: t })),
         say: 'Khinh khí cầu nào có phép tính đúng? Bé tính rồi chạm vào tất cả khinh khí cầu đúng nhé! Có năm cái đấy!',
         hint: 'Phép tính này sai rồi. Bé tính lại nhé!',
       },
@@ -81,10 +81,10 @@ export const STATIONS = [
     id: 'chiec-quat', icon: '🪭', color: '#EAB308', title: 'Những chiếc quạt', name: 'Tính rồi xếp từ nhỏ đến lớn',
     rounds: [
       // Trang 8: 17 − 14 = 3, 18 − 9 = 9, 12 − 8 = 4, 15 − 8 = 7, 20 − 8 = 12.
-      { type: 'calc', theme: '🪭', items: ['17-14=?', '18-9=?', '12-8=?', '15-8=?', '20-8=?'], say: 'Bé tính kết quả trên từng chiếc quạt nhé!' },
+      { type: 'calc', card: { img: img('quat'), shape: 'fan' }, items: ['17-14=?', '18-9=?', '12-8=?', '15-8=?', '20-8=?'], say: 'Bé tính kết quả trên từng chiếc quạt nhé!' },
       {
         type: 'rank', order: [0, 2, 3, 1, 4],
-        items: ['17-14=3', '18-9=9', '12-8=4', '15-8=7', '20-8=12'].map(t => ({ text: `🪭 ${t}`, say: t })),
+        items: ['17-14=3', '18-9=9', '12-8=4', '15-8=7', '20-8=12'].map(t => ({ img: img('quat'), shape: 'fan', over: [t], say: t })),
         say: 'Bây giờ bé chạm vào các chiếc quạt theo thứ tự kết quả từ nhỏ đến lớn nhé!',
         hint: 'Chưa đúng rồi. Bé tìm chiếc quạt có kết quả nhỏ hơn nhé!',
       },

@@ -23,6 +23,9 @@
  *   seq    — điền số còn thiếu: cells [giá trị], hide [chỉ số ô trống], và cols (lưới) hoặc
  *            links ['+2', '-5', …] (mũi tên phép tính giữa hai ô liền nhau)
  * Mục (item) của choice / link / rank: số, chuỗi, hoặc { img, text, say }.
+ *   over: [trên, dưới] — chữ ghi đè lên hình (vd. phép tính trên quả khinh khí cầu, kết quả trên giỏ);
+ *   shape: 'fan' … — chỉnh chỗ đặt chữ theo hình (lớp .pk4-over.is-<shape>).
+ * calc: card: { img, shape } — mỗi phép tính vẽ trên hình (vd. chiếc quạt) thay cho thẻ màu.
  */
 
 import { NUMBER_COLORS, numberWord } from './numbers.js';
@@ -64,6 +67,9 @@ function solveBlank(item) {
 
 const itemHTML = (it) => {
   if (it && typeof it === 'object') {
+    if (it.over) {
+      return `<span class="pk4-over${it.shape ? ` is-${it.shape}` : ''}"><img src="${it.img}" alt="" draggable="false">${it.over.map((t, k) => `<span class="pk4-over-t is-${k}">${fmt(t)}</span>`).join('')}</span>`;
+    }
     return `${it.img ? `<img src="${it.img}" alt="" draggable="false">` : ''}${it.text != null ? `<span class="pk4-txt">${fmt(it.text)}</span>` : ''}`;
   }
   return `<span class="pk4-txt">${fmt(it)}</span>`;
@@ -236,8 +242,12 @@ function playCalc(ctx) {
   stage.innerHTML = `
     <div class="pk4-wrap">
       ${round.img ? '<div class="pk4-pic is-small"></div>' : ''}
-      <div class="pk4-calcs${items.length <= 4 ? ' is-few' : ''}">${items.map(({ s }, k) => `
-        <button type="button" class="pk4-calc" data-k="${k}">${theme}<span class="pk4-calc-ex">${fmt(s).split('?').join('<span class="pk4-box"></span>')}</span></button>`).join('')}
+      <div class="pk4-calcs${items.length <= 4 ? ' is-few' : ''}${round.card ? ' is-card' : ''}">${items.map(({ s }, k) => {
+        const ex = `<span class="pk4-calc-ex">${fmt(s).split('?').join('<span class="pk4-box"></span>')}</span>`;
+        return round.card
+          ? `<button type="button" class="pk4-calc is-card" data-k="${k}"><span class="pk4-over is-${round.card.shape}"><img src="${round.card.img}" alt="" draggable="false"><span class="pk4-over-t is-0">${ex}</span></span></button>`
+          : `<button type="button" class="pk4-calc" data-k="${k}">${theme}${ex}</button>`;
+      }).join('')}
       </div>
       <div class="pk4-pad is-sticky"></div>
     </div>`;
@@ -486,7 +496,8 @@ function playRank(ctx) {
       btn.classList.add('is-right');
       btn.insertAdjacentHTML('beforeend', `<span class="pk4-rank">${step + 1}</span>`);
       const slot = stage.querySelector(`.pk4-orderline .pk4-box[data-s="${step}"]`);
-      slot.innerHTML = itemHTML(round.items[k]);
+      const it = round.items[k];
+      slot.innerHTML = it && it.over ? `<span class="pk4-txt">${fmt(it.over.join(''))}</span>` : itemHTML(it);
       slot.classList.add('is-done');
       step++;
       sfx.pop(step + 2);

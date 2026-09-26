@@ -992,6 +992,8 @@ button.pk4-box { cursor: pointer; }
 }
 .pk4-calc:nth-child(3n + 2) { background: #DBEAFE; box-shadow: 0 5px 0 #60A5FA; }
 .pk4-calc:nth-child(3n) { background: #FCE7F3; box-shadow: 0 5px 0 #F472B6; }
+.pk4-calc.is-card { padding: 6px; min-height: 0; background: #fff; box-shadow: 0 5px 0 rgba(124, 58, 237, 0.3); }
+.pk4-calcs.is-card { display: flex; flex-wrap: wrap; justify-content: center; }
 .pk4-calc.is-on { transform: scale(1.05); border-color: #F97316; z-index: 1; }
 .pk4-calc.is-done { background: #DCFCE7; box-shadow: 0 5px 0 #22C55E; }
 .pk4-calc-ex .pk4-box { margin-left: 0.2em; }
@@ -1030,6 +1032,19 @@ button.pk4-box { cursor: pointer; }
 .pk4-opt.is-img { padding: 6px; border-radius: 20px; max-width: min(46%, 300px); }
 .pk4-opt.is-img img { display: block; max-width: 100%; max-height: 24vh; object-fit: contain; border-radius: 12px; }
 .pk4-opt.is-img .pk4-txt { font-size: 1.2rem; font-weight: 800; }
+/* Chữ ghi đè lên hình (khinh khí cầu: phép tính trên quả cầu, kết quả trên giỏ) */
+.pk4-over { position: relative; display: block; width: clamp(92px, 15vh, 160px); container-type: inline-size; }
+.pk4-over img, .pk4-opt.is-img .pk4-over img { display: block; width: 100%; max-height: none; border-radius: 0; }
+.pk4-over-t {
+  position: absolute; left: 50%; transform: translate(-50%, -50%); white-space: nowrap;
+  font-weight: 800; line-height: 1; color: #1E293B;
+}
+.pk4-over-t.is-0 { top: 30%; padding: 0.3em 0.45em; border-radius: 999px; background: #fff; font-size: 17cqw; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12); }
+.pk4-over-t.is-1 { top: 93.5%; left: 50.5%; font-size: 17cqw; color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+/* Chiếc quạt: phép tính trên nền quạt, ngay dưới hàng chấm vàng */
+.pk4-over.is-fan { width: clamp(150px, 22vh, 210px); }
+.pk4-over.is-fan .pk4-over-t.is-0 { top: 47%; font-size: 12cqw; }
+.pk4-over.is-fan .pk4-box { min-width: 1.5em; height: 1.4em; border-width: 2px; }
 .pk4-opts.is-grid { display: grid; grid-template-columns: repeat(var(--n), minmax(0, max-content)); justify-content: center; }
 .pk4-opts.is-grid .pk4-opt.is-img { max-width: none; }
 .pk4-cell.is-empty { visibility: hidden; }
@@ -1142,6 +1157,7 @@ button.pk4-box { cursor: pointer; }
   .pk4-node img { max-height: 10vh; max-width: 96px; }
   .pk4-link.is-mid { gap: 0.9rem; }
   .pk4-calcs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
+  .pk4-over.is-fan { width: 38vw; }
   .pk4-calc { font-size: 1.25rem; min-height: 60px; padding: 0.3rem 0.4rem; }
   .pk4-keys { grid-template-columns: repeat(6, 46px); }
   .pk4-key { height: 46px; font-size: 1.35rem; }
