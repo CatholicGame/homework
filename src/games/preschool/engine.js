@@ -90,7 +90,6 @@ export function renderPreschool(app, onBack, book) {
           <div class="pk-bubble" id="pk-bubble">Chào bé! Chạm vào một trạm để cùng chơi nhé!</div>
         </div>
         ${PARTS.map(part => mapPart(part, current)).join('')}
-        <p class="pk-note">${book.note}</p>
       </div>`;
 
     bindMute();

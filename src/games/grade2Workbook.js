@@ -24,11 +24,10 @@ const WORKBOOK2_TAP1_CONFIG = {
   lastUnitKey: 'g2w-last-unit',
   badge: '📒',
   title: 'Vở Bài Tập Toán 2',
-  subtitle: 'Tập Một — Kết nối tri thức với cuộc sống',
+  subtitle: 'Tập Một — Bài 1–36',
   menuLabel: 'Chọn bài để luyện tập:',
   unitWord: 'bài',
   unitName: (u) => `Bài ${u.number}. ${u.title}`,
-  note: 'Nguồn: Vở bài tập Toán 2 — Tập một, bộ sách Kết nối tri thức với cuộc sống (NXB Giáo dục Việt Nam).',
 };
 
 export function render(app, onBack) {

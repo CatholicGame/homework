@@ -6,6 +6,7 @@ Nội dung toán giữ đúng sách:
   c) 100 g + 20 g  = gói mì chính   (120 g)
   d) 100 g + 200 g = gói bột canh   (300 g)
 Quả cân ở đĩa trái, đồ vật ở đĩa phải; cả 4 cân thăng bằng.
+Mỗi quả cân / đồ vật là một bal_item (có cân nặng) để bé nhấc xuống thử (engine/balancePlay.js).
 """
 import sys, os; sys.path.insert(0, os.path.dirname(__file__))
 from common import *
@@ -35,11 +36,11 @@ def quadrant(ox, oy, tag, left, right):
 
 
 quadrant(0, 0, 'a)', wt(-34, '50 g', 26) + wt(22, '500 g', 56),
-         orange(-36, 0, 19) + orange(36, 0, 19) + orange(0, 0, 20, col='#F7B267'))
-quadrant(1215, 0, 'b)', wt(-34, '100 g', 32) + wt(22, '500 g', 56), milk_can(0, 0))
+         bal_item(orange(-36, 0, 19) + orange(36, 0, 19) + orange(0, 0, 20, col='#F7B267'), 550, 'ba quả cam'))
+quadrant(1215, 0, 'b)', wt(-34, '100 g', 32) + wt(22, '500 g', 56), bal_item(milk_can(0, 0), 600, 'hộp sữa'))
 quadrant(0, 507, 'c)', wt(-30, '100 g', 32) + wt(24, '20 g', 22),
-         pillow_bag(0, 0, 'Mì chính', w=82, h=66, band=GREEN, size=13))
+         bal_item(pillow_bag(0, 0, 'Mì chính', w=82, h=66, band=GREEN, size=13), 120, 'gói mì chính'))
 quadrant(1215, 507, 'd)', wt(-30, '100 g', 32) + wt(26, '200 g', 38),
-         pillow_bag(0, 0, 'Bột canh', w=92, h=84, band=ORANGE, size=14))
+         bal_item(pillow_bag(0, 0, 'Bột canh', w=92, h=84, band=ORANGE, size=14), 300, 'gói bột canh'))
 
 save('bai31_q1_scales', W, H, parts, folder='grade3-workbook')

@@ -118,6 +118,7 @@ import {
 import { gateCheckButton, keepWrongBanner } from '../engine/gameEngine.js';
 import { recordAttempt } from '../engine/activity.js';
 import { attachPairDrop } from '../engine/pairDrop.js';
+import { attachBalancePlay } from '../engine/balancePlay.js';
 import { attachTrainSwap, attachTrainPaint, attachTrainPick, trainEngine, trainMatchCar } from '../engine/trains.js';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
@@ -915,6 +916,8 @@ const UNITS = [
           { id: 'hcn', text: 'Dạng khối hộp chữ nhật' },
         ],
         pairs: [['box', 'lp'], ['bowl', 'tru'], ['ball', 'cau'], ['wardrobe', 'hcn'], ['cup', 'tru']],
+        // Sách đã nối sẵn mẫu: hộp quà → dạng khối lập phương.
+        matchSample: ['box', 'lp'],
       },
       {
         type: 'choice', section: 'Tiết 1', img: imgBai7Pattern,
@@ -946,6 +949,8 @@ const UNITS = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgScales,
+        // ⚖️ Thử cân: nhấc quả dưa hấu / sầu riêng xuống thì kim quay về 0 (engine/balancePlay.js).
+        balancePlay: true,
         q: '1. Số?',
         blanks: [
           { label: 'a) Quả dưa hấu cân nặng (kg)', answer: '5' },
@@ -978,6 +983,10 @@ const UNITS = [
         left: [{ id: 'c1', img: imgClock1 }, { id: 'c2', img: imgClock2 }, { id: 'c3', img: imgClock3 }, { id: 'c4', img: imgClock4 }],
         right: [{ id: 't2100', text: '21:00' }, { id: 't1515', text: '15:15' }, { id: 't1615', text: '16:15' }, { id: 't2030', text: '20:30' }],
         pairs: [['c1', 't1515'], ['c2', 't2030'], ['c3', 't2100'], ['c4', 't1615']],
+        // Sách đã nối sẵn mẫu: đồng hồ thứ nhất → 15:15.
+        matchSample: ['c1', 't1515'],
+        // Đồng hồ vẽ to để bé nhìn rõ kim.
+        bigImg: true,
       },
     ],
   },
@@ -2810,6 +2819,8 @@ const UNITS = [
     questions: [
       {
         type: 'fill', img: imgBai31Scales,
+        // ⚖️ Thử cân: bé nhấc quả cân / đồ vật xuống để thấy cân nghiêng (engine/balancePlay.js).
+        balancePlay: true,
         q: '1. Viết số thích hợp vào chỗ chấm.',
         blanks: [
           { label: 'a) Ba quả cam cân nặng ... g.', answer: '550' },
@@ -2821,6 +2832,8 @@ const UNITS = [
       },
       {
         type: 'fill', img: imgBai31Dials,
+        // ⚖️ Thử cân: nhấc túi táo / gói bột mì xuống thì kim quay về 0 (engine/balancePlay.js).
+        balancePlay: true,
         q: '2. Viết số thích hợp vào chỗ chấm.',
         blanks: [
           { label: 'a) Túi táo cân nặng ... g.', answer: '750' },
@@ -4195,11 +4208,10 @@ const WORKBOOK_CONFIG = {
   lastUnitKey: 'gw-last-unit',
   badge: '📗',
   title: 'Vở Bài Tập Toán 3',
-  subtitle: 'Tập Một — Kết nối tri thức với cuộc sống',
+  subtitle: 'Tập Một — Bài 1–44',
   menuLabel: 'Chọn bài để luyện tập:',
   unitWord: 'bài',
   unitName: (u) => `Bài ${u.number}. ${u.title}`,
-  note: 'Nguồn: Vở bài tập Toán 3 — Tập một, bộ sách Kết nối tri thức với cuộc sống (NXB Giáo dục Việt Nam).',
 };
 
 export function render(app, onBack) {
@@ -4273,7 +4285,6 @@ export function renderWorkbook(app, onBack, cfg) {
           </div>
 
           <div class="e3-divider"></div>
-          <p class="e3-note">${cfg.note}</p>
           <button class="e3-btn e3-btn-ghost" id="e3-back-btn">← Quay lại</button>
         </div>
       </div>
@@ -4425,6 +4436,7 @@ export function renderWorkbook(app, onBack, cfg) {
     attachQuestionListHandlers();
     if (q.wordProblem) attachSolutionHandlers(q);
     attachAnswerHandlers(q);
+    if (q.balancePlay) attachBalancePlay(app, q);
     revealPinnedImageOnKeyboard();
   }
 
@@ -5074,7 +5086,12 @@ export function renderWorkbook(app, onBack, cfg) {
       ? [q.left, q.middle, q.right].map((col, c) => col.map((item, i) =>
           btn(item, c, ['left', 'middle', 'right'][c], `grid-column:${c + 1};grid-row:${item.row || i + 1} / span ${item.span || 1}`)
         ).join('')).join('')
-      : Array.from({ length: Math.max(q.left.length, q.right.length) }, (_, i) => `
+      : q.left.length !== q.right.length
+        // Hai cột khác số ô (5 đồ vật – 4 dạng khối): mỗi cột là một cột dọc,
+        // ô của cột ngắn giãn ra cho hai cột cao bằng nhau, không bên cao bên thấp.
+        ? `<div class="gw-match-col">${q.left.map(item => btn(item, 0, 'left')).join('')}</div>
+           <div class="gw-match-col">${q.right.map(item => btn(item, 1, 'right')).join('')}</div>`
+        : Array.from({ length: q.left.length }, (_, i) => `
             ${q.left[i] ? btn(q.left[i], 0, 'left') : '<span></span>'}
             ${q.right[i] ? btn(q.right[i], 1, 'right') : '<span></span>'}
           `).join('');
@@ -5094,9 +5111,9 @@ export function renderWorkbook(app, onBack, cfg) {
     `;
     }
     return `
-      <div class="gw-match${q.middle ? ' gw-match-3' : ''}" id="gw-match">
+      <div class="gw-match${q.middle ? ' gw-match-3' : ''}${q.bigImg ? ' gw-match-big' : ''}" id="gw-match">
         <svg class="gw-match-svg" id="gw-match-svg"></svg>
-        <div class="gw-match-grid">
+        <div class="gw-match-grid${!q.middle && q.left.length !== q.right.length ? ' gw-match-cols' : ''}">
           ${grid}
         </div>
       </div>
@@ -6061,6 +6078,10 @@ function injectStyles() {
     .gw-match-line { fill: none; stroke-width: 3; opacity: 0.9; }
     .gw-match-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: clamp(1.5rem, 8vw, 5rem); row-gap: 0.6rem; align-items: stretch; position: relative; z-index: 1; }
     .gw-match.gw-match-3 { max-width: 860px; }
+    .gw-match-cols { grid-template-columns: 1fr 1fr; }
+    .gw-match-col { display: flex; flex-direction: column; justify-content: space-around; gap: 0.6rem; min-width: 0; }
+    .gw-match-col > .gw-match-item { flex: 1 1 auto; height: auto; }
+    .gw-match-col > .gw-match-item:not(:has(img)) { max-height: 7rem; }
     .gw-match-3 .gw-match-grid { grid-template-columns: 1fr 1fr 1fr; column-gap: clamp(1.1rem, 6vw, 4.5rem); }
     .gw-match-item { display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.6rem 0.7rem; border: 2px solid #e2e8f0; border-radius: 0.8rem; background: #fff; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 1rem; color: #1e293b; box-shadow: 0 2px 6px rgba(0,0,0,0.06); text-align: center; min-height: 2.6rem; height: 100%; box-sizing: border-box; }
     .gw-match-item:hover:not(:disabled) { border-color: #60A5FA; }
@@ -6070,6 +6091,7 @@ function injectStyles() {
     .gw-match-item.gw-match-wrong { border-color: #ef4444; background: #fee2e2; color: #991b1b; }
     .gw-match-item:disabled { cursor: default; }
     .gw-match-img { max-width: 100%; max-height: 64px; object-fit: contain; border-radius: 0.4rem; }
+    .gw-match.gw-match-big .gw-match-img { max-height: 170px; }
     .gw-match-item:has(.gw-match-cap) { flex-direction: column; gap: 0.3rem; }
     .gw-match-cap { display: inline-block; background: #bae6fd; color: #1e293b; padding: 0.1rem 0.6rem; font-weight: 600; }
     .gw-match-hint { font-size: 0.8rem; color: #94a3b8; text-align: center; margin-top: 0.6rem; font-style: italic; }

@@ -141,7 +141,6 @@ export const BOOK1 = {
   key: 'pre1',
   title: 'Bé Học Vui Toán',
   subtitle: 'Tiền tiểu học · Tập 1: Đếm và viết số',
-  note: 'Nguồn: Toán tiền tiểu học — Tập 1: Đếm và viết số.',
   stations: [...PART1, ...PART2],
   parts: [
     { num: 1, title: 'Phần 1: Bé làm quen với các số từ 1 đến 10' },

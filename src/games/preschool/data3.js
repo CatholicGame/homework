@@ -200,7 +200,6 @@ export const BOOK3 = {
   key: 'pre3',
   title: 'Làm quen chữ cái',
   subtitle: 'Tiền tiểu học · Chữ cái, đánh vần, học vần',
-  note: 'Nguồn: Làm quen với bảng chữ cái (Cô Thương).',
   stations: STATIONS,
   parts: [
     { num: 1, title: 'Làm quen với bảng chữ cái' },

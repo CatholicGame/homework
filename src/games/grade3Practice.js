@@ -22,12 +22,11 @@ const PRACTICE_CONFIG = {
   lastUnitKey: 'gp-last-unit',
   badge: '📘',
   title: 'Luyện Tập Toán 3',
-  subtitle: 'Tập Một — Kết nối tri thức với cuộc sống',
+  subtitle: 'Tập Một — Luyện tập theo tuần',
   menuLabel: 'Chọn tuần để luyện tập:',
   unitWord: 'tuần',
   // The end-of-term test unit has no week number (number: 'KT').
   unitName: (u) => (typeof u.number === 'number' ? `Tuần ${u.number}. ${u.title}` : u.title),
-  note: 'Nguồn: Luyện tập Toán lớp 3 — Tập một, bộ sách Kết nối tri thức với cuộc sống (NXB Giáo dục Việt Nam).',
 };
 
 export function render(app, onBack) {

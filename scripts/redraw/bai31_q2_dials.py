@@ -2,6 +2,7 @@
 Vở BT Toán 3, Bài 31 (Gam) Q2 — 2 cân đồng hồ (0–1 kg). Vẽ lại bằng nét riêng.
   Túi táo: kim chỉ 750 g.   Gói bột mì: kim chỉ 500 g.
 Mặt số chia 20 vạch (50 g), ghi 1 kg (đỉnh), 250 g, 500 g, 750 g.
+Đồ trên đĩa là bal_item để bé nhấc xuống / đặt lại, kim quay theo (engine/balancePlay.js).
 """
 import sys, os; sys.path.insert(0, os.path.dirname(__file__))
 from common import *
@@ -38,7 +39,7 @@ def flour_bag():
             pillow_bag(0, 2, 'Bột mì', w=176, h=64, band=YELLOW, size=20) + '</g>')
 
 
-parts.append(kitchen_scale(dial(750), apple_bag(), cx=210, by=528, k=K))
-parts.append(kitchen_scale(dial(500), flour_bag(), body='#9BD58A', cx=1070, by=528, k=K))
+parts.append(kitchen_scale(dial(750), bal_item(apple_bag(), 750, 'túi táo'), cx=210, by=528, k=K))
+parts.append(kitchen_scale(dial(500), bal_item(flour_bag(), 500, 'gói bột mì'), body='#9BD58A', cx=1070, by=528, k=K))
 
 save('bai31_q2_dials', W, H, parts, folder='grade3-workbook')

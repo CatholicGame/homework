@@ -9,9 +9,11 @@
  * gives the image enough room (and nothing else in the way) for that to be
  * useful on a phone/tablet.
  */
+import ORIGINALS from './origImages.js';
+
 // Hình vẽ lại (SVG) → ảnh scan gốc của sách (thư mục orig/, chỉ tải khi bé bấm "Ảnh gốc").
+// ORIGINALS rỗng ở bản production (vite.config.js) nên nút "Ảnh gốc" chỉ có ở bản dev.
 const SVG_URLS = import.meta.glob('../assets/grade[23]-*/*.svg', { eager: true, query: '?url', import: 'default' });
-const ORIGINALS = import.meta.glob('../assets/grade[23]-*/orig/*.png', { query: '?url', import: 'default' });
 const SVG_BY_URL = new Map(Object.entries(SVG_URLS).map(([path, url]) => [url, path]));
 
 function originalLoader(src) {

@@ -21,16 +21,16 @@ export const GRADES = [
   {
     num: 2, title: 'Lớp 2', icon: '2️⃣', color: '#60A5FA',
     games: [
-      { id: 'grade2-workbook', icon: '📒', color: '#0EA5E9', title: 'Vở Bài Tập Toán 2 — Tập Một', desc: 'Bài 1–36 — Kết nối tri thức với cuộc sống' },
-      { id: 'grade2-workbook-2', icon: '📙', color: '#F59E0B', title: 'Vở Bài Tập Toán 2 — Tập Hai', desc: 'Bài 37–75 — Kết nối tri thức với cuộc sống' },
+      { id: 'grade2-workbook', icon: '📒', color: '#0EA5E9', title: 'Vở Bài Tập Toán 2 — Tập Một', desc: 'Bài 1–36' },
+      { id: 'grade2-workbook-2', icon: '📙', color: '#F59E0B', title: 'Vở Bài Tập Toán 2 — Tập Hai', desc: 'Bài 37–75' },
     ],
   },
   {
     num: 3, title: 'Lớp 3', icon: '3️⃣', color: '#34D399',
     games: [
-      { id: 'grade3-workbook', icon: '📗', color: '#10B981', title: 'Vở Bài Tập Toán 3', desc: 'Tập Một — Kết nối tri thức với cuộc sống' },
-      { id: 'grade3-practice', icon: '📘', color: '#3B82F6', title: 'Luyện Tập Toán 3', desc: 'Tập Một — Luyện tập theo tuần (Kết nối tri thức)' },
-      { id: 'grade3-exam', icon: '📝', color: '#F97316', title: 'Ôn Luyện Đề', desc: 'Đề 1 — Bộ đề ôn luyện VioEdu khối 3' },
+      { id: 'grade3-workbook', icon: '📗', color: '#10B981', title: 'Vở Bài Tập Toán 3', desc: 'Tập Một — Bài 1–44' },
+      { id: 'grade3-practice', icon: '📘', color: '#3B82F6', title: 'Luyện Tập Toán 3', desc: 'Tập Một — Luyện tập theo tuần' },
+      { id: 'grade3-exam', icon: '📝', color: '#F97316', title: 'Ôn Luyện Đề', desc: 'Đề 1 — Ôn luyện tổng hợp khối 3' },
     ],
   },
   { num: 4, title: 'Lớp 4', icon: '4️⃣', color: '#C084FC', games: [] },

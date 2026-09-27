@@ -8,6 +8,7 @@ Vẽ ở toạ độ "gốc" cỡ nhỏ (nét 3) rather than full canvas, rồi 
     from kit_w1 import *
 """
 import math
+import re
 from common import *
 from kit_measure import balance_scale, weight, uid, SCALE, SCALE_D, PAN, METAL
 
@@ -25,14 +26,24 @@ def big_balance(cx, by, k, left='', right='', arm=140, pan_w=150, post_h=60):
     return scaled(balance_scale(0, 0, left, right, tilt=0, arm=arm, pan_w=pan_w, s=1.0, post_h=post_h), cx, by, k)
 
 
+def bal_item(svg, grams, name=None):
+    """Đồ vật bé nhấc được khỏi đĩa cân (engine/balancePlay.js), cân nặng `grams` gam;
+    name: tên gọi trong câu giải thích ("túi táo", "quả cân 50 g")."""
+    nm = f' data-name="{name}"' if name else ''
+    return f'<g data-bal-item="1" data-g="{grams}"{nm}>{svg}</g>'
+
+
 def wt(x, lab, w=50, above=None):
     """Quả cân gam: to thì chữ trên thân, nhỏ thì chữ ghi phía trên (như sách)."""
     if above is None:
         above = w < 44
     if not above:
-        return weight(x, 0, lab, w=w, size=w * .27)
-    h = w * .9
-    return weight(x, 0, '', w=w) + text(x, -h - 6, lab, size=15, weight=700)
+        svg = weight(x, 0, lab, w=w, size=w * .27)
+    else:
+        h = w * .9
+        svg = weight(x, 0, '', w=w) + text(x, -h - 6, lab, size=15, weight=700)
+    m = re.fullmatch(r'(\d+) (k?g)', lab.strip())
+    return bal_item(svg, int(m[1]) * (1000 if m[2] == 'kg' else 1), f'quả cân {lab.strip()}') if m else svg
 
 
 def letter(x, y, s, size=30):
@@ -61,7 +72,7 @@ def kitchen_scale(dial, items='', body=SCALE, k=1.0, cx=0, by=0):
     s.append(f'<path d="M{-rx},{rim_y} A{rx},{ry} 0 0 0 {rx},{rim_y} Q{rx - 12},{rim_y + 34} 40,-208 H-40 '
              f'Q{-rx + 12},{rim_y + 34} {-rx},{rim_y} Z" fill="{PAN}" stroke="{INK}" stroke-width="3" stroke-linejoin="round"/>')
     s.append(f'<path d="M{-rx + 24},{rim_y + 16} Q{-rx + 34},{rim_y + 28} -70,{rim_y + 32}" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>')
-    return scaled(''.join(s), cx, by, k)
+    return scaled('<g data-dial="1">' + ''.join(s) + '</g>', cx, by, k)
 
 
 def round_dial(cy=-100, R=78, labels=(), n_ticks=20, major_every=5, value_frac=0.0,
@@ -82,8 +93,10 @@ def round_dial(cy=-100, R=78, labels=(), n_ticks=20, major_every=5, value_frac=0
         s.append(center_note)
     t = 2 * math.pi * value_frac
     tx, ty = math.sin(t) * (R - 10), cy - math.cos(t) * (R - 10)
-    needle = (f'<line x1="0" y1="{cy}" x2="{tx:.1f}" y2="{ty:.1f}" stroke="{RED}" stroke-width="{3.5 if needle_on_top else 4.5}" stroke-linecap="round"/>'
-              f'<circle cx="0" cy="{cy}" r="6" fill="{RED}" stroke="{INK}" stroke-width="2.2"/>')
+    # data-dial-needle: móc cho engine/balancePlay.js (kim quay khi bé nhấc / đặt đồ lên đĩa).
+    needle = (f'<g data-dial-needle="{value_frac}" data-cy="{cy}">'
+              f'<line x1="0" y1="{cy}" x2="{tx:.1f}" y2="{ty:.1f}" stroke="{RED}" stroke-width="{3.5 if needle_on_top else 4.5}" stroke-linecap="round"/>'
+              f'<circle cx="0" cy="{cy}" r="6" fill="{RED}" stroke="{INK}" stroke-width="2.2"/></g>')
     if not needle_on_top:
         s.append(needle)
     halo = ' stroke="#fff" stroke-width="4" paint-order="stroke" stroke-linejoin="round"'

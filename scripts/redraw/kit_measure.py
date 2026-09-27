@@ -148,10 +148,11 @@ def balance_scale(cx, base_y, left='', right='', tilt=0, arm=80, pan_w=120, s=1.
         x1, y1 = (R - 3) * math.sin(tr), -P - (R - 3) * math.cos(tr)
         x2, y2 = (R - 8) * math.sin(tr), -P - (R - 8) * math.cos(tr)
         L.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{INK}" stroke-width="{sw * .6:.2f}" stroke-linecap="round"/>')
-    L.append(f'<g transform="rotate({deg:.2f} 0 {-P})"><path d="M0,{-P} L0,{-P - R + 5}" stroke="{RED}" '
+    # data-bal-*: móc cho engine/balancePlay.js (bé nhấc đồ khỏi đĩa → cân nghiêng); hình tĩnh không đổi.
+    L.append(f'<g data-bal-rot="1" transform="rotate({deg:.2f} 0 {-P})"><path d="M0,{-P} L0,{-P - R + 5}" stroke="{RED}" '
              f'stroke-width="{sw * 1.1:.2f}" stroke-linecap="round"/></g>')
     # đòn cân
-    L.append(f'<g transform="rotate({deg:.2f} 0 {-P})"><rect x="{-arm - 6}" y="{-P - 5}" width="{2 * arm + 12}" height="10" '
+    L.append(f'<g data-bal-rot="1" transform="rotate({deg:.2f} 0 {-P})"><rect x="{-arm - 6}" y="{-P - 5}" width="{2 * arm + 12}" height="10" '
              f'rx="5" fill="{SCALE_D}" stroke="{INK}" stroke-width="{sw}"/></g>')
     L.append(f'<circle cx="0" cy="{-P}" r="7" fill="{YELLOW}" stroke="{INK}" stroke-width="{sw}"/>')
     items = []
@@ -160,15 +161,19 @@ def balance_scale(cx, base_y, left='', right='', tilt=0, arm=80, pan_w=120, s=1.
         ey = -P + sg * arm * math.sin(a)
         top = ey - 22            # đáy đĩa
         rim = top - 10
-        L.append(f'<rect x="{ex - 6}" y="{top - 2}" width="12" height="{ey - top + 2}" fill="{SCALE_D}" stroke="{INK}" stroke-width="{sw}"/>')
-        L.append(f'<circle cx="{ex}" cy="{ey}" r="7" fill="{YELLOW}" stroke="{INK}" stroke-width="{sw}"/>')
+        pan = []
+        pan.append(f'<rect x="{ex - 6}" y="{top - 2}" width="12" height="{ey - top + 2}" fill="{SCALE_D}" stroke="{INK}" stroke-width="{sw}"/>')
+        pan.append(f'<circle cx="{ex}" cy="{ey}" r="7" fill="{YELLOW}" stroke="{INK}" stroke-width="{sw}"/>')
         hw = pan_w / 2
-        L.append(f'<path d="M{ex - hw + 4},{rim} Q{ex - hw + 12},{top} {ex - hw + 30},{top} H{ex + hw - 30} '
-                 f'Q{ex + hw - 12},{top} {ex + hw - 4},{rim} Z" fill="{PAN}" stroke="{INK}" stroke-width="{sw}" stroke-linejoin="round"/>')
-        L.append(f'<rect x="{ex - hw - 4}" y="{rim - 3}" width="{pan_w + 8}" height="6" rx="3" fill="#fff" stroke="{INK}" stroke-width="{sw}"/>')
+        pan.append(f'<path d="M{ex - hw + 4},{rim} Q{ex - hw + 12},{top} {ex - hw + 30},{top} H{ex + hw - 30} '
+                   f'Q{ex + hw - 12},{top} {ex + hw - 4},{rim} Z" fill="{PAN}" stroke="{INK}" stroke-width="{sw}" stroke-linejoin="round"/>')
+        pan.append(f'<rect x="{ex - hw - 4}" y="{rim - 3}" width="{pan_w + 8}" height="6" rx="3" fill="#fff" stroke="{INK}" stroke-width="{sw}"/>')
+        L.append(f'<g data-bal-pan="{sg}">{"".join(pan)}</g>')
+        # Đồ trên đĩa vẽ sau cùng (đè lên đòn/đĩa bên kia), đi cùng đĩa khi cân nghiêng.
         if stuff:
-            items.append(f'<g transform="translate({ex:.2f},{rim - 3:.2f})">{stuff}</g>')
-    return _g(cx, base_y, s, ''.join(L) + ''.join(items))
+            items.append(f'<g data-bal-pan="{sg}"><g transform="translate({ex:.2f},{rim - 3:.2f})">{stuff}</g></g>')
+    inner = f'<g data-bal="1" data-arm="{arm}" data-post="{P}" data-tilt="{tilt}">' + ''.join(L) + ''.join(items) + '</g>'
+    return _g(cx, base_y, s, inner)
 
 
 def weight(x, y, lab, w=56, h=None, size=None):

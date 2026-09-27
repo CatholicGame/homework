@@ -125,7 +125,6 @@ export const BOOK2 = {
   key: 'pre2',
   title: 'Bé Học Vui Toán',
   subtitle: 'Tiền tiểu học · Tập 2: So sánh',
-  note: 'Nguồn: Toán tiền tiểu học — Tập 2: So sánh.',
   stations: STATIONS,
   parts: [{ num: 1, title: 'So sánh: bằng nhau, nhiều hơn, ít hơn, dấu > < =' }],
 };

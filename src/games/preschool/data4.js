@@ -19,7 +19,6 @@ export const BOOK4 = {
   key: 'pre4',
   title: 'Bé Tập Làm Toán',
   subtitle: '99 đề toán — chuẩn bị vào lớp 1',
-  note: 'Nguồn: 99 đề toán dành cho trẻ mẫu giáo (Lớp lá).',
   stations: [...CONG_TRU_1, ...CONG_TRU_2, ...SO_100, ...HINH, ...PHAN_LOAI, ...TO_HOP, ...THOI_GIAN],
   parts: [
     { num: 1, title: 'Phép cộng, trừ trong phạm vi 20' },

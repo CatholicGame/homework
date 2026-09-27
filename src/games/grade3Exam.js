@@ -8,6 +8,12 @@ import {
   awardStars, getQuestionStars, earnedFor, getTotalStars,
   recordWrong, wrongStarsText, renderStarRule, renderQuestionStars, refreshQuestionStars,
 } from '../engine/stars.js';
+// Hình minh hoạ Đề 1, vẽ lại bằng nét riêng (scripts/redraw/exam1_figs.py).
+import imgExamRice from '../assets/grade3-exam/exam1_rice.svg';
+import imgExamMul from '../assets/grade3-exam/exam1_mul.svg';
+import imgExamDiv from '../assets/grade3-exam/exam1_div.svg';
+import imgExamTrapezoid from '../assets/grade3-exam/exam1_trapezoid.svg';
+import imgExamRect2 from '../assets/grade3-exam/exam1_rect2.svg';
 import { gateCheckButton, keepWrongBanner } from '../engine/gameEngine.js';
 import { recordAttempt } from '../engine/activity.js';
 
@@ -15,12 +21,11 @@ const EXAMS = [
   {
     id: 'de-1',
     title: 'Đề 1',
-    subtitle: 'Bộ đề ôn luyện VioEdu khối 3',
-    source: 'https://vndoc.com/bo-de-on-luyen-vioedu-khoi-3-316472',
+    subtitle: 'Ôn luyện tổng hợp khối 3',
     sections: [
       {
         id: 'math',
-        title: 'Toán — Đề ôn VioEdu',
+        title: 'Toán — Đề ôn tổng hợp',
         icon: '🔢',
         color: '#34D399',
         questions: [
@@ -37,7 +42,7 @@ const EXAMS = [
           { type: 'choice', q: 'Ba lớp 3A, 3B, 3C tham gia đợt quyên góp vở ủng hộ trẻ em vùng cao. Lớp 3A quyên góp được 215 quyển vở, lớp 3B quyên góp được 415 quyển vở. Hỏi lớp 3C quyên góp được bao nhiêu quyển vở? Biết rằng số quyển vở cả ba lớp quyên góp được là số lớn nhất có ba chữ số.', options: ['369 quyển', '389 quyển', '379 quyển', '359 quyển'], answer: 0, hints: ['Hãy xác định "số lớn nhất có ba chữ số" là số nào — đó chính là tổng số vở của cả ba lớp.', 'Biết tổng của cả ba lớp và số vở của hai lớp kia, em có thể tìm ra số vở của lớp còn lại.'] },
           { type: 'fill', q: 'Số mét vải một xưởng dệt đã dệt được trong một buổi sáng là số nhỏ nhất có ba chữ số và số mét vải xưởng dệt đã dệt được trong buổi chiều ít hơn buổi sáng là 50 mét vải.\nCả ngày hôm đó, xưởng dệt đã dệt được .. dam vải.', blanks: [{ label: 'Số dam vải', answer: '15' }], hints: ['Hãy xác định "số nhỏ nhất có ba chữ số" — đó là số mét vải dệt được buổi sáng.', 'Tìm số mét vải buổi chiều, cộng với buổi sáng để ra tổng cả ngày, rồi nhớ đổi đơn vị mét sang đam.'] },
           { type: 'fill', q: 'Bà có một túi bánh và một túi kẹo, biết túi kẹo có 45 cái, sau khi thêm 26 cái bánh thì số bánh gấp 2 lần số kẹo nên số bánh sau khi thêm là ... cái. Vậy, trước khi thêm thì bà có ... cái bánh.', blanks: [{ label: 'Số bánh sau khi thêm', answer: '90' }, { label: 'Số bánh trước khi thêm', answer: '64' }], hints: ['Hãy tìm xem sau khi thêm bánh thì số bánh là bao nhiêu, dựa vào mối quan hệ "gấp 2 lần" với số kẹo.', 'Biết số bánh sau khi thêm rồi, em dùng thông tin "đã thêm 26 cái" để tìm số bánh lúc đầu.'] },
-          { type: 'fill', q: 'Một cửa hàng bán gạo, ông chủ thống kê số lượng gạo bán được trong ngày bằng sơ đồ sau. Giá trị của dấu ? là ....', img: 'https://st.vndoc.com/data/image/2024/03/11/Vioedu-lop-3-1.jpg', blanks: [{ label: 'Giá trị dấu ?', answer: '159' }], hints: ['Quan sát các số đã có trong sơ đồ và cách chúng liên hệ với nhau.', 'Thử xem hai phần của sơ đồ có bằng nhau hay theo một quy luật cộng/trừ nào không.'] },
+          { type: 'fill', q: 'Một cửa hàng bán gạo, ông chủ thống kê số lượng gạo bán được trong ngày bằng sơ đồ sau. Giá trị của dấu ? là ....', img: imgExamRice, blanks: [{ label: 'Giá trị dấu ?', answer: '159' }], hints: ['Quan sát các số đã có trong sơ đồ và cách chúng liên hệ với nhau.', 'Thử xem hai phần của sơ đồ có bằng nhau hay theo một quy luật cộng/trừ nào không.'] },
           { type: 'fill', q: 'Hùng và Đức cùng chơi bi. Hùng có 15 viên bi, Đức có số bi gấp ba lần số bi của Hùng.\nKhi đó:\nCả hai bạn có……. ?\nĐức có nhiều hơn Hùng…. ?', blanks: [{ label: 'Cả hai bạn có (viên bi)', answer: '60' }, { label: 'Đức có nhiều hơn Hùng (viên bi)', answer: '30' }], hints: ['Hãy tìm số bi của Đức trước, dựa vào mối quan hệ với Hùng.', '"Gấp ba lần" nghĩa là số bi của Đức lớn hơn Hùng theo một tỉ lệ nhất định.'] },
           { type: 'choice', q: 'Năm nay, tổng số tuổi của bà, mẹ và Lan là 130 tuổi. Biết Lan năm nay 14 tuổi. Tuổi bà gấp 5 lần tuổi Lan. Hỏi mẹ năm nay bao nhiêu tuổi?', options: ['46 tuổi', '48 tuổi', '45 tuổi', '51 tuổi'], answer: 0, hints: ['Hãy tìm tuổi bà trước, dựa vào mối quan hệ "gấp 5 lần" với tuổi Lan.', 'Biết tuổi bà và tuổi Lan rồi, em dùng tổng số tuổi ba người để tìm ra tuổi mẹ.'] },
           { type: 'fill', q: 'Để chuẩn bị cho một buổi biểu diễn, người ta xếp chỗ cho một vũ đoàn 40 người thành 5 hàng. Nhưng vì độ khó của bài biểu diễn nên cần thêm một số người hỗ trợ, vì vậy người ta phải xếp thêm mỗi hàng 3 người nữa.\nVậy, số thành viên của vũ đoàn sau khi bổ sung là ... người.\nNếu xếp số thành viên của vũ đoàn sau khi bổ sung người thành các hàng, mỗi hàng 5 người thì được ... hàng.', blanks: [{ label: 'Số thành viên sau khi bổ sung', answer: '55' }, { label: 'Số hàng nếu xếp mỗi hàng 5 người', answer: '11' }], hints: ['Hãy tìm xem ban đầu mỗi hàng có bao nhiêu người trước khi tính số người sau khi bổ sung.', 'Biết số người mỗi hàng lúc sau rồi, em tính được tổng số người mới, từ đó suy ra số hàng nếu xếp theo cách khác.'] },
@@ -47,11 +52,11 @@ const EXAMS = [
           { type: 'fill', q: 'Cho phép tính: 125+321. Kết quả của phép tính đã cho là ……', blanks: [{ label: 'Kết quả', answer: '446' }], hints: ['Đặt hai số thẳng cột theo hàng đơn vị, hàng chục, hàng trăm.', 'Cộng lần lượt từ hàng đơn vị, nhớ ghi nhớ khi tổng một hàng lớn hơn 9.'] },
           { type: 'choice', q: 'Cho phép tính: 935−761. Kết quả của phép tính đã cho là bao nhiêu?', options: ['174', '184', '284', '274'], answer: 0, hints: ['Đặt tính theo cột rồi trừ lần lượt từ hàng đơn vị.', 'Nếu số bị trừ ở một hàng nhỏ hơn số trừ, em cần mượn 1 từ hàng bên trái.'] },
           { type: 'choice', q: 'Cho: A=531−215; B=639−445. Khi đó: A .. B', options: ['>', '<', '='], answer: 0, hints: ['Hãy tính riêng giá trị của A và giá trị của B trước.', 'Sau khi có hai kết quả, so sánh chúng để chọn dấu thích hợp.'] },
-          { type: 'fill', q: 'Số thích hợp để điền vào dấu hỏi chấm là ……..', img: 'https://st.vndoc.com/data/image/2024/03/11/Vioedu-lop-3-2.jpg', blanks: [{ label: 'Giá trị dấu ?', answer: '4' }], hints: ['Quan sát các số đã cho trong hình.', 'Tìm quy luật giữa chúng (cộng, trừ, nhân hoặc chia) rồi áp dụng vào phần còn thiếu.'] },
+          { type: 'fill', q: 'Số thích hợp để điền vào dấu hỏi chấm là ……..', img: imgExamMul, blanks: [{ label: 'Giá trị dấu ?', answer: '4' }], hints: ['Quan sát các số đã cho trong hình.', 'Tìm quy luật giữa chúng (cộng, trừ, nhân hoặc chia) rồi áp dụng vào phần còn thiếu.'] },
           { type: 'fill', q: 'Số 32 giảm đi 8 lần thì được ......', blanks: [{ label: 'Kết quả', answer: '4' }], hints: ['Hãy nhớ ý nghĩa của cụm từ "giảm đi ... lần".', 'Nó khác với "giảm đi ... đơn vị" — hãy nghĩ xem phép tính nào phù hợp.'] },
           { type: 'fill', q: 'Cho phép chia: 42:2=21\nSố bị chia là ?\nSố chia là ?\nThương là ?', blanks: [{ label: 'Số bị chia', answer: '42' }, { label: 'Số chia', answer: '2' }, { label: 'Thương', answer: '21' }], hints: ['Hãy nhớ lại tên gọi của từng thành phần trong một phép chia.', 'Số đứng trước dấu hai chấm, số đứng sau dấu hai chấm và kết quả phép chia có tên gọi khác nhau.'] },
           { type: 'fill', q: 'Cho một số, biết rằng nếu lấy số lớn nhất có 2 chữ số khác nhau chia cho số đó thì được thương là số liền trước của 8. Số đó là ...', blanks: [{ label: 'Số cần tìm', answer: '14' }], hints: ['Hãy xác định "số lớn nhất có hai chữ số khác nhau" và "số liền trước của 8" là những số nào.', 'Khi đã biết số bị chia và thương, em có thể tìm ra số chia.'] },
-          { type: 'fill', q: 'Số thích hợp để điền vào dấu hỏi chấm là ...', img: 'https://st.vndoc.com/data/image/2024/03/11/Vioedu-lop-3-3.jpg', blanks: [{ label: 'Giá trị dấu ?', answer: '5' }], hints: ['So sánh các số đã có trong hình để tìm quy luật.', 'Áp dụng quy luật đó vào phần còn thiếu để tìm giá trị của dấu ?.'] },
+          { type: 'fill', q: 'Số thích hợp để điền vào dấu hỏi chấm là ...', img: imgExamDiv, blanks: [{ label: 'Giá trị dấu ?', answer: '5' }], hints: ['So sánh các số đã có trong hình để tìm quy luật.', 'Áp dụng quy luật đó vào phần còn thiếu để tìm giá trị của dấu ?.'] },
           { type: 'fill', q: '2dam+15dam=... dam', blanks: [{ label: 'Kết quả (dam)', answer: '17' }], hints: ['Kiểm tra xem hai số đã cùng đơn vị đo chưa.', 'Khi cùng đơn vị, chỉ cần cộng hai số lại với nhau.'] },
           { type: 'fill', q: '42:6=...', blanks: [{ label: 'Kết quả', answer: '7' }], hints: ['Hãy nhớ lại bảng nhân 6.', 'Tìm xem 6 nhân với số nào thì được kết quả này.'] },
           { type: 'choice', q: 'Cho: A=23×3, B=14×2. Trong các khẳng định sau, khẳng định nào đúng?', options: ['A=B', 'A>B', 'A<B'], answer: 1, hints: ['Tính riêng giá trị của A và giá trị của B.', 'So sánh hai kết quả vừa tính được để chọn khẳng định đúng.'] },
@@ -59,8 +64,8 @@ const EXAMS = [
           { type: 'choice', q: 'Một hộp có 24 chiếc bánh. Hỏi 3 hộp bánh như thế thì có bao nhiêu chiếc bánh?', options: ['36 chiếc bánh', '24 chiếc bánh', '72 chiếc bánh'], answer: 2, hints: ['Nghĩ xem 3 hộp bánh giống nhau thì liên quan đến phép tính gì.', 'Số bánh trong 3 hộp gấp 3 lần số bánh trong 1 hộp.'] },
           { type: 'choice', q: 'Trong các phép tính sau đây, phép tính nào có kết quả lớn nhất?', options: ['7×4+8', '7×6−10', '7×2+25'], answer: 2, hints: ['Tính giá trị của từng phép tính, nhớ thứ tự thực hiện: nhân chia trước, cộng trừ sau.', 'So sánh ba kết quả vừa tính để tìm phép tính có kết quả lớn nhất.'] },
           { type: 'choice', q: '6m 4cm ………….. 640cm', options: ['>', '<', '='], answer: 1, hints: ['Hai số đo đang ở hai đơn vị khác nhau — hãy đưa về cùng một đơn vị trước khi so sánh.', 'Đổi mét sang xăng-ti-mét rồi so sánh hai số.'] },
-          { type: 'fill', q: 'Cho hình vẽ. Hình vẽ trên có ..... góc vuông.', img: 'https://st.vndoc.com/data/image/2024/11/20/VioEdu-lop-3-1.jpg', blanks: [{ label: 'Số góc vuông', answer: '2' }], hints: ['Hãy nhớ lại hình dạng của một góc vuông (giống góc của hình vuông, hình chữ nhật).', 'Đếm cẩn thận từng góc trong hình xem góc nào là góc vuông.'] },
-          { type: 'fill', q: 'Cho hình vẽ. Hình đã cho có ... góc vuông.', img: 'https://st.vndoc.com/data/image/2024/11/20/VioEdu-lop-3-2.jpg', blanks: [{ label: 'Số góc vuông', answer: '8' }], hints: ['Hãy nhớ lại hình dạng của một góc vuông (giống góc của hình vuông, hình chữ nhật).', 'Đếm cẩn thận từng góc trong hình, kể cả các góc ở những hình nhỏ ghép lại.'] },
+          { type: 'fill', q: 'Cho hình vẽ. Hình vẽ trên có ..... góc vuông.', img: imgExamTrapezoid, blanks: [{ label: 'Số góc vuông', answer: '2' }], hints: ['Hãy nhớ lại hình dạng của một góc vuông (giống góc của hình vuông, hình chữ nhật).', 'Đếm cẩn thận từng góc trong hình xem góc nào là góc vuông.'] },
+          { type: 'fill', q: 'Cho hình vẽ. Hình đã cho có ... góc vuông.', img: imgExamRect2, blanks: [{ label: 'Số góc vuông', answer: '8' }], hints: ['Hãy nhớ lại hình dạng của một góc vuông (giống góc của hình vuông, hình chữ nhật).', 'Đếm cẩn thận từng góc trong hình, kể cả các góc ở những hình nhỏ ghép lại.'] },
           { type: 'choice', q: 'Hùng có 24 cái kẹo, Hùng cho Mai 1/3 số kẹo đó. Hỏi Hùng còn lại bao nhiêu cái kẹo?', options: ['8 cái kẹo', '72 cái kẹo', '16 cái kẹo'], answer: 2, hints: ['Hãy tìm xem Hùng đã cho Mai bao nhiêu cái kẹo trước.', '"1/3 số kẹo" nghĩa là chia đều số kẹo thành 3 phần bằng nhau và lấy đi 1 phần.'] },
         ],
       },
@@ -83,7 +88,7 @@ const EXAMS = [
       {
         id: 'en-div',
         title: 'English — Division Tables',
-        icon: '🇬🇧',
+        icon: '🔤',
         color: '#F59E0B',
         questions: [
           { type: 'choice', q: '18 : 2 … 40 : 4', options: ['<', '>', '='], answer: 0, hints: ['Work out the value of each side on its own first.', 'Then compare the two results.'] },
@@ -152,7 +157,7 @@ export function render(app, onBack) {
     const exam = activeExam;
     const totalQ = exam.sections.reduce((s, sec) => s + sec.questions.length, 0);
     app.innerHTML = `
-      <div class="e3-wrap">
+      <div class="e3-wrap ex-app">
         <div class="e3-intro animate-fadeIn">
           <div class="e3-badge">📝</div>
           <h1 class="e3-title">Ôn Luyện Đề — ${exam.title}</h1>
@@ -176,7 +181,6 @@ export function render(app, onBack) {
           </div>
 
           <div class="e3-divider"></div>
-          <p class="e3-note">Nguồn: <a href="${exam.source}" target="_blank" rel="noopener">vndoc.com</a> — bản xem trước công khai.</p>
           <button class="e3-btn e3-btn-ghost" id="e3-back-btn">← Quay lại</button>
         </div>
       </div>
@@ -222,7 +226,7 @@ export function render(app, onBack) {
     const pct = Math.round((visitedCount / activeQuestions.length) * 100);
 
     app.innerHTML = `
-      <div class="e3-wrap">
+      <div class="e3-wrap ex-app">
         <div class="e3-quiz animate-fadeIn">
           <div class="e3-topbar">
             <button class="e3-back-icon" id="e3-quit">✕</button>
@@ -682,7 +686,7 @@ export function render(app, onBack) {
     const { emoji, label, color } = getGrade(pct);
 
     app.innerHTML = `
-      <div class="e3-wrap">
+      <div class="e3-wrap ex-app">
         <div class="e3-result animate-fadeIn">
           <div class="e3-result-tag" style="color:${activeSectionColor}">${activeSectionTitle}</div>
           <div class="e3-result-icon">${emoji}</div>
@@ -922,6 +926,37 @@ function injectStyles() {
       .e3-intro { padding: 3rem 2.5rem; }
       .e3-result-actions { flex-direction: row; flex-wrap: wrap; }
       .e3-result-actions .e3-btn { flex: 1; }
+    }
+    /* Màn hình rộng (máy tính, iPad ngang): khung rộng hơn, chữ và nút to hơn cho dễ nhìn,
+       như Vở bài tập (.gw-app). Gắn vào .ex-app để không đụng các màn khác dùng chung lớp e3-. */
+    @media (min-width: 720px) {
+      .ex-app.e3-wrap { padding: 2rem; }
+      .ex-app .e3-intro { max-width: min(760px, 96vw); }
+      .ex-app .e3-quiz { max-width: min(960px, 96vw); }
+      .ex-app .e3-result { max-width: min(900px, 96vw); }
+      .ex-app .e3-badge { font-size: 3.6rem; }
+      .ex-app .e3-title { font-size: 2.2rem; }
+      .ex-app .e3-sub { font-size: 1.1rem; }
+      .ex-app .e3-section-label { font-size: 1.1rem; }
+      .ex-app .e3-section-btn { padding: 1.2rem 0.8rem; gap: 0.35rem; }
+      .ex-app .e3-sec-icon { font-size: 1.8rem; }
+      .ex-app .e3-sec-title { font-size: 1.1rem; }
+      .ex-app .e3-sec-count { font-size: 0.95rem; }
+      .ex-app .e3-note { font-size: 0.9rem; }
+      .ex-app .e3-progress-label { font-size: 1rem; }
+      .ex-app .e3-question-card { padding: 1.8rem 2rem; }
+      .ex-app .e3-q-num { font-size: 0.95rem; }
+      .ex-app .e3-q-text { font-size: 1.45rem; }
+      .ex-app .e3-option { padding: 1.15rem 1.4rem; font-size: 1.15rem; }
+      .ex-app .e3-option-label { width: 2.4rem; height: 2.4rem; font-size: 1rem; }
+      .ex-app .e3-btn { font-size: 1.15rem; padding: 1rem 1.8rem; }
+      .ex-app .e3-btn-sm { font-size: 0.95rem; padding: 0.55rem 1rem; }
+      .ex-app .e3-blank-row { padding: 0.9rem 1.3rem; }
+      .ex-app .e3-blank-label { font-size: 1.15rem; }
+      .ex-app .e3-blank-input { width: 120px; height: 50px; font-size: 1.3rem; }
+      .ex-app .e3-solution-label { font-size: 1.1rem; }
+      .ex-app .e3-hint-item { font-size: 1.05rem; }
+      .ex-app .e3-result-row { font-size: 1rem; }
     }
     @media (max-width: 400px) {
       .e3-wrap { padding: 0.5rem; }

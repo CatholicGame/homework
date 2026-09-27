@@ -1,6 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1545 660" width="1545" height="660">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="21 31 1507 607" width="1507" height="607">
 <defs><path id="st" d="M0 -55 L16.5 -19 L58 -13 L30.5 14 L36.5 55 L0 34 L-36.5 55 L-30.5 14 L-58 -13 L-16.5 -19 Z" fill="#00AEEF" stroke="#231F20" stroke-width="4.5" stroke-linejoin="miter"/></defs>
-<path d="M22.75 -2 V15 Q22.75 22 29.75 22 H118 Q125 22 125 15 V-2" fill="none" stroke="#1F9DD3" stroke-width="4.5"/>
 <use href="#st" x="111" y="107"/>
 <use href="#st" x="302" y="107"/>
 <use href="#st" x="493" y="107"/>

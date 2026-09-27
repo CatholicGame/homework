@@ -1,8 +1,14 @@
 import { defineConfig } from 'vite';
+import { fileURLToPath } from 'node:url';
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   root: '.',
   publicDir: 'public',
+  // Bản build: thay danh sách ảnh scan gốc của sách bằng module rỗng — production không có
+  // nút "📷 Ảnh gốc" và không đóng gói ảnh scan (src/engine/origImages.js).
+  resolve: command === 'build'
+    ? { alias: [{ find: /^\.\/origImages\.js$/, replacement: fileURLToPath(new URL('./src/engine/origImages.prod.js', import.meta.url)) }] }
+    : {},
   server: {
     port: 5173,
     open: true,
@@ -15,4 +21,4 @@ export default defineConfig({
     // cần tra ngược URL → ảnh gốc, và gói JS chính không phình vì ~100 hình.
     assetsInlineLimit: (file) => (file.endsWith('.svg') ? false : undefined)
   }
-});
+}));

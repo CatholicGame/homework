@@ -3,6 +3,7 @@ Vở BT Toán 3, Bài 7 Tiết 2 Q1a — 2 cân đồng hồ (0–10 kg). Vẽ l
   Quả dưa hấu: kim chỉ 5 kg.   Quả sầu riêng: kim chỉ 2 kg.
 Mặt số: số 0–9 quanh vòng (0 ở đỉnh), dòng "10 kg" dưới số 0, mỗi kg chia 5 vạch.
 (Dòng chữ câu hỏi bị cắt dính ở đáy ảnh gốc được bỏ — đã có trong app.)
+Quả trên đĩa là bal_item để bé nhấc xuống / đặt lại, kim quay theo (engine/balancePlay.js).
 """
 import sys, os; sys.path.insert(0, os.path.dirname(__file__))
 from common import *
@@ -37,7 +38,7 @@ def durian(x, y, w=150, h=104):
     return ''.join(s)
 
 
-parts.append(kitchen_scale(dial(5), watermelon(0, 4, 190, 150), cx=370, by=720, k=K))
-parts.append(kitchen_scale(dial(2), durian(-8, 4), body='#F7B7A3', cx=1110, by=720, k=K))
+parts.append(kitchen_scale(dial(5), bal_item(watermelon(0, 4, 190, 150), 5000, 'quả dưa hấu'), cx=370, by=720, k=K))
+parts.append(kitchen_scale(dial(2), bal_item(durian(-8, 4), 2000, 'quả sầu riêng'), body='#F7B7A3', cx=1110, by=720, k=K))
 
 save('bai7t2_ex1_scales', W, H, parts, folder='grade3-workbook')
