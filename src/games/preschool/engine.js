@@ -212,10 +212,18 @@ export function renderPreschool(app, onBack, book) {
     const bubble = app.querySelector('#pk-bubble');
     const mascot = app.querySelector('#pk-mascot');
     let instruction = '';
+    let bubbleH = 0;
+    const resetBubble = () => { bubbleH = 0; };
+    window.addEventListener('resize', resetBubble);
+    addCleanup(() => window.removeEventListener('resize', resetBubble));
 
     /** Thỏ nói: hiện chữ + đọc to. `keep`: không thay lời dặn chính (nút nghe lại). */
     const talk = (text, { keep = false, mood = '' } = {}) => {
       bubble.textContent = text;
+      // Chỉ cho bong bóng cao thêm, không co lại trong lượt: hình bên dưới không bị giật.
+      bubble.style.minHeight = '';
+      bubbleH = Math.max(bubbleH, bubble.offsetHeight);
+      bubble.style.minHeight = `${bubbleH}px`;
       if (!keep) instruction = text;
       mascot.classList.remove('is-happy', 'is-sad');
       if (mood) { void mascot.offsetWidth; mascot.classList.add(mood); }
