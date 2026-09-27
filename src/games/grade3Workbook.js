@@ -5136,13 +5136,28 @@ export function renderWorkbook(app, onBack, cfg) {
     const svg = app.querySelector('#gw-match-svg');
     if (!container || !svg) return;
     removeMatchLine(leftId);
-    const leftBtn = container.querySelector(`.gw-match-item[data-id="${leftId}"]`);
-    const rightBtn = container.querySelector(`.gw-match-item[data-id="${rightId}"]`);
+    if (!container.querySelector(`.gw-match-item[data-id="${leftId}"]`) ||
+        !container.querySelector(`.gw-match-item[data-id="${rightId}"]`)) return;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('class', 'gw-match-line');
+    path.setAttribute('stroke', color || '#22c55e');
+    path.dataset.leftId = leftId;
+    path.dataset.rightId = rightId;
+    svg.appendChild(path);
+    placeMatchLine(container, path);
+  }
+
+  // Sets a line's geometry from where its two items are *now*. Items move after
+  // the first draw (images finish loading, full screen, rotating the iPad, the
+  // shorter column of a 5-vs-4 nối re-spreading), so every line is re-placed
+  // whenever the match area changes size — see watchMatchLayout.
+  function placeMatchLine(container, path) {
+    const leftBtn = container.querySelector(`.gw-match-item[data-id="${path.dataset.leftId}"]`);
+    const rightBtn = container.querySelector(`.gw-match-item[data-id="${path.dataset.rightId}"]`);
     if (!leftBtn || !rightBtn) return;
     const box = container.getBoundingClientRect();
     const lr = leftBtn.getBoundingClientRect();
     const rr = rightBtn.getBoundingClientRect();
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     if (container.classList.contains('gw-match-trains')) {
       // train A above train B: from under a car of A to the top of a car of B
       const x1 = lr.left + lr.width / 2 - box.left, y1 = lr.bottom - lr.height * 0.12 - box.top;
@@ -5155,11 +5170,19 @@ export function renderWorkbook(app, onBack, cfg) {
       const midX = (x1 + x2) / 2;
       path.setAttribute('d', `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
     }
-    path.setAttribute('class', 'gw-match-line');
-    path.setAttribute('stroke', color || '#22c55e');
-    path.dataset.leftId = leftId;
-    path.dataset.rightId = rightId;
-    svg.appendChild(path);
+  }
+
+  // Re-places every drawn line whenever the match area or any of its items
+  // resizes; the observer drops itself once the question is re-rendered away.
+  function watchMatchLayout() {
+    const container = app.querySelector('#gw-match');
+    if (!container || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => {
+      if (!container.isConnected) { ro.disconnect(); return; }
+      container.querySelectorAll('#gw-match-svg path').forEach(p => placeMatchLine(container, p));
+    });
+    ro.observe(container);
+    container.querySelectorAll('.gw-match-item').forEach(el => ro.observe(el));
   }
 
   // ── ANSWER HANDLERS (dispatch by type) ──────────────────────────────────────
@@ -5435,6 +5458,7 @@ export function renderWorkbook(app, onBack, cfg) {
 
   function attachMatchHandlers(q) {
     const checkBtn = app.querySelector('#gw-match-check');
+    watchMatchLayout();
     // A link is always stored under its lower-column item's id (left→right for
     // a 2-column nối; left→middle and middle→right for a 3-column one), so
     // matchPairs/matchLocked keys are exactly the q.pairs[i][0] ids.
