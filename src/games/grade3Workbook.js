@@ -418,6 +418,9 @@ const bai44OtherAngles = (value) => bai44AnglesAtO('O,' + value);
 
 // ── CONTENT: BÀI 1–8 (Tập Một) ──────────────────────────────────────────────
 
+// Bài 23 Tiết 2 Q2 cipher: tiles (tap-to-write keypad) of the code letters, as the book lists them.
+const CIPHER = ['A', 'C', 'Đ', 'H', 'I', 'O', 'U'];
+
 const UNITS = [
   {
     id: 'bai-1', number: 1, title: 'Ôn tập các số đến 1 000',
@@ -509,17 +512,17 @@ const UNITS = [
         type: 'fill', section: 'Tiết 2',
         q: '3. Viết các số 786, 768, 867, 687 theo thứ tự.',
         blanks: [
-          { label: 'a) Từ lớn đến bé', answer: '867, 786, 768, 687', validate: listValidate(['867', '786', '768', '687']) },
-          { label: 'b) Từ bé đến lớn', answer: '687, 768, 786, 867', validate: listValidate(['687', '768', '786', '867']) },
+          { label: 'a) Từ lớn đến bé', answer: '867, 786, 768, 687', validate: listValidate(['867', '786', '768', '687']), tiles: ['786', '768', '867', '687'] },
+          { label: 'b) Từ bé đến lớn', answer: '687, 768, 786, 867', validate: listValidate(['687', '768', '786', '867']), tiles: ['786', '768', '867', '687'] },
         ],
       },
       {
         type: 'fill', section: 'Tiết 2',
         q: '4. Ba con gấu có cân nặng lần lượt là 243 kg, 231 kg, 234 kg. Biết gấu trắng nặng nhất, gấu nâu nhẹ hơn gấu đen. Vậy gấu trắng cân nặng ... kg; gấu nâu cân nặng ... kg; gấu đen cân nặng ... kg.',
         blanks: [
-          { label: 'Gấu trắng (kg)', answer: '243' },
-          { label: 'Gấu nâu (kg)', answer: '231' },
-          { label: 'Gấu đen (kg)', answer: '234' },
+          { label: 'Gấu trắng (kg)', answer: '243', tiles: ['243', '231', '234'], tileOne: true },
+          { label: 'Gấu nâu (kg)', answer: '231', tiles: ['243', '231', '234'], tileOne: true },
+          { label: 'Gấu đen (kg)', answer: '234', tiles: ['243', '231', '234'], tileOne: true },
         ],
         hints: ['Số lớn nhất trong ba số là cân nặng của gấu trắng.', 'Trong hai số còn lại, số bé hơn là gấu nâu (vì gấu nâu nhẹ hơn gấu đen).'],
       },
@@ -585,9 +588,9 @@ const UNITS = [
         type: 'fill', section: 'Tiết 2', img: imgBai2Flowers,
         q: '3. Viết A, B, C, D, E thích hợp vào chỗ chấm.',
         blanks: [
-          { label: 'a) Bông hoa ... ghi phép tính có kết quả lớn nhất.', answer: 'B', validate: setValidate(['B']) },
-          { label: 'b) Bông hoa ... ghi phép tính có kết quả bé nhất.', answer: 'C', validate: setValidate(['C']) },
-          { label: 'c) Hai bông hoa ... và ... ghi hai phép tính có kết quả bằng nhau.', answer: 'A và E', validate: setValidate(['A', 'E']) },
+          { label: 'a) Bông hoa ... ghi phép tính có kết quả lớn nhất.', answer: 'B', validate: setValidate(['B']), tiles: ['A', 'B', 'C', 'D', 'E'], tileOne: true },
+          { label: 'b) Bông hoa ... ghi phép tính có kết quả bé nhất.', answer: 'C', validate: setValidate(['C']), tiles: ['A', 'B', 'C', 'D', 'E'], tileOne: true },
+          { label: 'c) Hai bông hoa ... và ... ghi hai phép tính có kết quả bằng nhau.', answer: 'A và E', validate: setValidate(['A', 'E']), tiles: ['A', 'B', 'C', 'D', 'E'] },
         ],
         hints: ['Tính giá trị của cả 5 phép tính: A = 125+35, B = 168+103, C = 472−317, D = 392−125, E = 270−110.'],
       },
@@ -985,7 +988,7 @@ const UNITS = [
         type: 'fill', section: 'Tiết 1',
         q: '1. a) Viết tên các con vật dưới đây theo thứ tự cân nặng từ lớn đến bé: Gấu đen 118 kg, Báo hoa 85 kg, Linh dương 520 kg, Cá sấu 246 kg.\nb) Viết số thành tổng các trăm, chục và đơn vị (theo mẫu). ' + mau('457 = 400 + 50 + 7'),
         blanks: [
-          { label: 'a) Thứ tự từ lớn đến bé', answer: 'Linh dương, Cá sấu, Gấu đen, Báo hoa', validate: listValidate(['Linh dương', 'Cá sấu', 'Gấu đen', 'Báo hoa']) },
+          { label: 'a) Thứ tự từ lớn đến bé', answer: 'Linh dương, Cá sấu, Gấu đen, Báo hoa', validate: listValidate(['Linh dương', 'Cá sấu', 'Gấu đen', 'Báo hoa']), tiles: ['Gấu đen', 'Báo hoa', 'Linh dương', 'Cá sấu'] },
           { label: 'b) 285 = ...', answer: '200+80+5', validate: sumValidate(285) },
           { label: 'b) 666 = ...', answer: '600+60+6', validate: sumValidate(666) },
           { label: 'b) 309 = ...', answer: '300+9', validate: sumValidate(309) },
@@ -2233,10 +2236,10 @@ const UNITS = [
         type: 'table', section: 'Tiết 2',
         q: '2. Kết quả của mỗi phép tính được gắn với một chữ như sau:\nA: 11 × 2;  C: 13 × 3;  Đ: 25 × 3;  H: 42 × 2;\nI: 18 × 4;  O: 27 × 3;  U: 13 × 5.\nViết các chữ cái thích hợp vào ô trống (theo mẫu) rồi viết ô chữ giải được vào chỗ chấm.',
         tables: [
-          { rows: [[sampleCell(75), 72, 22], [sampleCell('Đ'), blank('I', { validate: letterValidate('I') }), blank('A', { validate: letterValidate('A') })]] },
-          { rows: [[75, 22, 81], [blank('Đ', { validate: letterValidate('Đ') }), blank('A', { validate: letterValidate('A') }), blank('O', { validate: letterValidate('O') })]] },
-          { rows: [[39, 65], [blank('C', { validate: letterValidate('C') }), blank('U', { validate: letterValidate('U') })]] },
-          { rows: [[39, 84, 72], [blank('C', { validate: letterValidate('C') }), blank('H', { validate: letterValidate('H') }), blank('I', { validate: letterValidate('I') })]] },
+          { rows: [[sampleCell(75), 72, 22], [sampleCell('Đ'), blank('I', { validate: letterValidate('I'), tiles: CIPHER }), blank('A', { validate: letterValidate('A'), tiles: CIPHER })]] },
+          { rows: [[75, 22, 81], [blank('Đ', { validate: letterValidate('Đ'), tiles: CIPHER }), blank('A', { validate: letterValidate('A'), tiles: CIPHER }), blank('O', { validate: letterValidate('O'), tiles: CIPHER })]] },
+          { rows: [[39, 65], [blank('C', { validate: letterValidate('C'), tiles: CIPHER }), blank('U', { validate: letterValidate('U'), tiles: CIPHER })]] },
+          { rows: [[39, 84, 72], [blank('C', { validate: letterValidate('C'), tiles: CIPHER }), blank('H', { validate: letterValidate('H'), tiles: CIPHER }), blank('I', { validate: letterValidate('I'), tiles: CIPHER })]] },
         ],
         blanks: [
           { label: 'Ô chữ giải được là: ...', answer: 'Địa đạo Củ Chi', validate: phraseValidate('Địa đạo Củ Chi') },
@@ -2917,9 +2920,9 @@ const UNITS = [
           ['32 °C', '15 °C', '26 °C'],
         ],
         blanks: [
-          { label: 'a) Nhiệt độ không khí ở Hạ Long cao hơn nhiệt độ không khí ở ...', answer: 'Sa Pa', validate: phraseValidate('Sa Pa') },
-          { label: 'b) Nhiệt độ không khí ở ... cao nhất.', answer: 'Nha Trang', validate: phraseValidate('Nha Trang') },
-          { label: 'c) Nhiệt độ không khí ở ... thấp nhất.', answer: 'Sa Pa', validate: phraseValidate('Sa Pa') },
+          { label: 'a) Nhiệt độ không khí ở Hạ Long cao hơn nhiệt độ không khí ở ...', answer: 'Sa Pa', validate: phraseValidate('Sa Pa'), tiles: ['Nha Trang', 'Sa Pa', 'Hạ Long'], tileOne: true },
+          { label: 'b) Nhiệt độ không khí ở ... cao nhất.', answer: 'Nha Trang', validate: phraseValidate('Nha Trang'), tiles: ['Nha Trang', 'Sa Pa', 'Hạ Long'], tileOne: true },
+          { label: 'c) Nhiệt độ không khí ở ... thấp nhất.', answer: 'Sa Pa', validate: phraseValidate('Sa Pa'), tiles: ['Nha Trang', 'Sa Pa', 'Hạ Long'], tileOne: true },
         ],
         hints: ['So sánh ba nhiệt độ: 32 °C > 26 °C > 15 °C.'],
       },
@@ -2938,7 +2941,7 @@ const UNITS = [
       {
         type: 'fill',
         q: '3. Số?\nNhiệt độ cơ thể của ba người lần lượt đo được là 38 °C, 36 °C, 37 °C. Biết rằng nhiệt độ cơ thể của người thứ nhất cao nhất, của người thứ hai thấp nhất.',
-        blanks: [{ label: 'Người thứ ba có nhiệt độ cơ thể là ... °C.', answer: '37' }],
+        blanks: [{ label: 'Người thứ ba có nhiệt độ cơ thể là ... °C.', answer: '37', tiles: ['38', '36', '37'], tileOne: true }],
         hints: ['Người thứ nhất có nhiệt độ cao nhất là 38 °C, người thứ hai thấp nhất là 36 °C.'],
       },
       {
@@ -2949,7 +2952,7 @@ const UNITS = [
           ['18 °C', '30 °C', '24 °C', '12 °C'],
         ],
         blanks: [
-          { label: 'Nhiệt độ không khí từng buổi viết theo thứ tự từ cao nhất đến thấp nhất là: ...', answer: 'Trưa, Chiều, Sáng sớm, Đêm', validate: phraseOrderValidate(['Trưa', 'Chiều', 'Sáng sớm', 'Đêm']) },
+          { label: 'Nhiệt độ không khí từng buổi viết theo thứ tự từ cao nhất đến thấp nhất là: ...', answer: 'Trưa, Chiều, Sáng sớm, Đêm', validate: phraseOrderValidate(['Trưa', 'Chiều', 'Sáng sớm', 'Đêm']), tiles: ['Sáng sớm', 'Trưa', 'Chiều', 'Đêm'] },
         ],
         hints: ['Sắp xếp các nhiệt độ: 30 °C > 24 °C > 18 °C > 12 °C, rồi viết tên buổi tương ứng, cách nhau bởi dấu phẩy.'],
       },
@@ -3439,8 +3442,8 @@ const UNITS = [
         type: 'fill', section: 'Tiết 4',
         q: '1. Viết chữ cái thích hợp vào chỗ chấm.\nA: 12 × (7 − 4);  B: 12 × 7 − 4;\nC: (80 + 40) : 4;  D: 80 + 40 : 4.',
         blanks: [
-          { label: 'a) Biểu thức có giá trị lớn nhất là biểu thức', answer: 'D', validate: letterValidate('D') },
-          { label: 'b) Biểu thức có giá trị bé nhất là biểu thức', answer: 'C', validate: letterValidate('C') },
+          { label: 'a) Biểu thức có giá trị lớn nhất là biểu thức', answer: 'D', validate: letterValidate('D'), tiles: ['A', 'B', 'C', 'D'], tileOne: true },
+          { label: 'b) Biểu thức có giá trị bé nhất là biểu thức', answer: 'C', validate: letterValidate('C'), tiles: ['A', 'B', 'C', 'D'], tileOne: true },
         ],
         hints: ['Tính giá trị từng biểu thức: A = 12 × 3 = 36, B = 84 − 4 = 80, C = 120 : 4 = 30, D = 80 + 10 = 90.'],
       },
@@ -3587,8 +3590,8 @@ const UNITS = [
           { label: '= ...', answer: '327' },
           { label: '38 + 72 × 3 = ...', answer: '38 + 216', validate: exprValidate('38 + 216') },
           { label: '= ...', answer: '254' },
-          { label: 'b) Viết biểu thức vào chỗ chấm cho thích hợp.<br>Trong câu a, biểu thức có giá trị lớn nhất là ...', answer: '185 + 71 × 2', validate: exprValidate('185 + 71 × 2', '185 + 71 × 2 = 327') },
-          { label: 'biểu thức có giá trị bé nhất là ...', answer: '38 + 72 × 3', validate: exprValidate('38 + 72 × 3', '38 + 72 × 3 = 254') },
+          { label: 'b) Viết biểu thức vào chỗ chấm cho thích hợp.<br>Trong câu a, biểu thức có giá trị lớn nhất là ...', answer: '185 + 71 × 2', validate: exprValidate('185 + 71 × 2', '185 + 71 × 2 = 327'), tiles: ['473 + 18 − 215', '370 − (319 − 270)', '185 + 71 × 2', '38 + 72 × 3'], tileOne: true },
+          { label: 'biểu thức có giá trị bé nhất là ...', answer: '38 + 72 × 3', validate: exprValidate('38 + 72 × 3', '38 + 72 × 3 = 254'), tiles: ['473 + 18 − 215', '370 − (319 − 270)', '185 + 71 × 2', '38 + 72 × 3'], tileOne: true },
         ],
         hints: [
           'Có dấu ngoặc thì tính trong ngoặc trước; có phép nhân thì nhân trước rồi mới cộng, trừ; chỉ có cộng, trừ thì tính từ trái sang phải.',
@@ -3781,7 +3784,7 @@ const UNITS = [
         type: 'fill', section: 'Tiết 3', img: imgBai41T3Puzzle,
         q: '5. Viết chữ số 0, 1, 2, 3 thích hợp vào ô trống.\n(Mỗi chữ số dùng một lần.)',
         blanks: [
-          { label: '......... × ... = 306', boxes: true, answer: '1,0,2,3', validate: listValidate(['1', '0', '2', '3']) },
+          { label: '......... × ... = 306', boxes: true, answer: '1,0,2,3', validate: listValidate(['1', '0', '2', '3']), tiles: ['0', '1', '2', '3'] },
         ],
         hints: ['Tích có tận cùng là 6 nên thử thừa số thứ hai là 2 hoặc 3: 306 : 3 = 102 dùng đúng các chữ số còn lại.'],
       },
@@ -4738,6 +4741,17 @@ export function renderWorkbook(app, onBack, cfg) {
   function kbAttr(answer) {
     return isPlainInt(answer) ? 'inputmode="numeric"' : isNumberWords(answer) ? 'data-vk-words="1"' : '';
   }
+  // b.tiles: the items the book prints for this blank (the numbers on the
+  // cars, the robots' names…), listed in the book's own order — never sorted,
+  // choosing and ordering them is the exercise. The input gets a tile keypad
+  // of just those items (engine/virtualKeyboard.js, data-vk-tiles); one=true
+  // for one slot of a several-"..." line, which takes a single tile.
+  // b.tileOne: the blank names a single item ("Lọ tô màu đỏ là lọ ...").
+  // b.tileSep: the separator the book writes between items ("; "), default ", ".
+  function tilesAttr(b, one) {
+    const json = JSON.stringify(b.tiles.map(String)).replace(/&/g, '&amp;').replace(/'/g, '&#39;');
+    return `data-vk-tiles='${json}'${one ? ' data-vk-one="1"' : ''}${b.tileSep ? ` data-vk-sep="${b.tileSep}"` : ''}`;
+  }
 
   function renderFillArea(q) {
     return `
@@ -4767,7 +4781,7 @@ export function renderWorkbook(app, onBack, cfg) {
     const label = b.label.replace(/<br\s*\/?>/g, '<span class="gw-line-break"></span>');
     const parts = label.split('...');
     if (parts.length === 1) {
-      const input = `<input type="text" ${kbAttr(b.answer)} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed gw-blank-fill" style="min-width:3ch" data-idx="${i}" autocomplete="off">`;
+      const input = `<input type="text" ${b.tiles ? tilesAttr(b, b.tileOne) : kbAttr(b.answer)} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed gw-blank-fill" style="min-width:3ch" data-idx="${i}" autocomplete="off">`;
       return `
         <div class="e3-blank-row e3-blank-row-inline">
           <label class="e3-blank-label e3-blank-label-inline">${label}${input}</label>
@@ -4809,7 +4823,7 @@ export function renderWorkbook(app, onBack, cfg) {
     // digit would break "1☐3 × 6 = 61☐" over several lines on a phone.
     if (b.boxes) {
       const boxHtml = parts.map((text, idx) => idx === parts.length - 1 ? text
-        : `${text}<input type="text" ${numeric ? 'inputmode="numeric"' : ''} maxlength="1" class="game-input e3-blank-input gw-blank-inline gw-blank-box" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`
+        : `${text}<input type="text" ${b.tiles ? tilesAttr(b, true) : numeric ? 'inputmode="numeric"' : ''} maxlength="1" class="game-input e3-blank-input gw-blank-inline gw-blank-box" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`
       ).join('');
       return `
         <div class="e3-blank-row e3-blank-row-inline">
@@ -4826,7 +4840,8 @@ export function renderWorkbook(app, onBack, cfg) {
         ? 'min-width:3ch'
         : `width:${Math.max(9, numeric ? String(slotAnswer).length + 2 : textSlotCh)}ch`;
       const words = !numeric && isNumberWords(slotAnswer);
-      const input = `<input type="text" ${numeric ? 'inputmode="numeric"' : words ? 'data-vk-words="1"' : ''}${listInOne ? ' data-vk-comma="1"' : ''} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed${fillClass}" style="${style}" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`;
+      const kb = b.tiles ? tilesAttr(b, slotCount > 1 || b.tileOne) : numeric ? 'inputmode="numeric"' : words ? 'data-vk-words="1"' : '';
+      const input = `<input type="text" ${kb}${listInOne && !b.tiles ? ' data-vk-comma="1"' : ''} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed${fillClass}" style="${style}" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`;
       return `${text}${input}`;
     }).join('');
     return `
@@ -4969,7 +4984,8 @@ export function renderWorkbook(app, onBack, cfg) {
                 <tbody>
                   ${t.rows.map((row, r) => `<tr class="${isSampleRow(row) ? 'gw-table-sample-row' : ''}">${rowLabelOf(row) ? `<td class="gw-table-rowlabel">${rowLabelOf(row)}</td>` : ''}${rowCells(row).map((cell, c) => {
                     if (cell && typeof cell === 'object' && cell.blank) {
-                      const inputHtml = `<input type="text" ${kbAttr(cell.answer)} class="game-input gw-table-input" data-t="${ti}" data-r="${r}" data-c="${c}" autocomplete="off">`;
+                      // cell.tiles: letter/number tiles for this cell (a cipher's letters), reusable across cells.
+                      const inputHtml = `<input type="text" ${cell.tiles ? tilesAttr(cell, true) : kbAttr(cell.answer)} class="game-input gw-table-input" data-t="${ti}" data-r="${r}" data-c="${c}" autocomplete="off">`;
                       // cell.prefix: the book's blue sample already written at the start of
                       // the cell, before the dotted part (Lớp 2 Bài 25 "MN, ........").
                       if (cell.prefix) return `<td class="gw-table-input-cell"><div class="gw-table-prefix-wrap"><span class="gw-sample-text gw-table-prefix">${cell.prefix}</span>${inputHtml}</div></td>`;

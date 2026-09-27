@@ -340,6 +340,13 @@ body.vk-active #global-fullscreen-btn {
 .vk-words .vk-row:last-child { grid-template-columns: repeat(5, 1fr); }
 .vk-words .vk-key { font-size: 1.1rem; font-weight: 700; padding: 0 2px; }
 
+/* Item tiles: the book's own numbers/names, each usable once */
+.vk-tiles { width: min(96vw, 560px); }
+.vk-tile-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 8px; }
+.vk-tile-row .vk-key { flex: 0 1 auto; min-width: 64px; padding: 0 14px; font-size: 1.15rem; font-weight: 700; }
+.vk-tile-row .vk-key:disabled { opacity: .3; box-shadow: none; cursor: default; }
+.vk-tiles .vk-tile-ctrl { grid-template-columns: 1fr 1fr; }
+
 .vk-key {
   display: flex;
   align-items: center;

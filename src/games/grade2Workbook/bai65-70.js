@@ -275,7 +275,7 @@ export const BAI_65_70 = [
       {
         type: 'fill', section: 'Tiết 1',
         q: '4. a) Viết các số 796; 887; 769; 901 theo thứ tự từ bé đến lớn:',
-        blanks: [{ label: '', answer: '769, 796, 887, 901', validate: numListValidate([769, 796, 887, 901]) }],
+        blanks: [{ label: '', answer: '769, 796, 887, 901', validate: numListValidate([769, 796, 887, 901]), tiles: ['796', '887', '769', '901'] }],
         hints: ['Tìm số bé nhất trước. 796 và 769 cùng hàng trăm, so sánh tiếp hàng chục.'],
       },
       {
@@ -300,12 +300,13 @@ export const BAI_65_70 = [
         type: 'fill', section: 'Tiết 2',
         q: '1. Cho biết số học sinh ở bốn trường như sau:\n• Trường Lê Lợi: 756 học sinh;\n• Trường Quang Trung: 819 học sinh;\n• Trường Nguyễn Trãi: 831 học sinh;\n• Trường Nguyễn Siêu: 745 học sinh.\nViết tiếp vào chỗ chấm cho thích hợp.',
         blanks: [
-          school('a) Trường ... có ít học sinh nhất.', 'Nguyễn Siêu'),
-          school('b) Trường ... có nhiều học sinh nhất.', 'Nguyễn Trãi'),
+          { ...school('a) Trường ... có ít học sinh nhất.', 'Nguyễn Siêu'), tiles: ['Lê Lợi', 'Quang Trung', 'Nguyễn Trãi', 'Nguyễn Siêu'], tileOne: true },
+          { ...school('b) Trường ... có nhiều học sinh nhất.', 'Nguyễn Trãi'), tiles: ['Lê Lợi', 'Quang Trung', 'Nguyễn Trãi', 'Nguyễn Siêu'], tileOne: true },
           {
             label: 'c) Tên các trường viết theo thứ tự số học sinh từ bé đến lớn là:<br>trường ... → trường ... → trường ... → trường ...',
             answer: 'Nguyễn Siêu, Lê Lợi, Quang Trung, Nguyễn Trãi',
             validate: schoolListValidate(['Nguyễn Siêu', 'Lê Lợi', 'Quang Trung', 'Nguyễn Trãi']),
+            tiles: ['Lê Lợi', 'Quang Trung', 'Nguyễn Trãi', 'Nguyễn Siêu'],
           },
         ],
         hints: ['So sánh bốn số 756, 819, 831, 745: xem hàng trăm trước, rồi đến hàng chục.'],

@@ -237,8 +237,8 @@ export const BAI_52_58 = [
         type: 'fill', section: 'Tiết 1',
         q: '3. Viết tiếp vào chỗ chấm cho thích hợp.\nDưới đây là số giờ ngủ đông trong một tháng của một gia đình gấu:\n• Gấu bố: 620 giờ &nbsp;&nbsp; • Gấu mẹ: 715 giờ\n• Gấu anh: 672 giờ &nbsp;&nbsp; • Gấu em: 726 giờ',
         blanks: [
-          { label: 'a) Trong gia đình đó, gấu ... ngủ đông nhiều nhất, gấu ... ngủ đông ít nhất.', answer: 'em, bố', validate: bearOrderValidate(['em', 'bố']) },
-          { label: 'b) Nêu tên các thành viên của gia đình đó theo thứ tự giờ ngủ đông trong tháng từ nhiều nhất đến ít nhất.<br>', answer: 'Gấu em, gấu mẹ, gấu anh, gấu bố', validate: bearOrderValidate(['em', 'mẹ', 'anh', 'bố']) },
+          { label: 'a) Trong gia đình đó, gấu ... ngủ đông nhiều nhất, gấu ... ngủ đông ít nhất.', answer: 'em, bố', validate: bearOrderValidate(['em', 'bố']), tiles: ['bố', 'mẹ', 'anh', 'em'] },
+          { label: 'b) Nêu tên các thành viên của gia đình đó theo thứ tự giờ ngủ đông trong tháng từ nhiều nhất đến ít nhất.<br>', answer: 'Gấu em, gấu mẹ, gấu anh, gấu bố', validate: bearOrderValidate(['em', 'mẹ', 'anh', 'bố']), tiles: ['Gấu bố', 'Gấu mẹ', 'Gấu anh', 'Gấu em'] },
         ],
         hints: ['So sánh bốn số 620, 715, 672, 726.'],
       },
@@ -267,7 +267,8 @@ export const BAI_52_58 = [
         type: 'fill', section: 'Tiết 2', img: imgB53T2Q2,
         q: '2. a) Nối 4 điểm trong hình dưới đây theo thứ tự các số từ lớn đến bé.\nb) Viết tiếp vào chỗ chấm cho thích hợp.',
         blanks: [
-          nums('a) Thứ tự nối các điểm: ... → ... → ... → ...', 735, 573, 537, 375),
+          // tiles: the four points as the figure prints them (top row, then bottom row).
+          { ...nums('a) Thứ tự nối các điểm: ... → ... → ... → ...', 735, 573, 537, 375), tiles: ['573', '375', '735', '537'] },
           { label: 'b) Sau khi nối, em nhận được chữ cái ...', answer: 'N', validate: letterWordValidate('N', 'chu cai', 'chu') },
         ],
         hints: ['Số lớn nhất là 735 (điểm dưới bên trái).', 'Nối từ 735 lên 573, chéo xuống 537 rồi lên 375.'],

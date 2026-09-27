@@ -82,6 +82,8 @@ function productSumValidate(a, b) {
 // "1 000" may be typed with a thousands space/dot ("1 000", "1.000", "1000") — the
 // only 4-digit number in these lessons, so a space between two 3-digit numbers
 // in a list ("400 600") is never joined.
+// b.tiles (tap-to-write keypad): Bài 50 Tiết 2 Q4, the weights in the book's order.
+const COWS = ['800', '550', '680'];
 const joinThousands = (s) => String(s).replace(/\b1[\s.]000\b/g, '1000');
 const bigNum = (n) => blank(String(n), { validate: (v) => joinThousands(v).trim() === String(n) });
 
@@ -775,23 +777,23 @@ export const BAI_45_51 = [
         type: 'fill', section: 'Tiết 2',
         q: '2. Viết các số 340, 430, 230, 320 theo thứ tự:',
         blanks: [
-          { label: 'a) Từ bé đến lớn: ...', answer: '230, 320, 340, 430', validate: listValidate(['230', '320', '340', '430']) },
-          { label: 'b) Từ lớn đến bé: ...', answer: '430, 340, 320, 230', validate: listValidate(['430', '340', '320', '230']) },
+          { label: 'a) Từ bé đến lớn: ...', answer: '230, 320, 340, 430', validate: listValidate(['230', '320', '340', '430']), tiles: ['340', '430', '230', '320'] },
+          { label: 'b) Từ lớn đến bé: ...', answer: '430, 340, 320, 230', validate: listValidate(['430', '340', '320', '230']), tiles: ['340', '430', '230', '320'] },
         ],
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgB50T2Q3,
         q: '3. Viết số thích hợp vào chỗ chấm.',
-        blanks: [{ label: 'Để các toa tàu ghi các số theo thứ tự từ lớn đến bé, em cần đổi chỗ toa tàu ghi số ... với toa tàu ghi số ...', answer: '640, 680', validate: swapPairValidate(640, 680) }],
+        blanks: [{ label: 'Để các toa tàu ghi các số theo thứ tự từ lớn đến bé, em cần đổi chỗ toa tàu ghi số ... với toa tàu ghi số ...', answer: '640, 680', validate: swapPairValidate(640, 680), tiles: ['640', '670', '680'] }],
         hints: ['Từ lớn đến bé là 680, 670, 640.'],
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgB50T2Q4,
         q: '4. Ba con bò có cân nặng là: 800 kg, 550 kg và 680 kg. Quan sát hình rồi viết số thích hợp vào chỗ chấm.',
         blanks: [
-          { label: '• Bò xám cân nặng ... kg;', answer: '800' },
-          { label: '• Bò sữa cân nặng ... kg;', answer: '680' },
-          { label: '• Bò tót cân nặng ... kg.', answer: '550' },
+          { label: '• Bò xám cân nặng ... kg;', answer: '800', tiles: COWS, tileOne: true },
+          { label: '• Bò sữa cân nặng ... kg;', answer: '680', tiles: COWS, tileOne: true },
+          { label: '• Bò tót cân nặng ... kg.', answer: '550', tiles: COWS, tileOne: true },
         ],
         hints: ['Bên nào nặng hơn thì bập bênh bên đó thấp xuống.'],
       },

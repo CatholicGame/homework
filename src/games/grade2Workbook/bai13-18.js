@@ -426,6 +426,7 @@ export const BAI_13_18 = [
         blanks: [{
           label: 'b) Viết tên các đồ vật theo thứ tự từ đựng ít nước nhất đến đựng nhiều nước nhất:',
           answer: 'Bình, Ấm, Xô, Can', validate: phraseOrderValidate(['Bình', 'Ấm', 'Xô', 'Can']),
+          tiles: ['Ấm', 'Bình', 'Can', 'Xô'],
         }],
         hints: [`Cộng số lít ghi trên các ca: can có 3 ${L} + 2 ${L} + 2 ${L} + 2 ${L}.`],
       },

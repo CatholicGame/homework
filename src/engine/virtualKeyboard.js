@@ -8,10 +8,17 @@
  * will automatically get the virtual keyboard.
  * An <input data-vk-words> ("Đọc số": "hai mươi lăm") gets a panel of number
  * word tiles instead — the child taps the words in order to build the reading.
+ * An <input data-vk-tiles='["65","59",...]'> gets tiles of exactly the items the
+ * book prints (numbers on the train cars, names of the robots…), in the book's
+ * order, each usable once: the child still decides which ones and in what
+ * order ("viết theo thứ tự", "tô màu các toa ghi số…"). With data-vk-one the
+ * input is one slot of a row (several "..." in one line): a tap fills that slot,
+ * and a tile already written in another slot of the same row is used up.
  */
 
 const VK_CLASS = 'vk-panel';
-const VK_SELECTOR = 'input[type="number"], input[inputmode="numeric"], input[data-vk-words]';
+const VK_SELECTOR = 'input[type="number"], input[inputmode="numeric"], input[data-vk-words], input[data-vk-tiles]';
+const TILE_SEP = ', ';
 
 // Every word soDoc() can produce, plus the book's "tư" and "nghìn".
 const WORD_ROWS = [
@@ -75,6 +82,70 @@ function createWordKeyboard() {
 let activeInput = null;
 let panel = null;
 let wordPanel = null;
+let tilePanel = null;
+
+// ── Item tiles (data-vk-tiles) ───────────────────────────────────────────────
+function tilesOf(input) {
+  try { return JSON.parse(input.dataset.vkTiles); } catch { return []; }
+}
+// data-vk-sep: the book's own separator ("D; B; A; C"), ", " by default.
+const sepOf = (input) => input.dataset.vkSep || TILE_SEP;
+const tokensOf = (v, sep = TILE_SEP) => v.split(sep.trim()).map(t => t.trim()).filter(Boolean);
+// The other slots of the same answer line (data-vk-one inputs sharing data-idx).
+function slotSiblings(input) {
+  const row = input.closest('.e3-blank-row') || input.parentElement;
+  return [...row.querySelectorAll(`input[data-vk-tiles][data-idx="${input.dataset.idx}"]`)];
+}
+// How many times each tile is already written for this answer line.
+function usedCounts(input) {
+  const counts = new Map();
+  const vals = input.dataset.vkOne ? slotSiblings(input).map(i => i.value.trim()).filter(Boolean) : tokensOf(input.value, sepOf(input));
+  vals.forEach(v => counts.set(v, (counts.get(v) || 0) + 1));
+  return counts;
+}
+function refreshTiles() {
+  if (!tilePanel || !activeInput?.dataset.vkTiles) return;
+  const left = usedCounts(activeInput);
+  const all = tilesOf(activeInput);
+  tilePanel.querySelectorAll('.vk-tile').forEach((btn, i) => {
+    const t = all[i];
+    const n = left.get(t) || 0;
+    // A tile printed twice in the book may be used twice.
+    const printed = all.slice(0, i + 1).filter(x => x === t).length;
+    btn.disabled = n >= printed;
+  });
+}
+function showTiles(input) {
+  if (!tilePanel) {
+    tilePanel = document.createElement('div');
+    tilePanel.id = 'virtual-keyboard-tiles';
+    tilePanel.className = `${VK_CLASS} vk-tiles`;
+    tilePanel.setAttribute('aria-label', 'Bàn phím thẻ');
+    document.body.appendChild(tilePanel);
+  }
+  const tiles = tilesOf(input);
+  tilePanel.innerHTML = `
+    <div class="vk-tile-row">${tiles.map((t, i) => `<button class="vk-key vk-tile" data-tile="${i}" type="button">${t}</button>`).join('')}</div>
+    <div class="vk-row vk-tile-ctrl">
+      <button class="vk-key vk-backspace" data-key="⌫" type="button">⌫</button>
+      <button class="vk-key vk-confirm" data-key="✓" type="button">✓</button>
+    </div>`;
+  tilePanel.classList.add('vk-visible');
+  refreshTiles();
+}
+function pressTile(i) {
+  if (!activeInput?.dataset.vkTiles) return;
+  const t = tilesOf(activeInput)[i];
+  if (t == null) return;
+  if (activeInput.dataset.vkOne) {
+    activeInput.value = t;
+  } else {
+    const sep = sepOf(activeInput);
+    activeInput.value = [...tokensOf(activeInput.value, sep), t].join(sep);
+  }
+  activeInput.dispatchEvent(new Event('input', { bubbles: true }));
+  refreshTiles();
+}
 let suppressReshow = false;  // prevents keyboard re-opening after ✓ submission
 
 function showKeyboard(input) {
@@ -83,8 +154,11 @@ function showKeyboard(input) {
   panel = panel || createKeyboard();
   wordPanel = wordPanel || createWordKeyboard();
   const words = !!input.dataset.vkWords;
+  const tiles = !!input.dataset.vkTiles;
   wordPanel.classList.toggle('vk-visible', words);
-  if (words) {
+  if (tiles) showTiles(input);
+  else if (tilePanel) tilePanel.classList.remove('vk-visible');
+  if (words || tiles) {
     panel.classList.remove('vk-visible');
     document.body.classList.add('vk-active');
     input.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -102,11 +176,21 @@ function hideKeyboard() {
   activeInput = null;
   if (panel) panel.classList.remove('vk-visible');
   if (wordPanel) wordPanel.classList.remove('vk-visible');
+  if (tilePanel) tilePanel.classList.remove('vk-visible');
   document.body.classList.remove('vk-active');
 }
 
 function pressKey(key) {
   if (!activeInput) return;
+
+  if (activeInput.dataset.vkTiles && key === '⌫') {
+    // Take the last tile back off (the whole slot, for a one-tile slot).
+    const sep = sepOf(activeInput);
+    activeInput.value = activeInput.dataset.vkOne ? '' : tokensOf(activeInput.value, sep).slice(0, -1).join(sep);
+    activeInput.dispatchEvent(new Event('input', { bubbles: true }));
+    refreshTiles();
+    return;
+  }
 
   if (activeInput.dataset.vkWords && key !== '✓') {
     // Word tiles: a tap adds one whole word, ⌫ takes the last word back off.
@@ -215,7 +299,8 @@ function installHandlers() {
     const btn = e.target.closest('.vk-key');
     if (btn) {
       e.preventDefault(); // prevent blur of activeInput
-      pressKey(btn.dataset.key);
+      if (btn.dataset.tile != null) { if (!btn.disabled) pressTile(+btn.dataset.tile); }
+      else pressKey(btn.dataset.key);
       return;
     }
     // Click outside keyboard + outside an input → hide
@@ -230,7 +315,8 @@ function installHandlers() {
     const btn = e.target.closest('.vk-key');
     if (btn) {
       e.preventDefault();
-      pressKey(btn.dataset.key);
+      if (btn.dataset.tile != null) { if (!btn.disabled) pressTile(+btn.dataset.tile); }
+      else pressKey(btn.dataset.key);
     }
   }, { passive: false, capture: true });
 }

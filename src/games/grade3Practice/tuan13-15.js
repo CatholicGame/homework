@@ -22,6 +22,9 @@ import imgT15Lion from '../../assets/grade3-practice/tuan15_t2_q2_lion.png';
 import imgT15Horse from '../../assets/grade3-practice/tuan15_t2_q2_horse.png';
 import imgT15Animals from '../../assets/grade3-practice/tuan15_t2_q4_animals.png';
 
+// Tuần 13 Tiết 3 Q3: tiles (tap-to-write keypad) of the places, in the table's order.
+const PLACES = ['Hà Nội', 'Đà Nẵng', 'Lạng Sơn', 'Huế'];
+
 // Tuần 13 Tiết 2 Q3 a) "người ta thường dùng ......": "nhiệt kế", also written
 // as "cái nhiệt kế" / "nhiet ke".
 const thermometerValidate = (value) => /nhietke/.test(stripVN(value).replace(/[^a-z]/g, ''));
@@ -170,9 +173,9 @@ export const WEEKS_13_15 = [
         headers: ['Địa điểm', 'Hà Nội', 'Đà Nẵng', 'Lạng Sơn', 'Huế'],
         rows: [['Nhiệt độ', '16 °C', '27 °C', '13 °C', '20 °C']],
         blanks: [
-          { label: '• Tại thời điểm đó, nơi có nhiệt độ thấp nhất là ...', answer: 'Lạng Sơn', validate: phraseValidate('Lạng Sơn') },
-          { label: 'nơi có nhiệt độ cao nhất là ...', answer: 'Đà Nẵng', validate: phraseValidate('Đà Nẵng') },
-          { label: '• Tên các địa điểm theo thứ tự từ nơi có nhiệt độ thấp nhất đến nơi có nhiệt độ cao nhất là: ...', answer: 'Lạng Sơn, Hà Nội, Huế, Đà Nẵng', validate: phraseOrderValidate(['Lạng Sơn', 'Hà Nội', 'Huế', 'Đà Nẵng']) },
+          { label: '• Tại thời điểm đó, nơi có nhiệt độ thấp nhất là ...', answer: 'Lạng Sơn', validate: phraseValidate('Lạng Sơn'), tiles: PLACES, tileOne: true },
+          { label: 'nơi có nhiệt độ cao nhất là ...', answer: 'Đà Nẵng', validate: phraseValidate('Đà Nẵng'), tiles: PLACES, tileOne: true },
+          { label: '• Tên các địa điểm theo thứ tự từ nơi có nhiệt độ thấp nhất đến nơi có nhiệt độ cao nhất là: ...', answer: 'Lạng Sơn, Hà Nội, Huế, Đà Nẵng', validate: phraseOrderValidate(['Lạng Sơn', 'Hà Nội', 'Huế', 'Đà Nẵng']), tiles: PLACES },
         ],
         hints: ['Sắp xếp các nhiệt độ từ thấp đến cao: 13 °C < 16 °C < 20 °C < 27 °C, rồi viết tên địa điểm tương ứng, cách nhau bởi dấu phẩy.'],
       },

@@ -552,9 +552,9 @@ export const BAI_71_75 = [
         type: 'fill', section: 'Tiết 1',
         q: '3. Cho các số 263; 326; 236; 362.',
         blanks: [
-          { label: 'a) Viết các số đã cho theo thứ tự:<br>• Từ bé đến lớn: ...', answer: '236, 263, 326, 362', validate: listValidate(['236', '263', '326', '362']) },
-          { label: '• Từ lớn đến bé: ...', answer: '362, 326, 263, 236', validate: listValidate(['362', '326', '263', '236']) },
-          B('b) Viết số thích hợp vào chỗ chấm.<br>Trong bốn số đã cho, số lớn nhất là ...; số bé nhất là ...', 362, 236),
+          { label: 'a) Viết các số đã cho theo thứ tự:<br>• Từ bé đến lớn: ...', answer: '236, 263, 326, 362', validate: listValidate(['236', '263', '326', '362']), tiles: ['263', '326', '236', '362'] },
+          { label: '• Từ lớn đến bé: ...', answer: '362, 326, 263, 236', validate: listValidate(['362', '326', '263', '236']), tiles: ['263', '326', '236', '362'] },
+          { ...B('b) Viết số thích hợp vào chỗ chấm.<br>Trong bốn số đã cho, số lớn nhất là ...; số bé nhất là ...', 362, 236), tiles: ['263', '326', '236', '362'] },
         ],
         hints: ['So sánh chữ số hàng trăm trước, rồi đến hàng chục.'],
       },

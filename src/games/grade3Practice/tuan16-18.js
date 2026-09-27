@@ -31,7 +31,9 @@ function ratioBoxesValidate(value) {
   return a % b === 0 && c % d === 0 && a / b === c / d;
 }
 
-const L = (ch) => blank(ch, { validate: letterValidate(ch) });
+const L = (ch, tiles) => blank(ch, { validate: letterValidate(ch), tiles });
+// Tuần 17 Tiết 2 Q1 cipher: tiles of the six code letters, as the book lists them.
+const CODE = ['S', 'H', 'T', 'A', 'N', 'C'];
 
 export const WEEKS_16_18 = [
   {
@@ -205,8 +207,8 @@ export const WEEKS_16_18 = [
         tables: [
           { rows: [['S', '117 : 9'], ['H', '93 : 3'], ['T', '48 : 4']] },
           { rows: [['A', '16 × 2'], ['N', '180 : 6'], ['C', '88 : 8']] },
-          { rows: [[12, 31, 32, 11, 31], ['T', L('H'), L('A'), L('C'), L('H')]] },
-          { rows: [[13, 32, 30, 31], [L('S'), L('A'), L('N'), L('H')]] },
+          { rows: [[12, 31, 32, 11, 31], ['T', L('H', CODE), L('A', CODE), L('C', CODE), L('H', CODE)]] },
+          { rows: [[13, 32, 30, 31], [L('S', CODE), L('A', CODE), L('N', CODE), L('H', CODE)]] },
         ],
         hints: ['Tính kết quả của cả 6 phép tính: S = 13, H = 31, T = 12, A = 32, N = 30, C = 11. Viết chữ ứng với mỗi số vào ô bên dưới.'],
       },

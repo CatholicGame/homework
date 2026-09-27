@@ -520,10 +520,11 @@ export const BAI_59_64 = [
             label: 'a) Viết các số đo độ dài đã cho theo thứ tự từ bé đến lớn.<br>...',
             answer: '385 km, 411 km, 543 km, 551 km',
             validate: (v) => listValidate(['385', '411', '543', '551'])(String(v).replace(/km/gi, '')),
+            tiles: ['411 km', '551 km', '543 km', '385 km'],
           },
           {
             label: 'b) Khoanh vào chữ đặt trước câu trả lời đúng.<br>Con sông nào có chiều dài bé hơn 500 km nhưng lớn hơn 400 km?<br>A. Sông Thái Bình &nbsp; B. Sông Hồng &nbsp; C. Sông Đà &nbsp; D. Sông Bé<br>Chữ đặt trước câu trả lời đúng: ...',
-            answer: 'A', validate: letterValidate('A'),
+            answer: 'A', validate: letterValidate('A'), tiles: ['A', 'B', 'C', 'D'], tileOne: true,
           },
           eq('c) Viết số thích hợp vào chỗ chấm.<br>Sông Hồng dài hơn sông Đà ... km.', 8),
         ],
@@ -601,7 +602,7 @@ export const BAI_59_64 = [
         type: 'fill', section: 'Tiết 2',
         q: '5. Cho các số: 629, 362, 372, 257.\na) Nối các số đã cho theo thứ tự từ bé đến lớn.\nb) Viết số thích hợp vào chỗ chấm.',
         blanks: [
-          nums('a) Các số theo thứ tự từ bé đến lớn: ... → ... → ... → ...', [257, 362, 372, 629]),
+          { ...nums('a) Các số theo thứ tự từ bé đến lớn: ... → ... → ... → ...', [257, 362, 372, 629]), tiles: ['629', '362', '372', '257'] },
           eq('b) • Tổng của số lớn nhất và số bé nhất trong các số đã cho bằng ...', 886),
           eq('• Hiệu của số lớn nhất và số bé nhất trong các số đã cho bằng ...', 372),
         ],

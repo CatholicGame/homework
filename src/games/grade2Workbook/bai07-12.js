@@ -288,7 +288,7 @@ export const BAI_7_12 = [
       {
         type: 'fill', section: 'Tiết 1',
         q: '2. b) Viết các số ghi trên những hạt dẻ mà các chú sóc nhặt được theo thứ tự từ bé đến lớn:\n(Các hạt dẻ ghi: 13, 17, 11, 14)',
-        blanks: [{ label: 'Từ bé đến lớn:', answer: '11, 13, 14, 17', validate: orderedValidate([11, 13, 14, 17]) }],
+        blanks: [{ label: 'Từ bé đến lớn:', answer: '11, 13, 14, 17', validate: orderedValidate([11, 13, 14, 17]), tiles: ['13', '17', '11', '14'] }],
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB8T1Q3,
@@ -327,8 +327,8 @@ export const BAI_7_12 = [
         type: 'fill', section: 'Tiết 2',
         q: '3. b) Viết các số ghi ở tổ ong theo thứ tự từ bé đến lớn.\n(Các tổ ong ghi: 12, 14, 11)\nc) Viết tiếp vào chỗ chấm.\n(Các chú gấu ghi: 8 + 6, 9 + 3, 7 + 4)',
         blanks: [
-          { label: 'b) Từ bé đến lớn:', answer: '11, 12, 14', validate: orderedValidate([11, 12, 14]) },
-          { label: 'c) Phép tính trên chú gấu có kết quả lớn nhất là ...', answer: '8 + 6', validate: exprSetValidate(['8+6']) },
+          { label: 'b) Từ bé đến lớn:', answer: '11, 12, 14', validate: orderedValidate([11, 12, 14]), tiles: ['12', '14', '11'] },
+          { label: 'c) Phép tính trên chú gấu có kết quả lớn nhất là ...', answer: '8 + 6', validate: exprSetValidate(['8+6']), tiles: ['8 + 6', '9 + 3', '7 + 4'], tileOne: true },
         ],
       },
       {

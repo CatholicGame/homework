@@ -97,6 +97,9 @@ function pairAnyValidate(pairs) {
   return (value) => ok.has(String(value).toUpperCase().replace(/\s+/g, ''));
 }
 
+// b.tiles (tap-to-write keypad) lists what the picture prints, left to right.
+const SHOES = ['40', '43', '39', '37'];
+
 // Number cards / circled numbers printed inline in the question, like the book.
 const CARD = 'display:inline-flex;align-items:center;justify-content:center;width:2.3em;height:2.7em;margin:6px 10px 6px 0;border-radius:10px;border:2px solid #29A9E0;background:linear-gradient(160deg,#E4F5FD,#8ED6F5);font-weight:800;font-size:1.15em;color:#231F20;box-shadow:0 3px 0 #29A9E0';
 const cards = (...nums) => `<span style="display:inline-flex;flex-wrap:wrap">${nums.map(n => `<span style="${CARD}">${n}</span>`).join('')}</span>`;
@@ -167,9 +170,9 @@ export const BAI_1_6 = [
         type: 'fill', section: 'Tiết 1', img: imgB1Trains,
         q: '4. a) Tô màu vàng vào các toa của đoàn tàu A ghi số bé hơn 60.\nb) Ở đoàn tàu B, tô màu đỏ vào toa ghi số lớn nhất, màu xanh vào toa ghi số bé nhất.\nc) Viết tiếp vào chỗ chấm.',
         blanks: [
-          { label: 'a) Các toa tô màu vàng ghi số: ...', answer: '59, 47', validate: setValidate(['59', '47']) },
-          { label: 'b) Toa tô màu đỏ ghi số ...; toa tô màu xanh ghi số ...', answer: '56,48', validate: listValidate(['56', '48']) },
-          { label: 'c) Ở cả hai đoàn tàu, những số vừa bé hơn 60 vừa lớn hơn 50 là: ...', answer: '59, 56, 51, 53', validate: setValidate(['59', '56', '51', '53']) },
+          { label: 'a) Các toa tô màu vàng ghi số: ...', answer: '59, 47', validate: setValidate(['59', '47']), tiles: ['65', '59', '47', '60'] },
+          { label: 'b) Toa tô màu đỏ ghi số ...; toa tô màu xanh ghi số ...', answer: '56,48', validate: listValidate(['56', '48']), tiles: ['56', '48', '51', '53'] },
+          { label: 'c) Ở cả hai đoàn tàu, những số vừa bé hơn 60 vừa lớn hơn 50 là: ...', answer: '59, 56, 51, 53', validate: setValidate(['59', '56', '51', '53']), tiles: ['65', '59', '47', '60', '56', '48', '51', '53'] },
         ],
         hints: ['Tàu A: 65, 59, 47, 60. Tàu B: 56, 48, 51, 53.'],
       },
@@ -186,8 +189,8 @@ export const BAI_1_6 = [
         type: 'fill', section: 'Tiết 2', img: imgB1Shoes,
         q: '2. Viết các số ghi trên mỗi chiếc giày theo thứ tự:',
         blanks: [
-          { label: 'Từ bé đến lớn:', answer: '37, 39, 40, 43', validate: listValidate(['37', '39', '40', '43']) },
-          { label: 'Từ lớn đến bé:', answer: '43, 40, 39, 37', validate: listValidate(['43', '40', '39', '37']) },
+          { label: 'Từ bé đến lớn:', answer: '37, 39, 40, 43', validate: listValidate(['37', '39', '40', '43']), tiles: SHOES },
+          { label: 'Từ lớn đến bé:', answer: '43, 40, 39, 37', validate: listValidate(['43', '40', '39', '37']), tiles: SHOES },
         ],
       },
       {
@@ -454,7 +457,7 @@ export const BAI_1_6 = [
         type: 'fill', section: 'Tiết 3', img: imgB3Trains,
         q: '3. Trên mỗi toa tàu ghi một số.\na) Đổi chỗ hai toa của đoàn tàu B để được các số xếp theo thứ tự từ bé đến lớn bằng cách vẽ mũi tên (theo mẫu).\nb) Tính hiệu của số lớn nhất ở đoàn tàu A và số bé nhất ở đoàn tàu B.',
         blanks: [
-          { label: 'a) Đổi chỗ toa ... và toa ... .', answer: '67,30', validate: setValidate(['67', '30']) },
+          { label: 'a) Đổi chỗ toa ... và toa ... .', answer: '67,30', validate: setValidate(['67', '30']), tiles: ['67', '45', '56', '30'] },
           { label: 'b)', answer: '90 − 30 = 60', validate: calcValidate(90, '-', 30, 60) },
         ],
         hints: ['Ở đoàn tàu A, đổi chỗ toa 80 và toa 30 thì được 30, 50, 80, 90.'],
@@ -531,7 +534,7 @@ export const BAI_1_6 = [
         blanks: [
           { label: 'a) – Rô-bốt C cao hơn rô-bốt B bao nhiêu xăng-ti-mét?<br>... cm − ... cm = ... cm', answer: '59,54,5', validate: listValidate(['59', '54', '5']) },
           { label: '– Rô-bốt D thấp hơn rô-bốt C bao nhiêu xăng-ti-mét?<br>... cm − ... cm = ... cm', answer: '59,49,10', validate: listValidate(['59', '49', '10']) },
-          { label: 'b) D; ...', answer: 'B; A; C', validate: listValidate(['B', 'A', 'C']) },
+          { label: 'b) D; ...', answer: 'B; A; C', validate: listValidate(['B', 'A', 'C']), tiles: ['A', 'B', 'C'], tileSep: '; ' },
         ],
         hints: ['A cao 56 cm, B cao 54 cm, C cao 59 cm, D cao 49 cm.'],
       },
@@ -754,7 +757,7 @@ export const BAI_1_6 = [
       {
         type: 'fill', section: 'Tiết 1', img: imgB6Ribbon,
         q: '4. Viết tiếp vào chỗ chấm cho thích hợp.',
-        blanks: [{ label: 'Các số trên viết theo thứ tự từ bé đến lớn là:', answer: '23, 34, 39, 56', validate: listValidate(['23', '34', '39', '56']) }],
+        blanks: [{ label: 'Các số trên viết theo thứ tự từ bé đến lớn là:', answer: '23, 34, 39, 56', validate: listValidate(['23', '34', '39', '56']), tiles: ['39', '23', '56', '34'] }],
       },
       {
         type: 'fill', section: 'Tiết 1',

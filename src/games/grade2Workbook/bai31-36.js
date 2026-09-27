@@ -272,9 +272,9 @@ export const BAI_31_36 = [
         type: 'fill', section: 'Tiết 1',
         q: '2. (Lọ A: 7 + 4; lọ B: 9 + 6; lọ C: 8 + 5; lọ D: 6 + 6 — các bông hoa đã nối ở câu a.)',
         blanks: [
-          { label: 'b) Viết tên các lọ hoa theo thứ tự kết quả phép tính ở mỗi lọ hoa từ bé đến lớn: A, ...', answer: 'D, C, B', validate: letterOrderValidate(['D', 'C', 'B'], 'A') },
-          { label: 'c) Tô màu đỏ vào lọ hoa nối với nhiều bông hoa nhất, màu xanh vào lọ hoa nối với ít bông hoa nhất.<br>Lọ tô màu đỏ là lọ ...', answer: 'C', validate: letterOrderValidate(['C']) },
-          { label: 'Lọ tô màu xanh là lọ ...', answer: 'A', validate: letterOrderValidate(['A']) },
+          { label: 'b) Viết tên các lọ hoa theo thứ tự kết quả phép tính ở mỗi lọ hoa từ bé đến lớn: A, ...', answer: 'D, C, B', validate: letterOrderValidate(['D', 'C', 'B'], 'A'), tiles: ['B', 'C', 'D'] },
+          { label: 'c) Tô màu đỏ vào lọ hoa nối với nhiều bông hoa nhất, màu xanh vào lọ hoa nối với ít bông hoa nhất.<br>Lọ tô màu đỏ là lọ ...', answer: 'C', validate: letterOrderValidate(['C']), tiles: ['A', 'B', 'C', 'D'], tileOne: true },
+          { label: 'Lọ tô màu xanh là lọ ...', answer: 'A', validate: letterOrderValidate(['A']), tiles: ['A', 'B', 'C', 'D'], tileOne: true },
         ],
         hints: ['Kết quả: A = 11, B = 15, C = 13, D = 12.', 'Đếm số bông hoa nối với mỗi lọ: lọ C có 4 bông, lọ A có 2 bông.'],
       },
