@@ -1793,6 +1793,21 @@
 .adm-who small { display: block; color: var(--text-light); font-size: 0.8rem; }
 .adm-avatar { width: 32px; height: 32px; flex: 0 0 32px; font-size: 0.9rem; }
 
+/* Bạn ảo của bảng xếp hạng: nền tím nhạt + nhãn "Ảo". */
+.adm-table tr.adm-fake td { background: #f5f0ff; }
+.adm-card.adm-fake { background: #f5f0ff; border-color: #d9c8ff; }
+.adm-fake-tag {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #7c3aed;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
 .adm-cards { display: none; flex-direction: column; gap: 8px; }
 
 .adm-card {

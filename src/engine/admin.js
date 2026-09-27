@@ -8,12 +8,16 @@
  * Bé đăng nhập trước khi có sổ đăng ký chỉ có ở profiles/leaderboard: vẫn được đếm,
  * nhưng chưa có email và ngày đăng ký cho tới lần mở app tiếp theo.
  *
+ * Thêm các bạn ảo của bảng xếp hạng (fake: true) để admin thấy đúng bảng bé đang thấy;
+ * trang admin tô màu khác và không đếm vào số liệu thống kê.
+ *
  * Quyền đọc do firestore.rules quyết định (isAdmin) — danh sách email dưới đây chỉ để
  * ẩn/hiện trang, phải giữ khớp với rules.
  */
 
 import { getCurrentUser } from './auth.js';
 import { firebaseSession } from './leaderboard.js';
+import { castStudents, makeLaunch } from './leaderboardCast.js';
 
 export const ADMIN_EMAILS = ['nguyencongnam506@gmail.com'];
 
@@ -25,7 +29,7 @@ export function isAdminUser() {
 const toMs = (ts) => (ts?.toMillis ? ts.toMillis() : 0);
 
 /**
- * @returns {Promise<Array<{ uid, email, name, nickname, avatar, grade, stars, createdAt, lastSeenAt, registered }>>}
+ * @returns {Promise<Array<{ uid, email, name, nickname, avatar, grade, stars, createdAt, lastSeenAt, registered, fake? }>>}
  *   Ném lỗi 'need-connect' nếu cần bấm kết nối Firebase.
  */
 export async function fetchStudents() {
@@ -35,6 +39,11 @@ export async function fetchStudents() {
   const [users, profiles, board] = await Promise.all(
     ['users', 'profiles', 'leaderboard'].map(c => fs.getDocs(fs.collection(db, c))),
   );
+  // Ảnh chụp khởi động bạn ảo từng lớp (engine/leaderboardCast.js); lớp chưa có thì chụp tạm.
+  const launches = new Map();
+  try {
+    (await fs.getDocs(fs.collection(db, 'castLaunch'))).forEach(d => launches.set(d.id, d.data()));
+  } catch { /* luật chưa deploy — dùng ảnh chụp tạm */ }
 
   const byUid = new Map();
   const row = (uid) => {
@@ -71,5 +80,7 @@ export async function fetchStudents() {
     r.lastSeenAt = Math.max(r.lastSeenAt, toMs(b.updatedAt));
   });
 
-  return [...byUid.values()];
+  const realRows = board.docs.map(d => d.data());
+  const launchOf = (g) => launches.get(`g${g}`) || makeLaunch(realRows.filter(r => r.grade === g), g);
+  return [...byUid.values(), ...castStudents(launchOf)];
 }

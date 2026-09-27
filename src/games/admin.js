@@ -1,6 +1,7 @@
 /**
  * Trang admin (mở bằng #admin), ba tab:
  *   Học sinh — bao nhiêu học sinh đã đăng ký, mới đăng ký / hoạt động gần đây, chia theo lớp, danh sách chi tiết.
+ *              Bạn ảo của bảng xếp hạng (fake) có trong danh sách với màu riêng, không tính vào số liệu.
  *   Đánh giá — xem đánh giá ứng dụng, trả lời (hiện công khai dưới đánh giá) hoặc xoá.
  *   Giọng đọc — các máy không có giọng đọc tiếng Việt (sách Tiền tiểu học): trình duyệt, thiết bị gì.
  * Chỉ tài khoản trong ADMIN_EMAILS vào được (Firestore rules chặn phần còn lại).
@@ -36,8 +37,14 @@ const SORTS = [
   { id: 'stars', label: 'Nhiều sao nhất', key: (r) => r.stars },
 ];
 
+const KINDS = [
+  { id: 'all', label: 'Thật + ảo', test: () => true },
+  { id: 'real', label: 'Chỉ học sinh thật', test: (r) => !r.fake },
+  { id: 'fake', label: 'Chỉ bạn ảo', test: (r) => r.fake },
+];
+
 export function render(app, onBack) {
-  const state = { tab: 'students', rows: null, search: '', grade: 'all', sort: 'created', page: 1,
+  const state = { tab: 'students', rows: null, search: '', grade: 'all', sort: 'created', kind: 'all', page: 1,
     reviews: null, rvFilter: 'all', replying: null, voice: null, vcFilter: 'open' };
 
   preloadAuth();
@@ -150,19 +157,20 @@ export function render(app, onBack) {
 
   // ── Vẽ ────────────────────────────────────────────────────────────────────
   function drawAll() {
-    const rows = state.rows;
+    const all = state.rows;
+    const rows = all.filter(r => !r.fake); // số liệu chỉ tính học sinh thật
+    const fakes = all.length - rows.length;
     const today = startOfDay(Date.now());
     const since = (days) => today - (days - 1) * DAY;
     const count = (fn) => rows.filter(fn).length;
     const tiles = [
-      { label: 'Tổng số học sinh', value: rows.length, note: `${count(r => r.registered)} có email` },
+      { label: 'Tổng số học sinh', value: rows.length, note: `${count(r => r.registered)} có email${fakes ? ` · +${fakes} bạn ảo` : ''}` },
       { label: 'Đăng ký hôm nay', value: count(r => r.createdAt >= today) },
       { label: 'Đăng ký 7 ngày', value: count(r => r.createdAt >= since(7)) },
       { label: 'Đăng ký 30 ngày', value: count(r => r.createdAt >= since(30)) },
       { label: 'Hoạt động hôm nay', value: count(r => r.lastSeenAt >= today) },
       { label: 'Hoạt động 7 ngày', value: count(r => r.lastSeenAt >= since(7)) },
     ];
-    const gradeCounts = [PRESCHOOL, 1, 2, 3, 4, 5, 0].map(g => ({ g, n: count(r => (r.grade || 0) === g) }));
 
     body.innerHTML = `
       <div class="adm-tiles">
@@ -181,27 +189,25 @@ export function render(app, onBack) {
 
       <section class="lb-card adm-section">
         <h2 class="adm-h2">Danh sách học sinh</h2>
-        <div class="lb-chips adm-chips">
-          <button type="button" class="lb-chip" data-grade="all">Tất cả <span class="lb-chip-count">${rows.length}</span></button>
-          ${gradeCounts.filter(x => x.n || x.g).map(x => `
-            <button type="button" class="lb-chip" data-grade="${x.g}">${gradeLabel(x.g)} <span class="lb-chip-count">${x.n}</span></button>`).join('')}
-        </div>
+        <div class="lb-chips adm-chips" id="adm-grades"></div>
         <div class="adm-controls">
           <input type="search" class="adm-input" id="adm-search" placeholder="Tìm theo email, tên, biệt danh…" value="${escapeHtml(state.search)}">
           <select class="adm-input adm-select" id="adm-sort" aria-label="Sắp xếp">
             ${SORTS.map(s => `<option value="${s.id}"${s.id === state.sort ? ' selected' : ''}>${s.label}</option>`).join('')}
           </select>
+          ${fakes ? `<select class="adm-input adm-select" id="adm-kind" aria-label="Loại học sinh">
+            ${KINDS.map(k => `<option value="${k.id}"${k.id === state.kind ? ' selected' : ''}>${k.label}</option>`).join('')}
+          </select>` : ''}
           <button type="button" class="btn btn-ghost adm-csv" id="adm-csv">⬇️ CSV</button>
         </div>
         <div id="adm-list"></div>
       </section>
     `;
 
-    body.querySelectorAll('.lb-chip').forEach(c => {
-      c.onclick = () => { state.grade = c.dataset.grade; state.page = 1; drawList(); };
-    });
     body.querySelector('#adm-search').oninput = (e) => { state.search = e.target.value; state.page = 1; drawList(); };
     body.querySelector('#adm-sort').onchange = (e) => { state.sort = e.target.value; state.page = 1; drawList(); };
+    const kindSel = body.querySelector('#adm-kind');
+    if (kindSel) kindSel.onchange = (e) => { state.kind = e.target.value; state.page = 1; drawList(); };
     body.querySelector('#adm-csv').onclick = () => downloadCsv(filtered());
     wireChart();
     drawList();
@@ -265,14 +271,32 @@ export function render(app, onBack) {
   function filtered() {
     const q = state.search.trim().toLowerCase();
     const sortKey = SORTS.find(s => s.id === state.sort).key;
+    const kind = KINDS.find(k => k.id === state.kind).test;
     return state.rows
+      .filter(kind)
       .filter(r => state.grade === 'all' || String(r.grade || 0) === state.grade)
       .filter(r => !q || [r.email, r.name, r.nickname].some(v => v.toLowerCase().includes(q)))
       .sort((a, b) => sortKey(b) - sortKey(a));
   }
 
+  /** Chip lớp: đếm theo loại (thật/ảo) đang chọn. */
+  function drawGrades() {
+    const kind = KINDS.find(k => k.id === state.kind).test;
+    const rows = state.rows.filter(kind);
+    const counts = [PRESCHOOL, 1, 2, 3, 4, 5, 0].map(g => ({ g, n: rows.filter(r => (r.grade || 0) === g).length }));
+    const box = body.querySelector('#adm-grades');
+    box.innerHTML = `
+      <button type="button" class="lb-chip" data-grade="all">Tất cả <span class="lb-chip-count">${rows.length}</span></button>
+      ${counts.filter(x => x.n || x.g).map(x => `
+        <button type="button" class="lb-chip" data-grade="${x.g}">${gradeLabel(x.g)} <span class="lb-chip-count">${x.n}</span></button>`).join('')}`;
+    box.querySelectorAll('.lb-chip').forEach(c => {
+      c.classList.toggle('is-active', c.dataset.grade === state.grade);
+      c.onclick = () => { state.grade = c.dataset.grade; state.page = 1; drawList(); };
+    });
+  }
+
   function drawList() {
-    body.querySelectorAll('.lb-chip').forEach(c => c.classList.toggle('is-active', c.dataset.grade === state.grade));
+    drawGrades();
     const list = body.querySelector('#adm-list');
     const rows = filtered();
     const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
@@ -292,9 +316,9 @@ export function render(app, onBack) {
             <th>Học sinh</th><th>Email</th><th>Lớp</th><th class="adm-num">Sao</th><th>Đăng ký</th><th>Lần cuối</th>
           </tr></thead>
           <tbody>${items.map(r => `
-            <tr>
+            <tr${r.fake ? ' class="adm-fake"' : ''}>
               <td>${who(r)}</td>
-              <td class="adm-email">${r.email ? escapeHtml(r.email) : '<span class="adm-muted">chưa ghi nhận</span>'}</td>
+              <td class="adm-email">${r.email ? escapeHtml(r.email) : `<span class="adm-muted">${r.fake ? 'bạn ảo' : 'chưa ghi nhận'}</span>`}</td>
               <td>${gradeLabel(r.grade)}</td>
               <td class="adm-num">⭐ ${r.stars}</td>
               <td>${fmtDate(r.createdAt)}</td>
@@ -304,9 +328,9 @@ export function render(app, onBack) {
         </table>
       </div>
       <div class="adm-cards">${items.map(r => `
-        <div class="adm-card">
+        <div class="adm-card${r.fake ? ' adm-fake' : ''}">
           ${who(r)}
-          <div class="adm-card-email">${r.email ? escapeHtml(r.email) : '<span class="adm-muted">Email chưa ghi nhận</span>'}</div>
+          <div class="adm-card-email">${r.email ? escapeHtml(r.email) : `<span class="adm-muted">${r.fake ? 'Bạn ảo' : 'Email chưa ghi nhận'}</span>`}</div>
           <div class="adm-card-meta">
             <span>${gradeLabel(r.grade)}</span><span>⭐ ${r.stars}</span>
             <span>Đăng ký: ${fmtDate(r.createdAt)}</span><span>Lần cuối: ${fmtDate(r.lastSeenAt)}</span>
@@ -559,15 +583,16 @@ export function render(app, onBack) {
       ? `<img class="lb-avatar adm-avatar" src="${img}" alt="">`
       : `<span class="lb-avatar lb-avatar-fallback adm-avatar">${escapeHtml(label.charAt(0).toUpperCase())}</span>`;
     const sub = r.nickname && r.name && r.nickname !== r.name ? `<small>${escapeHtml(r.name)}</small>` : '';
-    return `<span class="adm-who">${avatar}<span><strong>${escapeHtml(label)}</strong>${sub}</span></span>`;
+    const tag = r.fake ? ' <span class="adm-fake-tag">Ảo</span>' : '';
+    return `<span class="adm-who">${avatar}<span><strong>${escapeHtml(label)}</strong>${tag}${sub}</span></span>`;
   }
 }
 
 function downloadCsv(rows) {
   const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
   const lines = [
-    ['Biệt danh', 'Tên Google', 'Email', 'Lớp', 'Sao', 'Ngày đăng ký', 'Lần cuối'],
-    ...rows.map(r => [r.nickname, r.name, r.email, r.grade ? gradeLabel(r.grade) : '', r.stars, fmtDate(r.createdAt), fmtDateTime(r.lastSeenAt)]),
+    ['Biệt danh', 'Tên Google', 'Email', 'Lớp', 'Sao', 'Ngày đăng ký', 'Lần cuối', 'Ảo'],
+    ...rows.map(r => [r.nickname, r.name, r.email, r.grade ? gradeLabel(r.grade) : '', r.stars, fmtDate(r.createdAt), fmtDateTime(r.lastSeenAt), r.fake ? 'x' : '']),
   ].map(l => l.map(cell).join(','));
   const blob = new Blob([`﻿${lines.join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');

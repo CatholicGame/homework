@@ -18,6 +18,7 @@
 import { getCurrentUser, getAccessToken, getStoredAccessToken } from './auth.js';
 import { getTotalStars, getStarsByGrade, getGradePeriodStars } from './stars.js';
 import { getProfile, NAME_MAX } from './profile.js';
+import { castRows, makeLaunch } from './leaderboardCast.js';
 
 // Cấu hình web app Firebase (công khai, không phải bí mật) — Project settings → Your apps.
 const firebaseConfig = {
@@ -301,7 +302,9 @@ let cache = null; // { at, grade, data }
  */
 export async function fetchLeaderboard({ force = false } = {}) {
   const grade = getProfile().grade || 0;
-  if (!force && cache && cache.grade === grade && Date.now() - cache.at < CACHE_MS) return cache.data;
+  if (!force && cache && cache.grade === grade && Date.now() - cache.at < CACHE_MS) {
+    return { ...cache.data, rows: [...cache.data.rows, ...castRows(grade, cache.launch)] };
+  }
   clearTimeout(pushTimer);
   const myUid = await pushNow(); // đảm bảo điểm mới nhất của mình có trên bảng
   if (!myUid) throw new Error('need-connect');
@@ -314,6 +317,40 @@ export async function fetchLeaderboard({ force = false } = {}) {
   ));
   const rows = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
   const data = { myUid, grade, rows };
-  cache = { at: Date.now(), grade, data };
-  return data;
+  const launch = await castLaunch(grade, rows);
+  cache = { at: Date.now(), grade, data, launch };
+  // Các bạn ảo tính lại mỗi lần (sao hôm nay tăng dần), không nằm trong cache Firestore.
+  return { ...data, rows: [...rows, ...castRows(grade, launch)] };
+}
+
+// ── Ảnh chụp khởi động của các bạn ảo ───────────────────────────────────────
+// `castLaunch/g{lớp}`: { start, top, updatedAt } — xem engine/leaderboardCast.js. Máy đầu tiên
+// mở bảng của một lớp chụp lại sao bé thật cao nhất lớp (trong transaction, nên hai máy cùng lúc
+// không ghi đè nhau); luật không cho sửa, nên mọi máy thấy cùng các bạn ảo mãi về sau.
+// Không đọc/ghi được (mất mạng, luật chưa deploy) thì dùng bản đã lưu trên máy.
+const CAST_LAUNCH = 'castLaunch';
+const launchStoreKey = (grade) => `tth_castlaunch_g${grade}`;
+
+async function castLaunch(grade, rows) {
+  let launch = null;
+  try {
+    const { db, fs } = await loadFirebase();
+    const ref = fs.doc(db, CAST_LAUNCH, `g${grade}`);
+    launch = await fs.runTransaction(db, async (tx) => {
+      const cur = await tx.get(ref);
+      if (cur.exists()) return cur.data();
+      const next = makeLaunch(rows, grade);
+      tx.set(ref, { ...next, updatedAt: fs.serverTimestamp() });
+      return next;
+    });
+  } catch (e) {
+    console.warn('[leaderboard] Không đồng bộ được ảnh chụp khởi động bạn ảo:', e?.code || e);
+  }
+  if (!launch) {
+    try { launch = JSON.parse(localStorage.getItem(launchStoreKey(grade))); } catch { /* ignore */ }
+  }
+  if (!launch) launch = makeLaunch(rows, grade);
+  const { start, top } = launch;
+  try { localStorage.setItem(launchStoreKey(grade), JSON.stringify({ start, top })); } catch { /* storage unavailable */ }
+  return { start, top };
 }

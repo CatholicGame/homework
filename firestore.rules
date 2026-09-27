@@ -62,6 +62,18 @@ service cloud.firestore {
       allow delete: if isOwner(uid);
     }
 
+    // Ảnh chụp khởi động các bạn ảo trên bảng xếp hạng (src/engine/leaderboardCast.js), mỗi lớp một bản
+    // `g{lớp}`: { start, top, updatedAt } — máy đầu tiên mở bảng của lớp ghi một lần, không ai sửa/xoá được,
+    // nên sao của bạn ảo chỉ tăng và mọi máy thấy như nhau.
+    match /castLaunch/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && id in ['g-1', 'g1', 'g2', 'g3', 'g4', 'g5']
+        && request.resource.data.keys().hasOnly(['start', 'top', 'updatedAt'])
+        && request.resource.data.start is string && request.resource.data.start.size() == 10
+        && request.resource.data.top is int && request.resource.data.top >= 0 && request.resource.data.top <= 20000
+        && request.resource.data.updatedAt == request.time;
+    }
+
     // Hồ sơ riêng của bé (trai/gái, avatar, tên, lớp) để máy khác cùng tài khoản không hỏi lại.
     // Chỉ chính bé đọc/ghi được.
     function validProfile(d) {
