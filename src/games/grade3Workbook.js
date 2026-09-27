@@ -4497,6 +4497,8 @@ export function renderWorkbook(app, onBack, cfg) {
   // Một ô viết nhiều dòng, kẻ ô ly như vở của bé; các dấu toán nằm cạnh để
   // chạm vào khi cần (bàn phím điện thoại khó tìm × và :).
   const SOLUTION_SYMBOLS = ['+', '−', '×', ':', '=', '(', ')', '.'];
+  // Bàn phím số cạnh ô viết — bé viết phép tính không cần bật bàn phím máy.
+  const SOLUTION_DIGITS = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0'];
 
   function renderSolutionBlock(q) {
     const text = solutionText[current];
@@ -4526,6 +4528,10 @@ export function renderWorkbook(app, onBack, cfg) {
             <div class="e3-oly e3-oly-mirror" aria-hidden="true"></div>
             <div class="e3-oly-dels"></div>
           </div>
+          <div class="e3-solution-numpad">
+            ${SOLUTION_DIGITS.map(d => `<button type="button" class="e3-sym-btn${d === '0' ? ' e3-num-zero' : ''}" data-sym="${d}">${d}</button>`).join('')}
+            <button type="button" class="e3-sym-btn e3-num-back" data-key="back" title="Xoá 1 chữ">⌫</button>
+          </div>
           <div class="e3-solution-toolbar">
             ${SOLUTION_SYMBOLS.map(s => `<button type="button" class="e3-sym-btn" data-sym="${s}">${s}</button>`).join('')}
           </div>
@@ -4541,6 +4547,14 @@ export function renderWorkbook(app, onBack, cfg) {
     input.value = input.value.slice(0, start) + text + input.value.slice(end);
     const pos = start + text.length;
     input.setSelectionRange(pos, pos);
+  }
+
+  function deleteBeforeCursor(input) {
+    let start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    if (start === end) start = Math.max(0, start - 1);
+    input.value = input.value.slice(0, start) + input.value.slice(end);
+    input.setSelectionRange(start, start);
   }
 
   // Ô viết tự cao thêm theo số dòng — bé không phải cuộn trong một ô nhỏ.
@@ -4608,7 +4622,8 @@ export function renderWorkbook(app, onBack, cfg) {
       // Giữ con trỏ trong ô viết (và bàn phím iPad không bị cụp xuống).
       btn.onpointerdown = (e) => e.preventDefault();
       btn.onclick = () => {
-        insertAtCursor(ta, btn.dataset.sym);
+        if (btn.dataset.key === 'back') deleteBeforeCursor(ta);
+        else insertAtCursor(ta, btn.dataset.sym);
         sync();
         ta.focus();
       };
@@ -5808,6 +5823,11 @@ function injectStyles() {
       .e3-oly::placeholder { color: #c4b5fd; font-weight: 500; }
       .e3-oly-readonly { min-height: 0; }
       .e3-sol-empty { font-size: 0.85rem; color: #94a3b8; font-style: italic; }
+      .e3-solution-numpad { display: grid; grid-template-columns: repeat(3, 2.3rem); gap: 0.35rem; flex-shrink: 0; padding-right: 0.5rem; border-right: 2px dashed #e2e8f0; }
+      .e3-solution-numpad .e3-sym-btn { color: #1d4ed8; }
+      .e3-solution-numpad .e3-num-zero { grid-column: span 2; width: auto; }
+      .e3-solution-numpad .e3-num-back { color: #b91c1c; }
+      @media (max-width: 600px) { .e3-solution-pad { flex-wrap: wrap; justify-content: flex-end; } .e3-solution-pad > .e3-oly-wrap { flex-basis: 100%; } }
       .e3-solution-toolbar { display: grid; grid-template-columns: repeat(2, 2.3rem); gap: 0.35rem; flex-shrink: 0; }
       .e3-sym-btn { width: 2.3rem; height: 2.3rem; border-radius: 0.5rem; border: 2px solid #e2e8f0; background: #fff; font-weight: 800; font-size: 1.1rem; cursor: pointer; color: #1e293b; font-family: inherit; touch-action: manipulation; }
       .e3-sym-btn:hover { border-color: #34D399; }
