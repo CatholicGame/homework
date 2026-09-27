@@ -13,16 +13,16 @@ import imgClock1 from '../assets/grade3-workbook/bai7_clock1.svg';
 import imgClock2 from '../assets/grade3-workbook/bai7_clock2.svg';
 import imgClock3 from '../assets/grade3-workbook/bai7_clock3.svg';
 import imgClock4 from '../assets/grade3-workbook/bai7_clock4.svg';
-import imgBai7Pattern from '../assets/grade3-workbook/bai7_ex1b_pattern.png';
+import imgBai7Pattern from '../assets/grade3-workbook/bai7_ex1b_pattern.svg';
 import imgBai7Triangle from '../assets/grade3-workbook/bai7_ex2_triangle.svg';
 import imgBai7Trapezoid from '../assets/grade3-workbook/bai7_ex5_trapezoid.svg';
-import imgObjBall from '../assets/grade3-workbook/bai7_obj_ball.png';
-import imgObjBowl from '../assets/grade3-workbook/bai7_obj_bowl.png';
-import imgObjBox from '../assets/grade3-workbook/bai7_obj_box.png';
-import imgObjCup from '../assets/grade3-workbook/bai7_obj_cup.png';
-import imgObjWardrobe from '../assets/grade3-workbook/bai7_obj_wardrobe.png';
-import imgScales from '../assets/grade3-workbook/bai7t2_ex1_scales.png';
-import imgAlarmClock from '../assets/grade3-workbook/bai7t2_ex2_clock.png';
+import imgObjBall from '../assets/grade3-workbook/bai7_obj_ball.svg';
+import imgObjBowl from '../assets/grade3-workbook/bai7_obj_bowl.svg';
+import imgObjBox from '../assets/grade3-workbook/bai7_obj_box.svg';
+import imgObjCup from '../assets/grade3-workbook/bai7_obj_cup.svg';
+import imgObjWardrobe from '../assets/grade3-workbook/bai7_obj_wardrobe.svg';
+import imgScales from '../assets/grade3-workbook/bai7t2_ex1_scales.svg';
+import imgAlarmClock from '../assets/grade3-workbook/bai7t2_ex2_clock.svg';
 import imgBai8Flowchart from '../assets/grade3-workbook/bai8_ex5_flowchart.svg';
 import imgBai8Pyramid from '../assets/grade3-workbook/bai8_ex5_pyramid.svg';
 import imgBai8Circles from '../assets/grade3-workbook/bai8_ex5b_circles.svg';
@@ -37,7 +37,7 @@ import imgBai14T2Circles2a from '../assets/grade3-workbook/bai14_t2_ex2a_circles
 import imgBai14T2Circles2b from '../assets/grade3-workbook/bai14_t2_ex2b_circles.svg';
 import imgBai14T2Shapes3 from '../assets/grade3-workbook/bai14_t2_ex3_shapes.svg';
 import imgBai14T2Shapes4 from '../assets/grade3-workbook/bai14_t2_ex4_shapes.svg';
-import imgBai14T2FishFlowers from '../assets/grade3-workbook/bai14_t2_ex5_fish_flowers.png';
+import imgBai14T2FishFlowers from '../assets/grade3-workbook/bai14_t2_ex5_fish_flowers.svg';
 import imgBai15Clouds from '../assets/grade3-workbook/bai15_ex2_clouds.svg';
 import imgBai15Flowchart from '../assets/grade3-workbook/bai15_ex3_flowchart.svg';
 import imgBai15Triangles from '../assets/grade3-workbook/bai15_ex5_triangles.svg';
@@ -49,9 +49,9 @@ import imgBai16Segments2 from '../assets/grade3-workbook/bai16_ex2_segments.svg'
 import imgBai16Trapezoid from '../assets/grade3-workbook/bai16_ex3_trapezoid.svg';
 import imgBai16NumberLine from '../assets/grade3-workbook/bai16_ex4_numberline.svg';
 import imgBai16T2Ruler from '../assets/grade3-workbook/bai16_t2_ex1_ruler.svg';
-import imgBai16T2Kangaroo from '../assets/grade3-workbook/bai16_t2_ex3_kangaroo.png';
+import imgBai16T2Kangaroo from '../assets/grade3-workbook/bai16_t2_ex3_kangaroo.svg';
 import imgBai17Circles from '../assets/grade3-workbook/bai17_q1_circles.svg';
-import imgBai17Bees from '../assets/grade3-workbook/bai17_q3_bees.png';
+import imgBai17Bees from '../assets/grade3-workbook/bai17_q3_bees.svg';
 import imgBai18Angles from '../assets/grade3-workbook/bai18_q1_angles.svg';
 import imgBai18Shapes from '../assets/grade3-workbook/bai18_q3_shapes.svg';
 import imgBai19Shape1 from '../assets/grade3-workbook/bai19_q1_shape1.svg';
@@ -61,18 +61,18 @@ import imgBai19Trapezoid from '../assets/grade3-workbook/bai19_q2_trapezoid.svg'
 import imgBai19T2Q1aShapes from '../assets/grade3-workbook/bai19_t2_q1a_shapes.svg';
 import imgBai19T2Q1bShapes from '../assets/grade3-workbook/bai19_t2_q1b_shapes.svg';
 import imgBai19T2Colored from '../assets/grade3-workbook/bai19_t2_q2_colored.svg';
-import imgBai19T2Tiles from '../assets/grade3-workbook/bai19_t2_q4_tiles.png';
-import imgBai19T3Ant from '../assets/grade3-workbook/bai19_t3_q1_ant.png';
-import imgBai19T3Snail from '../assets/grade3-workbook/bai19_t3_q2_snail.png';
+import imgBai19T2Tiles from '../assets/grade3-workbook/bai19_t2_q4_tiles.svg';
+import imgBai19T3Ant from '../assets/grade3-workbook/bai19_t3_q1_ant.svg';
+import imgBai19T3Snail from '../assets/grade3-workbook/bai19_t3_q2_snail.svg';
 import imgBai20Envelope from '../assets/grade3-workbook/bai20_q2_envelope.svg';
 import imgBai21Cube from '../assets/grade3-workbook/bai21_q1_cube.svg';
 import imgBai21Eraser from '../assets/grade3-workbook/bai21_q2_eraser.svg';
 import imgBai21Blocks from '../assets/grade3-workbook/bai21_q3_blocks.svg';
 import imgBai21Lantern from '../assets/grade3-workbook/bai21_q4_lantern.svg';
-import imgBai21Artists from '../assets/grade3-workbook/bai21_q5_artists.png';
+import imgBai21Artists from '../assets/grade3-workbook/bai21_q5_artists.svg';
 import imgBai22T1Rects from '../assets/grade3-workbook/bai22_t1_q1_rects.svg';
 import imgBai22T1Circles from '../assets/grade3-workbook/bai22_t1_q2_circles.svg';
-import imgBai22T1Pond from '../assets/grade3-workbook/bai22_t1_q3_pond.png';
+import imgBai22T1Pond from '../assets/grade3-workbook/bai22_t1_q3_pond.svg';
 import imgBai22T2Figure from '../assets/grade3-workbook/bai22_t2_q1_figure.svg';
 import imgBai22T2Cube from '../assets/grade3-workbook/bai22_t2_q2_cube.svg';
 import imgBai22T2ClocksA from '../assets/grade3-workbook/bai22_t2_q3a_clocks.svg';
@@ -82,18 +82,18 @@ import imgBai26T2Divisions from '../assets/grade3-workbook/bai26_t2_q2_divisions
 import imgBai28T1Polyline from '../assets/grade3-workbook/bai28_t1_q2_polyline.svg';
 import imgBai28T2Summary from '../assets/grade3-workbook/bai28_t2_q3_summary.svg';
 import imgBai30T1Rulers from '../assets/grade3-workbook/bai30_t1_q2_rulers.svg';
-import imgBai31Scales from '../assets/grade3-workbook/bai31_q1_scales.png';
-import imgBai31Dials from '../assets/grade3-workbook/bai31_q2_dials.png';
-import imgBai32Bottle from '../assets/grade3-workbook/bai32_q1_bottle.png';
-import imgBai32Flask from '../assets/grade3-workbook/bai32_q2_flask.png';
+import imgBai31Scales from '../assets/grade3-workbook/bai31_q1_scales.svg';
+import imgBai31Dials from '../assets/grade3-workbook/bai31_q2_dials.svg';
+import imgBai32Bottle from '../assets/grade3-workbook/bai32_q1_bottle.svg';
+import imgBai32Flask from '../assets/grade3-workbook/bai32_q2_flask.svg';
 import imgBai34T2Thermometers from '../assets/grade3-workbook/bai34_t2_q1_thermometers.svg';
-import imgBai34T2Bike from '../assets/grade3-workbook/bai34_t2_q2_bike.png';
-import imgBai34T2Laptop from '../assets/grade3-workbook/bai34_t2_q2_laptop.png';
-import imgBai34T2Pen from '../assets/grade3-workbook/bai34_t2_q2_pen.png';
-import imgBai34T2Cups from '../assets/grade3-workbook/bai34_t2_q3_cups.png';
-import imgBai35T1Scales from '../assets/grade3-workbook/bai35_t1_q2_scales.png';
-import imgBai35T2Thermometer from '../assets/grade3-workbook/bai35_t2_q2_thermometer.png';
-import imgBai35T2Gifts from '../assets/grade3-workbook/bai35_t2_q4_gifts.png';
+import imgBai34T2Bike from '../assets/grade3-workbook/bai34_t2_q2_bike.svg';
+import imgBai34T2Laptop from '../assets/grade3-workbook/bai34_t2_q2_laptop.svg';
+import imgBai34T2Pen from '../assets/grade3-workbook/bai34_t2_q2_pen.svg';
+import imgBai34T2Cups from '../assets/grade3-workbook/bai34_t2_q3_cups.svg';
+import imgBai35T1Scales from '../assets/grade3-workbook/bai35_t1_q2_scales.svg';
+import imgBai35T2Thermometer from '../assets/grade3-workbook/bai35_t2_q2_thermometer.svg';
+import imgBai35T2Gifts from '../assets/grade3-workbook/bai35_t2_q4_gifts.svg';
 import imgBai37T2Divisions from '../assets/grade3-workbook/bai37_t2_q3_divisions.svg';
 import imgBai37T2Hexagons from '../assets/grade3-workbook/bai37_t2_q4_hexagons.svg';
 import imgBai37T3Archery from '../assets/grade3-workbook/bai37_t3_q4_archery.svg';
@@ -101,16 +101,16 @@ import imgBai39T1Segments from '../assets/grade3-workbook/bai39_t1_q2_segments.s
 import imgBai41T1Calcs from '../assets/grade3-workbook/bai41_t1_q3_calcs.svg';
 import imgBai41T2Calcs from '../assets/grade3-workbook/bai41_t2_q3_calcs.svg';
 import imgBai41T2Puzzles from '../assets/grade3-workbook/bai41_t2_q5_puzzles.svg';
-import imgBai41T3Strawberries from '../assets/grade3-workbook/bai41_t3_q4_strawberries.png';
+import imgBai41T3Strawberries from '../assets/grade3-workbook/bai41_t3_q4_strawberries.svg';
 import imgBai41T3Puzzle from '../assets/grade3-workbook/bai41_t3_q5_puzzle.svg';
 import imgBai43T1Figure from '../assets/grade3-workbook/bai43_t1_q1_figure.svg';
 import imgBai43T1Circle from '../assets/grade3-workbook/bai43_t1_q3_circle.svg';
-import imgBai43T1Castle from '../assets/grade3-workbook/bai43_t1_q4_castle.png';
+import imgBai43T1Castle from '../assets/grade3-workbook/bai43_t1_q4_castle.svg';
 import imgBai43T1Box from '../assets/grade3-workbook/bai43_t1_q5_box.svg';
-import imgBai43T2Figures from '../assets/grade3-workbook/bai43_t2_q1_figures.png';
-import imgBai43T2Objects from '../assets/grade3-workbook/bai43_t2_q2_objects.png';
+import imgBai43T2Figures from '../assets/grade3-workbook/bai43_t2_q1_figures.svg';
+import imgBai43T2Objects from '../assets/grade3-workbook/bai43_t2_q2_objects.svg';
 import imgBai44T1Rect from '../assets/grade3-workbook/bai44_t1_q3_rect.svg';
-import imgBai44T2Figures from '../assets/grade3-workbook/bai44_t2_q3_figures.png';
+import imgBai44T2Figures from '../assets/grade3-workbook/bai44_t2_q3_figures.svg';
 import {
   awardStars, getQuestionStars, earnedFor, getTotalStars,
   recordWrong, wrongStarsText, renderStarRule, renderQuestionStars, refreshQuestionStars,
@@ -919,7 +919,7 @@ const UNITS = [
       {
         type: 'choice', section: 'Tiết 1', img: imgBai7Pattern,
         q: '1b. Khoanh vào chữ đặt trước câu trả lời đúng.\nHình thích hợp đặt vào dấu "?" là:',
-        options: ['A. Khối trụ', 'B. Khối lập phương', 'C. Khối cầu', 'D. Khối lập phương'], answer: 2,
+        options: ['A. Khối trụ', 'B. Khối hộp chữ nhật', 'C. Khối cầu', 'D. Khối lập phương'], answer: 2,
         hints: ['Các hình lặp lại theo chu kì "trụ, lập phương, cầu, lập phương" — tìm vị trí của dấu "?" trong chu kì đó.'],
       },
       {

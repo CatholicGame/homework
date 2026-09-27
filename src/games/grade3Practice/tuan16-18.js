@@ -6,19 +6,19 @@
 import {
   blank, exprValidate, dsValidate, letterValidate, unitValidate, nameSetValidate,
 } from '../grade3Workbook.js';
-import imgT16T1Q3Scale from '../../assets/grade3-practice/tuan16_t1_q3_scale.png';
+import imgT16T1Q3Scale from '../../assets/grade3-practice/tuan16_t1_q3_scale.svg';
 import imgT17T3Q1Shapes from '../../assets/grade3-practice/tuan17_t3_q1_shapes.svg';
-import imgT18T1Q2Scale from '../../assets/grade3-practice/tuan18_t1_q2_scale.png';
+import imgT18T1Q2Scale from '../../assets/grade3-practice/tuan18_t1_q2_scale.svg';
 import imgT18T1Q3Square from '../../assets/grade3-practice/tuan18_t1_q3_square.svg';
 import imgT18T1Q4Rect from '../../assets/grade3-practice/tuan18_t1_q4_rect.svg';
 import imgT18T2Q2Angles from '../../assets/grade3-practice/tuan18_t2_q2_angles.svg';
-import imgT18T2Q4Scale from '../../assets/grade3-practice/tuan18_t2_q4_scale.png';
-import imgT18T3Q1Groups from '../../assets/grade3-practice/tuan18_t3_q1_groups.png';
-import imgT18T3Q2Ant from '../../assets/grade3-practice/tuan18_t3_q2_ant.png';
+import imgT18T2Q4Scale from '../../assets/grade3-practice/tuan18_t2_q4_scale.svg';
+import imgT18T3Q1Groups from '../../assets/grade3-practice/tuan18_t3_q1_groups.svg';
+import imgT18T3Q2Ant from '../../assets/grade3-practice/tuan18_t3_q2_ant.svg';
 import imgKtQ1Figures from '../../assets/grade3-practice/kthk1_q1_figures.svg';
-import imgKtQ2Octopus from '../../assets/grade3-practice/kthk1_q2_octopus.png';
+import imgKtQ2Octopus from '../../assets/grade3-practice/kthk1_q2_octopus.svg';
 import imgKtQ3Square from '../../assets/grade3-practice/kthk1_q3_square.svg';
-import imgKtQ5Vegetables from '../../assets/grade3-practice/kthk1_q5_vegetables.png';
+import imgKtQ5Vegetables from '../../assets/grade3-practice/kthk1_q5_vegetables.svg';
 
 // Tuần 16 Tiết 2 Q4: "☐ : ☐ = ☐ : ☐" with four different numbers chosen from
 // 2, 3, 200, 250, 300. Any true arrangement is accepted (300 : 3 = 200 : 2 or

@@ -7,7 +7,7 @@ import {
   angleGroupValidate, stripVN, mau,
 } from '../grade3Workbook.js';
 import imgT6T2Circles from '../../assets/grade3-practice/tuan6_t2_q2_circles.svg';
-import imgT6T2Fruits from '../../assets/grade3-practice/tuan6_t2_q4_fruits.png';
+import imgT6T2Fruits from '../../assets/grade3-practice/tuan6_t2_q4_fruits.svg';
 import imgT6T3Shapes from '../../assets/grade3-practice/tuan6_t3_q2_shapes.svg';
 import imgT6T3Grid from '../../assets/grade3-practice/tuan6_t3_q4_grid.svg';
 import imgT7T1Shapes from '../../assets/grade3-practice/tuan7_t1_q4_shapes.svg';

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 580" width="380" height="580">
+<clipPath id="bai7_obj_cup_cup1"><path d="M85.0,110 V480 A100.0,30 0 0 0 285.0,480 V110 Z"/></clipPath>
+<path d="M85.0,110 V480 A100.0,30 0 0 0 285.0,480 V110 Z" fill="#F4A7B9"/>
+<g clip-path="url(#bai7_obj_cup_cup1)">
+<path d="M75.0,230 q25,-18 50,0 t50,0 t50,0 t50,0 t50,0" fill="none" stroke="#fff" stroke-width="10" opacity=".85"/>
+<path d="M75.0,320 q25,-18 50,0 t50,0 t50,0 t50,0 t50,0" fill="none" stroke="#fff" stroke-width="10" opacity=".85"/>
+<path d="M75.0,410 q25,-18 50,0 t50,0 t50,0 t50,0 t50,0" fill="none" stroke="#fff" stroke-width="10" opacity=".85"/>
+<rect x="103.0" y="140" width="16" height="330" rx="8" fill="#fff" opacity=".45"/>
+</g>
+<path d="M85.0,110 V480 A100.0,30 0 0 0 285.0,480 V110 Z" fill="none" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/>
+<ellipse cx="185" cy="110" rx="100.0" ry="30" fill="#B78090" stroke="#3F3A40" stroke-width="5"/>
+<ellipse cx="185" cy="116" rx="86.0" ry="20" fill="#986C7C"/>
+</svg>

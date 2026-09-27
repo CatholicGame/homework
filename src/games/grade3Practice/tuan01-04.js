@@ -5,11 +5,11 @@ import {
   blank, soDoc, textValidate, listValidate, dsValidate, unitValidate,
 } from '../grade3Workbook.js';
 import imgT1T2Q4 from '../../assets/grade3-practice/tuan1_t2_q4_flowchart.svg';
-import imgT3T2Q1a from '../../assets/grade3-practice/tuan3_t2_q1a_shapes.png';
+import imgT3T2Q1a from '../../assets/grade3-practice/tuan3_t2_q1a_shapes.svg';
 import imgT3T2Q1b from '../../assets/grade3-practice/tuan3_t2_q1b_points.svg';
 import imgT3T2Q1c from '../../assets/grade3-practice/tuan3_t2_q1c_clocks.svg';
 import imgT3T2Q3 from '../../assets/grade3-practice/tuan3_t2_q3a_figure.svg';
-import imgT3T2Q4 from '../../assets/grade3-practice/tuan3_t2_q4_polyline.png';
+import imgT3T2Q4 from '../../assets/grade3-practice/tuan3_t2_q4_polyline.svg';
 import imgT4T1Q4 from '../../assets/grade3-practice/tuan4_t1_q4_flowchart.svg';
 import imgT4T2Q4 from '../../assets/grade3-practice/tuan4_t2_q4_triangle.svg';
 import imgT4T3Q4 from '../../assets/grade3-practice/tuan4_t3_q4_polyline.svg';

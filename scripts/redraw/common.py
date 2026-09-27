@@ -36,9 +36,9 @@ def text(x, y, s, size=18, weight=600, fill=INK, anchor='middle', extra=''):
             f'font-weight="{weight}" font-size="{size}" fill="{fill}"{extra}>{s}</text>')
 
 
-def save(name, w, h, parts, bg=None):
-    """Ghi src/assets/grade2-workbook/<name>.svg, nhúng font, chụp _preview/<name>.png."""
-    out = ASSETS / f'{name}.svg'
+def save(name, w, h, parts, bg=None, folder=None):
+    """Ghi src/assets/<folder, mặc định grade2-workbook>/<name>.svg, nhúng font, chụp _preview/<name>.png."""
+    out = (ASSETS.parent / folder if folder else ASSETS) / f'{name}.svg'
     body = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}">']
     if bg:
         body.append(f'<rect width="{w}" height="{h}" fill="{bg}"/>')

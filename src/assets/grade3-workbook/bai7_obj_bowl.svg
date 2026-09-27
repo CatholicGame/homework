@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 400" width="540" height="400">
+<clipPath id="bai7_objs_tin1"><path d="M50,110 V320 A220,60 0 0 0 490,320 V110 Z"/></clipPath>
+<path d="M50,110 V320 A220,60 0 0 0 490,320 V110 Z" fill="#6CCFB5"/>
+<g clip-path="url(#bai7_objs_tin1)">
+<path d="M50,110 L50,180.0 L72,212.9 L94,208.8 L116,226.3 L138,218.4 L160,233.6 L182,224.0 L204,237.8 L226,227.0 L248,239.8 L270,228.0 L292,239.8 L314,227.0 L336,237.8 L358,224.0 L380,233.6 L402,218.4 L424,226.3 L446,208.8 L468,212.9 L490,180.0 L490,110 Z" fill="#FFD166"/>
+<rect x="50" y="300" width="440" height="100" fill="#62B5A1"/>
+<circle cx="120" cy="250" r="22" fill="#fff" opacity=".85"/>
+<circle cx="120" cy="250" r="9" fill="#F7A1C4"/>
+<circle cx="220" cy="262" r="22" fill="#fff" opacity=".85"/>
+<circle cx="220" cy="262" r="9" fill="#F7A1C4"/>
+<circle cx="320" cy="262" r="22" fill="#fff" opacity=".85"/>
+<circle cx="320" cy="262" r="9" fill="#F7A1C4"/>
+<circle cx="420" cy="250" r="22" fill="#fff" opacity=".85"/>
+<circle cx="420" cy="250" r="9" fill="#F7A1C4"/>
+</g>
+<path d="M50,110 V320 A220,60 0 0 0 490,320 V110 Z" fill="none" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/>
+<path d="M40,110 v26 A230,64 0 0 0 500,136 v-26" fill="#65BEA8" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/>
+<ellipse cx="270" cy="110" rx="230" ry="64" fill="#AEE5D6" stroke="#3F3A40" stroke-width="5"/>
+<ellipse cx="270" cy="110" rx="190" ry="46" fill="none" stroke="#fff" stroke-width="5" opacity=".7"/>
+</svg>

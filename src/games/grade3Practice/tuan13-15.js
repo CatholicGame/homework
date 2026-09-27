@@ -5,22 +5,22 @@ import {
   dsValidate, divBlank, exprValidate, letterValidate, phraseValidate,
   phraseOrderValidate, setValidate, stripVN, tempValidate, unitValidate,
 } from '../grade3Workbook.js';
-import imgT13T1Scales from '../../assets/grade3-practice/tuan13_t1_q2_scales.png';
-import imgT13Bird from '../../assets/grade3-practice/tuan13_t1_q4_bird.png';
-import imgT13Pig from '../../assets/grade3-practice/tuan13_t1_q4_pig.png';
-import imgT13Dog from '../../assets/grade3-practice/tuan13_t1_q4_dog.png';
-import imgT13Buffalo from '../../assets/grade3-practice/tuan13_t1_q4_buffalo.png';
-import imgT13T2Jug from '../../assets/grade3-practice/tuan13_t2_q1_jug.png';
-import imgT13T3Coffee from '../../assets/grade3-practice/tuan13_t3_q4_coffee.png';
+import imgT13T1Scales from '../../assets/grade3-practice/tuan13_t1_q2_scales.svg';
+import imgT13Bird from '../../assets/grade3-practice/tuan13_t1_q4_bird.svg';
+import imgT13Pig from '../../assets/grade3-practice/tuan13_t1_q4_pig.svg';
+import imgT13Dog from '../../assets/grade3-practice/tuan13_t1_q4_dog.svg';
+import imgT13Buffalo from '../../assets/grade3-practice/tuan13_t1_q4_buffalo.svg';
+import imgT13T2Jug from '../../assets/grade3-practice/tuan13_t2_q1_jug.svg';
+import imgT13T3Coffee from '../../assets/grade3-practice/tuan13_t3_q4_coffee.svg';
 import imgT14T1Temps from '../../assets/grade3-practice/tuan14_t1_q1_temps.svg';
-import imgT14T1Scales from '../../assets/grade3-practice/tuan14_t1_q3_scales.png';
-import imgT14T2Jug from '../../assets/grade3-practice/tuan14_t2_q3_jug.png';
-import imgT14T3Scales from '../../assets/grade3-practice/tuan14_t3_q1_scales.png';
-import imgT15Monkey from '../../assets/grade3-practice/tuan15_t2_q2_monkey.png';
-import imgT15Gazelle from '../../assets/grade3-practice/tuan15_t2_q2_gazelle.png';
-import imgT15Lion from '../../assets/grade3-practice/tuan15_t2_q2_lion.png';
-import imgT15Horse from '../../assets/grade3-practice/tuan15_t2_q2_horse.png';
-import imgT15Animals from '../../assets/grade3-practice/tuan15_t2_q4_animals.png';
+import imgT14T1Scales from '../../assets/grade3-practice/tuan14_t1_q3_scales.svg';
+import imgT14T2Jug from '../../assets/grade3-practice/tuan14_t2_q3_jug.svg';
+import imgT14T3Scales from '../../assets/grade3-practice/tuan14_t3_q1_scales.svg';
+import imgT15Monkey from '../../assets/grade3-practice/tuan15_t2_q2_monkey.svg';
+import imgT15Gazelle from '../../assets/grade3-practice/tuan15_t2_q2_gazelle.svg';
+import imgT15Lion from '../../assets/grade3-practice/tuan15_t2_q2_lion.svg';
+import imgT15Horse from '../../assets/grade3-practice/tuan15_t2_q2_horse.svg';
+import imgT15Animals from '../../assets/grade3-practice/tuan15_t2_q4_animals.svg';
 
 // Tuần 13 Tiết 3 Q3: tiles (tap-to-write keypad) of the places, in the table's order.
 const PLACES = ['Hà Nội', 'Đà Nẵng', 'Lạng Sơn', 'Huế'];

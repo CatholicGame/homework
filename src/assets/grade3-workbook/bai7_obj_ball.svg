@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 420" width="540" height="420">
+<clipPath id="bai7_objs_ball2"><circle cx="250" cy="212" r="160"/></clipPath>
+<circle cx="250" cy="212" r="160" fill="#fff"/>
+<g clip-path="url(#bai7_objs_ball2)">
+<polygon points="256.0,172.0 301.7,205.2 284.2,258.8 227.8,258.8 210.3,205.2" fill="#6FB7EA" stroke="#3F3A40" stroke-width="4" stroke-linejoin="round"/>
+<polygon points="310.1,145.6 293.4,94.1 337.1,62.4 380.9,94.1 364.2,145.6" fill="#6FB7EA" stroke="#3F3A40" stroke-width="4" stroke-linejoin="round"/>
+<polygon points="343.5,248.4 387.2,216.6 431.0,248.4 414.3,299.9 360.2,299.9" fill="#6FB7EA" stroke="#3F3A40" stroke-width="4" stroke-linejoin="round"/>
+<polygon points="256.0,312.0 299.7,343.8 283.0,395.2 229.0,395.2 212.3,343.8" fill="#6FB7EA" stroke="#3F3A40" stroke-width="4" stroke-linejoin="round"/>
+<polygon points="168.5,248.4 151.8,299.9 97.7,299.9 81.0,248.4 124.8,216.6" fill="#6FB7EA" stroke="#3F3A40" stroke-width="4" stroke-linejoin="round"/>
+<polygon points="201.9,145.6 147.8,145.6 131.1,94.1 174.9,62.4 218.6,94.1" fill="#6FB7EA" stroke="#3F3A40" stroke-width="4" stroke-linejoin="round"/>
+<line x1="256.0" y1="172.0" x2="256.0" y2="128.0" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="256.0" y1="128.0" x2="218.6" y2="94.1" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="256.0" y1="128.0" x2="293.4" y2="94.1" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="301.7" y1="205.2" x2="343.5" y2="191.6" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="343.5" y1="191.6" x2="364.2" y2="145.6" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="343.5" y1="191.6" x2="387.2" y2="216.6" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="284.2" y1="258.8" x2="310.1" y2="294.4" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="310.1" y1="294.4" x2="360.2" y2="299.9" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="310.1" y1="294.4" x2="299.7" y2="343.8" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="227.8" y1="258.8" x2="201.9" y2="294.4" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="201.9" y1="294.4" x2="212.3" y2="343.8" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="201.9" y1="294.4" x2="151.8" y2="299.9" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="210.3" y1="205.2" x2="168.5" y2="191.6" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="168.5" y1="191.6" x2="124.8" y2="216.6" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<line x1="168.5" y1="191.6" x2="147.8" y2="145.6" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+</g>
+<circle cx="250" cy="212" r="160" fill="none" stroke="#3F3A40" stroke-width="6"/>
+<path d="M130,162 A138,138 0 0 1 200,90" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".8"/>
+</svg>

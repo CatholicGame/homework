@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 580" width="500" height="580">
+<polygon points="370.0,230.0 460.0,168.0 460.0,458.0 370.0,520.0" fill="#C986A4" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/><polygon points="80.0,230.0 170.0,168.0 460.0,168.0 370.0,230.0" fill="#FAC2D9" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/><polygon points="80.0,230.0 370.0,230.0 370.0,520.0 80.0,520.0" fill="#F7A1C4" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/>
+<polygon points="72.0,230.0 378.0,230.0 378.0,292.0 72.0,292.0" fill="#F8AFCD" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/>
+<polygon points="378.0,230.0 468.0,168.0 468.0,230.0 378.0,292.0" fill="#DE92B2" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/>
+<polygon points="72.0,230.0 162.0,168.0 468.0,168.0 378.0,230.0" fill="#FAC7DC" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/>
+<circle cx="114" cy="332" r="9" fill="#fff" opacity=".85"/>
+<circle cx="170" cy="332" r="9" fill="#fff" opacity=".85"/>
+<circle cx="226" cy="332" r="9" fill="#fff" opacity=".85"/>
+<circle cx="282" cy="332" r="9" fill="#fff" opacity=".85"/>
+<circle cx="338" cy="332" r="9" fill="#fff" opacity=".85"/>
+<circle cx="142" cy="384" r="9" fill="#fff" opacity=".85"/>
+<circle cx="198" cy="384" r="9" fill="#fff" opacity=".85"/>
+<circle cx="254" cy="384" r="9" fill="#fff" opacity=".85"/>
+<circle cx="310" cy="384" r="9" fill="#fff" opacity=".85"/>
+<circle cx="114" cy="436" r="9" fill="#fff" opacity=".85"/>
+<circle cx="170" cy="436" r="9" fill="#fff" opacity=".85"/>
+<circle cx="226" cy="436" r="9" fill="#fff" opacity=".85"/>
+<circle cx="282" cy="436" r="9" fill="#fff" opacity=".85"/>
+<circle cx="338" cy="436" r="9" fill="#fff" opacity=".85"/>
+<circle cx="142" cy="488" r="9" fill="#fff" opacity=".85"/>
+<circle cx="198" cy="488" r="9" fill="#fff" opacity=".85"/>
+<circle cx="254" cy="488" r="9" fill="#fff" opacity=".85"/>
+<circle cx="310" cy="488" r="9" fill="#fff" opacity=".85"/>
+<polygon points="205.0,230.0 245.0,230.0 245.0,520.0 205.0,520.0" fill="#FFD166" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/>
+<polygon points="205.0,230.0 245.0,230.0 335.0,168.0 295.0,168.0" fill="#FFD166" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/>
+<path d="M270.0,199.0 C200.0,129.0 160.0,189.0 270.0,199.0 Z" fill="#FFD166" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/>
+<path d="M270.0,199.0 L226.0,249.0 L248.0,245.0 Z" fill="#F4A259" stroke="#3F3A40" stroke-width="4" stroke-linejoin="round"/>
+<path d="M270.0,199.0 C340.0,129.0 380.0,189.0 270.0,199.0 Z" fill="#FFD166" stroke="#3F3A40" stroke-width="5" stroke-linejoin="round"/>
+<path d="M270.0,199.0 L314.0,249.0 L292.0,245.0 Z" fill="#F4A259" stroke="#3F3A40" stroke-width="4" stroke-linejoin="round"/>
+<ellipse cx="270.0" cy="199.0" rx="18" ry="14" fill="#F4A259" stroke="#3F3A40" stroke-width="5"/>
+</svg>
