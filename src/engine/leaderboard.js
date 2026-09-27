@@ -17,7 +17,7 @@
 
 import { getCurrentUser, getAccessToken, getStoredAccessToken } from './auth.js';
 import { getTotalStars, getStarsByGrade, getGradePeriodStars } from './stars.js';
-import { getProfile, NAME_MAX } from './profile.js';
+import { getProfile, saveProfile, markProfileSynced, NAME_MAX } from './profile.js';
 import { castRows, makeLaunch } from './leaderboardCast.js';
 
 // Cấu hình web app Firebase (công khai, không phải bí mật) — Project settings → Your apps.
@@ -112,6 +112,7 @@ export function connectLeaderboard() {
 export function signOutLeaderboard() {
   lastPushed = null;
   lastProfile = null;
+  profileSync = null;
   lastRegistered = null;
   cache = null;
   fbPromise?.then(fb => fb.auth.signOut()).catch(() => {});
@@ -149,6 +150,8 @@ function myEntry(remote = {}) {
 }
 
 async function pushNow() {
+  // Chờ lấy hồ sơ mới nhất (biệt danh sửa ở máy khác) để không ghi biệt danh cũ lên bảng.
+  await profileSync?.catch(() => {});
   const fb = await ensureSignedInSilently();
   if (!fb) return null;
   const { db, fs, auth } = fb;
@@ -160,6 +163,7 @@ async function pushNow() {
     remote = snap.exists() ? snap.data() : {};
   }
   const entry = myEntry(remote);
+  rememberBoardStars(entry.gradeStars);
   if (!entry.grade) return uid; // chưa chọn lớp thì chưa lên bảng
   const json = JSON.stringify(entry);
   if (lastPushed?.uid === uid && lastPushed.json === json) return uid;
@@ -172,6 +176,25 @@ async function pushNow() {
   lastPushed = { uid, json, entry };
   if (cache) cache = null;
   return uid;
+}
+
+// Sao từng lớp đã ghi trên bảng (gộp mọi máy) — nhớ trên máy để header hiện đúng số như bảng xếp hạng.
+const boardStarsKey = () => `tth_boardstars_${getCurrentUser()?.id || 'guest'}`;
+
+function rememberBoardStars(gradeStars) {
+  const json = JSON.stringify(gradeStars);
+  try {
+    if (localStorage.getItem(boardStarsKey()) === json) return;
+    localStorage.setItem(boardStarsKey(), json);
+  } catch { return; }
+  window.dispatchEvent(new CustomEvent('tth:board-stars-changed'));
+}
+
+/** Sao của một lớp như trên bảng xếp hạng "Mọi lúc": số lớn hơn giữa máy này và bảng (máy khác). */
+export function getBoardGradeStars(grade) {
+  let board = {};
+  try { board = JSON.parse(localStorage.getItem(boardStarsKey())) || {}; } catch { /* ignore */ }
+  return Math.max(getStarsByGrade()[grade] || 0, board[`g${grade}`] || 0);
 }
 
 /** Cập nhật điểm của mình lên bảng (gộp nhiều lần gọi liền nhau). Không bao giờ ném lỗi. */
@@ -188,8 +211,7 @@ window.addEventListener('tth:stars-changed', () => syncMyScore());
 const PROFILES = 'profiles';
 let lastProfile = null; // { uid, json }
 
-function profileEntry() {
-  const p = getProfile();
+function normEntry(p) {
   return {
     gender: p.gender === 'boy' || p.gender === 'girl' ? p.gender : '',
     avatar: p.avatar || '',
@@ -198,23 +220,53 @@ function profileEntry() {
   };
 }
 
-async function pushProfileNow() {
+let profileSync = null; // lần đồng bộ hồ sơ đang chạy — pushNow chờ nó xong
+
+/**
+ * Đồng bộ hồ sơ hai chiều. Bé vừa sửa trên máy này (pendingPush) → đưa lên; ngược lại
+ * bản trên Firebase (có thể vừa sửa ở máy khác) ghi đè bản trên máy.
+ * Trả về true nếu hồ sơ trên máy vừa được thay bằng bản trên Firebase.
+ */
+async function syncProfileNow() {
   const fb = await ensureSignedInSilently();
-  if (!fb) return;
+  if (!fb) return false;
   const { db, fs, auth } = fb;
   const uid = auth.currentUser.uid;
-  const entry = profileEntry();
-  if (!entry.grade) return;
+  const ref = fs.doc(db, PROFILES, uid);
+  const local = getProfile();
+  const entry = normEntry(local);
   const json = JSON.stringify(entry);
-  if (lastProfile?.uid === uid && lastProfile.json === json) return;
-  await fs.setDoc(fs.doc(db, PROFILES, uid), { ...entry, updatedAt: fs.serverTimestamp() });
-  lastProfile = { uid, json };
+  if (!local.pendingPush) {
+    const snap = await fs.getDoc(ref);
+    const remote = snap.exists() && snap.data().grade ? normEntry(snap.data()) : null;
+    if (remote) {
+      const remoteJson = JSON.stringify(remote);
+      lastProfile = { uid, json: remoteJson };
+      if (getCurrentUser() && remoteJson !== json && !getProfile().pendingPush) {
+        saveProfile({ gender: remote.gender || undefined, avatar: remote.avatar || undefined, name: remote.name, grade: remote.grade }, { fromRemote: true });
+        return true;
+      }
+      return false;
+    }
+  }
+  if (!entry.grade) return false;
+  if (!(lastProfile?.uid === uid && lastProfile.json === json)) {
+    await fs.setDoc(ref, { ...entry, updatedAt: fs.serverTimestamp() });
+    lastProfile = { uid, json };
+  }
+  if (JSON.stringify(normEntry(getProfile())) === json) markProfileSynced();
+  return false;
 }
 
-/** Đưa hồ sơ trên máy này lên Firebase. Không bao giờ ném lỗi. */
+/**
+ * Đồng bộ hồ sơ giữa máy này và Firebase. Không bao giờ ném lỗi.
+ * @returns {Promise<boolean>} true nếu hồ sơ trên máy vừa được cập nhật từ máy khác.
+ */
 export function syncMyProfile() {
-  if (!isLeaderboardConfigured() || !getCurrentUser()) return;
-  pushProfileNow().catch(() => {});
+  if (!isLeaderboardConfigured() || !getCurrentUser()) return Promise.resolve(false);
+  const run = (profileSync || Promise.resolve()).catch(() => {}).then(syncProfileNow);
+  profileSync = run.catch(() => false);
+  return profileSync;
 }
 
 window.addEventListener('tth:profile-changed', () => syncMyProfile());

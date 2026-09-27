@@ -130,6 +130,20 @@ function renderReconnect(app, userId, onDone) {
   app.querySelector('#rc-new').onclick = () => renderProfileSetup(app, { mode: 'onboard', onDone });
 }
 
+// Biệt danh / avatar / lớp sửa ở máy khác: lấy về khi mở trang chủ và khi bé quay lại app,
+// rồi vẽ lại trang đang mở nếu hồ sơ đổi.
+let lastProfileSync = 0;
+function syncProfileFromOtherDevices() {
+  lastProfileSync = Date.now();
+  syncMyProfile().then((changed) => {
+    if (changed && ['home', 'leaderboard'].includes(currentPage)) navigate(currentPage);
+  });
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && getCurrentUser() && isSetupDone()
+      && Date.now() - lastProfileSync > 30_000) syncProfileFromOtherDevices();
+});
+
 // Router
 let navToken = 0;
 let profileReturn = 'home'; // màn quay về sau khi sửa hồ sơ
@@ -216,7 +230,7 @@ function navigate(gameId) {
   if (!gameId || gameId === 'home') {
     creditLegacyProgress();
     syncMyScore();
-    syncMyProfile();
+    syncProfileFromOtherDevices();
     registerUser();
     renderHome(app, navigate, {
       user,

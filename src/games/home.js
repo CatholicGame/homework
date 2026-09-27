@@ -8,10 +8,22 @@ import { getProfile, getProfileGrade, avatarUrl, displayName } from '../engine/p
 import { getGrade } from '../data/grades.js';
 import { getSpinStatus, countOwned, getSets } from '../engine/stickers.js';
 import { isAdminUser } from '../engine/admin.js';
+import { getBoardGradeStars } from '../engine/leaderboard.js';
 
 const WEEKDAYS = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
 const WEEKDAYS_SHORT = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 const ddmm = (d) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+
+/** Sao trên header: sao của lớp đang học, khớp với bảng xếp hạng "Mọi lúc". */
+function headerStars() {
+  const g = getProfileGrade();
+  return g ? getBoardGradeStars(g) : getTotalStars();
+}
+
+// Máy khác đã có thêm sao (biết được sau khi đồng bộ bảng xếp hạng) → cập nhật số trên header.
+window.addEventListener('tth:board-stars-changed', () => {
+  document.querySelectorAll('.user-stars-count').forEach(el => { el.textContent = headerStars(); });
+});
 
 /** Trò chơi trong lớp đang học (không gợi ý "Tiếp tục" sang sách của lớp khác). */
 function findGame(grade, gameId) {
@@ -237,7 +249,7 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
       <div class="user-bar animate-fadeIn">
         <button type="button" class="user-rank-btn" id="user-sticker-btn" title="Vòng quay sticker">🎁 <span>Sticker</span>${getSpinStatus().spins ? `<b class="user-badge">${getSpinStatus().spins}</b>` : ''}</button>
         <button type="button" class="user-rank-btn" id="user-rank-btn" title="Bảng xếp hạng">🏆 <span>Xếp hạng</span></button>
-        <span class="user-stars" title="Tổng số sao đã nhận"><span class="user-stars-icon">⭐</span>${getTotalStars()}</span>
+        <span class="user-stars" title="Số sao đã nhận ở lớp đang học"><span class="user-stars-icon">⭐</span><span class="user-stars-count">${headerStars()}</span></span>
         <div class="user-menu-wrap">
           <button type="button" class="user-menu-btn" id="user-menu-btn" aria-haspopup="menu" aria-expanded="false">
             ${avatar}

@@ -23,16 +23,30 @@ function storeKey() {
   return `tth_profile_${getCurrentUser()?.id || 'guest'}`;
 }
 
-/** { gender?: 'boy'|'girl', avatar?: 'boys/boy3', name?: string, grade?: 1–5 | -1 (Tiền tiểu học), setupDone?: true } */
+/**
+ * { gender?: 'boy'|'girl', avatar?: 'boys/boy3', name?: string, grade?: 1–5 | -1 (Tiền tiểu học), setupDone?: true,
+ *   pendingPush?: true } — pendingPush: bé vừa sửa trên máy này mà chưa đưa lên Firebase được
+ * (lúc đồng bộ thì bản trên máy thắng; không có cờ này thì bản trên Firebase — sửa ở máy khác — thắng).
+ */
 export function getProfile() {
   try { return JSON.parse(localStorage.getItem(storeKey())) || {}; } catch { return {}; }
 }
 
 export function saveProfile(patch, { fromRemote = false } = {}) {
   const p = { ...getProfile(), ...patch, setupDone: true };
+  if (fromRemote) delete p.pendingPush;
+  else p.pendingPush = true;
   try { localStorage.setItem(storeKey(), JSON.stringify(p)); } catch { /* storage unavailable */ }
   if (!fromRemote) window.dispatchEvent(new CustomEvent('tth:profile-changed'));
   return p;
+}
+
+/** Đã đưa hồ sơ lên Firebase: bỏ cờ pendingPush (không báo đổi hồ sơ). */
+export function markProfileSynced() {
+  const p = getProfile();
+  if (!p.pendingPush) return;
+  delete p.pendingPush;
+  try { localStorage.setItem(storeKey(), JSON.stringify(p)); } catch { /* storage unavailable */ }
 }
 
 /**
