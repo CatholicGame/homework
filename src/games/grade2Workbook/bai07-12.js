@@ -21,7 +21,7 @@ import imgB10T1Q4 from '../../assets/grade2-workbook/bai10_t1_q4_cubes.svg';
 import imgB11T3Q2 from '../../assets/grade2-workbook/bai11_t3_q2_wheels.svg';
 import imgB11T4Q5 from '../../assets/grade2-workbook/bai11_t4_q5_flow.svg';
 import imgB11T5Q4 from '../../assets/grade2-workbook/bai11_t5_q4_flow.svg';
-import imgB12T1Q3 from '../../assets/grade2-workbook/bai12_t1_q3_frog.png';
+import imgB12T1Q3 from '../../assets/grade2-workbook/bai12_t1_q3_frog.svg';
 
 // One addition/subtraction written by the child ("9 + 6", "9 + 6 = 15"):
 // spaces and the dash look-alikes don't matter, a "+" may be written in either

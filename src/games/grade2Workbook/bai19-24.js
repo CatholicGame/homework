@@ -20,7 +20,7 @@ import imgB23Shapes from '../../assets/grade2-workbook/bai23_t2_q2_shapes.svg';
 import imgB23Monkey from '../../assets/grade2-workbook/bai23_t2_q5_monkey.png';
 import imgB23Solids from '../../assets/grade2-workbook/bai23_t3_q3_solids.svg';
 import imgB23Gifts from '../../assets/grade2-workbook/bai23_t5_q3_gifts.png';
-import imgB24Animals from '../../assets/grade2-workbook/bai24_t1_q4_animals.png';
+import imgB24Animals from '../../assets/grade2-workbook/bai24_t1_q4_animals.svg';
 import imgB24Robot from '../../assets/grade2-workbook/bai24_t1_q5_robot.png';
 import imgB24Dragonfly from '../../assets/grade2-workbook/bai24_t2_q2_dragonfly.png';
 

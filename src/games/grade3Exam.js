@@ -442,6 +442,15 @@ export function render(app, onBack) {
   }
 
   // ── SIDE QUESTION LIST ───────────────────────────────────────────────────────
+  // Opening the list scrolls it so the current question sits in the middle.
+  function scrollToCurrentItem(overlay) {
+    const panel = overlay.querySelector('.e3-qlist-panel');
+    const cur = overlay.querySelector('.e3-qitem-current');
+    if (!panel || !cur) return;
+    const pr = panel.getBoundingClientRect(), cr = cur.getBoundingClientRect();
+    panel.scrollTop += cr.top - pr.top - (pr.height - cr.height) / 2;
+  }
+
   function getQuestionStatus(i) {
     if (solved[i]) return 'correct';
     if (attempted[i]) return 'wrong';
@@ -489,6 +498,7 @@ export function render(app, onBack) {
   function toggleQuestionList() {
     const overlay = app.querySelector('#e3-qlist-overlay');
     overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+    if (overlay.style.display === 'flex') scrollToCurrentItem(overlay);
   }
 
   function renderAnswerArea(q, locked = false) {
@@ -804,7 +814,7 @@ function injectStyles() {
     .e3-qitem { position: relative; }
     .e3-qitem-pic { position: absolute; top: -7px; right: -7px; font-size: 0.8rem; line-height: 1; background: #fff; border-radius: 50%; padding: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
     .e3-legend-pic { font-style: normal; font-size: 0.85rem; margin-right: 2px; }
-    .e3-qitem-current { border-color: #1E293B; box-shadow: 0 0 0 2px rgba(30,41,59,0.15); }
+    .e3-qitem-current { border-color: #2563EB; border-width: 2px; box-shadow: 0 0 0 3px rgba(37,99,235,0.3); }
     .e3-qitem-correct { background: #dcfce7; border-color: #22c55e; color: #166534; }
     .e3-qitem-wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
     .e3-qlist-legend { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.82rem; color: #475569; }

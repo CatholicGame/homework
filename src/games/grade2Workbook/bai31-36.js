@@ -38,7 +38,7 @@ import imgB36Piano from '../../assets/grade2-workbook/bai36_t1_q2_piano.png';
 import imgB36T2Q4 from '../../assets/grade2-workbook/bai36_t2_q4_chains.svg';
 import imgB36T1Q5 from '../../assets/grade2-workbook/bai36_t1_q5_ants.png';
 import imgB36T2Q1 from '../../assets/grade2-workbook/bai36_t2_q1_figures.svg';
-import imgB36T2Q2 from '../../assets/grade2-workbook/bai36_t2_q2_scale_can.png';
+import imgB36T2Q2 from '../../assets/grade2-workbook/bai36_t2_q2_scale_can.svg';
 
 // ".... giờ .... phút" read off a clock face: the hour may be written either
 // way ("7 giờ 15 phút" or "19 giờ 15 phút") since an analog clock doesn't
