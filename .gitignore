@@ -42,3 +42,5 @@ Thumbs.db
 
 # Sách nguồn (bản quét, dung lượng lớn ~71MB) — chỉ dùng để số hóa cục bộ
 docs/**/*.pdf
+scripts/redraw/_preview/
+__pycache__/
