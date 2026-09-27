@@ -4726,6 +4726,17 @@ export function renderWorkbook(app, onBack, cfg) {
   function isPlainInt(s) {
     return /^-?\d+$/.test(String(s).trim());
   }
+  // Whether an expected answer is a number read out in words ("hai mươi lăm",
+  // "ba trăm linh tư"): such a blank gets the word-tile keypad (data-vk-words),
+  // so the child builds the reading by tapping "hai", "mươi", "lăm" in order.
+  const NUM_WORDS = new Set(['không', 'một', 'mốt', 'hai', 'ba', 'bốn', 'tư', 'năm', 'lăm', 'sáu', 'bảy', 'tám', 'chín', 'mười', 'mươi', 'trăm', 'linh', 'nghìn']);
+  function isNumberWords(s) {
+    const ws = String(s).trim().toLowerCase().split(/\s+/);
+    return ws[0] !== '' && ws.every(w => NUM_WORDS.has(w));
+  }
+  function kbAttr(answer) {
+    return isPlainInt(answer) ? 'inputmode="numeric"' : isNumberWords(answer) ? 'data-vk-words="1"' : '';
+  }
 
   function renderFillArea(q) {
     return `
@@ -4755,8 +4766,7 @@ export function renderWorkbook(app, onBack, cfg) {
     const label = b.label.replace(/<br\s*\/?>/g, '<span class="gw-line-break"></span>');
     const parts = label.split('...');
     if (parts.length === 1) {
-      const numeric = isPlainInt(b.answer);
-      const input = `<input type="text" ${numeric ? 'inputmode="numeric"' : ''} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed gw-blank-fill" style="min-width:3ch" data-idx="${i}" autocomplete="off">`;
+      const input = `<input type="text" ${kbAttr(b.answer)} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed gw-blank-fill" style="min-width:3ch" data-idx="${i}" autocomplete="off">`;
       return `
         <div class="e3-blank-row e3-blank-row-inline">
           <label class="e3-blank-label e3-blank-label-inline">${label}${input}</label>
@@ -4814,7 +4824,8 @@ export function renderWorkbook(app, onBack, cfg) {
       const style = isTrailingBlank
         ? 'min-width:3ch'
         : `width:${Math.max(9, numeric ? String(slotAnswer).length + 2 : textSlotCh)}ch`;
-      const input = `<input type="text" ${numeric ? 'inputmode="numeric"' : ''}${listInOne ? ' data-vk-comma="1"' : ''} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed${fillClass}" style="${style}" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`;
+      const words = !numeric && isNumberWords(slotAnswer);
+      const input = `<input type="text" ${numeric ? 'inputmode="numeric"' : words ? 'data-vk-words="1"' : ''}${listInOne ? ' data-vk-comma="1"' : ''} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed${fillClass}" style="${style}" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`;
       return `${text}${input}`;
     }).join('');
     return `
@@ -4957,8 +4968,7 @@ export function renderWorkbook(app, onBack, cfg) {
                 <tbody>
                   ${t.rows.map((row, r) => `<tr class="${isSampleRow(row) ? 'gw-table-sample-row' : ''}">${rowLabelOf(row) ? `<td class="gw-table-rowlabel">${rowLabelOf(row)}</td>` : ''}${rowCells(row).map((cell, c) => {
                     if (cell && typeof cell === 'object' && cell.blank) {
-                      const numeric = isPlainInt(cell.answer);
-                      const inputHtml = `<input type="text" ${numeric ? 'inputmode="numeric"' : ''} class="game-input gw-table-input" data-t="${ti}" data-r="${r}" data-c="${c}" autocomplete="off">`;
+                      const inputHtml = `<input type="text" ${kbAttr(cell.answer)} class="game-input gw-table-input" data-t="${ti}" data-r="${r}" data-c="${c}" autocomplete="off">`;
                       // cell.prefix: the book's blue sample already written at the start of
                       // the cell, before the dotted part (Lớp 2 Bài 25 "MN, ........").
                       if (cell.prefix) return `<td class="gw-table-input-cell"><div class="gw-table-prefix-wrap"><span class="gw-sample-text gw-table-prefix">${cell.prefix}</span>${inputHtml}</div></td>`;

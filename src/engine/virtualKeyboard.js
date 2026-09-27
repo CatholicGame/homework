@@ -6,9 +6,20 @@
  * Usage: import and call initVirtualKeyboard() once at app startup.
  * All <input type="number"> and <input inputmode="numeric"> elements
  * will automatically get the virtual keyboard.
+ * An <input data-vk-words> ("Đọc số": "hai mươi lăm") gets a panel of number
+ * word tiles instead — the child taps the words in order to build the reading.
  */
 
 const VK_CLASS = 'vk-panel';
+const VK_SELECTOR = 'input[type="number"], input[inputmode="numeric"], input[data-vk-words]';
+
+// Every word soDoc() can produce, plus the book's "tư" and "nghìn".
+const WORD_ROWS = [
+  ['một', 'hai', 'ba', 'bốn', 'năm'],
+  ['sáu', 'bảy', 'tám', 'chín', 'mười'],
+  ['mươi', 'mốt', 'lăm', 'tư', 'linh'],
+  ['không', 'trăm', 'nghìn', '⌫', '✓'],
+];
 
 // ── Create the keyboard DOM (once, global) ──────────────────────────────────
 function createKeyboard() {
@@ -42,15 +53,43 @@ function createKeyboard() {
   return panel;
 }
 
+function createWordKeyboard() {
+  const existing = document.getElementById('virtual-keyboard-words');
+  if (existing) return existing;
+
+  const wp = document.createElement('div');
+  wp.id = 'virtual-keyboard-words';
+  wp.className = `${VK_CLASS} vk-words`;
+  wp.setAttribute('aria-label', 'Bàn phím chữ đọc số');
+  wp.innerHTML = WORD_ROWS.map(row => `
+    <div class="vk-row">
+      ${row.map(k => `<button class="vk-key ${k === '⌫' ? 'vk-backspace' : ''} ${k === '✓' ? 'vk-confirm' : ''}" data-key="${k}" type="button">${k}</button>`).join('')}
+    </div>
+  `).join('');
+
+  document.body.appendChild(wp);
+  return wp;
+}
+
 // ── State ────────────────────────────────────────────────────────────────────
 let activeInput = null;
 let panel = null;
+let wordPanel = null;
 let suppressReshow = false;  // prevents keyboard re-opening after ✓ submission
 
 function showKeyboard(input) {
   if (suppressReshow) return;          // cooldown after ✓ → don't reopen
   activeInput = input;
   panel = panel || createKeyboard();
+  wordPanel = wordPanel || createWordKeyboard();
+  const words = !!input.dataset.vkWords;
+  wordPanel.classList.toggle('vk-visible', words);
+  if (words) {
+    panel.classList.remove('vk-visible');
+    document.body.classList.add('vk-active');
+    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
   // The "," key only shows for a blank whose answer is a list of numbers in
   // one field (e.g. "59, 56, 51, 53") — elsewhere it would just invite typos.
   panel.classList.toggle('vk-with-comma', !!input.dataset.vkComma);
@@ -62,11 +101,22 @@ function showKeyboard(input) {
 function hideKeyboard() {
   activeInput = null;
   if (panel) panel.classList.remove('vk-visible');
+  if (wordPanel) wordPanel.classList.remove('vk-visible');
   document.body.classList.remove('vk-active');
 }
 
 function pressKey(key) {
   if (!activeInput) return;
+
+  if (activeInput.dataset.vkWords && key !== '✓') {
+    // Word tiles: a tap adds one whole word, ⌫ takes the last word back off.
+    const ws = activeInput.value.trim().split(/\s+/).filter(Boolean);
+    if (key === '⌫') ws.pop();
+    else if (ws.length < 8) ws.push(key);
+    activeInput.value = ws.join(' ');
+    activeInput.dispatchEvent(new Event('input', { bubbles: true }));
+    return;
+  }
 
   if (key === '⌫') {
     // Backspace
@@ -134,7 +184,7 @@ function attachToInput(input) {
 
 // ── Scan and attach to all current inputs ────────────────────────────────────
 function scanInputs(root = document) {
-  root.querySelectorAll('input[type="number"], input[inputmode="numeric"]').forEach(attachToInput);
+  root.querySelectorAll(VK_SELECTOR).forEach(attachToInput);
 }
 
 // ── MutationObserver — auto-attach when new inputs appear in DOM ─────────────
@@ -146,10 +196,10 @@ function startObserver() {
     for (const m of mutations) {
       m.addedNodes.forEach(node => {
         if (node.nodeType !== 1) return;
-        if (node.matches?.('input[type="number"], input[inputmode="numeric"]')) {
+        if (node.matches?.(VK_SELECTOR)) {
           attachToInput(node);
         } else {
-          node.querySelectorAll?.('input[type="number"], input[inputmode="numeric"]')
+          node.querySelectorAll?.(VK_SELECTOR)
             .forEach(attachToInput);
         }
       });
@@ -169,7 +219,7 @@ function installHandlers() {
       return;
     }
     // Click outside keyboard + outside an input → hide
-    if (!e.target.closest('#virtual-keyboard') &&
+    if (!e.target.closest('.vk-panel') &&
         !e.target.matches('input[type="number"], input[inputmode="numeric"], input[data-vk-attached]')) {
       hideKeyboard();
     }
@@ -193,6 +243,7 @@ export function initVirtualKeyboard() {
   initialized = true;
 
   createKeyboard();
+  createWordKeyboard();
   scanInputs();
   startObserver();
   installHandlers();

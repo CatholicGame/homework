@@ -334,6 +334,12 @@ body.vk-active #global-fullscreen-btn {
 .vk-with-comma .vk-comma { display: flex; }
 .vk-with-comma .vk-row:last-child { grid-template-columns: repeat(4, 1fr); }
 
+/* Number-word tiles ("Đọc số"): 5 per row, smaller text so "nghìn" fits */
+.vk-words { width: min(96vw, 560px); }
+.vk-words .vk-row,
+.vk-words .vk-row:last-child { grid-template-columns: repeat(5, 1fr); }
+.vk-words .vk-key { font-size: 1.1rem; font-weight: 700; padding: 0 2px; }
+
 .vk-key {
   display: flex;
   align-items: center;
