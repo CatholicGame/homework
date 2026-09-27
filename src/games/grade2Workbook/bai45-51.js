@@ -5,6 +5,7 @@ import {
   blank, foldVN, stripVN, setValidate, listValidate, dsValidate, phraseValidate,
   swapPairValidate, unitValidate, sampleCell, mau,
 } from '../grade3Workbook.js';
+import { trainSvg, trainGuide } from '../../engine/trains.js';
 import imgB45Bananas from '../../assets/grade2-workbook/bai45_t1_q1_bananas.png';
 import imgB45Oranges from '../../assets/grade2-workbook/bai45_t1_q1_oranges.png';
 import imgB45Apples from '../../assets/grade2-workbook/bai45_t1_q1_apples.png';
@@ -61,7 +62,6 @@ import imgB49T1Q4 from '../../assets/grade2-workbook/bai49_t1_q4_sacks.png';
 import imgB49T2Q2 from '../../assets/grade2-workbook/bai49_t2_q2_shelf.png';
 import imgB49T2Q3 from '../../assets/grade2-workbook/bai49_t2_q3_cupcakes.png';
 import imgB50T1Q4 from '../../assets/grade2-workbook/bai50_t1_q4_matches.svg';
-import imgB50T2Q3 from '../../assets/grade2-workbook/bai50_t2_q3_train.png';
 import imgB50T2Q4 from '../../assets/grade2-workbook/bai50_t2_q4_cows.png';
 import imgB51T3Q1 from '../../assets/grade2-workbook/bai51_t3_q1_hedgehog.png';
 
@@ -782,8 +782,10 @@ export const BAI_45_51 = [
         ],
       },
       {
-        type: 'fill', section: 'Tiết 2', img: imgB50T2Q3,
-        q: '3. Viết số thích hợp vào chỗ chấm.',
+        type: 'fill', section: 'Tiết 2',
+        q: `3. Viết số thích hợp vào chỗ chấm.\n${trainSvg('', [640, 670, 680], { style: 'bubble', wave: [26, 14, 4], swap: true })}${trainGuide('Kéo một toa thả lên toa khác (hoặc chạm 2 toa) để đổi chỗ.')}`,
+        // Kéo / chạm hai toa để đổi chỗ → tự ghi "đổi chỗ toa tàu ghi số ... với toa tàu ghi số ...".
+        trainSwap: { blank: 0 },
         blanks: [{ label: 'Để các toa tàu ghi các số theo thứ tự từ lớn đến bé, em cần đổi chỗ toa tàu ghi số ... với toa tàu ghi số ...', answer: '640, 680', validate: swapPairValidate(640, 680), tiles: ['640', '670', '680'] }],
         hints: ['Từ lớn đến bé là 680, 670, 640.'],
       },

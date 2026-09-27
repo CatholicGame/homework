@@ -2,6 +2,7 @@
  * Vở bài tập Toán 2 — Tập một: Bài 7–12 (sách trang 29–50).
  */
 import { dsValidate, listValidate, swapPairValidate, sampleCell, mau } from '../grade3Workbook.js';
+import { trainSvg, trainGuide } from '../../engine/trains.js';
 import imgB7T1Q1 from '../../assets/grade2-workbook/bai7_t1_q1_sticks.svg';
 import imgB7T1Q2 from '../../assets/grade2-workbook/bai7_t1_q2_cubes.svg';
 import imgB7T2Q4 from '../../assets/grade2-workbook/bai7_t2_q4_shapes.svg';
@@ -429,7 +430,10 @@ export const BAI_7_12 = [
       },
       {
         type: 'match', section: 'Tiết 1',
-        q: '3. a) Nối hai phép tính có cùng kết quả (theo mẫu).\n(Cột trái: đoàn tàu A — cột phải: đoàn tàu B)',
+        q: '3. a) Nối hai phép tính có cùng kết quả (theo mẫu).',
+        // Vẽ như sách: đoàn tàu A ở trên, đoàn tàu B ở dưới; mẫu 9 + 4 — 6 + 7 đã nối sẵn.
+        trains: { labels: ['A', 'B'], style: 'bubble' },
+        matchSample: ['a1', 'b2'],
         left: [{ id: 'a1', text: '9 + 4' }, { id: 'a2', text: '8 + 8' }, { id: 'a3', text: '6 + 6' }, { id: 'a4', text: '7 + 4' }],
         right: [{ id: 'b1', text: '9 + 7' }, { id: 'b2', text: '6 + 7' }, { id: 'b3', text: '6 + 5' }, { id: 'b4', text: '3 + 9' }],
         pairs: [['a1', 'b2'], ['a2', 'b1'], ['a3', 'b4'], ['a4', 'b3']],
@@ -437,7 +441,9 @@ export const BAI_7_12 = [
       },
       {
         type: 'fill', section: 'Tiết 1',
-        q: '3. b) Viết số thích hợp vào chỗ chấm.\nc) Viết tiếp vào chỗ chấm cho thích hợp.\n(Đoàn tàu A: 9 + 4, 8 + 8, 6 + 6, 7 + 4 — Đoàn tàu B: 9 + 7, 6 + 7, 6 + 5, 3 + 9)',
+        q: `3. b) Viết số thích hợp vào chỗ chấm.\nc) Viết tiếp vào chỗ chấm cho thích hợp.\n${trainSvg('A', [{ text: '9 + 4', parts: ['9', '4'] }, { text: '8 + 8', parts: ['8', '8'] }, { text: '6 + 6', parts: ['6', '6'] }, { text: '7 + 4', parts: ['7', '4'] }], { style: 'bubble', pick: true })}${trainSvg('B', ['9 + 7', '6 + 7', '6 + 5', '3 + 9'], { style: 'bubble' })}${trainGuide('Chạm vào một toa của đoàn tàu A để viết phép tính vào câu b).')}`,
+        // Chạm toa tàu A → ghi hai số hạng vào "... + ..." (bé tự tính kết quả).
+        trainPick: { blanks: [0] },
         blanks: [
           { label: 'b) Ở đoàn tàu A, phép tính có kết quả bé nhất là: ... + ... = ...', answer: '7,4,11', validate: swapPairValidate(7, 4, 11) },
           { label: 'c) Ở đoàn tàu B, các phép tính có kết quả lớn hơn 11 là:<br>9 + 7 = 16; ... ; ...', answer: '6 + 7 = 13, 3 + 9 = 12', validate: exprSetValidate(['6+7=13', '3+9=12']) },

@@ -4,6 +4,7 @@
 import {
   blank, stripVN, setValidate, dsValidate, unitValidate, swapPairValidate,
 } from '../grade3Workbook.js';
+import { trainSvg, trainGuide } from '../../engine/trains.js';
 import imgB31T1Q3 from '../../assets/grade2-workbook/bai31_t1_q3_clocks.svg';
 import imgB31T1Q4 from '../../assets/grade2-workbook/bai31_t1_q4_activities.png';
 import imgB31T1Q5 from '../../assets/grade2-workbook/bai31_t1_q5_friends.png';
@@ -16,7 +17,6 @@ import imgB32Q4 from '../../assets/grade2-workbook/bai32_q4_robot.png';
 import imgB33T1Q3 from '../../assets/grade2-workbook/bai33_t1_q3_triangle.svg';
 import imgB33T2Q1 from '../../assets/grade2-workbook/bai33_t2_q1_melons.png';
 import imgB33T2Q3 from '../../assets/grade2-workbook/bai33_t2_q3_scale.png';
-import imgB33T3Q1 from '../../assets/grade2-workbook/bai33_t3_q1_train.png';
 import imgB33T4Q1 from '../../assets/grade2-workbook/bai33_t4_q1_chains.svg';
 import imgB33T4Q2 from '../../assets/grade2-workbook/bai33_t4_q2_pyramid.svg';
 import imgB34T1Q1 from '../../assets/grade2-workbook/bai34_t1_q1_segments.svg';
@@ -334,8 +334,10 @@ export const BAI_31_36 = [
         blanks: [{ label: 'Số máy tính buổi chiều bán được', answer: '13' }],
       },
       {
-        type: 'table', section: 'Tiết 3', img: imgB33T3Q1,
-        q: '1. a) Số?',
+        type: 'table', section: 'Tiết 3',
+        q: `1. a) Số?\n${trainSvg('', [{ tag: 'A', text: '70 + 30', value: 'A' }, { tag: 'B', text: '86 − 56', value: 'B' }, { tag: 'C', text: '73 − 13', value: 'C' }, { tag: 'D', text: '92 − 42', value: 'D' }, { tag: 'E', text: '20 + 50', value: 'E' }], { style: 'bubble', wave: [0, 16, 22, 4, 8], pick: true })}${trainGuide('Ở câu b), chạm vào toa để viết tên toa vào chỗ chấm.')}`,
+        // Chạm toa → ghi tên toa (A, B, …) vào chỗ chấm đang chọn ở câu b).
+        trainPick: { blanks: [0, 1, 2, 3] },
         rows: [
           ['Toa', 'A', 'B', 'C', 'D', 'E'],
           ['Kết quả phép tính', 100, blank(30), blank(60), blank(50), blank(70)],

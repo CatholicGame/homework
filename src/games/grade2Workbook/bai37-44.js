@@ -6,6 +6,7 @@
 import {
   blank, sampleCell, mau, listValidate, letterValidate, exprValidate, swapPairValidate,
 } from '../grade3Workbook.js';
+import { trainSvg, trainGuide, trainCrayons } from '../../engine/trains.js';
 import imgB37T1Q1 from '../../assets/grade2-workbook/bai37_t1_q1_dice.svg';
 import imgB37G5x3 from '../../assets/grade2-workbook/bai37_t1_q2_g5x3.svg';
 import imgB37G6x4 from '../../assets/grade2-workbook/bai37_t1_q2_g6x4.svg';
@@ -703,7 +704,12 @@ export const BAI_37_44 = [
       },
       {
         type: 'table', section: 'Tiết 1',
-        q: '2. Hai đoàn tàu A và B có các toa ghi phép tính như sau:\na) Tính nhẩm các phép tính ở cả hai đoàn tàu.',
+        q: `2. Hai đoàn tàu A và B có các toa ghi phép tính như sau:\n${trainSvg('A', ['16 : 2', '10 : 2', '18 : 2', '12 : 2'], { style: 'box', paint: true })}${trainSvg('B', ['14 : 2', '6 : 2', '20 : 2', '8 : 2'], { style: 'box', paint: true })}${trainCrayons(['red', 'blue'])}${trainGuide('Câu b), c): chọn bút màu, rồi chạm vào toa để tô.')}a) Tính nhẩm các phép tính ở cả hai đoàn tàu.`,
+        // Tô màu toa → tự ghi "Phép tính tô màu đỏ / xanh là: ...".
+        trainPaint: { writes: [
+          { train: 'A', color: 'red', blank: 0 },
+          { train: 'B', color: 'blue', blank: 1 },
+        ] },
         tables: [
           { label: 'Đoàn tàu A', rows: [['16 : 2', '10 : 2', '18 : 2', '12 : 2'], [blank(8), blank(5), blank(9), blank(6)]] },
           { label: 'Đoàn tàu B', rows: [['14 : 2', '6 : 2', '20 : 2', '8 : 2'], [blank(7), blank(3), blank(10), blank(4)]] },

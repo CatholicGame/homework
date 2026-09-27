@@ -4,12 +4,12 @@
 import {
   blank, soDoc, foldVN, stripVN, listValidate, setValidate, dsValidate, mau, sampleCell,
 } from '../grade3Workbook.js';
+import { trainSvg, trainGuide, trainCrayons } from '../../engine/trains.js';
 import imgB1Row1 from '../../assets/grade2-workbook/bai1_t1_q1_row1.png';
 import imgB1Row2 from '../../assets/grade2-workbook/bai1_t1_q1_row2.png';
 import imgB1Row3 from '../../assets/grade2-workbook/bai1_t1_q1_row3.png';
 import imgB1Row4 from '../../assets/grade2-workbook/bai1_t1_q1_row4.png';
-import imgB1Cats from '../../assets/grade2-workbook/bai1_t1_q2_cats.png';
-import imgB1Trains from '../../assets/grade2-workbook/bai1_t1_q4_trains.png';
+import imgB1Cats from '../../assets/grade2-workbook/bai1_t1_q2_cats.svg';
 import imgB1Robots from '../../assets/grade2-workbook/bai1_t2_q1_robots.png';
 import imgB1Shoes from '../../assets/grade2-workbook/bai1_t2_q2_shoes.png';
 import imgB1Seats from '../../assets/grade2-workbook/bai1_t3_q1_seats.png';
@@ -17,11 +17,9 @@ import imgB1Sticks from '../../assets/grade2-workbook/bai1_t3_q2_sticks.svg';
 import imgB2Line10 from '../../assets/grade2-workbook/bai2_t1_q1_numberline.svg';
 import imgB2Balloons from '../../assets/grade2-workbook/bai2_t1_q2_balloons.png';
 import imgB2Line30 from '../../assets/grade2-workbook/bai2_t2_q1_numberline.svg';
-import imgB2Train from '../../assets/grade2-workbook/bai2_t2_q3_train.png';
 import imgB2Rabbits from '../../assets/grade2-workbook/bai2_t2_q5_rabbits.png';
 import imgB3Shells from '../../assets/grade2-workbook/bai3_t1_q3_shells.png';
 import imgB3Chains from '../../assets/grade2-workbook/bai3_t3_q2_chains.svg';
-import imgB3Trains from '../../assets/grade2-workbook/bai3_t3_q3_trains.png';
 import imgB3Shells2 from '../../assets/grade2-workbook/bai3_t3_q4_shells.png';
 import imgB4Ducks from '../../assets/grade2-workbook/bai4_t1_q1_ducks.png';
 import imgB4Pens from '../../assets/grade2-workbook/bai4_t2_q1_pens.png';
@@ -167,13 +165,19 @@ export const BAI_1_6 = [
         ],
       },
       {
-        type: 'fill', section: 'Tiết 1', img: imgB1Trains,
-        q: '4. a) Tô màu vàng vào các toa của đoàn tàu A ghi số bé hơn 60.\nb) Ở đoàn tàu B, tô màu đỏ vào toa ghi số lớn nhất, màu xanh vào toa ghi số bé nhất.\nc) Viết tiếp vào chỗ chấm.',
+        type: 'fill', section: 'Tiết 1',
+        q: `4. a) Tô màu vàng vào các toa của đoàn tàu A ghi số bé hơn 60.\nb) Ở đoàn tàu B, tô màu đỏ vào toa ghi số lớn nhất, màu xanh vào toa ghi số bé nhất.\nc) Viết tiếp vào chỗ chấm.\n${trainSvg('A', [65, 59, 47, 60], { paint: true })}${trainSvg('B', [56, 48, 51, 53], { paint: true })}${trainCrayons(['yellow', 'red', 'blue'])}${trainGuide('Chọn bút màu, rồi chạm vào toa để tô.')}`,
         blanks: [
           { label: 'a) Các toa tô màu vàng ghi số: ...', answer: '59, 47', validate: setValidate(['59', '47']), tiles: ['65', '59', '47', '60'] },
           { label: 'b) Toa tô màu đỏ ghi số ...; toa tô màu xanh ghi số ...', answer: '56,48', validate: listValidate(['56', '48']), tiles: ['56', '48', '51', '53'] },
           { label: 'c) Ở cả hai đoàn tàu, những số vừa bé hơn 60 vừa lớn hơn 50 là: ...', answer: '59, 56, 51, 53', validate: setValidate(['59', '56', '51', '53']), tiles: ['65', '59', '47', '60', '56', '48', '51', '53'] },
         ],
+        // Chọn bút màu rồi chạm vào toa để tô → tự ghi dòng a) và b).
+        trainPaint: { writes: [
+          { train: 'A', color: 'yellow', blank: 0 },
+          { train: 'B', color: 'red', blank: 1, slot: 0 },
+          { train: 'B', color: 'blue', blank: 1, slot: 1 },
+        ] },
         hints: ['Tàu A: 65, 59, 47, 60. Tàu B: 56, 48, 51, 53.'],
       },
       {
@@ -313,8 +317,10 @@ export const BAI_1_6 = [
         hints: ['Chữ số 0 không đứng ở hàng chục.'],
       },
       {
-        type: 'fill', section: 'Tiết 2', img: imgB2Train,
-        q: '3. Số?',
+        type: 'fill', section: 'Tiết 2',
+        q: `3. Số?\n${trainSvg('', [48, 49, 50, 51, 52, 53], { style: 'bubble', wave: [0, 14, 24, 14, 2, 8], pick: true })}${trainGuide('Chạm vào toa để viết số của toa vào chỗ chấm (chạm chỗ chấm khác để đổi chỗ viết).')}`,
+        // Chạm toa → viết số toa vào chỗ chấm đang chọn (khung vàng).
+        trainPick: { blanks: [0, 1, 2, 3, 4, 5] },
         blanks: [
           { label: `a) Toa liền sau toa ${circ(48)} là toa ... .`, answer: '49' },
           { label: `Toa liền trước toa ${circ(53)} là toa ... .`, answer: '52' },
@@ -454,12 +460,14 @@ export const BAI_1_6 = [
         hints: ['Cả ba dây có 10 hình tròn, 10 hình vuông và 7 hình tam giác.'],
       },
       {
-        type: 'fill', section: 'Tiết 3', img: imgB3Trains,
-        q: '3. Trên mỗi toa tàu ghi một số.\na) Đổi chỗ hai toa của đoàn tàu B để được các số xếp theo thứ tự từ bé đến lớn bằng cách vẽ mũi tên (theo mẫu).\nb) Tính hiệu của số lớn nhất ở đoàn tàu A và số bé nhất ở đoàn tàu B.',
+        type: 'fill', section: 'Tiết 3',
+        q: `3. Trên mỗi toa tàu ghi một số.\na) Đổi chỗ hai toa của đoàn tàu B để được các số xếp theo thứ tự từ bé đến lớn bằng cách vẽ mũi tên (theo mẫu).\nb) Tính hiệu của số lớn nhất ở đoàn tàu A và số bé nhất ở đoàn tàu B.\n${trainSvg('A', [80, 50, 30, 90], { sample: [0, 2] })}${trainSvg('B', [67, 45, 56, 30], { swap: true })}${trainGuide('Kéo một toa của đoàn tàu B thả lên toa khác (hoặc chạm 2 toa) để đổi chỗ.')}`,
         blanks: [
           { label: 'a) Đổi chỗ toa ... và toa ... .', answer: '67,30', validate: setValidate(['67', '30']), tiles: ['67', '45', '56', '30'] },
           { label: 'b)', answer: '90 − 30 = 60', validate: calcValidate(90, '-', 30, 60) },
         ],
+        // Kéo (hoặc chạm) hai toa của đoàn tàu B để đổi chỗ → tự ghi "Đổi chỗ toa ... và toa ...".
+        trainSwap: { blank: 0 },
         hints: ['Ở đoàn tàu A, đổi chỗ toa 80 và toa 30 thì được 30, 50, 80, 90.'],
       },
       {

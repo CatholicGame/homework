@@ -118,6 +118,7 @@ import {
 import { gateCheckButton, keepWrongBanner } from '../engine/gameEngine.js';
 import { recordAttempt } from '../engine/activity.js';
 import { attachPairDrop } from '../engine/pairDrop.js';
+import { attachTrainSwap, attachTrainPaint, attachTrainPick, trainEngine, trainMatchCar } from '../engine/trains.js';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
 
@@ -4363,6 +4364,7 @@ export function renderWorkbook(app, onBack, cfg) {
     matchPairs = new Map();
     matchLocked = new Set();
     if (q.type === 'match' && solved[current]) matchLocked = new Set(q.pairs.map(p => p[0]));
+    else if (q.type === 'match' && q.matchSample) matchLocked = new Set([q.matchSample[0]]);
 
     const visitedCount = solved.filter(Boolean).length + attempted.filter((a, i) => a && !solved[i]).length;
     const pct = Math.round((visitedCount / activeQuestions.length) * 100);
@@ -5054,6 +5056,21 @@ export function renderWorkbook(app, onBack, cfg) {
             ${q.left[i] ? btn(q.left[i], 0, 'left') : '<span></span>'}
             ${q.right[i] ? btn(q.right[i], 1, 'right') : '<span></span>'}
           `).join('');
+    // q.trains: the two columns are the book's two trains, A above B; a link
+    // runs from a car of train A down to a car of train B.
+    if (q.trains) {
+      const row = (label, items, col, side) => `<div class="gw-mtrain">${trainEngine(label)}${items.map(item =>
+        `<button type="button" class="gw-match-item gw-mtrain-item" data-side="${side}" data-col="${col}" data-id="${item.id}">${trainMatchCar(item.text, q.trains.style)}</button>`).join('')}</div>`;
+      return `
+      <div class="gw-match gw-match-trains" id="gw-match">
+        <svg class="gw-match-svg" id="gw-match-svg"></svg>
+        ${row(q.trains.labels[0], q.left, 0, 'left')}
+        ${row(q.trains.labels[1], q.right, 1, 'right')}
+      </div>
+      <span class="gw-act-guide gw-act-idle"><span class="gw-act-hand">👆</span><span class="gw-act-text">Chạm một toa của đoàn tàu ${q.trains.labels[0]}, rồi chạm toa có cùng kết quả ở đoàn tàu ${q.trains.labels[1]} để nối.</span><button type="button" class="gw-act-reset" id="gw-match-reset" disabled>↺ Làm lại</button></span>
+      <button class="e3-btn e3-btn-primary" id="gw-match-check" style="margin-top:12px" disabled>Kiểm tra</button>
+    `;
+    }
     return `
       <div class="gw-match${q.middle ? ' gw-match-3' : ''}" id="gw-match">
         <svg class="gw-match-svg" id="gw-match-svg"></svg>
@@ -5083,11 +5100,19 @@ export function renderWorkbook(app, onBack, cfg) {
     const box = container.getBoundingClientRect();
     const lr = leftBtn.getBoundingClientRect();
     const rr = rightBtn.getBoundingClientRect();
-    const x1 = lr.right - box.left, y1 = lr.top + lr.height / 2 - box.top;
-    const x2 = rr.left - box.left, y2 = rr.top + rr.height / 2 - box.top;
-    const midX = (x1 + x2) / 2;
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
+    if (container.classList.contains('gw-match-trains')) {
+      // train A above train B: from under a car of A to the top of a car of B
+      const x1 = lr.left + lr.width / 2 - box.left, y1 = lr.bottom - lr.height * 0.12 - box.top;
+      const x2 = rr.left + rr.width / 2 - box.left, y2 = rr.top + rr.height * 0.1 - box.top;
+      const midY = (y1 + y2) / 2;
+      path.setAttribute('d', `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`);
+    } else {
+      const x1 = lr.right - box.left, y1 = lr.top + lr.height / 2 - box.top;
+      const x2 = rr.left - box.left, y2 = rr.top + rr.height / 2 - box.top;
+      const midX = (x1 + x2) / 2;
+      path.setAttribute('d', `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
+    }
     path.setAttribute('class', 'gw-match-line');
     path.setAttribute('stroke', color || '#22c55e');
     path.dataset.leftId = leftId;
@@ -5203,6 +5228,12 @@ export function renderWorkbook(app, onBack, cfg) {
     });
   }
 
+  function attachTrainActions(q, groups) {
+    if (q.trainSwap) attachTrainSwap(app, q, groups);
+    if (q.trainPaint) attachTrainPaint(app, q, groups);
+    if (q.trainPick) attachTrainPick(app, q, groups);
+  }
+
   function attachFillHandlers(q) {
     // Group inputs by their blank index — a multi-slot blank (several "..." in
     // one label) has more than one input sharing the same data-idx.
@@ -5220,6 +5251,7 @@ export function renderWorkbook(app, onBack, cfg) {
         });
       });
       if (q.pairDrop) attachPairDrop(app, q, groups);
+      attachTrainActions(q, groups);
       submitBtn.remove();
       showFeedback(true);
       return;
@@ -5228,6 +5260,8 @@ export function renderWorkbook(app, onBack, cfg) {
     // q.pairDrop: drag the book's pieces into its holes; each drop fills a
     // "Ghép ... vào ..." line below (see engine/pairDrop.js).
     if (q.pairDrop) attachPairDrop(app, q, groups);
+    // q.trainSwap / trainPaint / trainPick: act on the book's trains (engine/trains.js).
+    attachTrainActions(q, groups);
     gateCheckButton(submitBtn, inputs);
     submitBtn.onclick = () => {
       const valuesPerBlank = groups.map(group => group.map(inp => inp.value.trim()));
@@ -5271,11 +5305,13 @@ export function renderWorkbook(app, onBack, cfg) {
         blankGroups[i].forEach((inp, j) => { inp.value = parts[j] ?? ''; });
       });
       allInputs.forEach(inp => { inp.disabled = true; inp.classList.add('e3-correct-input'); });
+      attachTrainActions(q, blankGroups);
       checkBtn.remove();
       showFeedback(true);
       return;
     }
 
+    attachTrainActions(q, blankGroups);
     gateCheckButton(checkBtn, allInputs);
     checkBtn.onclick = () => {
       const values = allInputs.map(inp => inp.value.trim());
@@ -5380,10 +5416,29 @@ export function renderWorkbook(app, onBack, cfg) {
     }
 
     const allBtns = [...app.querySelectorAll('.gw-match-item')];
+    const isSample = (id) => !!q.matchSample && q.matchSample.includes(id);
 
+    // The book's "theo mẫu" link is already drawn, in ink, and cannot be moved.
+    if (q.matchSample) {
+      const [a, b] = q.matchSample;
+      drawMatchLine(a, b, '#231F20');
+      [a, b].forEach(id => { const el = itemBtn(id); if (el) { el.disabled = true; el.classList.add('gw-match-sample'); } });
+    }
+
+    // Train layout (q.trains): 👆 guide line and "↺ Làm lại" for the pending links.
+    const guide = app.querySelector('.gw-match-trains + .gw-act-guide');
+    const resetBtn = app.querySelector('#gw-match-reset');
     const updateCheckBtn = () => {
       checkBtn.disabled = (matchLocked.size + matchPairs.size) < q.pairs.length;
+      guide?.classList.toggle('gw-act-idle', !matchPairs.size && !selectedMatchItem);
+      if (resetBtn) resetBtn.disabled = !matchPairs.size;
     };
+    resetBtn?.addEventListener('click', () => {
+      [...matchPairs.keys()].forEach(leftId => unlinkLeft(leftId));
+      clearSelection();
+      refreshLinked();
+      updateCheckBtn();
+    });
 
     // Recomputes the neutral "tentatively linked" highlight from matchPairs —
     // a middle item can be one end of two different pending links.
@@ -5437,6 +5492,7 @@ export function renderWorkbook(app, onBack, cfg) {
       clearSelection();
       selectedMatchItem = { col, id };
       btn.classList.add('gw-match-selected');
+      updateCheckBtn();
     };
 
     allBtns.forEach(btn => { btn.onclick = () => onItemClick(btn); });
@@ -5459,7 +5515,7 @@ export function renderWorkbook(app, onBack, cfg) {
           itemBtn(rightId)?.classList.add('gw-match-wrong');
         }
       });
-      q.pairs.filter(pairLocked).forEach(([a, b]) => {
+      q.pairs.filter(p => pairLocked(p) && !isSample(p[0])).forEach(([a, b]) => {
         [a, b].forEach(id => {
           const el = itemBtn(id);
           if (!el) return;
@@ -5889,6 +5945,50 @@ function injectStyles() {
     .gw-hole-piece table { border-collapse: collapse; width: 100%; height: 100%; margin: 0; }
     .gw-hole-piece td { border-color: #29A9E0 !important; color: inherit; }
     @keyframes gw-snap { from { transform: scale(1.25); opacity: .4; } to { transform: scale(1); opacity: 1; } }
+    /* q.trainSwap: cars of the book's train the child swaps */
+    .gw-car-slot { transition: transform .35s ease; }
+    .gw-car-slot.gw-car-active [data-gw-car] { cursor: grab; touch-action: none; }
+    .gw-car-slot.gw-car-dragging { transition: none; }
+    .gw-car-slot.gw-car-dragging .gw-car-body { stroke: #F59E0B; stroke-width: 4; }
+    .gw-car-slot.gw-car-selected .gw-car-body { stroke: #F59E0B; stroke-width: 4; }
+    .gw-car-slot.gw-car-drop .gw-car-body { stroke: #FBBF24; stroke-width: 3.5; }
+    .gw-car-slot.gw-car-over .gw-car-body { fill: #FDE68A; stroke: #F59E0B; }
+    .gw-car-hand { display: none; pointer-events: none; }
+    .gw-car-slot.gw-car-hint .gw-car-hand { display: inline; animation: gw-hand-pulse 1.4s ease-in-out infinite; }
+    .gw-car-slot.gw-car-active [data-gw-pcar],
+    .gw-car-slot.gw-car-active [data-gw-kcar] { cursor: pointer; }
+    .gw-car-slot.gw-car-picked .gw-car { animation: gw-car-pick .35s ease-out; }
+    @keyframes gw-car-pick { 40% { transform: translateY(-8px); } }
+    .gw-car-paint { transition: fill .2s; }
+    .e3-blank-input.gw-pick-active { border-color: #F59E0B !important; box-shadow: 0 0 0 3px rgba(245, 158, 11, .3); }
+    .gw-crayon.gw-crayon-hint { animation: gw-crayon-bob 1.4s ease-in-out infinite; }
+    @keyframes gw-crayon-bob { 50% { transform: translateY(-3px); } }
+    /* 👆 how-to line + ↺ Làm lại under a train action */
+    .gw-act-guide { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem; margin: 0.2rem auto 0.8rem; font-size: 0.95rem; font-weight: 600; color: #475569; text-align: center; }
+    .gw-act-hand { display: inline-block; font-size: 1.4rem; }
+    .gw-act-guide.gw-act-idle .gw-act-hand { animation: gw-act-tap 1.2s ease-in-out infinite; }
+    @keyframes gw-act-tap { 0%, 100% { transform: translateY(0) scale(1); } 45% { transform: translateY(5px) scale(.88); } }
+    .gw-act-reset { padding: 0.35rem 0.9rem; border: 2px solid #cbd5e1; border-radius: 999px; background: #fff; font: inherit; font-size: 0.9rem; font-weight: 700; color: #334155; cursor: pointer; }
+    .gw-act-reset:not(:disabled):hover { border-color: #F59E0B; }
+    .gw-act-reset:disabled { opacity: .4; cursor: default; }
+    /* q.trains: a "nối" question drawn as the book's two trains */
+    .gw-match.gw-match-trains { max-width: 640px; margin: 0 auto; }
+    .gw-mtrain { display: flex; align-items: flex-end; position: relative; z-index: 1; margin: 0 0 2.2rem; }
+    .gw-mtrain:last-of-type { margin-bottom: 0.4rem; }
+    .gw-mtrain-engine { flex: 0 0 26%; display: block; }
+    .gw-mtrain .gw-match-item.gw-mtrain-item { flex: 1 1 0; min-width: 0; min-height: 0; height: auto; padding: 0; border: none; border-radius: 0.6rem; background: none; box-shadow: none; }
+    .gw-mtrain-car { display: block; width: 100%; }
+    .gw-mtrain-item.gw-match-selected .gw-car-body { stroke: #F59E0B; stroke-width: 4; }
+    .gw-mtrain-item.gw-match-linked .gw-car-body { stroke: #60A5FA; stroke-width: 4; }
+    .gw-mtrain-item.gw-match-correct .gw-car-body { stroke: #22c55e; stroke-width: 4; }
+    .gw-mtrain-item.gw-match-wrong .gw-car-body { stroke: #ef4444; stroke-width: 4; }
+    .gw-mtrain .gw-match-item.gw-mtrain-item.gw-match-sample { opacity: 1; }
+    .gw-crayons { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin: 0 0 0.8rem; }
+    .gw-crayon { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.9rem; border: 2px solid #cbd5e1; border-radius: 999px; background: #fff; font: inherit; font-size: 1rem; font-weight: 700; color: #334155; cursor: pointer; }
+    .gw-crayon-dot { width: 1.3rem; height: 1.3rem; border-radius: 50%; border: 2px solid #231F20; }
+    .gw-crayon.gw-crayon-on { border-color: #F59E0B; box-shadow: 0 0 0 3px rgba(245, 158, 11, .35); transform: translateY(-2px); }
+    .gw-crayon:disabled { opacity: .5; cursor: default; }
+    @keyframes gw-hand-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
     .gw-line-break { flex-basis: 100%; height: 0; }
     .gw-blank-label-boxes { gap: 0.3rem; }
     .gw-blank-inline.gw-blank-box { flex: 0 0 auto; width: 2.6rem; height: 2.6rem; padding: 0; border: 2px solid #475569; border-radius: 0.55rem; background: #fff; text-align: center; font-size: 1.25rem; }
