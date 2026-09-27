@@ -105,6 +105,7 @@ const circ = (n) => `<span style="${CIRC}">${n}</span>`;
 const cellImg = (src) => `<img src="${src}" alt="" style="height:34px;width:auto;display:block">`;
 
 // Bài 1 Tiết 3 Q4: the 1–100 board with four holes A–D and the loose pieces E, G, H, K.
+// data-gw-hole / data-gw-piece let the child drag the pieces in (q.pairDrop).
 const BD = 'border:1.5px solid #29A9E0;padding:0;text-align:center;font-size:.8em;font-weight:600;height:2em;min-width:2.1em';
 function board100() {
   const holes = { 23: 'A', 27: 'B', 63: 'C', 67: 'D' };
@@ -114,14 +115,14 @@ function board100() {
     let tr = '';
     for (let c = 1; c <= 10; c++) {
       const n = r * 10 + c;
-      if (holes[n]) tr += `<td rowspan="2" colspan="2" style="${BD};font-size:1em;font-weight:700;background:#fff">${holes[n]}</td>`;
+      if (holes[n]) tr += `<td data-gw-hole="${holes[n]}" rowspan="2" colspan="2" style="${BD};font-size:1em;font-weight:700;background:#fff">${holes[n]}</td>`;
       else if (!covered.has(n)) tr += `<td style="${BD}">${n}</td>`;
     }
     rows += `<tr>${tr}</tr>`;
   }
   return `<table style="border-collapse:collapse;margin:8px 0;table-layout:fixed">${rows}</table>`;
 }
-const piece = (name, a) => `<span style="display:inline-flex;align-items:center;gap:4px;margin:0 12px 6px 0"><b>${name}</b><table style="border-collapse:collapse"><tr><td style="${BD}">${a}</td><td style="${BD}">${a + 1}</td></tr><tr><td style="${BD}">${a + 10}</td><td style="${BD}">${a + 11}</td></tr></table></span>`;
+const piece = (name, a) => `<span data-gw-piece="${name}" style="display:inline-flex;align-items:center;gap:4px;margin:0 12px 6px 0"><b>${name}</b><table style="border-collapse:collapse"><tr><td style="${BD}">${a}</td><td style="${BD}">${a + 1}</td></tr><tr><td style="${BD}">${a + 10}</td><td style="${BD}">${a + 11}</td></tr></table></span>`;
 const pieces = () => `<span style="display:flex;flex-wrap:wrap">${piece('E', 63)}${piece('G', 27)}${piece('H', 23)}${piece('K', 67)}</span>`;
 
 export const BAI_1_6 = [
@@ -252,6 +253,8 @@ export const BAI_1_6 = [
           { label: '– Trong các số ở miếng bìa H, số bé nhất là ...', answer: '23' },
           { label: '– Trong các số ở miếng bìa K, số bé nhất là ...', answer: '67' },
         ],
+        // Kéo miếng bìa vào ô trống → tự ghi "Ghép H vào A" vào dòng tương ứng.
+        pairDrop: { blanks: [0, 1, 2], sample: ['E', 'C'] },
         hints: ['Ô trống A nằm sau số 22, nên miếng bìa ghép vào A phải bắt đầu bằng 23.'],
       },
     ],

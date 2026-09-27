@@ -117,6 +117,7 @@ import {
 } from '../engine/stars.js';
 import { gateCheckButton, keepWrongBanner } from '../engine/gameEngine.js';
 import { recordAttempt } from '../engine/activity.js';
+import { attachPairDrop } from '../engine/pairDrop.js';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
 
@@ -5202,11 +5203,15 @@ export function renderWorkbook(app, onBack, cfg) {
           inp.classList.add('e3-correct-input');
         });
       });
+      if (q.pairDrop) attachPairDrop(app, q, groups);
       submitBtn.remove();
       showFeedback(true);
       return;
     }
 
+    // q.pairDrop: drag the book's pieces into its holes; each drop fills a
+    // "Ghép ... vào ..." line below (see engine/pairDrop.js).
+    if (q.pairDrop) attachPairDrop(app, q, groups);
     gateCheckButton(submitBtn, inputs);
     submitBtn.onclick = () => {
       const valuesPerBlank = groups.map(group => group.map(inp => inp.value.trim()));
@@ -5850,6 +5855,24 @@ function injectStyles() {
     .gw-table-sample-row .gw-table-given,
     .gw-table-given.gw-table-sample-cell { background: #dbeafe; color: #2563eb; }
     .gw-sample-text { color: #2563eb; }
+    /* q.pairDrop: book pieces that can be dragged into the board's holes */
+    [data-gw-piece] { cursor: grab; touch-action: none; border-radius: 6px; transition: opacity .15s, transform .15s; }
+    [data-gw-piece].gw-piece-selected { transform: scale(1.08); box-shadow: 0 0 0 3px #F59E0B; }
+    [data-gw-piece].gw-piece-used { opacity: .3; }
+    [data-gw-piece].gw-piece-sample { cursor: default; }
+    [data-gw-piece].gw-piece-hint { position: relative; }
+    [data-gw-piece].gw-piece-hint::after { content: '✋'; position: absolute; right: -0.6em; bottom: -0.5em; font-size: 1.3em; pointer-events: none; animation: gw-grab 1.4s ease-in-out infinite; }
+    @keyframes gw-grab { 0%, 100% { transform: translate(0, 0) scale(1); } 40% { transform: translate(-3px, -3px) scale(.85); } 70% { transform: translate(4px, 3px) scale(.85); } }
+    [data-gw-piece].gw-piece-ghost { position: fixed; z-index: 9500; pointer-events: none; transform: translate(-50%, -50%) scale(1.1); background: #fff; box-shadow: 0 8px 20px rgba(0,0,0,.25); margin: 0 !important; padding: 2px 4px; }
+    [data-gw-hole] { transition: background .15s; }
+    [data-gw-hole].gw-hole-drop { box-shadow: inset 0 0 0 3px #FBBF24; }
+    [data-gw-hole].gw-hole-over { background: #FDE68A !important; box-shadow: inset 0 0 0 3px #F59E0B; }
+    [data-gw-hole].gw-hole-filled { cursor: grab; touch-action: none; }
+    [data-gw-hole].gw-hole-sample { cursor: default; color: #2563eb; }
+    .gw-hole-piece { animation: gw-snap .25s ease-out; }
+    .gw-hole-piece table { border-collapse: collapse; width: 100%; height: 100%; margin: 0; }
+    .gw-hole-piece td { border-color: #29A9E0 !important; color: inherit; }
+    @keyframes gw-snap { from { transform: scale(1.25); opacity: .4; } to { transform: scale(1); opacity: 1; } }
     .gw-line-break { flex-basis: 100%; height: 0; }
     .gw-blank-label-boxes { gap: 0.3rem; }
     .gw-blank-inline.gw-blank-box { flex: 0 0 auto; width: 2.6rem; height: 2.6rem; padding: 0; border: 2px solid #475569; border-radius: 0.55rem; background: #fff; text-align: center; font-size: 1.25rem; }
