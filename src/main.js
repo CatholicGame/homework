@@ -50,6 +50,33 @@ function initFullscreenButton() {
 
 initFullscreenButton();
 
+// Sau khi cập nhật bản build mới, tab đang mở vẫn giữ tên file JS cũ (đã bị xoá trên máy chủ) nên
+// import() hỏng — và trình duyệt nhớ lỗi đó, bấm "Thử lại" trong trang vẫn hỏng; chỉ tải lại cả
+// trang (như F5) mới lấy được bản mới. Ở các trang không có bài đang làm thì tự tải lại (mỗi 10 giây
+// tối đa một lần); đang làm bài (đồng bộ sao chạy nền cũng có thể gặp lỗi này) thì chỉ hiện nút
+// tải lại, để bé không mất phần đang làm. Mất mạng thật thì để trang tự báo lỗi.
+const RELOAD_KEY = 'tth-reload-for-update';
+const AUTO_RELOAD_PAGES = ['home', 'leaderboard', 'reviews', 'stickers', 'profile', 'admin'];
+window.addEventListener('vite:preloadError', () => {
+  if (navigator.onLine === false) return;
+  if (currentPage && !AUTO_RELOAD_PAGES.includes(currentPage)) { showUpdateBanner(); return; }
+  try {
+    if (Date.now() - Number(sessionStorage.getItem(RELOAD_KEY) || 0) < 10_000) return;
+    sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
+  } catch { /* storage unavailable */ }
+  location.reload();
+});
+
+function showUpdateBanner() {
+  if (document.getElementById('update-banner')) return;
+  const btn = document.createElement('button');
+  btn.id = 'update-banner';
+  btn.type = 'button';
+  btn.textContent = '🔄 App vừa được cập nhật — bấm để tải lại';
+  btn.onclick = () => location.reload();
+  document.body.appendChild(btn);
+}
+
 
 // Màn hình chờ khi đang tải một sách/trò chơi (file lớn, mạng chậm)
 function renderLoading(app) {

@@ -131,7 +131,9 @@ export function render(app, onBack, { onEditProfile } = {}) {
       if (e?.message === 'need-connect') return showConnect();
       showMessage('📡', 'Không tải được bảng xếp hạng. Kiểm tra kết nối mạng rồi thử lại nhé.',
         '<button type="button" class="btn btn-primary" id="lb-retry">🔄 Thử lại</button>');
-      body.querySelector('#lb-retry').onclick = () => load(true);
+      // Lỗi tải file JS (bản build cũ sau khi cập nhật): trình duyệt nhớ lỗi import, phải tải lại cả trang.
+      const staleBuild = e instanceof TypeError && /dynamically imported module|Importing a module script failed/i.test(e.message);
+      body.querySelector('#lb-retry').onclick = () => (staleBuild ? location.reload() : load(true));
     }
   }
 
