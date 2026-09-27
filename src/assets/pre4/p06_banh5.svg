@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 266 152" width="266" height="152"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAQYAA8AAAAAB6gAAAPAAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGyAcKgZgP1NUQVQqAEwRCAqEeIQfATYCJAMYCw4ABCAFhDoHIAwHGzkGERWcv0G+PKDHRs3LicjkhVf+J8ZJ2ceQIGPsF7sgu511qufej4dijd/bvftikgxRbWqdJGahWahEIiWYJIbE0CTemFzeV3yBlTUZzE7N3T6dmx7YabDTFxil5wc0Zm16oCKVVwBM3fz/xliaR/KYv1hZGtAG67zzaGwqkhJ1mNqo0zQNJAJHEQkG8ZK+Sb4XkFJBSjeL/fhbadYFCsiDBtTe9BKCPS+ZantKlv9uF2g0bFRsun3+dtUroaoAFhITpmSw1lOILrr67VjbyxTFnxryscEBFztnQeKYa0GIQRm0vzn+YtdbM60u9BWrfAWZi4D4nwPGFUKoF+gWGJYXKFp3QwqIAvIHEgW6FT6XlZahUb2UZlpgidUn0CR2McX6z9VdndUiYkXYvd6GUAuaUY/3RAsASnsvdujIOcvZUBtck34dwE1ic+cmvIWJfv8Yly+L/5vr/uFlcfHoKW/r+bvp+vnp5hFpLLLz5deT8NZWyrM2bl/ut4fWcP7Uey9+TBVpoRzA7MGPXc3O8Y+TnUKMy3dpfyMZ5e3jD6SH4x28Vzt/HyXzRKW4m77u4SBsUuyRUTSa4yDzEO3iifKHvNuhR0KhEdB8eAYcev3z7zCJ5ejjsyFEnX7VbINtsa/pcAr/2RExXZIGingnlXOdo+vuNOF3Ud+F1WeV2OwVtLYK+UprQ3kCf4WY6+FTkTAyWrSuebEWEyncDeVBI2HQCChqnPnz186Ya9bSPtPtYVdYvAajDbp9fJ0vKV4mQOUKi7wJ7H0fbTBtv4m2Qf4s8NwloBvTlzeu3UTiCf1Zc9QwkaNdVsbWxa/hwmZ5CHk0z99ZiTuP6SXgMtzdGmD3BOxAadjk5PTHp7OEzyDaEIhsxDSiDBy8aWRCoRmwktRumxksvjSymrbAZHxAVhDAVYEiOnRC5C3RVv2tx1APn2eTJ/j1Y/4IZlf/0rxHrQTBR/+L3OaabTxRAlCru3QqJVak0PocszQ1ZifPAsE0t3wMx64GpxWiNAeiH4mE0cCS1BpqUlgUHvOlFakxGOWo1QiDAxCgOfYLa/gu10BwkmRHZShah2F/sIBvmoAPg8E4DRFxeFcllsD8cKi367SkalCndV3Wlr0exfTNBtrFJKHHeKlKWB0ZoXhGRCz9ql4EuM0QaoN3utyDjTZY+1wOn4RGqCaBw60kxuu9MminW1Eco1dr8HxLGjcoG/DasKmjbr8/Xb2+vd6sOOQd9le7KY+JaQ5YJvFk/myJfQkVzhiCF6rnhuh+E9W91+UzAA==) format('woff2')}</style><!--/embedded-font-->
+  <rect width="266" height="152" fill="#8EC3EA"/>
+  <circle cx="21.2" cy="25.5" r="17.5" fill="#E0475A"/>
+  <text x="21.2" y="34.7" font-family="Quicksand" font-weight="500" font-size="25" fill="#fff" text-anchor="middle">5</text>
+  <g stroke="#231F20" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M20.9 69.6 L101.2 13.9 L257.3 69.6 Z" fill="#E8704B"/>
+    <rect x="20.9" y="69.6" width="236.4" height="79.6" fill="#F2E52A"/>
+    <line x1="20.9" y1="109.0" x2="257.3" y2="109.0"/>
+    <circle cx="109.4" cy="43.2" r="19.8" fill="#D8434B"/>
+    <path d="M100.4 33.6 L110.1 38.2 Q116.4 24.2 134.4 17.2" fill="none"/>
+  </g>
+  <g font-family="Quicksand" font-weight="500" font-size="46" fill="#231F20" text-anchor="middle">
+    <text x="74.9" y="143.9">2</text><text x="116.5" y="143.9">+</text><text x="157.8" y="143.9">6</text><text x="198.7" y="143.9">=</text>
+  </g>
+</svg>

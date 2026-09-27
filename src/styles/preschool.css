@@ -1091,6 +1091,12 @@ button.pk4-box { cursor: pointer; }
 .pk4-node.is-num { width: 64px; border-radius: 50%; background: #E0F2FE; }
 .pk4-node.is-picked { transform: scale(1.08); border-color: #F97316; box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.3); }
 .pk4-node.is-linked { border-color: var(--pair); box-shadow: 0 5px 0 var(--pair); }
+/* Nối chỉ có chữ/số: thẻ cao theo phần màn hình còn trống (--pk-free) chia số hàng, chữ to theo thẻ. */
+.pk4-link.is-big { --h: clamp(50px, calc((var(--pk-free, calc(100vh - 300px)) - 40px) / var(--rows) - 1rem), 130px); gap: clamp(1rem, 10vw, 9rem); }
+.pk4-link.is-big .pk4-col { gap: 1rem; }
+.pk4-link.is-big .pk4-node { min-height: var(--h); min-width: var(--h); padding: 0 calc(var(--h) * 0.25); border-radius: calc(var(--h) * 0.3);
+  font-size: min(calc(var(--h) * 0.42), 5.5vw); }
+.pk4-link.is-big .pk4-node.is-num { width: var(--h); height: var(--h); padding: 0; border-radius: 50%; }
 
 /* Đi đường số */
 .pk4-path {

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 148" width="440" height="148">
+  <rect width="440" height="148" fill="#fff"/>
+  <defs><rect id="tile" x="1.15" y="1.15" width="140.3" height="132.6" rx="2" fill="#F4E650" stroke="#231F20" stroke-width="2.3"/><g id="sun" transform="translate(70.2 70.1)" stroke="#231F20" stroke-width="2.6" stroke-linejoin="round"><path d="M-7 -38 L-7.5 -56.5 L7.5 -56.5 L7 -38 Z" fill="#F6E626" transform="rotate(0)"/><path d="M-7 -38 L-7.5 -56.5 L7.5 -56.5 L7 -38 Z" fill="#F07A48" transform="rotate(30)"/><path d="M-7 -38 L-7.5 -56.5 L7.5 -56.5 L7 -38 Z" fill="#F6E626" transform="rotate(60)"/><path d="M-7 -38 L-7.5 -56.5 L7.5 -56.5 L7 -38 Z" fill="#F07A48" transform="rotate(90)"/><path d="M-7 -38 L-7.5 -56.5 L7.5 -56.5 L7 -38 Z" fill="#F6E626" transform="rotate(120)"/><path d="M-7 -38 L-7.5 -56.5 L7.5 -56.5 L7 -38 Z" fill="#F07A48" transform="rotate(150)"/><path d="M-7 -38 L-7.5 -56.5 L7.5 -56.5 L7 -38 Z" fill="#F6E626" transform="rotate(180)"/><path d="M-7 -38 L-7.5 -56.5 L7.5 -56.5 L7 -38 Z" fill="#F07A48" transform="rotate(210)"/><path d="M-7 -38 L-7.5 -56.5 L7.5 -56.5 L7 -38 Z" fill="#F6E626" transform="rotate(240)"/><path d="M-7 -38 L-7.5 -56.5 L7.5 -56.5 L7 -38 Z" fill="#F07A48" transform="rotate(270)"/><path d="M-7 -38 L-7.5 -56.5 L7.5 -56.5 L7 -38 Z" fill="#F6E626" transform="rotate(300)"/><path d="M-7 -38 L-7.5 -56.5 L7.5 -56.5 L7 -38 Z" fill="#F07A48" transform="rotate(330)"/>
+<ellipse rx="37.3" ry="36" fill="#F6E626"/>
+<g stroke="none"><circle cx="-30" cy="-9.6" r="2.1" fill="#231F20"/><circle cx="20.5" cy="-9.9" r="2.1" fill="#231F20"/>
+<ellipse cx="-33" cy="-2.2" rx="5" ry="3.8" fill="#F39A8C"/><ellipse cx="26.5" cy="-2.6" rx="5" ry="3.8" fill="#F39A8C"/></g>
+<path d="M-17.5 -0.5 Q-2 13.5 14.5 -0.5" fill="none" stroke="#EFA02E" stroke-width="2.3" stroke-linecap="round"/></g><g id="balloon" stroke="#231F20" stroke-width="2.8" stroke-linejoin="round">
+<ellipse cx="73.2" cy="50" rx="44.6" ry="37.6" fill="#F6E626"/>
+<path d="M72.9 13 C48.3 28 48.3 72 72.9 87.5 C97.3 72 97.3 28 72.9 13 Z" fill="#F07A48"/>
+<path d="M58.3 96 L61.8 107.5 M87.8 96 L84.8 107.5" fill="none"/>
+<rect x="55.1" y="89.6" width="36" height="6.4" fill="#F6E626"/>
+<path d="M56 107.8 L90.1 107.8 L85.9 126.2 L61.3 126.2 Z" fill="#F07A48"/></g><g id="lolly" stroke="#231F20" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round">
+<rect x="68.6" y="85" width="8.6" height="44.3" rx="2" fill="#E9965A"/>
+<path d="M57.1 75 L56.6 85 Q57.1 89.2 62.1 88.6 Q67.1 87.8 70.1 84.5 L76.1 84.5 Q79.1 87.8 84.1 88.6 Q89.1 89.2 89.6 85 L89.1 75 Z" fill="#EDE24A"/>
+<ellipse cx="73.1" cy="43" rx="38.2" ry="33.4" fill="#F07A48"/>
+<path d="M80.6 47.5C80 46.8 78.7 44 77.1 43.2C75.5 42.5 73 42.2 71.1 43C69.2 43.8 66.6 45.8 65.8 48C65 50.2 65 53.7 66.1 56C67.2 58.3 70 61 72.6 61.8C75.2 62.6 78.9 62.1 81.6 61C84.4 59.9 87.1 57.8 89.1 55C91.2 52.2 93.7 47.7 93.9 44C94.2 40.3 92.7 35.7 90.6 33C88.6 30.3 85.3 28.7 81.6 27.8C77.9 26.9 72.8 26.7 68.6 27.5C64.4 28.3 59.9 29.9 56.6 32.5C53.3 35.1 50 39.2 48.6 43C47.2 46.8 47.4 51.3 48.1 55C48.8 58.7 50.9 62.2 52.6 65C54.4 67.8 57.6 70.8 58.6 72" fill="none"/></g></defs>
+  <g transform="translate(-18.2 6.3)"><use href="#tile"/><use href="#lolly" x="-2.3" y="0.7"/></g>
+  <g transform="translate(133.7 6.3)"><use href="#tile"/><use href="#sun" x="-0.7" y="2"/></g>
+  <g transform="translate(287.7 6.3)"><use href="#tile"/><use href="#balloon" x="0.3" y="-0.3"/></g>
+</svg>

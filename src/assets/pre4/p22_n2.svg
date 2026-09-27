@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 332" width="430" height="332"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:600;src:url(data:font/woff2;base64,d09GMgABAAAAAARUAA8AAAAACBQAAAP6AAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAG4EAHCoGYD9TVEFUKgBMEQgKhHyECAE2AiQDHAsQAAQgBYQ+ByAMBxuKBiCuB2xjMeYP4SHJ2rEQ6bpX7DjPw/1BxEPawjEent8feO77fwaS0bbkRtXFrSGuCQlQgvCP7HL2pUqahyKxPkB1mS4X4+qQhD2ADzIBiHJoUjwovYTp7+lOxcATQvM+sZ7XRgWxJdDiZXKK7j49CyIMxEMP26Kgtm9/B88ul8MHjqkuIrFKYAOcWQdF4maVFA02wYEljoYRwQc84MHk5tY4mwWRNFKd55To3YoCZTW3ITb85ukLSksoV4eSHD4OZYs5W4cMN1MuWQKsqhLsq6GZDUeIXEhyJSSpeEogiaJlsoLokZQQtnJBsaUZvG7QgfLUPWVAkrQ9SwHj+ok5sBEDIAJ2MPXvIk+Ff12Oin4ugHwvspPZZPEjHUeAxuJiUvNRHUF9sVWC6BJAEhD54PsnIUN1cYHqEnoDZZWWJF3sOD7qf4EutopKjb9WZOGPv4QWUC/El3yVEEqBiiiNa/gFyAEhhCSk2o38FGQisWK57Y4oUWdSf9ns4HXa9KH95XbYJdbaKlTFshbTGARRirtseQs8szx/8vY7tHs01jk3j9w8/3Te7hC3UWXtyRl17KmVPtam7xxXaxJnaPHsHn+9rL0150elEuNb/9TLWXmaT10hVr/52OrFZBkxMqWrhmETV9CRWnsmZnpgYK1QIT/vVq9rPapZe32WvyrwWaNu99CiTcPK1I4z0hjvVu8S47fG3Wrja8oOoNlhnPpTvdrJgF2V0wtVo3/uyfuSTWDuHrhCxe0Mckrgeu3uCXJVpEGbE9pXiaGWwhksaCD5arwP5OAAsAPeJrx5t60l9cMrDgLKwx/O9eAI0RnfKVr/BEGeu5JSoq6JZPi3m3IvpvrTelWbvQJiXILCNKljG57333mbBOlp04kuwYEVZcehOeNevlL5u6mlclqglAmMCObRD6tX26+xnmEHmpORYB8wH1lkdC0Lqlp15ALt4QjAagRZbOv+GxyaW+noW+ksewn3O8w9gedPOj9UrrhtkLZRUgLB6+1MYw0Q6vVA6HlKpdEwSwdU6iufejrvyHbjYKPxsIGglD6EVTCtjKXiIi9D1AZFXmgYFi+pGD15me6JbM3NeCXUTaOpZBOkVyooHwd/aOQqZwlxyWCK2CQCkQttWLNuH/oi4qB3HglD4aDoWOiNzSDjMFzonMclMtgcaEbkcpkcB1atEkjXZA9tBcOgWaWc1cYJLDNRBCqJjhIYdFt1YfINikaiiqyQZ84tQcFAs6MPHAfH5uOw0A2D7rDlhUI9vS6Do3p1GD0tk5r8rwk8Kopt04o1a3YcevHqxbVDEtll4I96qSySUy1IU09XwK8BwE+WRnLxaypWHCjYoMmHo+CD+S4AAA==) format('woff2')}</style><!--/embedded-font-->
+  <defs><path id="t" d="M0 0 L26.5 45 H-26.5 Z" fill="#8FC540"/></defs>
+  <rect width="430" height="332" fill="#fff"/>
+  <!-- khung cam, vạch chia -->
+  <rect x="8.5" y="13" width="416" height="309.5" fill="none" stroke="#EE8F6A" stroke-width="2"/>
+  <line x1="9" y1="232.2" x2="424" y2="232.2" stroke="#EE8F6A" stroke-width="2"/>
+  <rect x="18" y="240.7" width="399.5" height="72.6" fill="#F2D38E"/>
+  <!-- 15 tam giác -->
+  <use href="#t" x="50" y="35"/><use href="#t" x="118.3" y="35"/><use href="#t" x="184.7" y="35"/>
+  <use href="#t" x="251.3" y="35"/><use href="#t" x="318.7" y="35"/><use href="#t" x="384" y="35"/>
+  <use href="#t" x="50.5" y="102.3"/><use href="#t" x="118" y="102.3"/><use href="#t" x="184.5" y="102.3"/>
+  <use href="#t" x="252.3" y="102.3"/><use href="#t" x="318.8" y="102.3"/><use href="#t" x="383.5" y="102.3"/>
+  <use href="#t" x="51.5" y="170"/><use href="#t" x="118.3" y="170"/><use href="#t" x="184.2" y="170"/>
+  <!-- khoanh 4 tam giác -->
+  <rect x="22.3" y="94" width="260" height="62" fill="none" stroke="#3A3A3C" stroke-width="1.4"/>
+  <!-- gạch 5 tam giác -->
+  <g stroke="#231F20" stroke-width="1.4" stroke-dasharray="4 2.5">
+    <line x1="295" y1="104" x2="330" y2="148"/><line x1="362.7" y1="104" x2="396" y2="148"/>
+    <line x1="30.7" y1="177" x2="65.7" y2="221.5"/><line x1="97.7" y1="176.7" x2="133.3" y2="221.5"/><line x1="165.7" y1="176.7" x2="201" y2="221.5"/>
+  </g>
+  <g font-family="Quicksand" font-weight="600" font-size="58" fill="#231F20" text-anchor="middle">
+    <text x="34.2" y="296">1</text><text x="65" y="296">5</text><text x="106.7" y="296">−</text><text x="164.2" y="296">5</text><text x="220.2" y="296">−</text><text x="275.7" y="296">4</text><text x="332.3" y="296">=</text><text x="387.5" y="296">6</text>
+  </g>
+</svg>

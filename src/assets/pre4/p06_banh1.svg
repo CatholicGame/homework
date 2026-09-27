@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 247 152" width="247" height="152"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAOsAA8AAAAABxgAAANSAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAG2AcKgZgP1NUQVQqAEwRCAqDMIJyATYCJAMUCwwABCAFhDoHIAwHG8gFUVRQ6gF+JNhuowahyiDYdA13hC4/g+dJr/9zJ8mun4BPqwLVEe4Azv+s8zSkq4P+WwKRpHyAehvTwdhNOTh1qmYs0Jy/eDAas7kxlNSKa9JYoAWtFXQO7gZOyYrBitTmmhfhFxPB07nWuwcRwEWSHqxajXrNIPt1HjYAEhPg69DSt/uQASTBaEyUJZCzZytC5KEoBAPlIIi+tQY3RYVM3wIAAKbKlq9YoKarViDU7U8jHeiVQ8MWxP9B/mP8ZVreS22DuUZyQRAA+aEOA3FwBMGBAEFQIAo2smevYQJQCIAY8hUABRhAEBwBghCUguDCgUKRqWti+Rr8ZOn7+rq+qM8hAACAIFrjCwgWAC7AAcwGNgAAJgAgGChUWAKJ+kL39I1iBTdb6JI3jEttuWRJ8IwNmGPX9wzZc+MOY2/fdk2/e1fG3buWGrT26E7N3HPPuBPM2X64xdgTFyx76ZSMu5sX32494574J69qweXjjL3TljHc5PZW/g5czUYMQ3n4KLSJj3a6Xvo8YKR/6SOD6i/2+o/yC6m3utewL4MCavj39Z/CkE7ROUPjqqSWKNOmW3GFCl2L+68rkZ1Udc67hstfP04tUdyyfUGp0m0LSrQskf735Y9ZSdbs+IQBwUlF1aqUKPFcN+ZFhQY1i5NbfUxN+dgqudifQ9MU/+Z+fs38l9vlV64HTAlYFTglMLBn4MrAkbQe69/dz6+b//CS69vdf9hB/x4iDkHdPqCHP4BRCDBk2qeazzI7+i6+OQzjJcCD7I5XAZ4/zd9JqP6jgtURAYANBYDAm+SrWhmU8hhQGsOK/oBKo0gtlt5K0lw6PShgUQEOgIBDTobAEdMJEgbiAyGmMKDwkRLAoKhqw2YesIholGGLYfPLBDyy3YeNpBymKoMpYpMIRC7Q09E1Bd5EHPDgkTAUDoqOBe5sBhmHmWls5XqXyGBzgAqRy2VyzLS1CaS62ENrYRg0bc502TiBJhNFoJLoKAGKrr0H49Sfo5GoIi3s5VUNIFjpWvDEcXBsPg4LnBh0LnDlmMAB5RU6j0fgfE4ie9oEHhXF1tfS0TEyd3VzdTRnYTbhr3hWlrSrIeDpZS700wBfvool8WhwANArKdAU7hc9abs5CwAAAA==) format('woff2')}</style><!--/embedded-font-->
+  <rect width="247" height="152" fill="#8EC3EA"/>
+  <rect width="247" height="7.3" fill="#fff"/>
+  <circle cx="13.8" cy="32.7" r="17.5" fill="#E0475A"/>
+  <text x="13.8" y="41.9" font-family="Quicksand" font-weight="500" font-size="25" fill="#fff" text-anchor="middle">1</text>
+  <g stroke="#231F20" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M19.5 73.9 L99.8 18.2 L254.5 73.9 Z" fill="#E8704B"/>
+    <rect x="19.5" y="73.9" width="235.0" height="81.1" fill="#F2E52A"/>
+    <line x1="19.5" y1="113.3" x2="254.5" y2="113.3"/>
+    <circle cx="108.0" cy="47.5" r="19.8" fill="#D8434B"/>
+    <path d="M99.0 37.9 L108.7 42.5 Q115.0 28.5 133.0 21.5" fill="none"/>
+  </g>
+  <g font-family="Quicksand" font-weight="500" font-size="46" fill="#231F20" text-anchor="middle">
+    <text x="73.5" y="148.2">1</text><text x="115.1" y="148.2">+</text><text x="156.4" y="148.2">8</text><text x="197.3" y="148.2">=</text>
+  </g>
+</svg>

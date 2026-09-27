@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 247 152" width="247" height="152"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAOgAA8AAAAABvAAAANHAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGyAcKgZgP1NUQVQqAEwRCAqDSIMAATYCJAMUCwwABCAFhDoHIAwHG5YFYK4HbGM41h/iQbSNmWi27CybpcZ15OGXi3NYGkEwV85ukgdghQUGWQmOVVmeK2kCYQmVKMsK+zJD+3vvfUi70bhvtSUAdc0KZSt1i25ChpxJAcG1LQjgXLfUSN4IhtPZJz39s0UDRYa9FX5ZANYXdP8X7nNuBCx0d/N/Ll2RfprIcMhRz8fTTK4L4rPZeTVn6gEd6OHwRE6dzmffxIAkaxaLyO/qAm0mqGD7o5oWQFFCDWDAmRUBV451Oec0A4kNNrnMWOFLRd4TOwCOkTJxmqSIA+RA/czxHwOPlsktXmuV8pUQDxAQS/kdZuCF0CIwAMME3M281olBCogC+wKJAgPwAgMINgPatEhpmRQZcmuItvUPK3OT9l4WoqYboQJtaMEDeA1QAkIh5XTAwlDmZCWIwpSIOVXWKLUxtGvU06wV24dQjiXPOdudNI7Htp3P4bKZG9htv2XCxSGeKo7W91N7M6EsBuFsShzT9y+C/np6ll2NUzZOqraHwy0CXlMTypRi84C8h8fQcIO/37TNzWnlsFv0PW1MZ2+GGwVUboJr4GqA/awyzgGLwtOyukZS8/KGU8n+0mJDiud+8dP3c25jantvUkZmd1Jae1rkT0sPcdYPMgtDUkqK0tJug/wvO0+Wp4Z2vM3NvtlU0QE0z3JbOZwW7ua1/NO+2+aONWbxNfxtywM6GwbicEa4rsPJRobz2lATSkMjb6A2AMAtGIqYCJghL93b/xT4V/i54swz/P+35j2d9XNQvIUmCYKP6hN5GKbxFIKBWJV+QEQGw8wAkjKd2IwkCYbKTngQMK3VFXhRUoEYAQgQpkICUlekgcL6KGksTaAyFl6xqYAthjCgIw4FjN/DLftYWPnY6WhoOUFJEiTKBLVYgtGqjVx0hhk4DDIbATWws9BDhredppCLk5aFnQMUQcvJycohS7x4GjpLd5chcYZZmMQHVssO8YhlNUjDSMdskMcgs/gGxDLSwUTHyCdOdDhSDMjzmFWhJogDYueGjIDKWJg5QXUBLRAoKD57UYZqXhIVXTUNF6NBdsniJEiQJludenVKZUcQY+E23c5B11IDPItshNp5Add+1QgdFxM8UM9a8H4W/ntdzgAAAA==) format('woff2')}</style><!--/embedded-font-->
+  <rect width="247" height="152" fill="#8EC3EA"/>
+  <circle cx="13.6" cy="26.2" r="17.5" fill="#E0475A"/>
+  <text x="13.6" y="35.4" font-family="Quicksand" font-weight="500" font-size="25" fill="#fff" text-anchor="middle">4</text>
+  <g stroke="#231F20" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M20.8 69.5 L101.1 13.8 L255.5 69.5 Z" fill="#E8704B"/>
+    <rect x="20.8" y="69.5" width="234.7" height="79.2" fill="#F2E52A"/>
+    <line x1="20.8" y1="108.9" x2="255.5" y2="108.9"/>
+    <circle cx="109.3" cy="43.1" r="19.8" fill="#D8434B"/>
+    <path d="M100.3 33.5 L110.0 38.1 Q116.3 24.1 134.3 17.1" fill="none"/>
+  </g>
+  <g font-family="Quicksand" font-weight="500" font-size="46" fill="#231F20" text-anchor="middle">
+    <text x="74.8" y="143.8">4</text><text x="116.4" y="143.8">+</text><text x="157.7" y="143.8">8</text><text x="198.6" y="143.8">=</text>
+  </g>
+</svg>

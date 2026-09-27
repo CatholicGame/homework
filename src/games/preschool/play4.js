@@ -418,8 +418,11 @@ function playLink(ctx) {
   const froms = round.from.map((it, i) => card(it, 'from', i));
   const tos = `<div class="pk4-col is-to">${round.to.map((it, j) => card(it, 'to', j)).join('')}</div>`;
   const half = Math.ceil(froms.length / 2);
+  // Chỉ có chữ/số (không hình): thẻ to theo chiều cao còn trống, chia cho số hàng của cột dài nhất.
+  const textOnly = ![...round.from, ...round.to].some(it => itemKind(it) === 'is-img');
+  const rows = layout === 'mid' ? Math.max(half, round.to.length) : Math.max(round.from.length, round.to.length);
   stage.innerHTML = `
-    <div class="pk4-link is-${layout}">
+    <div class="pk4-link is-${layout}${textOnly && layout !== 'tb' ? ' is-big' : ''}" style="--rows:${rows}">
       <svg class="pk-match-lines" aria-hidden="true"></svg>
       ${layout === 'mid'
         ? `<div class="pk4-col">${froms.slice(0, half).join('')}</div>${tos}<div class="pk4-col">${froms.slice(half).join('')}</div>`

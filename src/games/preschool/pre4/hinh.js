@@ -67,12 +67,12 @@ export const STATIONS = [
         hint: 'Hình này có trong hình bên trái rồi. Bé tìm hình khác nhé!',
         done: 'Đúng rồi! Đây là hình bị thừa!',
       })),
-      // Trang 44: hình ví dụ có 30 ô vuông; các hình thiếu lần lượt 15, 14, 16, 9, 8 ô.
+      // Trang 44: hình ví dụ có 25 ô vuông (5 × 5); các hình thiếu lần lượt 15, 14, 16, 9, 8 ô.
       {
         type: 'ask', img: img('p44_mau'),
         asks: [15, 14, 16, 9, 8].map((answer, k) => ({ icon: img(`p44_h${k + 1}`), label: `Hình ${k + 1}:`, answer, unit: 'ô' })),
-        say: 'Hình vuông mẫu có ba mươi ô vuông nhỏ. Mỗi hình bên dưới cần ghép thêm mấy ô nữa để thành hình vuông giống hình mẫu? Bé đếm rồi chọn số nhé!',
-        hint: 'Chưa đúng rồi. Bé đếm số ô của hình, rồi đếm tiếp cho đến ba mươi nhé!',
+        say: 'Hình vuông mẫu có hai mươi lăm ô vuông nhỏ. Mỗi hình bên dưới cần ghép thêm mấy ô nữa để thành hình vuông giống hình mẫu? Bé đếm rồi chọn số nhé!',
+        hint: 'Chưa đúng rồi. Bé đếm số ô của hình, rồi đếm tiếp cho đến hai mươi lăm nhé!',
       },
       // Trang 45: hình chia thành bốn phần bằng nhau: 3 (hình vuông), 4 (hình tròn), 6 (nửa hình tròn).
       {

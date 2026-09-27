@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 178" width="190" height="178"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAMYABAAAAAABjAAAAK+AAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhQbIBwqBmA/U1RBVCoAPBEICoIAggwBNgIkAwwLCAAEIAWEOgcgDAcbHgURFZxxKH4cxm7ok6nSrdZGGAJHi7Sb2enuP57nf398+9x7P8dM9OpgF1af5CqHpjrTfhwoVDlBVfHNv3+/G+T7YQfofRBr4sixtWUTh7XT3CkAhq6pHwWW2IKvWEEP9l6xKFqbzmZtBTSSEx0+Dkhn3UqlesWStbYpY+Wc+7zvjWA4IO0zBk03U9brR2dBvwZdB0DCHPOUw0YeQsJeMBmFPW5lcf70UC6XRcA2dTT7wYrQKXQI/fIYMPDUMmvqT1eu3QoDgfwvDzFbFdEvGC+Yrpyw2cNFAEUgNX9AQcV4VTBeMw+9miiB1gOsAkD3rHsQQKTrjEJU0IuG7ZwBNEBRRo/GNyJbX18pvPketv3q08mXH9u3v79TeP01uPXyw8lXn5BVdYl2nK9W7jh5e/xdT15Ox94+7+69VuLp1KKqGe+a8MZqF16pYMZQCa7sVsHN+PQkb1CDS88vTMygmsdj8OmFed35O2DmgGg7WTTUt8KitDmoXoPFNKlsK1Q0nmyvb/2SHRUqR+mL+7Fqxfo+EnUEdwGnaTKx1SxXDpOUeJyWSkLpfhcxNCSsnkLEaNQkAAeDmku/d3F1Gw3Sv/21/oB3izee4Nvnlc1gRfdf5pZ79CogfGpUdiGU2dbYJUktm8G8zJcBa+NqDWOJPBxwuEobIJNhSDEznVIxMmukalW0uw2UekxNPOh1saOBMDxDBlwBfGid1OdPBB02exiymSwRnLVb4FTEYXKFEK8ZTgZ9TospDFWRsN0XDEGiPRz2h8QMhs2B3Y8Y6Safh0HtV9ASo/kRm9vhRWKIl3FFoFeLHoc7QecPkqgwFvU74LQlZAlGLWao93nDcBzxWCA6YrkTw9GXMvl9s0XcSJBDZzL5kvGJcZ2Eo6XB82kw5LhrB451jqEFL8FjX2V2RDwl0F3HlubddOeG2jUA) format('woff2')}</style><!--/embedded-font-->
+<rect width="190" height="178" fill="#fff"/>
+<g transform="translate(-12 2)"><g stroke="#231F20" stroke-width="2.2" stroke-linejoin="round">
+<path d="M16 97.5V93A83.7 78 0 0 1 183.4 93V97.5H169.4V93A69.7 63.5 0 0 0 30 93V97.5Z" fill="#F5A05A"/>
+<path d="M12 96.5H187.5Q190 98 189.5 108C188 138 172 160 150 165.8H48C26 160 10 138 8.8 108Q8.6 98 12 96.5Z" fill="#F5A05A"/>
+</g>
+<g stroke="#231F20" stroke-width="2" fill="none">
+<path d="M35.3 96.5Q39 130 48.5 165.8M71.3 96.5Q72 135 85 165.8M125.8 96.5Q125 135 111.7 165.8M162.5 96.5Q160 130 149.5 165.8"/>
+<path d="M9.5 113H35.8M71.8 113H125.3M161.7 113H188.5M37.5 123.7H73.3M125 123.7H160.3M15.5 138H39.5M75.8 138H121M158.2 138H182M44 147.5H78.5M119 147.5H151"/>
+</g></g>
+<circle cx="89" cy="66" r="29" fill="#8DCFEC"/>
+<text x="92.5" y="83" text-anchor="middle" font-family="Quicksand" font-weight="500" font-size="45" fill="#231F20">60</text>
+</svg>

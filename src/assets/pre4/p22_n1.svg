@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 433 327" width="433" height="327"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:600;src:url(data:font/woff2;base64,d09GMgABAAAAAATIAA8AAAAACNQAAARwAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAG4ECHCoGYD9TVEFUKgBUEQgKhiiFEwE2AiQDIAsSAAQgBYQ+ByAMBxsjBygehXHjU0o7THZtCx8ol4AWEVT7ffbMe//uQgSa2AKgYkloRCqKVCQaEcXoiHcoL5uUSrJgVoWyNf267ZGvUvqd9DRjwEWwy4LT0+83KyJ6XawECJHWPubvSJCgQhKzRoOSOELTqL5dX2hLywvR+0KpM8ibjG/6ZAyTyYMCrQ2lS2jOPHd/ILdnY34mkFPD+5C1e2tuJpAg5aulNXRr1+qHNAymSpsxS5CGUH0vAkHflhDlkxTGEC4vhbp8L7LfHYfqcKpYUhEZVad+BhMlz0ksYPEwsY5uaNNxgTyD5s/Ic8EsmDRYSfh9EaO+AOEVZ4sfeRsAAwmLmV1HVxD6Ejq0PTkfAkgBUfc/m0SFroSbWUV69bfVIjOCJ9FjzCIO/C+IUYZvK3fKTtkq60++CkSzJr+h6IDQAjoC2hBtgZgNgLpJmBQqKbznNGUFEluOpEoL2iFR8pLHUvqVNRpBz1qk69uAyJHWoPNNaNOadP3OQtTMr7cWNDZWC7wiBqnJhJ4OadnywdXPEX/1ZyOO2NGRI4eHvmP15pcW6IkxIUKPmhPX8mdYyHJzBw+Jvy/31cxGE+uebV3WB65/O3xz1pG5raXt9xCjyGkekvy4Nan30J6lQYftjCA1T/cHuu6DeicDj3StZUzb6IFq9qUEuyH1J0MfuDrryFEYskurVJZy9P/8scclgTQXbj2miHxFKfefxZ+0a0W8TQgkfAbbL4FcYnJZvJ+HNbWCJ1nw08L28CpY5oFgdMlPErmKwG2IOeUOIt1QfGNFkLdcxmSViW60hYtNar6Ju7Ir0iA5LA1fBPRWxss0TN0YkboqivFq6fZxid6OyENJ5DVVqdTAzAm3sFH3flX39uPfUWpunB22H25pnpxoYR3Oe0hXUfl7UllliKHCZTSAWWH0Iyrt9kezSXcEII4Qryjj2tp33X1QWpZnPsOGa2wenmhoZc1B0krGWjy7N9cJgrcXI4yMgqP0zcwi9KVnN1L/9e3bGeYNlcmg7jDxC1znInPN0Nmaz4LfcDhvYBbfyRrEBd1A4DW0ltBmgQ5CJmawMd8EoWbKIsAIfhx+cQBwGIQqbq1Y7ldEyZt/a6mE38MDrahtgLfXE20BWr5nz1xCkwTBpQO5qAoOpQ8I+QNa0plqVEETpZFcBklmnCxa6UI3XemC0GIaYRDIvFb2Eha1JBA9gQxB6B8kQWofhoLK1LBvrisKGnpHMWhSiHooBwFto/eVQiKgY0wCO1mylciVIkmyfBhdfDpMYPwlS4DxUSBFnDR5YmSKh/GWK0uqBHHyYWwUyJcsS648GFXJ8uXLlscUDpckJZpdIJa2OFky4NBtcyUooiVbjCTpUmSKUVSlEz6K2Y5iZEiRroQ2PlaNJkxRX9tjfCXIkyBXoQTxMI6yZI7Z6gnRzLAD261c4MW4r5QG/9GSFEgXI5cebXx8hsx48uLJgRlGUQseqFkta8q4mjBQLY1hQUYd7qdZCWBLf7d08YSB8pouEn4d+n/ymsgd) format('woff2')}</style><!--/embedded-font-->
+  <rect width="433" height="327" fill="#fff"/>
+  <!-- khung cam, vạch chia -->
+  <rect x="9.5" y="13.5" width="416" height="309" fill="none" stroke="#EE8F6A" stroke-width="2"/>
+  <line x1="10" y1="231" x2="425" y2="231" stroke="#EE8F6A" stroke-width="2"/>
+  <rect x="20" y="240" width="397" height="75" fill="#F2D38E"/>
+  <!-- 17 chấm tròn -->
+  <g fill="#6F9BD6">
+    <circle cx="57" cy="62" r="21"/><circle cx="120" cy="62" r="21"/><circle cx="183" cy="62" r="21"/>
+    <circle cx="246.5" cy="62" r="21"/><circle cx="309.5" cy="62" r="21"/><circle cx="372.5" cy="62" r="21"/>
+    <circle cx="57" cy="125" r="21"/><circle cx="120" cy="125" r="21"/><circle cx="183" cy="125" r="21"/>
+    <circle cx="246.5" cy="125" r="21"/><circle cx="309.5" cy="125" r="21"/><circle cx="372.5" cy="125" r="21"/>
+    <circle cx="57" cy="188.5" r="21"/><circle cx="120" cy="188.5" r="21"/><circle cx="183" cy="188.5" r="21"/>
+    <circle cx="246.5" cy="188.5" r="21"/><circle cx="309.5" cy="188.5" r="21"/>
+  </g>
+  <!-- khoanh 6 chấm -->
+  <path d="M26.5 155.5 H150.5 V99.5 H400.5 V163.5 H153.5 V215.5 H26.5 Z" fill="none" stroke="#231F20" stroke-width="1.6"/>
+  <!-- gạch 3 chấm -->
+  <g stroke="#231F20" stroke-width="1.4" stroke-dasharray="4 2.5">
+    <line x1="167" y1="168" x2="201" y2="212"/><line x1="229" y1="168" x2="263" y2="212"/><line x1="293" y1="168" x2="327" y2="212"/>
+  </g>
+  <g font-family="Quicksand" font-weight="600" font-size="58" fill="#231F20" text-anchor="middle">
+    <text x="56" y="297">17</text><text x="112" y="297">−</text><text x="168" y="297">3</text><text x="228" y="297">−</text><text x="281" y="297">6</text><text x="336" y="297">=</text><text x="394" y="297">8</text>
+  </g>
+</svg>

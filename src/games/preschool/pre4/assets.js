@@ -7,9 +7,12 @@
 import ZONES from './zones.json';
 import ITEMS from './items.json';
 
-const IMG = Object.fromEntries(Object.entries(
-  import.meta.glob('../../../assets/pre4/*.webp', { eager: true, import: 'default' }),
-).map(([path, url]) => [path.match(/([^/]+)\.webp$/)[1], url]));
+// Hình hình học đã vẽ lại nét (tên.svg, cùng khung với ảnh cắt) được ưu tiên hơn ảnh scan tên.webp.
+const byName = (glob) => Object.entries(glob).map(([path, url]) => [path.match(/([^/]+)\.\w+$/)[1], url]);
+const IMG = Object.fromEntries([
+  ...byName(import.meta.glob('../../../assets/pre4/*.webp', { eager: true, import: 'default' })),
+  ...byName(import.meta.glob('../../../assets/pre4/*.svg', { eager: true, import: 'default' })),
+]);
 
 export function img(name) {
   if (!IMG[name]) console.warn(`pre4: thiếu hình ${name} — chạy python scripts/extract-pre4.py`);

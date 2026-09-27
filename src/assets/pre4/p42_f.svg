@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 81" width="88" height="81">
+  <rect width="88" height="81" fill="#fff"/>
+  <path fill="#A26A9E" d="M86 5.2L86 75.7A75.5 70.5 0 0 1 10.5 5.2Z"/>
+  <g stroke="#C2D3DE" stroke-width="1.8" fill="none">
+    <line x1="7.3" y1="0" x2="7.3" y2="999"/>
+    <line x1="85.8" y1="0" x2="85.8" y2="999"/>
+    <line x1="0" y1="4.5" x2="999" y2="4.5"/>
+    <line x1="0" y1="78.8" x2="999" y2="78.8"/>
+  </g>
+</svg>

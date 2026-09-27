@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 178" width="190" height="178"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAALcABAAAAAABfgAAAKDAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhQbIBwqBmA/U1RBVCoAPBEICoFIgUYBNgIkAwwLCAAEIAWEOgcgDAcb2AQRFZwlCH4eZG6Yn7VMuVDNkf+SS737ePj/uX/b5yb/FRhxAEACqpGIclZVFcn0V6DiogC4WtsDqeyQ3JIns3xmbzL/N9MWSFS+BVPMFn2wpu1B2zg727aADvy4d2KH4Zm7MvETWtd1aS0vn7cXApUB0d+josaaitFjJ89WXg5FAWhUW+2ldVU3r9i9VX0Zdj9PXeKRMtLFNB+T/MFYqmd0pRKB6s/jjflGd72zB0VJ/lJ0Q0A8TV+guUwI5QVqCzSW9q1bvzsgCYgsHoGEDLVlArXl2qMkF1KmXRTYJxY/Ft8JQIiiUA0hAyVkGIY5gByQRPXqzVZc/O238PffK/3rr47/8svcEQgZqBgCjrNjVXo3yurMr1vl0jsTf7ti5ciJeuvuvVWpyXk71rnCrK1L+r+2dn3/V7wyC/H6vbJ+bb/XyjOn9xk/qs3hufN2cvzIPn3ItofnzRXZF9hXY12NVo8f9hu0t/qc6tVmV/+g2rnq1Z4d+sz6uhVqzK2xqcY6sFwgiwt7ez2cQLXBj8tn2QP4s8uy7/D/f71qqFI8Se3StyhJIHhIKC1QRSNJExZYRJbGa1+onqmVKlqmeUiP3a1gp0zkFYj6QExoGvWZpGr0ZTK9Y/QyV5kyDWO/UuLYzUxQOT5GcLbBL4ySBmEVKyFTmIzGa/hIBs9MEZMgn8IjDjQjKeyyVAZxAi2ZpmGyGQ6FEm9neEACN4zdV8yKfoiEVT4qkD+8Qzn7rlO2GiRk2z0o0v4HvFjC4pxROAd+CjfkGDRT+plY4Qss0HRvIrMong5Go8X2dr+dtkHCPvxz4kRdtoAx5hz6Swi+/hRVmWtA8bzJEv8kijMf51cA) format('woff2')}</style><!--/embedded-font-->
+<rect width="190" height="178" fill="#fff"/>
+<g transform="translate(0 0)"><g stroke="#231F20" stroke-width="2.2" stroke-linejoin="round">
+<path d="M16 97.5V93A83.7 78 0 0 1 183.4 93V97.5H169.4V93A69.7 63.5 0 0 0 30 93V97.5Z" fill="#F5A05A"/>
+<path d="M12 96.5H187.5Q190 98 189.5 108C188 138 172 160 150 165.8H48C26 160 10 138 8.8 108Q8.6 98 12 96.5Z" fill="#F5A05A"/>
+</g>
+<g stroke="#231F20" stroke-width="2" fill="none">
+<path d="M35.3 96.5Q39 130 48.5 165.8M71.3 96.5Q72 135 85 165.8M125.8 96.5Q125 135 111.7 165.8M162.5 96.5Q160 130 149.5 165.8"/>
+<path d="M9.5 113H35.8M71.8 113H125.3M161.7 113H188.5M37.5 123.7H73.3M125 123.7H160.3M15.5 138H39.5M75.8 138H121M158.2 138H182M44 147.5H78.5M119 147.5H151"/>
+</g></g>
+<circle cx="94.7" cy="64.5" r="29" fill="#8DCFEC"/>
+<text x="94.7" y="80" text-anchor="middle" font-family="Quicksand" font-weight="500" font-size="45" fill="#231F20">40</text>
+</svg>

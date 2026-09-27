@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 234 197" width="234" height="197">
+  <defs>
+    <g id="sun"><ellipse cx="83.3" cy="64" rx="18.6" ry="17" fill="#EE7A58"/>
+      <path d="M83.3 26.7 V41.7 M83.3 88.3 V101.7 M41.7 64 H58.3 M110 64 H126 M55 37.5 L66.5 48 M100 80 L111.5 90.5 M111.5 37.5 L100 48 M66.5 80 L55 90.5" fill="none"/></g>
+    <g id="moon"><path d="M166.7 28.2 C190 22 214 40 213 62.3 C212 82 195 94.5 175 94 C158 93.5 146 84 140.7 74.7 C150 78 164 77.5 173.7 72 C183 66 186 52 182.3 43 C180 37 175 31.5 166.7 28.2 Z" fill="#FAE50F"/>
+      <path d="M175.5 73 Q181.5 76.8 191.5 75.6 L191.2 73.8" fill="none"/><circle cx="194.2" cy="56.1" r="1.6" fill="#231F20" stroke="none"/></g>
+    <g id="cloud"><path d="M53.7 128.3 C57 116 64 112.7 71.5 112.7 C80 112.7 88 118 93 128.7 C104 128 113 133 112.7 142.5 C112.5 151 104 156.5 95.3 157.3 C90 166 80 170.5 71 170.3 C62 170 54 166 50.7 157.7 C40 156 32 150 32 143 C32 135 42 129 53.7 128.3 Z" fill="#94CDEA"/></g>
+    <g id="star"><path d="M149 135 L159.3 146.7 L158.3 160.3 L175 156.3 L189.3 161 L189 145.7 L198.7 136.3 L184.3 131.7 L174.7 119 L163.3 132 Z" fill="#F9E21E"/>
+      <path d="M154.4 118.3 L161.7 126.7 M193.9 118.3 L186.7 127.2 M141.7 152.2 L155 147.8 M193.9 148.3 L207.2 152.8 M174.4 164.5 V173.3" fill="none"/></g>
+  </defs>
+  <rect width="234" height="197" fill="#fff"/>
+  <rect x="6" y="9.3" width="224" height="185.2" fill="none" stroke="#231F20" stroke-width="2"/>
+  <g stroke="#231F20" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">
+    <use href="#sun" x="-9" y="81.65"/>
+    <use href="#moon" x="-105.85" y="4.15"/>
+    <use href="#cloud" x="96.8" y="-76.7"/>
+    <use href="#star" x="2.3" y="2.1"/>
+  </g>
+</svg>

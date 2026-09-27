@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 161 155" width="161" height="155"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAL0ABAAAAAABhwAAAKYAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhQbVhwqBmA/U1RBVCoAPBEICoE0gTkBNgIkAwwLCAAEIAWEOgcgDAcbAQUILgpjItOHq8SHOblS2+RqGaXPojz8WsTD92uv577d/KTEoADBsQJGiyxRVyLKTsYX5P7vXP4MwQHlAFiNWVHWBgqcjp25d0LNTS4VAxcDIA04l//nXLo1TotLcKAz+7b1BVVghzXp6YFXPb93wEl2ODwgPt3UGqFHoWApQWSI+Ozbc+yCQHVAzHuoqr2qoVH7p7cwt4ZIG+bk8GkMraa+DRNQTi7ZAbO6tBLqQppMxat0bUdpeukWAPLUI/4oIx1N8wBMvJeJJVCNngwTwvwO+TT8662VVRbkl6KX6Mr4n16gtWHR95OoD6G5oU1cSARJQGTxByRkqG9YoL4RnYGSXEh6axUF+ojF22IBCFEUaiFkoIQMg4GpAHJAErVrL5Gjnz6hPn+e/uNH2P3hw/0MOHjBKQAAInfurlwjo8nMfeW96RrH7sDu+uL89fzkTPuxPWCi3R/mDVO0+oK1Bt3Xl43DkYmfOQ8nO2670WCTP3PvwdsGf6n2/sXJwTHud8TCbZ2Vra3Vpfwjai4/OQXAMoQsjlxcdnc8zw//O5FllfC1x9JX+P2r1gKqxb/UKb1ESQLBK1Sl+VC1GlqAoPksjYO0CKmGoelM65QR5lQVa4dFXoVoDJgYWkZjMakZA8VM/xg1n0fFMk1js1nyibMtQfV4DDT7By+MdNxPX+NCYlVlFR3YraDYVagpRkBsFbv0HZ0qEtsKpXD8AEsTUrpBV0kJ16QIX4sUxyrl+sun7wUu4aZmk3dil3qs3ieWZn4WC1oz8rD3st+BXdOA+m9UxfYdW2LnxKJYtGS0B4qeohyXfuOhSfyaorKypp7zi/O9XpK6gN4X/EBrNof3JM+RB13Qs69StdAaBor0ZeqfRHHg8cgJAAAA) format('woff2')}</style><!--/embedded-font-->
+<defs><clipPath id="b"><rect x="7.5" y="54.3" width="142.0" height="94.4" rx="10"/></clipPath></defs>
+<rect width="161" height="155" fill="#fff"/>
+<g fill="#F6E53A" stroke="#231F20" stroke-width="2" stroke-linejoin="round"><path d="M60 10.3L34.7 38.7L67.2 56.3L78.7 50Z"/><path d="M98 10.3L123.3 38.3L90.3 56.3L78.7 50Z"/></g>
+<rect x="7.5" y="54.3" width="142.0" height="94.4" rx="10" fill="#A9D6F0"/>
+<g clip-path="url(#b)" fill="#86C0EB"><circle cx="15.6" cy="58.6" r="12"/><circle cx="142.1" cy="62.0" r="12"/><circle cx="112.6" cy="72.6" r="12"/><circle cx="45.0" cy="77.8" r="12"/><circle cx="14.7" cy="100.2" r="12"/><circle cx="121.4" cy="100.3" r="12"/><circle cx="145.5" cy="123.3" r="12"/><circle cx="32.3" cy="128.5" r="12"/><circle cx="99.8" cy="133.6" r="12"/><circle cx="129.6" cy="153.9" r="12"/></g>
+<rect x="64.2" y="54.3" width="29.1" height="94.4" fill="#F6E53A"/>
+<path d="M64.2 54.3V148.7M93.3 54.3V148.7" stroke="#231F20" stroke-width="2"/>
+<rect x="7.5" y="54.3" width="142.0" height="94.4" rx="10" fill="none" stroke="#231F20" stroke-width="2.2"/>
+<ellipse cx="78.5" cy="100.8" rx="26.8" ry="24.2" fill="#fff"/>
+<text x="78.5" y="115.4" text-anchor="middle" font-family="Quicksand" font-weight="500" font-size="38" fill="#231F20">70</text>
+</svg>

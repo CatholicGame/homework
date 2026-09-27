@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 178" width="190" height="178"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAANMABAAAAAABkgAAALzAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhQbIBwqBmA/U1RBVCoAPBEICoIYghUBNgIkAwwLCAAEIAWEOgcgDAcbJwUIPgxwh6PCX9TYOBo5mLUJKicGaV7Cw1bCpfvNMhF8v99vz70PMUlijSGSTKJZJ/l0EpTyQ2VImgqhMEy3+H4a976bmIT7sAb4gwhlDM2hrTEtqqQtMqoB/qMfIkzuSzlOuCiLoAxUXPzbvW3x4iKOA7EH2KC/5/nKRQvNmr3v/0J7zhPX1I8ESmzBN32wt/9F6Sipi9pHspvNMrHBBrQXHD7O2lmuDEpI1zvos1h2FwQaARHfo96gQWixJhehQQElQOPH0FWN13YxiRB0y6DjRZqNb7WkR7IKbPQT44QwuABU4PTn8ZfBPeKT57cERQXzgID4j2sERlULoVagE8Kgqrv1JBAkAZHjByAho1O1QKcaE0C1QkiesRLBKr0cAoQoGUIG1ajCCXCPABSAJLe2Etvazn+ekWVpfpqgMo7LlgWZ56bGESrT5O7qZcDdNDGioXVe3j4vZsHHTiVkLFIkpAScPUSsydJP03ULtyU/c3nkJ71jAQrZicclO6uen5WMmiiF5ZWWHjVKJDS1sLKsW1dArAe4cWykSZXrDolWa5dgipRDNh389ufMt0lWtoRyxYZQuiJl/LzdI/N9qUIdZLHZKJViW+5Vuz0ioay+06jvqxQJ+zgAziDkeGhB5bQ9fxuq8zfg05w+AvB1i9pBWL6Klh6AagkEDw6lfcJGM9Eg4jmtoktcGiLkswXVQ0IK1rlES1FH9AImhuHoFpPmmBezuTAPFqpYpT8yjmobOS4JGuOJgdl6H8gkLCIrxsvNIwET4hNQwBZ5OGFzkrzs/OKsQhywWTFhPk52CZhBUoJHWEwcRueRkBARp8TD4+YVVyfZcNmFBfHO2ivGKY0jwsotwCvEKs0qhHfH6mFWQV4BWVyHUgY2LO32P7B5TnFOMSlODtiwsJAEbJpVkBNGdGlv6QAnQTeZYDtuSQFWMSJcfHxSKtNmTLNQHVJzwOVETJz3sgGcu1kHVgwGTv2Ug1dSUDVQDglV+S/4Pyj2AA==) format('woff2')}</style><!--/embedded-font-->
+<rect width="190" height="178" fill="#fff"/>
+<g transform="translate(-12 3.5)"><g stroke="#231F20" stroke-width="2.2" stroke-linejoin="round">
+<path d="M16 97.5V93A83.7 78 0 0 1 183.4 93V97.5H169.4V93A69.7 63.5 0 0 0 30 93V97.5Z" fill="#F5A05A"/>
+<path d="M12 96.5H187.5Q190 98 189.5 108C188 138 172 160 150 165.8H48C26 160 10 138 8.8 108Q8.6 98 12 96.5Z" fill="#F5A05A"/>
+</g>
+<g stroke="#231F20" stroke-width="2" fill="none">
+<path d="M35.3 96.5Q39 130 48.5 165.8M71.3 96.5Q72 135 85 165.8M125.8 96.5Q125 135 111.7 165.8M162.5 96.5Q160 130 149.5 165.8"/>
+<path d="M9.5 113H35.8M71.8 113H125.3M161.7 113H188.5M37.5 123.7H73.3M125 123.7H160.3M15.5 138H39.5M75.8 138H121M158.2 138H182M44 147.5H78.5M119 147.5H151"/>
+</g></g>
+<circle cx="90" cy="67.5" r="29" fill="#8DCFEC"/>
+<text x="89" y="84.3" text-anchor="middle" font-family="Quicksand" font-weight="500" font-size="45" fill="#231F20">80</text>
+</svg>

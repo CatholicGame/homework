@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 431 327" width="431" height="327"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:600;src:url(data:font/woff2;base64,d09GMgABAAAAAAQUAA8AAAAACAAAAAO8AAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAG4ECHCoGYD9TVEFUKgBUEQgKhFyDdwE2AiQDHAsQAAQgBYQ+ByAMBxuDBiCeBU7ZFIfwUSL4cuaPIcW1jrWDKx763492Z/5bEUPEslnlEFWSSmVLIdSNWLRK9YRXs3/8fu7ePC3h6SauCZP8Raw0WoW0Ib28PNg6SW3vMDdworEq/+2757lf6kWkVQrcAZ7Zv8ikTou00d4EB9Tlm62fF40HONtsyASDpAmb6c1G9O6BAq3m6Itt3vr4CdnTB1wdsgp8HEZOHbF1yNDZirQFPaZfAg2mKaobWosJoQHhRP0pURb76qsJuVJpbzr2ilCfp4q8M9muSq5JV0lyckgDu7YTe/VDGqECfj3tDyNfChcrZzFhH2oC5Q4kE3a4+JEjAMwQF491H/oRjItdPCa6BJAioiyudQ1QoV/qU9AvYT3QrlkqVpqYWc1i+oeVxvq7+pkVyxb7hmDaDXnaf10ITaATLXiEL4ACCNlrh+cxsAoy0Fl/22Q7hB/ZXU4ZnpQi4VLVQs1rA4lbrX65e0SGUvYBv5YBDgv27LQcp2Dd+PKV293cBbf4bOe89WkopWuNkrsyAW5NrjoBZVl82GiG0Q4qbWoODi1vjciB7gJiWG2HDpHl/X0BkeqRBY9ebU4wsc5VKuzmqTUP2qCV4lD1/aRPQyco66Sn7h8j/IawF1cFZhiQbx+izugLmGhR3SOhbsHtLS/CGCgWacjwr+erUjL8loMpVknDREZLT9y2Lu3u6acmZiGwzu8go60ZGrzS9SyVcomI/GaURXq5RQS5G8ClQj4jVIs/zSZ5uB1mboMDUBmkMW993/sL7p4uAzKHKJCjDDnUdckN37ExxyhBXjsP/H/azfFPXc9nrhBicEiHBK91PUpl7rOy8wY9PMLCnOWAGUeWYeZFJBVtU3cH6kJcBg2mh9GUUcYww+gh5g8HgBsIqrgtxJbF5kO//EbCVh/h+VKfNXj/Rk4PXNcnay6gUYLgrXbnzgCUhy0Q9jxNuV01klynoFGymaaSUZrpp7k+gibrAMfQZS3OiIvSQgyDqTBMC1Zh6ox1wsqaMFwsYcIGoxEtaDQtShWC9pj6AVF0xwg4MJgiNolA5EJ9XT0z6JOIg954JAyFg6JjoVc2g4zDcKEdj0tksDlQtZ3nMjnmOjoEkuY9tDaVDZqO3NfGCbSYKAKVREcJAtZ1Sjj8jKKRqCJt8PaaJhQsdB56x3FwbD6u7OKZQS/Y9gyhfbw1eRnvTqHHbdKC/zeBR0WxDbR1dY0tPHvx7GQBotwCf2u3yiYVtYAw06SCfkwE/uBqJPs/U7HiQF2vzxrvQv8ZU7gC) format('woff2')}</style><!--/embedded-font-->
+  <defs><g id="r" fill="none" stroke="#EE8F6A" stroke-width="2.2"><circle r="22.5"/><circle r="14.5"/></g></defs>
+  <rect width="431" height="327" fill="#fff"/>
+  <!-- khung cam, vạch chia -->
+  <rect x="8.7" y="12.5" width="416" height="308.7" fill="none" stroke="#EE8F6A" stroke-width="2"/>
+  <line x1="9" y1="231.8" x2="424" y2="231.8" stroke="#EE8F6A" stroke-width="2"/>
+  <rect x="18" y="239.3" width="399.3" height="73" fill="#F2D38E"/>
+  <!-- 19 vòng tròn -->
+  <use href="#r" x="43.1" y="58.2"/><use href="#r" x="100.5" y="58.2"/><use href="#r" x="156.8" y="58.2"/><use href="#r" x="213.9" y="58.2"/><use href="#r" x="270.5" y="58.2"/><use href="#r" x="326.8" y="58.2"/><use href="#r" x="384.3" y="58.2"/>
+  <use href="#r" x="42.5" y="123.7"/><use href="#r" x="100.5" y="123.7"/><use href="#r" x="156.5" y="123.7"/><use href="#r" x="214.1" y="123.7"/><use href="#r" x="271.3" y="123.7"/><use href="#r" x="326.8" y="123.7"/><use href="#r" x="383.5" y="123.7"/>
+  <use href="#r" x="43.5" y="188.5"/><use href="#r" x="101.1" y="188.5"/><use href="#r" x="157.7" y="188.5"/><use href="#r" x="214.3" y="188.5"/><use href="#r" x="272.1" y="188.5"/>
+  <!-- khoanh 6 + 1 vòng -->
+  <path d="M357.8 91 H16.5 V150.3 H357.8 V98.3 H414.2 V31.2 H357.8 Z" fill="none" stroke="#3A3A3C" stroke-width="1.4"/>
+  <!-- gạch 6 vòng -->
+  <g stroke="#231F20" stroke-width="1.4" stroke-dasharray="4 2.5">
+    <line x1="368.3" y1="101.7" x2="403.3" y2="146.7"/>
+    <line x1="20" y1="165.7" x2="55" y2="210.7"/><line x1="81" y1="165.7" x2="116" y2="210.7"/><line x1="140.7" y1="165.7" x2="176.7" y2="210.7"/><line x1="192.7" y1="165.7" x2="227.7" y2="210.7"/><line x1="252.7" y1="165.7" x2="288.3" y2="210.7"/>
+  </g>
+  <g font-family="Quicksand" font-weight="600" font-size="58" fill="#231F20" text-anchor="middle">
+    <text x="35.7" y="301">1</text><text x="65.5" y="301">9</text><text x="107.5" y="301">−</text><text x="163.5" y="301">6</text><text x="220" y="301">−</text><text x="276.3" y="301">7</text><text x="333.2" y="301">=</text><text x="389.2" y="301">6</text>
+  </g>
+</svg>
