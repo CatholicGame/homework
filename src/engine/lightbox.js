@@ -115,7 +115,7 @@ export function initLightbox() {
     const toggle = e.target.closest('.e3-orig-toggle');
     if (toggle) { toggleInline(toggle); return; }
     const img = e.target.closest('.e3-q-img');
-    if (img) open(img.dataset.svgSrc || img.getAttribute('src'), img.alt, img.dataset.showingOrig === '1');
+    if (img) open(img.dataset.paintedSrc || img.dataset.svgSrc || img.getAttribute('src'), img.alt, img.dataset.showingOrig === '1');
   });
 
   // Nút "📷 Ảnh gốc" ngay dưới mỗi hình vẽ lại trong câu hỏi (trừ hình nhỏ trong ô bảng).
@@ -140,7 +140,7 @@ async function toggleInline(btn) {
   const svgSrc = img.dataset.svgSrc || img.getAttribute('src');
   const showOrig = img.dataset.showingOrig !== '1';
   img.dataset.svgSrc = svgSrc;
-  img.src = showOrig ? await originalLoader(svgSrc)() : svgSrc;
+  img.src = showOrig ? await originalLoader(svgSrc)() : (img.dataset.paintedSrc || svgSrc);
   img.dataset.showingOrig = showOrig ? '1' : '';
   btn.classList.toggle('is-on', showOrig);
   btn.textContent = showOrig ? '✏️ Hình vẽ lại' : '📷 Ảnh gốc';

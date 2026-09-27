@@ -119,6 +119,7 @@ import { gateCheckButton, keepWrongBanner } from '../engine/gameEngine.js';
 import { recordAttempt } from '../engine/activity.js';
 import { attachPairDrop } from '../engine/pairDrop.js';
 import { attachBalancePlay } from '../engine/balancePlay.js';
+import { attachColorPaint } from '../engine/colorPaint.js';
 import { attachTrainSwap, attachTrainPaint, attachTrainPick, trainEngine, trainMatchCar } from '../engine/trains.js';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
@@ -4437,6 +4438,8 @@ export function renderWorkbook(app, onBack, cfg) {
     if (q.wordProblem) attachSolutionHandlers(q);
     attachAnswerHandlers(q);
     if (q.balancePlay) attachBalancePlay(app, q);
+    // 🖍️ câu "tô màu" có hình SVG: bé tô thật lên hình (engine/colorPaint.js).
+    if (q.img) attachColorPaint(app, q);
     revealPinnedImageOnKeyboard();
   }
 
