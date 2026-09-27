@@ -77,8 +77,8 @@
 <text x="-50.9" y="-19.9" font-family="Quicksand" font-size="26.5" font-weight="700" fill="#231F20" text-anchor="middle" >10</text>
 <text x="-29.4" y="-41.4" font-family="Quicksand" font-size="26.5" font-weight="700" fill="#231F20" text-anchor="middle" >11</text>
 <text x="-0.0" y="-49.3" font-family="Quicksand" font-size="26.5" font-weight="700" fill="#231F20" text-anchor="middle" >12</text>
-<path d="M4.2 4.2L-31.2 31.2L-4.2 -4.2Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="3.5" stroke-linejoin="round"/>
-<path d="M4.4 -0.0L0.0 66.6L-4.4 0.0Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M4.2 4.2L-19.4 19.4L-4.2 -4.2Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="3.5" stroke-linejoin="round"/>
+<path d="M4.4 -0.0L0.0 41.0L-4.4 0.0Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="2.6" stroke-linejoin="round"/>
 <circle r="6.9" fill="#1D2A30"/>
 </g>
 <circle cx="38" cy="30" r="24" fill="#00AEEF"/>
@@ -160,8 +160,8 @@
 <text x="-50.9" y="-19.9" font-family="Quicksand" font-size="26.5" font-weight="700" fill="#231F20" text-anchor="middle" >10</text>
 <text x="-29.4" y="-41.4" font-family="Quicksand" font-size="26.5" font-weight="700" fill="#231F20" text-anchor="middle" >11</text>
 <text x="-0.0" y="-49.3" font-family="Quicksand" font-size="26.5" font-weight="700" fill="#231F20" text-anchor="middle" >12</text>
-<path d="M3.6 -4.7L35.0 26.8L-3.6 4.7Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="3.5" stroke-linejoin="round"/>
-<path d="M-0.0 -4.4L66.6 -0.0L0.0 4.4Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M3.6 -4.7L21.8 16.7L-3.6 4.7Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="3.5" stroke-linejoin="round"/>
+<path d="M-0.0 -4.4L41.0 -0.0L0.0 4.4Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="2.6" stroke-linejoin="round"/>
 <circle r="6.9" fill="#1D2A30"/>
 </g>
 <circle cx="268" cy="30" r="24" fill="#00AEEF"/>
@@ -243,8 +243,8 @@
 <text x="-50.9" y="-19.9" font-family="Quicksand" font-size="26.5" font-weight="700" fill="#231F20" text-anchor="middle" >10</text>
 <text x="-29.4" y="-41.4" font-family="Quicksand" font-size="26.5" font-weight="700" fill="#231F20" text-anchor="middle" >11</text>
 <text x="-0.0" y="-49.3" font-family="Quicksand" font-size="26.5" font-weight="700" fill="#231F20" text-anchor="middle" >12</text>
-<path d="M4.2 -4.2L31.2 31.2L-4.2 4.2Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="3.5" stroke-linejoin="round"/>
-<path d="M4.4 -0.0L0.0 66.6L-4.4 0.0Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M4.2 -4.2L19.4 19.4L-4.2 4.2Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="3.5" stroke-linejoin="round"/>
+<path d="M4.4 -0.0L0.0 41.0L-4.4 0.0Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="2.6" stroke-linejoin="round"/>
 <circle r="6.9" fill="#1D2A30"/>
 </g>
 <circle cx="38" cy="240" r="24" fill="#00AEEF"/>
@@ -326,8 +326,8 @@
 <text x="-50.9" y="-19.9" font-family="Quicksand" font-size="26.5" font-weight="700" fill="#231F20" text-anchor="middle" >10</text>
 <text x="-29.4" y="-41.4" font-family="Quicksand" font-size="26.5" font-weight="700" fill="#231F20" text-anchor="middle" >11</text>
 <text x="-0.0" y="-49.3" font-family="Quicksand" font-size="26.5" font-weight="700" fill="#231F20" text-anchor="middle" >12</text>
-<path d="M4.7 3.6L-26.8 35.0L-4.7 -3.6Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="3.5" stroke-linejoin="round"/>
-<path d="M-0.0 -4.4L66.6 -0.0L0.0 4.4Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M4.7 3.6L-16.7 21.8L-4.7 -3.6Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="3.5" stroke-linejoin="round"/>
+<path d="M-0.0 -4.4L41.0 -0.0L0.0 4.4Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="2.6" stroke-linejoin="round"/>
 <circle r="6.9" fill="#1D2A30"/>
 </g>
 <circle cx="268" cy="240" r="24" fill="#00AEEF"/>

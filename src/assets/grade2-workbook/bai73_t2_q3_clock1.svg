@@ -76,8 +76,8 @@
 <text x="-56.1" y="-21.9" font-family="Quicksand" font-size="29.2" font-weight="700" fill="#231F20" text-anchor="middle" >10</text>
 <text x="-32.4" y="-45.6" font-family="Quicksand" font-size="29.2" font-weight="700" fill="#231F20" text-anchor="middle" >11</text>
 <text x="-0.0" y="-54.3" font-family="Quicksand" font-size="29.2" font-weight="700" fill="#231F20" text-anchor="middle" >12</text>
-<path d="M-1.7 -6.3L46.9 -12.6L1.7 6.3Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="3.9" stroke-linejoin="round"/>
-<path d="M4.9 -0.0L0.0 73.4L-4.9 0.0Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="2.9" stroke-linejoin="round"/>
+<path d="M-1.7 -6.3L29.0 -7.8L1.7 6.3Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="3.9" stroke-linejoin="round"/>
+<path d="M4.9 -0.0L0.0 45.0L-4.9 0.0Z" fill="#1D2A30" stroke="#1D2A30" stroke-width="2.9" stroke-linejoin="round"/>
 <circle r="7.6" fill="#1D2A30"/>
 </g>
 </svg>

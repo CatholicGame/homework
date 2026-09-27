@@ -51,8 +51,8 @@ def hand(deg, L, w, col):
             f'<line x1="{cx}" y1="{cy}" x2="{x:.1f}" y2="{y:.1f}" stroke="{col}" stroke-width="{w}" stroke-linecap="round"/>')
 
 
-parts.append(hand(7.5 * 30, 80, 10, BLUE))     # kim giờ: 7 giờ 30
-parts.append(hand(180, 136, 6, BLUE))          # kim phút: 30 phút
+parts.append(hand(7.5 * 30, 62, 10, BLUE))     # kim giờ: 7 giờ 30
+parts.append(hand(180, 92, 6, BLUE))           # kim phút: 30 phút — dừng trước vòng số, không che số 6
 parts.append(f'<circle cx="{cx}" cy="{cy}" r="10" fill="{YELLOW}" stroke="{INK}" stroke-width="3"/>')
 
 save('bai7t2_ex2_clock', W, H, parts, folder='grade3-workbook')

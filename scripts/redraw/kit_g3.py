@@ -61,9 +61,9 @@ def clock(cx, cy, r, h, m, rim=BLUE, face='#F4FBFF', nums=True, legs=False):
             s.append(text(f'{cx + rr * math.sin(a):.1f}', f'{cy - rr * math.cos(a) + fs * .36:.1f}', n, size=f'{fs:.1f}', weight=700))
     am = math.radians(m * 6)
     ah = math.radians((h % 12) * 30 + m * .5)
-    s.append(f'<line x1="{cx}" y1="{cy}" x2="{cx + r * .44 * math.sin(ah):.1f}" y2="{cy - r * .44 * math.cos(ah):.1f}" '
+    s.append(f'<line x1="{cx}" y1="{cy}" x2="{cx + r * .27 * math.sin(ah):.1f}" y2="{cy - r * .27 * math.cos(ah):.1f}" '
              f'stroke="{INK}" stroke-width="{max(3, r * .085):.1f}" stroke-linecap="round"/>')
-    s.append(f'<line x1="{cx}" y1="{cy}" x2="{cx + r * .7 * math.sin(am):.1f}" y2="{cy - r * .7 * math.cos(am):.1f}" '
+    s.append(f'<line x1="{cx}" y1="{cy}" x2="{cx + r * .4 * math.sin(am):.1f}" y2="{cy - r * .4 * math.cos(am):.1f}" '
              f'stroke="{RED}" stroke-width="{max(2, r * .05):.1f}" stroke-linecap="round"/>')
     s.append(f'<circle cx="{cx}" cy="{cy}" r="{max(3, r * .07):.1f}" fill="{INK}"/>')
     return '\n'.join(s)

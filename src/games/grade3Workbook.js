@@ -4218,12 +4218,11 @@ export function renderWorkbook(app, onBack, cfg) {
   let attempted = [];
   let wrongCounts = [];
   let lastWrongStars = ''; // lời nhắc số sao còn nhận được sau lần sai vừa rồi
-  let solutionRows = [];
+  let solutionText = [];       // per-question: bé viết lời giải (nhiều dòng)
   let solutionConfirmed = [];
   const starKey = (unitId, idx) => `${cfg.starBook}:${unitId}:${idx}`;
   const qStars = (q) => getQuestionStars(starKey(q.__unitId, q.__qIdx), q);
   const qEarned = (q) => earnedFor(starKey(q.__unitId, q.__qIdx));
-  let lastFocusedFormulaInput = null;
   let multiSelected = [];
   let compareSelected = [];
   let matchLocked = new Set(); // leftIds confirmed correct after checking
@@ -4329,7 +4328,7 @@ export function renderWorkbook(app, onBack, cfg) {
     solved = activeQuestions.map(() => false);
     attempted = activeQuestions.map(() => false);
     wrongCounts = activeQuestions.map(() => 0);
-    solutionRows = activeQuestions.map(() => [{ type: 'text', value: '' }]);
+    solutionText = activeQuestions.map(() => '');
     solutionConfirmed = activeQuestions.map(() => false);
     activeQuestions.forEach((q, i) => {
       const rec = getRecord(q.__unitId, q.__qIdx);
@@ -4480,36 +4479,21 @@ export function renderWorkbook(app, onBack, cfg) {
     return escapeHtml(str).replace(/"/g, '&quot;');
   }
 
-  function renderSolutionRow(row, i) {
-    const icon = row.type === 'formula' ? '🧮' : '📝';
-    const placeholder = row.type === 'formula' ? 'VD: a + b = c' : 'Viết giải thích...';
-    const cls = row.type === 'formula' ? 'e3-sol-row-formula-input' : 'e3-sol-row-text-input';
-    return `
-      <div class="e3-sol-row" data-row-idx="${i}">
-        <span class="e3-sol-row-icon">${icon}</span>
-        <input type="text" class="e3-sol-row-input ${cls}" data-row-idx="${i}" placeholder="${placeholder}" value="${escapeAttr(row.value)}" autocomplete="off">
-        <button type="button" class="e3-sol-row-remove" data-row-idx="${i}" title="Xóa dòng">✕</button>
-      </div>
-    `;
-  }
+  // Một ô viết nhiều dòng, kẻ ô ly như vở của bé; các dấu toán nằm cạnh để
+  // chạm vào khi cần (bàn phím điện thoại khó tìm × và :).
+  const SOLUTION_SYMBOLS = ['+', '−', '×', ':', '=', '(', ')', '.'];
 
   function renderSolutionBlock(q) {
-    const rows = solutionRows[current];
+    const text = solutionText[current];
     const confirmed = solutionConfirmed[current] || solved[current];
 
     if (confirmed) {
-      const nonEmpty = rows.filter(r => r.value.trim() !== '');
       return `
         <div class="e3-solution e3-solution-locked">
           <div class="e3-solution-label">✍️ Lời giải của em</div>
-          <div class="e3-solution-rows">
-            ${nonEmpty.length ? nonEmpty.map(r => `
-              <div class="e3-sol-row e3-sol-row-readonly">
-                <span class="e3-sol-row-icon">${r.type === 'formula' ? '🧮' : '📝'}</span>
-                <span class="e3-sol-row-text-display">${escapeHtml(r.value)}</span>
-              </div>
-            `).join('') : '<div class="e3-sol-empty">(chưa ghi nội dung)</div>'}
-          </div>
+          ${text.trim()
+            ? `<div class="e3-oly e3-oly-readonly">${escapeHtml(text.replace(/\s+$/, ''))}</div>`
+            : '<div class="e3-sol-empty">(chưa ghi nội dung)</div>'}
           ${!solved[current] ? '<button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-edit-solution">✏️ Sửa lời giải</button>' : ''}
         </div>
       `;
@@ -4517,17 +4501,19 @@ export function renderWorkbook(app, onBack, cfg) {
 
     return `
       <div class="e3-solution">
-        <div class="e3-solution-label">✍️ Trình bày lời giải ở đây hoặc trên giấy, rồi nhập đáp án ở phía dưới:</div>
-        <div class="e3-solution-rows" id="e3-solution-rows">
-          ${rows.map((r, i) => renderSolutionRow(r, i)).join('')}
+        <div class="e3-solution-head">
+          <div class="e3-solution-label">✍️ Trình bày lời giải ở đây hoặc trên giấy, rồi nhập đáp án ở phía dưới:</div>
+          <button type="button" class="e3-sol-clear" id="e3-sol-clear" title="Xoá hết lời giải">🗑 Xoá hết</button>
         </div>
-        <div class="e3-solution-toolbar">
-          ${['+', '−', '×', '÷', '=', '(', ')'].map(s => `<button type="button" class="e3-sym-btn" data-sym="${s}">${s}</button>`).join('')}
-        </div>
-        <div class="e3-solution-hint">💡 Viết lời giải bằng nút <span class="e3-hint-chip">+ Dòng chữ</span>, viết phép tính bằng nút <span class="e3-hint-chip">+ Dòng phép tính</span>.</div>
-        <div class="e3-solution-controls">
-          <button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-add-text-row">+ Dòng chữ</button>
-          <button type="button" class="e3-btn e3-btn-ghost e3-btn-sm" id="e3-add-formula-row">+ Dòng phép tính</button>
+        <div class="e3-solution-pad">
+          <div class="e3-oly-wrap">
+            <textarea class="e3-oly" id="e3-solution-text" rows="5" spellcheck="false" autocomplete="off" placeholder="Bài giải&#10;...">${escapeHtml(text)}</textarea>
+            <div class="e3-oly e3-oly-mirror" aria-hidden="true"></div>
+            <div class="e3-oly-dels"></div>
+          </div>
+          <div class="e3-solution-toolbar">
+            ${SOLUTION_SYMBOLS.map(s => `<button type="button" class="e3-sym-btn" data-sym="${s}">${s}</button>`).join('')}
+          </div>
         </div>
         <button type="button" class="e3-btn e3-btn-primary" id="e3-solution-ok" disabled>✅ Đã giải xong</button>
       </div>
@@ -4542,9 +4528,10 @@ export function renderWorkbook(app, onBack, cfg) {
     input.setSelectionRange(pos, pos);
   }
 
-  function focusLastSolutionRow() {
-    const inputs = app.querySelectorAll('.e3-sol-row-input');
-    inputs[inputs.length - 1]?.focus();
+  // Ô viết tự cao thêm theo số dòng — bé không phải cuộn trong một ô nhỏ.
+  function growSolution(ta) {
+    ta.style.height = 'auto';
+    ta.style.height = `${ta.scrollHeight + 4}px`;
   }
 
   // Chỉ vẽ lại phần lời giải — không đụng tới ô đáp án bé đang nhập bên dưới.
@@ -4562,54 +4549,78 @@ export function renderWorkbook(app, onBack, cfg) {
       return;
     }
 
-    const rowsContainer = app.querySelector('#e3-solution-rows');
+    const ta = app.querySelector('#e3-solution-text');
     const okBtn = app.querySelector('#e3-solution-ok');
+    const mirror = app.querySelector('.e3-oly-mirror');
+    const dels = app.querySelector('.e3-oly-dels');
+    const clearBtn = app.querySelector('#e3-sol-clear');
 
-    const syncOkState = () => { okBtn.disabled = !solutionRows[current].some(r => r.value.trim() !== ''); };
-
-    rowsContainer.querySelectorAll('.e3-sol-row-input').forEach(inp => {
-      inp.oninput = () => {
-        const i = parseInt(inp.dataset.rowIdx, 10);
-        solutionRows[current][i].value = inp.value;
-        syncOkState();
-      };
-      if (inp.classList.contains('e3-sol-row-formula-input')) {
-        inp.addEventListener('focus', () => { lastFocusedFormulaInput = inp; });
-      }
-    });
-    rowsContainer.querySelectorAll('.e3-sol-row-remove').forEach(btn => {
-      btn.onclick = () => {
-        const i = parseInt(btn.dataset.rowIdx, 10);
-        solutionRows[current].splice(i, 1);
-        refreshSolution(q);
-      };
-    });
-    syncOkState();
-
-    app.querySelector('#e3-add-text-row').onclick = () => {
-      solutionRows[current].push({ type: 'text', value: '' });
-      refreshSolution(q);
-      focusLastSolutionRow();
+    // Nút × ở cuối mỗi dòng có chữ. Dòng dài có thể xuống hàng, nên đo vị trí
+    // từng dòng bằng một bản sao ẩn của ô viết (cùng cỡ chữ, cùng bề rộng).
+    const layoutDels = () => {
+      const lines = ta.value.split('\n');
+      mirror.style.width = `${ta.offsetWidth}px`;
+      mirror.innerHTML = lines.map(l => `<div>${escapeHtml(l) || '\u200b'}</div>`).join('');
+      dels.innerHTML = lines.map((l, i) => l.trim()
+        ? `<button type="button" class="e3-oly-del" data-line="${i}" title="Xoá dòng này" style="top:${mirror.children[i].offsetTop}px">✕</button>`
+        : '').join('');
     };
-    app.querySelector('#e3-add-formula-row').onclick = () => {
-      solutionRows[current].push({ type: 'formula', value: '' });
-      refreshSolution(q);
-      focusLastSolutionRow();
+    const sync = () => {
+      solutionText[current] = ta.value;
+      okBtn.disabled = ta.value.trim() === '';
+      clearBtn.disabled = ta.value === '';
+      growSolution(ta);
+      layoutDels();
+    };
+    ta.oninput = sync;
+    sync();
+    new ResizeObserver(layoutDels).observe(ta);
+
+    dels.onpointerdown = (e) => { if (e.target.closest('.e3-oly-del')) e.preventDefault(); };
+    dels.onclick = (e) => {
+      const btn = e.target.closest('.e3-oly-del');
+      if (!btn) return;
+      const i = parseInt(btn.dataset.line, 10);
+      const lines = ta.value.split('\n');
+      const caret = lines.slice(0, i).join('\n').length + (i > 0 ? 1 : 0);
+      lines.splice(i, 1);
+      ta.value = lines.join('\n');
+      ta.setSelectionRange(Math.min(caret, ta.value.length), Math.min(caret, ta.value.length));
+      sync();
     };
 
     app.querySelectorAll('.e3-sym-btn').forEach(btn => {
+      // Giữ con trỏ trong ô viết (và bàn phím iPad không bị cụp xuống).
+      btn.onpointerdown = (e) => e.preventDefault();
       btn.onclick = () => {
-        const target = lastFocusedFormulaInput && rowsContainer.contains(lastFocusedFormulaInput)
-          ? lastFocusedFormulaInput
-          : rowsContainer.querySelector('.e3-sol-row-formula-input');
-        if (!target) return;
-        insertAtCursor(target, btn.dataset.sym);
-        const i = parseInt(target.dataset.rowIdx, 10);
-        solutionRows[current][i].value = target.value;
-        syncOkState();
-        target.focus();
+        insertAtCursor(ta, btn.dataset.sym);
+        sync();
+        ta.focus();
       };
     });
+
+    // Xoá hết: chạm lần 1 để hỏi lại, chạm lần 2 trong 3 giây mới xoá — tránh bé lỡ tay.
+    let clearTimer = null;
+    clearBtn.onpointerdown = (e) => e.preventDefault();
+    clearBtn.onclick = () => {
+      if (!clearTimer) {
+        clearBtn.textContent = 'Chắc chưa?';
+        clearBtn.classList.add('e3-sym-armed');
+        clearTimer = setTimeout(() => {
+          clearTimer = null;
+          clearBtn.textContent = '🗑 Xoá hết';
+          clearBtn.classList.remove('e3-sym-armed');
+        }, 3000);
+        return;
+      }
+      clearTimeout(clearTimer);
+      clearTimer = null;
+      clearBtn.textContent = '🗑 Xoá hết';
+      clearBtn.classList.remove('e3-sym-armed');
+      ta.value = '';
+      sync();
+      ta.focus();
+    };
 
     okBtn.onclick = () => { solutionConfirmed[current] = true; refreshSolution(q); };
   }
@@ -4622,7 +4633,7 @@ export function renderWorkbook(app, onBack, cfg) {
       <div class="e3-hints" id="e3-hints">
         ${q.hints.map((h, i) => i < unlocked
           ? `<div class="e3-hint-item e3-hint-unlocked">💡 <strong>Gợi ý ${i + 1}:</strong> ${h}</div>`
-          : `<div class="e3-hint-item e3-hint-locked">🔒 Gợi ý ${i + 1} — trả lời sai để mở khóa</div>`
+          : `<div class="e3-hint-item e3-hint-locked">🔒 Gợi ý ${i + 1} — mở khi bé trả lời sai</div>`
         ).join('')}
       </div>
     `;
@@ -5735,25 +5746,29 @@ function injectStyles() {
       .e3-solution { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 1rem; padding: 1rem; margin-top: 1rem; display: flex; flex-direction: column; gap: 0.7rem; }
       .e3-solution-locked { border-style: solid; border-color: #e2e8f0; background: #fff; }
       .e3-solution-label { font-weight: 700; font-size: 1rem; color: #334155; }
-      .e3-solution-rows { display: flex; flex-direction: column; gap: 0.5rem; }
-      .e3-sol-row { display: flex; align-items: center; gap: 0.5rem; }
-      .e3-sol-row-icon { font-size: 1rem; flex-shrink: 0; }
-      .e3-sol-row-input { flex: 1; border: 2px solid #e2e8f0; border-radius: 0.6rem; padding: 0.5rem 0.7rem; font-family: inherit; font-size: 1rem; min-width: 0; }
-      .e3-sol-row-input:focus { outline: none; border-color: #34D399; }
-      .e3-sol-row-formula-input { font-family: 'Courier New', monospace; font-weight: 700; }
-      .e3-sol-row-remove { background: none; border: none; color: #94a3b8; font-size: 0.9rem; cursor: pointer; flex-shrink: 0; width: 1.7rem; height: 1.7rem; border-radius: 0.4rem; }
-      .e3-sol-row-remove:hover { background: #fee2e2; color: #ef4444; }
-      .e3-sol-row-readonly { background: #f8fafc; border-radius: 0.6rem; padding: 0.5rem 0.7rem; }
-      .e3-sol-row-text-display { flex: 1; font-size: 1rem; color: #334155; white-space: pre-wrap; word-break: break-word; }
+      .e3-solution-pad { display: flex; gap: 0.5rem; align-items: flex-start; }
+      .e3-solution-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+      .e3-sol-clear { flex-shrink: 0; border: 2px solid #fecaca; background: #fff; color: #b91c1c; font-family: inherit; font-weight: 700; font-size: 0.85rem; border-radius: 0.5rem; padding: 0.3rem 0.6rem; cursor: pointer; white-space: nowrap; touch-action: manipulation; }
+      .e3-sol-clear:hover:not(:disabled) { border-color: #f87171; }
+      .e3-sol-clear:disabled { opacity: 0.4; cursor: default; }
+      .e3-sol-clear.e3-sym-armed { background: #fee2e2; border-color: #f87171; }
+      .e3-oly-wrap { position: relative; flex: 1; min-width: 0; }
+      .e3-oly-wrap > .e3-oly { padding-right: 2.3rem; }
+      .e3-oly.e3-oly-mirror { position: absolute; top: 0; left: 0; visibility: hidden; pointer-events: none; height: auto; min-height: 0; overflow: hidden; }
+      .e3-oly-dels { position: absolute; top: 0; right: 0; }
+      .e3-oly-del { position: absolute; right: 0.3rem; margin-top: calc((2.4rem - 1.7rem) / 2); width: 1.7rem; height: 1.7rem; border-radius: 50%; border: none; background: #f1f5f9; color: #94a3b8; font-size: 0.8rem; font-weight: 800; cursor: pointer; padding: 0; touch-action: manipulation; }
+      .e3-oly-del:hover, .e3-oly-del:active { background: #fee2e2; color: #ef4444; }
+      /* Vở ô ly: mỗi dòng viết chia 4 dòng kẻ mờ, dòng kẻ đậm ở chân chữ, kẻ dọc mỗi ô, lề đỏ bên trái. */
+      .e3-oly { --oly: 2.4rem; flex: 1; min-width: 0; box-sizing: border-box; display: block; width: 100%; min-height: calc(var(--oly) * 5 + 0.9rem); resize: none; overflow: hidden; margin: 0; border: 2px solid #ddd6fe; border-radius: 0.6rem; padding: 0.35rem 0.5rem 0.55rem calc(var(--oly) + 0.35rem); font-family: inherit; font-size: 1.15rem; font-weight: 600; line-height: var(--oly); color: #1e3a8a; white-space: pre-wrap; word-break: break-word; background-color: #fff; background-image: linear-gradient(to right, transparent calc(var(--oly) - 1px), #fca5a5 calc(var(--oly) - 1px), #fca5a5 calc(var(--oly) + 1px), transparent calc(var(--oly) + 1px)), linear-gradient(to bottom, transparent calc(var(--oly) - 1.5px), #a78bfa calc(var(--oly) - 1.5px)), linear-gradient(to bottom, transparent calc(var(--oly) / 4 - 1px), #ede9fe calc(var(--oly) / 4 - 1px)), linear-gradient(to right, transparent calc(var(--oly) - 1px), #ede9fe calc(var(--oly) - 1px)); background-size: 100% 100%, 100% var(--oly), 100% calc(var(--oly) / 4), var(--oly) 100%; background-repeat: no-repeat, repeat, repeat, repeat; background-attachment: local; }
+      .e3-oly:focus { outline: none; border-color: #34D399; }
+      .e3-oly::placeholder { color: #c4b5fd; font-weight: 500; }
+      .e3-oly-readonly { min-height: 0; }
       .e3-sol-empty { font-size: 0.85rem; color: #94a3b8; font-style: italic; }
-      .e3-solution-toolbar { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-      .e3-solution-hint { font-size: 0.85rem; color: #64748b; }
-      .e3-hint-chip { background: #e0f2fe; color: #0369a1; font-weight: 700; padding: 0.1rem 0.45rem; border-radius: 0.4rem; white-space: nowrap; }
-      .e3-sym-btn { width: 2.1rem; height: 2.1rem; border-radius: 0.5rem; border: 2px solid #e2e8f0; background: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; color: #1e293b; font-family: inherit; }
+      .e3-solution-toolbar { display: grid; grid-template-columns: repeat(2, 2.3rem); gap: 0.35rem; flex-shrink: 0; }
+      .e3-sym-btn { width: 2.3rem; height: 2.3rem; border-radius: 0.5rem; border: 2px solid #e2e8f0; background: #fff; font-weight: 800; font-size: 1.1rem; cursor: pointer; color: #1e293b; font-family: inherit; touch-action: manipulation; }
       .e3-sym-btn:hover { border-color: #34D399; }
-      .e3-solution-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+      .e3-sym-btn:active { background: #d1fae5; }
       .e3-btn-sm { width: auto; padding: 0.5rem 0.9rem; font-size: 0.85rem; }
-      .e3-solution-controls .e3-btn-sm { flex: 1; }
       .e3-answer-locked { opacity: 0.6; }
       .e3-answer-locked-note { text-align: center; padding: 0.9rem; color: #94a3b8; font-size: 0.95rem; font-style: italic; background: #f8fafc; border-radius: 0.8rem; margin-top: 0.9rem; }
       .e3-subquestions { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.9rem; }

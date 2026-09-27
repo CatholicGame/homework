@@ -80,8 +80,8 @@
 <text x="152" y="128">11</text>
 <text x="210" y="113">12</text>
 </g>
-<path d="M-4.5 0L-3.6 -62L0 -82L3.6 -62L4.5 0Z" fill="#00AEEF" transform="translate(210 228) rotate(255)"/>
-<path d="M-5.5 0L-4.4 -80L0 -106L4.4 -80L5.5 0Z" fill="#00AEEF" transform="translate(210 228) rotate(180)"/>
-<path d="M0 -38V-98" stroke="#9C7A80" stroke-width="3" transform="translate(210 228) rotate(180)"/>
+<path d="M-4.5 0L-3.6 -45L0 -60L3.6 -45L4.5 0Z" fill="#00AEEF" transform="translate(210 228) rotate(255)"/>
+<path d="M-5.5 0L-4.4 -67L0 -89L4.4 -67L5.5 0Z" fill="#00AEEF" transform="translate(210 228) rotate(180)"/>
+<path d="M0 -32V-82" stroke="#9C7A80" stroke-width="3" transform="translate(210 228) rotate(180)"/>
 <circle cx="210" cy="228" r="9" fill="#00AEEF"/>
 </svg>
