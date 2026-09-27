@@ -61,18 +61,19 @@ function renderLoading(app) {
   `;
 }
 
-function renderLoadError(app, onRetry, onBack) {
+function renderLoadError(app, onBack) {
   app.innerHTML = `
     <div class="page-loading">
       <div class="page-loading-icon">📡</div>
       <p>Không tải được bài tập. Kiểm tra kết nối mạng rồi thử lại nhé.</p>
       <div class="page-loading-actions">
         <button type="button" class="btn btn-ghost" id="load-back">← Quay lại</button>
-        <button type="button" class="btn btn-primary" id="load-retry">🔄 Thử lại</button>
+        <button type="button" class="btn btn-primary" id="load-retry">🔄 Tải lại</button>
       </div>
     </div>
   `;
-  app.querySelector('#load-retry').onclick = onRetry;
+  // Tải lại cả trang như F5: import() đã hỏng bị trình duyệt nhớ, gọi lại trong trang vẫn lỗi.
+  app.querySelector('#load-retry').onclick = () => location.reload();
   app.querySelector('#load-back').onclick = onBack;
 }
 
@@ -167,7 +168,7 @@ function navigate(gameId) {
       if (token !== navToken) return;
       mod.render(app, () => { history.replaceState(null, '', location.pathname + location.search); navigate('home'); });
     }).catch(() => {
-      if (token === navToken) renderLoadError(app, () => navigate(gameId), () => navigate('home'));
+      if (token === navToken) renderLoadError(app, () => navigate('home'));
     });
     return;
   }
@@ -202,7 +203,7 @@ function navigate(gameId) {
         onEditProfile: () => { profileReturn = 'leaderboard'; navigate('profile'); },
       });
     }).catch(() => {
-      if (token === navToken) renderLoadError(app, () => navigate(gameId), () => navigate('home'));
+      if (token === navToken) renderLoadError(app, () => navigate('home'));
     });
     return;
   }
@@ -212,7 +213,7 @@ function navigate(gameId) {
       if (token !== navToken) return;
       mod.render(app, () => navigate('home'));
     }).catch(() => {
-      if (token === navToken) renderLoadError(app, () => navigate(gameId), () => navigate('home'));
+      if (token === navToken) renderLoadError(app, () => navigate('home'));
     });
     return;
   }
@@ -222,7 +223,7 @@ function navigate(gameId) {
       if (token !== navToken) return;
       mod.render(app, () => navigate('home'));
     }).catch(() => {
-      if (token === navToken) renderLoadError(app, () => navigate(gameId), () => navigate('home'));
+      if (token === navToken) renderLoadError(app, () => navigate('home'));
     });
     return;
   }
@@ -277,7 +278,7 @@ function navigate(gameId) {
     }).catch(() => {
       clearTimeout(loadingTimer);
       if (token !== navToken) return;
-      renderLoadError(app, () => navigate(gameId), () => navigate('home'));
+      renderLoadError(app, () => navigate('home'));
     });
   }
 }
