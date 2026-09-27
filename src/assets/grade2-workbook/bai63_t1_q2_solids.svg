@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 193" width="900" height="193"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:600;src:url(data:font/woff2;base64,d09GMgABAAAAAAUYAA8AAAAACQQAAAS+AAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAG2ocKgZgP1NUQVQqADwRCAqHEIV0ATYCJAMcCxAABCAFhD4HIAwHG1AHAK4K7GbHD8QiVHRwaioMYgGPOxRsEFFdFVndS/tekjjD6729lEzhfJo1xo5nTKSnG29UKwaeLCY075NSzwsAI1qnmLZeK0TOifv5ukiMPH82geF0ZpGN0QE2sOnAkqoweecJNsDhB9JvbolcodhPZ4h6uURhe+9EBDAnEFtBYbHVC2raNpoaATXoAL8OOW2aTYyAMugUdJREILTFDEDDHQIPQoPYqKENf1r1WXY2xmBEZGuJGaarRFWTYlCjfTygYhCpDzvRgF5g/zPkpeAq8YTz0mAMfQEUw6PID7VX4lsTt/7DwBEEeCro0aJvCgJQERI9+3RQgAY4KoyaXUQogDE6giKZsH5xvJ9ouGA4j1CdSFaPtwEEEwCsATOQVID03a8ggmtvpdCis3tE+Dp0jXWTMasYuNLccvR+GdQSuHID6nWFs3td1+00n17vgMuBJ28s/uoVA686qzYHli5z2nXvyX1yQ7p+39xOpnBrtIZUFaK2sNKMm+noJW88Eyp8ibTX5OVbZNARq9anBdVsrs7r6t24wmJOqN+ialzwdOGBy4jbdc5RvnkzVl5/rWC8e9ac7ZrvEtiagRed4FK1feOFEx3UiGkw0htLjRkWNGPgyZdwewZuvXLmlTy7JdUrRx0/n/vwKgMPPWrhfmpRY04h7EmI6+7Lmwe8PYds3Ft94LpTfcSDIzLoeYWnoTE1ge+zJP6Ra4/rOu6H4X1wonlzM/zl/seiQ2iBSsNv+Tn4+faUcofX9tZu92q/LnJBq5McbkzJVy7On71yFS1+meOKHiwK93tAJC140a9xw4y1Q+3GqklLdh7zmDmuhhv3wdL25XDlkrldJ5Z0qVGVVlvETspMqoEpkRVvhneUb690WAT638Xm/047VBoKMx5r+Ofe63HWuP5aVc57m/3NH3lvvMotd1busbIe3VznkF5zTbTgiFo6JapEEVHwVH37hqQX+o+vMG4zD1W1suf1u1GL23qq+8SSXrVZNTIrBV2bWp0itnTH2YT6LGlIm8k79fCacsenHvYLPImBIVORnVuHPP/1FyyYJ/5VGHJpX16mjOLWdBEI/4cFE051E7DdO0Dvh7JPdauwQmk0z1coP0x/LSENp9l+Pzf6+YeQFEEwwZVIYlz/IwTkP98+8Pni4dPd8cQn5kNM3If2p5JLlUxU43YMZnsjimlQAgD0BwGajFI+qFSWqM38ZqppLwFuRTV4DPD8futWoNLwXXmp44AxCgCB765SlTJQePQAwohMVv8QYhMR1glKU6lUyagaCK9+0ECACdkKARCwyIzOChHdDMQVMAYE77gCCmtJBjQSU9iq8wAj3NNTZLwGm0wlYCkb30B0bLMXFBg1Zt6Efr36TEGwMbGIILz65CBcpvXLGDQpZUQWwmnCqAE5GVMQKtOm9Bk1YRKCqDhryphJYgwMvfpZ06el0WWMGsZ4d52QM4tmTEqvIf1GpMwyujFqEOmRO6zfkHl09VwkVIhZmWYh3HIm5UyYkavbqzdqpGKJXYO9vy7oVn3egbCeE1td1Mv6pSEpEzjomJj4JOwc7HQkKrQ0sJ99VpL+qloQnXpiQQEBwB72OYjU+NqQrEIAMCSeidwphmEb9XEAAAA=) format('woff2')}</style><!--/embedded-font-->
+<ellipse cx="100" cy="186" rx="100" ry="5" fill="#E6EEF2"/>
+<ellipse cx="350" cy="186" rx="62" ry="5" fill="#E6EEF2"/>
+<ellipse cx="590" cy="186" rx="80" ry="5" fill="#E6EEF2"/>
+<ellipse cx="832" cy="186" rx="50" ry="5" fill="#E6EEF2"/>
+<path d="M12,64 L58,27.199999999999996 L186,27.199999999999996 L140,64 Z" fill="#FFCE77" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round"/>
+<path d="M140,64 L186,27.199999999999996 L186,147.2 L140,184 Z" fill="#D19657" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round"/>
+<rect x="12" y="64" width="128" height="120" fill="#FFB86B" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round"/>
+<path d="M22,76 L22,104" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+<text x="76.0" y="137.0" text-anchor="middle" font-family="Quicksand" font-weight="600" font-size="38" fill="#3F3A40">523</text>
+<path d="M292,40 L292,170 A58,17 0 0 0 408,170 L408,40 Z" fill="#8FD19E" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round"/>
+<path d="M390,54 L390,174" stroke="#79B186" stroke-width="12" opacity=".7"/>
+<ellipse cx="350" cy="40" rx="58" ry="17" fill="#A0EAB0" stroke="#3F3A40" stroke-width="3"/>
+<path d="M304,62 L304,100" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+<text x="350" y="135.0" text-anchor="middle" font-family="Quicksand" font-weight="600" font-size="38" fill="#3F3A40">425</text>
+<circle cx="590" cy="104" r="78" fill="#9FD3F5" stroke="#3F3A40" stroke-width="3"/>
+<path d="M512,118 A78,21.840000000000003 0 0 0 668,118" fill="none" stroke="#7FA8C4" stroke-width="2.5"/>
+<ellipse cx="557.24" cy="66.56" rx="15.600000000000001" ry="8.58" fill="#fff" opacity=".6" transform="rotate(-35 557.24 66.56)"/>
+<text x="590" y="100" text-anchor="middle" font-family="Quicksand" font-weight="600" font-size="38" fill="#3F3A40">385</text>
+<path d="M782,42 L810,19.599999999999998 L888,19.599999999999998 L860,42 Z" fill="#FFB4DB" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round"/>
+<path d="M860,42 L888,19.599999999999998 L888,161.6 L860,184 Z" fill="#CA84A0" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round"/>
+<rect x="782" y="42" width="78" height="142" fill="#F7A1C4" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round"/>
+<path d="M792,54 L792,82" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+<text x="821.0" y="126.0" text-anchor="middle" font-family="Quicksand" font-weight="600" font-size="38" fill="#3F3A40">268</text>
+</svg>

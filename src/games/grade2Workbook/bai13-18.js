@@ -26,13 +26,13 @@ import imgBai16T1Q3 from '../../assets/grade2-workbook/bai16_t1_q3_pour.svg';
 import imgBai16T2Q2 from '../../assets/grade2-workbook/bai16_t2_q2_groups.svg';
 import imgBai16T2Q3 from '../../assets/grade2-workbook/bai16_t2_q3_pour.svg';
 import imgBai16T2Q4 from '../../assets/grade2-workbook/bai16_t2_q4_jugs.svg';
-import imgBai17T1Q1 from '../../assets/grade2-workbook/bai17_t1_q1_scale.png';
-import imgBai17T1Q2 from '../../assets/grade2-workbook/bai17_t1_q2_objects.png';
-import imgBai17T1Q3 from '../../assets/grade2-workbook/bai17_t1_q3_dials.png';
-import imgBai17T2Q1 from '../../assets/grade2-workbook/bai17_t2_q1_kids.png';
-import imgBai17T2Q3 from '../../assets/grade2-workbook/bai17_t2_q3_bottles.png';
-import imgBai18Q2 from '../../assets/grade2-workbook/bai18_q2_seesaw.png';
-import imgBai18Q4 from '../../assets/grade2-workbook/bai18_q4_bags.png';
+import imgBai17T1Q1 from '../../assets/grade2-workbook/bai17_t1_q1_scale.svg';
+import imgBai17T1Q2 from '../../assets/grade2-workbook/bai17_t1_q2_objects.svg';
+import imgBai17T1Q3 from '../../assets/grade2-workbook/bai17_t1_q3_dials.svg';
+import imgBai17T2Q1 from '../../assets/grade2-workbook/bai17_t2_q1_kids.svg';
+import imgBai17T2Q3 from '../../assets/grade2-workbook/bai17_t2_q3_bottles.svg';
+import imgBai18Q2 from '../../assets/grade2-workbook/bai18_q2_seesaw.svg';
+import imgBai18Q4 from '../../assets/grade2-workbook/bai18_q4_bags.svg';
 
 // "... = ......" / "Tính nhẩm" row: label + plain-number answer.
 const eq = (label, answer) => ({ label, answer: String(answer) });

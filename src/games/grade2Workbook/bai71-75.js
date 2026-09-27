@@ -6,21 +6,21 @@
 import {
   blank, sampleCell, mau, listValidate, letterValidate, letterGroupsValidate, stripVN,
 } from '../grade3Workbook.js';
-import imgB71Spiders from '../../assets/grade2-workbook/bai71_t1_q1_spiders.png';
-import imgB71Ducks from '../../assets/grade2-workbook/bai71_t1_q1_ducks.png';
-import imgB71Rabbits from '../../assets/grade2-workbook/bai71_t1_q1_rabbits.png';
-import imgB71Ladybugs from '../../assets/grade2-workbook/bai71_t1_q1_ladybugs.png';
+import imgB71Spiders from '../../assets/grade2-workbook/bai71_t1_q1_spiders.svg';
+import imgB71Ducks from '../../assets/grade2-workbook/bai71_t1_q1_ducks.svg';
+import imgB71Rabbits from '../../assets/grade2-workbook/bai71_t1_q1_rabbits.svg';
+import imgB71Ladybugs from '../../assets/grade2-workbook/bai71_t1_q1_ladybugs.svg';
 import imgB71Flow from '../../assets/grade2-workbook/bai71_t2_q3_flow.svg';
 import imgB72Trap from '../../assets/grade2-workbook/bai72_t1_q1a_figure.svg';
 import imgB72Square from '../../assets/grade2-workbook/bai72_t1_q1b_square.svg';
-import imgB72Shapes from '../../assets/grade2-workbook/bai72_t1_q2_shapes.png';
+import imgB72Shapes from '../../assets/grade2-workbook/bai72_t1_q2_shapes.svg';
 import imgB72Points from '../../assets/grade2-workbook/bai72_t1_q3_figure.svg';
 import imgB72Segments from '../../assets/grade2-workbook/bai72_t2_q1_segments.svg';
 import imgB72Poly from '../../assets/grade2-workbook/bai72_t2_q3_polyline.svg';
 import imgB72Ants from '../../assets/grade2-workbook/bai72_t2_q4_ants.svg';
-import imgB72Bridge from '../../assets/grade2-workbook/bai72_t2_q5_bridge.png';
-import imgB73Scales from '../../assets/grade2-workbook/bai73_t1_q2_scales.png';
-import imgB73Cans from '../../assets/grade2-workbook/bai73_t1_q4_cans.png';
+import imgB72Bridge from '../../assets/grade2-workbook/bai72_t2_q5_bridge.svg';
+import imgB73Scales from '../../assets/grade2-workbook/bai73_t1_q2_scales.svg';
+import imgB73Cans from '../../assets/grade2-workbook/bai73_t1_q4_cans.svg';
 import imgB73Clock1 from '../../assets/grade2-workbook/bai73_t2_q3_clock1.svg';
 import imgB73Clock2 from '../../assets/grade2-workbook/bai73_t2_q3_clock2.svg';
 import imgB73Clock3 from '../../assets/grade2-workbook/bai73_t2_q3_clock3.svg';
@@ -28,13 +28,13 @@ import imgB73Clock4 from '../../assets/grade2-workbook/bai73_t2_q3_clock4.svg';
 import imgB73Clocks from '../../assets/grade2-workbook/bai73_t2_q4_clocks.svg';
 import imgB74Shapes from '../../assets/grade2-workbook/bai74_q1_shapes.svg';
 import imgB74Chart from '../../assets/grade2-workbook/bai74_q2_chart.svg';
-import imgB74Rabbits from '../../assets/grade2-workbook/bai74_q3_rabbits.png';
-import imgB75Cows from '../../assets/grade2-workbook/bai75_t2_q2_cows.png';
+import imgB74Rabbits from '../../assets/grade2-workbook/bai74_q3_rabbits.svg';
+import imgB75Cows from '../../assets/grade2-workbook/bai75_t2_q2_cows.svg';
 import imgB75Triangle from '../../assets/grade2-workbook/bai75_t2_q3_triangle.svg';
-import imgB75Seq from '../../assets/grade2-workbook/bai75_t2_q3_seq.png';
-import imgB75OptA from '../../assets/grade2-workbook/bai75_t2_q3_optA.png';
-import imgB75OptB from '../../assets/grade2-workbook/bai75_t2_q3_optB.png';
-import imgB75OptC from '../../assets/grade2-workbook/bai75_t2_q3_optC.png';
+import imgB75Seq from '../../assets/grade2-workbook/bai75_t2_q3_seq.svg';
+import imgB75OptA from '../../assets/grade2-workbook/bai75_t2_q3_optA.svg';
+import imgB75OptB from '../../assets/grade2-workbook/bai75_t2_q3_optB.svg';
+import imgB75OptC from '../../assets/grade2-workbook/bai75_t2_q3_optC.svg';
 import imgB75Poly from '../../assets/grade2-workbook/bai75_t2_q4_polyline.svg';
 
 // ── Local helpers ────────────────────────────────────────────────────────────

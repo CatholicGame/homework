@@ -6,19 +6,19 @@ import {
 } from '../grade3Workbook.js';
 import imgB65T1Q1 from '../../assets/grade2-workbook/bai65_t1_q1_chart.svg';
 import imgB65T1Q2 from '../../assets/grade2-workbook/bai65_t1_q2_chart.svg';
-import imgB65T2Q1 from '../../assets/grade2-workbook/bai65_t2_q1_toys.png';
-import imgB65Car from '../../assets/grade2-workbook/bai65_icon_car.png';
-import imgB65Moto from '../../assets/grade2-workbook/bai65_icon_moto.png';
-import imgB65Plane from '../../assets/grade2-workbook/bai65_icon_plane.png';
-import imgB65T2Q2 from '../../assets/grade2-workbook/bai65_t2_q2_animals.png';
-import imgB65T2Q3 from '../../assets/grade2-workbook/bai65_t2_q3_tomatoes.png';
-import imgB66Q2 from '../../assets/grade2-workbook/bai66_q2_balls.png';
-import imgB67Q1 from '../../assets/grade2-workbook/bai67_q1_shelf.png';
+import imgB65T2Q1 from '../../assets/grade2-workbook/bai65_t2_q1_toys.svg';
+import imgB65Car from '../../assets/grade2-workbook/bai65_icon_car.svg';
+import imgB65Moto from '../../assets/grade2-workbook/bai65_icon_moto.svg';
+import imgB65Plane from '../../assets/grade2-workbook/bai65_icon_plane.svg';
+import imgB65T2Q2 from '../../assets/grade2-workbook/bai65_t2_q2_animals.svg';
+import imgB65T2Q3 from '../../assets/grade2-workbook/bai65_t2_q3_tomatoes.svg';
+import imgB66Q2 from '../../assets/grade2-workbook/bai66_q2_balls.svg';
+import imgB67Q1 from '../../assets/grade2-workbook/bai67_q1_shelf.svg';
 import imgB69T1Q5 from '../../assets/grade2-workbook/bai69_t1_q5_flow.svg';
 import imgB69T2Q1 from '../../assets/grade2-workbook/bai69_t2_q1_calcs.svg';
 import imgB69T3Q2 from '../../assets/grade2-workbook/bai69_t3_q2_calcs.svg';
 import imgB69T3Q5 from '../../assets/grade2-workbook/bai69_t3_q5_flow.svg';
-import imgB70T1Q4 from '../../assets/grade2-workbook/bai70_t1_q4_map.png';
+import imgB70T1Q4 from '../../assets/grade2-workbook/bai70_t1_q4_map.svg';
 import imgB70T1Q5 from '../../assets/grade2-workbook/bai70_t1_q5_pyramid.svg';
 import imgB70T2Q1 from '../../assets/grade2-workbook/bai70_t2_q1_calcs.svg';
 import imgB70T2Q3 from '../../assets/grade2-workbook/bai70_t2_q3_flow.svg';
@@ -135,7 +135,7 @@ export const BAI_65_70 = [
         q: '1. Cho biểu đồ:\na) Số?\nViệt có bao nhiêu đồ chơi mỗi loại?',
         blanks: [
           { label: `${toy(imgB65Car, 'ô tô')}: ... chiếc`, answer: '8' },
-          { label: `${toy(imgB65Moto, 'xe máy')}: ... chiếc`, answer: '7' },
+          { label: `${toy(imgB65Moto, 'xe máy')}: ... chiếc`, answer: '8' },
           { label: `${toy(imgB65Plane, 'máy bay')}: ... chiếc`, answer: '6' },
         ],
         hints: ['Mỗi chấm tròn là 1 đồ chơi. Đếm số chấm tròn ở cột của mỗi đồ chơi.'],
@@ -161,11 +161,11 @@ export const BAI_65_70 = [
         type: 'fill', section: 'Tiết 2', img: imgB65T2Q3,
         q: '3. Cho biểu đồ:\nSố?',
         blanks: [
-          { label: 'a) Số quả cà chua thu hoạch được ở mỗi vườn là:<br>• Vườn A: ... quả;', answer: '43' },
+          { label: 'a) Số quả cà chua thu hoạch được ở mỗi vườn là:<br>• Vườn A: ... quả;', answer: '44' },
           { label: '• Vườn B: ... quả;', answer: '50' },
           { label: '• Vườn C: ... quả.', answer: '53' },
-          { label: 'b) Số quả cà chua ở vườn B nhiều hơn vườn A là ... quả.', answer: '7' },
-          { label: 'c) Số quả cà chua ở cả ba khu vườn là ... quả.', answer: '146' },
+          { label: 'b) Số quả cà chua ở vườn B nhiều hơn vườn A là ... quả.', answer: '6' },
+          { label: 'c) Số quả cà chua ở cả ba khu vườn là ... quả.', answer: '147' },
         ],
         hints: ['Mỗi túi là 10 quả, mỗi hình tròn là 1 quả. Đếm túi trước (chục), rồi đếm hình tròn (đơn vị).'],
       },

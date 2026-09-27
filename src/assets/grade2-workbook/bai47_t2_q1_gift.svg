@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 153" width="240" height="153">
+<path d="M10,70 L62,20 L232,20 L180,70 Z" fill="#FAC6DB" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M180,70 L232,20 L232,84 L180,134 Z" fill="#D188A6" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="10" y="70" width="170" height="64" fill="#F7A1C4" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="62" y="70" width="18" height="64" fill="#FFD166" stroke="#3F3A40" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M62,70 L114,20 L132,20 L80,70 Z" fill="#FFD166" stroke="#3F3A40" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M36.0,45.0 L206.0,45.0 L213.0,38.0 L43.0,38.0 Z" fill="#FFD166" stroke="#3F3A40" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M206.0,47.0 L206.0,109.0 L213.0,102.0 L213.0,40.0 Z" fill="#FFD166" stroke="#3F3A40" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M100.0,41.0 C66.0,11.0 60.0,47.0 100.0,41.0 Z" fill="#F4A259" stroke="#3F3A40" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M100.0,41.0 C134.0,11.0 140.0,47.0 100.0,41.0 Z" fill="#F4A259" stroke="#3F3A40" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="100.0" cy="41.0" r="6" fill="#F4A259" stroke="#3F3A40" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

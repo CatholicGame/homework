@@ -7,28 +7,28 @@ import {
   blank, stripVN, listValidate, dsValidate, letterValidate, swapPairValidate, sampleCell, mau,
 } from '../grade3Workbook.js';
 import imgB53T2Q2 from '../../assets/grade2-workbook/bai53_t2_q2_points.svg';
-import imgB54T1Q3 from '../../assets/grade2-workbook/bai54_t1_q3_igloo.png';
-import imgB54T2Q5 from '../../assets/grade2-workbook/bai54_t2_q5_maze.png';
-import imgB55Notebook from '../../assets/grade2-workbook/bai55_t1_q2_notebook.png';
-import imgB55Table from '../../assets/grade2-workbook/bai55_t1_q2_table.png';
-import imgB55Clip from '../../assets/grade2-workbook/bai55_t1_q2_clip.png';
+import imgB54T1Q3 from '../../assets/grade2-workbook/bai54_t1_q3_igloo.svg';
+import imgB54T2Q5 from '../../assets/grade2-workbook/bai54_t2_q5_maze.svg';
+import imgB55Notebook from '../../assets/grade2-workbook/bai55_t1_q2_notebook.svg';
+import imgB55Table from '../../assets/grade2-workbook/bai55_t1_q2_table.svg';
+import imgB55Clip from '../../assets/grade2-workbook/bai55_t1_q2_clip.svg';
 import imgB55T2Q2 from '../../assets/grade2-workbook/bai55_t2_q2_track.svg';
-import imgB55T3Q4 from '../../assets/grade2-workbook/bai55_t3_q4_thachsanh.png';
-import imgB56Q1 from '../../assets/grade2-workbook/bai56_q1_notes.png';
-import imgB56Note100 from '../../assets/grade2-workbook/bai56_q2_100.png';
-import imgB56Note200 from '../../assets/grade2-workbook/bai56_q2_200.png';
-import imgB56Note500 from '../../assets/grade2-workbook/bai56_q2_500.png';
-import imgB56Q3 from '../../assets/grade2-workbook/bai56_q3_savings.png';
-import imgB58T1Q2 from '../../assets/grade2-workbook/bai58_t1_q2_islands.png';
+import imgB55T3Q4 from '../../assets/grade2-workbook/bai55_t3_q4_thachsanh.svg';
+import imgB56Q1 from '../../assets/grade2-workbook/bai56_q1_notes.svg';
+import imgB56Note100 from '../../assets/grade2-workbook/bai56_q2_100.svg';
+import imgB56Note200 from '../../assets/grade2-workbook/bai56_q2_200.svg';
+import imgB56Note500 from '../../assets/grade2-workbook/bai56_q2_500.svg';
+import imgB56Q3 from '../../assets/grade2-workbook/bai56_q3_savings.svg';
+import imgB58T1Q2 from '../../assets/grade2-workbook/bai58_t1_q2_islands.svg';
 import imgB58T1Q3 from '../../assets/grade2-workbook/bai58_t1_q3_rulers.svg';
-import imgB58T1Q4 from '../../assets/grade2-workbook/bai58_t1_q4_animals.png';
+import imgB58T1Q4 from '../../assets/grade2-workbook/bai58_t1_q4_animals.svg';
 import imgB58T2Q3 from '../../assets/grade2-workbook/bai58_t2_q3_grid.svg';
-import imgB58Truck57 from '../../assets/grade2-workbook/bai58_t2_q4_truck57.png';
-import imgB58Truck41 from '../../assets/grade2-workbook/bai58_t2_q4_truck41.png';
-import imgB58Truck25 from '../../assets/grade2-workbook/bai58_t2_q4_truck25.png';
-import imgB58Box3 from '../../assets/grade2-workbook/bai58_t2_q4_box3.png';
-import imgB58Box5 from '../../assets/grade2-workbook/bai58_t2_q4_box5.png';
-import imgB58Box2 from '../../assets/grade2-workbook/bai58_t2_q4_box2.png';
+import imgB58Truck57 from '../../assets/grade2-workbook/bai58_t2_q4_truck57.svg';
+import imgB58Truck41 from '../../assets/grade2-workbook/bai58_t2_q4_truck41.svg';
+import imgB58Truck25 from '../../assets/grade2-workbook/bai58_t2_q4_truck25.svg';
+import imgB58Box3 from '../../assets/grade2-workbook/bai58_t2_q4_box3.svg';
+import imgB58Box5 from '../../assets/grade2-workbook/bai58_t2_q4_box5.svg';
+import imgB58Box2 from '../../assets/grade2-workbook/bai58_t2_q4_box2.svg';
 import imgB58T2Q5 from '../../assets/grade2-workbook/bai58_t2_q5_plots.svg';
 
 // "Viết số thành tổng các trăm, chục, đơn vị": 392 = 300 + 90 + 2. The terms may

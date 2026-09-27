@@ -3,26 +3,26 @@
  * Phép cộng, phép trừ (có nhớ) trong phạm vi 100.
  */
 import { exprValidate, stripVN } from '../grade3Workbook.js';
-import imgB19Bags from '../../assets/grade2-workbook/bai19_t1_q3_bags.png';
+import imgB19Bags from '../../assets/grade2-workbook/bai19_t1_q3_bags.svg';
 import imgB19Pyramid from '../../assets/grade2-workbook/bai19_t2_q4_pyramid.svg';
-import imgB19Maze from '../../assets/grade2-workbook/bai19_t3_q5_maze.png';
+import imgB19Maze from '../../assets/grade2-workbook/bai19_t3_q5_maze.svg';
 import imgB20Matches from '../../assets/grade2-workbook/bai20_t1_q3_matches.svg';
 import imgB20Circuit from '../../assets/grade2-workbook/bai20_t1_q4_circuit.svg';
-import imgB20Caterpillar from '../../assets/grade2-workbook/bai20_t2_q5_caterpillar.png';
-import imgB20Cricket from '../../assets/grade2-workbook/bai20_t3_q3_cricket.png';
-import imgB21Scale from '../../assets/grade2-workbook/bai21_t1_q3_scale.png';
-import imgB21Trucks from '../../assets/grade2-workbook/bai21_t1_q4_trucks.png';
-import imgB21Frog from '../../assets/grade2-workbook/bai21_t1_q5_frog.png';
-import imgB21Snails from '../../assets/grade2-workbook/bai21_t2_q2_snails.png';
+import imgB20Caterpillar from '../../assets/grade2-workbook/bai20_t2_q5_caterpillar.svg';
+import imgB20Cricket from '../../assets/grade2-workbook/bai20_t3_q3_cricket.svg';
+import imgB21Scale from '../../assets/grade2-workbook/bai21_t1_q3_scale.svg';
+import imgB21Trucks from '../../assets/grade2-workbook/bai21_t1_q4_trucks.svg';
+import imgB21Frog from '../../assets/grade2-workbook/bai21_t1_q5_frog.svg';
+import imgB21Snails from '../../assets/grade2-workbook/bai21_t2_q2_snails.svg';
 import imgB21Grid from '../../assets/grade2-workbook/bai21_t2_q5_grid.svg';
-import imgB22Chicken from '../../assets/grade2-workbook/bai22_t2_q3_chicken.png';
+import imgB22Chicken from '../../assets/grade2-workbook/bai22_t2_q3_chicken.svg';
 import imgB23Shapes from '../../assets/grade2-workbook/bai23_t2_q2_shapes.svg';
-import imgB23Monkey from '../../assets/grade2-workbook/bai23_t2_q5_monkey.png';
+import imgB23Monkey from '../../assets/grade2-workbook/bai23_t2_q5_monkey.svg';
 import imgB23Solids from '../../assets/grade2-workbook/bai23_t3_q3_solids.svg';
-import imgB23Gifts from '../../assets/grade2-workbook/bai23_t5_q3_gifts.png';
+import imgB23Gifts from '../../assets/grade2-workbook/bai23_t5_q3_gifts.svg';
 import imgB24Animals from '../../assets/grade2-workbook/bai24_t1_q4_animals.svg';
-import imgB24Robot from '../../assets/grade2-workbook/bai24_t1_q5_robot.png';
-import imgB24Dragonfly from '../../assets/grade2-workbook/bai24_t2_q2_dragonfly.png';
+import imgB24Robot from '../../assets/grade2-workbook/bai24_t1_q5_robot.svg';
+import imgB24Dragonfly from '../../assets/grade2-workbook/bai24_t2_q2_dragonfly.svg';
 
 // "Đặt tính rồi tính." / "Tính." — one answer line per phép tính, result computed
 // here so a typo in the answer key is impossible.

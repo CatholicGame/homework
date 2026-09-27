@@ -4,24 +4,24 @@
 import {
   blank, dsValidate, letterValidate, listValidate, phraseValidate, sampleCell, setValidate,
 } from '../grade3Workbook.js';
-import imgB59Ships from '../../assets/grade2-workbook/bai59_t1_q3_ships.png';
-import imgB59Goose from '../../assets/grade2-workbook/bai59_t2_q4_goose.png';
+import imgB59Ships from '../../assets/grade2-workbook/bai59_t1_q3_ships.svg';
+import imgB59Goose from '../../assets/grade2-workbook/bai59_t2_q4_goose.svg';
 import imgB59Heli from '../../assets/grade2-workbook/bai59_t2_q5_heli.svg';
-import imgB60Maze from '../../assets/grade2-workbook/bai60_t2_q4_maze.png';
+import imgB60Maze from '../../assets/grade2-workbook/bai60_t2_q4_maze.svg';
 import imgB60Robot from '../../assets/grade2-workbook/bai60_t3_q5_robot.svg';
-import imgB61Flowers from '../../assets/grade2-workbook/bai61_t2_q2_flowers.png';
+import imgB61Flowers from '../../assets/grade2-workbook/bai61_t2_q2_flowers.svg';
 import imgB61Venn from '../../assets/grade2-workbook/bai61_t3_q3_venn.svg';
 import imgB61Sticks from '../../assets/grade2-workbook/bai61_t3_q5_sticks.svg';
-import imgB62Robot from '../../assets/grade2-workbook/bai62_t1_q4_robot.png';
-import imgB62Snail from '../../assets/grade2-workbook/bai62_t2_q5_snail.png';
+import imgB62Robot from '../../assets/grade2-workbook/bai62_t1_q4_robot.svg';
+import imgB62Snail from '../../assets/grade2-workbook/bai62_t2_q5_snail.svg';
 import imgB62Flow from '../../assets/grade2-workbook/bai62_t3_q2_flow.svg';
-import imgB62Giraffe from '../../assets/grade2-workbook/bai62_t3_q4_giraffe.png';
-import imgB62Buffalo from '../../assets/grade2-workbook/bai62_t3_q4_buffalo.png';
-import imgB62Tiger from '../../assets/grade2-workbook/bai62_t3_q4_tiger.png';
-import imgB63Solids from '../../assets/grade2-workbook/bai63_t1_q2_solids.png';
+import imgB62Giraffe from '../../assets/grade2-workbook/bai62_t3_q4_giraffe.svg';
+import imgB62Buffalo from '../../assets/grade2-workbook/bai62_t3_q4_buffalo.svg';
+import imgB62Tiger from '../../assets/grade2-workbook/bai62_t3_q4_tiger.svg';
+import imgB63Solids from '../../assets/grade2-workbook/bai63_t1_q2_solids.svg';
 import imgB63Grid from '../../assets/grade2-workbook/bai63_t1_q4_grid.svg';
-import imgB64Books from '../../assets/grade2-workbook/bai64_q1_books.png';
-import imgB64Lanterns from '../../assets/grade2-workbook/bai64_q3_lanterns.png';
+import imgB64Books from '../../assets/grade2-workbook/bai64_q1_books.svg';
+import imgB64Lanterns from '../../assets/grade2-workbook/bai64_q3_lanterns.svg';
 
 // Numbers print like the book: "1 000".
 const fmt = (n) => (n >= 1000 ? String(n).replace(/(\d)(?=(\d{3})+$)/g, '$1 ') : String(n));

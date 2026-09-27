@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 102" width="800" height="102"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:700;src:url(data:font/woff2;base64,d09GMgABAAAAAALIAA8AAAAABaQAAAJvAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGyAcKgZgP1NUQVQqADQRCAqBKIEuATYCJAMICwYABCAFhDYHIAwHG5wEKJ4FduNLEQ4ujZe8LMK2YfScZY1QyYmwvb/Zo7SquiPfUZvwxBNUt19jDMaiRLdVOIIi7yf/9P38yhN0JRH6ojFbpQ3wCGnrxKkdxgRAdRT+z8205Qn0/vPAUo3WAun5GkAbOMGE5tm0OYwOwwPis521++0xIpmcJD2K4UkF7SY5I/ayCirASCNUOgCCdnN8UKh2FhdULAJbdjloLAllB5oo95QaAKeuTc4gLEGUDBN0/HE4gE3JDb+VgcYHIhgI5K/sALNIEa2CQQQmUe7YHEwASgZtCkMhBwwip/XMAo0aBZtVZWm6o4CQYJceRAGNKFgF9kC2hLLcW6/d7+h4P4726Kq9/cJncHtpcXJ5/122eH1Vf3l4qg0OUt9pb99LZftiCO1SB/GABerz7UPx9jb2vqm27CA3ssvDkQz5v2mRhmZEtPhEZ4qSUrnpYU4FrBw0a+VK8eTZG4r698faKOauGwBbBBrS1trdrOe1TPg1IslfeA9svsPPx/k4TIB8lE80KyDsbZQjBglsEBBKTPkUS5iwitV8Bha1uSSl0RhkFHwgpmMLRXeioEEtGfVGEpqMRy00h0R/igCdWce/0IfW7MCuWKKRcdkcjIQJESoWUsFhIqUKLp0vp4oYSIlMzGPSMZKqwByxTI744GAskccJFozNxRwFLQhdLAwunZeMqQokobIFXBFVRRUFjxCynCCEK9AE1ad9BUBUXb8DKWPKmTIlk4FkiUUYKaIKmYhbR3ZgIQVLsfWzYysEVFm4ICFCRIlXVFyUGV/DDESrbJmcO6uGXpE0Us2dr0oTCxgkUA3DCo0+ErrrjV0AAA==) format('woff2')}</style><!--/embedded-font-->
+<path d="M8,32 L29.080000000000002,15.136 L91.08,15.136 L70,32 Z" fill="#6FB7EA" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M70,32 L91.08,15.136 L91.08,77.136 L70,94 Z" fill="#4F9AD0" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="8" y="32" width="62" height="62" fill="#9ED8F5" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M16,84 L16,42 L26,42" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" opacity=".7"/>
+<circle cx="134" cy="56" r="34" fill="#F7A1C4" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M165.96,44.44 A34,34 0 0 1 113.6,83.2 A35.7,35.7 0 0 0 165.96,44.44 Z" fill="#E77AA6" opacity=".8"/>
+<circle cx="134" cy="56" r="34" fill="none" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="121.08" cy="42.4" rx="8.16" ry="5.1" fill="#FFFFFF" opacity=".85" transform="rotate(-35 121.08 42.4)"/>
+<path d="M194.0,18 L194.0,90 A30.0,10.799999999999999 0 0 0 254.0,90 L254.0,18 Z" fill="#FFD166" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M237.5,27.72 L237.5,99.72 A30.0,10.799999999999999 0 0 0 254.0,90 L254.0,18 Z" fill="#E9AE3C" opacity=".55"/>
+<path d="M194.0,18 L194.0,90 A30.0,10.799999999999999 0 0 0 254.0,90 L254.0,18" fill="none" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="224" cy="18" rx="30.0" ry="10.799999999999999" fill="#FFE08A" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="205.4" y1="36.8" x2="205.4" y2="86" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" opacity=".75"/>
+<path d="M278,32 L299.08,15.136 L361.08,15.136 L340,32 Z" fill="#6FB7EA" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M340,32 L361.08,15.136 L361.08,77.136 L340,94 Z" fill="#4F9AD0" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="278" y="32" width="62" height="62" fill="#9ED8F5" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M286,84 L286,42 L296,42" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" opacity=".7"/>
+<circle cx="404" cy="56" r="34" fill="#F7A1C4" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M435.96,44.44 A34,34 0 0 1 383.6,83.2 A35.7,35.7 0 0 0 435.96,44.44 Z" fill="#E77AA6" opacity=".8"/>
+<circle cx="404" cy="56" r="34" fill="none" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="391.08" cy="42.4" rx="8.16" ry="5.1" fill="#FFFFFF" opacity=".85" transform="rotate(-35 391.08 42.4)"/>
+<path d="M464.0,18 L464.0,90 A30.0,10.799999999999999 0 0 0 524.0,90 L524.0,18 Z" fill="#FFD166" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M507.5,27.72 L507.5,99.72 A30.0,10.799999999999999 0 0 0 524.0,90 L524.0,18 Z" fill="#E9AE3C" opacity=".55"/>
+<path d="M464.0,18 L464.0,90 A30.0,10.799999999999999 0 0 0 524.0,90 L524.0,18" fill="none" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="494" cy="18" rx="30.0" ry="10.799999999999999" fill="#FFE08A" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="475.4" y1="36.8" x2="475.4" y2="86" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" opacity=".75"/>
+<path d="M548,32 L569.08,15.136 L631.08,15.136 L610,32 Z" fill="#6FB7EA" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M610,32 L631.08,15.136 L631.08,77.136 L610,94 Z" fill="#4F9AD0" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="548" y="32" width="62" height="62" fill="#9ED8F5" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M556,84 L556,42 L566,42" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" opacity=".7"/>
+<text x="674" y="70" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="34" fill="#3F3A40">?</text>
+<path d="M734.0,18 L734.0,90 A30.0,10.799999999999999 0 0 0 794.0,90 L794.0,18 Z" fill="#FFD166" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M777.5,27.72 L777.5,99.72 A30.0,10.799999999999999 0 0 0 794.0,90 L794.0,18 Z" fill="#E9AE3C" opacity=".55"/>
+<path d="M734.0,18 L734.0,90 A30.0,10.799999999999999 0 0 0 794.0,90 L794.0,18" fill="none" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="764" cy="18" rx="30.0" ry="10.799999999999999" fill="#FFE08A" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="745.4" y1="36.8" x2="745.4" y2="86" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" opacity=".75"/>
+</svg>

@@ -1,0 +1,366 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 530 630" width="530" height="630"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:600;src:url(data:font/woff2;base64,d09GMgABAAAAAAWEABAAAAAAChgAAAUqAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhobgTIcKgZgP1NUQVQqAEwRCAqICIZCATYCJAMqCxgABCAFhD4HIAwHGx4IUZRRTgnEzwSbTt5CYWSFUYzWdNnbMJimrIpCzB+MRw9fg4of+83ePdQ9WyKU30g0MpUSSdDEK1TXyD3r+tmTmjDvEuCvJOUF1Nvn4f8P9b6fbcFQQKM5nl3wuXHrGoAlrGlPfex3SJel4EHJrAqJDxlDl6rJ1rFtTYGABiyCn8v+3/a57NWxBpYC1loAuwbuAVarWLUgBYKaWyKpUKHrmCPGy3n66L67FAKJAEAk0PU0gXiV5iKD0fM3FHaXHA0KAuCxMWFnzdIghYBWYHoTr/XzU8WAy1eDCC5KtFgSmz8kKl+ZWjHQ7ixKP/4SgPh8tvo8ivMdASoQJC5lQonQJVy0Z7WuuDKj7RRKZ1kRh924CmChu+bNo5l5lwIBfz353vBPW3e9v2Q0wpN6AAH0YUdAqRhUS9WCTAkUHnC4ITgEgCVg1ckPAgMOMhdx3kwxvYB4sYzp9M3orj+Jti7S6Kt0Oqe9JwlkRWN/gBQgCQCyAYnQHNAjkAlIBADGMjH60rSSK9onHoO28tLWFArGrJFT4in2rMrye/au5QnGrkZ9Rr38jsq7vngPOcOedeeuvXe+cUO9N28mjL1+fhcZoOmUsQFavQPIoO21a/Rcvx7JXafnGrh44YQ1JogoXQfxxq5GCOZuvHh2sRIJ2WgCBjIJ00qt1zx55soSUczF83Wg/BFIJR+EI6j6rn30tGV3bi219qIWMOPImARIHrucLD8d6nHxqHqPnAHhy4Cb51LJpvx1dZuFE8xm7uQJZc1WzDnQjXuwRcEwBQTTUsVqMtkJ06a9ODN0M6nktby+y0ni9OmoJwwhKXGHgmu8Uc8qR/ocJJcnw7vf6eQOkNvkJDlD4DRB35zYPth0jiTnIMRPepb2LzcPrAzybo+O9W6rCPQ3D+HSD8GTdHJ+x1HrYGvjOHsH41h3G2urIGuTWAd7kzg3g6IgCJzxbomJSdq9PDDAyJ9y4tmto+Acu6SO7D/uPAn8pfdL4Tmk2wRZGUdncowrVjbWgVYMGXt7kxj3f0RvqHtAH87w2S3BHwg7aWbBoL8atQ+S4B26kIHXYLwaZ8NswA8f/K8fp+o5+/o7Uc/6Xsx3VpO9kQqZ+2lvAik9vxx7h0wfJ5++BXNWrUbF3ap4pbaBruGXbgvLlH26shlNQlmajD95zK7j8Wp4DZatxh7seMxb2rL75Jj6ZL5rmqtdjmeob1mDa4RRGF6qtoMnW4y6yD74T27KIiqy2M3Sf1ffC57jS1P5oPHF76Fjq6L9Vr0R8d6pKbsXu/ib6GhJ3MY7+ie7qajd44nv7E4MQcICzWmMmNnKaU+1r84uRcpGSF47UCPjAhct7uxPDKAhC6ymPB28EfDY3D74eZqdMvgW6/4HuG/KvgD4eSk7l5B9WyivIJoBEB4MPWxP9v8S0InQdiC+zOqWiDaIGHx2eooNxdJpW7JCP61XFrSbI0CCYRGrYmSYG4yz1plUjQN1QDVLceSaTXJ0m11nTK4MMHOU/FiPRg8JtlwEibHzDRRIjSMm6Awhi4gncKC5qZkd9E3AQh9cIprMRtIw0DuLTsKiOdCNyyHQWWyoS3iWw2Dbm5jgiaCKizK2QXSqST2vheUbMZB4CpGG5APWm0iIPtlklUgRGpMP7hlC/kQ7o08sG8viOUB29OlENcHQKwqwvHU6df5wGj1vEyD/bTyXgmRZGJuaWjt49ebVowOJ+4j7C7YKE0WtQJrFpHL+wsb90qtEd4MVjCh+YDdq1/ruKc93wj0=) format('woff2')}@font-face{font-family:'Quicksand';font-weight:700;src:url(data:font/woff2;base64,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) format('woff2')}</style><!--/embedded-font-->
+<rect x="51" y="11" width="180" height="88" rx="5" fill="#000" opacity=".08"/>
+<rect x="48.0" y="8.0" width="180.0" height="88.0" rx="4.4" fill="#DDF2D2" stroke="#3F3A40" stroke-width="2.1"/>
+<rect x="52.4" y="12.4" width="171.2" height="15.0" rx="2.6" fill="#B7E0A6"/>
+<path d="M96.6,19.9 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0" fill="none" stroke="#3E8A4C" stroke-width="1.2" opacity=".7"/>
+<rect x="52.4" y="30.0" width="171.2" height="61.6" rx="2.6" fill="none" stroke="#3E8A4C" stroke-width="1.1" stroke-dasharray="3.5 2.6" opacity=".6"/>
+<text x="55.9" y="24.7" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<text x="220.1" y="24.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<circle cx="84.0" cy="59.0" r="19.4" fill="#FFFFFF" stroke="#3E8A4C" stroke-width="1.2"/>
+<ellipse cx="92.2" cy="59.0" rx="6.3" ry="3.6" transform="rotate(0 92.2 59.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="64.9" rx="6.3" ry="3.6" transform="rotate(45 89.8 64.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="67.3" rx="6.3" ry="3.6" transform="rotate(90 84.0 67.3)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="64.9" rx="6.3" ry="3.6" transform="rotate(135 78.2 64.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="75.8" cy="59.0" rx="6.3" ry="3.6" transform="rotate(180 75.8 59.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="53.2" rx="6.3" ry="3.6" transform="rotate(225 78.2 53.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="50.8" rx="6.3" ry="3.6" transform="rotate(270 84.0 50.8)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="53.2" rx="6.3" ry="3.6" transform="rotate(315 89.8 53.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<circle cx="84.0" cy="59.0" r="4.2" fill="#FFD166" stroke="#3E8A4C" stroke-width="0.9"/>
+<text x="148.8" y="52.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">MỘT TRĂM</text>
+<text x="148.8" y="66.1" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="11.4" fill="#3E8A4C">ĐỒNG</text>
+<text x="219.2" y="88.1" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="22.9" fill="#3E8A4C">100</text>
+<rect x="51" y="37" width="180" height="88" rx="5" fill="#000" opacity=".08"/>
+<rect x="48.0" y="34.0" width="180.0" height="88.0" rx="4.4" fill="#DDF2D2" stroke="#3F3A40" stroke-width="2.1"/>
+<rect x="52.4" y="38.4" width="171.2" height="15.0" rx="2.6" fill="#B7E0A6"/>
+<path d="M96.6,45.9 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0" fill="none" stroke="#3E8A4C" stroke-width="1.2" opacity=".7"/>
+<rect x="52.4" y="56.0" width="171.2" height="61.6" rx="2.6" fill="none" stroke="#3E8A4C" stroke-width="1.1" stroke-dasharray="3.5 2.6" opacity=".6"/>
+<text x="55.9" y="50.7" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<text x="220.1" y="50.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<circle cx="84.0" cy="85.0" r="19.4" fill="#FFFFFF" stroke="#3E8A4C" stroke-width="1.2"/>
+<ellipse cx="92.2" cy="85.0" rx="6.3" ry="3.6" transform="rotate(0 92.2 85.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="90.9" rx="6.3" ry="3.6" transform="rotate(45 89.8 90.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="93.3" rx="6.3" ry="3.6" transform="rotate(90 84.0 93.3)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="90.9" rx="6.3" ry="3.6" transform="rotate(135 78.2 90.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="75.8" cy="85.0" rx="6.3" ry="3.6" transform="rotate(180 75.8 85.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="79.2" rx="6.3" ry="3.6" transform="rotate(225 78.2 79.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="76.8" rx="6.3" ry="3.6" transform="rotate(270 84.0 76.8)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="79.2" rx="6.3" ry="3.6" transform="rotate(315 89.8 79.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<circle cx="84.0" cy="85.0" r="4.2" fill="#FFD166" stroke="#3E8A4C" stroke-width="0.9"/>
+<text x="148.8" y="78.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">MỘT TRĂM</text>
+<text x="148.8" y="92.1" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="11.4" fill="#3E8A4C">ĐỒNG</text>
+<text x="219.2" y="114.1" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="22.9" fill="#3E8A4C">100</text>
+<rect x="51" y="63" width="180" height="88" rx="5" fill="#000" opacity=".08"/>
+<rect x="48.0" y="60.0" width="180.0" height="88.0" rx="4.4" fill="#DDF2D2" stroke="#3F3A40" stroke-width="2.1"/>
+<rect x="52.4" y="64.4" width="171.2" height="15.0" rx="2.6" fill="#B7E0A6"/>
+<path d="M96.6,71.9 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0" fill="none" stroke="#3E8A4C" stroke-width="1.2" opacity=".7"/>
+<rect x="52.4" y="82.0" width="171.2" height="61.6" rx="2.6" fill="none" stroke="#3E8A4C" stroke-width="1.1" stroke-dasharray="3.5 2.6" opacity=".6"/>
+<text x="55.9" y="76.7" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<text x="220.1" y="76.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<circle cx="84.0" cy="111.0" r="19.4" fill="#FFFFFF" stroke="#3E8A4C" stroke-width="1.2"/>
+<ellipse cx="92.2" cy="111.0" rx="6.3" ry="3.6" transform="rotate(0 92.2 111.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="116.9" rx="6.3" ry="3.6" transform="rotate(45 89.8 116.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="119.3" rx="6.3" ry="3.6" transform="rotate(90 84.0 119.3)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="116.9" rx="6.3" ry="3.6" transform="rotate(135 78.2 116.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="75.8" cy="111.0" rx="6.3" ry="3.6" transform="rotate(180 75.8 111.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="105.2" rx="6.3" ry="3.6" transform="rotate(225 78.2 105.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="102.8" rx="6.3" ry="3.6" transform="rotate(270 84.0 102.8)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="105.2" rx="6.3" ry="3.6" transform="rotate(315 89.8 105.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<circle cx="84.0" cy="111.0" r="4.2" fill="#FFD166" stroke="#3E8A4C" stroke-width="0.9"/>
+<text x="148.8" y="104.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">MỘT TRĂM</text>
+<text x="148.8" y="118.1" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="11.4" fill="#3E8A4C">ĐỒNG</text>
+<text x="219.2" y="140.1" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="22.9" fill="#3E8A4C">100</text>
+<rect x="51" y="89" width="180" height="88" rx="5" fill="#000" opacity=".08"/>
+<rect x="48.0" y="86.0" width="180.0" height="88.0" rx="4.4" fill="#DDF2D2" stroke="#3F3A40" stroke-width="2.1"/>
+<rect x="52.4" y="90.4" width="171.2" height="15.0" rx="2.6" fill="#B7E0A6"/>
+<path d="M96.6,97.9 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0" fill="none" stroke="#3E8A4C" stroke-width="1.2" opacity=".7"/>
+<rect x="52.4" y="108.0" width="171.2" height="61.6" rx="2.6" fill="none" stroke="#3E8A4C" stroke-width="1.1" stroke-dasharray="3.5 2.6" opacity=".6"/>
+<text x="55.9" y="102.7" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<text x="220.1" y="102.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<circle cx="84.0" cy="137.0" r="19.4" fill="#FFFFFF" stroke="#3E8A4C" stroke-width="1.2"/>
+<ellipse cx="92.2" cy="137.0" rx="6.3" ry="3.6" transform="rotate(0 92.2 137.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="142.9" rx="6.3" ry="3.6" transform="rotate(45 89.8 142.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="145.3" rx="6.3" ry="3.6" transform="rotate(90 84.0 145.3)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="142.9" rx="6.3" ry="3.6" transform="rotate(135 78.2 142.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="75.8" cy="137.0" rx="6.3" ry="3.6" transform="rotate(180 75.8 137.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="131.2" rx="6.3" ry="3.6" transform="rotate(225 78.2 131.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="128.8" rx="6.3" ry="3.6" transform="rotate(270 84.0 128.8)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="131.2" rx="6.3" ry="3.6" transform="rotate(315 89.8 131.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<circle cx="84.0" cy="137.0" r="4.2" fill="#FFD166" stroke="#3E8A4C" stroke-width="0.9"/>
+<text x="148.8" y="130.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">MỘT TRĂM</text>
+<text x="148.8" y="144.1" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="11.4" fill="#3E8A4C">ĐỒNG</text>
+<text x="219.2" y="166.1" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="22.9" fill="#3E8A4C">100</text>
+<rect x="51" y="115" width="180" height="88" rx="5" fill="#000" opacity=".08"/>
+<rect x="48.0" y="112.0" width="180.0" height="88.0" rx="4.4" fill="#DDF2D2" stroke="#3F3A40" stroke-width="2.1"/>
+<rect x="52.4" y="116.4" width="171.2" height="15.0" rx="2.6" fill="#B7E0A6"/>
+<path d="M96.6,123.9 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0" fill="none" stroke="#3E8A4C" stroke-width="1.2" opacity=".7"/>
+<rect x="52.4" y="134.0" width="171.2" height="61.6" rx="2.6" fill="none" stroke="#3E8A4C" stroke-width="1.1" stroke-dasharray="3.5 2.6" opacity=".6"/>
+<text x="55.9" y="128.7" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<text x="220.1" y="128.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<circle cx="84.0" cy="163.0" r="19.4" fill="#FFFFFF" stroke="#3E8A4C" stroke-width="1.2"/>
+<ellipse cx="92.2" cy="163.0" rx="6.3" ry="3.6" transform="rotate(0 92.2 163.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="168.9" rx="6.3" ry="3.6" transform="rotate(45 89.8 168.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="171.3" rx="6.3" ry="3.6" transform="rotate(90 84.0 171.3)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="168.9" rx="6.3" ry="3.6" transform="rotate(135 78.2 168.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="75.8" cy="163.0" rx="6.3" ry="3.6" transform="rotate(180 75.8 163.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="157.2" rx="6.3" ry="3.6" transform="rotate(225 78.2 157.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="154.8" rx="6.3" ry="3.6" transform="rotate(270 84.0 154.8)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="157.2" rx="6.3" ry="3.6" transform="rotate(315 89.8 157.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<circle cx="84.0" cy="163.0" r="4.2" fill="#FFD166" stroke="#3E8A4C" stroke-width="0.9"/>
+<text x="148.8" y="156.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">MỘT TRĂM</text>
+<text x="148.8" y="170.1" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="11.4" fill="#3E8A4C">ĐỒNG</text>
+<text x="219.2" y="192.1" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="22.9" fill="#3E8A4C">100</text>
+<rect x="51" y="141" width="180" height="88" rx="5" fill="#000" opacity=".08"/>
+<rect x="48.0" y="138.0" width="180.0" height="88.0" rx="4.4" fill="#DDF2D2" stroke="#3F3A40" stroke-width="2.1"/>
+<rect x="52.4" y="142.4" width="171.2" height="15.0" rx="2.6" fill="#B7E0A6"/>
+<path d="M96.6,149.9 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0" fill="none" stroke="#3E8A4C" stroke-width="1.2" opacity=".7"/>
+<rect x="52.4" y="160.0" width="171.2" height="61.6" rx="2.6" fill="none" stroke="#3E8A4C" stroke-width="1.1" stroke-dasharray="3.5 2.6" opacity=".6"/>
+<text x="55.9" y="154.7" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<text x="220.1" y="154.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<circle cx="84.0" cy="189.0" r="19.4" fill="#FFFFFF" stroke="#3E8A4C" stroke-width="1.2"/>
+<ellipse cx="92.2" cy="189.0" rx="6.3" ry="3.6" transform="rotate(0 92.2 189.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="194.9" rx="6.3" ry="3.6" transform="rotate(45 89.8 194.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="197.3" rx="6.3" ry="3.6" transform="rotate(90 84.0 197.3)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="194.9" rx="6.3" ry="3.6" transform="rotate(135 78.2 194.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="75.8" cy="189.0" rx="6.3" ry="3.6" transform="rotate(180 75.8 189.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="183.2" rx="6.3" ry="3.6" transform="rotate(225 78.2 183.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="180.8" rx="6.3" ry="3.6" transform="rotate(270 84.0 180.8)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="183.2" rx="6.3" ry="3.6" transform="rotate(315 89.8 183.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<circle cx="84.0" cy="189.0" r="4.2" fill="#FFD166" stroke="#3E8A4C" stroke-width="0.9"/>
+<text x="148.8" y="182.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">MỘT TRĂM</text>
+<text x="148.8" y="196.1" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="11.4" fill="#3E8A4C">ĐỒNG</text>
+<text x="219.2" y="218.1" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="22.9" fill="#3E8A4C">100</text>
+<rect x="51" y="167" width="180" height="88" rx="5" fill="#000" opacity=".08"/>
+<rect x="48.0" y="164.0" width="180.0" height="88.0" rx="4.4" fill="#DDF2D2" stroke="#3F3A40" stroke-width="2.1"/>
+<rect x="52.4" y="168.4" width="171.2" height="15.0" rx="2.6" fill="#B7E0A6"/>
+<path d="M96.6,175.9 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0 q5.2,-3.5 10.4,0 q5.2,3.5 10.4,0" fill="none" stroke="#3E8A4C" stroke-width="1.2" opacity=".7"/>
+<rect x="52.4" y="186.0" width="171.2" height="61.6" rx="2.6" fill="none" stroke="#3E8A4C" stroke-width="1.1" stroke-dasharray="3.5 2.6" opacity=".6"/>
+<text x="55.9" y="180.7" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<text x="220.1" y="180.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">100</text>
+<circle cx="84.0" cy="215.0" r="19.4" fill="#FFFFFF" stroke="#3E8A4C" stroke-width="1.2"/>
+<ellipse cx="92.2" cy="215.0" rx="6.3" ry="3.6" transform="rotate(0 92.2 215.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="220.9" rx="6.3" ry="3.6" transform="rotate(45 89.8 220.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="223.3" rx="6.3" ry="3.6" transform="rotate(90 84.0 223.3)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="220.9" rx="6.3" ry="3.6" transform="rotate(135 78.2 220.9)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="75.8" cy="215.0" rx="6.3" ry="3.6" transform="rotate(180 75.8 215.0)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="78.2" cy="209.2" rx="6.3" ry="3.6" transform="rotate(225 78.2 209.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="84.0" cy="206.8" rx="6.3" ry="3.6" transform="rotate(270 84.0 206.8)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<ellipse cx="89.8" cy="209.2" rx="6.3" ry="3.6" transform="rotate(315 89.8 209.2)" fill="#B7E0A6" stroke="#3E8A4C" stroke-width="0.9"/>
+<circle cx="84.0" cy="215.0" r="4.2" fill="#FFD166" stroke="#3E8A4C" stroke-width="0.9"/>
+<text x="148.8" y="208.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.2" fill="#3E8A4C">MỘT TRĂM</text>
+<text x="148.8" y="222.1" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="11.4" fill="#3E8A4C">ĐỒNG</text>
+<text x="219.2" y="244.1" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="22.9" fill="#3E8A4C">100</text>
+<rect x="299" y="61" width="190" height="92" rx="5" fill="#000" opacity=".08"/>
+<rect x="296.0" y="58.0" width="190.0" height="92.0" rx="4.6" fill="#FCE6CF" stroke="#3F3A40" stroke-width="2.2"/>
+<rect x="300.6" y="62.6" width="180.8" height="15.6" rx="2.8" fill="#F6C99A"/>
+<path d="M347.3,70.4 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0" fill="none" stroke="#B0612A" stroke-width="1.3" opacity=".7"/>
+<rect x="300.6" y="81.0" width="180.8" height="64.4" rx="2.8" fill="none" stroke="#B0612A" stroke-width="1.1" stroke-dasharray="3.7 2.8" opacity=".6"/>
+<text x="304.3" y="75.5" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">200</text>
+<text x="477.7" y="75.5" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">200</text>
+<circle cx="334.0" cy="111.4" r="20.2" fill="#FFFFFF" stroke="#B0612A" stroke-width="1.3"/>
+<ellipse cx="342.6" cy="111.4" rx="6.6" ry="3.8" transform="rotate(0 342.6 111.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="340.1" cy="117.4" rx="6.6" ry="3.8" transform="rotate(45 340.1 117.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="334.0" cy="120.0" rx="6.6" ry="3.8" transform="rotate(90 334.0 120.0)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="327.9" cy="117.4" rx="6.6" ry="3.8" transform="rotate(135 327.9 117.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="325.4" cy="111.4" rx="6.6" ry="3.8" transform="rotate(180 325.4 111.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="327.9" cy="105.3" rx="6.6" ry="3.8" transform="rotate(225 327.9 105.3)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="334.0" cy="102.8" rx="6.6" ry="3.8" transform="rotate(270 334.0 102.8)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="340.1" cy="105.3" rx="6.6" ry="3.8" transform="rotate(315 340.1 105.3)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<circle cx="334.0" cy="111.4" r="4.4" fill="#FFD166" stroke="#B0612A" stroke-width="0.9"/>
+<text x="402.4" y="104.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">HAI TRĂM</text>
+<text x="402.4" y="118.7" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="12.0" fill="#B0612A">ĐỒNG</text>
+<text x="476.8" y="141.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="23.9" fill="#B0612A">200</text>
+<rect x="299" y="89" width="190" height="92" rx="5" fill="#000" opacity=".08"/>
+<rect x="296.0" y="86.0" width="190.0" height="92.0" rx="4.6" fill="#FCE6CF" stroke="#3F3A40" stroke-width="2.2"/>
+<rect x="300.6" y="90.6" width="180.8" height="15.6" rx="2.8" fill="#F6C99A"/>
+<path d="M347.3,98.4 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0" fill="none" stroke="#B0612A" stroke-width="1.3" opacity=".7"/>
+<rect x="300.6" y="109.0" width="180.8" height="64.4" rx="2.8" fill="none" stroke="#B0612A" stroke-width="1.1" stroke-dasharray="3.7 2.8" opacity=".6"/>
+<text x="304.3" y="103.5" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">200</text>
+<text x="477.7" y="103.5" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">200</text>
+<circle cx="334.0" cy="139.4" r="20.2" fill="#FFFFFF" stroke="#B0612A" stroke-width="1.3"/>
+<ellipse cx="342.6" cy="139.4" rx="6.6" ry="3.8" transform="rotate(0 342.6 139.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="340.1" cy="145.4" rx="6.6" ry="3.8" transform="rotate(45 340.1 145.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="334.0" cy="148.0" rx="6.6" ry="3.8" transform="rotate(90 334.0 148.0)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="327.9" cy="145.4" rx="6.6" ry="3.8" transform="rotate(135 327.9 145.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="325.4" cy="139.4" rx="6.6" ry="3.8" transform="rotate(180 325.4 139.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="327.9" cy="133.3" rx="6.6" ry="3.8" transform="rotate(225 327.9 133.3)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="334.0" cy="130.8" rx="6.6" ry="3.8" transform="rotate(270 334.0 130.8)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="340.1" cy="133.3" rx="6.6" ry="3.8" transform="rotate(315 340.1 133.3)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<circle cx="334.0" cy="139.4" r="4.4" fill="#FFD166" stroke="#B0612A" stroke-width="0.9"/>
+<text x="402.4" y="132.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">HAI TRĂM</text>
+<text x="402.4" y="146.7" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="12.0" fill="#B0612A">ĐỒNG</text>
+<text x="476.8" y="169.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="23.9" fill="#B0612A">200</text>
+<rect x="299" y="117" width="190" height="92" rx="5" fill="#000" opacity=".08"/>
+<rect x="296.0" y="114.0" width="190.0" height="92.0" rx="4.6" fill="#FCE6CF" stroke="#3F3A40" stroke-width="2.2"/>
+<rect x="300.6" y="118.6" width="180.8" height="15.6" rx="2.8" fill="#F6C99A"/>
+<path d="M347.3,126.4 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0" fill="none" stroke="#B0612A" stroke-width="1.3" opacity=".7"/>
+<rect x="300.6" y="137.0" width="180.8" height="64.4" rx="2.8" fill="none" stroke="#B0612A" stroke-width="1.1" stroke-dasharray="3.7 2.8" opacity=".6"/>
+<text x="304.3" y="131.5" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">200</text>
+<text x="477.7" y="131.5" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">200</text>
+<circle cx="334.0" cy="167.4" r="20.2" fill="#FFFFFF" stroke="#B0612A" stroke-width="1.3"/>
+<ellipse cx="342.6" cy="167.4" rx="6.6" ry="3.8" transform="rotate(0 342.6 167.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="340.1" cy="173.4" rx="6.6" ry="3.8" transform="rotate(45 340.1 173.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="334.0" cy="176.0" rx="6.6" ry="3.8" transform="rotate(90 334.0 176.0)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="327.9" cy="173.4" rx="6.6" ry="3.8" transform="rotate(135 327.9 173.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="325.4" cy="167.4" rx="6.6" ry="3.8" transform="rotate(180 325.4 167.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="327.9" cy="161.3" rx="6.6" ry="3.8" transform="rotate(225 327.9 161.3)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="334.0" cy="158.8" rx="6.6" ry="3.8" transform="rotate(270 334.0 158.8)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="340.1" cy="161.3" rx="6.6" ry="3.8" transform="rotate(315 340.1 161.3)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<circle cx="334.0" cy="167.4" r="4.4" fill="#FFD166" stroke="#B0612A" stroke-width="0.9"/>
+<text x="402.4" y="160.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">HAI TRĂM</text>
+<text x="402.4" y="174.7" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="12.0" fill="#B0612A">ĐỒNG</text>
+<text x="476.8" y="197.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="23.9" fill="#B0612A">200</text>
+<rect x="299" y="145" width="190" height="92" rx="5" fill="#000" opacity=".08"/>
+<rect x="296.0" y="142.0" width="190.0" height="92.0" rx="4.6" fill="#FCE6CF" stroke="#3F3A40" stroke-width="2.2"/>
+<rect x="300.6" y="146.6" width="180.8" height="15.6" rx="2.8" fill="#F6C99A"/>
+<path d="M347.3,154.4 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0" fill="none" stroke="#B0612A" stroke-width="1.3" opacity=".7"/>
+<rect x="300.6" y="165.0" width="180.8" height="64.4" rx="2.8" fill="none" stroke="#B0612A" stroke-width="1.1" stroke-dasharray="3.7 2.8" opacity=".6"/>
+<text x="304.3" y="159.5" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">200</text>
+<text x="477.7" y="159.5" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">200</text>
+<circle cx="334.0" cy="195.4" r="20.2" fill="#FFFFFF" stroke="#B0612A" stroke-width="1.3"/>
+<ellipse cx="342.6" cy="195.4" rx="6.6" ry="3.8" transform="rotate(0 342.6 195.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="340.1" cy="201.4" rx="6.6" ry="3.8" transform="rotate(45 340.1 201.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="334.0" cy="204.0" rx="6.6" ry="3.8" transform="rotate(90 334.0 204.0)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="327.9" cy="201.4" rx="6.6" ry="3.8" transform="rotate(135 327.9 201.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="325.4" cy="195.4" rx="6.6" ry="3.8" transform="rotate(180 325.4 195.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="327.9" cy="189.3" rx="6.6" ry="3.8" transform="rotate(225 327.9 189.3)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="334.0" cy="186.8" rx="6.6" ry="3.8" transform="rotate(270 334.0 186.8)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="340.1" cy="189.3" rx="6.6" ry="3.8" transform="rotate(315 340.1 189.3)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<circle cx="334.0" cy="195.4" r="4.4" fill="#FFD166" stroke="#B0612A" stroke-width="0.9"/>
+<text x="402.4" y="188.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">HAI TRĂM</text>
+<text x="402.4" y="202.7" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="12.0" fill="#B0612A">ĐỒNG</text>
+<text x="476.8" y="225.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="23.9" fill="#B0612A">200</text>
+<rect x="299" y="173" width="190" height="92" rx="5" fill="#000" opacity=".08"/>
+<rect x="296.0" y="170.0" width="190.0" height="92.0" rx="4.6" fill="#FCE6CF" stroke="#3F3A40" stroke-width="2.2"/>
+<rect x="300.6" y="174.6" width="180.8" height="15.6" rx="2.8" fill="#F6C99A"/>
+<path d="M347.3,182.4 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0" fill="none" stroke="#B0612A" stroke-width="1.3" opacity=".7"/>
+<rect x="300.6" y="193.0" width="180.8" height="64.4" rx="2.8" fill="none" stroke="#B0612A" stroke-width="1.1" stroke-dasharray="3.7 2.8" opacity=".6"/>
+<text x="304.3" y="187.5" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">200</text>
+<text x="477.7" y="187.5" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">200</text>
+<circle cx="334.0" cy="223.4" r="20.2" fill="#FFFFFF" stroke="#B0612A" stroke-width="1.3"/>
+<ellipse cx="342.6" cy="223.4" rx="6.6" ry="3.8" transform="rotate(0 342.6 223.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="340.1" cy="229.4" rx="6.6" ry="3.8" transform="rotate(45 340.1 229.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="334.0" cy="232.0" rx="6.6" ry="3.8" transform="rotate(90 334.0 232.0)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="327.9" cy="229.4" rx="6.6" ry="3.8" transform="rotate(135 327.9 229.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="325.4" cy="223.4" rx="6.6" ry="3.8" transform="rotate(180 325.4 223.4)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="327.9" cy="217.3" rx="6.6" ry="3.8" transform="rotate(225 327.9 217.3)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="334.0" cy="214.8" rx="6.6" ry="3.8" transform="rotate(270 334.0 214.8)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<ellipse cx="340.1" cy="217.3" rx="6.6" ry="3.8" transform="rotate(315 340.1 217.3)" fill="#F6C99A" stroke="#B0612A" stroke-width="0.9"/>
+<circle cx="334.0" cy="223.4" r="4.4" fill="#FFD166" stroke="#B0612A" stroke-width="0.9"/>
+<text x="402.4" y="216.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B0612A">HAI TRĂM</text>
+<text x="402.4" y="230.7" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="12.0" fill="#B0612A">ĐỒNG</text>
+<text x="476.8" y="253.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="23.9" fill="#B0612A">200</text>
+<rect x="43" y="443" width="190" height="92" rx="5" fill="#000" opacity=".08"/>
+<rect x="40.0" y="440.0" width="190.0" height="92.0" rx="4.6" fill="#FBDDE6" stroke="#3F3A40" stroke-width="2.2"/>
+<rect x="44.6" y="444.6" width="180.8" height="15.6" rx="2.8" fill="#F4B3C8"/>
+<path d="M91.3,452.4 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0" fill="none" stroke="#B23A63" stroke-width="1.3" opacity=".7"/>
+<rect x="44.6" y="463.0" width="180.8" height="64.4" rx="2.8" fill="none" stroke="#B23A63" stroke-width="1.1" stroke-dasharray="3.7 2.8" opacity=".6"/>
+<text x="48.3" y="457.5" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B23A63">500</text>
+<text x="221.7" y="457.5" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B23A63">500</text>
+<circle cx="78.0" cy="493.4" r="20.2" fill="#FFFFFF" stroke="#B23A63" stroke-width="1.3"/>
+<ellipse cx="86.6" cy="493.4" rx="6.6" ry="3.8" transform="rotate(0 86.6 493.4)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="84.1" cy="499.4" rx="6.6" ry="3.8" transform="rotate(45 84.1 499.4)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="78.0" cy="502.0" rx="6.6" ry="3.8" transform="rotate(90 78.0 502.0)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="71.9" cy="499.4" rx="6.6" ry="3.8" transform="rotate(135 71.9 499.4)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="69.4" cy="493.4" rx="6.6" ry="3.8" transform="rotate(180 69.4 493.4)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="71.9" cy="487.3" rx="6.6" ry="3.8" transform="rotate(225 71.9 487.3)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="78.0" cy="484.8" rx="6.6" ry="3.8" transform="rotate(270 78.0 484.8)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="84.1" cy="487.3" rx="6.6" ry="3.8" transform="rotate(315 84.1 487.3)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<circle cx="78.0" cy="493.4" r="4.4" fill="#FFD166" stroke="#B23A63" stroke-width="0.9"/>
+<text x="146.4" y="486.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B23A63">NĂM TRĂM</text>
+<text x="146.4" y="500.7" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="12.0" fill="#B23A63">ĐỒNG</text>
+<text x="220.8" y="523.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="23.9" fill="#B23A63">500</text>
+<rect x="43" y="475" width="190" height="92" rx="5" fill="#000" opacity=".08"/>
+<rect x="40.0" y="472.0" width="190.0" height="92.0" rx="4.6" fill="#FBDDE6" stroke="#3F3A40" stroke-width="2.2"/>
+<rect x="44.6" y="476.6" width="180.8" height="15.6" rx="2.8" fill="#F4B3C8"/>
+<path d="M91.3,484.4 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0 q5.5,-3.7 10.9,0 q5.5,3.7 10.9,0" fill="none" stroke="#B23A63" stroke-width="1.3" opacity=".7"/>
+<rect x="44.6" y="495.0" width="180.8" height="64.4" rx="2.8" fill="none" stroke="#B23A63" stroke-width="1.1" stroke-dasharray="3.7 2.8" opacity=".6"/>
+<text x="48.3" y="489.5" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B23A63">500</text>
+<text x="221.7" y="489.5" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B23A63">500</text>
+<circle cx="78.0" cy="525.4" r="20.2" fill="#FFFFFF" stroke="#B23A63" stroke-width="1.3"/>
+<ellipse cx="86.6" cy="525.4" rx="6.6" ry="3.8" transform="rotate(0 86.6 525.4)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="84.1" cy="531.4" rx="6.6" ry="3.8" transform="rotate(45 84.1 531.4)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="78.0" cy="534.0" rx="6.6" ry="3.8" transform="rotate(90 78.0 534.0)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="71.9" cy="531.4" rx="6.6" ry="3.8" transform="rotate(135 71.9 531.4)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="69.4" cy="525.4" rx="6.6" ry="3.8" transform="rotate(180 69.4 525.4)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="71.9" cy="519.3" rx="6.6" ry="3.8" transform="rotate(225 71.9 519.3)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="78.0" cy="516.8" rx="6.6" ry="3.8" transform="rotate(270 78.0 516.8)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<ellipse cx="84.1" cy="519.3" rx="6.6" ry="3.8" transform="rotate(315 84.1 519.3)" fill="#F4B3C8" stroke="#B23A63" stroke-width="0.9"/>
+<circle cx="78.0" cy="525.4" r="4.4" fill="#FFD166" stroke="#B23A63" stroke-width="0.9"/>
+<text x="146.4" y="518.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.8" fill="#B23A63">NĂM TRĂM</text>
+<text x="146.4" y="532.7" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="12.0" fill="#B23A63">ĐỒNG</text>
+<text x="220.8" y="555.7" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="23.9" fill="#B23A63">500</text>
+<rect x="287" y="389" width="212" height="102" rx="5" fill="#000" opacity=".08"/>
+<rect x="284.0" y="386.0" width="212.0" height="102.0" rx="5.1" fill="#E6E0FA" stroke="#3F3A40" stroke-width="2.4"/>
+<rect x="289.1" y="391.1" width="201.8" height="17.3" rx="3.1" fill="#C9BDF3"/>
+<path d="M341.2,399.8 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0" fill="none" stroke="#5B47A8" stroke-width="1.4" opacity=".7"/>
+<rect x="289.1" y="411.5" width="201.8" height="71.4" rx="3.1" fill="none" stroke="#5B47A8" stroke-width="1.2" stroke-dasharray="4.1 3.1" opacity=".6"/>
+<text x="293.2" y="405.4" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="15.3" fill="#5B47A8">1000</text>
+<text x="486.8" y="405.4" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="15.3" fill="#5B47A8">1000</text>
+<circle cx="326.4" cy="445.2" r="22.4" fill="#FFFFFF" stroke="#5B47A8" stroke-width="1.4"/>
+<ellipse cx="335.9" cy="445.2" rx="7.3" ry="4.2" transform="rotate(0 335.9 445.2)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="333.1" cy="451.9" rx="7.3" ry="4.2" transform="rotate(45 333.1 451.9)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="326.4" cy="454.7" rx="7.3" ry="4.2" transform="rotate(90 326.4 454.7)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="319.7" cy="451.9" rx="7.3" ry="4.2" transform="rotate(135 319.7 451.9)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="316.9" cy="445.2" rx="7.3" ry="4.2" transform="rotate(180 316.9 445.2)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="319.7" cy="438.4" rx="7.3" ry="4.2" transform="rotate(225 319.7 438.4)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="326.4" cy="435.6" rx="7.3" ry="4.2" transform="rotate(270 326.4 435.6)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="333.1" cy="438.4" rx="7.3" ry="4.2" transform="rotate(315 333.1 438.4)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<circle cx="326.4" cy="445.2" r="4.9" fill="#FFD166" stroke="#5B47A8" stroke-width="1.0"/>
+<text x="402.7" y="437.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="15.3" fill="#5B47A8">MỘT NGHÌN</text>
+<text x="402.7" y="453.3" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.3" fill="#5B47A8">ĐỒNG</text>
+<text x="485.8" y="478.8" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="26.5" fill="#5B47A8">1000</text>
+<rect x="287" y="419" width="212" height="102" rx="5" fill="#000" opacity=".08"/>
+<rect x="284.0" y="416.0" width="212.0" height="102.0" rx="5.1" fill="#E6E0FA" stroke="#3F3A40" stroke-width="2.4"/>
+<rect x="289.1" y="421.1" width="201.8" height="17.3" rx="3.1" fill="#C9BDF3"/>
+<path d="M341.2,429.8 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0" fill="none" stroke="#5B47A8" stroke-width="1.4" opacity=".7"/>
+<rect x="289.1" y="441.5" width="201.8" height="71.4" rx="3.1" fill="none" stroke="#5B47A8" stroke-width="1.2" stroke-dasharray="4.1 3.1" opacity=".6"/>
+<text x="293.2" y="435.4" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="15.3" fill="#5B47A8">1000</text>
+<text x="486.8" y="435.4" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="15.3" fill="#5B47A8">1000</text>
+<circle cx="326.4" cy="475.2" r="22.4" fill="#FFFFFF" stroke="#5B47A8" stroke-width="1.4"/>
+<ellipse cx="335.9" cy="475.2" rx="7.3" ry="4.2" transform="rotate(0 335.9 475.2)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="333.1" cy="481.9" rx="7.3" ry="4.2" transform="rotate(45 333.1 481.9)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="326.4" cy="484.7" rx="7.3" ry="4.2" transform="rotate(90 326.4 484.7)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="319.7" cy="481.9" rx="7.3" ry="4.2" transform="rotate(135 319.7 481.9)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="316.9" cy="475.2" rx="7.3" ry="4.2" transform="rotate(180 316.9 475.2)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="319.7" cy="468.4" rx="7.3" ry="4.2" transform="rotate(225 319.7 468.4)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="326.4" cy="465.6" rx="7.3" ry="4.2" transform="rotate(270 326.4 465.6)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="333.1" cy="468.4" rx="7.3" ry="4.2" transform="rotate(315 333.1 468.4)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<circle cx="326.4" cy="475.2" r="4.9" fill="#FFD166" stroke="#5B47A8" stroke-width="1.0"/>
+<text x="402.7" y="467.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="15.3" fill="#5B47A8">MỘT NGHÌN</text>
+<text x="402.7" y="483.3" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.3" fill="#5B47A8">ĐỒNG</text>
+<text x="485.8" y="508.8" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="26.5" fill="#5B47A8">1000</text>
+<rect x="287" y="449" width="212" height="102" rx="5" fill="#000" opacity=".08"/>
+<rect x="284.0" y="446.0" width="212.0" height="102.0" rx="5.1" fill="#E6E0FA" stroke="#3F3A40" stroke-width="2.4"/>
+<rect x="289.1" y="451.1" width="201.8" height="17.3" rx="3.1" fill="#C9BDF3"/>
+<path d="M341.2,459.8 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0" fill="none" stroke="#5B47A8" stroke-width="1.4" opacity=".7"/>
+<rect x="289.1" y="471.5" width="201.8" height="71.4" rx="3.1" fill="none" stroke="#5B47A8" stroke-width="1.2" stroke-dasharray="4.1 3.1" opacity=".6"/>
+<text x="293.2" y="465.4" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="15.3" fill="#5B47A8">1000</text>
+<text x="486.8" y="465.4" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="15.3" fill="#5B47A8">1000</text>
+<circle cx="326.4" cy="505.2" r="22.4" fill="#FFFFFF" stroke="#5B47A8" stroke-width="1.4"/>
+<ellipse cx="335.9" cy="505.2" rx="7.3" ry="4.2" transform="rotate(0 335.9 505.2)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="333.1" cy="511.9" rx="7.3" ry="4.2" transform="rotate(45 333.1 511.9)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="326.4" cy="514.7" rx="7.3" ry="4.2" transform="rotate(90 326.4 514.7)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="319.7" cy="511.9" rx="7.3" ry="4.2" transform="rotate(135 319.7 511.9)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="316.9" cy="505.2" rx="7.3" ry="4.2" transform="rotate(180 316.9 505.2)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="319.7" cy="498.4" rx="7.3" ry="4.2" transform="rotate(225 319.7 498.4)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="326.4" cy="495.6" rx="7.3" ry="4.2" transform="rotate(270 326.4 495.6)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="333.1" cy="498.4" rx="7.3" ry="4.2" transform="rotate(315 333.1 498.4)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<circle cx="326.4" cy="505.2" r="4.9" fill="#FFD166" stroke="#5B47A8" stroke-width="1.0"/>
+<text x="402.7" y="497.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="15.3" fill="#5B47A8">MỘT NGHÌN</text>
+<text x="402.7" y="513.3" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.3" fill="#5B47A8">ĐỒNG</text>
+<text x="485.8" y="538.8" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="26.5" fill="#5B47A8">1000</text>
+<rect x="287" y="479" width="212" height="102" rx="5" fill="#000" opacity=".08"/>
+<rect x="284.0" y="476.0" width="212.0" height="102.0" rx="5.1" fill="#E6E0FA" stroke="#3F3A40" stroke-width="2.4"/>
+<rect x="289.1" y="481.1" width="201.8" height="17.3" rx="3.1" fill="#C9BDF3"/>
+<path d="M341.2,489.8 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0 q6.1,-4.1 12.2,0 q6.1,4.1 12.2,0" fill="none" stroke="#5B47A8" stroke-width="1.4" opacity=".7"/>
+<rect x="289.1" y="501.5" width="201.8" height="71.4" rx="3.1" fill="none" stroke="#5B47A8" stroke-width="1.2" stroke-dasharray="4.1 3.1" opacity=".6"/>
+<text x="293.2" y="495.4" text-anchor="start" font-family="Quicksand" font-weight="700" font-size="15.3" fill="#5B47A8">1000</text>
+<text x="486.8" y="495.4" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="15.3" fill="#5B47A8">1000</text>
+<circle cx="326.4" cy="535.2" r="22.4" fill="#FFFFFF" stroke="#5B47A8" stroke-width="1.4"/>
+<ellipse cx="335.9" cy="535.2" rx="7.3" ry="4.2" transform="rotate(0 335.9 535.2)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="333.1" cy="541.9" rx="7.3" ry="4.2" transform="rotate(45 333.1 541.9)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="326.4" cy="544.7" rx="7.3" ry="4.2" transform="rotate(90 326.4 544.7)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="319.7" cy="541.9" rx="7.3" ry="4.2" transform="rotate(135 319.7 541.9)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="316.9" cy="535.2" rx="7.3" ry="4.2" transform="rotate(180 316.9 535.2)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="319.7" cy="528.4" rx="7.3" ry="4.2" transform="rotate(225 319.7 528.4)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="326.4" cy="525.6" rx="7.3" ry="4.2" transform="rotate(270 326.4 525.6)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<ellipse cx="333.1" cy="528.4" rx="7.3" ry="4.2" transform="rotate(315 333.1 528.4)" fill="#C9BDF3" stroke="#5B47A8" stroke-width="1.0"/>
+<circle cx="326.4" cy="535.2" r="4.9" fill="#FFD166" stroke="#5B47A8" stroke-width="1.0"/>
+<text x="402.7" y="527.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="15.3" fill="#5B47A8">MỘT NGHÌN</text>
+<text x="402.7" y="543.3" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13.3" fill="#5B47A8">ĐỒNG</text>
+<text x="485.8" y="568.8" text-anchor="end" font-family="Quicksand" font-weight="700" font-size="26.5" fill="#5B47A8">1000</text>
+<text x="138" y="300" text-anchor="middle" font-family="Quicksand" font-weight="600" font-size="24" fill="#3F3A40">Tập 1</text>
+<text x="391" y="300" text-anchor="middle" font-family="Quicksand" font-weight="600" font-size="24" fill="#3F3A40">Tập 2</text>
+<text x="135" y="612" text-anchor="middle" font-family="Quicksand" font-weight="600" font-size="24" fill="#3F3A40">Tập 3</text>
+<text x="390" y="612" text-anchor="middle" font-family="Quicksand" font-weight="600" font-size="24" fill="#3F3A40">Tập 4</text>
+</svg>
