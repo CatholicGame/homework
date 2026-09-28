@@ -87,14 +87,14 @@ export function renderPreschool(app, onBack, book) {
         </header>
         <div class="pk-hello">
           <button type="button" class="pk-mascot" id="pk-mascot" aria-label="Nghe lại">🐰</button>
-          <div class="pk-bubble" id="pk-bubble">Chào bé! Chạm vào một trạm để cùng chơi nhé!</div>
+          <div class="pk-bubble" id="pk-bubble">Chào bé! Chạm vào một trạm để cùng chơi!</div>
         </div>
         ${PARTS.map(part => mapPart(part, current)).join('')}
       </div>`;
 
     bindMute();
     app.querySelector('#pk-home').onclick = leave;
-    const hello = current ? 'Chào bé! Chạm vào trạm có bạn Thỏ để chơi tiếp nhé!' : 'Bé đã hoàn thành tất cả các trạm. Giỏi quá!';
+    const hello = current ? 'Chào bé! Chạm vào trạm có bạn Thỏ để chơi tiếp!' : 'Bé đã hoàn thành tất cả các trạm. Giỏi quá!';
     app.querySelector('#pk-bubble').textContent = hello;
     app.querySelector('#pk-mascot').onclick = () => { sfx.tap(); say(hello); };
     app.querySelectorAll('.pk-node').forEach(btn => {
@@ -233,7 +233,7 @@ export function renderPreschool(app, onBack, book) {
 
     const ctx = {
       station, round, key, stage, talk, addCleanup, countingPicture, numberChoices, circleIt,
-      wrong(el, text = 'Chưa đúng rồi, bé thử lại nhé!') {
+      wrong(el, text = 'Chưa đúng rồi, bé thử lại!') {
         if (finished) return;
         sfx.boing();
         shake(el);
@@ -455,7 +455,7 @@ export function renderPreschool(app, onBack, book) {
         if (painted === PAINT_COUNT) setTimeout(() => solve(`Giỏi quá! Đây là số ${w}!`), 350);
       };
     });
-    talk(`Đây là số ${w}. ${round.caption}. Bé chạm vào hình để đếm, rồi tô màu các số ${w} nhé!`);
+    talk(`Đây là số ${w}. ${round.caption}. Bé chạm vào hình để đếm, rồi tô màu các số ${w}!`);
   }
 
   // ── Nối số với hình ────────────────────────────────────────────────────
@@ -492,7 +492,7 @@ export function renderPreschool(app, onBack, book) {
       card.onclick = () => {
         const k = Number(card.dataset.k);
         if (found.has(k)) return;
-        if (!answers.includes(k)) { wrong(card, `Hình này chưa đúng. Bé đếm lại xem có đủ ${w} không nhé!`); return; }
+        if (!answers.includes(k)) { wrong(card, `Hình này chưa đúng. Bé đếm lại xem có đủ ${w} không.`); return; }
         found.add(k);
         card.classList.add('is-right');
         drawLine(card);
@@ -502,7 +502,7 @@ export function renderPreschool(app, onBack, book) {
     });
     talk(answers.length > 1
       ? `Bé hãy tìm các hình có ${w} đồ vật để nối với số ${w}. Có ${numberWord(answers.length)} hình đúng đấy!`
-      : `Bé hãy tìm hình có ${w} đồ vật để nối với số ${w} nhé!`);
+      : `Bé hãy tìm hình có ${w} đồ vật để nối với số ${w}!`);
   }
 
   // ── Đếm rồi chọn số ────────────────────────────────────────────────────
@@ -514,7 +514,7 @@ export function renderPreschool(app, onBack, book) {
     let done = false;
     box.append(numberChoices(round.options, (v, btn) => {
       if (done) return;
-      if (v !== round.answer) { wrong(btn, pic.count ? 'Chưa đúng rồi. Bé đếm lại thật chậm nhé!' : 'Chưa đúng rồi. Bé chạm vào từng hình để đếm nhé!'); return; }
+      if (v !== round.answer) { wrong(btn, pic.count ? 'Chưa đúng rồi. Bé đếm lại thật chậm!' : 'Chưa đúng rồi. Bé chạm vào từng hình để đếm!'); return; }
       done = true;
       circleIt(btn);
       pic.celebrate();
@@ -522,8 +522,8 @@ export function renderPreschool(app, onBack, book) {
     }));
     const circle = station.id.startsWith('khoanh');
     talk(round.thing
-      ? `Có mấy ${round.thing}? Bé chạm vào từng ${round.thing} để đếm, rồi chọn số đúng nhé!`
-      : circle ? 'Bé đếm xem có bao nhiêu, rồi khoanh vào số đúng nhé!' : 'Bé hãy đếm đồ vật, rồi chọn số để điền vào ô trống nhé!');
+      ? `Có mấy ${round.thing}? Bé chạm vào từng ${round.thing} để đếm, rồi chọn số đúng!`
+      : circle ? 'Bé đếm xem có bao nhiêu, rồi khoanh vào số đúng!' : 'Bé hãy đếm đồ vật, rồi chọn số để điền vào ô trống!');
   }
 
   // ── Chỗ đặt bút khi tô: ô tô hoặc chấm xanh ────────────────────────────
@@ -556,7 +556,7 @@ export function renderPreschool(app, onBack, book) {
       tracer?.destroy();
       tracer = mountTracer(board, n, {
         color: colorOf(n),
-        onTouch: (ok) => { if (!ok) talk(`Bé đặt ngón tay vào ${penSpot()} nhé!`, { keep: true }); },
+        onTouch: (ok) => { if (!ok) talk(`Bé đặt ngón tay vào ${penSpot()}!`, { keep: true }); },
         onStroke: () => sfx.swish(),
         onDone: () => {
           const repEl = stage.querySelector(`.pk-trace-rep[data-i="${rep}"]`);
@@ -566,7 +566,7 @@ export function renderPreschool(app, onBack, book) {
           rep++;
           if (rep >= TRACE_REPS) { solve(`Giỏi quá! Bé đã viết được số ${w}!`); return; }
           sfx.ding();
-          say(rep === TRACE_REPS - 1 ? 'Giỏi quá! Thêm một lần nữa nhé!' : 'Giỏi quá! Tô lại lần nữa nào!');
+          say(rep === TRACE_REPS - 1 ? 'Giỏi quá! Thêm một lần nữa!' : 'Giỏi quá! Tô lại lần nữa nào!');
           setTimeout(start, 900);
         },
       });
@@ -574,7 +574,7 @@ export function renderPreschool(app, onBack, book) {
     start();
     addCleanup(() => tracer?.destroy());
     bindPenPick(stage, () => tracer);
-    talk(`Bé đặt ngón tay vào ${penSpot()}, rồi tô theo nét số ${w} nhé!`);
+    talk(`Bé đặt ngón tay vào ${penSpot()}, rồi tô theo nét số ${w}!`);
   }
 
   // ── Chạm theo thứ tự ───────────────────────────────────────────────────
@@ -586,7 +586,7 @@ export function renderPreschool(app, onBack, book) {
         const k = Number(z.dataset.k);
         if (k < next) return;
         if (k !== next) {
-          wrong(z, `Chưa đúng rồi. Bé tìm quả số ${numberWord(next + 1)} nhé!`);
+          wrong(z, `Chưa đúng rồi. Bé tìm quả số ${numberWord(next + 1)}!`);
           stage.querySelector(`.pk-zone[data-k="${next}"]`).classList.add('is-hint');
           return;
         }
@@ -600,7 +600,7 @@ export function renderPreschool(app, onBack, book) {
         if (next === round.zones.length) setTimeout(() => solve('Giỏi quá! Bé đếm từ một đến mười rồi!'), 400);
       };
     });
-    talk('Bé chạm vào các quả dâu theo thứ tự từ một đến mười nhé!');
+    talk('Bé chạm vào các quả dâu theo thứ tự từ một đến mười!');
   }
 
   // ── Kéo số vào ô trống ─────────────────────────────────────────────────
@@ -621,7 +621,7 @@ export function renderPreschool(app, onBack, book) {
       const v = Number(tile.dataset.v);
       if (slot.classList.contains('is-filled')) return false;
       if (round.blanks[k].value !== v) {
-        wrong(slot, 'Chưa đúng chỗ rồi. Bé đếm lại các số xem nhé!');
+        wrong(slot, 'Chưa đúng chỗ rồi. Bé đếm lại các số xem!');
         tile.classList.remove('is-picked');
         return false;
       }
@@ -643,7 +643,7 @@ export function renderPreschool(app, onBack, book) {
     slots.forEach(slot => {
       slot.addEventListener('click', () => {
         if (picked) { place(picked, slot); picked.classList.remove('is-picked'); picked = null; }
-        else { sfx.tap(); talk('Bé chọn một số ở dưới trước nhé!', { keep: true }); }
+        else { sfx.tap(); talk('Bé chọn một số ở dưới trước!', { keep: true }); }
       });
     });
 
@@ -694,18 +694,18 @@ export function renderPreschool(app, onBack, book) {
     };
 
     const prompts = {
-      'doan-tau': 'Toa tàu nào còn thiếu số? Bé kéo số vào đúng toa tàu nhé!',
-      'bong-bay': 'Quả bóng nào còn thiếu số? Bé kéo số vào đúng quả bóng nhé!',
+      'doan-tau': 'Toa tàu nào còn thiếu số? Bé kéo số vào đúng toa tàu!',
+      'bong-bay': 'Quả bóng nào còn thiếu số? Bé kéo số vào đúng quả bóng!',
     };
-    talk(prompts[station.id] || `Bé kéo số vào ${round.fruit || 'ô'} còn trống, theo thứ tự từ một đến mười nhé!`);
+    talk(prompts[station.id] || `Bé kéo số vào ${round.fruit || 'ô'} còn trống, theo thứ tự từ một đến mười!`);
   }
 
   // ── Hàng trên + hàng dưới = tổng (11–20) ───────────────────────────────
   function playRows({ round, stage, talk, wrong, right, solve }) {
     const steps = [
-      { label: 'Hàng trên', answer: round.top, band: 'top', say: 'Hàng trên có mấy đồ vật? Bé đếm rồi chọn số nhé!' },
+      { label: 'Hàng trên', answer: round.top, band: 'top', say: 'Hàng trên có mấy đồ vật? Bé đếm rồi chọn số!' },
       { label: 'Hàng dưới', answer: round.bottom, band: 'bottom', say: 'Hàng dưới có mấy đồ vật?' },
-      { label: 'Tổng', answer: round.top + round.bottom, band: 'all', say: 'Cả hai hàng có tất cả bao nhiêu đồ vật? Bé đếm tiếp nhé!' },
+      { label: 'Tổng', answer: round.top + round.bottom, band: 'all', say: 'Cả hai hàng có tất cả bao nhiêu đồ vật? Bé đếm tiếp!' },
     ];
     let step = 0;
     const pic = countingPicture(round.img, null);
@@ -722,7 +722,7 @@ export function renderPreschool(app, onBack, book) {
     const pad = numberChoices(Array.from({ length: 20 }, (_, i) => i + 1), (v, btn) => {
       const s = steps[step];
       if (!s) return;
-      if (v !== s.answer) { wrong(btn, 'Chưa đúng rồi. Bé đếm lại nhé!'); return; }
+      if (v !== s.answer) { wrong(btn, 'Chưa đúng rồi. Bé đếm lại!'); return; }
       const box = stage.querySelector(`.pk-sumbox[data-i="${step}"]`);
       box.classList.add('is-done');
       box.querySelector('b').textContent = v;
@@ -818,7 +818,7 @@ export function renderPreschool(app, onBack, book) {
       if (st.kind === 'num') {
         const choices = numberChoices(Array.from({ length: max }, (_, k) => k + 1), (v, btn) => {
           if (done) return;
-          if (v !== round.counts[st.i]) { wrong(btn, `Chưa đúng rồi. Bé chạm vào từng cái ở ${sideName[st.i]} để đếm lại nhé!`); return; }
+          if (v !== round.counts[st.i]) { wrong(btn, `Chưa đúng rồi. Bé chạm vào từng cái ở ${sideName[st.i]} để đếm lại!`); return; }
           const el = box(st.i);
           el.classList.add('is-done');
           el.querySelector('b').textContent = v;
@@ -828,13 +828,13 @@ export function renderPreschool(app, onBack, book) {
         });
         choices.classList.add('is-pad');
         pad.append(choices);
-        talk(`${cap(sideName[st.i])} có mấy cái? Bé chạm để đếm, rồi chọn số nhé!`);
+        talk(`${cap(sideName[st.i])} có mấy cái? Bé chạm để đếm, rồi chọn số!`);
       } else if (st.kind === 'sign') {
         pad.append(signPad((sg, btn) => {
           if (done) return;
           if (sg !== rel) {
-            wrong(btn, sg === '=' ? 'Hai bên chưa bằng nhau đâu. Bé đếm lại nhé!'
-              : rel === '=' ? 'Hai bên bằng nhau đấy. Bé chọn dấu bằng nhé!'
+            wrong(btn, sg === '=' ? 'Hai bên chưa bằng nhau đâu. Bé đếm lại!'
+              : rel === '=' ? 'Hai bên bằng nhau đấy. Bé chọn dấu bằng!'
                 : 'Chưa đúng rồi. Miệng dấu luôn mở về phía nhiều hơn đấy!');
             return;
           }
@@ -842,7 +842,7 @@ export function renderPreschool(app, onBack, book) {
           finish();
         }));
         talk(mode === 'sign'
-          ? 'Bé đếm hai bên, rồi chọn dấu bé hơn, bằng, hay lớn hơn nhé!'
+          ? 'Bé đếm hai bên, rồi chọn dấu bé hơn, bằng, hay lớn hơn!'
           : cap(`${numberWord(a)} với ${numberWord(b)}. Bé chọn dấu nào?`));
       } else {
         sides.forEach((el, k) => {
@@ -856,7 +856,7 @@ export function renderPreschool(app, onBack, book) {
             finish();
           };
         });
-        talk(rows ? 'Hàng nào nhiều hơn? Bé chạm vào hàng đó nhé!' : 'Bên nào nhiều hơn? Bé chạm vào bên đó nhé!');
+        talk(rows ? 'Hàng nào nhiều hơn? Bé chạm vào hàng đó!' : 'Bên nào nhiều hơn? Bé chạm vào bên đó!');
       }
     };
     next();
@@ -886,7 +886,7 @@ export function renderPreschool(app, onBack, book) {
       hit.style.cssText = `left:${x}%;top:${y}%;width:${w}%;height:${h}%`;
       hit.onclick = () => {
         if (done) return;
-        if (r !== long) { wrong(hit, 'Hàng này ít hơn rồi. Bé gạch ở hàng nhiều hơn nhé!'); return; }
+        if (r !== long) { wrong(hit, 'Hàng này ít hơn rồi. Bé gạch ở hàng nhiều hơn!'); return; }
         const on = hit.classList.toggle('is-crossed');
         left += on ? -1 : 1;
         countEl.textContent = left;
@@ -900,7 +900,7 @@ export function renderPreschool(app, onBack, book) {
       };
       layer.appendChild(hit);
     });
-    talk('Hàng nào nhiều hơn? Bé chạm để gạch bớt đồ vật ở hàng đó, cho đến khi hai hàng bằng nhau nhé!');
+    talk('Hàng nào nhiều hơn? Bé chạm để gạch bớt đồ vật ở hàng đó, cho đến khi hai hàng bằng nhau!');
   }
 
   // ── Nối các nhóm bằng nhau ─────────────────────────────────────────────
@@ -936,14 +936,14 @@ export function renderPreschool(app, onBack, book) {
           sel = c;
           c.classList.add('is-picked');
           sfx.pop(counts[side][i]);
-          talk('Bây giờ bé tìm nhóm bên kia có số lượng bằng nhóm này nhé!', { keep: true });
+          talk('Bây giờ bé tìm nhóm bên kia có số lượng bằng nhóm này!', { keep: true });
           return;
         }
         const other = sel;
         sel = null;
         other.classList.remove('is-picked');
         if (counts[side][i] !== counts[Number(other.dataset.side)][Number(other.dataset.i)]) {
-          wrong(c, 'Hai nhóm này chưa bằng nhau. Bé đếm lại nhé!');
+          wrong(c, 'Hai nhóm này chưa bằng nhau. Bé đếm lại!');
           return;
         }
         const color = PAIR_COLORS[made % PAIR_COLORS.length];
@@ -954,7 +954,7 @@ export function renderPreschool(app, onBack, book) {
         else right(c, `Đúng rồi! Hai nhóm đều có ${numberWord(counts[side][i])}!`);
       };
     });
-    talk('Bé chạm một nhóm, rồi chạm nhóm bên kia có số lượng bằng nhau để nối nhé!');
+    talk('Bé chạm một nhóm, rồi chạm nhóm bên kia có số lượng bằng nhau để nối!');
   }
 
   // ── Nhiều nhất / ít nhất ───────────────────────────────────────────────
@@ -967,13 +967,13 @@ export function renderPreschool(app, onBack, book) {
       c.onclick = () => {
         if (done) return;
         const k = Number(c.dataset.k);
-        if (k !== best) { wrong(c, `Chưa đúng rồi. Hình này có ${numberWord(round.counts[k])} thôi. Bé đếm các hình khác nhé!`); return; }
+        if (k !== best) { wrong(c, `Chưa đúng rồi. Hình này có ${numberWord(round.counts[k])} thôi. Bé đếm các hình khác!`); return; }
         done = true;
         c.classList.add('is-right');
         solve(`Đúng rồi! Hình này ${most ? 'nhiều' : 'ít'} nhất, có ${numberWord(round.counts[k])}!`);
       };
     });
-    talk(most ? 'Hình nào có nhiều đồ vật nhất? Bé chạm vào hình đó nhé!' : 'Hình nào có ít đồ vật nhất? Bé chạm vào hình đó nhé!');
+    talk(most ? 'Hình nào có nhiều đồ vật nhất? Bé chạm vào hình đó!' : 'Hình nào có ít đồ vật nhất? Bé chạm vào hình đó!');
   }
 
   // ── Làm quen dấu bé, dấu lớn ───────────────────────────────────────────
@@ -1002,7 +1002,7 @@ export function renderPreschool(app, onBack, book) {
         }
       };
     });
-    talk('Bé chạm vào từng hình để nghe về dấu bé và dấu lớn nhé!');
+    talk('Bé chạm vào từng hình để nghe về dấu bé và dấu lớn!');
   }
 
   // ════════════════════════════════════════════════════════════════════════
@@ -1063,7 +1063,7 @@ export function renderPreschool(app, onBack, book) {
       x0 = null;
     });
     show(0);
-    talk(`Bé chạm vào từng ${kind} để nghe đọc nhé!`);
+    talk(`Bé chạm vào từng ${kind} để nghe đọc!`);
   }
 
   // ── Tô chữ bằng ngón tay ───────────────────────────────────────────────
@@ -1093,7 +1093,7 @@ export function renderPreschool(app, onBack, book) {
       tracer?.destroy();
       tracer = mountTracer(board, glyph, {
         color: inkOf(color),
-        onTouch: (ok) => { if (!ok) talk(`Bé đặt ngón tay vào ${penSpot()} nhé!`, { keep: true }); },
+        onTouch: (ok) => { if (!ok) talk(`Bé đặt ngón tay vào ${penSpot()}!`, { keep: true }); },
         onStroke: (i) => {
           sfx.swish();
           const p = multi && parts.find(q => q.last === i);
@@ -1121,7 +1121,7 @@ export function renderPreschool(app, onBack, book) {
     start();
     addCleanup(() => tracer?.destroy());
     bindPenPick(stage, () => tracer);
-    talk(`${intro} Bé đặt ngón tay vào ${penSpot()}, rồi tô theo nét nhé!`);
+    talk(`${intro} Bé đặt ngón tay vào ${penSpot()}, rồi tô theo nét!`);
   }
 
   // ── Nghe đọc, chạm đúng chữ ────────────────────────────────────────────
@@ -1130,13 +1130,13 @@ export function renderPreschool(app, onBack, book) {
     const order = shuffle(items.map((_, k) => k));
     let step = 0;
     stage.innerHTML = `<div class="pk-abc-find">${shuffle(items.map((it, k) => letterTile(it, 'pk-abc-pick', `data-k="${k}"`))).join('')}</div>`;
-    const ask = () => talk(`Bé chạm vào ${kind} ${items[order[step]].name} nhé!`);
+    const ask = () => talk(`Bé chạm vào ${kind} ${items[order[step]].name}!`);
     stage.querySelectorAll('.pk-abc-pick').forEach(b => {
       b.onclick = () => {
         if (step >= order.length || b.classList.contains('is-right')) return;
         const k = Number(b.dataset.k);
         const want = items[order[step]];
-        if (k !== order[step]) { wrong(b, `Đây là ${kind} ${items[k].name}. Bé tìm ${kind} ${want.name} nhé!`); return; }
+        if (k !== order[step]) { wrong(b, `Đây là ${kind} ${items[k].name}. Bé tìm ${kind} ${want.name}!`); return; }
         b.classList.add('is-right');
         right(b);
         step++;

@@ -30,21 +30,21 @@ export const CAKE_LEVELS = [
   {
     ...levelMeta('cake-1'), missions: 5,
     knowledge: 'một phần mấy (1/2, 1/3 … 1/9)',
-    ask: (n) => `Cắt bánh thành các phần bằng nhau giúp ${n.me} nhé!`,
+    ask: (n) => `Cắt bánh thành các phần bằng nhau giúp ${n.me}!`,
     desc: 'Khách cần 1/4 cái bánh: chia bánh thành 4 phần bằng nhau rồi đưa 1 phần. Cẩn thận bánh cắt không đều!',
     how: [['cut', 'Chọn số phần'], ['knife', 'Cắt'], ['piece', 'Đưa 1 miếng']],
   },
   {
     ...levelMeta('cake-2'), missions: 5,
     knowledge: 'một phần mấy của một nhóm đồ vật, phép chia trong bảng',
-    ask: (n) => `Lấy bánh quy vào hộp cho ${n.me} nhé!`,
+    ask: (n) => `Lấy bánh quy vào hộp cho ${n.me}!`,
     desc: 'Đĩa có 12 cái bánh quy, khách lấy 1/3 số bánh: 12 : 3 = 4 cái. Chạm bánh để bỏ vào hộp.',
     how: [['plate', 'Đĩa có mấy cái'], ['box', 'Bỏ vào hộp'], ['✓', 'Đưa khách']],
   },
   {
     ...levelMeta('cake-3'), missions: 5,
     knowledge: 'tâm, bán kính, đường kính của hình tròn',
-    ask: (n) => `Cắt đôi bánh tròn thật đều giúp ${n.me} nhé!`,
+    ask: (n) => `Cắt đôi bánh tròn thật đều giúp ${n.me}!`,
     desc: 'Cắt đôi bánh qua tâm O, tìm bán kính và đường kính, đo bánh bằng thước. Đường kính dài gấp 2 lần bán kính.',
     how: [['center', 'Tìm tâm O'], ['drag', 'Kéo dao qua O'], ['half', 'Hai nửa bằng nhau']],
   },
@@ -362,7 +362,7 @@ function mountCut(ctx, m) {
     knifeStrokes(ctx, strokesFor(parts), () => {
       cut = true; locked = false;
       draw();
-      st.speak(`Cắt xong rồi! Đưa cho ${n.me} một miếng nhé!`, null, `Chạm <b>1 miếng</b> đưa cho ${n.me}!`);
+      st.speak(`Cắt xong rồi! Đưa cho ${n.me} một miếng!`, null, `Chạm <b>1 miếng</b> đưa cho ${n.me}!`);
     });
   };
   $('[data-act="redo"]').onclick = () => { if (!cut || locked) return; cut = false; sfx.tap(); draw(); };
@@ -385,7 +385,7 @@ function mountCut(ctx, m) {
     if (!cut) {
       // Bấm vào bánh khi chưa cắt: khách nhắc chọn số phần rồi cắt; nút cần bấm rung nhẹ.
       pulse(parts < 2 ? $('[data-stepper]') : $('[data-act="cut"]'));
-      st.speak(`Cắt bánh trước đã ${n.you} ơi! Chọn số phần rồi bấm Cắt nhé.`, null, parts < 2 ? 'Chọn <b>số phần</b> trước nhé! 👉' : 'Bấm <b>🔪 Cắt</b> nhé! 👉');
+      st.speak(`Cắt bánh trước đã ${n.you} ơi! Chọn số phần rồi bấm Cắt.`, null, parts < 2 ? 'Chọn <b>số phần</b> trước! 👉' : 'Bấm <b>🔪 Cắt</b>! 👉');
       return;
     }
     const piece = e.target.closest('[data-piece]');
@@ -402,7 +402,7 @@ function mountCut(ctx, m) {
     });
   });
 
-  st.speak(`${cap(n.you)} ơi, bán cho ${n.me} ${fracWord(d)} cái bánh nhé!`, null, `Cho ${n.me} <b class="g3f-want">${frac(1, d)}</b> cái bánh nhé!`);
+  st.speak(`${cap(n.you)} ơi, bán cho ${n.me} ${fracWord(d)} cái bánh!`, null, `Cho ${n.me} <b class="g3f-want">${frac(1, d)}</b> cái bánh!`);
 }
 
 
@@ -446,7 +446,7 @@ function mountPick(ctx, m) {
     });
   });
 
-  st.speak(`${cap(n.you)} chọn cho ${n.me} một miếng đúng ${fracWord(d)} cái bánh nhé! Nhìn kỹ các miếng có bằng nhau không.`, null,
+  st.speak(`${cap(n.you)} chọn cho ${n.me} một miếng đúng ${fracWord(d)} cái bánh! Nhìn kỹ các miếng có bằng nhau không.`, null,
     `Chọn 1 miếng là <b class="g3f-want">${frac(1, d)}</b> cái bánh!`);
 }
 
@@ -561,8 +561,8 @@ function mountCookies(ctx, m) {
     }, 350);
   };
 
-  st.speak(`${cap(n.you)} lấy cho ${n.me} ${fracWord(m.n)} số bánh quy trên đĩa nhé! Đĩa có ${m.total} cái.`, null,
-    `Lấy <b class="g3f-want">${frac(1, m.n)}</b> số bánh quy trên đĩa nhé!`);
+  st.speak(`${cap(n.you)} lấy cho ${n.me} ${fracWord(m.n)} số bánh quy trên đĩa! Đĩa có ${m.total} cái.`, null,
+    `Lấy <b class="g3f-want">${frac(1, m.n)}</b> số bánh quy trên đĩa!`);
 }
 
 /** Nhãn số trên cảnh (vd. "12 cái" cạnh đĩa). */
@@ -654,7 +654,7 @@ function mountCenterCut(ctx, m) {
       const line = m.lines[Number(l.dataset.line)];
       doCut(line.ang, line.dist * r);
     });
-    st.speak(`${cap(n.you)} cắt đôi bánh giúp ${n.me} nhé! Chọn đường cắt chia bánh thành hai phần bằng nhau.`, null,
+    st.speak(`${cap(n.you)} cắt đôi bánh giúp ${n.me}! Chọn đường cắt chia bánh thành hai phần bằng nhau.`, null,
       `Chọn đường cắt chia đôi bánh <b class="g3f-want">bằng nhau</b>!`);
     return;
   }
@@ -693,7 +693,7 @@ function mountCenterCut(ctx, m) {
     ctx.fx.innerHTML = '';
     clearO();
     ctx.ui.innerHTML = knifeRest();
-    if (hint) st.speak(`Cầm dao kéo cắt ngang qua cả cái bánh nhé ${n.you}!`, null, 'Kéo dao <b>qua cả cái bánh</b> nhé!');
+    if (hint) st.speak(`${cap(n.you)} cầm dao kéo cắt ngang qua cả cái bánh!`, null, 'Kéo dao <b>qua cả cái bánh</b>!');
   };
   /** Dao đã đi qua bánh: đủ dài thì cắt, quá ngắn (chỉ quẹt mép) thì bỏ qua để bé kéo tiếp. */
   const tryCut = (final) => {
@@ -749,7 +749,7 @@ function mountCenterCut(ctx, m) {
   });
   svg.addEventListener('pointercancel', () => { if (!locked) reset(false); });
 
-  st.speak(`${cap(n.you)} cắt đôi cái bánh này giúp ${n.me} nhé! Hai phần phải bằng nhau. Cầm con dao kéo qua bánh nhé.`, null,
+  st.speak(`${cap(n.you)} cắt đôi cái bánh này giúp ${n.me}! Hai phần phải bằng nhau. Cầm con dao kéo qua bánh.`, null,
     `Cầm dao cắt đôi bánh <b class="g3f-want">bằng nhau</b>!`);
 }
 
@@ -891,7 +891,7 @@ function mountName(ctx, m) {
     ctx.api.fail(`${why} ${cap(word)} là <b>${segs[right].name}</b> (nét xanh lá).`,
       'Bán kính: nối tâm O với một điểm trên mép. Đường kính: đi qua tâm O, nối hai điểm trên mép.');
   });
-  st.speak(`${cap(n.you)} chỉ cho ${n.me} đâu là một ${word} của cái bánh này nhé!`, null, `Chạm vào một <b class="g3f-want">${word}</b> của bánh!`);
+  st.speak(`${cap(n.you)} chỉ cho ${n.me} đâu là một ${word} của cái bánh này!`, null, `Chạm vào một <b class="g3f-want">${word}</b> của bánh!`);
 }
 
 /**
@@ -930,7 +930,7 @@ function mountRuler(ctx, m) {
   paint();
   ctx.layer.addEventListener('click', () => { if (!locked) st.nudge(); });
   if (m.ask === 'r') {
-    st.speak(`Bánh đặt trên thước. ${cap(n.you)} đo giúp ${n.me} bán kính của bánh dài bao nhiêu xăng-ti-mét nhé!`, null, 'Nhìn thước: <b class="g3f-want">bán kính</b> bao nhiêu cm?');
+    st.speak(`Bánh đặt trên thước. ${cap(n.you)} đo giúp ${n.me} bán kính của bánh dài bao nhiêu xăng-ti-mét!`, null, 'Nhìn thước: <b class="g3f-want">bán kính</b> bao nhiêu cm?');
   } else {
     st.speak(`Bánh đặt trên thước, nhưng mép bánh không nằm ở vạch 0 đâu. Đường kính AB của bánh dài bao nhiêu xăng-ti-mét hả ${n.you}?`, null, 'Nhìn thước: <b class="g3f-want">đường kính AB</b> bao nhiêu cm?');
   }

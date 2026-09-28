@@ -107,8 +107,8 @@ function playSpell({ round, stage, talk, solve, addCleanup }) {
       }
     };
   });
-  talk(c ? `Âm ${soundName(c)}. Bé chạm vào từng tiếng để nghe Thỏ đánh vần, rồi đọc theo nhé!`
-    : 'Bé chạm vào từng tiếng để nghe Thỏ đánh vần, rồi đọc theo nhé!');
+  talk(c ? `Âm ${soundName(c)}. Bé chạm vào từng tiếng để nghe Thỏ đánh vần, rồi đọc theo!`
+    : 'Bé chạm vào từng tiếng để nghe Thỏ đánh vần, rồi đọc theo!');
 }
 
 // ── Nghe và chạm đúng ───────────────────────────────────────────────────
@@ -141,7 +141,7 @@ function playHear({ round, stage, talk, wrong, right, solve, addCleanup }) {
     stage.querySelectorAll('.pk3-card').forEach(b => {
       b.onclick = () => {
         if (b.dataset.v !== target) {
-          wrong(b, `Đây là ${kind} ${b.dataset.v}. Bé nghe lại nhé!`);
+          wrong(b, `Đây là ${kind} ${b.dataset.v}. Bé nghe lại!`);
           addCleanup(whenQuiet(speak, { min: 800, gap: 300 }));
           return;
         }
@@ -155,7 +155,7 @@ function playHear({ round, stage, talk, wrong, right, solve, addCleanup }) {
     });
   };
   show();
-  talk(`Bé nghe Thỏ đọc rồi chạm vào đúng ${kind} nhé! Chạm cái loa để nghe lại.`);
+  talk(`Bé nghe Thỏ đọc rồi chạm vào đúng ${kind}! Chạm cái loa để nghe lại.`);
   say(target, { queue: true, rate: 0.8 });
 }
 
@@ -203,7 +203,7 @@ function playBuild({ round, stage, talk, wrong, right, solve, addCleanup }) {
           const v = b.dataset.v;
           if (v !== want[p]) {
             const heard = p === 0 ? `âm ${soundName(v)}` : p === 1 ? `vần ${v}` : (TONE_MARKS[v] ? `dấu ${TONE_MARKS[v]}` : 'không có dấu');
-            wrong(b, `Đây là ${heard}. Bé nghe lại tiếng ${target} nhé!`);
+            wrong(b, `Đây là ${heard}. Bé nghe lại tiếng ${target}!`);
             return;
           }
           right(b);
@@ -234,7 +234,7 @@ function playBuild({ round, stage, talk, wrong, right, solve, addCleanup }) {
     });
   };
   show();
-  talk('Bé nghe Thỏ đọc, rồi ghép tiếng: chọn âm đầu, chọn vần, rồi chọn dấu nhé!');
+  talk('Bé nghe Thỏ đọc, rồi ghép tiếng: chọn âm đầu, chọn vần, rồi chọn dấu!');
   say(target, { queue: true, rate: 0.8 });
 }
 
@@ -256,7 +256,7 @@ function playWords({ round, stage, talk, solve, addCleanup }) {
       }
     };
   });
-  talk(`Bé chạm vào từng ${kind} để nghe Thỏ đọc, rồi đọc theo nhé!`);
+  talk(`Bé chạm vào từng ${kind} để nghe Thỏ đọc, rồi đọc theo!`);
 }
 
 // ── Tìm các từ có vần / âm ──────────────────────────────────────────────
@@ -277,7 +277,7 @@ function playSort({ round, stage, talk, wrong, right, solve }) {
       if (b.classList.contains('is-right')) return;
       const w = items[Number(b.dataset.k)];
       say(w, { rate: 0.8 });
-      if (!has(w)) { wrong(b, `Từ ${w} không có ${label}. Bé tìm từ khác nhé!`); return; }
+      if (!has(w)) { wrong(b, `Từ ${w} không có ${label}. Bé tìm từ khác!`); return; }
       b.classList.add('is-right');
       b.innerHTML = colorText(w, [want]);
       right(b);
@@ -286,7 +286,7 @@ function playSort({ round, stage, talk, wrong, right, solve }) {
       if (found === goal) setTimeout(() => solve(`Giỏi quá! Bé đã tìm hết các từ có ${label}!`), 900);
     };
   });
-  talk(`Bé tìm và chạm vào các từ có ${label} nhé! ${isOnset ? '' : spellRhyme(want)}`);
+  talk(`Bé tìm và chạm vào các từ có ${label}! ${isOnset ? '' : spellRhyme(want)}`);
 }
 
 // ── Đọc cùng Thỏ ────────────────────────────────────────────────────────
@@ -340,8 +340,8 @@ function playRead({ round, stage, talk, solve, addCleanup }) {
   };
   stage.querySelectorAll('.pk3-play').forEach(b => { b.onclick = () => { sfx.tap(); playLine(Number(b.dataset.l)); }; });
   addCleanup(() => stop?.());
-  talk(lines.length > 1 ? 'Bé chạm cái loa để đọc từng câu cùng Thỏ nhé! Chạm vào chữ nào thì Thỏ đọc chữ đó.'
-    : 'Bé chạm cái loa để đọc cùng Thỏ nhé! Chạm vào chữ nào thì Thỏ đọc chữ đó.');
+  talk(lines.length > 1 ? 'Bé chạm cái loa để đọc từng câu cùng Thỏ! Chạm vào chữ nào thì Thỏ đọc chữ đó.'
+    : 'Bé chạm cái loa để đọc cùng Thỏ! Chạm vào chữ nào thì Thỏ đọc chữ đó.');
 }
 
 export const PLAYERS3 = {

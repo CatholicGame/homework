@@ -130,7 +130,7 @@ function mountOrientation(play, btn) {
     btn.title = label;
     if (want && (want === 'landscape') === land) want = ''; // đã xoay đúng hướng bé chọn
     ov.hidden = !want;
-    ov.querySelector('p').textContent = want === 'landscape' ? 'Xoay ngang điện thoại nhé!' : 'Xoay dọc điện thoại nhé!';
+    ov.querySelector('p').textContent = want === 'landscape' ? 'Xoay ngang điện thoại!' : 'Xoay dọc điện thoại!';
   };
   btn.onclick = () => {
     const target = isLandscape() ? 'portrait' : 'landscape';
@@ -236,7 +236,7 @@ export function playRound(app, { game, level, onExit, onNextLevel }) {
     const newBest = saveBest(level.id, ok, total);
     const best = bestFor(level.id);
     if (fails === 0) { sfx.fanfare(); rain(); } else sfx.ding();
-    const headline = fails === 0 ? 'Tuyệt vời! 🎉' : ok >= total / 2 ? 'Giỏi lắm! 👏' : 'Cố lên nhé! 💪';
+    const headline = fails === 0 ? 'Tuyệt vời! 🎉' : ok >= total / 2 ? 'Giỏi lắm! 👏' : 'Cố lên! 💪';
     app.innerHTML = `
       <div class="g3g-wrap g3g-menu">${menuBackdrop()}
         <div class="g3g-card g3g-summary animate-fadeIn">
@@ -246,7 +246,7 @@ export function playRound(app, { game, level, onExit, onNextLevel }) {
           <div class="g3g-summary-dots">${results.map(r => `<span class="${r ? 'g3g-sum-ok' : 'g3g-sum-fail'}">${r ? '😊' : '😕'}</span>`).join('')}</div>
           ${gotStars ? `<p class="g3g-summary-stars">+${gotStars} ⭐</p>` : ''}
           <p class="g3g-summary-best">${newBest ? '🏆 Kỷ lục mới! ' : ''}Kỷ lục của em: ${best.ok}/${best.total}</p>
-          ${fails > total / 2 ? `<p class="g3g-tip">💡 Em có thể thử cấp dễ hơn hoặc xem lại bài học rồi chơi tiếp nhé.</p>` : ''}
+          ${fails > total / 2 ? `<p class="g3g-tip">💡 Em có thể thử cấp dễ hơn hoặc xem lại bài học rồi chơi tiếp.</p>` : ''}
           <div class="g3g-actions">
             <button type="button" class="g3g-btn g3g-btn-primary" data-act="again">🔁 Chơi lại (khách mới)</button>
             ${onNextLevel ? `<button type="button" class="g3g-btn g3g-btn-secondary" data-act="up">⬆️ Cấp tiếp theo</button>` : ''}

@@ -7,7 +7,7 @@ import { img, zones } from './assets.js';
 
 const odd = (name, answer, say, done) => ({
   type: 'spot', img: img(name), zones: zones(name), answer: [answer], say, done,
-  hint: 'Chưa đúng rồi. Hình này giống các bạn khác đấy. Bé tìm hình không cùng nhóm nhé!',
+  hint: 'Chưa đúng rồi. Hình này giống các bạn khác đấy. Bé tìm hình không cùng nhóm!',
 });
 
 const PHAN_LOAI = [
@@ -17,7 +17,7 @@ const PHAN_LOAI = [
       // Trang 56: ếch (0), rùa (1), rắn (5) ngủ đông.
       {
         type: 'spot', img: img('p56_ngudong'), zones: zones('p56_ngudong'), answer: [0, 1, 5],
-        say: 'Mùa đông lạnh, có những con vật phải đi ngủ một giấc thật dài. Bé tìm ba con vật ngủ đông nhé!',
+        say: 'Mùa đông lạnh, có những con vật phải đi ngủ một giấc thật dài. Bé tìm ba con vật ngủ đông!',
         hint: 'Con vật này không ngủ đông đâu. Bé tìm con ếch, con rùa hay con rắn xem!',
         done: 'Giỏi quá! Ếch, rùa và rắn ngủ đông suốt mùa lạnh đấy!',
       },
@@ -25,9 +25,9 @@ const PHAN_LOAI = [
       {
         type: 'spot', img: img('p58_luongcu'), zones: zones('p58_luongcu'), answer: [1, 2, 3],
         // Vịt bơi dưới nước và đi trên cạn: sách không có đáp án, nên chạm vịt cũng được khen nhưng không bắt buộc.
-        extra: [5], extraSay: 'Đúng rồi! Vịt cũng vừa bơi dưới nước vừa đi trên cạn. Bé tìm thêm các bạn khác nhé!',
-        say: 'Con vật nào vừa bơi dưới nước, vừa bò lên cạn được? Bé tìm ba con vật nhé!',
-        hint: 'Chưa đúng rồi. Bé tìm con vật vừa sống dưới nước vừa sống trên cạn nhé!',
+        extra: [5], extraSay: 'Đúng rồi! Vịt cũng vừa bơi dưới nước vừa đi trên cạn. Bé tìm thêm các bạn khác!',
+        say: 'Con vật nào vừa bơi dưới nước, vừa bò lên cạn được? Bé tìm ba con vật!',
+        hint: 'Chưa đúng rồi. Bé tìm con vật vừa sống dưới nước vừa sống trên cạn!',
         done: 'Tuyệt vời! Rùa, ếch và cá sấu vừa sống dưới nước vừa sống trên cạn!',
       },
     ],
@@ -36,19 +36,19 @@ const PHAN_LOAI = [
     id: 'pl-vat-khac', icon: '🧺', color: '#EA580C', title: 'Vật khác biệt', name: 'Tìm vật, tìm hình khác với các bạn còn lại',
     rounds: [
       // Trang 57 (đáp án: áo len, bàn, chổi, xe đạp).
-      odd('p57_quanao', 2, 'Trong nhóm quần áo này, cái nào khác các bạn? Bé chạm vào nhé!',
+      odd('p57_quanao', 2, 'Trong nhóm quần áo này, cái nào khác các bạn? Bé chạm vào!',
         'Đúng rồi! Áo len để mặc mùa đông, còn các bộ khác mặc mùa hè!'),
-      odd('p57_banghe', 0, 'Có ba cái để ngồi và một cái không để ngồi. Bé tìm cái khác biệt nhé!',
+      odd('p57_banghe', 0, 'Có ba cái để ngồi và một cái không để ngồi. Bé tìm cái khác biệt!',
         'Đúng rồi! Cái bàn không phải để ngồi, còn ghế sô pha, ghế xếp, ghế dài để ngồi!'),
       odd('p57_dodung', 3, 'Ba đồ vật đựng được nước, còn một đồ vật thì không. Đó là cái nào?',
         'Đúng rồi! Cái chổi để quét nhà, không đựng được nước!'),
-      odd('p57_xe', 0, 'Chiếc xe nào khác hai chiếc xe còn lại? Bé chạm vào nhé!',
+      odd('p57_xe', 0, 'Chiếc xe nào khác hai chiếc xe còn lại? Bé chạm vào!',
         'Đúng rồi! Xe đạp phải đạp bằng chân, còn ô tô và xe buýt chạy bằng máy!'),
       // Trang 58, nhóm dưới: hình chữ nhật (3), hình bầu dục (15), hình vuông (23), hình thang (32).
       {
         type: 'spot', img: img('p58_hinh'), zones: zones('p58_hinh'), answer: [3, 15, 23, 32],
-        say: 'Có bốn nhóm hình. Trong mỗi nhóm có một hình không giống các bạn. Bé tìm cả bốn hình nhé!',
-        hint: 'Hình này giống các bạn trong nhóm rồi. Bé nhìn kỹ số cạnh và hình dáng nhé!',
+        say: 'Có bốn nhóm hình. Trong mỗi nhóm có một hình không giống các bạn. Bé tìm cả bốn hình!',
+        hint: 'Hình này giống các bạn trong nhóm rồi. Bé nhìn kỹ số cạnh và hình dáng!',
         done: 'Giỏi quá! Hình chữ nhật, hình bầu dục, hình vuông và hình bốn cạnh là những hình khác biệt!',
       },
     ],
@@ -62,7 +62,7 @@ const THONG_KE = [
       // Trang 59: mỗi con vật trực nhật 6 lần (đáp án sách).
       {
         type: 'ask', img: img('p59_lich'),
-        say: 'Đây là lịch trực nhật của các bạn thú. Bé đếm xem mỗi bạn trực nhật mấy lần nhé!',
+        say: 'Đây là lịch trực nhật của các bạn thú. Bé đếm xem mỗi bạn trực nhật mấy lần!',
         asks: [
           { icon: img('p59_cho'), answer: 6, say: 'Bạn Chó trực nhật mấy lần?' },
           { icon: img('p59_tho'), answer: 6, say: 'Bạn Thỏ trực nhật mấy lần?' },
@@ -75,7 +75,7 @@ const THONG_KE = [
       // Trang 60: 6 dưa hấu, 5 cam, 7 chùm nho, 7 quả lê.
       {
         type: 'ask', img: img('p60_hoaqua'),
-        say: 'Bé đếm xem mỗi loại quả có bao nhiêu nhé! Chạm vào từng quả để đếm cho dễ.',
+        say: 'Bé đếm xem mỗi loại quả có bao nhiêu! Chạm vào từng quả để đếm cho dễ.',
         asks: [
           { icon: img('p60_dua'), answer: 6, say: 'Có mấy miếng dưa hấu?' },
           { icon: img('p60_cam'), answer: 5, say: 'Có mấy quả cam?' },
@@ -86,7 +86,7 @@ const THONG_KE = [
       // Trang 60: 6 xe đỏ, 5 xe vàng, 6 xe đen.
       {
         type: 'ask', img: img('p60_oto'),
-        say: 'Có rất nhiều ô tô. Bé đếm xem mỗi màu có mấy chiếc nhé!',
+        say: 'Có rất nhiều ô tô. Bé đếm xem mỗi màu có mấy chiếc!',
         asks: [
           { icon: img('p60_xedo'), answer: 6, say: 'Có mấy chiếc xe màu đỏ?' },
           { icon: img('p60_xevang'), answer: 5, say: 'Có mấy chiếc xe màu vàng?' },
@@ -96,7 +96,7 @@ const THONG_KE = [
       // Trang 61: 5 ngựa gỗ (thêm chong chóng 5, vỏ sò 6 cho bé đếm).
       {
         type: 'ask', img: img('p61_dochoi'),
-        say: 'Trong tranh có mấy con ngựa gỗ? Bé đếm thật kỹ nhé!',
+        say: 'Trong tranh có mấy con ngựa gỗ? Bé đếm thật kỹ!',
         asks: [
           { icon: img('p61_ngua'), answer: 5, say: 'Có mấy con ngựa gỗ?' },
           { icon: img('p61_chongchong'), answer: 5, say: 'Còn chong chóng thì có mấy cái?' },
@@ -106,7 +106,7 @@ const THONG_KE = [
       // Trang 61: 4 hoa bốn cánh, 5 hoa chữ thập, 4 hoa lá phong, 7 hoa tròn.
       {
         type: 'ask', img: img('p61_hoa'),
-        say: 'Bé đếm xem mỗi loại hoa có mấy bông nhé!',
+        say: 'Bé đếm xem mỗi loại hoa có mấy bông!',
         asks: [
           { icon: img('p61_hoa4canh'), answer: 4, say: 'Hoa màu hồng bốn cánh có mấy bông?' },
           { icon: img('p61_hoachuthap'), answer: 5, say: 'Hoa màu vàng có mấy bông?' },

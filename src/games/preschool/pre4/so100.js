@@ -30,9 +30,9 @@ const mushroomRound = (list, k) => ({
   to: BASKETS.map(n => ({ img: img(`p41_gio${n}`), say: `giỏ số ${w(n)}` })),
   pairs: list.map((text, i) => [i, BASKETS.indexOf(calc(text))]),
   say: k === 0
-    ? 'Mỗi cây nấm có một phép tính. Bé tính rồi nối cây nấm vào giỏ có số đúng nhé!'
-    : 'Thêm sáu cây nấm nữa! Bé tính rồi nối vào đúng giỏ nhé!',
-  hint: 'Chưa đúng giỏ rồi. Bé tính lại phép tính trên cây nấm nhé!',
+    ? 'Mỗi cây nấm có một phép tính. Bé tính rồi nối cây nấm vào giỏ có số đúng!'
+    : 'Thêm sáu cây nấm nữa! Bé tính rồi nối vào đúng giỏ!',
+  hint: 'Chưa đúng giỏ rồi. Bé tính lại phép tính trên cây nấm!',
 });
 
 // Trang 36: bàn tính (hạt hàng chục, hạt hàng đơn vị).
@@ -46,7 +46,7 @@ export const STATIONS = [
       {
         type: 'seq', img: img('p32_chuot'), cells: range(51, 80), cols: 10,
         hide: hideValues(51, [53, 56, 61, 65, 68, 70, 74, 78, 80]),
-        say: 'Chuột con đi theo thứ tự các số để về hang. Bé điền những số còn thiếu giúp Chuột nhé!',
+        say: 'Chuột con đi theo thứ tự các số để về hang. Bé điền những số còn thiếu giúp Chuột!',
         done: 'Giỏi quá! Chuột con đã về tới hang rồi!',
       },
       // Trang 33: Vịt con đi từ 80 đến 90 (hai ô trống bên phải là chỗ vịt mẹ đứng trong sách).
@@ -58,7 +58,7 @@ export const STATIONS = [
           [82, 84, 86, 85, 84, null],
           [86, 85, 87, 88, 89, 90],
         ],
-        say: 'Vịt con đi theo thứ tự từ tám mươi đến chín mươi để về với mẹ. Bé chạm từng số, đi ngang hoặc dọc, không đi chéo nhé!',
+        say: 'Vịt con đi theo thứ tự từ tám mươi đến chín mươi để về với mẹ. Bé chạm từng số, đi ngang hoặc dọc, không đi chéo!',
         done: 'Giỏi quá! Vịt con đã về với vịt mẹ rồi!',
       },
       // Trang 33: Nòng nọc đi từ 90 đến 100.
@@ -70,7 +70,7 @@ export const STATIONS = [
           [93, 95, 98, 97],
           [94, 96, 99, 100],
         ],
-        say: 'Nòng nọc đi theo thứ tự từ chín mươi đến một trăm để tìm mẹ ếch. Bé chạm từng số nhé, không đi chéo đâu!',
+        say: 'Nòng nọc đi theo thứ tự từ chín mươi đến một trăm để tìm mẹ ếch. Bé chạm từng số, không đi chéo đâu!',
         done: 'Tuyệt vời! Nòng nọc đã tìm được mẹ rồi!',
       },
     ],
@@ -82,8 +82,8 @@ export const STATIONS = [
       const answer = inRange(lo, hi);
       return {
         type: 'spot', img: img('p34_tranh'), zones: zones('p34_tranh'), answer,
-        say: `Số lớn hơn ${w(lo)}, nhỏ hơn ${w(hi)} thì tô ${color}. Bé tìm và chạm vào ${answer.length > 1 ? `tất cả ${w(answer.length)} số` : 'số'} đó nhé!`,
-        hint: `Chưa đúng rồi. Bé tìm số lớn hơn ${w(lo)} và nhỏ hơn ${w(hi)} nhé!`,
+        say: `Số lớn hơn ${w(lo)}, nhỏ hơn ${w(hi)} thì tô ${color}. Bé tìm và chạm vào ${answer.length > 1 ? `tất cả ${w(answer.length)} số` : 'số'} đó!`,
+        hint: `Chưa đúng rồi. Bé tìm số lớn hơn ${w(lo)} và nhỏ hơn ${w(hi)}!`,
         done: answer.length > 1 ? `Giỏi quá! Bé tìm đủ các số để tô ${color} rồi!` : `Đúng rồi! Số ${w(P34[answer[0]])} tô ${color}!`,
       };
     }),
@@ -97,7 +97,7 @@ export const STATIONS = [
         asks: [
           { label: 'Có', unit: 'bó mười que', answer: Math.floor(n / 10), say: 'Mỗi bó có mười que tính. Có mấy bó mười que?' },
           { label: 'Còn', unit: 'que lẻ', answer: n % 10, say: 'Còn mấy que lẻ?' },
-          { label: 'Tất cả', unit: 'que tính', answer: n, say: 'Vậy có tất cả bao nhiêu que tính? Bé bấm số nhé!' },
+          { label: 'Tất cả', unit: 'que tính', answer: n, say: 'Vậy có tất cả bao nhiêu que tính? Bé bấm số!' },
         ],
         say: 'Mỗi bó có mười que tính. Có mấy bó mười que?',
       })),
@@ -122,7 +122,7 @@ export const STATIONS = [
         asks: [
           { label: 'Hàng chục', answer: t, say: 'Cột hàng chục có mấy hạt?' },
           { label: 'Hàng đơn vị', answer: u, say: 'Cột hàng đơn vị có mấy hạt?' },
-          { label: 'Số', answer: 10 * t + u, say: `${w(t)} chục và ${w(u)} đơn vị là số mấy? Bé bấm số nhé!` },
+          { label: 'Số', answer: 10 * t + u, say: `${w(t)} chục và ${w(u)} đơn vị là số mấy? Bé bấm số!` },
         ],
         say: 'Bé đếm hạt trên bàn tính. Cột hàng chục có mấy hạt?',
       })),
@@ -143,15 +143,15 @@ export const STATIONS = [
       // Trang 37: cá có số nhỏ hơn 50 — 48, 45, 28, 36.
       {
         type: 'spot', img: img('p37_meo'), zones: zones('p37_meo'), answer: [0, 2, 3, 5],
-        say: 'Mèo con muốn ăn những chú cá có số nhỏ hơn năm mươi. Bé chạm vào các chú cá đó nhé!',
-        hint: 'Số này không nhỏ hơn năm mươi đâu. Bé tìm cá khác nhé!',
+        say: 'Mèo con muốn ăn những chú cá có số nhỏ hơn năm mươi. Bé chạm vào các chú cá đó!',
+        hint: 'Số này không nhỏ hơn năm mươi đâu. Bé tìm cá khác!',
         done: 'Giỏi quá! Bốn mươi tám, bốn mươi lăm, hai mươi tám, ba mươi sáu đều nhỏ hơn năm mươi!',
       },
       // Trang 37: thuyền có hàng đơn vị lớn hơn 6 và hàng chục nhỏ hơn 6 — 48.
       {
         type: 'spot', img: img('p37_thuyen'), zones: zones('p37_thuyen'), answer: [0],
-        say: 'Gấu con muốn mua chiếc thuyền có số hàng đơn vị lớn hơn sáu, số hàng chục nhỏ hơn sáu. Bé chọn giúp Gấu nhé!',
-        hint: 'Chưa đúng rồi. Bé xem số hàng chục và số hàng đơn vị của từng thuyền nhé!',
+        say: 'Gấu con muốn mua chiếc thuyền có số hàng đơn vị lớn hơn sáu, số hàng chục nhỏ hơn sáu. Bé chọn giúp Gấu!',
+        hint: 'Chưa đúng rồi. Bé xem số hàng chục và số hàng đơn vị của từng thuyền!',
         done: 'Đúng rồi! Số bốn mươi tám: bốn nhỏ hơn sáu, tám lớn hơn sáu!',
       },
       // Trang 38: các dãy số theo quy luật — số trong quả táo.
@@ -159,15 +159,15 @@ export const STATIONS = [
         type: 'seq', img: img('p38_oc'), cols: 5,
         cells: [5, 10, 15, 20, 25, 10, 20, 30, 40, 50, 15, 25, 35, 45, 55, 10, 30, 50, 70, 90],
         hide: [3, 8, 13, 18],
-        say: 'Mỗi hàng số được xếp theo quy luật. Bé xem các số rồi điền số vào quả táo nhé!',
-        hint: 'Chưa đúng rồi. Bé xem mỗi lần số tăng thêm bao nhiêu nhé!',
+        say: 'Mỗi hàng số được xếp theo quy luật. Bé xem các số rồi điền số vào quả táo!',
+        hint: 'Chưa đúng rồi. Bé xem mỗi lần số tăng thêm bao nhiêu!',
       },
       {
         type: 'choice', img: img('p38_bang'),
         options: [1, 2, 3, 4].map(k => ({ img: img(`p38_dap${k}`), say: `Nhóm số ${w(k)}` })),
         answer: 2, cols: 4,
-        say: 'Bé nhớ lại các số vừa điền vào quả táo ở hàng A, B, C, D, rồi chọn nhóm có đúng các số đó nhé!',
-        hint: 'Chưa đúng rồi. Bé xem lại số trong quả táo của từng hàng nhé!',
+        say: 'Bé nhớ lại các số vừa điền vào quả táo ở hàng A, B, C, D, rồi chọn nhóm có đúng các số đó!',
+        hint: 'Chưa đúng rồi. Bé xem lại số trong quả táo của từng hàng!',
         done: 'Đúng rồi! Hai mươi, bốn mươi, bốn mươi lăm, bảy mươi!',
       },
     ],
@@ -179,18 +179,18 @@ export const STATIONS = [
       {
         type: 'seq', img: img('p39_ha_ma'), cells: range(1, 50), cols: 10,
         hide: hideValues(1, [4, 7, 13, 19, 22, 26, 30, 35, 38, 41, 47]),
-        say: 'Bảng số từ một đến năm mươi còn thiếu vài số. Bé điền số còn thiếu nhé!',
+        say: 'Bảng số từ một đến năm mươi còn thiếu vài số. Bé điền số còn thiếu!',
       },
       {
         type: 'seq', img: img('p39_voi'), cells: range(51, 100), cols: 10,
         hide: hideValues(51, [53, 58, 62, 66, 71, 75, 79, 84, 88, 93, 99]),
-        say: 'Tiếp tục nào! Bé điền các số còn thiếu từ năm mươi mốt đến một trăm nhé!',
+        say: 'Tiếp tục nào! Bé điền các số còn thiếu từ năm mươi mốt đến một trăm!',
       },
       // Trang 40: dây cờ cá — các số tròn chục.
       {
         type: 'seq', img: img('p40_ca'), cells: range(1, 10).map(n => n * 10), cols: 5,
         hide: [2, 3, 4, 5, 6, 7, 8],
-        say: 'Dây cá có các số tròn chục: mười, hai mươi, … Bé điền số lên thân cá nhé!',
+        say: 'Dây cá có các số tròn chục: mười, hai mươi, … Bé điền số lên thân cá!',
       },
     ],
   },
@@ -202,7 +202,7 @@ export const STATIONS = [
         type: 'choice', img: img('p40_be'),
         options: [1, 2, 3, 4].map(k => ({ img: img(`p40_qua${k}`), say: `hộp quà số ${w([50, 60, 70, 80][k - 1])}` })),
         answer: 2, cols: 4,
-        say: 'Ba mươi cộng bốn mươi bằng mấy? Bé tính rồi chọn món quà có số đúng cho bạn nhé!',
+        say: 'Ba mươi cộng bốn mươi bằng mấy? Bé tính rồi chọn món quà có số đúng cho bạn!',
         hint: 'Chưa đúng rồi. Ba chục cộng bốn chục là mấy chục nhỉ?',
         done: 'Đúng rồi! Ba mươi cộng bốn mươi bằng bảy mươi!',
       },

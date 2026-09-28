@@ -15,10 +15,10 @@ const MISSING = [['a', 0], ['b', 3], ['c', 2], ['d', 1]];
 
 // Trang 52: 10 phòng trống (trên → dưới, trái → phải); lời các bạn nhỏ và phòng đúng.
 const HOUSE = [
-  ['Bạn Ếch nói: Tớ sống ở tầng năm, phòng ngoài cùng bên trái. Tầng năm là tầng cao nhất đấy! Bé chạm vào phòng của bạn Ếch nhé!', 0],
-  ['Bạn Mèo nói: Tớ sống ở tầng ba, phòng ngoài cùng bên trái. Bé tìm phòng của bạn Mèo nhé!', 4],
-  ['Bạn Cún nói: Tớ sống ở tầng dưới nhà Mèo con. Nhà Mèo ở tầng ba, phòng bên trái. Bé tìm phòng của bạn Cún nhé!', 6],
-  ['Bạn Cáo nói: Tớ sống ở bên phải bạn Hổ. Bạn Hổ ở tầng một, dưới cùng. Bé tìm phòng của bạn Cáo nhé!', 8],
+  ['Bạn Ếch nói: Tớ sống ở tầng năm, phòng ngoài cùng bên trái. Tầng năm là tầng cao nhất đấy! Bé chạm vào phòng của bạn Ếch!', 0],
+  ['Bạn Mèo nói: Tớ sống ở tầng ba, phòng ngoài cùng bên trái. Bé tìm phòng của bạn Mèo!', 4],
+  ['Bạn Cún nói: Tớ sống ở tầng dưới nhà Mèo con. Nhà Mèo ở tầng ba, phòng bên trái. Bé tìm phòng của bạn Cún!', 6],
+  ['Bạn Cáo nói: Tớ sống ở bên phải bạn Hổ. Bạn Hổ ở tầng một, dưới cùng. Bé tìm phòng của bạn Cáo!', 8],
 ];
 
 // Trang 54: ô (cột A–E, hàng 1–6) → chỉ số ô trên lưới = hàng × 5 + cột.
@@ -35,22 +35,22 @@ export const STATIONS = [
         from: imgs(['p42_a', 'p42_c', 'p42_d']),
         to: imgs(['p42_e', 'p42_b', 'p42_f']),
         pairs: [[0, 1], [1, 2], [2, 0]],
-        say: 'Gấu con muốn ghép thành ba hình tròn. Bé chạm một miếng bên trái, rồi chạm miếng bên phải ghép vừa khít thành hình tròn nhé!',
-        hint: 'Hai miếng này chưa ghép thành hình tròn. Bé thử miếng khác nhé!',
+        say: 'Gấu con muốn ghép thành ba hình tròn. Bé chạm một miếng bên trái, rồi chạm miếng bên phải ghép vừa khít thành hình tròn!',
+        hint: 'Hai miếng này chưa ghép thành hình tròn. Bé thử miếng khác!',
         done: 'Giỏi quá! Bé đã ghép được ba hình tròn rồi!',
       },
       // Trang 42: tòa thành giống hình ví dụ là tòa số 3.
       {
         type: 'choice', img: img('p42_mau'), answer: 2, cols: 4,
         options: imgs(['p42_thanh1', 'p42_thanh2', 'p42_thanh3', 'p42_thanh4']),
-        say: 'Đây là một tòa thành thật đẹp. Tòa thành nào bên dưới có hình dáng giống hệt tòa thành này? Bé chạm vào nhé!',
-        hint: 'Chưa giống rồi. Bé đếm các mái nhọn và nhìn thật kỹ nhé!',
+        say: 'Đây là một tòa thành thật đẹp. Tòa thành nào bên dưới có hình dáng giống hệt tòa thành này? Bé chạm vào!',
+        hint: 'Chưa giống rồi. Bé đếm các mái nhọn và nhìn thật kỹ!',
         done: 'Đúng rồi! Tòa thành này giống hệt hình ví dụ!',
       },
       ...MISSING.map(([k, answer]) => ({
         type: 'choice', img: img(`p46_${k}`), answer, cols: 4, options: PIECES,
-        say: 'Hình vuông này bị thiếu một miếng. Miếng ghép nào bên dưới lấp vừa chỗ trống? Bé chạm vào nhé!',
-        hint: 'Miếng này chưa vừa chỗ trống. Bé nhìn kỹ chỗ trống màu trắng nhé!',
+        say: 'Hình vuông này bị thiếu một miếng. Miếng ghép nào bên dưới lấp vừa chỗ trống? Bé chạm vào!',
+        hint: 'Miếng này chưa vừa chỗ trống. Bé nhìn kỹ chỗ trống màu trắng!',
         done: 'Giỏi quá! Miếng ghép vừa khít rồi!',
       })),
     ],
@@ -62,31 +62,31 @@ export const STATIONS = [
       ...['p43_h1', 'p43_h2', 'p43_h3'].map((name, k) => ({
         type: 'spot', img: img(name), zones: zones(name), answer: [3],
         say: k === 0
-          ? 'Hình bên trái được ghép từ các hình nhỏ. Có một hình nhỏ bị thừa, không dùng đến. Bé chạm vào hình thừa nhé!'
-          : 'Hình nhỏ nào không có trong hình bên trái? Bé chạm vào hình thừa nhé!',
-        hint: 'Hình này có trong hình bên trái rồi. Bé tìm hình khác nhé!',
+          ? 'Hình bên trái được ghép từ các hình nhỏ. Có một hình nhỏ bị thừa, không dùng đến. Bé chạm vào hình thừa!'
+          : 'Hình nhỏ nào không có trong hình bên trái? Bé chạm vào hình thừa!',
+        hint: 'Hình này có trong hình bên trái rồi. Bé tìm hình khác!',
         done: 'Đúng rồi! Đây là hình bị thừa!',
       })),
       // Trang 44: hình ví dụ có 25 ô vuông (5 × 5); các hình thiếu lần lượt 15, 14, 16, 9, 8 ô.
       {
         type: 'ask', img: img('p44_mau'),
         asks: [15, 14, 16, 9, 8].map((answer, k) => ({ icon: img(`p44_h${k + 1}`), label: `Hình ${k + 1}:`, answer, unit: 'ô' })),
-        say: 'Hình vuông mẫu có hai mươi lăm ô vuông nhỏ. Mỗi hình bên dưới cần ghép thêm mấy ô nữa để thành hình vuông giống hình mẫu? Bé đếm rồi chọn số nhé!',
-        hint: 'Chưa đúng rồi. Bé đếm số ô của hình, rồi đếm tiếp cho đến hai mươi lăm nhé!',
+        say: 'Hình vuông mẫu có hai mươi lăm ô vuông nhỏ. Mỗi hình bên dưới cần ghép thêm mấy ô nữa để thành hình vuông giống hình mẫu? Bé đếm rồi chọn số!',
+        hint: 'Chưa đúng rồi. Bé đếm số ô của hình, rồi đếm tiếp cho đến hai mươi lăm!',
       },
       // Trang 45: hình chia thành bốn phần bằng nhau: 3 (hình vuông), 4 (hình tròn), 6 (nửa hình tròn).
       {
         type: 'choice', answer: [2, 3, 5], cols: 3,
         options: imgs(['p45_h1', 'p45_h2', 'p45_h3', 'p45_h4', 'p45_h5', 'p45_h6']),
-        say: 'Hình nào được chia thành bốn phần bằng nhau? Bé đếm số phần rồi chạm vào tất cả các hình đúng nhé! Có ba hình đấy!',
-        hint: 'Hình này chưa chia thành bốn phần bằng nhau. Bé đếm lại nhé!',
+        say: 'Hình nào được chia thành bốn phần bằng nhau? Bé đếm số phần rồi chạm vào tất cả các hình đúng! Có ba hình đấy!',
+        hint: 'Hình này chưa chia thành bốn phần bằng nhau. Bé đếm lại!',
         done: 'Giỏi quá! Hình vuông, hình tròn và nửa hình tròn đều chia thành bốn phần bằng nhau!',
       },
       // Trang 47: gấp đôi hình vuông hai lần rồi cắt, mở ra được hình 3.
       {
         type: 'choice', img: img('p47_gap'), answer: 2, cols: 4,
         options: imgs(['p47_h1', 'p47_h2', 'p47_h3', 'p47_h4']),
-        say: 'Gấp tờ giấy vuông hai lần thành hình tam giác nhỏ, rồi cắt một miếng. Mở tờ giấy ra sẽ được hình nào? Bé chọn nhé!',
+        say: 'Gấp tờ giấy vuông hai lần thành hình tam giác nhỏ, rồi cắt một miếng. Mở tờ giấy ra sẽ được hình nào? Bé chọn!',
         hint: 'Chưa đúng rồi. Tờ giấy gấp làm bốn lớp, nên sẽ có bốn lỗ cắt đấy!',
         done: 'Đúng rồi! Mở ra sẽ có bốn lỗ hình chữ nhật!',
       },
@@ -108,27 +108,27 @@ export const STATIONS = [
           { img: img('p48_v4'), say: 'Chiếc mũ' }, { img: img('p48_v5'), say: 'Hộp quà' },
         ],
         pairs: [[0, 1], [1, 2], [2, 4], [3, 0], [4, 3]], layout: 'tb',
-        say: 'Mỗi hình khối giống đồ vật nào? Bé chạm hình khối bên trái, rồi chạm đồ vật có hình dáng giống nó nhé!',
-        hint: 'Đồ vật này có hình dáng khác rồi. Bé nhìn kỹ nhé!',
+        say: 'Mỗi hình khối giống đồ vật nào? Bé chạm hình khối bên trái, rồi chạm đồ vật có hình dáng giống nó!',
+        hint: 'Đồ vật này có hình dáng khác rồi. Bé nhìn kỹ!',
         done: 'Giỏi quá! Bé đã biết khối trụ, khối cầu, khối hộp và khối nón rồi!',
       },
       // Trang 49: 0 chai, 1 cốc, 2 dưa hấu, 3 lò vi sóng, 4 bánh kem, 5 hộp sữa, 6 quả cam, 7 quả bóng.
       {
         type: 'spot', img: img('p49_anh'), zones: zones('p49_anh'), answer: [0, 1, 4],
-        say: 'Cái chai, cái cốc, cái bánh kem có hình khối giống nhau đấy, đều là khối trụ! Bé tìm và chạm vào ba đồ vật hình khối trụ nhé!',
-        hint: 'Đồ vật này không phải khối trụ. Bé tìm đồ vật tròn dài như cái cốc nhé!',
+        say: 'Cái chai, cái cốc, cái bánh kem có hình khối giống nhau đấy, đều là khối trụ! Bé tìm và chạm vào ba đồ vật hình khối trụ!',
+        hint: 'Đồ vật này không phải khối trụ. Bé tìm đồ vật tròn dài như cái cốc!',
         done: 'Giỏi quá! Cái chai, cái cốc và bánh kem đều là khối trụ!',
       },
       {
         type: 'spot', img: img('p49_anh'), zones: zones('p49_anh'), answer: [2, 6, 7],
-        say: 'Bây giờ bé tìm ba đồ vật tròn như quả bóng, đó là khối cầu nhé!',
-        hint: 'Đồ vật này không tròn như quả bóng. Bé tìm lại nhé!',
+        say: 'Bây giờ bé tìm ba đồ vật tròn như quả bóng, đó là khối cầu!',
+        hint: 'Đồ vật này không tròn như quả bóng. Bé tìm lại!',
         done: 'Đúng rồi! Quả dưa hấu, quả cam và quả bóng đều là khối cầu!',
       },
       {
         type: 'spot', img: img('p49_anh'), zones: zones('p49_anh'), answer: [3, 5],
-        say: 'Còn hai đồ vật có hình cái hộp, là khối hộp chữ nhật. Bé tìm hai đồ vật đó nhé!',
-        hint: 'Đồ vật này không có hình cái hộp. Bé tìm lại nhé!',
+        say: 'Còn hai đồ vật có hình cái hộp, là khối hộp chữ nhật. Bé tìm hai đồ vật đó!',
+        hint: 'Đồ vật này không có hình cái hộp. Bé tìm lại!',
         done: 'Giỏi quá! Hộp sữa và lò vi sóng đều là khối hộp chữ nhật!',
       },
     ],
@@ -141,30 +141,30 @@ export const STATIONS = [
       // Trang 50: chậu hoa đối xứng (soi gương) với hình ví dụ là chậu trên bên phải.
       {
         type: 'spot', img: img('p50_chau'), zones: zones('p50_chau'), answer: [1],
-        say: 'Chậu hoa màu hồng bên trái là hình mẫu. Chậu hoa nào giống như hình mẫu soi vào gương, bông hoa và hình trang trí đổi bên? Bé chạm vào nhé!',
-        hint: 'Chưa đúng rồi. Bé nhìn thứ tự các bông hoa và hình bông nhỏ trên chậu nhé!',
+        say: 'Chậu hoa màu hồng bên trái là hình mẫu. Chậu hoa nào giống như hình mẫu soi vào gương, bông hoa và hình trang trí đổi bên? Bé chạm vào!',
+        hint: 'Chưa đúng rồi. Bé nhìn thứ tự các bông hoa và hình bông nhỏ trên chậu!',
         done: 'Đúng rồi! Các bông hoa và hình trang trí đều đổi bên như soi gương!',
       },
       // Trang 50: nhóm có tam giác xanh lam nằm dưới cùng là nhóm trên bên trái.
       {
         type: 'spot', img: img('p50_tamgiac'), zones: zones('p50_tamgiac'), answer: [0],
-        say: 'Trong bốn nhóm hình tam giác, nhóm nào có hình tam giác màu xanh lam nằm dưới cùng, bị các hình khác đè lên? Bé chạm vào nhóm đó nhé!',
-        hint: 'Chưa đúng rồi. Bé nhìn chỗ các đường cắt nhau, đường nào bị che nhé!',
+        say: 'Trong bốn nhóm hình tam giác, nhóm nào có hình tam giác màu xanh lam nằm dưới cùng, bị các hình khác đè lên? Bé chạm vào nhóm đó!',
+        hint: 'Chưa đúng rồi. Bé nhìn chỗ các đường cắt nhau, đường nào bị che!',
       },
       // Trang 53: chiếc hộp không giống ba hộp còn lại là hộp số 2.
       {
         type: 'choice', answer: 1, cols: 4,
         options: imgs(['p53_hop1', 'p53_hop2', 'p53_hop3', 'p53_hop4']),
-        say: 'Có bốn chiếc hộp. Ba chiếc là cùng một hộp xoay các hướng khác nhau, còn một chiếc khác hẳn. Bé tìm chiếc hộp khác nhé!',
-        hint: 'Hộp này giống các hộp khác, chỉ xoay đi thôi. Bé tìm lại nhé!',
+        say: 'Có bốn chiếc hộp. Ba chiếc là cùng một hộp xoay các hướng khác nhau, còn một chiếc khác hẳn. Bé tìm chiếc hộp khác!',
+        hint: 'Hộp này giống các hộp khác, chỉ xoay đi thôi. Bé tìm lại!',
         done: 'Đúng rồi! Chiếc hộp này khác ba chiếc còn lại!',
       },
       // Trang 53: chồng hai hình lại được hình 1.
       {
         type: 'choice', img: img('p53_mau'), answer: 0, cols: 4,
         options: imgs(['p53_h1', 'p53_h2', 'p53_h3', 'p53_h4']),
-        say: 'Hình mẫu: chồng hai hình lên nhau thì được hình mới. Bây giờ bé đoán xem chồng hai hình thì được hình nào nhé!',
-        hint: 'Chưa đúng rồi. Bé nhìn kỹ các góc nhọn màu hồng nhé!',
+        say: 'Hình mẫu: chồng hai hình lên nhau thì được hình mới. Bây giờ bé đoán xem chồng hai hình thì được hình nào.',
+        hint: 'Chưa đúng rồi. Bé nhìn kỹ các góc nhọn màu hồng!',
       },
     ],
   },
@@ -175,7 +175,7 @@ export const STATIONS = [
       {
         type: 'choice', img: img('p51_mau'), answer: 0, cols: 4,
         options: imgs(['p51_hop1', 'p51_hop2', 'p51_hop3', 'p51_hop4']),
-        say: 'Tờ giấy có sáu con cá này gấp lại thành chiếc hộp. Chiếc hộp nào gấp được từ tờ giấy này? Bé chạm vào nhé!',
+        say: 'Tờ giấy có sáu con cá này gấp lại thành chiếc hộp. Chiếc hộp nào gấp được từ tờ giấy này? Bé chạm vào!',
         hint: 'Chưa đúng rồi. Hai mặt nằm cạnh nhau trên hộp phải nằm cạnh nhau trên tờ giấy đấy!',
         done: 'Giỏi quá! Chiếc hộp này gấp được từ tờ giấy!',
       },
@@ -183,7 +183,7 @@ export const STATIONS = [
       {
         type: 'choice', img: img('p51_xoay'), answer: 1, cols: 4,
         options: imgs(['p51_x1', 'p51_x2', 'p51_x3', 'p51_x4']),
-        say: 'Xoay hình mẫu một phần tư vòng theo chiều kim đồng hồ, sẽ được hình nào? Bé chạm vào nhé!',
+        say: 'Xoay hình mẫu một phần tư vòng theo chiều kim đồng hồ, sẽ được hình nào? Bé chạm vào!',
         hint: 'Chưa đúng rồi. Xoay theo chiều kim đồng hồ thì ô trên bên trái sẽ sang ô trên bên phải đấy!',
       },
       // Trang 55: xoay nửa vòng (180°) được hình 2 — mọi thứ lộn ngược.
@@ -200,7 +200,7 @@ export const STATIONS = [
     id: 'kg-nha', icon: '🏢', color: '#EAB308', title: 'Ngôi nhà nhiều tầng', name: 'Tìm phòng cho các bạn nhỏ', part: 4,
     rounds: HOUSE.map(([say, k]) => ({
       type: 'spot', img: img('p52_nha'), zones: zones('p52_nha'), answer: [k], say,
-      hint: 'Chưa đúng rồi. Bé nghe lại lời bạn nhỏ và đếm tầng từ dưới lên nhé!',
+      hint: 'Chưa đúng rồi. Bé nghe lại lời bạn nhỏ và đếm tầng từ dưới lên!',
       done: 'Đúng rồi! Bạn nhỏ đã tìm được nhà rồi, cảm ơn bé!',
     })),
   },
@@ -217,19 +217,19 @@ export const STATIONS = [
           { icon: img('p54_tat'), answer: 'A4', options: ['A4', 'A3', 'B4', 'A5'] },
           { icon: img('p54_ca'), answer: 'E5', options: ['E6', 'D5', 'E5', 'E4'] },
         ].map(a => ({ ...a, options: a.options.map(t => ({ text: t, say: `${t[0]} ${t[1]}` })) })),
-        say: 'Chiếc mũ ở cột A, hàng một, nên ô của nó là A một. Bé tìm xem mỗi đồ vật ở ô nào, rồi chọn chữ và số đúng nhé!',
-        hint: 'Chưa đúng rồi. Bé dò chữ ở cột trên cùng, số ở hàng bên trái nhé!',
+        say: 'Chiếc mũ ở cột A, hàng một, nên ô của nó là A một. Bé tìm xem mỗi đồ vật ở ô nào, rồi chọn chữ và số đúng!',
+        hint: 'Chưa đúng rồi. Bé dò chữ ở cột trên cùng, số ở hàng bên trái!',
       },
       {
         type: 'spot', img: img('p54_luoi'), zones: zones('p54_luoi'), answer: [cell('D', 4)],
-        say: 'Bé chạm vào ô ở cột D, hàng bốn nhé! Con gì ở đó nhỉ?',
-        hint: 'Chưa đúng rồi. Bé tìm cột chữ D ở trên, rồi đi xuống hàng số bốn nhé!',
+        say: 'Bé chạm vào ô ở cột D, hàng bốn! Con gì ở đó nhỉ?',
+        hint: 'Chưa đúng rồi. Bé tìm cột chữ D ở trên, rồi đi xuống hàng số bốn!',
         done: 'Đúng rồi! Ô D bốn là bạn Bạch tuộc!',
       },
       {
         type: 'spot', img: img('p54_luoi'), zones: zones('p54_luoi'), answer: [cell('B', 6)],
-        say: 'Bây giờ bé chạm vào ô ở cột B, hàng sáu nhé!',
-        hint: 'Chưa đúng rồi. Bé tìm cột chữ B, rồi đi xuống hàng số sáu, hàng dưới cùng nhé!',
+        say: 'Bây giờ bé chạm vào ô ở cột B, hàng sáu!',
+        hint: 'Chưa đúng rồi. Bé tìm cột chữ B, rồi đi xuống hàng số sáu, hàng dưới cùng!',
         done: 'Đúng rồi! Ô B sáu là chú cá vàng!',
       },
     ],

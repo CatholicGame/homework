@@ -97,7 +97,7 @@ export function mountStall(stage, { npc, sign, counter, api, theme = '' }) {
     const card = main.querySelector(':scope > .g3g-result');
     const pic = npcBox.querySelector('img');
     if (!card || !pic) return;
-    const line = tip ? `${cap(npc.you)} xem cách làm ở dưới nhé!` : `Lần sau ${npc.you} làm lại nhé!`;
+    const line = tip ? `${cap(npc.you)} xem cách làm ở dưới!` : `Lần sau ${npc.you} làm lại!`;
     const el = document.createElement('div');
     el.className = 'g3f-cameo';
     el.style.bottom = `${main.clientHeight - card.offsetTop - 6}px`;
@@ -129,7 +129,7 @@ export function mountStall(stage, { npc, sign, counter, api, theme = '' }) {
     api.fail(text, tip);
   };
   const thanks = () => {
-    speak(`Cảm ơn ${npc.you} nhé!`, 'happy');
+    speak(`Cảm ơn ${npc.you}!`, 'happy');
     api.succeed(`${npc.name} rất hài lòng!`);
   };
 

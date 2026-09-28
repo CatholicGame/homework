@@ -26,7 +26,7 @@ export const LEMON_LEVELS = [
   {
     ...levelMeta('lemon-1'), missions: 5,
     knowledge: 'mi-li-lít, đếm vạch trên ca',
-    ask: (n) => `Rót nước chanh cho đúng vạch giúp ${n.me} nhé!`,
+    ask: (n) => `Rót nước chanh cho đúng vạch giúp ${n.me}!`,
     desc: 'Ca 500 ml, mỗi vạch 100 ml. Bấm giữ vòi để rót, thả tay đúng vạch khách cần: 300 ml là 3 vạch.',
     jug: { cap: 500, step: 100, longEvery: 1, labels: 'top' }, rate: 110, tol: 18,
     kind: 'pour', amounts: [100, 200, 300, 400],
@@ -35,7 +35,7 @@ export const LEMON_LEVELS = [
   {
     ...levelMeta('lemon-2'), missions: 5,
     knowledge: 'mi-li-lít, lít (1 l = 1 000 ml)',
-    ask: (n) => `Ca 1 lít có vạch 50 ml — rót thật khéo giúp ${n.me} nhé!`,
+    ask: (n) => `Ca 1 lít có vạch 50 ml — rót thật khéo giúp ${n.me}!`,
     desc: 'Ca 1 l có số mỗi 100 ml; vạch ngắn ở giữa là thêm 50 ml. Ví dụ: "Rót 350 ml".',
     jug: { cap: 1000, step: 50, longEvery: 2, labels: 'long' }, rate: 150, tol: 12,
     kind: 'pour', amounts: [150, 250, 350, 450, 550, 650, 750, 850, 200, 400, 600, 800],
@@ -44,7 +44,7 @@ export const LEMON_LEVELS = [
   {
     ...levelMeta('lemon-3'), missions: 5,
     knowledge: 'mi-li-lít, lít (1 l = 1 000 ml) và bài toán giải bằng hai bước tính',
-    ask: (n) => `Pha mấy ly nước chanh rồi xem bình còn bao nhiêu giúp ${n.me} nhé!`,
+    ask: (n) => `Pha mấy ly nước chanh rồi xem bình còn bao nhiêu giúp ${n.me}!`,
     desc: 'Hai bước: 3 ly, mỗi ly 200 ml → rót 600 ml. Bình có 1 l = 1 000 ml, còn lại bao nhiêu?',
     jug: { cap: 1000, step: 50, longEvery: 2, labels: 'long' }, rate: 150, tol: 12,
     kind: 'multi', cups: [100, 150, 200, 250, 300], count: [2, 4],
@@ -250,8 +250,8 @@ export const LEMON_GAME = {
       nudge();
       if (performance.now() - lastHint < 2500) return;
       lastHint = performance.now();
-      speak(`Khoan đã ${n.you} ơi! Tính xem cần rót tất cả bao nhiêu mi-li-lít trước nhé!`, null,
-        `Tính số <b>ml</b> ở máy tính trước nhé! 👉`);
+      speak(`Khoan đã ${n.you} ơi! Tính xem cần rót tất cả bao nhiêu mi-li-lít trước!`, null,
+        `Tính số <b>ml</b> ở máy tính trước! 👉`);
     };
     const startPour = () => {
       if (!canPour && multi && !locked) return hintCalc();
@@ -374,10 +374,10 @@ export const LEMON_GAME = {
 
     // ── Bắt đầu nhiệm vụ ──
     if (!multi) {
-      speak(`${cap(n.you)} rót cho ${n.me} ${spoken(t)} nước chanh nhé!`, null, `Rót cho ${n.me} <b class="g3f-want">${t} ml</b> nhé!`);
+      speak(`${cap(n.you)} rót cho ${n.me} ${spoken(t)} nước chanh!`, null, `Rót cho ${n.me} <b class="g3f-want">${t} ml</b>!`);
       return;
     }
-    speak(`Cho ${n.me} ${m.n} ly nước chanh, mỗi ly ${spoken(m.k)} nhé! Cần rót tất cả bao nhiêu mi-li-lít?`, null,
+    speak(`Cho ${n.me} ${m.n} ly nước chanh, mỗi ly ${spoken(m.k)}! Cần rót tất cả bao nhiêu mi-li-lít?`, null,
       `<b class="g3f-want">${m.n} ly</b>, mỗi ly <b>${m.k} ml</b>. Tất cả bao nhiêu ml?`);
     ask(row(glassIcon(28), '1 ly', `<b>${m.k} ml</b>`) + row(glassIcon(28), `${m.n} ly`, Q, true), 'ml', (v, pad) => {
       if (v !== t) {
@@ -387,7 +387,7 @@ export const LEMON_GAME = {
       }
       pad.lock('g3g-keypad-ok');
       canPour = true;
-      speak(`Đúng rồi! ${cap(n.you)} rót ${spoken(t)} vào ca nhé!`, null, `Rót <b class="g3f-want">${t} ml</b> vào ca nhé!`);
+      speak(`Đúng rồi! ${cap(n.you)} rót ${spoken(t)} vào ca!`, null, `Rót <b class="g3f-want">${t} ml</b> vào ca!`);
       render();
     });
   },

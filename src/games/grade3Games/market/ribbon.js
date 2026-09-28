@@ -23,21 +23,21 @@ export const RIBBON_LEVELS = [
   {
     ...levelMeta('ribbon-1'), missions: 5, cm: 10,
     knowledge: 'mi-li-mét, đọc vạch trên thước',
-    ask: (n) => `Cắt ruy băng cho đúng số mi-li-mét giúp ${n.me} nhé!`,
+    ask: (n) => `Cắt ruy băng cho đúng số mi-li-mét giúp ${n.me}!`,
     desc: 'Kéo cây kéo tới đúng vạch rồi bấm Cắt. Ví dụ "Cắt 45 mm": từ vạch 4 đếm thêm 5 vạch nhỏ.',
     how: [['drag', 'Kéo kéo tới vạch'], ['lens', 'Nhìn kính lúp'], ['✂️', 'Cắt']],
   },
   {
     ...levelMeta('ribbon-2'), missions: 5, cm: 10,
     knowledge: 'mi-li-mét, 1 cm = 10 mm',
-    ask: (n) => `Đổi xăng-ti-mét ra mi-li-mét rồi cắt giúp ${n.me} nhé!`,
+    ask: (n) => `Đổi xăng-ti-mét ra mi-li-mét rồi cắt giúp ${n.me}!`,
     desc: '1 cm = 10 mm. "Cắt 6 cm 5 mm" là cắt 65 mm. Có lượt phải đo đoạn ruy băng dài bao nhiêu mi-li-mét.',
     how: [['🧮', '6 cm 5 mm = ? mm'], ['drag', 'Kéo kéo tới vạch'], ['✂️', 'Cắt']],
   },
   {
     ...levelMeta('ribbon-3'), missions: 5, cm: 15,
     knowledge: 'xăng-ti-mét, mi-li-mét và nhân số có hai chữ số với số có một chữ số',
-    ask: (n) => `Cắt ruy băng rồi tính tiền giúp ${n.me} nhé!`,
+    ask: (n) => `Cắt ruy băng rồi tính tiền giúp ${n.me}!`,
     desc: '1 cm ruy băng giá 3 nghìn đồng, khách mua 8 cm: cắt 8 cm rồi tính 3 × 8 = 24 nghìn đồng.',
     how: [['drag', 'Cắt đủ số cm'], ['🧮', 'Tính tiền'], ['piece', 'Đưa khách']],
   },
@@ -221,7 +221,7 @@ export const RIBBON_GAME = {
       nudge();
       if (performance.now() - lastHint < 2500) return;
       lastHint = performance.now();
-      speak(`Khoan đã ${n.you} ơi! Đổi ${spokenCmMm(m.mm)} ra mi-li-mét trước nhé!`, null, 'Đổi ra <b>mm</b> ở máy tính trước nhé! 👉');
+      speak(`Khoan đã ${n.you} ơi! Đổi ${spokenCmMm(m.mm)} ra mi-li-mét trước!`, null, 'Đổi ra <b>mm</b> ở máy tính trước! 👉');
     };
     const setMm = (v) => {
       const nv = Math.max(0, Math.min(maxMm, Math.round(v)));
@@ -407,22 +407,22 @@ export const RIBBON_GAME = {
     // ── Bắt đầu nhiệm vụ ──
     const colorWord = `ruy băng ${C.name}`;
     if (m.kind === 'cut') {
-      speak(`${cap(n.you)} cắt cho ${n.me} ${spokenMm(want)} ${colorWord} nhé!`, null, `Cắt cho ${n.me} <b class="g3f-want">${want} mm</b> nhé!`);
+      speak(`${cap(n.you)} cắt cho ${n.me} ${spokenMm(want)} ${colorWord}!`, null, `Cắt cho ${n.me} <b class="g3f-want">${want} mm</b>!`);
       return;
     }
     if (m.kind === 'cutcm') {
-      speak(`${cap(n.you)} cắt cho ${n.me} ${spokenCmMm(want)} ${colorWord} nhé!`, null, `Cắt cho ${n.me} <b class="g3f-want">${cmmm(want)}</b> nhé!`);
+      speak(`${cap(n.you)} cắt cho ${n.me} ${spokenCmMm(want)} ${colorWord}!`, null, `Cắt cho ${n.me} <b class="g3f-want">${cmmm(want)}</b>!`);
       return;
     }
     if (price) {
       speak(m.inMm
-        ? `${cap(n.you)} bán cho ${n.me} ${spokenMm(want)} ${colorWord} nhé!`
-        : `${cap(n.you)} bán cho ${n.me} ${m.k} xăng-ti-mét ${colorWord} nhé!`, null,
-      `Bán cho ${n.me} <b class="g3f-want">${m.inMm ? `${want} mm` : `${m.k} cm`}</b> nhé!`);
+        ? `${cap(n.you)} bán cho ${n.me} ${spokenMm(want)} ${colorWord}!`
+        : `${cap(n.you)} bán cho ${n.me} ${m.k} xăng-ti-mét ${colorWord}!`, null,
+      `Bán cho ${n.me} <b class="g3f-want">${m.inMm ? `${want} mm` : `${m.k} cm`}</b>!`);
       return;
     }
     if (m.kind === 'convert') {
-      speak(`${cap(n.you)} cắt cho ${n.me} ${spokenCmMm(want)} ${colorWord} nhé! ${cap(spokenCmMm(want))} là bao nhiêu mi-li-mét?`, null,
+      speak(`${cap(n.you)} cắt cho ${n.me} ${spokenCmMm(want)} ${colorWord}! ${cap(spokenCmMm(want))} là bao nhiêu mi-li-mét?`, null,
         `<b class="g3f-want">${cmmm(want)}</b> là bao nhiêu mm?`);
       ask(row(rulerIcon(), 'Khách cần', `<b>${cmmm(want)}</b>`) + row(pieceIcon(28, m.color), 'Đổi ra', Q, true), 'mm', (v, pad) => {
         if (v !== want) {
@@ -435,7 +435,7 @@ export const RIBBON_GAME = {
         }
         pad.lock('g3g-keypad-ok');
         canCut = true;
-        speak(`Đúng rồi! ${cap(n.you)} cắt ${spokenMm(want)} nhé!`, null, `Cắt <b class="g3f-want">${want} mm</b> nhé!`);
+        speak(`Đúng rồi! ${cap(n.you)} cắt ${spokenMm(want)}!`, null, `Cắt <b class="g3f-want">${want} mm</b>!`);
         draw();
         // Đã đổi xong: máy tính tiền về nghỉ — màn dọc điện thoại lấy lại chỗ cho thước khi cắt.
         setTimeout(() => { if (host.isConnected) st.rest(); }, 900);

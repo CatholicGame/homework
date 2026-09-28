@@ -209,7 +209,7 @@ function playEq(ctx) {
       if (current !== box) return;
       const l = Number(box.dataset.l), t = Number(box.dataset.t);
       if (!accepts(l, t, v)) {
-        wrong(btn, round.hint || (isOp(tok) ? 'Chưa đúng rồi. Thêm vào là cộng, bớt đi là trừ đấy!' : 'Chưa đúng rồi. Bé nhìn hình đếm lại nhé!'));
+        wrong(btn, round.hint || (isOp(tok) ? 'Chưa đúng rồi. Thêm vào là cộng, bớt đi là trừ đấy!' : 'Chưa đúng rồi. Bé nhìn hình đếm lại!'));
         return;
       }
       box.dataset.v = v;
@@ -262,7 +262,7 @@ function playCalc(ctx) {
     say(readText(it.s));
     showPad(ctx, padHost, { answer: it.answer }, (v, btn) => {
       if (current !== card) return;
-      if (v !== it.answer) { wrong(btn, round.hint || 'Chưa đúng rồi. Bé tính lại nhé!'); return; }
+      if (v !== it.answer) { wrong(btn, round.hint || 'Chưa đúng rồi. Bé tính lại!'); return; }
       card.querySelector('.pk4-box').textContent = v;
       card.classList.remove('is-on');
       card.classList.add('is-done');
@@ -308,7 +308,7 @@ function playAsk(ctx) {
     showPad(ctx, padHost, a.options ? { options: a.options } : { answer: a.answer }, (v, btn) => {
       if (current !== row) return;
       const got = v && typeof v === 'object' ? v.text : v;
-      if (got !== a.answer) { wrong(btn, a.hint || round.hint || 'Chưa đúng rồi. Bé nhìn hình đếm lại nhé!'); return; }
+      if (got !== a.answer) { wrong(btn, a.hint || round.hint || 'Chưa đúng rồi. Bé nhìn hình đếm lại!'); return; }
       row.querySelector('.pk4-box').innerHTML = v && typeof v === 'object' ? itemHTML(v) : fmt(got);
       row.classList.remove('is-on');
       row.classList.add('is-done');
@@ -342,7 +342,7 @@ function playChoice(ctx) {
     btn.onclick = () => {
       const k = Number(btn.dataset.k);
       if (found.has(k) || found.size === answers.length) return;
-      if (!answers.includes(k)) { wrong(btn, round.hint || 'Chưa đúng rồi. Bé quan sát thật kỹ rồi chọn lại nhé!'); return; }
+      if (!answers.includes(k)) { wrong(btn, round.hint || 'Chưa đúng rồi. Bé quan sát thật kỹ rồi chọn lại!'); return; }
       found.add(k);
       if (itemKind(round.options[k]) === 'is-num') circleIt(btn); else btn.classList.add('is-right');
       const text = itemSay(round.options[k]);
@@ -385,10 +385,10 @@ function playSpot(ctx) {
       if (extra.has(k)) { // cũng đúng, nhưng không bắt buộc phải tìm
         z.classList.add('is-right');
         z.insertAdjacentHTML('beforeend', circle);
-        right(z, round.extraSay || `${pick(PRAISE)} Bé tìm thêm nhé!`);
+        right(z, round.extraSay || `${pick(PRAISE)} Bé tìm thêm!`);
         return;
       }
-      if (!answers.has(k)) { wrong(z, round.hint || 'Chưa đúng rồi. Bé tìm chỗ khác nhé!'); return; }
+      if (!answers.has(k)) { wrong(z, round.hint || 'Chưa đúng rồi. Bé tìm chỗ khác!'); return; }
       z.classList.add('is-right');
       z.insertAdjacentHTML('beforeend', circle);
       dots[found++]?.classList.add('is-on');
@@ -465,7 +465,7 @@ function playLink(ctx) {
       sel = null;
       other.classList.remove('is-picked');
       const [f, t] = side === 'from' ? [i, Number(other.dataset.i)] : [Number(other.dataset.i), i];
-      if (!round.pairs.some(([a, b]) => a === f && b === t)) { wrong(n, round.hint || 'Hai hình này chưa khớp nhau. Bé thử lại nhé!'); return; }
+      if (!round.pairs.some(([a, b]) => a === f && b === t)) { wrong(n, round.hint || 'Hai hình này chưa khớp nhau. Bé thử lại!'); return; }
       links.push([f, t]);
       const color = LINK_COLORS[f % LINK_COLORS.length];
       [node('from', f), node('to', t)].forEach(x => { x.classList.add('is-linked'); x.style.setProperty('--pair', color); });
@@ -495,7 +495,7 @@ function playRank(ctx) {
     btn.onclick = () => {
       const k = Number(btn.dataset.k);
       if (btn.classList.contains('is-right') || step >= round.order.length) return;
-      if (k !== round.order[step]) { wrong(btn, round.hint || 'Chưa đúng rồi. Bé so sánh lại xem cái nào đứng trước nhé!'); return; }
+      if (k !== round.order[step]) { wrong(btn, round.hint || 'Chưa đúng rồi. Bé so sánh lại xem cái nào đứng trước!'); return; }
       btn.classList.add('is-right');
       btn.insertAdjacentHTML('beforeend', `<span class="pk4-rank">${step + 1}</span>`);
       const slot = stage.querySelector(`.pk4-orderline .pk4-box[data-s="${step}"]`);
@@ -550,12 +550,12 @@ function playPath(ctx) {
       }
       if (used(r, c)) return;
       const want = last ? last[2] + dir : from;
-      if (v !== want) { wrong(el, `Chưa đúng rồi. Bé tìm số ${numberWord(want)} nhé!`); return; }
-      if (last && !near(last[0], last[1]).some(([a, b]) => a === r && b === c)) { wrong(el, 'Ô này không nằm cạnh ô vừa đi. Bé đi ngang hoặc dọc thôi nhé!'); return; }
+      if (v !== want) { wrong(el, `Chưa đúng rồi. Bé tìm số ${numberWord(want)}!`); return; }
+      if (last && !near(last[0], last[1]).some(([a, b]) => a === r && b === c)) { wrong(el, 'Ô này không nằm cạnh ô vừa đi. Bé đi ngang hoặc dọc thôi!'); return; }
       trail.push([r, c, v]);
       if (!canFinish(r, c, v)) {
         trail.pop();
-        wrong(el, 'Đi lối này sẽ bị tắc đường đấy. Bé tìm ô khác nhé!');
+        wrong(el, 'Đi lối này sẽ bị tắc đường đấy. Bé tìm ô khác!');
         return;
       }
       el.classList.add('is-on');
@@ -596,7 +596,7 @@ function playSeq(ctx) {
     const answer = cells[b.dataset.k];
     showPad(ctx, padHost, { answer }, (v, btn) => {
       if (current !== b) return;
-      if (v !== answer) { wrong(btn, round.hint || 'Chưa đúng rồi. Bé nhìn số đứng trước và đứng sau nhé!'); return; }
+      if (v !== answer) { wrong(btn, round.hint || 'Chưa đúng rồi. Bé nhìn số đứng trước và đứng sau!'); return; }
       b.textContent = v;
       b.classList.remove('is-on');
       b.classList.add('is-done');

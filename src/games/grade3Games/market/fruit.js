@@ -46,7 +46,7 @@ export const FRUIT_LEVELS = [
   {
     ...levelMeta('fruit-1'), missions: 5,
     knowledge: 'ki-lô-gam (lớp 2), bảng nhân 2, bảng nhân 5 và số tròn chục',
-    ask: (n) => `Cân đúng số ki-lô-gam rồi tính tiền giúp ${n.me} nhé!`,
+    ask: (n) => `Cân đúng số ki-lô-gam rồi tính tiền giúp ${n.me}!`,
     desc: 'Khách mua mấy ki-lô-gam, em chọn quả cân cộng lại đúng bằng số đó. Giá tròn chục: 20 hoặc 50 nghìn đồng 1 kg.',
     unit: 'kg', mass: [1, 9], price: (f) => f.tens.filter(p => p === 20 || p === 50), steps: ['pick', 'total'],
     sizes: 2, extra: [4, 5], // sạp có 2 cỡ quả: to / nhỏ
@@ -54,7 +54,7 @@ export const FRUIT_LEVELS = [
   {
     ...levelMeta('fruit-2'), missions: 5,
     knowledge: 'bảng nhân 3 đến bảng nhân 9 và số tròn chục',
-    ask: (n) => `Giá 30, 40, 60 nghìn đồng 1 kg — cân rồi tính tiền giúp ${n.me} nhé!`,
+    ask: (n) => `Giá 30, 40, 60 nghìn đồng 1 kg — cân rồi tính tiền giúp ${n.me}!`,
     desc: 'Giá tròn chục như 30, 40, 60 nghìn đồng 1 kg: 3 chục × 4 = 12 chục.',
     unit: 'kg', mass: [2, 9], price: (f) => f.tens.filter(p => p !== 20 && p !== 50), steps: ['pick', 'total'],
     sizes: 2, extra: [5, 6],
@@ -62,7 +62,7 @@ export const FRUIT_LEVELS = [
   {
     ...levelMeta('fruit-3'), missions: 5,
     knowledge: 'nhân số có hai chữ số với số có một chữ số',
-    ask: (n) => `Giá lẻ như ở chợ thật — cân rồi tính tiền giúp ${n.me} nhé!`,
+    ask: (n) => `Giá lẻ như ở chợ thật — cân rồi tính tiền giúp ${n.me}!`,
     desc: 'Giá như ở chợ: 25, 38, 45 nghìn đồng 1 kg.',
     unit: 'kg', mass: [2, 6], price: (f) => f.mixed, steps: ['pick', 'total'],
     sizes: 3, extra: [5, 7], // to / vừa / nhỏ
@@ -70,7 +70,7 @@ export const FRUIT_LEVELS = [
   {
     ...levelMeta('fruit-4'), missions: 5,
     knowledge: 'bài toán giải bằng hai bước tính',
-    ask: (n) => `Cân, tính tiền rồi trả lại tiền thừa cho ${n.me} nhé!`,
+    ask: (n) => `Cân, tính tiền rồi trả lại tiền thừa cho ${n.me}!`,
     desc: 'Tính tiền rồi trả lại tiền thừa khi khách đưa tờ 100, 200 hay 500 nghìn đồng.',
     unit: 'kg', mass: [2, 5], price: (f) => [...f.tens, ...f.mixed], steps: ['pick', 'total', 'change'],
     sizes: 4, extra: [6, 8],
@@ -78,7 +78,7 @@ export const FRUIT_LEVELS = [
   {
     ...levelMeta('fruit-5'), missions: 5,
     knowledge: 'gam, ki-lô-gam (1 kg = 1 000 g)',
-    ask: (n) => `Hôm nay cân bằng gam — cân rồi tính tiền giúp ${n.me} nhé!`,
+    ask: (n) => `Hôm nay cân bằng gam — cân rồi tính tiền giúp ${n.me}!`,
     desc: 'Khách mua mấy trăm gam nho, dâu tây, nhãn, chanh: chọn quả cân 100 g, 200 g, 500 g cho đúng; giá tính cho 100 g.',
     unit: 'g', mass: [1, 9], price: (f) => f.per100, steps: ['pick', 'total'],
     sizes: 3, extra: [5, 7],
@@ -346,7 +346,7 @@ export const FRUIT_GAME = {
     const STEP = {
       pick() {
         const spoken = inG ? `${m.grams} gam` : `${m.amount} ki-lô-gam`;
-        speak(`${cap(n.you)} bán cho ${n.me} ${spoken} ${f.name} nhé!`, null, `Bán cho ${n.me} <b class="g3f-want">${massText}</b> ${f.name} nhé!`);
+        speak(`${cap(n.you)} bán cho ${n.me} ${spoken} ${f.name}!`, null, `Bán cho ${n.me} <b class="g3f-want">${massText}</b> ${f.name}!`);
         redraw();
         // Bé tự xác nhận: cân chưa thăng bằng thì khách phàn nàn (như ngoài chợ), thăng bằng thì
         // quả trên đĩa nặng đúng bằng các quả cân — còn phải đúng số khách mua.
