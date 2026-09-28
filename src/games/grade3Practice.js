@@ -27,6 +27,7 @@ const PRACTICE_CONFIG = {
   unitWord: 'tuần',
   // The end-of-term test unit has no week number (number: 'KT').
   unitName: (u) => (typeof u.number === 'number' ? `Tuần ${u.number}. ${u.title}` : u.title),
+  gamesBook: 'practice', // nút "Trò chơi tăng cường" (grade3Games.js)
 };
 
 export function render(app, onBack) {

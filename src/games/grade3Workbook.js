@@ -120,6 +120,7 @@ import { recordAttempt } from '../engine/activity.js';
 import { attachPairDrop } from '../engine/pairDrop.js';
 import { attachBalancePlay } from '../engine/balancePlay.js';
 import { attachColorPaint } from '../engine/colorPaint.js';
+import { GRADE3_GAMES } from '../data/features.js';
 import { attachTrainSwap, attachTrainPaint, trainEngine, trainMatchCar } from '../engine/trains.js';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
@@ -4226,6 +4227,7 @@ const WORKBOOK_CONFIG = {
   menuLabel: 'Chọn bài để luyện tập:',
   unitWord: 'bài',
   unitName: (u) => `Bài ${u.number}. ${u.title}`,
+  gamesBook: 'workbook', // nút "Trò chơi tăng cường" (grade3Games.js)
 };
 
 export function render(app, onBack) {
@@ -4268,6 +4270,8 @@ export function renderWorkbook(app, onBack, cfg) {
           <p class="e3-sub">${cfg.subtitle}</p>
           <div class="star-total-chip" title="Tổng số sao bạn đã nhận">⭐ ${getTotalStars()} sao</div>
 
+          ${GRADE3_GAMES && cfg.gamesBook ? `<button type="button" class="gw-games-btn" id="gw-games-btn">🎮 Trò chơi tăng cường <span>chơi để luyện bài đã học</span></button>` : ''}
+
           <div class="e3-section-label">${cfg.menuLabel}</div>
           <div class="gw-unit-list">
             <button class="gw-unit-row gw-unit-all" data-unit="all">
@@ -4305,30 +4309,43 @@ export function renderWorkbook(app, onBack, cfg) {
     `;
 
     app.querySelectorAll('.gw-unit-row').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const uid = btn.dataset.unit;
-        setLastUnit(uid);
-        if (uid === 'all') {
-          activeQuestions = UNITS.flatMap(u => u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: i })));
-          activeTitle = `Tất cả — ${totalQ} câu`;
-          activeColor = '#34D399';
-          activeUnitIds = UNITS.map(u => u.id);
-        } else {
-          const unitIdx = UNITS.findIndex(u => u.id === uid);
-          const u = UNITS[unitIdx];
-          activeQuestions = u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: i }));
-          activeTitle = cfg.unitName(u);
-          activeColor = PALETTE[unitIdx % PALETTE.length];
-          activeUnitIds = [u.id];
-        }
-        resetProgress();
-        current = 0;
-        showQuestion();
-      });
+      btn.addEventListener('click', () => openUnit(btn.dataset.unit));
     });
+
+    // Trò chơi tăng cường (bật / tắt bằng cờ GRADE3_GAMES — src/data/features.js).
+    if (GRADE3_GAMES && cfg.gamesBook) {
+      app.querySelector('#gw-games-btn').onclick = () => {
+        import('./grade3Games.js').then(m => m.renderGamesHub(app, {
+          book: cfg.gamesBook, units: UNITS, unitName: cfg.unitName, storageKey: cfg.storageKey,
+          openUnit, onBack: showIntro,
+        }));
+      };
+    }
 
     app.querySelector('#e3-back-btn').onclick = onBack;
     jumpToLastUnit();
+  }
+
+  // Mở một bài (hoặc 'all') — từ menu bài, hoặc nút "Xem lại bài" của trò chơi tăng cường.
+  function openUnit(uid) {
+    setLastUnit(uid);
+    if (uid === 'all') {
+      const totalQ = UNITS.reduce((s, u) => s + u.questions.length, 0);
+      activeQuestions = UNITS.flatMap(u => u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: i })));
+      activeTitle = `Tất cả — ${totalQ} câu`;
+      activeColor = '#34D399';
+      activeUnitIds = UNITS.map(u => u.id);
+    } else {
+      const unitIdx = UNITS.findIndex(u => u.id === uid);
+      const u = UNITS[unitIdx];
+      activeQuestions = u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: i }));
+      activeTitle = cfg.unitName(u);
+      activeColor = PALETTE[unitIdx % PALETTE.length];
+      activeUnitIds = [u.id];
+    }
+    resetProgress();
+    current = 0;
+    showQuestion();
   }
 
   // Scrolls the menu (the unit list and #app, the page's scroll container) so
@@ -5762,6 +5779,8 @@ function injectStyles() {
       .e3-badge { font-size: 3rem; margin-bottom: 0.5rem; }
       .e3-title { font-size: clamp(1.4rem, 5vw, 1.9rem); font-weight: 800; color: #1E293B; margin: 0 0 0.3rem; }
       .e3-sub { color: #64748B; font-size: 1rem; margin: 0 0 1.5rem; }
+      .gw-games-btn { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; width: 100%; margin: 0 0 1.1rem; padding: 0.8rem 1rem; border: none; border-radius: 1rem; background: linear-gradient(135deg, #FB923C, #F472B6); color: #fff; font-family: inherit; font-size: 1.1rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 16px rgba(244,114,182,0.35); }
+      .gw-games-btn span { font-size: 0.8rem; font-weight: 600; opacity: 0.9; }
       .e3-section-label { font-weight: 700; color: #374151; margin-bottom: 0.75rem; font-size: 0.95rem; }
       .e3-section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.2rem; }
       .e3-section-btn { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.9rem 0.5rem; border: 2px solid #e2e8f0; border-radius: 1rem; background: #f8fafc; cursor: pointer; font-family: inherit; transition: border-color 0.15s, background 0.15s, transform 0.1s; }
