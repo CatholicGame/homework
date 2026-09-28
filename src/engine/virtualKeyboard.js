@@ -20,6 +20,14 @@ const VK_CLASS = 'vk-panel';
 const VK_SELECTOR = 'input[type="number"], input[inputmode="numeric"], input[data-vk-words], input[data-vk-tiles]';
 const TILE_SEP = ', ';
 
+// ◀ / ▶ row on top of every panel: jump to the previous / next blank on the
+// screen without closing the keyboard (like Tab / Shift+Tab on a computer).
+const NAV_ROW = `
+  <div class="vk-row vk-nav">
+    <button class="vk-key vk-nav-btn" data-key="prev" type="button" aria-label="Ô trước">◀ Ô trước</button>
+    <button class="vk-key vk-nav-btn" data-key="next" type="button" aria-label="Ô sau">Ô sau ▶</button>
+  </div>`;
+
 // Every word soDoc() can produce, plus the book's "tư" and "nghìn".
 const WORD_ROWS = [
   ['một', 'hai', 'ba', 'bốn', 'năm'],
@@ -53,7 +61,7 @@ function createKeyboard() {
     k === '⌫' && 'vk-backspace', k === '✓' && 'vk-confirm', k === ',' && 'vk-comma', OPS.has(k) && 'vk-op',
   ].filter(Boolean).join(' ');
 
-  panel.innerHTML = keys.map((row, r) => `
+  panel.innerHTML = NAV_ROW + keys.map((row, r) => `
     <div class="vk-row${r === 3 ? ' vk-row-zero' : ''}${r === 4 ? ' vk-row-ctrl' : ''}">
       ${row.map(k => `<button class="vk-key ${cls(k)}" data-key="${k}" type="button">${k}</button>`).join('')}
     </div>
@@ -71,7 +79,7 @@ function createWordKeyboard() {
   wp.id = 'virtual-keyboard-words';
   wp.className = `${VK_CLASS} vk-words`;
   wp.setAttribute('aria-label', 'Bàn phím chữ đọc số');
-  wp.innerHTML = WORD_ROWS.map(row => `
+  wp.innerHTML = NAV_ROW + WORD_ROWS.map(row => `
     <div class="vk-row">
       ${row.map(k => `<button class="vk-key ${k === '⌫' ? 'vk-backspace' : ''} ${k === '✓' ? 'vk-confirm' : ''}" data-key="${k}" type="button">${k}</button>`).join('')}
     </div>
@@ -127,7 +135,7 @@ function showTiles(input) {
     document.body.appendChild(tilePanel);
   }
   const tiles = tilesOf(input);
-  tilePanel.innerHTML = `
+  tilePanel.innerHTML = `${NAV_ROW}
     <div class="vk-tile-row">${tiles.map((t, i) => `<button class="vk-key vk-tile" data-tile="${i}" type="button">${t}</button>`).join('')}</div>
     <div class="vk-row vk-tile-ctrl">
       <button class="vk-key vk-backspace" data-key="⌫" type="button">⌫</button>
@@ -149,6 +157,35 @@ function pressTile(i) {
   activeInput.dispatchEvent(new Event('input', { bubbles: true }));
   refreshTiles();
 }
+// ── ◀ / ▶ navigation ─────────────────────────────────────────────────────────
+// Every keypad blank currently on screen, in page order (hidden screens and
+// graded/disabled blanks are skipped).
+function navTargets() {
+  return [...document.querySelectorAll('input[data-vk-attached]')]
+    .filter(i => !i.disabled && i.getClientRects().length > 0 && getComputedStyle(i).visibility !== 'hidden');
+}
+function refreshNav() {
+  const list = navTargets();
+  const at = list.indexOf(activeInput);
+  const show = list.length > 1;
+  document.querySelectorAll(`.${VK_CLASS}`).forEach(p => {
+    p.classList.toggle('vk-has-nav', show);
+    const [prev, next] = p.querySelectorAll('.vk-nav-btn');
+    if (prev) prev.disabled = at <= 0;
+    if (next) next.disabled = at < 0 || at >= list.length - 1;
+  });
+}
+function moveFocus(step) {
+  const list = navTargets();
+  const at = list.indexOf(activeInput);
+  const target = list[at + step];
+  if (at < 0 || !target) return;
+  // focus() blurs the current blank (games that grade on blur still see it)
+  // and the focus listener opens the right panel for the new blank.
+  target.focus({ preventScroll: true });
+  if (document.activeElement !== target) showKeyboard(target);
+}
+
 let suppressReshow = false;  // prevents keyboard re-opening after ✓ submission
 
 function showKeyboard(input) {
@@ -161,6 +198,7 @@ function showKeyboard(input) {
   wordPanel.classList.toggle('vk-visible', words);
   if (tiles) showTiles(input);
   else if (tilePanel) tilePanel.classList.remove('vk-visible');
+  refreshNav();
   if (words || tiles) {
     panel.classList.remove('vk-visible');
     document.body.classList.add('vk-active');
@@ -186,6 +224,7 @@ function hideKeyboard() {
 
 function pressKey(key) {
   if (!activeInput) return;
+  if (key === 'prev' || key === 'next') { moveFocus(key === 'next' ? 1 : -1); return; }
 
   if (activeInput.dataset.vkTiles && key === '⌫') {
     // Take the last tile back off (the whole slot, for a one-tile slot).
@@ -309,7 +348,8 @@ function installHandlers() {
     const btn = e.target.closest('.vk-key');
     if (btn) {
       e.preventDefault(); // prevent blur of activeInput
-      if (btn.dataset.tile != null) { if (!btn.disabled) pressTile(+btn.dataset.tile); }
+      if (btn.disabled) return;
+      if (btn.dataset.tile != null) pressTile(+btn.dataset.tile);
       else pressKey(btn.dataset.key);
       return;
     }
@@ -325,7 +365,8 @@ function installHandlers() {
     const btn = e.target.closest('.vk-key');
     if (btn) {
       e.preventDefault();
-      if (btn.dataset.tile != null) { if (!btn.disabled) pressTile(+btn.dataset.tile); }
+      if (btn.disabled) return;
+      if (btn.dataset.tile != null) pressTile(+btn.dataset.tile);
       else pressKey(btn.dataset.key);
     }
   }, { passive: false, capture: true });

@@ -407,6 +407,27 @@ body.vk-active #global-fullscreen-btn {
   box-shadow: 0 1px 0 #16A34A;
 }
 
+/* ◀ Ô trước / Ô sau ▶ row: shown only when the screen has 2+ blanks; it then
+   takes the place of the handle bar. */
+.vk-panel .vk-nav { display: none; }
+.vk-panel.vk-has-nav .vk-nav,
+#virtual-keyboard.vk-has-nav .vk-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 8px;
+}
+.vk-panel.vk-has-nav::before { display: none; }
+.vk-nav .vk-nav-btn {
+  min-height: 40px;
+  font-size: 1rem;
+  font-weight: 700;
+  background: #F5F3FF;
+  color: #7C3AED;
+  box-shadow: 0 3px 0 #DDD6FE;
+}
+.vk-nav .vk-nav-btn:active { box-shadow: 0 1px 0 #DDD6FE; }
+.vk-nav .vk-nav-btn:disabled { opacity: .35; box-shadow: none; cursor: default; }
+
 /* Inputs that have virtual keyboard — hide native caret & remove spinner */
 input[data-vk-attached] {
   caret-color: transparent;
