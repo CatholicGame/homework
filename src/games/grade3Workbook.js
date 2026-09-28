@@ -4312,7 +4312,7 @@ export function renderWorkbook(app, onBack, cfg) {
                 <button class="gw-unit-row" data-unit="${u.id}">
                   <span class="gw-unit-badge" style="background:${color}">${u.number}</span>
                   <span class="gw-unit-info"><strong>${cfg.unitName(u)}</strong><span class="gw-unit-sub">${badges}</span></span>${gamesChip}
-                  <span class="gw-unit-arrow">›</span>
+                  <span class="gw-unit-arrow">›</span>${gamesChip ? '<span class="gw-unit-break" aria-hidden="true"></span>' : ''}
                 </button>
               `;
             }).join('')}
@@ -6139,12 +6139,25 @@ function injectStyles() {
     .gw-unit-game { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 1.35rem; line-height: 1; border-radius: 50%; background: #fff; border: 2px solid #F9A8D4; box-shadow: 0 3px 0 #F9A8D4; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s, background 0.15s; -webkit-tap-highlight-color: transparent; }
     .gw-unit-game:hover, .gw-unit-game:focus-visible { background: #FCE7F3; border-color: #EC4899; box-shadow: 0 3px 0 #EC4899; outline: none; }
     .gw-unit-game:active { transform: translateY(3px); box-shadow: 0 0 0 #EC4899; }
-    /* Điện thoại: bỏ 🎮 đứng đầu, thu gọn để tên bài không bị ép hẹp (khung hồng vẫn báo "có trò chơi"). */
+    .gw-unit-break { display: none; }
+    /* Màn hẹp: khung quầy xuống dòng riêng dưới tên bài (thẳng mép chữ) — tên bài dài giữ nguyên bề ngang. */
+    @media (max-width: 640px) {
+      .gw-unit-row:has(.gw-unit-games) { flex-wrap: wrap; row-gap: 0.2rem; }
+      .gw-unit-row .gw-unit-arrow { order: 2; }
+      .gw-unit-break { display: block; order: 3; flex-basis: 100%; height: 0; }
+      .gw-unit-row .gw-unit-games { order: 4; margin-left: calc(2.3rem + 0.8rem); }
+    }
+    /* Điện thoại: bỏ 🎮 đứng đầu, thu gọn khung quầy (khung hồng vẫn báo "có trò chơi"). */
     @media (max-width: 520px) {
       .gw-unit-row { gap: 0.6rem; }
+      .gw-unit-row .gw-unit-games { margin-left: calc(2.3rem + 0.6rem); }
       .gw-unit-games { padding: 0.2rem; gap: 0.3rem; }
       .gw-unit-games-pad { display: none; }
       .gw-unit-game { width: 36px; height: 36px; font-size: 1.2rem; }
+    }
+    /* Máy rất hẹp: khung quầy bắt đầu từ mép trái thẻ để 5 quầy vẫn vừa một hàng. */
+    @media (max-width: 380px) {
+      .gw-unit-row .gw-unit-games { margin-left: 0; }
     }
 
     .gw-table-wrap { overflow-x: auto; margin-top: 0.4rem; }
