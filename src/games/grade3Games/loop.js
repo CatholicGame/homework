@@ -57,7 +57,6 @@ function saveBest(levelId, ok, total) {
 // Vào khi bấm "Chơi" (cần thao tác của bé nên gọi ngay trong click). Chỉ thoát toàn màn hình
 // nếu chính trò chơi đã bật nó. Không ép xoay: trên điện thoại có nút ngang / dọc ở thanh trên (nhớ lựa chọn).
 // Android (Chrome) khoá được hướng màn hình khi đang toàn màn hình; iPhone không cho khoá → nhắc bé tự xoay máy.
-let enteredFullscreen = false;
 const isPhone = () => window.matchMedia?.('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 600;
 const ORIENT_KEY = 'g3games-orient-v1';
 const savedOrient = () => { try { return localStorage.getItem(ORIENT_KEY) || ''; } catch { return ''; } };
@@ -72,7 +71,7 @@ function lockOrientation(o) {
   const el = document.documentElement;
   const go = document.fullscreenElement || !el.requestFullscreen
     ? lock()
-    : el.requestFullscreen({ navigationUI: 'hide' }).then(() => { enteredFullscreen = true; return lock(); });
+    : el.requestFullscreen({ navigationUI: 'hide' }).then(lock);
   return go.then(() => true, () => false);
 }
 
@@ -82,15 +81,15 @@ function enterGameMode() {
   const saved = phoneSized() && savedOrient();
   if (saved) { lockOrientation(saved); return; } // bé đã chọn ngang / dọc lần trước
   if (!document.fullscreenElement && el.requestFullscreen) {
-    el.requestFullscreen({ navigationUI: 'hide' }).then(() => { enteredFullscreen = true; }).catch(() => {});
+    el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
   }
 }
 
+// Ra khỏi game vẫn giữ toàn màn hình (thoát ra giữa chừng làm bé mất tập trung, lại phải bấm bật lại) —
+// chỉ bỏ khoá hướng màn hình; muốn thoát thì bấm nút toàn màn hình chung của app.
 export function exitGameMode() {
   document.body.classList.remove('g3g-playing');
   try { screen.orientation?.unlock?.(); } catch { /* not supported */ }
-  if (enteredFullscreen && document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
-  enteredFullscreen = false;
 }
 
 /** Hình điện thoại nằm ngang (land) hoặc đứng — biểu tượng nút chọn hướng màn hình. */
@@ -176,7 +175,7 @@ export function playRound(app, { game, level, onExit, onNextLevel }) {
     const syncFull = () => { fullBtn.textContent = document.fullscreenElement ? '⤡' : '⤢'; };
     fullBtn.onclick = () => {
       if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
-      else document.documentElement.requestFullscreen?.().then(() => { enteredFullscreen = true; }).catch(() => {});
+      else document.documentElement.requestFullscreen?.().catch(() => {});
     };
     document.addEventListener('fullscreenchange', syncFull);
     syncFull();
