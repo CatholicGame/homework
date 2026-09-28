@@ -4296,10 +4296,22 @@ export function renderWorkbook(app, onBack, cfg) {
                 `⭐ ${starSum.got}/${starSum.max}`,
                 sum.attemptsSum ? `🔁 ${sum.attemptsSum} lượt` : '',
               ].filter(Boolean).join(' · ');
+              // Bài có trò chơi tăng cường luyện đúng bài đó: 🎮 + biểu tượng từng quầy (chạm → mở quầy, cấp đầu tiên).
+              const stalls = [];
+              if (GRADE3_GAMES && cfg.gamesBook) {
+                levelsForUnit(cfg.gamesBook, u.id).forEach(({ stall, level }) => {
+                  if (!stalls.some(x => x.stall.id === stall.id)) stalls.push({ stall, level });
+                });
+              }
+              const gamesChip = stalls.length ? `
+                  <span class="gw-unit-games" title="Có trò chơi luyện ${cfg.unitWord} này">
+                    <span class="gw-unit-games-pad" aria-hidden="true">🎮</span>
+                    ${stalls.map(({ stall, level }) => `<span class="gw-unit-game" role="button" tabindex="0" data-stall="${stall.id}" data-level="${level.id}" title="Chơi ${stall.title}" aria-label="Chơi ${stall.title}">${stall.icon}</span>`).join('')}
+                  </span>` : '';
               return `
                 <button class="gw-unit-row" data-unit="${u.id}">
                   <span class="gw-unit-badge" style="background:${color}">${u.number}</span>
-                  <span class="gw-unit-info"><strong>${cfg.unitName(u)}</strong><span class="gw-unit-sub">${badges}</span></span>
+                  <span class="gw-unit-info"><strong>${cfg.unitName(u)}</strong><span class="gw-unit-sub">${badges}</span></span>${gamesChip}
                   <span class="gw-unit-arrow">›</span>
                 </button>
               `;
@@ -4314,6 +4326,11 @@ export function renderWorkbook(app, onBack, cfg) {
 
     app.querySelectorAll('.gw-unit-row').forEach(btn => {
       btn.addEventListener('click', () => openUnit(btn.dataset.unit));
+    });
+    app.querySelectorAll('.gw-unit-game').forEach((g) => {
+      const play = (e) => { e.stopPropagation(); openGames({ stall: g.dataset.stall, level: g.dataset.level }); };
+      g.addEventListener('click', play);
+      g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(e); } });
     });
 
     // Trò chơi tăng cường (bật / tắt bằng cờ GRADE3_GAMES — src/data/features.js).
@@ -6112,6 +6129,17 @@ function injectStyles() {
     .gw-unit-info strong { font-size: 0.92rem; color: #1E293B; line-height: 1.3; }
     .gw-unit-sub { font-size: 0.78rem; color: #64748B; }
     .gw-unit-arrow { color: #94a3b8; font-size: 1.3rem; flex-shrink: 0; }
+    .gw-unit-games { display: inline-flex; align-items: center; gap: 0.15rem; flex-shrink: 0; padding: 0.15rem 0.35rem 0.15rem 0.5rem; border-radius: 999px; background: #FDF2F8; border: 1.5px solid #FBCFE8; }
+    .gw-unit-games-pad { font-size: 1rem; margin-right: 0.1rem; }
+    .gw-unit-game { font-size: 1.25rem; line-height: 1; padding: 0.2rem; border-radius: 0.5rem; cursor: pointer; transition: transform 0.1s, background 0.15s; }
+    .gw-unit-game:hover, .gw-unit-game:focus-visible { background: #FCE7F3; transform: scale(1.15); outline: none; }
+    /* Điện thoại: bỏ 🎮 đứng đầu, thu gọn để tên bài không bị ép hẹp (khung hồng vẫn báo "có trò chơi"). */
+    @media (max-width: 520px) {
+      .gw-unit-row { gap: 0.6rem; }
+      .gw-unit-games { padding: 0.1rem 0.2rem; gap: 0; }
+      .gw-unit-games-pad { display: none; }
+      .gw-unit-game { font-size: 1.15rem; padding: 0.2rem 0.15rem; }
+    }
 
     .gw-table-wrap { overflow-x: auto; margin-top: 0.4rem; }
     .gw-table { border-collapse: collapse; width: 100%; min-width: 100%; }
