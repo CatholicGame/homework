@@ -161,6 +161,18 @@ export function setValidate(expectedArr) {
   return (value) => norm(String(value).split(/[,;\s]+/)) === target;
 }
 
+// q.blanksAnyOrder: the blanks are interchangeable answers ("tìm 3 bộ ba
+// điểm thẳng hàng") — each value may match any expected blank, each used once.
+function anyOrderFlags(blanks, values, check) {
+  const used = new Set();
+  return values.map(v => {
+    const i = blanks.findIndex((b, k) => !used.has(k) && check(b, v));
+    if (i < 0) return false;
+    used.add(i);
+    return true;
+  });
+}
+
 export function listValidate(expectedArr) {
   const norm = (arr) => arr.map(x => foldVN(x)).filter(Boolean).join('|');
   const target = norm(expectedArr);
@@ -929,6 +941,7 @@ const UNITS = [
       {
         type: 'fill', section: 'Tiết 1', img: imgBai7Triangle,
         q: '2. Viết tiếp vào chỗ chấm (theo mẫu).\nBa điểm thẳng hàng có trong hình bên là: A, N, B; hãy tìm 3 bộ ba điểm thẳng hàng còn lại.',
+        blanksAnyOrder: true,
         blanks: [
           { label: 'Bộ ba thứ 2', answer: 'B, M, C', validate: setValidate(['B', 'M', 'C']) },
           { label: 'Bộ ba thứ 3', answer: 'A, H, M', validate: setValidate(['A', 'H', 'M']) },
@@ -4793,7 +4806,24 @@ export function renderWorkbook(app, onBack, cfg) {
     return ws[0] !== '' && ws.every(w => NUM_WORDS.has(w));
   }
   function kbAttr(answer) {
-    return isPlainInt(answer) ? 'inputmode="numeric"' : isNumberWords(answer) ? 'data-vk-words="1"' : '';
+    return isPlainInt(answer) ? 'inputmode="numeric"' : isNumberWords(answer) ? 'data-vk-words="1"'
+      : isPointLetters(answer) ? UPPER_ATTR : '';
+  }
+  // An answer made only of point/vertex names ("B, M, C", "A,B", "Q", "MN")
+  // — the book writes them in capitals, so the input capitalises as the child
+  // types (autoUpper) instead of leaving "a, h, m" on screen.
+  function isPointLetters(s) {
+    return /^[A-Z]+(\s*[,;]?\s*[A-Z]+)*$/.test(String(s).trim());
+  }
+  const UPPER_ATTR = 'data-upper="1" autocapitalize="characters"';
+  function autoUpper(inputs) {
+    inputs.filter(inp => inp.dataset.upper).forEach(inp => inp.addEventListener('input', () => {
+      const up = inp.value.toUpperCase();
+      if (up === inp.value) return;
+      const pos = inp.selectionStart;
+      inp.value = up;
+      inp.setSelectionRange(pos, pos);
+    }));
   }
   // b.tiles: the items the book prints for this blank (the numbers on the
   // cars, the robots' names…), listed in the book's own order — never sorted,
@@ -4877,7 +4907,7 @@ export function renderWorkbook(app, onBack, cfg) {
     // digit would break "1☐3 × 6 = 61☐" over several lines on a phone.
     if (b.boxes) {
       const boxHtml = parts.map((text, idx) => idx === parts.length - 1 ? text
-        : `${text}<input type="text" ${b.tiles ? tilesAttr(b, true) : numeric ? 'inputmode="numeric"' : ''} maxlength="1" class="game-input e3-blank-input gw-blank-inline gw-blank-box" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`
+        : `${text}<input type="text" ${b.tiles ? tilesAttr(b, true) : numeric ? 'inputmode="numeric"' : isPointLetters(b.answer) ? UPPER_ATTR : ''} maxlength="1" class="game-input e3-blank-input gw-blank-inline gw-blank-box" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`
       ).join('');
       return `
         <div class="e3-blank-row e3-blank-row-inline">
@@ -4894,7 +4924,8 @@ export function renderWorkbook(app, onBack, cfg) {
         ? 'min-width:3ch'
         : `width:${Math.max(9, numeric ? String(slotAnswer).length + 2 : textSlotCh)}ch`;
       const words = !numeric && isNumberWords(slotAnswer);
-      const kb = b.tiles ? tilesAttr(b, slotCount > 1 || b.tileOne) : numeric ? 'inputmode="numeric"' : words ? 'data-vk-words="1"' : '';
+      const kb = b.tiles ? tilesAttr(b, slotCount > 1 || b.tileOne) : numeric ? 'inputmode="numeric"' : words ? 'data-vk-words="1"'
+        : isPointLetters(slotAnswer) ? UPPER_ATTR : '';
       const input = `<input type="text" ${kb}${listInOne && !b.tiles ? ' data-vk-comma="1"' : ''} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed${fillClass}" style="${style}" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`;
       return `${text}${input}`;
     }).join('');
@@ -5341,12 +5372,16 @@ export function renderWorkbook(app, onBack, cfg) {
     if (q.pairDrop) attachPairDrop(app, q, groups);
     // q.trainSwap / trainPaint: act on the book's trains, picture only (engine/trains.js).
     attachTrainActions(q, groups);
+    autoUpper(inputs);
     gateCheckButton(submitBtn, inputs);
     submitBtn.onclick = () => {
       const valuesPerBlank = groups.map(group => group.map(inp => inp.value.trim()));
       if (valuesPerBlank.some(vals => vals.some(v => v === ''))) return;
       attempted[current] = true;
-      const correctFlags = q.blanks.map((b, i) => checkBlank(b, valuesPerBlank[i].join(',')));
+      const joined = valuesPerBlank.map(vals => vals.join(','));
+      const correctFlags = q.blanksAnyOrder
+        ? anyOrderFlags(q.blanks, joined, checkBlank)
+        : q.blanks.map((b, i) => checkBlank(b, joined[i]));
       const allCorrect = correctFlags.every(Boolean);
       if (allCorrect) {
         solved[current] = true;
@@ -5391,6 +5426,7 @@ export function renderWorkbook(app, onBack, cfg) {
     }
 
     attachTrainActions(q, blankGroups);
+    autoUpper(allInputs);
     gateCheckButton(checkBtn, allInputs);
     checkBtn.onclick = () => {
       const values = allInputs.map(inp => inp.value.trim());
@@ -5400,7 +5436,10 @@ export function renderWorkbook(app, onBack, cfg) {
         const cell = tableCell(q, inp.dataset.t, inp.dataset.r, inp.dataset.c);
         return checkBlank(cell, inp.value.trim());
       });
-      const blankFlags = (q.blanks || []).map((b, i) => checkBlank(b, blankGroups[i].map(inp => inp.value.trim()).join(',')));
+      const blankValues = blankGroups.map(g => g.map(inp => inp.value.trim()).join(','));
+      const blankFlags = q.blanksAnyOrder
+        ? anyOrderFlags(q.blanks, blankValues, checkBlank)
+        : (q.blanks || []).map((b, i) => checkBlank(b, blankValues[i]));
       const allCorrect = flags.every(Boolean) && blankFlags.every(Boolean);
       if (allCorrect) {
         solved[current] = true;
