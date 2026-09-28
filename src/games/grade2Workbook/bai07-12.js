@@ -441,9 +441,7 @@ export const BAI_7_12 = [
       },
       {
         type: 'fill', section: 'Tiết 1',
-        q: `3. b) Viết số thích hợp vào chỗ chấm.\nc) Viết tiếp vào chỗ chấm cho thích hợp.\n${trainSvg('A', [{ text: '9 + 4', parts: ['9', '4'] }, { text: '8 + 8', parts: ['8', '8'] }, { text: '6 + 6', parts: ['6', '6'] }, { text: '7 + 4', parts: ['7', '4'] }], { style: 'bubble', pick: true })}${trainSvg('B', ['9 + 7', '6 + 7', '6 + 5', '3 + 9'], { style: 'bubble' })}${trainGuide('Chạm vào một toa của đoàn tàu A để viết phép tính vào câu b).')}`,
-        // Chạm toa tàu A → ghi hai số hạng vào "... + ..." (bé tự tính kết quả).
-        trainPick: { blanks: [0] },
+        q: `3. b) Viết số thích hợp vào chỗ chấm.\nc) Viết tiếp vào chỗ chấm cho thích hợp.\n${trainSvg('A', ['9 + 4', '8 + 8', '6 + 6', '7 + 4'], { style: 'bubble' })}${trainSvg('B', ['9 + 7', '6 + 7', '6 + 5', '3 + 9'], { style: 'bubble' })}`,
         blanks: [
           { label: 'b) Ở đoàn tàu A, phép tính có kết quả bé nhất là: ... + ... = ...', answer: '7,4,11', validate: swapPairValidate(7, 4, 11) },
           { label: 'c) Ở đoàn tàu B, các phép tính có kết quả lớn hơn 11 là:<br>9 + 7 = 16; ... ; ...', answer: '6 + 7 = 13, 3 + 9 = 12', validate: exprSetValidate(['6+7=13', '3+9=12']) },

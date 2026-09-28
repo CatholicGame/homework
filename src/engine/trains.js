@@ -1,17 +1,16 @@
 /**
  * Đoàn tàu — the book's trains redrawn as SVG, and actions the child does on
- * them instead of only typing. Every action writes into the book's own answer
- * lines (the inputs stay the single source of truth, so "Kiểm tra" grading is
- * unchanged) and the picture is redrawn from those inputs.
+ * them instead of only typing. An action only changes the picture — it never
+ * writes the answer lines: the child works it out on the train, then writes
+ * the answer below by themself.
  *
  *   trainSvg(label, cars, opts)   one train as an SVG string (sits inside q.q)
  *   trainGuide(text)              👆 how-to line + "↺ Làm lại" under the train
  *   trainCrayons(colors)          the crayons for q.trainPaint
  *   trainMatchCar / trainEngine   pieces for a q.trains "nối" question
  *
- *   q.trainSwap  = { blank }            drag / tap two cars to swap them
- *   q.trainPaint = { writes: [...] }    pick a crayon, tap a car to colour it
- *   q.trainPick  = { blanks: [...] }    tap a car to write it into the blank
+ *   q.trainSwap  = true    drag / tap two cars to swap them
+ *   q.trainPaint = true    pick a crayon, tap a car to colour it
  *
  * Nothing points at the right cars in advance: a ✋ on the cars and the 👆 in
  * the guide line only show that the cars can be used, until the first action.
@@ -131,31 +130,28 @@ function arrow(i, j, wave) {
 /**
  * One train as an SVG string (no newlines — it sits inside q.q).
  *   label: letter on the engine ('' for none)
- *   cars:  numbers / strings, or { text, tag, value, parts } (tag: letter over the car,
- *          value: what a tap writes, parts: several slots it fills, e.g. ['7', '4'])
+ *   cars:  numbers / strings, or { text, tag } (tag: letter over the car)
  *   opts.style: 'white' (default) | 'bubble' (grey-blue, oval label) | 'box' (blue box car)
  *   opts.wave:  y offset of each car, for the book's wavy track
  *   opts.sample: [i, j] car positions of a printed "theo mẫu" arrow
- *   opts.swap | opts.paint | opts.pick: which action the train takes part in
+ *   opts.swap | opts.paint: which action the train takes part in
  */
 export function trainSvg(label, cars, opts = {}) {
   const list = cars.map(c => (typeof c === 'object' ? c : { text: String(c) }));
   const style = opts.style || 'white';
   const wave = opts.wave || null;
   const width = carX(list.length - 1) + W + 8;
-  const mode = opts.swap ? 'swap' : opts.paint ? 'paint' : opts.pick ? 'pick' : '';
+  const mode = opts.swap ? 'swap' : opts.paint ? 'paint' : '';
   const carAttr = (c) => {
-    const v = esc(c.value ?? c.text);
+    const v = esc(c.text);
     if (mode === 'swap') return `data-gw-car="${v}"`;
     if (mode === 'paint') return `data-gw-pcar="${v}"`;
-    if (mode === 'pick') return `data-gw-kcar="${v}"${c.parts ? ` data-gw-parts="${esc(c.parts.join('|'))}"` : ''}`;
     return '';
   };
   const carsSvg = list.map((c, pos) => `<g class="gw-car-slot" style="transform:${slotTransform(pos, wave)}"><g class="gw-car" ${carAttr(c)}><rect x="-4" y="34" width="${W + 8}" height="100" fill="transparent"/>${carBody(c, style)}${mode ? HAND : ''}</g></g>`).join('');
   const sample = opts.sample ? arrow(opts.sample[0], opts.sample[1], wave) : '';
-  const attr = opts.swap ? `data-gw-train="${esc(list.map(c => c.value ?? c.text).join('|'))}"${wave ? ` data-gw-wave="${wave.join(',')}"` : ''}`
-    : opts.paint ? `data-gw-paint-train="${esc(label)}"`
-    : opts.pick ? 'data-gw-pick-train="1"' : '';
+  const attr = opts.swap ? `data-gw-train="${esc(list.map(c => c.text).join('|'))}"${wave ? ` data-gw-wave="${wave.join(',')}"` : ''}`
+    : opts.paint ? `data-gw-paint-train="${esc(label)}"` : '';
   const top = opts.swap || opts.sample ? 0 : 22; // no arrow → no empty band above the cars
   const bottom = 140 + (wave ? Math.max(...wave) + 12 : 0);
   const engineY = wave ? waveY(wave, 0) - 2 : 0;
@@ -184,31 +180,38 @@ function hookGuide(root, onReset) {
   };
 }
 
-const fire = (inp) => inp.dispatchEvent(new Event('input', { bubbles: true }));
+// What the child did on a question's trains, kept while the lesson stays open so
+// the picture is still there when they come back to the question.
+const STATE = new WeakMap();
+const stateOf = (q, init) => {
+  if (!STATE.has(q)) STATE.set(q, init());
+  return STATE.get(q);
+};
+// Actions stop once the question's answer lines are locked (after "Kiểm tra").
+const lockedFn = (groups) => {
+  const first = groups.flat()[0];
+  return () => !!first?.disabled;
+};
 
 // ── Đổi chỗ hai toa ─────────────────────────────────────────────────────────
 /**
- * q.trainSwap = { blank }: the two-slot "toa ... và toa ..." blank. Drag a car
- * onto another (or tap one, then the other): the two trade places and the
- * book's arrow is drawn over their places. One swap is kept.
+ * q.trainSwap = true: drag a car onto another (or tap one, then the other):
+ * the two trade places and the book's arrow is drawn over their places. One
+ * swap is kept. The "Đổi chỗ toa ... và toa ..." line is left for the child.
  */
 export function attachTrainSwap(root, q, groups) {
   const svg = root.querySelector('svg[data-gw-train]');
-  const row = groups[q.trainSwap.blank];
-  if (!svg || !row || row.length !== 2) return;
+  if (!svg) return;
   const nums = svg.dataset.gwTrain.split('|');
   const wave = svg.dataset.gwWave ? svg.dataset.gwWave.split(',').map(Number) : null;
   const cars = new Map([...svg.querySelectorAll('[data-gw-car]')].map(el => [el.dataset.gwCar, el.parentNode]));
   const arrowG = svg.querySelector('.gw-train-arrow');
-  const locked = () => row[0].disabled;
+  const locked = lockedFn(groups);
+  const st = stateOf(q, () => ({ pair: null }));
   let selected = null;
   let drag = null;
 
-  function pair() {
-    const a = row[0].value.trim(), b = row[1].value.trim();
-    if (a === b || !nums.includes(a) || !nums.includes(b)) return null;
-    return [a, b];
-  }
+  const pair = () => st.pair;
   function order() {
     const o = [...nums];
     const p = pair();
@@ -223,21 +226,20 @@ export function attachTrainSwap(root, q, groups) {
   function draw() {
     const o = order();
     const p = pair();
-    const typed = row.some(inp => inp.value.trim());
+    const swapped = !!p;
     arrowG.innerHTML = p ? arrow(nums.indexOf(p[0]), nums.indexOf(p[1]), wave) : '';
     cars.forEach((slot, n) => {
       if (drag?.car !== n || !drag.moved) slot.style.transform = slotTransform(o.indexOf(n), wave);
       slot.classList.toggle('gw-car-selected', n === selected);
       slot.classList.toggle('gw-car-drop', !!drag?.moved && n !== drag.car);
-      slot.classList.toggle('gw-car-hint', !typed && !locked() && !drag?.moved);
+      slot.classList.toggle('gw-car-hint', !swapped && !locked() && !drag?.moved);
       slot.classList.toggle('gw-car-active', !locked());
     });
-    guide(!typed && !selected && !locked(), typed && !locked());
+    guide(!swapped && !selected && !locked(), swapped && !locked());
   }
 
   function write(p) {
-    const sorted = p ? [...p].sort((a, b) => nums.indexOf(a) - nums.indexOf(b)) : ['', ''];
-    row.forEach((inp, k) => { inp.value = sorted[k]; fire(inp); });
+    st.pair = p ? [...p].sort((a, b) => nums.indexOf(a) - nums.indexOf(b)) : null;
   }
 
   function swap(a, b) {
@@ -314,7 +316,6 @@ export function attachTrainSwap(root, q, groups) {
   }
 
   cars.forEach((slot, n) => slot.addEventListener('pointerdown', (e) => onDown(e, n)));
-  row.forEach(inp => inp.addEventListener('input', draw));
   draw();
 }
 
@@ -326,50 +327,27 @@ export function trainCrayons(colors) {
 }
 
 /**
- * q.trainPaint = { writes: [{ train: 'A', color: 'yellow', blank: 0, slot: 0 }, ...] }
- * The cars of `train` coloured `color` are written (book order, ", "-joined)
- * into input `slot` of blank `blank`. Typing into those inputs recolours the
- * cars; a colour no answer line asks about is only kept on the picture.
+ * q.trainPaint = true: pick a crayon, tap a car to colour it (tap again or
+ * use "Tẩy" to clear). Only the picture is coloured — the child reads it and
+ * writes the answer lines below by themself.
  */
 export function attachTrainPaint(root, q, groups) {
-  const writes = q.trainPaint.writes.map(w => ({ ...w, inp: groups[w.blank]?.[w.slot || 0] })).filter(w => w.inp);
   const trains = new Map([...root.querySelectorAll('svg[data-gw-paint-train]')].map(svg => [
     svg.dataset.gwPaintTrain,
     [...svg.querySelectorAll('[data-gw-pcar]')].map(el => ({ n: el.dataset.gwPcar, slot: el.parentNode })),
   ]));
   const crayons = [...root.querySelectorAll('[data-gw-crayon]')];
-  if (!writes.length || !trains.size) return;
-  const locked = () => writes[0].inp.disabled;
-  const paint = new Map(); // "A:65" → colour key
+  if (!trains.size) return;
+  const locked = lockedFn(groups);
+  const paint = stateOf(q, () => new Map()); // "A:65" → colour key
   let crayon = null;
 
   const guide = hookGuide(root, () => {
     paint.clear();
     crayon = null;
-    write();
     draw();
   });
 
-  function readInputs() {
-    writes.forEach(w => {
-      const listed = new Set(w.inp.value.split(/[,;]/).map(norm).filter(Boolean));
-      (trains.get(w.train) || []).forEach(({ n }) => {
-        const key = `${w.train}:${n}`;
-        if (listed.has(norm(n))) paint.set(key, w.color);
-        else if (paint.get(key) === w.color) paint.delete(key);
-      });
-    });
-  }
-  function write() {
-    // set every line before firing: an input event re-reads all the lines
-    const changed = writes.filter(w => {
-      const v = (trains.get(w.train) || []).filter(({ n }) => paint.get(`${w.train}:${n}`) === w.color).map(c => c.n).join(', ');
-      if (w.inp.value === v) return false;
-      w.inp.value = v;
-      return true;
-    });
-    changed.forEach(w => fire(w.inp));
-  }
   function draw() {
     const idle = !paint.size && !locked();
     trains.forEach((cars, t) => cars.forEach(({ n, slot }) => {
@@ -396,78 +374,8 @@ export function attachTrainPaint(root, q, groups) {
     const key = `${t}:${n}`;
     if (!crayon || paint.get(key) === crayon) paint.delete(key);
     else paint.set(key, crayon);
-    write();
     draw();
   })));
-  writes.forEach(w => w.inp.addEventListener('input', () => { readInputs(); draw(); }));
-  readInputs();
-  draw();
-}
-
-// ── Chạm toa để viết ────────────────────────────────────────────────────────
-/**
- * q.trainPick = { blanks: [0, 1, ...] }: tapping a car writes it into the
- * blank being filled — the one last tapped, else the first empty one (shown
- * with a yellow frame, it is the place to write, never the answer). A car with
- * `parts` fills that many slots of the blank (Bài 10: "7 + 4" → ... + ...).
- */
-export function attachTrainPick(root, q, groups) {
-  const blankOf = new Map();
-  const targets = q.trainPick.blanks.flatMap(i => (groups[i] || []).map(inp => { blankOf.set(inp, groups[i]); return inp; }));
-  const cars = [...root.querySelectorAll('svg[data-gw-pick-train] [data-gw-kcar]')];
-  if (!targets.length || !cars.length) return;
-  const locked = () => targets[0].disabled;
-  let active = null;
-  let picked = false;
-
-  const guide = hookGuide(root, () => {
-    targets.forEach(inp => { inp.value = ''; fire(inp); });
-    active = null;
-    picked = false;
-    draw();
-  });
-
-  const current = () => (active && !active.value.trim() ? active : null) || targets.find(inp => !inp.value.trim()) || active;
-  function draw() {
-    const cur = locked() ? null : current();
-    targets.forEach(inp => inp.classList.toggle('gw-pick-active', inp === cur));
-    const any = targets.some(inp => inp.value.trim());
-    cars.forEach(el => {
-      el.parentNode.classList.toggle('gw-car-hint', !picked && !any && !locked());
-      el.parentNode.classList.toggle('gw-car-active', !locked());
-    });
-    guide(!any && !locked(), any && !locked());
-  }
-
-  cars.forEach(el => el.addEventListener('click', () => {
-    if (locked()) return;
-    const cur = current();
-    if (!cur) return;
-    const group = blankOf.get(cur);
-    const parts = el.dataset.gwParts ? el.dataset.gwParts.split('|') : [el.dataset.gwKcar];
-    // a car with parts fills its blank from the first slot ("... + ... = ...")
-    let k = parts.length > 1 ? 0 : group.indexOf(cur);
-    let last = cur;
-    parts.forEach(v => {
-      const inp = group[k++];
-      if (!inp) return;
-      inp.value = v;
-      fire(inp);
-      last = inp;
-    });
-    picked = true;
-    // move on to the next empty place after the one just written
-    const from = targets.indexOf(last);
-    active = targets.slice(from + 1).find(inp => !inp.value.trim()) || last;
-    el.parentNode.classList.remove('gw-car-picked');
-    void el.parentNode.getBoundingClientRect();
-    el.parentNode.classList.add('gw-car-picked');
-    draw();
-  }));
-  targets.forEach(inp => {
-    inp.addEventListener('focus', () => { active = inp; draw(); });
-    inp.addEventListener('input', draw);
-  });
   draw();
 }
 

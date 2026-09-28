@@ -172,12 +172,8 @@ export const BAI_1_6 = [
           { label: 'b) Toa tô màu đỏ ghi số ...; toa tô màu xanh ghi số ...', answer: '56,48', validate: listValidate(['56', '48']), tiles: ['56', '48', '51', '53'] },
           { label: 'c) Ở cả hai đoàn tàu, những số vừa bé hơn 60 vừa lớn hơn 50 là: ...', answer: '59, 56, 51, 53', validate: setValidate(['59', '56', '51', '53']), tiles: ['65', '59', '47', '60', '56', '48', '51', '53'] },
         ],
-        // Chọn bút màu rồi chạm vào toa để tô → tự ghi dòng a) và b).
-        trainPaint: { writes: [
-          { train: 'A', color: 'yellow', blank: 0 },
-          { train: 'B', color: 'red', blank: 1, slot: 0 },
-          { train: 'B', color: 'blue', blank: 1, slot: 1 },
-        ] },
+        // Chọn bút màu rồi chạm vào toa để tô (chỉ tô hình — bé tự viết dòng a, b, c).
+        trainPaint: true,
         hints: ['Tàu A: 65, 59, 47, 60. Tàu B: 56, 48, 51, 53.'],
       },
       {
@@ -260,8 +256,8 @@ export const BAI_1_6 = [
           { label: '– Trong các số ở miếng bìa H, số bé nhất là ...', answer: '23' },
           { label: '– Trong các số ở miếng bìa K, số bé nhất là ...', answer: '67' },
         ],
-        // Kéo miếng bìa vào ô trống → tự ghi "Ghép H vào A" vào dòng tương ứng.
-        pairDrop: { blanks: [0, 1, 2], sample: ['E', 'C'] },
+        // Kéo miếng bìa vào ô trống để thử (chỉ trên hình — bé tự viết "Ghép ... vào ...").
+        pairDrop: { sample: ['E', 'C'] },
         hints: ['Ô trống A nằm sau số 22, nên miếng bìa ghép vào A phải bắt đầu bằng 23.'],
       },
     ],
@@ -318,9 +314,7 @@ export const BAI_1_6 = [
       },
       {
         type: 'fill', section: 'Tiết 2',
-        q: `3. Số?\n${trainSvg('', [48, 49, 50, 51, 52, 53], { style: 'bubble', wave: [0, 14, 24, 14, 2, 8], pick: true })}${trainGuide('Chạm vào toa để viết số của toa vào chỗ chấm (chạm chỗ chấm khác để đổi chỗ viết).')}`,
-        // Chạm toa → viết số toa vào chỗ chấm đang chọn (khung vàng).
-        trainPick: { blanks: [0, 1, 2, 3, 4, 5] },
+        q: `3. Số?\n${trainSvg('', [48, 49, 50, 51, 52, 53], { style: 'bubble', wave: [0, 14, 24, 14, 2, 8] })}`,
         blanks: [
           { label: `a) Toa liền sau toa ${circ(48)} là toa ... .`, answer: '49' },
           { label: `Toa liền trước toa ${circ(53)} là toa ... .`, answer: '52' },
@@ -466,8 +460,8 @@ export const BAI_1_6 = [
           { label: 'a) Đổi chỗ toa ... và toa ... .', answer: '67,30', validate: setValidate(['67', '30']), tiles: ['67', '45', '56', '30'] },
           { label: 'b)', answer: '90 − 30 = 60', validate: calcValidate(90, '-', 30, 60) },
         ],
-        // Kéo (hoặc chạm) hai toa của đoàn tàu B để đổi chỗ → tự ghi "Đổi chỗ toa ... và toa ...".
-        trainSwap: { blank: 0 },
+        // Kéo (hoặc chạm) hai toa của đoàn tàu B để thử đổi chỗ (bé tự viết "Đổi chỗ toa ... và toa ...").
+        trainSwap: true,
         hints: ['Ở đoàn tàu A, đổi chỗ toa 80 và toa 30 thì được 30, 50, 80, 90.'],
       },
       {

@@ -335,9 +335,7 @@ export const BAI_31_36 = [
       },
       {
         type: 'table', section: 'Tiết 3',
-        q: `1. a) Số?\n${trainSvg('', [{ tag: 'A', text: '70 + 30', value: 'A' }, { tag: 'B', text: '86 − 56', value: 'B' }, { tag: 'C', text: '73 − 13', value: 'C' }, { tag: 'D', text: '92 − 42', value: 'D' }, { tag: 'E', text: '20 + 50', value: 'E' }], { style: 'bubble', wave: [0, 16, 22, 4, 8], pick: true })}${trainGuide('Ở câu b), chạm vào toa để viết tên toa vào chỗ chấm.')}`,
-        // Chạm toa → ghi tên toa (A, B, …) vào chỗ chấm đang chọn ở câu b).
-        trainPick: { blanks: [0, 1, 2, 3] },
+        q: `1. a) Số?\n${trainSvg('', [{ tag: 'A', text: '70 + 30' }, { tag: 'B', text: '86 − 56' }, { tag: 'C', text: '73 − 13' }, { tag: 'D', text: '92 − 42' }, { tag: 'E', text: '20 + 50' }], { style: 'bubble', wave: [0, 16, 22, 4, 8] })}`,
         rows: [
           ['Toa', 'A', 'B', 'C', 'D', 'E'],
           ['Kết quả phép tính', 100, blank(30), blank(60), blank(50), blank(70)],

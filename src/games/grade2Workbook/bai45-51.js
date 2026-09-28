@@ -784,8 +784,8 @@ export const BAI_45_51 = [
       {
         type: 'fill', section: 'Tiết 2',
         q: `3. Viết số thích hợp vào chỗ chấm.\n${trainSvg('', [640, 670, 680], { style: 'bubble', wave: [26, 14, 4], swap: true })}${trainGuide('Kéo một toa thả lên toa khác (hoặc chạm 2 toa) để đổi chỗ.')}`,
-        // Kéo / chạm hai toa để đổi chỗ → tự ghi "đổi chỗ toa tàu ghi số ... với toa tàu ghi số ...".
-        trainSwap: { blank: 0 },
+        // Kéo / chạm hai toa để thử đổi chỗ (bé tự viết "đổi chỗ toa tàu ghi số ... với toa tàu ghi số ...").
+        trainSwap: true,
         blanks: [{ label: 'Để các toa tàu ghi các số theo thứ tự từ lớn đến bé, em cần đổi chỗ toa tàu ghi số ... với toa tàu ghi số ...', answer: '640, 680', validate: swapPairValidate(640, 680), tiles: ['640', '670', '680'] }],
         hints: ['Từ lớn đến bé là 680, 670, 640.'],
       },

@@ -120,7 +120,7 @@ import { recordAttempt } from '../engine/activity.js';
 import { attachPairDrop } from '../engine/pairDrop.js';
 import { attachBalancePlay } from '../engine/balancePlay.js';
 import { attachColorPaint } from '../engine/colorPaint.js';
-import { attachTrainSwap, attachTrainPaint, attachTrainPick, trainEngine, trainMatchCar } from '../engine/trains.js';
+import { attachTrainSwap, attachTrainPaint, trainEngine, trainMatchCar } from '../engine/trains.js';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
 
@@ -5311,7 +5311,6 @@ export function renderWorkbook(app, onBack, cfg) {
   function attachTrainActions(q, groups) {
     if (q.trainSwap) attachTrainSwap(app, q, groups);
     if (q.trainPaint) attachTrainPaint(app, q, groups);
-    if (q.trainPick) attachTrainPick(app, q, groups);
   }
 
   function attachFillHandlers(q) {
@@ -5337,10 +5336,10 @@ export function renderWorkbook(app, onBack, cfg) {
       return;
     }
 
-    // q.pairDrop: drag the book's pieces into its holes; each drop fills a
-    // "Ghép ... vào ..." line below (see engine/pairDrop.js).
+    // q.pairDrop: drag the book's pieces into its holes — only the board
+    // changes, the child writes "Ghép ... vào ..." (see engine/pairDrop.js).
     if (q.pairDrop) attachPairDrop(app, q, groups);
-    // q.trainSwap / trainPaint / trainPick: act on the book's trains (engine/trains.js).
+    // q.trainSwap / trainPaint: act on the book's trains, picture only (engine/trains.js).
     attachTrainActions(q, groups);
     gateCheckButton(submitBtn, inputs);
     submitBtn.onclick = () => {
@@ -6045,12 +6044,8 @@ function injectStyles() {
     .gw-car-slot.gw-car-over .gw-car-body { fill: #FDE68A; stroke: #F59E0B; }
     .gw-car-hand { display: none; pointer-events: none; }
     .gw-car-slot.gw-car-hint .gw-car-hand { display: inline; animation: gw-hand-pulse 1.4s ease-in-out infinite; }
-    .gw-car-slot.gw-car-active [data-gw-pcar],
-    .gw-car-slot.gw-car-active [data-gw-kcar] { cursor: pointer; }
-    .gw-car-slot.gw-car-picked .gw-car { animation: gw-car-pick .35s ease-out; }
-    @keyframes gw-car-pick { 40% { transform: translateY(-8px); } }
+    .gw-car-slot.gw-car-active [data-gw-pcar] { cursor: pointer; }
     .gw-car-paint { transition: fill .2s; }
-    .e3-blank-input.gw-pick-active { border-color: #F59E0B !important; box-shadow: 0 0 0 3px rgba(245, 158, 11, .3); }
     .gw-crayon.gw-crayon-hint { animation: gw-crayon-bob 1.4s ease-in-out infinite; }
     @keyframes gw-crayon-bob { 50% { transform: translateY(-3px); } }
     /* 👆 how-to line + ↺ Làm lại under a train action */
