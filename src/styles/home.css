@@ -1298,8 +1298,48 @@
 
 .user-rank-btn:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
 
+/* ☁️ Lưu Google Drive / 🔐 Đăng nhập (khách) */
+.user-cloud-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-full);
+  background: white;
+  color: var(--text);
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+.user-cloud-btn.is-warn { border-color: #F59E0B; background: #FFFBEB; color: #92400E; }
+.user-cloud-btn.is-busy { opacity: 0.7; }
+.user-cloud-ok { color: #16A34A; font-size: 0.8rem; }
+
+.login-guest-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-light);
+  font-family: var(--font);
+  font-size: 0.98rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.login-guest-btn:hover { color: var(--text); }
+
 @media (max-width: 520px) {
   .user-rank-btn span { display: none; }
+  .user-cloud-btn { padding: 6px 10px; }
   .user-bar { gap: 6px; }
   .user-rank-btn { padding: 6px 10px; }
   .user-stars { padding: 3px 10px 3px 6px; font-size: 0.95rem; }

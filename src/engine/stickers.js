@@ -100,6 +100,7 @@ function load() {
 function save(d) {
   try { localStorage.setItem(storeKey(), JSON.stringify(d)); } catch { /* storage unavailable */ }
   window.dispatchEvent(new CustomEvent('tth:stickers-changed'));
+  window.dispatchEvent(new CustomEvent('tth:data-changed')); // → cloudSync.js
 }
 
 /** Tiến độ: { spins: lượt quay còn lại, progress: số bài đã làm tới lượt kế tiếp (0…need-1), need } */

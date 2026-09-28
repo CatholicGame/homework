@@ -117,6 +117,7 @@ import {
 } from '../engine/stars.js';
 import { gateCheckButton, keepWrongBanner } from '../engine/gameEngine.js';
 import { recordAttempt } from '../engine/activity.js';
+import { scopedKey } from '../engine/auth.js';
 import { attachPairDrop } from '../engine/pairDrop.js';
 import { attachBalancePlay } from '../engine/balancePlay.js';
 import { attachColorPaint } from '../engine/colorPaint.js';
@@ -4171,12 +4172,14 @@ const PALETTE = ['#34D399', '#60A5FA', '#F59E0B', '#F472B6', '#A78BFA', '#22D3EE
 
 // Each book keeps its own progress + last-opened unit under its own keys
 // (cfg.storageKey / cfg.lastUnitKey), so the same engine serves several books.
+// Đáp án lưu riêng từng người dùng trên máy (scopedKey) và đồng bộ Drive (cloudSync.js).
 function makeStore(storageKey, lastUnitKey) {
   function loadStorage() {
-    try { return JSON.parse(localStorage.getItem(storageKey)) || {}; } catch { return {}; }
+    try { return JSON.parse(localStorage.getItem(scopedKey(storageKey))) || {}; } catch { return {}; }
   }
   function saveStorage(data) {
-    try { localStorage.setItem(storageKey, JSON.stringify(data)); } catch { /* ignore */ }
+    try { localStorage.setItem(scopedKey(storageKey), JSON.stringify(data)); } catch { /* ignore */ }
+    window.dispatchEvent(new CustomEvent('tth:data-changed'));
   }
   function getRecord(unitId, idx) {
     const data = loadStorage();

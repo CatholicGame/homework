@@ -24,6 +24,7 @@ function load() {
 
 function save(d) {
   try { localStorage.setItem(storeKey(), JSON.stringify(d)); } catch { /* storage unavailable */ }
+  window.dispatchEvent(new CustomEvent('tth:data-changed')); // → cloudSync.js
 }
 
 /** 'YYYY-MM-DD' theo giờ địa phương (không dùng UTC để 7h sáng VN vẫn là hôm nay). */

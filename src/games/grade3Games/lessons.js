@@ -6,6 +6,8 @@
  * ctx (từ renderWorkbook): { book: 'workbook'|'practice', units, unitName, storageKey, openUnit }
  */
 
+import { scopedKey } from '../../engine/auth.js';
+
 export function lessonUnits(level, ctx) {
   const ids = level.lessons?.[ctx.book] || [];
   return ids.map(id => ctx.units.find(u => u.id === id)).filter(Boolean);
@@ -14,7 +16,7 @@ export function lessonUnits(level, ctx) {
 /** Bé đã làm (bấm "Kiểm tra" ít nhất một câu) bài nào trong danh sách chưa. */
 export function hasDoneAny(level, ctx) {
   let data = {};
-  try { data = JSON.parse(localStorage.getItem(ctx.storageKey)) || {}; } catch { /* storage unavailable */ }
+  try { data = JSON.parse(localStorage.getItem(scopedKey(ctx.storageKey))) || {}; } catch { /* storage unavailable */ }
   return lessonUnits(level, ctx).some(u => Object.values(data[u.id] || {}).some(rec => (rec?.attempts || 0) > 0));
 }
 

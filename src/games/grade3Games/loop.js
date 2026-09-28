@@ -13,6 +13,7 @@
 import { awardStars, recordWrong, hasEarned } from '../../engine/stars.js';
 import { say, stopSpeaking, sfx, rain, isMuted, setMuted } from '../preschool/fx.js';
 import { menuBackdrop, fitMenu } from './styles.js';
+import { scopedKey } from '../../engine/auth.js';
 
 const BEST_KEY = 'g3games-best-v1';
 
@@ -37,7 +38,7 @@ export function makeRng(seed) {
 }
 
 function loadBest() {
-  try { return JSON.parse(localStorage.getItem(BEST_KEY)) || {}; } catch { return {}; }
+  try { return JSON.parse(localStorage.getItem(scopedKey(BEST_KEY))) || {}; } catch { return {}; }
 }
 export function bestFor(levelId) {
   return loadBest()[levelId];
@@ -47,7 +48,8 @@ function saveBest(levelId, ok, total) {
   const prev = all[levelId];
   if (!prev || ok > prev.ok) {
     all[levelId] = { ok, total };
-    try { localStorage.setItem(BEST_KEY, JSON.stringify(all)); } catch { /* storage unavailable */ }
+    try { localStorage.setItem(scopedKey(BEST_KEY), JSON.stringify(all)); } catch { /* storage unavailable */ }
+    window.dispatchEvent(new CustomEvent('tth:data-changed'));
     return !!prev;
   }
   return false;

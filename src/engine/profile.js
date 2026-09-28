@@ -53,6 +53,22 @@ export function markProfileSynced() {
  * Đã xong bước thiết lập hồ sơ: đã chọn lớp (bắt buộc — trang chủ và bảng xếp hạng
  * dựa vào lớp); avatar và biệt danh thì có thể bỏ qua.
  */
+/**
+ * Vừa đăng nhập, tài khoản chưa có hồ sơ (trên máy lẫn Firebase) mà lúc dùng thử bé đã
+ * chọn avatar/lớp → dùng luôn hồ sơ đó (đẩy lên Firebase), không hỏi lại.
+ */
+export function adoptGuestProfile() {
+  const key = 'tth_profile_guest';
+  if (!getCurrentUser()) return false;
+  let guest = null;
+  try { guest = JSON.parse(localStorage.getItem(key)); } catch { /* ignore */ }
+  if (!guest?.setupDone || !guest.grade) return false;
+  const { setupDone, pendingPush, ...rest } = guest;
+  saveProfile(rest);
+  try { localStorage.removeItem(key); } catch { /* ignore */ }
+  return true;
+}
+
 export function isSetupDone() {
   const p = getProfile();
   return !!p.setupDone && !!p.grade;

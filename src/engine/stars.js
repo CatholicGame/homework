@@ -10,7 +10,7 @@
  * Sổ sao lưu theo từng tài khoản đăng nhập (sau này đồng bộ lên Google Drive).
  */
 
-import { getCurrentUser } from './auth.js';
+import { getCurrentUser, scopedKey } from './auth.js';
 import { STAR_RATINGS } from '../data/starRatings.js';
 import { recordSolve, dayKey, weekKey, monthKey } from './activity.js';
 import { recordSolveForSpin, showSpinToast } from './stickers.js';
@@ -37,6 +37,7 @@ function loadLedger() {
 
 function saveLedger(d) {
   try { localStorage.setItem(ledgerKey(), JSON.stringify(d)); } catch { /* storage unavailable */ }
+  window.dispatchEvent(new CustomEvent('tth:data-changed')); // → cloudSync.js
 }
 
 /**
@@ -181,7 +182,7 @@ export function creditLegacyProgress() {
   let changed = false;
   for (const [storageKey, book] of Object.entries(LEGACY_PROGRESS)) {
     let data;
-    try { data = JSON.parse(localStorage.getItem(storageKey)) || {}; } catch { continue; }
+    try { data = JSON.parse(localStorage.getItem(scopedKey(storageKey))) || {}; } catch { continue; }
     for (const [unitId, recs] of Object.entries(data)) {
       for (const [idx, rec] of Object.entries(recs || {})) {
         const key = `${book}:${unitId}:${idx}`;

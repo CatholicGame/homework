@@ -2,18 +2,21 @@
  * Progress Tracker — Lưu tiến trình chơi vào localStorage
  */
 
+import { scopedKey } from './auth.js';
+
 const STORAGE_KEY = 'math_game_progress';
 
 function loadAll() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    return JSON.parse(localStorage.getItem(scopedKey(STORAGE_KEY))) || {};
   } catch {
     return {};
   }
 }
 
 function saveAll(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try { localStorage.setItem(scopedKey(STORAGE_KEY), JSON.stringify(data)); } catch { /* storage unavailable */ }
+  window.dispatchEvent(new CustomEvent('tth:data-changed'));
 }
 
 /**
@@ -92,7 +95,7 @@ const EXAM_KEY = 'math_exam_history';
 
 function loadExams() {
   try {
-    return JSON.parse(localStorage.getItem(EXAM_KEY)) || [];
+    return JSON.parse(localStorage.getItem(scopedKey(EXAM_KEY))) || [];
   } catch {
     return [];
   }
@@ -113,7 +116,8 @@ export function saveExamResult(result) {
     }),
   });
   // Keep max 20 results
-  localStorage.setItem(EXAM_KEY, JSON.stringify(exams.slice(0, 20)));
+  try { localStorage.setItem(scopedKey(EXAM_KEY), JSON.stringify(exams.slice(0, 20))); } catch { /* storage unavailable */ }
+  window.dispatchEvent(new CustomEvent('tth:data-changed'));
 }
 
 /**

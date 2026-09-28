@@ -15,7 +15,7 @@
  * SDK Firebase được tải lười (dynamic import) để không làm nặng lần mở app.
  */
 
-import { getCurrentUser, getAccessToken, getStoredAccessToken } from './auth.js';
+import { getCurrentUser, getAccessToken, getFreshAccessToken } from './auth.js';
 import { getTotalStars, getStarsByGrade, getGradePeriodStars } from './stars.js';
 import { getProfile, saveProfile, markProfileSynced, NAME_MAX } from './profile.js';
 import { castRows, makeLaunch } from './leaderboardCast.js';
@@ -81,7 +81,7 @@ async function ensureSignedInSilently() {
   await fb.auth.authStateReady();
   if (matchesCurrentUser(fb.auth.currentUser)) return fb;
   if (fb.auth.currentUser) await fb.auth.signOut(); // phiên của tài khoản khác trên máy này
-  const token = getStoredAccessToken();
+  const token = await getFreshAccessToken(); // hết hạn thì lấy mới qua máy chủ (nếu có phiên)
   if (!token) return null;
   try {
     return await signInWithToken(fb, token);

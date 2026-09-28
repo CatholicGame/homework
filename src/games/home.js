@@ -9,6 +9,7 @@ import { getGrade } from '../data/grades.js';
 import { getSpinStatus, countOwned, getSets } from '../engine/stickers.js';
 import { isAdminUser } from '../engine/admin.js';
 import { getBoardGradeStars } from '../engine/leaderboard.js';
+import { getCloudStatus, syncNow } from '../engine/cloudSync.js';
 
 const WEEKDAYS = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
 const WEEKDAYS_SHORT = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -19,6 +20,34 @@ function headerStars() {
   const g = getProfileGrade();
   return g ? getBoardGradeStars(g) : getTotalStars();
 }
+
+/** Nút ☁️: trạng thái lưu tiến trình lên Google Drive. */
+function cloudButton() {
+  const { state, lastSync } = getCloudStatus();
+  const time = lastSync ? new Date(lastSync).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
+  const view = {
+    ok: ['☁️', '', `Đã lưu lên Google Drive lúc ${time}`],
+    syncing: ['☁️', '…', 'Đang lưu lên Google Drive…'],
+    'needs-auth': ['☁️', 'Lưu', 'Bài làm mới chưa lưu lên Google Drive — bấm để lưu'],
+    'needs-permission': ['☁️', 'Cho phép', 'Cần cho phép app lưu tiến trình vào Google Drive — bấm để cấp quyền'],
+    offline: ['☁️', 'Lưu', 'Mất mạng — bài làm vẫn lưu trên máy, có mạng sẽ lưu lên Drive'],
+    error: ['☁️', 'Lưu', 'Chưa lưu được lên Google Drive — bấm để thử lại'],
+    idle: ['☁️', '', 'Tiến trình học được lưu vào Google Drive của bạn'],
+  }[state] || ['☁️', '', ''];
+  const warn = !['ok', 'syncing', 'idle'].includes(state);
+  return { html: `${view[0]}${view[1] ? `<span>${view[1]}</span>` : state === 'ok' ? '<b class="user-cloud-ok">✓</b>' : ''}`, title: view[2], warn, state };
+}
+function paintCloudButton(btn) {
+  const v = cloudButton();
+  btn.innerHTML = v.html;
+  btn.title = v.title;
+  btn.setAttribute('aria-label', v.title);
+  btn.classList.toggle('is-warn', v.warn);
+  btn.classList.toggle('is-busy', v.state === 'syncing');
+}
+window.addEventListener('tth:cloud-status', () => {
+  document.querySelectorAll('#user-cloud-btn').forEach(paintCloudButton);
+});
 
 // Máy khác đã có thêm sao (biết được sau khi đồng bộ bảng xếp hạng) → cập nhật số trên header.
 window.addEventListener('tth:board-stars-changed', () => {
@@ -34,7 +63,7 @@ function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-export function renderHome(app, navigate, { user, onSignOut } = {}) {
+export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
   const grade = getGrade(getProfileGrade());
   renderPage();
 
@@ -245,8 +274,12 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
       : user.picture
         ? `<img class="user-avatar" src="${escapeHtml(user.picture)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML=this.dataset.fallback" data-fallback="${escapeHtml(initial)}">`
         : initial;
+    const guest = !!user.guest;
     return `
       <div class="user-bar animate-fadeIn">
+        ${guest
+          ? '<button type="button" class="user-cloud-btn is-warn" id="user-login-btn" title="Đăng nhập Google để lưu bài làm lên Google Drive">🔐<span>Đăng nhập</span></button>'
+          : '<button type="button" class="user-cloud-btn" id="user-cloud-btn"></button>'}
         <button type="button" class="user-rank-btn" id="user-sticker-btn" title="Vòng quay sticker">🎁 <span>Sticker</span>${getSpinStatus().spins ? `<b class="user-badge">${getSpinStatus().spins}</b>` : ''}</button>
         <button type="button" class="user-rank-btn" id="user-rank-btn" title="Bảng xếp hạng">🏆 <span>Xếp hạng</span></button>
         <span class="user-stars" title="Số sao đã nhận ở lớp đang học"><span class="user-stars-icon">⭐</span><span class="user-stars-count">${headerStars()}</span></span>
@@ -259,12 +292,14 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
           <div class="user-menu" id="user-menu" role="menu" hidden>
             <div class="user-menu-head">
               <strong>${escapeHtml(name)}</strong>
-              <span>${escapeHtml(user.email)}</span>
+              <span>${guest ? 'Đang dùng thử — bài làm chỉ lưu trên máy này' : escapeHtml(user.email)}</span>
             </div>
             <button type="button" class="user-menu-item user-menu-edit" id="user-edit-profile" role="menuitem">✏️ Đổi lớp, avatar và biệt danh</button>
+            ${guest ? `
+            <button type="button" class="user-menu-item" id="user-signin" role="menuitem">🔐 Đăng nhập Google để lưu lên Drive</button>` : `
             <button type="button" class="user-menu-item" id="user-reviews" role="menuitem">⭐ Đánh giá ứng dụng</button>
             ${isAdminUser() ? '<button type="button" class="user-menu-item" id="user-admin" role="menuitem">📊 Trang quản lý</button>' : ''}
-            <button type="button" class="user-menu-item" id="user-signout" role="menuitem">🚪 Đăng xuất</button>
+            <button type="button" class="user-menu-item" id="user-signout" role="menuitem">🚪 Đăng xuất</button>`}
           </div>
         </div>
       </div>
@@ -286,9 +321,17 @@ export function renderHome(app, navigate, { user, onSignOut } = {}) {
     app.querySelector('#user-sticker-btn').addEventListener('click', () => navigate('stickers'));
     btn.addEventListener('click', () => setOpen(menu.hidden));
     app.querySelector('#user-edit-profile').addEventListener('click', () => { setOpen(false); navigate('profile'); });
-    app.querySelector('#user-reviews').addEventListener('click', () => { setOpen(false); navigate('reviews'); });
+    app.querySelector('#user-reviews')?.addEventListener('click', () => { setOpen(false); navigate('reviews'); });
     app.querySelector('#user-admin')?.addEventListener('click', () => { setOpen(false); location.hash = 'admin'; });
-    app.querySelector('#user-signout').addEventListener('click', () => { setOpen(false); openSignOutDialog(); });
+    app.querySelector('#user-signout')?.addEventListener('click', () => { setOpen(false); openSignOutDialog(); });
+    app.querySelector('#user-signin')?.addEventListener('click', () => { setOpen(false); onSignIn?.(); });
+    app.querySelector('#user-login-btn')?.addEventListener('click', () => onSignIn?.());
+    const cloudBtn = app.querySelector('#user-cloud-btn');
+    if (cloudBtn) {
+      paintCloudButton(cloudBtn);
+      // Gọi ngay trong click: token hết hạn thì mở popup Google xin lại (Safari iPad chặn nếu trễ).
+      cloudBtn.addEventListener('click', () => { syncNow({ interactive: true }); });
+    }
   }
 
   function openSignOutDialog() {

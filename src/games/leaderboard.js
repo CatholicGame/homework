@@ -59,7 +59,7 @@ function rankBadge(rank) {
     : `<span class="lb-rank">${rank}</span>`;
 }
 
-export function render(app, onBack, { onEditProfile } = {}) {
+export function render(app, onBack, { onEditProfile, onSignIn } = {}) {
   const grade = getProfileGrade();
   const PERIODS = periods(grade);
   const state = { tab: 'all', data: null };
@@ -98,6 +98,13 @@ export function render(app, onBack, { onEditProfile } = {}) {
 
   if (!isLeaderboardConfigured()) {
     showMessage('🛠️', 'Bảng xếp hạng chưa được bật. Nhờ bố mẹ hoặc thầy cô cài đặt nhé!');
+    return;
+  }
+  // Khách (chưa đăng nhập): không có tên trên bảng → mời đăng nhập.
+  if (onSignIn) {
+    showMessage('🔐', 'Đăng nhập Google để có tên trên bảng xếp hạng và lưu sao lên Google Drive nhé!',
+      '<button type="button" class="btn btn-primary" data-act="sign-in">Đăng nhập Google</button>');
+    body.querySelector('[data-act="sign-in"]').onclick = onSignIn;
     return;
   }
   load(false);

@@ -2,7 +2,7 @@
  * Login Page — Toán Tiểu Học
  */
 
-import { signIn, preloadAuth } from '../engine/auth.js';
+import { signIn, preloadAuth, enterGuest } from '../engine/auth.js';
 
 /**
  * Trình duyệt nhúng trong app khác (Zalo, Facebook, Messenger, Instagram, TikTok…):
@@ -26,7 +26,7 @@ function externalBrowserUrl() {
   return `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=${location.protocol.slice(0, -1)};action=android.intent.action.VIEW;end`;
 }
 
-export function renderLogin(app, onSignedIn) {
+export function renderLogin(app, onSignedIn, { error = '' } = {}) {
   app.innerHTML = `
     <div class="login-page">
       <div class="login-card animate-fadeIn">
@@ -43,6 +43,8 @@ export function renderLogin(app, onSignedIn) {
           </svg>
           <span>Đăng nhập bằng Google</span>
         </button>
+
+        <button type="button" class="login-guest-btn" id="login-guest">Dùng thử, không cần đăng nhập</button>
 
         <p class="login-error" id="login-error" hidden></p>
 
@@ -61,7 +63,8 @@ export function renderLogin(app, onSignedIn) {
         </div>
 
         <p class="login-note">
-          Tiến trình học sẽ được lưu vào Google Drive của bạn để dùng trên mọi thiết bị.
+          Đăng nhập: tiến trình học được lưu vào Google Drive của bạn để dùng trên mọi thiết bị.
+          Dùng thử: bài làm chỉ lưu trên máy này, đăng nhập sau sẽ được mang vào tài khoản.
         </p>
       </div>
     </div>
@@ -71,6 +74,7 @@ export function renderLogin(app, onSignedIn) {
   const errEl = app.querySelector('#login-error');
   const label = btn.querySelector('span');
   const inappEl = app.querySelector('#login-inapp');
+  if (error) { errEl.textContent = error; errEl.hidden = false; }
   const showInApp = () => { inappEl.hidden = false; };
   if (isInAppBrowser()) showInApp();
 
@@ -93,6 +97,11 @@ export function renderLogin(app, onSignedIn) {
   });
 
   preloadAuth().then(() => { btn.disabled = false; });
+
+  app.querySelector('#login-guest').addEventListener('click', () => {
+    enterGuest();
+    onSignedIn(null);
+  });
 
   btn.addEventListener('click', async () => {
     errEl.hidden = true;

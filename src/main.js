@@ -4,15 +4,19 @@
 
 import { renderHome } from './games/home.js';
 import { renderLogin } from './games/login.js';
-import { getCurrentUser, signOut } from './engine/auth.js';
+import { getCurrentUser, signOut, isGuest, leaveGuest, completeServerLogin } from './engine/auth.js';
+import { initCloudSync, pullIfStale, flushCloud } from './engine/cloudSync.js';
 import { creditLegacyProgress } from './engine/stars.js';
 import { setLastGame } from './engine/activity.js';
-import { isSetupDone, saveProfile } from './engine/profile.js';
+import { isSetupDone, saveProfile, adoptGuestProfile } from './engine/profile.js';
 import { renderProfileSetup } from './games/profileSetup.js';
 import { syncMyScore, syncMyProfile, registerUser, fetchRemoteProfile, signOutLeaderboard, connectLeaderboard, NEEDS_CONNECT } from './engine/leaderboard.js';
 import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
 import { initLightbox } from './engine/lightbox.js';
 import { initKeyboardInset } from './engine/keyboardInset.js';
+
+// Tiến trình học ↔ Google Drive của người đăng nhập
+initCloudSync();
 
 // Init virtual keyboard globally — auto-attaches to all number inputs
 initVirtualKeyboard();
@@ -121,7 +125,7 @@ function restoreRemoteProfile(userId) {
   return Promise.race([remote, timeout]).then((p) => {
     if (getCurrentUser()?.id !== userId) return 'none';
     if (p === NEEDS_CONNECT) return 'connect';
-    if (!p) return 'none';
+    if (!p) return adoptGuestProfile() ? 'restored' : 'none';
     saveProfile(p, { fromRemote: true });
     return 'restored';
   });
@@ -172,8 +176,22 @@ document.addEventListener('visibilitychange', () => {
       && Date.now() - lastProfileSync > 30_000) syncProfileFromOtherDevices();
 });
 
+// Khách bấm "Đăng nhập": hiện màn đăng nhập (vẫn có nút dùng thử tiếp), xong quay về trang đang mở.
+function goSignIn() {
+  const back = currentPage;
+  leaveGuest();
+  navigate(back);
+}
+
+// Bài làm ở máy khác vừa được tải về từ Drive → vẽ lại các trang hiện số sao / sticker.
+window.addEventListener('tth:cloud-pulled', () => {
+  syncMyScore();
+  if (['home', 'stickers'].includes(currentPage)) navigate(currentPage);
+});
+
 // Router
 let navToken = 0;
+let loginError = ''; // lỗi đăng nhập qua máy chủ, hiện một lần trên màn đăng nhập
 let profileReturn = 'home'; // màn quay về sau khi sửa hồ sơ
 let currentPage = null;
 function navigate(gameId) {
@@ -182,10 +200,11 @@ function navigate(gameId) {
   app.innerHTML = '';
   const token = ++navToken;
 
-  // Chỉ cho truy cập ứng dụng sau khi đăng nhập
-  const user = getCurrentUser();
+  // Đăng nhập Google, hoặc bấm "Dùng thử" (khách: dữ liệu chỉ lưu trên máy này)
+  const user = getCurrentUser() || (isGuest() ? { id: 'guest', guest: true, name: 'Khách' } : null);
   if (!user) {
-    renderLogin(app, () => navigate(gameId || 'home'));
+    renderLogin(app, () => navigate(gameId || 'home'), { error: loginError });
+    loginError = '';
     return;
   }
 
@@ -202,7 +221,7 @@ function navigate(gameId) {
 
   // Lần đầu đăng nhập: cho bé chọn trai/gái, avatar và tên (có thể bỏ qua).
   if (!isSetupDone()) {
-    if (!remoteChecked.has(user.id)) {
+    if (!user.guest && !remoteChecked.has(user.id)) {
       const loadingTimer = setTimeout(() => { if (token === navToken) renderLoading(app); }, 120);
       restoreRemoteProfile(user.id).then((result) => {
         clearTimeout(loadingTimer);
@@ -228,6 +247,7 @@ function navigate(gameId) {
       if (token !== navToken) return;
       mod.render(app, () => navigate('home'), {
         onEditProfile: () => { profileReturn = 'leaderboard'; navigate('profile'); },
+        onSignIn: user.guest ? goSignIn : null,
       });
     }).catch(() => {
       if (token === navToken) renderLoadError(app, () => navigate('home'));
@@ -257,12 +277,17 @@ function navigate(gameId) {
 
   if (!gameId || gameId === 'home') {
     creditLegacyProgress();
-    syncMyScore();
-    syncProfileFromOtherDevices();
-    registerUser();
+    if (!user.guest) {
+      syncMyScore();
+      syncProfileFromOtherDevices();
+      registerUser();
+      pullIfStale();
+    }
     renderHome(app, navigate, {
       user,
-      onSignOut: () => { signOutLeaderboard(); signOut(); navigate('home'); },
+      onSignIn: goSignIn,
+      // Đẩy nốt bài chưa lưu lên Drive trước khi thu hồi token.
+      onSignOut: () => flushCloud().then(() => { signOutLeaderboard(); signOut(); navigate('home'); }),
     });
     return;
   }
@@ -321,4 +346,22 @@ if (import.meta.env.DEV) {
 // Start
 const hashPage = () => (location.hash === '#admin' ? 'admin' : 'home');
 window.addEventListener('hashchange', () => navigate(hashPage()));
-navigate(hashPage());
+
+// Vừa đăng nhập Google qua máy chủ (api/auth/callback → /?login=ok | ?login_error=…).
+const params = new URLSearchParams(location.search);
+if (params.has('login') || params.has('login_error')) {
+  history.replaceState(null, '', location.pathname + location.hash);
+  if (params.get('login') === 'ok') {
+    renderLoading(document.getElementById('app'));
+    completeServerLogin().then((u) => {
+      if (!u) loginError = 'Đăng nhập chưa xong, bạn thử lại nhé.';
+      navigate(hashPage());
+    });
+  } else {
+    const why = params.get('login_error');
+    loginError = why === 'access_denied' ? 'Bạn đã huỷ đăng nhập.' : 'Đăng nhập thất bại, bạn thử lại nhé.';
+    navigate(hashPage());
+  }
+} else {
+  navigate(hashPage());
+}

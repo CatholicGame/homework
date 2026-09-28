@@ -16,6 +16,8 @@
  *                            "đã tô màu") và q.img là SVG
  */
 
+import { scopedKey } from './auth.js';
+
 const SVG_CACHE = new Map();
 const SHAPES = 'circle, ellipse, rect, polygon, path';
 const DRAG_START_PX = 6;
@@ -68,7 +70,7 @@ function loadSvg(url) {
 function keyOf(url) {
   let h = 0;
   for (let i = 0; i < url.length; i++) h = (h * 31 + url.charCodeAt(i)) | 0;
-  return `gw-paint:${(h >>> 0).toString(36)}:${url.length}`;
+  return scopedKey(`gw-paint:${(h >>> 0).toString(36)}:${url.length}`);
 }
 const empty = () => ({ fills: {}, strokes: [] });
 const isEmpty = (s) => !Object.keys(s.fills).length && !s.strokes.length;
@@ -84,6 +86,7 @@ function saveState(url, s) {
     if (isEmpty(s)) localStorage.removeItem(keyOf(url));
     else localStorage.setItem(keyOf(url), JSON.stringify(s));
   } catch { /* storage blocked */ }
+  window.dispatchEvent(new CustomEvent('tth:data-changed'));
 }
 
 // ── vẽ trạng thái lên một <svg> ─────────────────────────────────────────────
