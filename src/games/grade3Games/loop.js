@@ -145,7 +145,8 @@ function mountOrientation(play, btn) {
 /** Sao của ván: không thất bại → đủ sao của cấp; mỗi nhiệm vụ thất bại bớt 1 (còn ít nhất 1). */
 const starKey = (level) => `g3games:${level.id}`;
 
-export function playRound(app, { game, level, onExit, onNextLevel }) {
+// onQuit: nút ✕ (mặc định = onExit) — trò mở từ một bài thì ✕ về thẳng bài đó.
+export function playRound(app, { game, level, onExit, onNextLevel, onQuit = null }) {
   const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
   if (import.meta.env.DEV) console.info(`[g3games] ${level.id} seed=${seed}`);
   const rng = makeRng(seed);
@@ -169,7 +170,7 @@ export function playRound(app, { game, level, onExit, onNextLevel }) {
   const play = app.querySelector('.g3g-play');
   const stage = app.querySelector('.g3g-stage');
   mountOrientation(play, app.querySelector('[data-act="orient"]'));
-  app.querySelector('[data-act="quit"]').onclick = () => { stopSpeaking(); exitGameMode(); onExit(); };
+  app.querySelector('[data-act="quit"]').onclick = () => { stopSpeaking(); exitGameMode(); (onQuit || onExit)(); };
   const muteBtn = app.querySelector('[data-act="mute"]');
   muteBtn.onclick = () => { setMuted(!isMuted()); muteBtn.textContent = isMuted() ? '🔇' : '🔊'; };
   const fullBtn = app.querySelector('[data-act="full"]');
@@ -255,7 +256,7 @@ export function playRound(app, { game, level, onExit, onNextLevel }) {
         </div>
       </div>`;
     fitMenu(app);
-    app.querySelector('[data-act="again"]').onclick = () => playRound(app, { game, level, onExit, onNextLevel });
+    app.querySelector('[data-act="again"]').onclick = () => playRound(app, { game, level, onExit, onNextLevel, onQuit });
     app.querySelector('[data-act="up"]')?.addEventListener('click', () => { exitGameMode(); onNextLevel(); });
     app.querySelector('[data-act="list"]').onclick = () => { exitGameMode(); onExit(); };
   }

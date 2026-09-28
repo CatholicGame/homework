@@ -38,14 +38,17 @@ function knowledgeChips(text) {
 }
 
 /**
- * start = { stall, level } (id trong catalog.js): mở thẳng màn giới thiệu cấp đó — từ nút gợi ý trò chơi ở màn
- * kết quả của một bài. Quay lại vẫn đi qua danh sách cấp → quầy → trò như bình thường.
+ * start = { stall, level } (id trong catalog.js): mở thẳng màn giới thiệu cấp đó — từ biểu tượng trò chơi ở
+ * menu bài hoặc nút gợi ý ở màn kết quả của một bài. Khi đó nút quay lại (màn giới thiệu, ✕ trong màn chơi)
+ * về thẳng bài học (ctx.onBack) thay vì đi qua danh sách cấp → quầy → trò; chỉ khi em bấm "Chọn cấp khác"
+ * mới vào luồng danh sách như bình thường.
  */
 export function renderGamesHub(app, ctx, start = null) {
   injectGameStyles();
   preloadNpcs();
   const found = start && GAMES.map(g => ({ g, s: g.stalls.find(s => s.game?.id === start.stall) })).find(x => x.s);
   const lv = found && found.s.game.levels.find(l => l.id === start.level);
+  let fromLesson = !!lv;
   if (lv) showIntro(found.g, found.s.game, lv);
   else showGames();
 
@@ -99,6 +102,7 @@ export function renderGamesHub(app, ctx, start = null) {
   }
 
   function showLevels(g, game) {
+    fromLesson = false;
     shell(`
       ${topbar(`${game.icon} ${game.title}`, { kicker: `${g.icon} ${g.title}` })}
       <p class="g3g-lead">Chọn cấp — cấp nào cũng chơi được!</p>
@@ -154,7 +158,7 @@ export function renderGamesHub(app, ctx, start = null) {
           </div>
         </div>
       </div>`);
-    app.querySelector('[data-act="back"]').onclick = () => showLevels(g, game);
+    app.querySelector('[data-act="back"]').onclick = fromLesson ? ctx.onBack : () => showLevels(g, game);
     app.querySelector('[data-act="lesson"]')?.addEventListener('click', () => ctx.openUnit(lastUnit.id));
     app.querySelector('[data-act="play"]').onclick = () => play(g, game, lv);
   }
@@ -165,6 +169,7 @@ export function renderGamesHub(app, ctx, start = null) {
     playRound(app, {
       game, level: lv,
       onExit: () => showLevels(g, game),
+      onQuit: fromLesson ? ctx.onBack : null,
       onNextLevel: nextLv ? () => showIntro(g, game, nextLv) : null,
     });
   }

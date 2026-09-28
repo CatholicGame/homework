@@ -4327,8 +4327,11 @@ export function renderWorkbook(app, onBack, cfg) {
     app.querySelectorAll('.gw-unit-row').forEach(btn => {
       btn.addEventListener('click', () => openUnit(btn.dataset.unit));
     });
+    // Chạm hụt vào khoảng hồng giữa các nút quầy: không làm gì (không mở nhầm bài).
+    app.querySelectorAll('.gw-unit-games').forEach((c) => c.addEventListener('click', (e) => e.stopPropagation()));
     app.querySelectorAll('.gw-unit-game').forEach((g) => {
-      const play = (e) => { e.stopPropagation(); openGames({ stall: g.dataset.stall, level: g.dataset.level }); };
+      // Nhớ bài này là bài vừa mở → quay lại từ trò chơi, menu cuộn tới và nháy đúng bài đó.
+      const play = (e) => { e.stopPropagation(); setLastUnit(g.closest('.gw-unit-row').dataset.unit); openGames({ stall: g.dataset.stall, level: g.dataset.level }); };
       g.addEventListener('click', play);
       g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(e); } });
     });
@@ -6129,16 +6132,19 @@ function injectStyles() {
     .gw-unit-info strong { font-size: 0.92rem; color: #1E293B; line-height: 1.3; }
     .gw-unit-sub { font-size: 0.78rem; color: #64748B; }
     .gw-unit-arrow { color: #94a3b8; font-size: 1.3rem; flex-shrink: 0; }
-    .gw-unit-games { display: inline-flex; align-items: center; gap: 0.15rem; flex-shrink: 0; padding: 0.15rem 0.35rem 0.15rem 0.5rem; border-radius: 999px; background: #FDF2F8; border: 1.5px solid #FBCFE8; }
-    .gw-unit-games-pad { font-size: 1rem; margin-right: 0.1rem; }
-    .gw-unit-game { font-size: 1.25rem; line-height: 1; padding: 0.2rem; border-radius: 0.5rem; cursor: pointer; transition: transform 0.1s, background 0.15s; }
-    .gw-unit-game:hover, .gw-unit-game:focus-visible { background: #FCE7F3; transform: scale(1.15); outline: none; }
+    /* Mỗi quầy là một nút tròn nổi (viền + bóng đáy, nhấn xuống khi chạm), 40px, cách nhau rõ ràng —
+       trông bấm được và khó chạm nhầm sang quầy bên cạnh hay vào bài. */
+    .gw-unit-games { display: inline-flex; align-items: center; gap: 0.4rem; flex-shrink: 0; padding: 0.25rem 0.3rem 0.25rem 0.55rem; border-radius: 999px; background: #FDF2F8; border: 1.5px solid #FBCFE8; cursor: default; }
+    .gw-unit-games-pad { font-size: 1rem; margin-right: 0.05rem; }
+    .gw-unit-game { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 1.35rem; line-height: 1; border-radius: 50%; background: #fff; border: 2px solid #F9A8D4; box-shadow: 0 3px 0 #F9A8D4; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s, background 0.15s; -webkit-tap-highlight-color: transparent; }
+    .gw-unit-game:hover, .gw-unit-game:focus-visible { background: #FCE7F3; border-color: #EC4899; box-shadow: 0 3px 0 #EC4899; outline: none; }
+    .gw-unit-game:active { transform: translateY(3px); box-shadow: 0 0 0 #EC4899; }
     /* Điện thoại: bỏ 🎮 đứng đầu, thu gọn để tên bài không bị ép hẹp (khung hồng vẫn báo "có trò chơi"). */
     @media (max-width: 520px) {
       .gw-unit-row { gap: 0.6rem; }
-      .gw-unit-games { padding: 0.1rem 0.2rem; gap: 0; }
+      .gw-unit-games { padding: 0.2rem; gap: 0.3rem; }
       .gw-unit-games-pad { display: none; }
-      .gw-unit-game { font-size: 1.15rem; padding: 0.2rem 0.15rem; }
+      .gw-unit-game { width: 36px; height: 36px; font-size: 1.2rem; }
     }
 
     .gw-table-wrap { overflow-x: auto; margin-top: 0.4rem; }
