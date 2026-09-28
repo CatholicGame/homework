@@ -109,6 +109,35 @@ service cloud.firestore {
         && request.resource.data.createdAt == resource.data.createdAt;
     }
 
+    // Khách dùng thử không đăng nhập (Firebase Anonymous Auth, src/engine/leaderboard.js registerGuest):
+    // mỗi trình duyệt tự ghi bản của mình tối đa 1 lần/ngày; admin đọc tất cả (thống kê trang #admin),
+    // khách chỉ đọc bản của mình. convertedAt: lúc khách đó đăng nhập Google (ghi một lần).
+    function validGuest(d) {
+      return d.keys().hasOnly(['nickname', 'avatar', 'grade', 'stars', 'device', 'createdAt', 'lastSeenAt', 'convertedAt'])
+        && d.nickname is string && d.nickname.size() <= 20
+        && d.avatar is string && d.avatar.size() <= 40
+        && d.grade is int && (d.grade == 0 || validGrade(d.grade))
+        && validStars(d.stars)
+        && d.device is string && d.device.size() <= 120
+        && (!('convertedAt' in d) || d.convertedAt is timestamp);
+    }
+
+    match /guests/{uid} {
+      allow read: if isAdmin() || isOwner(uid);
+      allow create: if isOwner(uid) && request.auth.token.firebase.sign_in_provider == 'anonymous'
+        && validGuest(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.lastSeenAt == request.time
+        && !('convertedAt' in request.resource.data);
+      allow update: if isOwner(uid) && validGuest(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && (request.resource.data.lastSeenAt == request.time
+          || request.resource.data.lastSeenAt == resource.data.lastSeenAt)
+        && (!('convertedAt' in resource.data) || request.resource.data.convertedAt == resource.data.convertedAt)
+        && (!('convertedAt' in request.resource.data) || 'convertedAt' in resource.data
+          || request.resource.data.convertedAt == request.time);
+    }
+
     // Đánh giá ứng dụng: mỗi tài khoản một đánh giá (gửi lại = sửa), ai đăng nhập cũng xem được.
     // `reply` là phản hồi của admin — bé không tạo/sửa được; admin chỉ sửa được `reply` hoặc xoá cả đánh giá.
     function validReview(d) {

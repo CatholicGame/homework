@@ -1836,6 +1836,11 @@
 /* Bạn ảo của bảng xếp hạng: nền tím nhạt + nhãn "Ảo". */
 .adm-table tr.adm-fake td { background: #f5f0ff; }
 .adm-card.adm-fake { background: #f5f0ff; border-color: #d9c8ff; }
+/* Khách dùng thử (không đăng nhập): nền xanh nhạt + nhãn "Khách". */
+.adm-table tr.adm-guest td { background: #eff8ff; }
+.adm-card.adm-guest { background: #eff8ff; border-color: #bfdbfe; }
+.adm-guest-tag { background: #0284c7; }
+.adm-tile.adm-tile-guest { background: #eff8ff; }
 .adm-fake-tag {
   display: inline-block;
   margin-left: 4px;

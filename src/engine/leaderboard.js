@@ -15,10 +15,11 @@
  * SDK Firebase được tải lười (dynamic import) để không làm nặng lần mở app.
  */
 
-import { getCurrentUser, getAccessToken, getFreshAccessToken } from './auth.js';
+import { getCurrentUser, getAccessToken, getFreshAccessToken, isGuest } from './auth.js';
 import { getTotalStars, getStarsByGrade, getGradePeriodStars } from './stars.js';
 import { getProfile, saveProfile, markProfileSynced, NAME_MAX } from './profile.js';
 import { castRows, makeLaunch } from './leaderboardCast.js';
+import { describeDevice } from './voiceReport.js';
 
 // Cấu hình web app Firebase (công khai, không phải bí mật) — Project settings → Your apps.
 const firebaseConfig = {
@@ -80,6 +81,8 @@ async function ensureSignedInSilently() {
   const fb = await loadFirebase();
   await fb.auth.authStateReady();
   if (matchesCurrentUser(fb.auth.currentUser)) return fb;
+  // Phiên khách (ẩn danh) trên máy này vừa đăng nhập Google → ghi nhận trước khi thoát phiên đó.
+  if (fb.auth.currentUser?.isAnonymous) await markGuestConverted(fb).catch(() => {});
   if (fb.auth.currentUser) await fb.auth.signOut(); // phiên của tài khoản khác trên máy này
   const token = await getFreshAccessToken(); // hết hạn thì lấy mới qua máy chủ (nếu có phiên)
   if (!token) return null;
@@ -336,6 +339,60 @@ async function registerNow() {
   else await fs.setDoc(ref, { ...entry, createdAt: fs.serverTimestamp() });
   lastRegistered = mark;
   try { localStorage.setItem(storeKey, mark); } catch { /* storage unavailable */ }
+}
+
+// ── Khách dùng thử (cho trang admin) ─────────────────────────────────────────
+// `guests/{uid ẩn danh}`: { nickname, avatar, grade, stars, device, createdAt, lastSeenAt, convertedAt? }
+// Firebase Anonymous Auth (bật trong Firebase Console → Authentication → Sign-in method → Anonymous):
+// mỗi trình duyệt một uid, giữ qua các lần mở app. Ghi tối đa một lần mỗi ngày.
+const GUESTS = 'guests';
+let lastGuestMark = null;
+
+function guestEntry(fs) {
+  const p = getProfile();
+  const d = describeDevice();
+  return {
+    nickname: (p.name || '').slice(0, 20),
+    avatar: (p.avatar || '').slice(0, 40),
+    grade: p.grade || 0,
+    stars: Math.min(getTotalStars(), 20000),
+    device: [d.device, d.model, d.os, d.browser].filter(Boolean).join(' · ').slice(0, 120),
+    lastSeenAt: fs.serverTimestamp(),
+  };
+}
+
+async function registerGuestNow() {
+  const fb = await loadFirebase();
+  const { auth, authMod, db, fs } = fb;
+  await auth.authStateReady();
+  if (!isGuest()) return;
+  if (auth.currentUser && !auth.currentUser.isAnonymous) await auth.signOut(); // phiên Google cũ còn sót
+  if (!auth.currentUser) await authMod.signInAnonymously(auth);
+  const uid = auth.currentUser.uid;
+  const mark = `${uid}|${todayKey()}`;
+  const storeKey = 'tth_guest_seen';
+  let stored = null;
+  try { stored = localStorage.getItem(storeKey); } catch { /* storage unavailable */ }
+  if (lastGuestMark === mark || stored === mark) return;
+  const ref = fs.doc(db, GUESTS, uid);
+  const snap = await fs.getDoc(ref);
+  if (snap.exists()) await fs.updateDoc(ref, guestEntry(fs));
+  else await fs.setDoc(ref, { ...guestEntry(fs), createdAt: fs.serverTimestamp() });
+  lastGuestMark = mark;
+  try { localStorage.setItem(storeKey, mark); } catch { /* storage unavailable */ }
+}
+
+async function markGuestConverted(fb) {
+  const { db, fs, auth } = fb;
+  const ref = fs.doc(db, GUESTS, auth.currentUser.uid);
+  const snap = await fs.getDoc(ref);
+  if (snap.exists() && !snap.data().convertedAt) await fs.updateDoc(ref, { convertedAt: fs.serverTimestamp() });
+}
+
+/** Ghi nhận khách dùng thử vừa mở app hôm nay (thống kê ở trang admin). Không bao giờ ném lỗi. */
+export function registerGuest() {
+  if (!isLeaderboardConfigured() || !isGuest()) return;
+  registerGuestNow().catch((e) => console.warn('[guest] Không ghi được thống kê khách:', e?.code || e));
 }
 
 /** Ghi nhận bé đã đăng ký / vừa mở app hôm nay. Không bao giờ ném lỗi. */

@@ -8,6 +8,8 @@
  * Bé đăng nhập trước khi có sổ đăng ký chỉ có ở profiles/leaderboard: vẫn được đếm,
  * nhưng chưa có email và ngày đăng ký cho tới lần mở app tiếp theo.
  *
+ * Khách dùng thử (guests/{uid ẩn danh}) thêm vào với guest: true — trang admin đếm riêng.
+ *
  * Thêm các bạn ảo của bảng xếp hạng (fake: true) để admin thấy đúng bảng bé đang thấy;
  * trang admin tô màu khác và không đếm vào số liệu thống kê.
  *
@@ -29,7 +31,8 @@ export function isAdminUser() {
 const toMs = (ts) => (ts?.toMillis ? ts.toMillis() : 0);
 
 /**
- * @returns {Promise<Array<{ uid, email, name, nickname, avatar, grade, stars, createdAt, lastSeenAt, registered, fake? }>>}
+ * @returns {Promise<Array<{ uid, email, name, nickname, avatar, grade, stars, createdAt, lastSeenAt, registered,
+ *   fake?, guest?, device?, convertedAt? }>>}
  *   Ném lỗi 'need-connect' nếu cần bấm kết nối Firebase.
  */
 export async function fetchStudents() {
@@ -80,7 +83,18 @@ export async function fetchStudents() {
     r.lastSeenAt = Math.max(r.lastSeenAt, toMs(b.updatedAt));
   });
 
+  // Khách dùng thử: luật chưa deploy / chưa bật Anonymous → bỏ qua, không làm hỏng trang.
+  const guests = [];
+  try {
+    (await fs.getDocs(fs.collection(db, 'guests'))).forEach((d) => {
+      const g = d.data();
+      guests.push({ uid: d.id, email: '', name: '', nickname: g.nickname || '', avatar: g.avatar || '',
+        grade: g.grade || 0, stars: g.stars || 0, createdAt: toMs(g.createdAt), lastSeenAt: toMs(g.lastSeenAt),
+        registered: false, guest: true, device: g.device || '', convertedAt: toMs(g.convertedAt) });
+    });
+  } catch (e) { console.warn('[admin] Không đọc được guests/:', e?.code || e); }
+
   const realRows = board.docs.map(d => d.data());
   const launchOf = (g) => launches.get(`g${g}`) || makeLaunch(realRows.filter(r => r.grade === g), g);
-  return [...byUid.values(), ...castStudents(launchOf)];
+  return [...byUid.values(), ...guests, ...castStudents(launchOf)];
 }

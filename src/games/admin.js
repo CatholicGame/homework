@@ -1,7 +1,8 @@
 /**
  * Trang admin (mở bằng #admin), ba tab:
  *   Học sinh — bao nhiêu học sinh đã đăng ký, mới đăng ký / hoạt động gần đây, chia theo lớp, danh sách chi tiết.
- *              Bạn ảo của bảng xếp hạng (fake) có trong danh sách với màu riêng, không tính vào số liệu.
+ *              Khách dùng thử (guest, không đăng nhập) có số liệu riêng; bạn ảo của bảng xếp hạng (fake)
+ *              có trong danh sách với màu riêng. Cả hai không tính vào số liệu học sinh.
  *   Đánh giá — xem đánh giá ứng dụng, trả lời (hiện công khai dưới đánh giá) hoặc xoá.
  *   Giọng đọc — các máy không có giọng đọc tiếng Việt (sách Tiền tiểu học): trình duyệt, thiết bị gì.
  * Chỉ tài khoản trong ADMIN_EMAILS vào được (Firestore rules chặn phần còn lại).
@@ -38,9 +39,10 @@ const SORTS = [
 ];
 
 const KINDS = [
-  { id: 'all', label: 'Thật + ảo', test: () => true },
-  { id: 'real', label: 'Chỉ học sinh thật', test: (r) => !r.fake },
-  { id: 'fake', label: 'Chỉ bạn ảo', test: (r) => r.fake },
+  { id: 'all', label: 'Tất cả', test: () => true },
+  { id: 'real', label: 'Học sinh đăng nhập', test: (r) => !r.fake && !r.guest },
+  { id: 'guest', label: 'Khách dùng thử', test: (r) => r.guest },
+  { id: 'fake', label: 'Bạn ảo', test: (r) => r.fake },
 ];
 
 export function render(app, onBack) {
@@ -158,8 +160,9 @@ export function render(app, onBack) {
   // ── Vẽ ────────────────────────────────────────────────────────────────────
   function drawAll() {
     const all = state.rows;
-    const rows = all.filter(r => !r.fake); // số liệu chỉ tính học sinh thật
-    const fakes = all.length - rows.length;
+    const rows = all.filter(r => !r.fake && !r.guest); // số liệu học sinh: chỉ tài khoản thật
+    const guests = all.filter(r => r.guest);
+    const fakes = all.filter(r => r.fake).length;
     const today = startOfDay(Date.now());
     const since = (days) => today - (days - 1) * DAY;
     const count = (fn) => rows.filter(fn).length;
@@ -170,12 +173,16 @@ export function render(app, onBack) {
       { label: 'Đăng ký 30 ngày', value: count(r => r.createdAt >= since(30)) },
       { label: 'Hoạt động hôm nay', value: count(r => r.lastSeenAt >= today) },
       { label: 'Hoạt động 7 ngày', value: count(r => r.lastSeenAt >= since(7)) },
+      { label: 'Khách dùng thử', value: guests.length, guest: true,
+        note: `${guests.filter(r => r.convertedAt).length} đã đăng nhập sau đó` },
+      { label: 'Khách mới 7 ngày', value: guests.filter(r => r.createdAt >= since(7)).length, guest: true },
+      { label: 'Khách hoạt động hôm nay', value: guests.filter(r => r.lastSeenAt >= today).length, guest: true },
     ];
 
     body.innerHTML = `
       <div class="adm-tiles">
         ${tiles.map(t => `
-          <div class="adm-tile">
+          <div class="adm-tile${t.guest ? ' adm-tile-guest' : ''}">
             <div class="adm-tile-label">${t.label}</div>
             <div class="adm-tile-value">${t.value}</div>
             ${t.note ? `<div class="adm-tile-note">${t.note}</div>` : ''}
@@ -195,7 +202,7 @@ export function render(app, onBack) {
           <select class="adm-input adm-select" id="adm-sort" aria-label="Sắp xếp">
             ${SORTS.map(s => `<option value="${s.id}"${s.id === state.sort ? ' selected' : ''}>${s.label}</option>`).join('')}
           </select>
-          ${fakes ? `<select class="adm-input adm-select" id="adm-kind" aria-label="Loại học sinh">
+          ${fakes || guests.length ? `<select class="adm-input adm-select" id="adm-kind" aria-label="Loại học sinh">
             ${KINDS.map(k => `<option value="${k.id}"${k.id === state.kind ? ' selected' : ''}>${k.label}</option>`).join('')}
           </select>` : ''}
           <button type="button" class="btn btn-ghost adm-csv" id="adm-csv">⬇️ CSV</button>
@@ -316,9 +323,9 @@ export function render(app, onBack) {
             <th>Học sinh</th><th>Email</th><th>Lớp</th><th class="adm-num">Sao</th><th>Đăng ký</th><th>Lần cuối</th>
           </tr></thead>
           <tbody>${items.map(r => `
-            <tr${r.fake ? ' class="adm-fake"' : ''}>
+            <tr${r.fake ? ' class="adm-fake"' : r.guest ? ' class="adm-guest"' : ''}>
               <td>${who(r)}</td>
-              <td class="adm-email">${r.email ? escapeHtml(r.email) : `<span class="adm-muted">${r.fake ? 'bạn ảo' : 'chưa ghi nhận'}</span>`}</td>
+              <td class="adm-email">${r.email ? escapeHtml(r.email) : `<span class="adm-muted">${noEmail(r)}</span>`}</td>
               <td>${gradeLabel(r.grade)}</td>
               <td class="adm-num">⭐ ${r.stars}</td>
               <td>${fmtDate(r.createdAt)}</td>
@@ -328,9 +335,9 @@ export function render(app, onBack) {
         </table>
       </div>
       <div class="adm-cards">${items.map(r => `
-        <div class="adm-card${r.fake ? ' adm-fake' : ''}">
+        <div class="adm-card${r.fake ? ' adm-fake' : r.guest ? ' adm-guest' : ''}">
           ${who(r)}
-          <div class="adm-card-email">${r.email ? escapeHtml(r.email) : `<span class="adm-muted">${r.fake ? 'Bạn ảo' : 'Email chưa ghi nhận'}</span>`}</div>
+          <div class="adm-card-email">${r.email ? escapeHtml(r.email) : `<span class="adm-muted">${noEmail(r)}</span>`}</div>
           <div class="adm-card-meta">
             <span>${gradeLabel(r.grade)}</span><span>⭐ ${r.stars}</span>
             <span>Đăng ký: ${fmtDate(r.createdAt)}</span><span>Lần cuối: ${fmtDate(r.lastSeenAt)}</span>
@@ -576,14 +583,25 @@ export function render(app, onBack) {
     }
   }
 
+  /** Cột email khi không có email: bạn ảo / khách (máy gì, đã đăng nhập chưa) / chưa ghi nhận. */
+  function noEmail(r) {
+    if (r.fake) return 'bạn ảo';
+    if (r.guest) {
+      const conv = r.convertedAt ? ` · đã đăng nhập ${fmtDate(r.convertedAt)}` : '';
+      return escapeHtml(`${r.device || 'khách'}${conv}`);
+    }
+    return 'chưa ghi nhận';
+  }
+
   function who(r) {
-    const label = r.nickname || r.name || 'Ẩn danh';
+    const label = r.nickname || r.name || (r.guest ? 'Khách' : 'Ẩn danh');
     const img = avatarUrl(r.avatar);
     const avatar = img
       ? `<img class="lb-avatar adm-avatar" src="${img}" alt="">`
       : `<span class="lb-avatar lb-avatar-fallback adm-avatar">${escapeHtml(label.charAt(0).toUpperCase())}</span>`;
     const sub = r.nickname && r.name && r.nickname !== r.name ? `<small>${escapeHtml(r.name)}</small>` : '';
-    const tag = r.fake ? ' <span class="adm-fake-tag">Ảo</span>' : '';
+    const tag = r.fake ? ' <span class="adm-fake-tag">Ảo</span>'
+      : r.guest ? ' <span class="adm-fake-tag adm-guest-tag">Khách</span>' : '';
     return `<span class="adm-who">${avatar}<span><strong>${escapeHtml(label)}</strong>${tag}${sub}</span></span>`;
   }
 }
@@ -591,8 +609,9 @@ export function render(app, onBack) {
 function downloadCsv(rows) {
   const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
   const lines = [
-    ['Biệt danh', 'Tên Google', 'Email', 'Lớp', 'Sao', 'Ngày đăng ký', 'Lần cuối', 'Ảo'],
-    ...rows.map(r => [r.nickname, r.name, r.email, r.grade ? gradeLabel(r.grade) : '', r.stars, fmtDate(r.createdAt), fmtDateTime(r.lastSeenAt), r.fake ? 'x' : '']),
+    ['Biệt danh', 'Tên Google', 'Email', 'Lớp', 'Sao', 'Ngày đăng ký', 'Lần cuối', 'Loại', 'Máy', 'Khách đã đăng nhập'],
+    ...rows.map(r => [r.nickname, r.name, r.email, r.grade ? gradeLabel(r.grade) : '', r.stars, fmtDate(r.createdAt), fmtDateTime(r.lastSeenAt),
+      r.fake ? 'Ảo' : r.guest ? 'Khách' : 'Học sinh', r.device || '', r.convertedAt ? fmtDate(r.convertedAt) : '']),
   ].map(l => l.map(cell).join(','));
   const blob = new Blob([`﻿${lines.join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');

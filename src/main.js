@@ -10,7 +10,7 @@ import { creditLegacyProgress } from './engine/stars.js';
 import { setLastGame } from './engine/activity.js';
 import { isSetupDone, saveProfile, adoptGuestProfile } from './engine/profile.js';
 import { renderProfileSetup } from './games/profileSetup.js';
-import { syncMyScore, syncMyProfile, registerUser, fetchRemoteProfile, signOutLeaderboard, connectLeaderboard, NEEDS_CONNECT } from './engine/leaderboard.js';
+import { syncMyScore, syncMyProfile, registerUser, registerGuest, fetchRemoteProfile, signOutLeaderboard, connectLeaderboard, NEEDS_CONNECT } from './engine/leaderboard.js';
 import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
 import { initLightbox } from './engine/lightbox.js';
 import { initKeyboardInset } from './engine/keyboardInset.js';
@@ -282,6 +282,8 @@ function navigate(gameId) {
       syncProfileFromOtherDevices();
       registerUser();
       pullIfStale();
+    } else {
+      registerGuest(); // thống kê khách ở trang admin
     }
     renderHome(app, navigate, {
       user,
