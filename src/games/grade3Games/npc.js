@@ -39,7 +39,36 @@ export const NPCS = [
 
 /** Hình NPC toàn thân; đổi `mood` thì vẽ lại để chuyển động chạy lại từ đầu. */
 export function npcPic(n, mood = 'wait') {
-  return `<img class="g3-npc-img g3-npc-${mood}" src="${mood === 'sad' ? n.sad : n.img}" alt="${n.name}" draggable="false">`;
+  return `<img class="g3-npc-img g3-npc-${mood}" src="${mood === 'sad' ? n.sad : n.img}" alt="${n.name}" draggable="false" decoding="async">`;
+}
+
+// Tải sẵn cả 18 hình (vui + buồn) ngay khi mở trò chơi — khách mới hiện ra là có hình liền, không chờ mạng.
+// Giữ tham chiếu để trình duyệt không bỏ ảnh đã tải.
+const kept = [];
+export function preloadNpcs() {
+  if (kept.length) return;
+  for (const n of NPCS) {
+    for (const src of [n.img, n.sad]) {
+      const im = new Image();
+      im.decoding = 'async';
+      im.src = src;
+      kept.push(im);
+    }
+  }
+}
+
+// Mạng chập chờn làm một hình khách tải hỏng → trước đây phải thoát ra vào lại. Giờ tự tải lại (tối đa 3 lần,
+// chờ lâu dần), thêm ?r= để trình duyệt không dùng lại lần tải hỏng.
+if (typeof document !== 'undefined') {
+  document.addEventListener('error', (e) => {
+    const img = e.target;
+    if (!(img instanceof HTMLImageElement) || !img.classList.contains('g3-npc-img')) return;
+    const tries = Number(img.dataset.retry || 0);
+    if (tries >= 3) return;
+    img.dataset.retry = String(tries + 1);
+    const base = img.getAttribute('src').replace(/[?&]r=\d+$/, '');
+    setTimeout(() => { if (img.isConnected) img.src = `${base}${base.includes('?') ? '&' : '?'}r=${tries + 1}`; }, 500 * (tries + 1));
+  }, true);
 }
 
 export const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);

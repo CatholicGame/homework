@@ -121,6 +121,7 @@ import { attachPairDrop } from '../engine/pairDrop.js';
 import { attachBalancePlay } from '../engine/balancePlay.js';
 import { attachColorPaint } from '../engine/colorPaint.js';
 import { GRADE3_GAMES } from '../data/features.js';
+import { levelsForUnit } from './grade3Games/catalog.js';
 import { attachTrainSwap, attachTrainPaint, trainEngine, trainMatchCar } from '../engine/trains.js';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
@@ -4313,17 +4314,18 @@ export function renderWorkbook(app, onBack, cfg) {
     });
 
     // Trò chơi tăng cường (bật / tắt bằng cờ GRADE3_GAMES — src/data/features.js).
-    if (GRADE3_GAMES && cfg.gamesBook) {
-      app.querySelector('#gw-games-btn').onclick = () => {
-        import('./grade3Games.js').then(m => m.renderGamesHub(app, {
-          book: cfg.gamesBook, units: UNITS, unitName: cfg.unitName, storageKey: cfg.storageKey,
-          openUnit, onBack: showIntro,
-        }));
-      };
-    }
+    if (GRADE3_GAMES && cfg.gamesBook) app.querySelector('#gw-games-btn').onclick = () => openGames();
 
     app.querySelector('#e3-back-btn').onclick = onBack;
     jumpToLastUnit();
+  }
+
+  // Trò chơi tăng cường (tải động). start = { stall, level } → mở thẳng cấp đó (gợi ý ở màn kết quả bài).
+  function openGames(start = null) {
+    import('./grade3Games.js').then(m => m.renderGamesHub(app, {
+      book: cfg.gamesBook, units: UNITS, unitName: cfg.unitName, storageKey: cfg.storageKey,
+      openUnit, onBack: showIntro,
+    }, start));
   }
 
   // Mở một bài (hoặc 'all') — từ menu bài, hoặc nút "Xem lại bài" của trò chơi tăng cường.
@@ -4822,20 +4824,28 @@ export function renderWorkbook(app, onBack, cfg) {
     const ws = String(s).trim().toLowerCase().split(/\s+/);
     return ws[0] !== '' && ws.every(w => NUM_WORDS.has(w));
   }
+  // An expression made only of numbers, + − × : and brackets ("100+30+9",
+  // "162 + 29 − 18", "(8 + 2) × 5", a lone "×" for "viết dấu phép tính"):
+  // every character is on the virtual number pad.
+  function isExpr(s) {
+    const t = String(s).trim();
+    return /^[\d\s+\-−–×x*:÷()]+$/.test(t) && /[+\-−–×x*:÷]/.test(t);
+  }
   function kbAttr(answer) {
-    return isPlainInt(answer) ? 'inputmode="numeric"' : isNumberWords(answer) ? 'data-vk-words="1"'
+    return isPlainInt(answer) || isExpr(answer) ? 'inputmode="numeric"' : isNumberWords(answer) ? 'data-vk-words="1"'
       : isPointLetters(answer) ? UPPER_ATTR : '';
   }
-  // An answer made only of point/vertex names ("B, M, C", "A,B", "Q", "MN")
-  // — the book writes them in capitals, so the input capitalises as the child
-  // types (autoUpper) instead of leaving "a, h, m" on screen.
+  // An answer made only of point/vertex/segment names ("B, M, C", "A,B", "Q",
+  // "MN", "ABC; ACD", "A, M, B và C, N, D", "= QB") — the book writes them in
+  // capitals, so the input capitalises as the child types (autoUpper) instead
+  // of leaving "a, h, m" on screen. "và" between groups stays lowercase.
   function isPointLetters(s) {
-    return /^[A-Z]+(\s*[,;]?\s*[A-Z]+)*$/.test(String(s).trim());
+    return /^=?\s*[A-Z]+(\s*([,;=]|và)?\s*[A-Z]+)*$/.test(String(s).trim());
   }
   const UPPER_ATTR = 'data-upper="1" autocapitalize="characters"';
   function autoUpper(inputs) {
     inputs.filter(inp => inp.dataset.upper).forEach(inp => inp.addEventListener('input', () => {
-      const up = inp.value.toUpperCase();
+      const up = inp.value.toUpperCase().replace(/(^|[^A-Z])VÀ(?![A-Z])/g, '$1và');
       if (up === inp.value) return;
       const pos = inp.selectionStart;
       inp.value = up;
@@ -4890,10 +4900,11 @@ export function renderWorkbook(app, onBack, cfg) {
       `;
     }
     const slotCount = parts.length - 1;
-    // Only plain digits/commas/spaces (e.g. "36,37") get the digit-only virtual
-    // keypad. A "+" (sum expressions like "100+30+9") or a letter (like "A và E")
-    // must fall back to a normal free-typing field, or that character could never be entered.
-    const numeric = /^[\d\s,;-]+$/.test(String(b.answer));
+    // Digits/commas/spaces (e.g. "36,37") and expressions ("100+30+9",
+    // "(8 + 2) × 5") get the virtual number pad, which has + − × : ( ) keys.
+    // A letter (like "A và E") must fall back to a normal free-typing field,
+    // or that character could never be entered.
+    const numeric = /^[\d\s,;-]+$/.test(String(b.answer)) || isExpr(b.answer);
     // One blank holding several numbers ("59, 56, 51, 53") needs a "," key
     // on the keypad to separate them.
     const listInOne = numeric && slotCount === 1 && /[,;]/.test(String(b.answer));
@@ -5258,6 +5269,10 @@ export function renderWorkbook(app, onBack, cfg) {
   }
 
   function normalize(v) {
+    // An expression ("900 + 50") is compared as a whole, not by parseFloat's
+    // leading number (which let "900 + 5" pass); spacing and the typed forms
+    // of each operator (- for −, x for ×, ÷ for :) don't matter.
+    if (isExpr(v)) return String(v).replace(/\s+/g, '').replace(/[−–]/g, '-').replace(/[x*]/gi, '×').replace(/÷/g, ':');
     const n = parseFloat(String(v).replace(',', '.').replace(/\s+/g, ''));
     return isNaN(n) ? String(v).trim().toLowerCase().replace(/\s+/g, ' ') : n;
   }
@@ -5711,6 +5726,8 @@ export function renderWorkbook(app, onBack, cfg) {
     const total = activeQuestions.length;
     const pct = Math.round((correctCount / total) * 100);
     const { emoji, label, color } = getGrade(pct);
+    // Làm xong một bài có trò chơi luyện đúng bài đó → mời chơi (mở thẳng cấp phù hợp).
+    const games = GRADE3_GAMES && cfg.gamesBook && activeUnitIds.length === 1 ? levelsForUnit(cfg.gamesBook, activeUnitIds[0]) : [];
 
     app.innerHTML = `
       <div class="e3-wrap gw-app">
@@ -5721,6 +5738,19 @@ export function renderWorkbook(app, onBack, cfg) {
           <div class="e3-result-score">${correctCount} / ${total}</div>
           <div class="e3-result-pct">${pct}% câu đúng</div>
           <div class="star-result">⭐ ${activeQuestions.reduce((n, q) => n + qEarned(q), 0)} / ${activeQuestions.reduce((n, q) => n + qStars(q), 0)} sao</div>
+
+          ${games.length ? `
+          <div class="gw-result-games">
+            <div class="gw-result-games-title">🎮 Chơi trò chơi luyện ${cfg.unitWord} này</div>
+            <div class="gw-result-games-list">
+              ${games.map(({ stall, level }) => `
+                <button type="button" class="gw-result-game" data-stall="${stall.id}" data-level="${level.id}">
+                  <span class="gw-result-game-icon">${stall.icon}</span>
+                  <span class="gw-result-game-info"><strong>${stall.title}</strong><span>Cấp ${level.n} · ${level.title}</span></span>
+                  <span class="gw-result-game-go">▶</span>
+                </button>`).join('')}
+            </div>
+          </div>` : ''}
 
           <div class="e3-result-list">
             ${activeQuestions.map((q, i) => {
@@ -5751,8 +5781,12 @@ export function renderWorkbook(app, onBack, cfg) {
       showQuestion();
     };
     app.querySelector('#e3-home-result').onclick = showIntro;
+    app.querySelectorAll('.gw-result-game').forEach(b => {
+      b.onclick = () => openGames({ stall: b.dataset.stall, level: b.dataset.level });
+    });
   }
 
+  if (import.meta.env.DEV) window.__gwShowResult = showResult; // chạy thử màn kết quả không cần làm hết bài
   showIntro();
 }
 
@@ -5781,6 +5815,17 @@ function injectStyles() {
       .e3-sub { color: #64748B; font-size: 1rem; margin: 0 0 1.5rem; }
       .gw-games-btn { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; width: 100%; margin: 0 0 1.1rem; padding: 0.8rem 1rem; border: none; border-radius: 1rem; background: linear-gradient(135deg, #FB923C, #F472B6); color: #fff; font-family: inherit; font-size: 1.1rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 16px rgba(244,114,182,0.35); }
       .gw-games-btn span { font-size: 0.8rem; font-weight: 600; opacity: 0.9; }
+      .gw-result-games { margin: 0 0 1.3rem; padding: 0.8rem; border-radius: 1.1rem; background: linear-gradient(135deg, #FFF7ED, #FDF2F8); border: 2px solid #FBCFE8; }
+      .gw-result-games-title { font-weight: 800; color: #9D174D; text-align: center; margin-bottom: 0.6rem; font-size: 1.05rem; }
+      .gw-result-games-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.5rem; }
+      .gw-result-game { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.7rem; border: none; border-radius: 0.9rem; background: #fff; box-shadow: 0 3px 0 #FBCFE8; font-family: inherit; text-align: left; cursor: pointer; transition: transform 0.1s; }
+      .gw-result-game:hover { transform: translateY(-2px); }
+      .gw-result-game:active { transform: translateY(1px); box-shadow: 0 1px 0 #FBCFE8; }
+      .gw-result-game-icon { font-size: 1.9rem; line-height: 1; }
+      .gw-result-game-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+      .gw-result-game-info strong { color: #1E293B; font-size: 0.98rem; }
+      .gw-result-game-info span { color: #64748B; font-size: 0.82rem; font-weight: 600; }
+      .gw-result-game-go { width: 2rem; height: 2rem; flex: none; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(135deg, #FB923C, #F472B6); color: #fff; font-size: 0.85rem; }
       .e3-section-label { font-weight: 700; color: #374151; margin-bottom: 0.75rem; font-size: 0.95rem; }
       .e3-section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.2rem; }
       .e3-section-btn { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.9rem 0.5rem; border: 2px solid #e2e8f0; border-radius: 1rem; background: #f8fafc; cursor: pointer; font-family: inherit; transition: border-color 0.15s, background 0.15s, transform 0.1s; }

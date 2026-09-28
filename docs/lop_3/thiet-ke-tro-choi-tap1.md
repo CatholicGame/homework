@@ -43,6 +43,7 @@ Các bài Luyện tập chung và Ôn tập không có trò riêng. Chúng dùng
 - Trong **mỗi sách** (Vở Bài tập Toán 3 Tập 1 và Luyện tập Toán 3), ở màn hình danh sách bài, có một nút **"🎮 Trò chơi tăng cường"**.
 - Bấm nút → mở **danh sách các trò đang có**, dạng lưới thẻ. Mỗi thẻ có hình minh họa, tên trò và các nhãn kiến thức (ví dụ *Khối lượng · Nhân*).
 - Hai sách dùng **chung một danh sách trò**. Chỉ khác ở chỗ lời gợi ý ghi tên bài của sách đang mở (Bài … hoặc Tuần …).
+- **Làm xong một bài** (màn kết quả của một Bài / Tuần) mà có cấp trò chơi luyện đúng bài đó → hiện khung **"🎮 Chơi trò chơi luyện bài này"** với từng cấp phù hợp (quầy · cấp · tên cấp); bấm là mở thẳng màn giới thiệu cấp đó. Không hiện khi làm "Tất cả". Danh sách lấy từ `src/games/grade3Games/catalog.js` (tên, biểu tượng, cấp và `lessons` của mọi quầy — nguồn duy nhất, các quầy đọc lại bằng `stallMeta()` / `levelMeta()`), nên sách không phải tải cả trò chơi. Trò mới: thêm quầy / cấp vào catalog là tự có gợi ý.
 
 ### 3.2 Không khóa trò nào
 

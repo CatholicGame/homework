@@ -8,6 +8,7 @@
 import { cartonSvg, cartonSize, cartonIcon, looseEggsSvg, looseTraySize, eggSvg } from '../art/eggs.js';
 import { NPCS, cap } from '../npc.js';
 import { mountStall, Q } from './stall.js';
+import { stallMeta, levelMeta } from '../catalog.js';
 import { sfx } from '../../preschool/fx.js';
 import { flyOne, calmMotion } from '../fly.js';
 
@@ -47,36 +48,32 @@ function flyEggs(fromRects, toEls, { gap = 260, minMs = 500, maxMs = 1000 } = {}
 
 export const EGG_LEVELS = [
   {
-    id: 'egg-1', n: 1, title: 'Hộp 2, 5, 10 quả', missions: 5,
+    ...levelMeta('egg-1'), missions: 5,
     knowledge: 'bảng nhân 2, bảng nhân 5 (lớp 2)',
-    lessons: { workbook: ['bai-4', 'bai-7'], practice: ['tuan-2', 'tuan-3'] },
     ask: (n) => `Đóng trứng vào hộp rồi đếm giúp ${n.me} có bao nhiêu quả nhé!`,
     desc: 'Khách lấy mấy hộp trứng, mỗi hộp 2, 5 hoặc 10 quả: đóng hộp rồi tính tất cả bao nhiêu quả.',
     sizes: [2, 5, 10], kinds: ['mul'], boxes: [2, 9],
     how: [['carton', 'Đóng hộp'], ['✖️', 'Tính số trứng']],
   },
   {
-    id: 'egg-2', n: 2, title: 'Nhân và chia', missions: 5,
+    ...levelMeta('egg-2'), missions: 5,
     knowledge: 'bảng nhân 3 đến 9, bảng chia 3 đến 9',
-    lessons: { workbook: ['bai-5', 'bai-6', 'bai-9', 'bai-10', 'bai-11', 'bai-12'], practice: ['tuan-2', 'tuan-3', 'tuan-4', 'tuan-5', 'tuan-6'] },
     ask: (n) => `Đóng hộp 3, 4, 6, 8, 9 quả — nhân hay chia giúp ${n.me} nhé!`,
     desc: 'Hộp 3, 4, 6, 8, 9 quả: khách lấy mấy hộp thì nhân; khách mang trứng đến nhờ xếp hộp thì chia.',
     sizes: [3, 4, 6, 8, 9], kinds: ['mul', 'div'], boxes: [2, 9],
     how: [['carton', 'Đóng hộp'], ['✖️', 'Nhân'], ['➗', 'Chia']],
   },
   {
-    id: 'egg-3', n: 3, title: 'Trứng thừa ra', missions: 5,
+    ...levelMeta('egg-3'), missions: 5,
     knowledge: 'phép chia hết, phép chia có dư',
-    lessons: { workbook: ['bai-25'], practice: ['tuan-10'] },
     ask: (n) => `Xếp trứng vào hộp — được mấy hộp, thừa mấy quả giúp ${n.me} nhé!`,
     desc: 'Chia có dư: 50 quả xếp hộp 6 quả → 8 hộp, thừa 2 quả.',
     sizes: [3, 4, 5, 6, 7, 8, 9], kinds: ['rem'], boxes: [2, 9],
     how: [['➗', 'Số hộp'], ['egg', 'Số quả thừa'], ['carton', 'Đóng hộp']],
   },
   {
-    id: 'egg-4', n: 4, title: 'Nhiều trứng', missions: 5,
+    ...levelMeta('egg-4'), missions: 5,
     knowledge: 'chia số có 2–3 chữ số cho số có 1 chữ số',
-    lessons: { workbook: ['bai-26', 'bai-37'], practice: ['tuan-11', 'tuan-15'] },
     ask: (n) => `Trang trại nhà ${n.me} nhiều trứng lắm — xếp hộp giúp ${n.me} nhé!`,
     desc: 'Số trứng có hai, ba chữ số (tới 150 quả): 96 quả xếp hộp 8 quả → 12 hộp.',
     sizes: [2, 3, 4, 5, 6, 7, 8, 9], kinds: ['div', 'rem'], boxes: [10, 30], maxEggs: 150,
@@ -85,9 +82,7 @@ export const EGG_LEVELS = [
 ];
 
 export const EGG_GAME = {
-  id: 'egg',
-  title: 'Quầy trứng',
-  icon: '🥚',
+  ...stallMeta('egg'),
   unitWord: 'khách',
   levels: EGG_LEVELS,
   stallIcon: () => cartonIcon(6, 56),
@@ -142,8 +137,34 @@ export const EGG_GAME = {
     let boxCount = 1;
     let trayMax = 1, trayCols = 10, looseCount = 0; // khay giữ nguyên cỡ lúc đầy (trayMax quả)
     const drawTray = () => { trayEggs.innerHTML = looseEggsSvg(looseCount, Math.ceil(trayMax / trayCols), trayCols); };
+    // Màn dọc (khay trên, hộp dưới): chia chiều cao bàn cho khay và hộp sao cho trứng to nhất —
+    // thử mọi cách xếp (khay hàng 10 / hàng 5, lưới hộp 1…n cột), lấy tỉ lệ lớn nhất vừa cả bề ngang
+    // lẫn tổng chiều cao; khay được đúng chiều cao nó cần, phần còn lại cho bàn đóng hộp.
+    const bench = counter.querySelector('.g3e-bench');
+    const splitStacked = () => {
+      const cs = getComputedStyle(bench);
+      if (cs.gridTemplateColumns.trim().split(/\s+/).length !== 1) { bench.style.gridTemplateRows = ''; return 0; }
+      const W = bench.clientWidth, gap = 8;
+      const total = bench.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.rowGap || 0);
+      const ovh = cap_.offsetHeight + 36;
+      if (!W || total <= ovh) return 0;
+      let top = { s: 0 };
+      for (const tc of trayMax <= 50 ? [10, 5] : [10]) {
+        const t = looseTraySize(Math.ceil(trayMax / tc), tc);
+        for (let bc = 1; bc <= boxCount; bc++) {
+          const br = Math.ceil(boxCount / bc);
+          const s = Math.min(3.2, (W - 24) / t.w, (W - gap * (bc - 1)) / (bc * cw),
+            (total - ovh - gap * (br - 1)) / (t.h + br * ch));
+          if (s > top.s) top = { s, tc, trayH: Math.ceil(t.h * s + ovh) };
+        }
+      }
+      if (!top.s) return 0;
+      bench.style.gridTemplateRows = `${top.trayH}px minmax(0, 1fr)`;
+      return top.tc;
+    };
     const fit = () => {
       if (!boxesEl.isConnected) return obs.disconnect();
+      const stackedCols = splitStacked();
       const W = boxesEl.clientWidth, H = boxesEl.clientHeight, gap = 8;
       if (!W || !H) return;
       let best = 0;
@@ -157,7 +178,7 @@ export const EGG_GAME = {
         return Math.max(0.4, Math.min(best / cw, tw / w, th / h, 3.2));
       };
       // Hàng 5 chỉ khi ít trứng (≤ 50): nhiều hơn thì thành cột dài khó đếm theo chục.
-      const cols = trayMax <= 50 && scaleFor(5) > scaleFor(10) * 1.05 ? 5 : 10;
+      const cols = stackedCols || (trayMax <= 50 && scaleFor(5) > scaleFor(10) * 1.05 ? 5 : 10);
       if (cols !== trayCols) { trayCols = cols; drawTray(); }
       const s = scaleFor(cols);
       const { w: vw, h: vh } = looseTraySize(Math.ceil(trayMax / cols), cols);

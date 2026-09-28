@@ -13,6 +13,7 @@ import {
 } from '../art/lemonade.js';
 import { NPCS, npcPic, cap } from '../npc.js';
 import { mountStall, Q } from './stall.js';
+import { stallMeta, levelMeta } from '../catalog.js';
 import { flyOne, svgBoxOnScreen, calmMotion } from '../fly.js';
 import { sfx } from '../../preschool/fx.js';
 
@@ -23,9 +24,8 @@ const L_SVG = '<tspan font-family="Georgia, Times New Roman, serif" font-style="
 
 export const LEMON_LEVELS = [
   {
-    id: 'lemon-1', n: 1, title: 'Rót theo vạch', missions: 5,
+    ...levelMeta('lemon-1'), missions: 5,
     knowledge: 'mi-li-lít, đếm vạch trên ca',
-    lessons: { workbook: ['bai-32'], practice: ['tuan-13'] },
     ask: (n) => `Rót nước chanh cho đúng vạch giúp ${n.me} nhé!`,
     desc: 'Ca 500 ml, mỗi vạch 100 ml. Bấm giữ vòi để rót, thả tay đúng vạch khách cần: 300 ml là 3 vạch.',
     jug: { cap: 500, step: 100, longEvery: 1, labels: 'top' }, rate: 110, tol: 18,
@@ -33,9 +33,8 @@ export const LEMON_LEVELS = [
     how: [['tap', 'Giữ vòi để rót'], ['jug', 'Nhìn vạch'], ['✓', 'Rót xong']],
   },
   {
-    id: 'lemon-2', n: 2, title: 'Vạch 50 ml', missions: 5,
+    ...levelMeta('lemon-2'), missions: 5,
     knowledge: 'mi-li-lít, lít (1 l = 1 000 ml)',
-    lessons: { workbook: ['bai-32'], practice: ['tuan-13'] },
     ask: (n) => `Ca 1 lít có vạch 50 ml — rót thật khéo giúp ${n.me} nhé!`,
     desc: 'Ca 1 l có số mỗi 100 ml; vạch ngắn ở giữa là thêm 50 ml. Ví dụ: "Rót 350 ml".',
     jug: { cap: 1000, step: 50, longEvery: 2, labels: 'long' }, rate: 150, tol: 12,
@@ -43,9 +42,8 @@ export const LEMON_LEVELS = [
     how: [['tap', 'Giữ vòi để rót'], ['jug', 'Vạch 50 ml'], ['✓', 'Rót xong']],
   },
   {
-    id: 'lemon-3', n: 3, title: 'Pha nhiều ly', missions: 5,
+    ...levelMeta('lemon-3'), missions: 5,
     knowledge: 'mi-li-lít, lít (1 l = 1 000 ml) và bài toán giải bằng hai bước tính',
-    lessons: { workbook: ['bai-28', 'bai-32', 'bai-34'], practice: ['tuan-12', 'tuan-13', 'tuan-14'] },
     ask: (n) => `Pha mấy ly nước chanh rồi xem bình còn bao nhiêu giúp ${n.me} nhé!`,
     desc: 'Hai bước: 3 ly, mỗi ly 200 ml → rót 600 ml. Bình có 1 l = 1 000 ml, còn lại bao nhiêu?',
     jug: { cap: 1000, step: 50, longEvery: 2, labels: 'long' }, rate: 150, tol: 12,
@@ -65,9 +63,17 @@ const TRAY = { x0: 150, x1: 420, y: 440 };
 // Điện thoại xoay ngang: cảnh rất thấp — cắt bớt nửa trên bình (vòi và phần dưới bình vẫn thấy) để ca đong to hơn.
 const isShort = () => matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
 const TOP_SHORT = 136;
+// Điện thoại cầm dọc: cảnh ngang bị bề ngang bó nhỏ — bình + ca giữ nguyên chỗ, ly xếp một hàng trên kệ
+// bên dưới; hai nút ra một dải HTML dưới cảnh (cỡ theo màn hình, không co theo cảnh). Cảnh hẹp (x 4–430) nên to hơn hẳn.
+const isTall = () => matchMedia('(orientation: portrait) and (max-width: 600px)').matches;
+const TALL = { x: 4, w: 426, h: 622, shelfY: 604 };
 
 /** Vị trí các ly (tâm đáy) theo số ly. short: cảnh bị cắt nửa trên → các ly xếp một hàng thấp. */
-function glassSlots(n, short) {
+function glassSlots(n, short, tall) {
+  if (tall) {
+    if (n <= 1) return [{ cx: 215, by: TALL.shelfY, w: 84, h: 110 }];
+    return Array.from({ length: n }, (_, i) => ({ cx: 215 + (i - (n - 1) / 2) * 92, by: TALL.shelfY, w: 60, h: 80 }));
+  }
   if (n <= 1) return [{ cx: 512, by: 306, w: 84, h: 110 }];
   if (short) return Array.from({ length: n }, (_, i) => ({ cx: 436 + i * 47 + (4 - n) * 23, by: 306, w: 46, h: 62 }));
   const w = 60, h = 80;
@@ -79,9 +85,7 @@ function glassSlots(n, short) {
 }
 
 export const LEMON_GAME = {
-  id: 'lemon',
-  title: 'Quầy nước chanh',
-  icon: '🍋',
+  ...stallMeta('lemon'),
   unitWord: 'khách',
   levels: LEMON_LEVELS,
   stallIcon: () => glassIcon(56),
@@ -137,13 +141,18 @@ export const LEMON_GAME = {
     const parts = jugParts(g, { labels: jc.labels, longEvery: jc.longEvery, clipId: clipJ, labelOf: (v) => (v >= 1000 ? `1 ${L_SVG}` : `${v} ml`) });
     const body = dispenserBody(DISP, clipD);
     const short = isShort();
-    const slots = glassSlots(multi ? m.n : 1, short);
+    const tall = !short && isTall();
+    const slots = glassSlots(multi ? m.n : 1, short, tall);
+    const vb = tall ? `${TALL.x} ${TOP} ${TALL.w} ${TALL.h - TOP}` : `0 ${short ? TOP_SHORT : TOP} ${W} ${H - (short ? TOP_SHORT : TOP)}`;
     // Bình cấp 3 có đúng 1 l (ghi trên nhãn bình); cấp 1–2 là bình to của quầy, không ghi số.
     const dispCap = multi ? 1080 : 3200;
     let disp = multi ? 1000 : 2900;
+    const ctrlsHtml = `
+            <button type="button" class="g3g-btn g3g-btn-ghost g3l-dump" disabled><b>↷ Đổ bớt</b><small>Bấm giữ</small></button>
+            <button type="button" class="g3g-btn g3g-btn-primary g3l-done" disabled><b>✓ Rót xong</b><small>Rót xong hãy xác nhận</small></button>`;
     const PIV = { x: g.cx + g.w / 2 - g.w * 0.07, y: g.by };   // ca nghiêng quanh góc đáy phía mỏ rót
     host.innerHTML = `
-      <svg class="g3l-scene" viewBox="0 ${short ? TOP_SHORT : TOP} ${W} ${H - (short ? TOP_SHORT : TOP)}" role="img" aria-label="Bình nước chanh có vòi và ca đong">
+      <svg class="g3l-scene" viewBox="${vb}" role="img" aria-label="Bình nước chanh có vòi và ca đong">
         <defs>${parts.clip}${body.clip}</defs>
         <rect x="18" y="${DISP.y + DISP.h}" width="166" height="${FLOOR - DISP.y - DISP.h}" rx="8" fill="#E9B872" stroke="${INK}" stroke-width="3"/>
         <path d="M18,${DISP.y + DISP.h + 16} H184 M18,${FLOOR - 70} H184 M18,${FLOOR - 140} H184" stroke="${INK}" stroke-width="2" opacity=".35"/>
@@ -163,18 +172,15 @@ export const LEMON_GAME = {
           <rect x="${DISP.bx - 14}" y="${DISP.pivot.y - 58}" width="92" height="${DISP.nozzle.y - DISP.pivot.y + 72}" rx="16" fill="transparent"/>
           <text class="g3l-hand" x="${DISP.pivot.x + 26}" y="${DISP.pivot.y - 34}" font-size="34" text-anchor="middle">👈</text>
         </g>
-        <foreignObject x="428" y="${FLOOR - 118}" width="170" height="118">
-          <div xmlns="http://www.w3.org/1999/xhtml" class="g3l-ctrls">
-            <button type="button" class="g3g-btn g3g-btn-ghost g3l-dump" disabled><b>↷ Đổ bớt</b><small>Bấm giữ</small></button>
-            <button type="button" class="g3g-btn g3g-btn-primary g3l-done" disabled><b>✓ Rót xong</b><small>Rót xong hãy xác nhận</small></button>
-          </div>
-        </foreignObject>
+        ${tall ? `<rect x="24" y="${TALL.shelfY}" width="382" height="12" rx="4" fill="#E9B872" stroke="${INK}" stroke-width="3"/>` : ''}
+        ${tall ? '' : `<foreignObject x="428" y="${FLOOR - 118}" width="170" height="118"><div xmlns="http://www.w3.org/1999/xhtml" class="g3l-ctrls">${ctrlsHtml}</div></foreignObject>`}
       </svg>`;
     const svg = host.querySelector('svg');
+    if (tall) host.insertAdjacentHTML('afterend', `<div class="g3l-ctrls g3l-ctrls-row">${ctrlsHtml}</div>`);
     const $ = (sel) => svg.querySelector(sel);
     const waterG = $('[data-jug-water]'), jugBackG = $('[data-jug-back]'), jugFrontG = $('[data-jug-front]'), streamG = $('[data-stream]'), dumpG = $('[data-dump]');
     const spigotG = $('[data-spigot]'), liquidG = $('[data-disp-liquid]'), glassesG = $('[data-glasses]'), tapG = $('[data-tap]');
-    const doneBtn = svg.querySelector('.g3l-done'), dumpBtn = svg.querySelector('.g3l-dump');
+    const doneBtn = counter.querySelector('.g3l-done'), dumpBtn = counter.querySelector('.g3l-dump');
     const clipPath = svg.querySelector(`#${clipJ} path`);
     const flip = clipPath.getAttribute('transform');
 

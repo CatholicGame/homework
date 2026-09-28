@@ -13,11 +13,11 @@ import { keypad } from '../loop.js';
 /**
  * Vẽ quầy vào `stage`. `counter` là HTML phần chơi riêng (cân, bàn đóng hộp…), đặt dưới bảng hiệu `sign`.
  * theme: đổi màu mái che / quầy (vd. 'lemon' — mái sọc vàng trắng của quầy nước chanh).
- * Trả về { counter, main, speak, row, ask, nudge, fail, thanks }.
+ * Trả về { counter, main, speak, row, ask, rest, nudge, fail, thanks } — rest(): máy tính tiền về nghỉ sau khi gõ xong.
  */
 export function mountStall(stage, { npc, sign, counter, api, theme = '' }) {
   stage.innerHTML = `
-    <div class="g3f-scene animate-fadeIn${theme ? ` g3f-theme-${theme}` : ''}">
+    <div class="g3f-scene g3f-pad-idle animate-fadeIn${theme ? ` g3f-theme-${theme}` : ''}">
       <div class="g3f-awning"></div>
       <div class="g3f-customer">
         <div class="g3f-bubble"><span class="g3f-npc-name">${npc.name}</span><span class="g3f-say"></span></div>
@@ -39,10 +39,19 @@ export function mountStall(stage, { npc, sign, counter, api, theme = '' }) {
   const main = stage.querySelector('.g3f-main');
   const askBox = stage.querySelector('.g3f-ask');
   // Máy tính tiền nghỉ (mờ, khoá) giữ sẵn chỗ — bé biết số sẽ gõ ở đâu, bố cục không nhảy khi tới bước tính.
-  const idlePad = keypad({ unit: '', onSubmit() {} });
-  idlePad.lock();
-  askBox.innerHTML = '<div class="g3f-bill g3f-bill-idle">🧾</div>';
-  askBox.appendChild(idlePad.el);
+  const scene = stage.querySelector('.g3f-scene');
+  const rest = () => {
+    main.classList.remove('g3f-asking');
+    scene.classList.add('g3f-pad-idle');
+    askBox.classList.add('g3f-ask-idle');
+    askBox.classList.remove('g3f-await', 'g3f-typing');
+    askBox.setAttribute('aria-hidden', 'true');
+    const idlePad = keypad({ unit: '', onSubmit() {} });
+    idlePad.lock();
+    askBox.innerHTML = '<div class="g3f-bill g3f-bill-idle">🧾</div>';
+    askBox.appendChild(idlePad.el);
+  };
+  rest();
 
   /** Bong bóng chỉ hiện câu ngắn (shown); giọng đọc nói cả câu. */
   const speak = (text, mood, shown) => {
@@ -57,6 +66,7 @@ export function mountStall(stage, { npc, sign, counter, api, theme = '' }) {
   /** Máy tính tiền cạnh quầy: tờ hoá đơn ngắn (hình + số) và bàn phím số. onSubmit(value, pad). */
   const ask = (bill, unit, onSubmit) => {
     main.classList.add('g3f-asking');
+    scene.classList.remove('g3f-pad-idle');
     askBox.classList.remove('g3f-ask-idle');
     askBox.removeAttribute('aria-hidden');
     askBox.innerHTML = `<div class="g3f-bill">${bill}</div>`;
@@ -68,8 +78,6 @@ export function mountStall(stage, { npc, sign, counter, api, theme = '' }) {
     pad.el.addEventListener('click', (e) => { if (/^\d$/.test(e.target.closest('[data-k]')?.dataset.k || '')) askBox.classList.add('g3f-typing'); });
     const lock = pad.lock;
     pad.lock = (cls) => { askBox.classList.remove('g3f-await'); lock(cls); };
-    // Điện thoại cầm dọc (trang cuộn): cuộn tới bàn phím để bé thấy ngay.
-    pad.el.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
     return pad;
   };
 
@@ -125,7 +133,7 @@ export function mountStall(stage, { npc, sign, counter, api, theme = '' }) {
     api.succeed(`${npc.name} rất hài lòng!`);
   };
 
-  return { counter: stage.querySelector('.g3f-counter'), main, speak, row, ask, nudge, fail, thanks };
+  return { counter: stage.querySelector('.g3f-counter'), main, speak, row, ask, rest, nudge, fail, thanks };
 }
 
 /** Dấu "?" màu cam trên hoá đơn — chỗ bé cần tìm. */

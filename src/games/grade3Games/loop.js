@@ -53,23 +53,36 @@ function saveBest(levelId, ok, total) {
   return false;
 }
 
-// ── Chế độ chơi: toàn màn hình, xoay ngang trên điện thoại ─────────────────────
+// ── Chế độ chơi: toàn màn hình; điện thoại tự chọn ngang / dọc ────────────────
 // Vào khi bấm "Chơi" (cần thao tác của bé nên gọi ngay trong click). Chỉ thoát toàn màn hình
-// nếu chính trò chơi đã bật nó. Android (Chrome) khoá được màn hình ngang khi đang toàn màn hình;
-// iPhone không cho khoá → hiện lời nhắc xoay ngang khi cầm dọc.
+// nếu chính trò chơi đã bật nó. Không ép xoay: trên điện thoại có nút ngang / dọc ở thanh trên (nhớ lựa chọn).
+// Android (Chrome) khoá được hướng màn hình khi đang toàn màn hình; iPhone không cho khoá → nhắc bé tự xoay máy.
 let enteredFullscreen = false;
 const isPhone = () => window.matchMedia?.('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 600;
+const ORIENT_KEY = 'g3games-orient-v1';
+const savedOrient = () => { try { return localStorage.getItem(ORIENT_KEY) || ''; } catch { return ''; } };
+const isLandscape = () => window.innerWidth > window.innerHeight;
+// Nút ngang / dọc: điện thoại thật, hoặc khung nhìn cỡ điện thoại (cạnh ngắn < 600 — kể cả chế độ giả lập điện thoại
+// của trình duyệt, nơi máy không báo màn cảm ứng).
+const phoneSized = () => isPhone() || Math.min(window.innerWidth, window.innerHeight) < 600;
+
+/** Khoá hướng màn hình (cần toàn màn hình trên Android). Trả về Promise<boolean> — false khi máy không cho khoá. */
+function lockOrientation(o) {
+  const lock = () => (screen.orientation?.lock ? screen.orientation.lock(o) : Promise.reject(new Error('no lock')));
+  const el = document.documentElement;
+  const go = document.fullscreenElement || !el.requestFullscreen
+    ? lock()
+    : el.requestFullscreen({ navigationUI: 'hide' }).then(() => { enteredFullscreen = true; return lock(); });
+  return go.then(() => true, () => false);
+}
 
 function enterGameMode() {
   document.body.classList.add('g3g-playing');
   const el = document.documentElement;
+  const saved = phoneSized() && savedOrient();
+  if (saved) { lockOrientation(saved); return; } // bé đã chọn ngang / dọc lần trước
   if (!document.fullscreenElement && el.requestFullscreen) {
-    el.requestFullscreen({ navigationUI: 'hide' }).then(() => {
-      enteredFullscreen = true;
-      if (isPhone()) screen.orientation?.lock?.('landscape').catch(() => {});
-    }).catch(() => {});
-  } else if (document.fullscreenElement && isPhone()) {
-    screen.orientation?.lock?.('landscape').catch(() => {});
+    el.requestFullscreen({ navigationUI: 'hide' }).then(() => { enteredFullscreen = true; }).catch(() => {});
   }
 }
 
@@ -80,12 +93,21 @@ export function exitGameMode() {
   enteredFullscreen = false;
 }
 
-let rotateDismissed = false;
-/** Lớp phủ "Xoay ngang điện thoại" khi điện thoại đang cầm dọc (bé có thể bỏ qua). */
-function watchOrientation(root) {
-  if (!isPhone()) return;
+/** Hình điện thoại nằm ngang (land) hoặc đứng — biểu tượng nút chọn hướng màn hình. */
+const phoneIcon = (land) => `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">${land
+  ? '<rect x="2" y="6" width="20" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18.6" cy="12" r="1.1" fill="currentColor"/>'
+  : '<rect x="6" y="2" width="12" height="20" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="18.6" r="1.1" fill="currentColor"/>'}</svg>`;
+
+/**
+ * Nút chọn chơi ngang / dọc trên thanh trên (chỉ khi màn hình cỡ điện thoại — tự ẩn / hiện khi đổi cỡ). Nút luôn chỉ hướng CÒN LẠI (đang dọc → hình máy
+ * nằm ngang). Bấm: khoá hướng đó và nhớ cho lần sau; máy không cho khoá (iPhone) → lớp phủ nhắc bé xoay máy,
+ * tự tắt khi đã xoay đúng (hoặc bấm "Để sau").
+ */
+function mountOrientation(play, btn) {
+  if (!btn) return;
   const ov = document.createElement('div');
   ov.className = 'g3g-rotate';
+  ov.hidden = true;
   ov.innerHTML = `
     <svg class="g3g-rotate-phone" viewBox="0 0 60 100" aria-hidden="true">
       <rect x="4" y="4" width="52" height="92" rx="9" fill="#334155"/>
@@ -93,14 +115,28 @@ function watchOrientation(root) {
       <circle cx="30" cy="89" r="3.5" fill="#94A3B8"/>
       <path d="M22 48 l8 -8 l8 8 M30 40 v20" stroke="#0EA5E9" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="rotate(90 30 50)"/>
     </svg>
-    <p>Xoay ngang điện thoại để chơi cho rõ nhé!</p>
-    <button type="button" class="g3g-btn g3g-btn-ghost">Chơi màn hình dọc</button>`;
-  root.appendChild(ov);
+    <p></p>
+    <button type="button" class="g3g-btn g3g-btn-ghost">Để sau</button>`;
+  play.appendChild(ov);
+  let want = '';
   const sync = () => {
-    if (!root.isConnected) { window.removeEventListener('resize', sync); return; } // đã rời màn chơi
-    ov.hidden = rotateDismissed || window.innerWidth >= window.innerHeight;
+    if (!play.isConnected) { window.removeEventListener('resize', sync); return; } // đã rời màn chơi
+    btn.hidden = !phoneSized();
+    const land = isLandscape();
+    btn.innerHTML = phoneIcon(!land);
+    const label = land ? 'Chơi màn hình dọc' : 'Chơi màn hình ngang';
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+    if (want && (want === 'landscape') === land) want = ''; // đã xoay đúng hướng bé chọn
+    ov.hidden = !want;
+    ov.querySelector('p').textContent = want === 'landscape' ? 'Xoay ngang điện thoại nhé!' : 'Xoay dọc điện thoại nhé!';
   };
-  ov.querySelector('button').onclick = () => { rotateDismissed = true; sync(); };
+  btn.onclick = () => {
+    const target = isLandscape() ? 'portrait' : 'landscape';
+    try { localStorage.setItem(ORIENT_KEY, target); } catch { /* storage unavailable */ }
+    lockOrientation(target).then((ok) => { if (!ok && (target === 'landscape') !== isLandscape()) { want = target; sync(); } });
+  };
+  ov.querySelector('button').onclick = () => { want = ''; sync(); };
   window.addEventListener('resize', sync);
   sync();
 }
@@ -123,6 +159,7 @@ export function playRound(app, { game, level, onExit, onNextLevel }) {
         <button type="button" class="g3g-icon-btn" data-act="quit" aria-label="Thoát">✕</button>
         <div class="g3g-top-title">${game.icon} ${level.title}</div>
         <div class="g3g-dots">${Array.from({ length: total }, (_, i) => `<span class="g3g-dot" data-dot="${i}"></span>`).join('')}</div>
+        <button type="button" class="g3g-icon-btn g3g-orient-btn" data-act="orient" aria-label="Chọn chơi ngang hoặc dọc"></button>
         <button type="button" class="g3g-icon-btn" data-act="mute" aria-label="Bật/tắt tiếng">${isMuted() ? '🔇' : '🔊'}</button>
         ${document.fullscreenEnabled ? `<button type="button" class="g3g-icon-btn" data-act="full" aria-label="Toàn màn hình">⤢</button>` : ''}
       </div>
@@ -130,7 +167,7 @@ export function playRound(app, { game, level, onExit, onNextLevel }) {
     </div>`;
   const play = app.querySelector('.g3g-play');
   const stage = app.querySelector('.g3g-stage');
-  watchOrientation(play);
+  mountOrientation(play, app.querySelector('[data-act="orient"]'));
   app.querySelector('[data-act="quit"]').onclick = () => { stopSpeaking(); exitGameMode(); onExit(); };
   const muteBtn = app.querySelector('[data-act="mute"]');
   muteBtn.onclick = () => { setMuted(!isMuted()); muteBtn.textContent = isMuted() ? '🔇' : '🔊'; };
@@ -177,7 +214,6 @@ export function playRound(app, { game, level, onExit, onNextLevel }) {
         ${tip ? `<div class="g3g-tip">💡 ${tip}</div>` : ''}
         <button type="button" class="g3g-btn g3g-btn-primary" data-act="next">${results.length >= total ? 'Xem kết quả ›' : `${cap(game.unitWord)} tiếp theo ›`}</button>`;
       resultBox.querySelector('[data-act="next"]').onclick = () => { stopSpeaking(); next(); };
-      resultBox.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
     };
     game.mountMission(stage, mission, level, {
       succeed: (text) => finish(true, text),

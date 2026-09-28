@@ -13,7 +13,7 @@ import { CAKE_GAME } from './grade3Games/market/bakery.js';
 import { RIBBON_GAME } from './grade3Games/market/ribbon.js';
 import { playRound, bestFor } from './grade3Games/loop.js';
 import { lessonText, hasDoneAny, lessonUnits, bookName } from './grade3Games/lessons.js';
-import { NPCS, npcPic, cap } from './grade3Games/npc.js';
+import { NPCS, npcPic, cap, preloadNpcs } from './grade3Games/npc.js';
 import { injectGameStyles, menuBackdrop, fitMenu } from './grade3Games/styles.js';
 import { getTotalStars } from '../engine/stars.js';
 
@@ -37,9 +37,17 @@ function knowledgeChips(text) {
   return text.split(/, | và /).map(s => s.trim()).filter(Boolean);
 }
 
-export function renderGamesHub(app, ctx) {
+/**
+ * start = { stall, level } (id trong catalog.js): mở thẳng màn giới thiệu cấp đó — từ nút gợi ý trò chơi ở màn
+ * kết quả của một bài. Quay lại vẫn đi qua danh sách cấp → quầy → trò như bình thường.
+ */
+export function renderGamesHub(app, ctx, start = null) {
   injectGameStyles();
-  showGames();
+  preloadNpcs();
+  const found = start && GAMES.map(g => ({ g, s: g.stalls.find(s => s.game?.id === start.stall) })).find(x => x.s);
+  const lv = found && found.s.game.levels.find(l => l.id === start.level);
+  if (lv) showIntro(found.g, found.s.game, lv);
+  else showGames();
 
   function shell(inner) {
     app.innerHTML = `<div class="g3g-wrap g3g-menu">${menuBackdrop()}<div class="g3g-screen animate-fadeIn">${inner}</div></div>`;

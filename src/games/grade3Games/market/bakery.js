@@ -15,6 +15,7 @@ import {
 } from '../art/bakery.js';
 import { NPCS, npcPic, cap } from '../npc.js';
 import { mountStall, Q } from './stall.js';
+import { stallMeta, levelMeta } from '../catalog.js';
 import { flyOne, svgBoxOnScreen } from '../fly.js';
 import { sfx } from '../../preschool/fx.js';
 
@@ -27,25 +28,22 @@ const fracWord = (b) => `một phần ${WORD[b]}`;
 
 export const CAKE_LEVELS = [
   {
-    id: 'cake-1', n: 1, title: 'Cắt bánh', missions: 5,
+    ...levelMeta('cake-1'), missions: 5,
     knowledge: 'một phần mấy (1/2, 1/3 … 1/9)',
-    lessons: { workbook: ['bai-14'], practice: ['tuan-6'] },
     ask: (n) => `Cắt bánh thành các phần bằng nhau giúp ${n.me} nhé!`,
     desc: 'Khách cần 1/4 cái bánh: chia bánh thành 4 phần bằng nhau rồi đưa 1 phần. Cẩn thận bánh cắt không đều!',
     how: [['cut', 'Chọn số phần'], ['knife', 'Cắt'], ['piece', 'Đưa 1 miếng']],
   },
   {
-    id: 'cake-2', n: 2, title: 'Hộp bánh quy', missions: 5,
+    ...levelMeta('cake-2'), missions: 5,
     knowledge: 'một phần mấy của một nhóm đồ vật, phép chia trong bảng',
-    lessons: { workbook: ['bai-14'], practice: ['tuan-6'] },
     ask: (n) => `Lấy bánh quy vào hộp cho ${n.me} nhé!`,
     desc: 'Đĩa có 12 cái bánh quy, khách lấy 1/3 số bánh: 12 : 3 = 4 cái. Chạm bánh để bỏ vào hộp.',
     how: [['plate', 'Đĩa có mấy cái'], ['box', 'Bỏ vào hộp'], ['✓', 'Đưa khách']],
   },
   {
-    id: 'cake-3', n: 3, title: 'Dao qua tâm', missions: 5,
+    ...levelMeta('cake-3'), missions: 5,
     knowledge: 'tâm, bán kính, đường kính của hình tròn',
-    lessons: { workbook: ['bai-17'], practice: ['tuan-7'] },
     ask: (n) => `Cắt đôi bánh tròn thật đều giúp ${n.me} nhé!`,
     desc: 'Cắt đôi bánh qua tâm O, tìm bán kính và đường kính, đo bánh bằng thước. Đường kính dài gấp 2 lần bán kính.',
     how: [['center', 'Tìm tâm O'], ['drag', 'Kéo dao qua O'], ['half', 'Hai nửa bằng nhau']],
@@ -103,9 +101,7 @@ const HOW_PICS = {
 };
 
 export const CAKE_GAME = {
-  id: 'cake',
-  title: 'Tiệm bánh',
-  icon: '🍰',
+  ...stallMeta('cake'),
   unitWord: 'khách',
   levels: CAKE_LEVELS,
   stallIcon: () => cakeIcon(56),
@@ -187,18 +183,49 @@ export const CAKE_GAME = {
       fx: svg.querySelector('[data-fx]'),
       ui: svg.querySelector('[data-ui]'),
     };
-    if (level.id === 'cake-1') return m.kind === 'cut' ? mountCut(ctx, m) : mountPick(ctx, m);
-    if (level.id === 'cake-2') return mountCookies(ctx, m);
-    if (m.kind === 'size') return mountSize(ctx, m);
-    if (m.kind === 'name') return mountName(ctx, m);
-    if (m.kind === 'ruler') return mountRuler(ctx, m);
-    return mountCenterCut(ctx, m);
+    const mount = level.id === 'cake-1' ? (m.kind === 'cut' ? mountCut : mountPick)
+      : level.id === 'cake-2' ? mountCookies
+        : m.kind === 'size' ? mountSize : m.kind === 'name' ? mountName : m.kind === 'ruler' ? mountRuler : mountCenterCut;
+    const out = mount(ctx, m);
+    if (isTall()) cropToArt(ctx);
+    return out;
   },
 };
 
 // ─────────────────────────────────────────────── dùng chung
-/** Nút HTML đặt trong cảnh SVG (co giãn cùng cảnh). */
+/** Điện thoại cầm dọc: cảnh ngang 600×400 bị bề ngang bó nhỏ — nút ra dải riêng dưới cảnh, cảnh ôm sát hình. */
+const isTall = () => matchMedia('(orientation: portrait) and (max-width: 600px)').matches;
+
+/** Khung cảnh ôm sát phần hình (bánh, đĩa, hộp…) thay vì cả 600×400 — bánh to lên theo chỗ trống.
+ *  Hình vẽ thêm về sau (miếng bánh tách ra, dao…) nằm ngoài thì khung nới ra, không bao giờ thu lại. */
+function cropToArt(ctx) {
+  const { svg, layer } = ctx;
+  let box = null;
+  const fit = () => {
+    if (!svg.isConnected) return mo.disconnect();
+    let b;
+    try { b = layer.getBBox(); } catch { return; }
+    if (!b.width || !b.height) return;
+    const pad = 14;
+    const x0 = Math.max(0, b.x - pad), y0 = Math.max(0, b.y - pad);
+    const x1 = Math.min(W, b.x + b.width + pad), y1 = Math.min(H, b.y + b.height + pad);
+    box = box ? { x0: Math.min(box.x0, x0), y0: Math.min(box.y0, y0), x1: Math.max(box.x1, x1), y1: Math.max(box.y1, y1) } : { x0, y0, x1, y1 };
+    svg.setAttribute('viewBox', `${box.x0} ${box.y0} ${box.x1 - box.x0} ${box.y1 - box.y0}`);
+  };
+  const mo = new MutationObserver(fit);
+  mo.observe(layer, { childList: true, subtree: true });
+  fit();
+}
+
+/** Nút HTML đặt trong cảnh SVG (co giãn cùng cảnh). Điện thoại dọc: một dải nút to ngay dưới cảnh. */
 function ui(ctx, x, y, w, h, html) {
+  if (isTall()) {
+    const strip = document.createElement('div');
+    strip.className = 'g3k-ctrls g3k-ctrls-strip';
+    strip.innerHTML = html;
+    ctx.st.counter.appendChild(strip);
+    return strip;
+  }
   ctx.ui.insertAdjacentHTML('beforeend', `<foreignObject x="${x}" y="${y}" width="${w}" height="${h}"><div xmlns="http://www.w3.org/1999/xhtml" class="g3k-ctrls">${html}</div></foreignObject>`);
   return ctx.ui.lastElementChild;
 }

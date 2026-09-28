@@ -15,49 +15,64 @@ import {
 } from '../art/ribbon.js';
 import { NPCS, npcPic, cap } from '../npc.js';
 import { mountStall, Q } from './stall.js';
+import { stallMeta, levelMeta } from '../catalog.js';
 import { flyOne, svgBoxOnScreen, calmMotion } from '../fly.js';
 import { sfx } from '../../preschool/fx.js';
 
 export const RIBBON_LEVELS = [
   {
-    id: 'ribbon-1', n: 1, title: 'Cắt theo mi-li-mét', missions: 5, cm: 10,
+    ...levelMeta('ribbon-1'), missions: 5, cm: 10,
     knowledge: 'mi-li-mét, đọc vạch trên thước',
-    lessons: { workbook: ['bai-30'], practice: ['tuan-12'] },
     ask: (n) => `Cắt ruy băng cho đúng số mi-li-mét giúp ${n.me} nhé!`,
     desc: 'Kéo cây kéo tới đúng vạch rồi bấm Cắt. Ví dụ "Cắt 45 mm": từ vạch 4 đếm thêm 5 vạch nhỏ.',
     how: [['drag', 'Kéo kéo tới vạch'], ['lens', 'Nhìn kính lúp'], ['✂️', 'Cắt']],
   },
   {
-    id: 'ribbon-2', n: 2, title: 'Xăng-ti-mét và mi-li-mét', missions: 5, cm: 10,
+    ...levelMeta('ribbon-2'), missions: 5, cm: 10,
     knowledge: 'mi-li-mét, 1 cm = 10 mm',
-    lessons: { workbook: ['bai-30'], practice: ['tuan-12', 'tuan-13'] },
     ask: (n) => `Đổi xăng-ti-mét ra mi-li-mét rồi cắt giúp ${n.me} nhé!`,
     desc: '1 cm = 10 mm. "Cắt 6 cm 5 mm" là cắt 65 mm. Có lượt phải đo đoạn ruy băng dài bao nhiêu mi-li-mét.',
     how: [['🧮', '6 cm 5 mm = ? mm'], ['drag', 'Kéo kéo tới vạch'], ['✂️', 'Cắt']],
   },
   {
-    id: 'ribbon-3', n: 3, title: 'Tính tiền ruy băng', missions: 5, cm: 15,
+    ...levelMeta('ribbon-3'), missions: 5, cm: 15,
     knowledge: 'xăng-ti-mét, mi-li-mét và nhân số có hai chữ số với số có một chữ số',
-    lessons: { workbook: ['bai-23', 'bai-30'], practice: ['tuan-9', 'tuan-12'] },
     ask: (n) => `Cắt ruy băng rồi tính tiền giúp ${n.me} nhé!`,
     desc: '1 cm ruy băng giá 3 nghìn đồng, khách mua 8 cm: cắt 8 cm rồi tính 3 × 8 = 24 nghìn đồng.',
     how: [['drag', 'Cắt đủ số cm'], ['🧮', 'Tính tiền'], ['piece', 'Đưa khách']],
   },
 ];
 
-// ── Bố cục cảnh (đơn vị viewBox) ──
-const W = 600, H = 400;
-const RX = 22, RY = 244, RH = 52;          // thước: góc trên trái, bề cao
+// ── Bố cục cảnh (đơn vị viewBox, rộng 600) ──
+// Màn ngang: 600 × 400 — giá treo + kính lúp ở trên, bàn cắt ở dưới. Màn dọc: cảnh cao theo đúng khung còn trống
+// (đo lúc dựng, dựng lại khi khung đổi cỡ) — phần trên (giá treo, kính lúp) cao ra, bàn cắt nằm sát đáy, không chừa
+// khoảng trống dưới quầy.
+const W = 600;
+const RX = 22, RH = 52;                    // thước: lề trái, bề cao
 const RULER_W = 472;                       // bề ngang thước (chừa chỗ cho cuộn bên phải)
-const SH = 20, STRIP_Y = RY - SH - 2;      // dải ruy băng nằm sát mép trên thước
-const LENS = { cx: 474, cy: 92, r: 76 };
+const SH = 20;                             // bề rộng dải ruy băng
 const SCI = 96;                            // chiều dài cây kéo
+const isTall = () => matchMedia('(orientation: portrait)').matches;
+
+/** Toạ độ cảnh. dy = phần cao thêm của màn dọc (bàn cắt dời xuống dy). */
+function layout(dy) {
+  const RY = 244 + dy;
+  const top = 176 + dy;                    // mép trên bàn cắt
+  // Màn dọc: giá treo trải ngang hàng trên cùng; kính lúp to ngay bên dưới (cán chéo xuống về phía thước).
+  const r = dy ? Math.max(56, Math.min(150, (top - 160) * 0.5)) : 76;
+  const lens = dy ? { cx: 340, cy: 150 + r, r } : { cx: 474, cy: 92, r: 76 };
+  return {
+    tall: dy > 0, dy, H: 400 + dy, RY, STRIP_Y: RY - SH - 2, LENS: lens,
+    rack: dy ? [44, 530, 46, 22] : [40, 318, 40, 19],
+    zoomK: r / 76 * 0.85 + 0.15,
+  };
+}
 
 const geom = (level) => {
   const ppm = RULER_W / (level.cm * 10 + 10);
   const x = (mm) => rulerX(RX, mm, { ppm });
   const end = RX + RULER_W;
-  return { ppm, x, zero: x(0), end, roll: { cx: end + 44, cy: RY - 2 - 34, r: 34 }, zoom: ppm < 3.5 ? 2.7 : 2.2 };
+  return { ppm, x, zero: x(0), end, rollX: end + 44, rollR: 34, zoom: ppm < 3.5 ? 2.7 : 2.2 };
 };
 
 /** "65 mm" → "6 cm 5 mm" (bỏ phần 0). */
@@ -98,9 +113,7 @@ const HOW_PICS = {
 };
 
 export const RIBBON_GAME = {
-  id: 'ribbon',
-  title: 'Quầy may ruy băng',
-  icon: '🧵',
+  ...stallMeta('ribbon'),
   unitWord: 'khách',
   levels: RIBBON_LEVELS,
   stallIcon: () => rollIcon(56),
@@ -150,21 +163,6 @@ export const RIBBON_GAME = {
     const benchId = `g3rb${Math.random().toString(36).slice(2, 7)}`;
     const measure = m.kind === 'measure';
 
-    host.innerHTML = `
-      <svg class="g3r-scene" viewBox="0 0 ${W} ${H}" role="img" aria-label="Bàn cắt ruy băng có thước mi-li-mét">
-        ${rollRackSvg(40, 318, 40, 19)}
-        <g id="${benchId}" data-bench></g>
-        <g data-hint></g>
-        <g data-lens-host></g>
-        <g data-ui></g>
-      </svg>`;
-    const svg = host.querySelector('svg');
-    const bench = svg.querySelector('[data-bench]');
-    const hintG = svg.querySelector('[data-hint]');
-    const uiG = svg.querySelector('[data-ui]');
-    svg.querySelector('[data-lens-host]').innerHTML = magnifierSvg(LENS.cx, LENS.cy, LENS.r, `<use href="#${benchId}"/>`, { sx: G.zero, sy: RY + 8, zoom: G.zoom, handle: 135 });
-    const lensG = svg.querySelector('[data-lens]');
-
     // ── Trạng thái ──
     const maxMm = level.cm * 10;
     let mm = 0;                      // vị trí kéo (mi-li-mét, luôn tròn vạch)
@@ -176,43 +174,41 @@ export const RIBBON_GAME = {
     let moved = false;
     let pieceUp = 0;                 // đoạn đã cắt nhấc lên một chút cho thấy đã rời
     let pieceGone = false;
+    let dragging = false;
 
-    const table = sewingTableSvg(8, 176, 584, 220);
+    // Phần tử của cảnh — dựng lại khi xoay máy (màn ngang ↔ dọc), trạng thái ở trên giữ nguyên.
+    let L, svg, bench, hintG, uiG, lensG, cutBtn, table;
+    const zoom = () => G.zoom * L.zoomK;
+
     const draw = () => {
       const x = G.x(mm);
-      let s = table + rulerSvg(RX, RY, { cm: level.cm, ppm: G.ppm, h: RH, marks });
-      const roll = ribbonRollSvg(G.roll.cx, G.roll.cy, G.roll.r, m.color, { depth: G.roll.r * 0.85 });
+      const rollCy = L.RY - 2 - G.rollR;
+      let s = table + rulerSvg(RX, L.RY, { cm: level.cm, ppm: G.ppm, h: RH, marks });
+      const roll = ribbonRollSvg(G.rollX, rollCy, G.rollR, m.color, { depth: G.rollR * 0.85 });
       if (measure) {
         // Đoạn đã cắt sẵn nằm trên thước từ vạch 0; phần còn lại vẫn ở cuộn.
-        s += ribbonStripSvg(G.x(maxMm - 4), G.roll.cx, STRIP_Y, SH, m.color) + roll
-          + (pieceGone ? '' : `<g data-piece>${ribbonStripSvg(G.zero, G.x(m.mm), STRIP_Y, SH, m.color)}</g>`);
+        s += ribbonStripSvg(G.x(maxMm - 4), G.rollX, L.STRIP_Y, SH, m.color) + roll
+          + (pieceGone ? '' : `<g data-piece>${ribbonStripSvg(G.zero, G.x(m.mm), L.STRIP_Y, SH, m.color)}</g>`);
       } else if (cutAt === null) {
-        s += ribbonStripSvg(G.zero, G.roll.cx, STRIP_Y, SH, m.color) + roll;
+        s += ribbonStripSvg(G.zero, G.rollX, L.STRIP_Y, SH, m.color) + roll;
       } else {
         const cx = G.x(cutAt);
-        s += ribbonStripSvg(cx + 2, G.roll.cx, STRIP_Y, SH, m.color) + roll
-          + (pieceGone ? '' : `<g data-piece transform="translate(0 ${-pieceUp})">${ribbonStripSvg(G.zero, cx - 1, STRIP_Y, SH, m.color)}</g>`);
+        s += ribbonStripSvg(cx + 2, G.rollX, L.STRIP_Y, SH, m.color) + roll
+          + (pieceGone ? '' : `<g data-piece transform="translate(0 ${-pieceUp})">${ribbonStripSvg(G.zero, cx - 1, L.STRIP_Y, SH, m.color)}</g>`);
       }
       if (!measure && !pieceGone) {
         // Nét chỉ chỗ lưỡi kéo sẽ cắt — dóng xuống vạch trên thước.
-        if (cutAt === null) s += `<line x1="${x.toFixed(1)}" y1="${STRIP_Y - 4}" x2="${x.toFixed(1)}" y2="${RY + RH * 0.5}" stroke="#E4572E" stroke-width="1.6" stroke-dasharray="4 3"/>`;
-        s += scissorsSvg(x, STRIP_Y + SH - SCI * 0.6, SCI, 90, { open }); // mũi kéo dừng ở mép dưới dải — không che vạch thước
+        if (cutAt === null) s += `<line x1="${x.toFixed(1)}" y1="${L.STRIP_Y - 4}" x2="${x.toFixed(1)}" y2="${L.RY + RH * 0.5}" stroke="#E4572E" stroke-width="1.6" stroke-dasharray="4 3"/>`;
+        s += scissorsSvg(x, L.STRIP_Y + SH - SCI * 0.6, SCI, 90, { open }); // mũi kéo dừng ở mép dưới dải — không che vạch thước
       }
       bench.innerHTML = s;
       // Kính lúp luôn soi chỗ lưỡi kéo (lượt đo: soi đầu đoạn ruy băng).
-      const fx = measure ? G.x(m.mm) : x;
-      lensG.setAttribute('transform', `translate(${(LENS.cx - G.zoom * fx).toFixed(1)} ${(LENS.cy - G.zoom * (RY + 8)).toFixed(1)}) scale(${G.zoom})`);
-      hintG.innerHTML = !moved && canCut && !locked ? `<text class="g3k-hand" x="${(x + 26).toFixed(1)}" y="${STRIP_Y - 58}" font-size="34" text-anchor="middle">👆</text>` : '';
+      const fx = measure ? G.x(m.mm) : x, z = zoom();
+      lensG.setAttribute('transform', `translate(${(L.LENS.cx - z * fx).toFixed(1)} ${(L.LENS.cy - z * (L.RY + 8)).toFixed(1)}) scale(${z})`);
+      hintG.innerHTML = !moved && canCut && !locked ? `<text class="g3k-hand" x="${(x + 26).toFixed(1)}" y="${L.STRIP_Y - 58}" font-size="34" text-anchor="middle">👆</text>` : '';
       syncUi();
     };
 
-    // ── Nút: ◀ ▶ nhích 1 mm, ✂️ Cắt (tự xác nhận) ──
-    uiG.innerHTML = measure ? '' : `<foreignObject x="${RX}" y="332" width="${W - RX * 2}" height="62"><div xmlns="http://www.w3.org/1999/xhtml" class="g3r-ctrls">
-        <button type="button" class="g3g-btn g3g-btn-ghost g3r-nudge" data-step="-1" aria-label="Lùi kéo 1 mi-li-mét">◀</button>
-        <button type="button" class="g3g-btn g3g-btn-ghost g3r-nudge" data-step="1" aria-label="Tiến kéo 1 mi-li-mét">▶</button>
-        <button type="button" class="g3g-btn g3g-btn-primary g3r-cut" data-act="cut" disabled><b>✂️ Cắt</b><small>Đặt kéo đúng vạch rồi bấm</small></button>
-      </div></foreignObject>`;
-    const cutBtn = uiG.querySelector('[data-act="cut"]');
     function syncUi() {
       if (!cutBtn) return;
       cutBtn.disabled = locked || !canCut || mm <= 0;
@@ -233,9 +229,6 @@ export const RIBBON_GAME = {
       moved = true;
       draw();
     };
-    uiG.querySelectorAll('[data-step]').forEach(b => {
-      b.onclick = () => { if (!canCut) return hintCalc(); if (!locked) setMm(mm + Number(b.dataset.step)); };
-    });
 
     // Kéo cây kéo: chạm bất cứ đâu trên dải ruy băng / thước, kéo đi theo ngón tay (bám vạch mm gần nhất).
     const toSvg = (e) => {
@@ -243,29 +236,80 @@ export const RIBBON_GAME = {
       pt.x = e.clientX; pt.y = e.clientY;
       return pt.matrixTransform(svg.getScreenCTM().inverse());
     };
-    const zone = (p) => p.y > STRIP_Y - 90 && p.y < RY + RH + 6 && p.x > RX - 10 && p.x < G.end + 6;
-    let dragging = false;
-    if (!measure) {
-      svg.classList.add('g3r-drag');
-      svg.addEventListener('pointerdown', (e) => {
-        if (locked || e.target.closest('foreignObject')) return;
-        const p = toSvg(e);
-        if (!zone(p)) return;
-        if (!canCut) return hintCalc();
-        e.preventDefault();
-        try { svg.setPointerCapture(e.pointerId); } catch { /* con trỏ không còn */ }
-        dragging = true;
-        setMm((p.x - G.zero) / G.ppm);
+    const zone = (p) => p.y > L.STRIP_Y - 90 && p.y < L.RY + RH + 6 && p.x > RX - 10 && p.x < G.end + 6;
+
+    function build() {
+      // Màn dọc: đo khung (cảnh rộng 600) → bề cao cảnh; tối thiểu cao thêm 120, tối đa 520.
+      let dy = 0;
+      if (isTall()) {
+        const r = host.getBoundingClientRect();
+        dy = r.width > 0 && r.height > 0 ? Math.round(Math.max(120, Math.min(520, (W * r.height) / r.width - 400))) : 240;
+      }
+      L = layout(dy);
+      table = sewingTableSvg(8, 176 + L.dy, 584, 220);
+      host.innerHTML = `
+        <svg class="g3r-scene${L.tall ? ' g3r-tall' : ''}" viewBox="0 0 ${W} ${L.H}" role="img" aria-label="Bàn cắt ruy băng có thước mi-li-mét">
+          ${rollRackSvg(...L.rack)}
+          <g id="${benchId}" data-bench></g>
+          <g data-hint></g>
+          <g data-lens-host></g>
+          <g data-ui></g>
+        </svg>`;
+      svg = host.querySelector('svg');
+      bench = svg.querySelector('[data-bench]');
+      hintG = svg.querySelector('[data-hint]');
+      uiG = svg.querySelector('[data-ui]');
+      svg.querySelector('[data-lens-host]').innerHTML = magnifierSvg(L.LENS.cx, L.LENS.cy, L.LENS.r, `<use href="#${benchId}"/>`, { sx: G.zero, sy: L.RY + 8, zoom: zoom(), handle: 135 });
+      lensG = svg.querySelector('[data-lens]');
+
+      // ── Nút: ◀ ▶ nhích 1 mm, ✂️ Cắt (tự xác nhận) ──
+      uiG.innerHTML = measure ? '' : `<foreignObject x="${RX}" y="${332 + L.dy}" width="${W - RX * 2}" height="62"><div xmlns="http://www.w3.org/1999/xhtml" class="g3r-ctrls">
+          <button type="button" class="g3g-btn g3g-btn-ghost g3r-nudge" data-step="-1" aria-label="Lùi kéo 1 mi-li-mét">◀</button>
+          <button type="button" class="g3g-btn g3g-btn-ghost g3r-nudge" data-step="1" aria-label="Tiến kéo 1 mi-li-mét">▶</button>
+          <button type="button" class="g3g-btn g3g-btn-primary g3r-cut" data-act="cut" disabled><b>✂️ Cắt</b><small>Đặt kéo đúng vạch rồi bấm</small></button>
+        </div></foreignObject>`;
+      cutBtn = uiG.querySelector('[data-act="cut"]');
+      if (cutBtn) cutBtn.onclick = onCut;
+      uiG.querySelectorAll('[data-step]').forEach(b => {
+        b.onclick = () => { if (!canCut) return hintCalc(); if (!locked) setMm(mm + Number(b.dataset.step)); };
       });
-      svg.addEventListener('pointermove', (e) => { if (dragging && !locked) setMm((toSvg(e).x - G.zero) / G.ppm); });
-      ['pointerup', 'pointercancel'].forEach(ev => svg.addEventListener(ev, () => { dragging = false; }));
-      svg.tabIndex = 0;
-      svg.addEventListener('keydown', (e) => {
-        if (locked || !canCut) return;
-        if (e.key === 'ArrowLeft') { e.preventDefault(); setMm(mm - 1); }
-        if (e.key === 'ArrowRight') { e.preventDefault(); setMm(mm + 1); }
-      });
+
+      if (!measure) {
+        svg.classList.add('g3r-drag');
+        svg.addEventListener('pointerdown', (e) => {
+          if (locked || e.target.closest('foreignObject')) return;
+          const p = toSvg(e);
+          if (!zone(p)) return;
+          if (!canCut) return hintCalc();
+          e.preventDefault();
+          try { svg.setPointerCapture(e.pointerId); } catch { /* con trỏ không còn */ }
+          dragging = true;
+          setMm((p.x - G.zero) / G.ppm);
+        });
+        svg.addEventListener('pointermove', (e) => { if (dragging && !locked) setMm((toSvg(e).x - G.zero) / G.ppm); });
+        ['pointerup', 'pointercancel'].forEach(ev => svg.addEventListener(ev, () => { dragging = false; }));
+        svg.tabIndex = 0;
+        svg.addEventListener('keydown', (e) => {
+          if (locked || !canCut) return;
+          if (e.key === 'ArrowLeft') { e.preventDefault(); setMm(mm - 1); }
+          if (e.key === 'ArrowRight') { e.preventDefault(); setMm(mm + 1); }
+        });
+      }
+      draw();
     }
+    build();
+    // Xoay máy giữa lượt (nút ngang / dọc hoặc xoay tay), hay khung đổi cỡ (máy tính tiền hiện ra ở màn dọc):
+    // dựng lại cảnh theo khổ mới — chỉ khi khổ thật sự đổi, và không dựng lại giữa lúc đang kéo.
+    stage.classList.add('g3r-stage');
+    const ro = new ResizeObserver(() => {
+      if (!host.isConnected) { ro.disconnect(); return; }
+      if (dragging) return;
+      const r = host.getBoundingClientRect();
+      const tall = isTall();
+      const dy = tall && r.width > 0 ? Math.max(120, Math.min(520, (W * r.height) / r.width - 400)) : 0;
+      if (tall !== L.tall || Math.abs(dy - L.dy) > 12) build();
+    });
+    ro.observe(host);
     if (import.meta.env.DEV) window.__g3ribbon = { set: (v) => { canCut = true; setMm(v); }, get: () => mm };
 
     /** Toạ độ màn hình tay khách cho đoạn ruy băng (tỉ lệ dài / rộng aspect). */
@@ -278,13 +322,13 @@ export const RIBBON_GAME = {
     /** Đoạn ruy băng đã cắt bay tới tay khách, uốn nhẹ như dải vải. */
     const flyPiece = (len, onLand) => {
       const x0 = G.zero, x1 = G.x(len);
-      const L = x1 - x0, pad = 10;
-      const from = svgBoxOnScreen(svg, x0 - pad, STRIP_Y - pieceUp - pad, L + pad * 2, SH + pad * 2);
-      const html = `<svg viewBox="${-L / 2 - pad} ${-SH / 2 - pad} ${L + pad * 2} ${SH + pad * 2}" preserveAspectRatio="none" aria-hidden="true">${ribbonPieceSvg(0, 0, L, SH, m.color, { wave: 4 })}</svg>`;
+      const pw = x1 - x0, pad = 10;           // bề dài đoạn ruy băng (đơn vị cảnh)
+      const from = svgBoxOnScreen(svg, x0 - pad, L.STRIP_Y - pieceUp - pad, pw + pad * 2, SH + pad * 2);
+      const html = `<svg viewBox="${-pw / 2 - pad} ${-SH / 2 - pad} ${pw + pad * 2} ${SH + pad * 2}" preserveAspectRatio="none" aria-hidden="true">${ribbonPieceSvg(0, 0, pw, SH, m.color, { wave: 4 })}</svg>`;
       pieceGone = true;
       draw();
       sfx.pop(3);
-      flyOne(html, from, customerBox((L + pad * 2) / (SH + pad * 2)), { minMs: 600, maxMs: 900, spin: 10, onLand });
+      flyOne(html, from, customerBox((pw + pad * 2) / (SH + pad * 2)), { minMs: 600, maxMs: 900, spin: 10, onLand });
     };
     const happy = () => { npcBox.innerHTML = npcPic(n, 'happy'); thanks(); };
 
@@ -293,7 +337,7 @@ export const RIBBON_GAME = {
       sfx.swish();
       const t0 = performance.now(), dur = 170;
       const frame = (now) => {
-        if (!svg.isConnected) return;
+        if (!host.isConnected) return;
         const k = Math.min(1, (now - t0) / dur);
         open = 20 * (1 - k);
         draw();
@@ -301,7 +345,7 @@ export const RIBBON_GAME = {
         cutAt = mm;
         const t1 = performance.now();
         const lift = (now2) => {
-          if (!svg.isConnected) return;
+          if (!host.isConnected) return;
           const k2 = Math.min(1, (now2 - t1) / 260);
           pieceUp = 8 * k2;
           open = 20 * k2;
@@ -322,8 +366,8 @@ export const RIBBON_GAME = {
       return `1 cm = 10 mm. Tìm vạch số <b>${c}</b> (${c * 10} mm) rồi đếm thêm <b>${r} vạch nhỏ</b> là ${want} mm.`;
     };
 
-    if (cutBtn) cutBtn.onclick = () => {
-      if (cutBtn.disabled) return;
+    function onCut() {
+      if (!cutBtn || cutBtn.disabled) return;
       locked = true;
       syncUi();
       snip(() => {
@@ -342,7 +386,7 @@ export const RIBBON_GAME = {
         speak(`Đúng ${spokenMm(want)} rồi!`, null, `Đúng <b>${want} mm</b>! 🎉`);
         setTimeout(() => flyPiece(want, happy), 450);
       });
-    };
+    }
 
     // ── Cấp 3: tính tiền ──
     function askPrice() {
@@ -362,7 +406,6 @@ export const RIBBON_GAME = {
 
     // ── Bắt đầu nhiệm vụ ──
     const colorWord = `ruy băng ${C.name}`;
-    draw();
     if (m.kind === 'cut') {
       speak(`${cap(n.you)} cắt cho ${n.me} ${spokenMm(want)} ${colorWord} nhé!`, null, `Cắt cho ${n.me} <b class="g3f-want">${want} mm</b> nhé!`);
       return;
@@ -394,6 +437,8 @@ export const RIBBON_GAME = {
         canCut = true;
         speak(`Đúng rồi! ${cap(n.you)} cắt ${spokenMm(want)} nhé!`, null, `Cắt <b class="g3f-want">${want} mm</b> nhé!`);
         draw();
+        // Đã đổi xong: máy tính tiền về nghỉ — màn dọc điện thoại lấy lại chỗ cho thước khi cắt.
+        setTimeout(() => { if (host.isConnected) st.rest(); }, 900);
       });
       return;
     }

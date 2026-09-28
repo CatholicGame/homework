@@ -329,10 +329,25 @@ body.vk-active #global-fullscreen-btn {
   margin-bottom: 0;
 }
 
+/* Number pad: digits + an operator column (+ − × : and ( ) around the 0).
+   The old <input type="number"> games get the plain 3-column pad. */
+#virtual-keyboard .vk-row { grid-template-columns: repeat(4, 1fr); }
+#virtual-keyboard .vk-row-ctrl { grid-template-columns: 1fr 1fr; }
+#virtual-keyboard.vk-no-ops .vk-row { grid-template-columns: repeat(3, 1fr); }
+#virtual-keyboard.vk-no-ops .vk-op { display: none; }
+#virtual-keyboard.vk-no-ops .vk-row-zero .vk-key { grid-column: 2; }
+#virtual-keyboard.vk-no-ops .vk-row-ctrl { grid-template-columns: 1fr 1fr; }
+.vk-op {
+  background: #EFF6FF;
+  color: #2563EB;
+  box-shadow: 0 3px 0 #BFDBFE;
+}
+.vk-op:active { box-shadow: 0 1px 0 #BFDBFE; }
+
 /* "," key: hidden unless the focused blank takes a list of numbers */
-.vk-comma { display: none; }
-.vk-with-comma .vk-comma { display: flex; }
-.vk-with-comma .vk-row:last-child { grid-template-columns: repeat(4, 1fr); }
+#virtual-keyboard .vk-comma { display: none; }
+#virtual-keyboard.vk-with-comma .vk-comma { display: flex; }
+#virtual-keyboard.vk-with-comma .vk-row-ctrl { grid-template-columns: repeat(3, 1fr); }
 
 /* Number-word tiles ("Đọc số"): 5 per row, smaller text so "nghìn" fits */
 .vk-words { width: min(96vw, 560px); }

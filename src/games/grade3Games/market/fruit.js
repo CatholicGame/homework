@@ -9,6 +9,7 @@ import { weightIcon, weightLabel, weightSize } from '../art/weights.js';
 import { FRUITS, fruitIcon, pieceIcon, panHeapSvg } from '../art/fruits.js';
 import { NPCS, cap } from '../npc.js';
 import { mountStall, Q } from './stall.js';
+import { stallMeta, levelMeta } from '../catalog.js';
 import { flyOne, svgBoxOnScreen } from '../fly.js';
 import { sfx } from '../../preschool/fx.js';
 
@@ -43,45 +44,40 @@ const NOTES = [100, 200, 500];
 // price(info, rng-free): các giá hợp lệ cho một loại quả ở cấp này.
 export const FRUIT_LEVELS = [
   {
-    id: 'fruit-1', n: 1, title: 'Cân ki-lô-gam', missions: 5,
+    ...levelMeta('fruit-1'), missions: 5,
     knowledge: 'ki-lô-gam (lớp 2), bảng nhân 2, bảng nhân 5 và số tròn chục',
-    lessons: { workbook: ['bai-4', 'bai-7'], practice: ['tuan-2', 'tuan-3'] },
     ask: (n) => `Cân đúng số ki-lô-gam rồi tính tiền giúp ${n.me} nhé!`,
     desc: 'Khách mua mấy ki-lô-gam, em chọn quả cân cộng lại đúng bằng số đó. Giá tròn chục: 20 hoặc 50 nghìn đồng 1 kg.',
     unit: 'kg', mass: [1, 9], price: (f) => f.tens.filter(p => p === 20 || p === 50), steps: ['pick', 'total'],
     sizes: 2, extra: [4, 5], // sạp có 2 cỡ quả: to / nhỏ
   },
   {
-    id: 'fruit-2', n: 2, title: 'Nhân giá tiền', missions: 5,
+    ...levelMeta('fruit-2'), missions: 5,
     knowledge: 'bảng nhân 3 đến bảng nhân 9 và số tròn chục',
-    lessons: { workbook: ['bai-5', 'bai-6', 'bai-9', 'bai-10', 'bai-11', 'bai-12'], practice: ['tuan-2', 'tuan-3', 'tuan-4', 'tuan-5', 'tuan-6'] },
     ask: (n) => `Giá 30, 40, 60 nghìn đồng 1 kg — cân rồi tính tiền giúp ${n.me} nhé!`,
     desc: 'Giá tròn chục như 30, 40, 60 nghìn đồng 1 kg: 3 chục × 4 = 12 chục.',
     unit: 'kg', mass: [2, 9], price: (f) => f.tens.filter(p => p !== 20 && p !== 50), steps: ['pick', 'total'],
     sizes: 2, extra: [5, 6],
   },
   {
-    id: 'fruit-3', n: 3, title: 'Giá lẻ', missions: 5,
+    ...levelMeta('fruit-3'), missions: 5,
     knowledge: 'nhân số có hai chữ số với số có một chữ số',
-    lessons: { workbook: ['bai-23'], practice: ['tuan-9'] },
     ask: (n) => `Giá lẻ như ở chợ thật — cân rồi tính tiền giúp ${n.me} nhé!`,
     desc: 'Giá như ở chợ: 25, 38, 45 nghìn đồng 1 kg.',
     unit: 'kg', mass: [2, 6], price: (f) => f.mixed, steps: ['pick', 'total'],
     sizes: 3, extra: [5, 7], // to / vừa / nhỏ
   },
   {
-    id: 'fruit-4', n: 4, title: 'Trả tiền thừa', missions: 5,
+    ...levelMeta('fruit-4'), missions: 5,
     knowledge: 'bài toán giải bằng hai bước tính',
-    lessons: { workbook: ['bai-28'], practice: ['tuan-12'] },
     ask: (n) => `Cân, tính tiền rồi trả lại tiền thừa cho ${n.me} nhé!`,
     desc: 'Tính tiền rồi trả lại tiền thừa khi khách đưa tờ 100, 200 hay 500 nghìn đồng.',
     unit: 'kg', mass: [2, 5], price: (f) => [...f.tens, ...f.mixed], steps: ['pick', 'total', 'change'],
     sizes: 4, extra: [6, 8],
   },
   {
-    id: 'fruit-5', n: 5, title: 'Cân bằng gam', missions: 5,
+    ...levelMeta('fruit-5'), missions: 5,
     knowledge: 'gam, ki-lô-gam (1 kg = 1 000 g)',
-    lessons: { workbook: ['bai-31'], practice: ['tuan-13'] },
     ask: (n) => `Hôm nay cân bằng gam — cân rồi tính tiền giúp ${n.me} nhé!`,
     desc: 'Khách mua mấy trăm gam nho, dâu tây, nhãn, chanh: chọn quả cân 100 g, 200 g, 500 g cho đúng; giá tính cho 100 g.',
     unit: 'g', mass: [1, 9], price: (f) => f.per100, steps: ['pick', 'total'],
@@ -158,9 +154,7 @@ function solveWeights(set, g) {
 }
 
 export const FRUIT_GAME = {
-  id: 'fruit',
-  title: 'Quầy trái cây',
-  icon: '🍎',
+  ...stallMeta('fruit'),
   unitWord: 'khách',
   levels: FRUIT_LEVELS,
   stallIcon: () => fruitIcon('cam', 56),

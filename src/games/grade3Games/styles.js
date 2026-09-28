@@ -172,6 +172,8 @@ export function injectGameStyles() {
     .g3g-play { position: relative; height: 100%; min-height: 0; padding: 0.5rem; gap: 0.4rem; align-items: stretch; overflow: hidden; font-family: 'Baloo 2', 'Quicksand', sans-serif; background: linear-gradient(180deg, #BAE6FD 0%, #E0F7FF 40%, #FFF7ED 100%); -webkit-tap-highlight-color: transparent; }
     .g3g-play button { font-family: inherit; }
     .g3g-topbar { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+    .g3g-orient-btn { display: inline-grid; place-items: center; color: #2563EB; }
+    .g3g-orient-btn[hidden] { display: none; }
     .g3g-play .g3g-icon-btn { background: #fff; box-shadow: 0 3px 0 #93C5FD; border-radius: 50%; min-width: 2.5rem; height: 2.5rem; }
     .g3g-top-title { flex: 1; font-weight: 800; color: #1E3A5F; font-size: clamp(0.95rem, 2.2vh + 0.35rem, 1.3rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     /* Tiến độ: 5 ô khách — xong khách nào hiện mặt 😊 / 😕 (cùng hình với màn giới thiệu) */
@@ -234,7 +236,8 @@ export function injectGameStyles() {
     .g3f-npc { flex: 0 0 36%; min-width: 0; min-height: 0; display: flex; align-items: flex-end; justify-content: center; }
     .g3f-npc img { height: 100%; max-height: 300px; max-width: 100%; object-fit: contain; object-position: bottom; display: block; margin: 0 auto; }
     /* Tâm trạng khách (npc.js): vui thì nhún nhảy, chưa đúng thì lắc đầu — hình chỉ có một nét mặt */
-    .g3-npc-img { user-select: none; -webkit-user-drag: none; transform-origin: 50% 100%; }
+    /* aspect-ratio: giữ chỗ đúng khổ hình (~21:40) ngay cả khi hình chưa tải xong */
+    .g3-npc-img { user-select: none; -webkit-user-drag: none; transform-origin: 50% 100%; aspect-ratio: 21 / 40; }
     .g3-npc-happy { animation: g3NpcHop 0.9s ease-out; }
     .g3-npc-sad { animation: g3NpcNo 0.7s ease-in-out; }
     @keyframes g3NpcHop { 0%, 100% { transform: translateY(0) scale(1, 1); } 15% { transform: translateY(0) scale(1.06, 0.92); } 40% { transform: translateY(-14%) scale(0.97, 1.04); } 65% { transform: translateY(0) scale(1.04, 0.95); } 80% { transform: translateY(-4%); } }
@@ -373,6 +376,13 @@ export function injectGameStyles() {
       .g3f-ask .g3g-key { height: clamp(1.3rem, 6.2vh, 2rem); font-size: 0.95rem; border-radius: 0.45rem; }
       .g3g-result { padding: 0.5rem 0.7rem; gap: 0.35rem; }
       .g3g-result .g3g-btn { padding: 0.5rem 0.8rem; font-size: 0.95rem; }
+      /* Chưa tới bước gõ số (g3f-pad-idle, stall.js): khách đứng to ở nửa trái, máy tính tiền nghỉ nửa phải — không
+         chừa ô hoá đơn trống. Tới bước tính thì về bố cục trên (khách nhỏ cạnh bong bóng, hoá đơn | bàn phím). */
+      .g3f-pad-idle .g3f-customer { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "say say" "npc ask"; }
+      .g3f-pad-idle .g3f-npc { height: auto; min-height: 0; align-self: stretch; }
+      .g3f-pad-idle .g3f-npc img { height: 100%; max-height: none; }
+      .g3f-pad-idle .g3f-bill-idle { display: none; }
+      .g3f-pad-idle .g3f-bubble::after { top: auto; bottom: -12px; left: 25%; margin: 0 0 0 -10px; border: 10px solid transparent; border-top-color: #FDBA74; border-bottom: 0; }
     }
 
     /* Màn dọc (iPad dọc / điện thoại chọn chơi dọc): phần khách ở trên — khách (trái) | bong bóng + máy tính tiền (phải);
@@ -400,28 +410,44 @@ export function injectGameStyles() {
       .g3f-bill { justify-content: center; }
       .g3f-ask .g3g-key { height: clamp(1.8rem, 4.2vh, 2.8rem); }
     }
-    /* Điện thoại cầm dọc (đã bỏ qua lời nhắc xoay ngang): xếp một cột, cho cuộn */
+    /* Điện thoại cầm dọc (bé chọn chơi dọc): xếp một cột, cho cuộn */
     @media (orientation: portrait) and (max-width: 600px) {
-      .g3g-play { overflow-y: auto; }
-      .g3g-stage { flex: none; display: block; }
+      /* Điện thoại dọc: cả màn chơi nằm gọn trong một khung đầy màn hình, KHÔNG cuộn (cuộn làm bé mất tập trung).
+         Khách · quầy · máy tính tiền chia nhau chiều cao; phần nào dư thì hình trong quầy tự to ra. */
+      .g3g-play { overflow: hidden; }
       .g3g-result .g3g-btn { white-space: normal; }
-      .g3f-scale-host { height: auto; aspect-ratio: 480 / 300; flex: none; }
+      /* Cân lấp hết chỗ còn lại của quầy (SVG tự co giãn giữ tỉ lệ) */
+      .g3f-scale-host { flex: 1 1 0; min-height: 0; height: auto; }
       /* Điện thoại dọc: bỏ bàn tay chỉ (quả cân vẫn nhún nhảy gợi ý) để khay quả cân vừa một hàng */
       .g3f-dock-pick .g3f-hand, .g3f-hand { display: none; }
       .g3f-tray { padding: 0.25rem 0.3rem; gap: 0.2rem; }
       .g3f-sign { position: static; align-self: center; }
       .g3f-dock { flex-wrap: wrap; }
-      /* Máy tính tiền xuống dưới quầy và chỉ hiện khi tới bước tính (ask() tự cuộn tới) — lúc cân, bong bóng
-         ngay trên cân, sạp quả / quả cân không bị khoảng máy tính nghỉ đẩy xuống khuất màn hình */
-      .g3f-scene { grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto auto; grid-template-areas: "npc say" "main main" "ask ask"; row-gap: 0.6rem; }
+      /* Khách + bong bóng ở trên, quầy giữa, máy tính tiền dưới cùng — máy tính chỉ hiện khi tới bước tính */
+      .g3f-scene { grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "npc say" "main main" "ask ask"; row-gap: 0.5rem; padding-left: 0.45rem; padding-right: 0.45rem; padding-bottom: 0.45rem; }
       .g3f-customer { display: contents; }
-      .g3f-npc { height: 26vw; }
+      .g3f-main, .g3f-counter { min-height: 0; }
+      .g3f-counter { padding: 0.35rem; }
+      /* Khách to theo chiều cao màn; tới bước tính thì thu nhỏ nhường chỗ cho máy tính tiền */
+      /* Quầy cần ~140vw chiều cao (cân / sạp / khay theo bề ngang) — khách lấy phần còn lại; ước dư thì quầy tự co */
+      .g3f-npc { height: clamp(80px, 100vh - 56px - 140vw, 46vw); height: clamp(80px, 100dvh - 56px - 140vw, 46vw); transition: height .3s; }
+      .g3f-scene:not(.g3f-pad-idle) .g3f-npc { height: clamp(60px, 11vh, 28vw); height: clamp(60px, 11dvh, 28vw); }
       .g3f-bubble { align-self: center; }
       .g3f-ask-idle { display: none; }
-      /* Hoá đơn trên, bàn phím dưới (cả hai rộng hết quầy): mỗi dòng hoá đơn một hàng, số không bị bẻ dòng */
-      .g3f-ask { flex-direction: column; }
-      .g3f-ask > * { flex: none; }
+      /* Có kết quả: máy tính tiền (đã khoá) nhường chỗ để thẻ kết quả trong quầy đủ cao, không phải cuộn */
+      .g3g-has-result .g3f-ask { display: none; }
+      /* Hoá đơn | bàn phím cạnh nhau (xếp chồng thì ăn gần nửa màn, quầy bị ép nhỏ); số trong hoá đơn không bẻ dòng */
+      .g3f-ask { flex-direction: row; align-items: stretch; gap: 0.35rem; overflow: visible; }
+      .g3f-ask > * { flex: 1 1 0; min-width: 0; }
+      .g3f-bill { justify-content: center; padding: 0.3rem 0.45rem; gap: 0.15rem; }
+      .g3f-bill-row { font-size: clamp(0.85rem, 1.2vh + 0.5rem, 1.15rem); gap: 0.3rem; }
+      .g3f-bill-pic, .g3f-bill-pic svg { width: 1.5rem; height: 1.5rem; font-size: 1.1rem; }
       .g3f-bill-row > :last-child { white-space: nowrap; }
+      .g3f-ask .g3g-keypad { padding: 0.4rem; }
+      .g3f-ask .g3g-lcd { margin-bottom: 0.3rem; padding: 0.1rem 0.6rem; }
+      .g3f-ask .g3g-lcd-val { font-size: clamp(1.3rem, 3.6vh, 2rem); }
+      .g3f-ask .g3g-keys { gap: 0.3rem; }
+      .g3f-ask .g3g-key { height: clamp(1.9rem, 5vh, 2.9rem); }
       .g3g-dot { width: 1.5rem; height: 1.5rem; font-size: 1rem; }
     }
 
@@ -456,8 +482,10 @@ export function injectGameStyles() {
     .g3e-ghost svg { width: 100%; height: auto; }
     .g3e-ghost b { position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--box-w, 120px) * 0.35); line-height: 1; color: #EA580C; text-shadow: 0 2px 0 #fff; }
     /* Tới bước gõ số: bảng hiệu ẩn (đã có trong hoá đơn), bàn đóng hộp lên sát trên */
-    @media (orientation: portrait) { .g3e-bench { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); } }
-    @media (orientation: portrait) and (max-width: 600px) { .g3e-bench { height: 70vw; flex: none; } }
+    /* Màn dọc: trứng của quầy ở trên (xếp hàng chục, rộng hết quầy), bàn đóng hộp ở dưới — trứng đi từ trên xuống hộp */
+    @media (orientation: portrait) { .g3e-bench { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1.2fr); } }
+    /* Điện thoại dọc: bàn lấp hết chỗ còn lại của quầy (không cuộn), bảng giá đứng riêng ở trên nên bỏ khoảng chừa */
+    @media (orientation: portrait) and (max-width: 600px) { .g3e-bench { flex: 1 1 0; min-height: 0; padding-top: 0; } }
 
     /* Quầy nước chanh (g3l-*, market/lemonade.js): mái sọc vàng trắng, bảng tên xanh, dây cờ trên mép quầy,
        mặt trước quầy sọc vàng trắng — như ảnh mẫu scripts/g3games/lemonade-ref/stand.png */
@@ -478,6 +506,10 @@ export function injectGameStyles() {
     .g3l-ctrls { width: 100%; height: 100%; display: flex; flex-direction: column; gap: 9px; align-items: stretch; justify-content: flex-end; padding-bottom: 6px; box-sizing: border-box; }
     .g3l-ctrls .g3g-btn { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 8px 5px; font-size: 15px; line-height: 1.1; border: 3px solid #fff; border-radius: 13px; white-space: nowrap; touch-action: none; -webkit-touch-callout: none; user-select: none; }
     .g3l-ctrls .g3g-btn small { font-size: 8.5px; font-weight: 700; opacity: 0.9; }
+    /* Điện thoại dọc (lemonade.js isTall): hai nút nằm ngang dưới kệ ly, chữ to (đơn vị cảnh ≈ px màn hình) */
+    .g3l-ctrls.g3l-ctrls-row { flex: none; height: auto; flex-direction: row; align-items: stretch; padding: 2px 0 4px; gap: 10px; }
+    .g3l-ctrls-row .g3g-btn { flex: 1 1 0; min-width: 0; justify-content: center; font-size: clamp(17px, 5vw, 22px); padding: 8px 6px; }
+    .g3l-ctrls-row .g3g-btn small { font-size: clamp(10px, 2.8vw, 13px); white-space: normal; }
     .g3l-ctrls .g3g-btn:disabled { opacity: 1; background: #CBD5E1; color: #fff; box-shadow: 0 4px 0 #94A3B8; text-shadow: none; cursor: default; }
     .g3l-dump:not(:disabled):active { transform: translateY(3px); }
     .g3l-pop { animation: g3lPop .4s cubic-bezier(.3,1.5,.5,1); transform-box: fill-box; transform-origin: 50% 100%; }
@@ -489,7 +521,6 @@ export function injectGameStyles() {
     @media (orientation: portrait) { .g3f-theme-lemon .g3f-main > .g3g-result { left: 50%; right: auto; width: min(94%, 460px); transform: translateX(-50%); animation-name: g3fPop; } }
     .g3l-l { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 400; }
     @media (prefers-reduced-motion: reduce) { .g3l-tap-hint .g3l-hand { animation: none; } }
-    @media (orientation: portrait) and (max-width: 600px) { .g3l-host { height: 76vw; flex: none; } }
     /* Điện thoại xoay ngang: cảnh thấp — bớt viền quầy, số trên ca to hơn để còn đọc được */
     @media (orientation: landscape) and (max-height: 500px) {
       .g3f-theme-lemon .g3f-counter { padding: 2px 4px 10px; }
@@ -537,7 +568,15 @@ export function injectGameStyles() {
     .g3f-theme-cake .g3f-main > .g3g-result { left: auto; right: 0.7rem; width: min(48%, 420px); transform: none; animation-name: g3lCard; }
     .g3f-theme-cake .g3f-main::after { background: rgba(15,23,42,0.1); }
     @media (orientation: portrait) { .g3f-theme-cake .g3f-main > .g3g-result { left: 50%; right: auto; width: min(94%, 460px); transform: translateX(-50%); animation-name: g3fPop; } }
-    @media (orientation: portrait) and (max-width: 600px) { .g3k-host { height: 68vw; flex: none; } }
+    /* Điện thoại dọc (bakery.js isTall): nút ra một dải ngang dưới cảnh, cỡ theo màn hình chứ không theo cảnh */
+    @media (orientation: portrait) and (max-width: 600px) {
+      .g3k-ctrls-strip { flex: none; height: auto; flex-direction: row; flex-wrap: wrap; align-items: stretch; justify-content: center; gap: 8px; padding: 2px 0 4px; }
+      .g3k-ctrls-strip > .g3g-btn { flex: 1 1 0; min-width: 0; font-size: clamp(17px, 5vw, 22px); padding: 10px 6px; }
+      .g3k-ctrls-strip .g3k-step { flex: 1.3 1 0; min-width: 0; padding: 4px; }
+      .g3k-ctrls-strip .g3k-step-btn { width: clamp(38px, 11vw, 50px); height: clamp(38px, 11vw, 50px); }
+      .g3k-ctrls-strip .g3k-row { flex: 1; height: auto; }
+      .g3k-ctrls-strip .g3k-row .g3g-btn { font-size: clamp(17px, 5vw, 22px); padding: 10px 6px; }
+    }
     /* Điện thoại xoay ngang: cảnh thu nhỏ nhiều — nút trong cảnh to hơn (theo đơn vị cảnh) để vẫn dễ chạm */
     @media (orientation: landscape) and (max-height: 500px) {
       .g3k-ctrls { gap: 12px; }
@@ -567,7 +606,12 @@ export function injectGameStyles() {
     .g3f-theme-ribbon .g3f-main > .g3g-result { top: 0.6rem; bottom: auto; width: min(82%, 600px); max-height: 54%; padding: 0.6rem 1rem; gap: 0.45rem; }
     .g3f-theme-ribbon .g3f-main::after { background: rgba(15,23,42,0.1); }
     @media (orientation: portrait) { .g3f-theme-ribbon .g3f-main > .g3g-result { top: auto; bottom: 0.7rem; width: min(94%, 460px); max-height: calc(100% - 1.4rem); } }
-    @media (orientation: portrait) and (max-width: 600px) { .g3r-host { height: 68vw; flex: none; } }
+    /* Màn dọc (điện thoại): quầy ruy băng lấp hết bề cao màn hình — cảnh tự cao theo khung (market/ribbon.js) */
+    @media (orientation: portrait) and (max-width: 600px) {
+      .g3r-stage .g3f-scene { grid-template-rows: auto minmax(0, 1fr) auto; }
+      .g3r-stage .g3f-main, .g3r-stage .g3f-counter { min-height: 0; }
+      .g3r-host { flex: 1; min-height: 0; }
+    }
     @media (orientation: landscape) and (max-height: 500px) {
       .g3r-ctrls .g3g-btn { font-size: 26px; }
       .g3r-ctrls .g3r-nudge { width: 80px; font-size: 28px; }
