@@ -205,9 +205,12 @@ function showKeyboard(input) {
     input.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
-  // The "," key only shows for a blank whose answer is a list of numbers in
-  // one field (e.g. "59, 56, 51, 53") — elsewhere it would just invite typos.
-  panel.classList.toggle('vk-with-comma', !!input.dataset.vkComma);
+  // The "," key shows wherever the operator keys do (every text blank), not only
+  // on blanks whose answer is a list ("59, 56, 51, 53"): showing it just there
+  // told the child the answer was a list, and hid it where a comma was needed.
+  // A one- or two-character "ô trống" box never holds ", ".
+  const tiny = input.maxLength > 0 && input.maxLength < 3;
+  panel.classList.toggle('vk-with-comma', input.type !== 'number' && !tiny);
   panel.classList.toggle('vk-no-ops', input.type === 'number');
   panel.classList.add('vk-visible');
   document.body.classList.add('vk-active'); // hides the floating fullscreen button, which sits at bottom-right and would otherwise overlap the now-wide keypad's ✓ key
@@ -265,7 +268,7 @@ function pressKey(key) {
     // overflow, or the input's own maxlength (e.g. a one-digit "ô trống" box
     // in the grade-3 workbook). A comma list or an expression is longer.
     const isNum = activeInput.type === 'number';
-    const cap = activeInput.dataset.vkComma ? 40 : isNum ? 4 : 20;
+    const cap = isNum ? 4 : 40;
     const maxChars = activeInput.maxLength > 0 ? Math.min(cap, activeInput.maxLength) : cap;
     const v = activeInput.value;
     const op = { '+': '+', '−': isNum ? '-' : '−', '×': '×', ':': ':' }[key];
