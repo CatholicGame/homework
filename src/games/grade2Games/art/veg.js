@@ -136,3 +136,79 @@ export function vegIcon(id, size = 40) {
   const { svg, box } = vegHeap(id, 1);
   return `<svg viewBox="${box.x.toFixed(1)} ${box.y.toFixed(1)} ${box.w.toFixed(1)} ${box.h.toFixed(1)}" width="${size}" height="${size}" aria-hidden="true">${svg}</svg>`;
 }
+
+// ── Túi hàng cân theo ki-lô-gam (cấp 3, 4): gốc = giữa đáy túi ─────────────────────────────────────
+// Túi nặng hơn vẽ to hơn (theo căn bậc hai số kg) để túi 10 kg trông to hơn túi 2 kg, nhưng không ghi số lên túi
+// cho tới khi đã cân (cấp 3) — cấp 4 treo thẻ "6 kg" vì bài cho biết trước cân nặng.
+
+const INK = '#3F3A40';
+const bagText = (x, y, t, size, fill) => `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="${size.toFixed(1)}" font-weight="800" fill="${fill}" font-family="Quicksand, sans-serif">${t}</text>`;
+
+// Bao gạo: bao trắng, cổ buộc dây đỏ, băng nhãn xanh.
+function riceSack(w, h) {
+  const hw = w / 2, neck = h * 0.2;
+  return `
+    <path d="M${-hw * 0.9} 0 Q${-hw * 1.05} ${-h * 0.45} ${-hw * 0.7} ${-h + neck} L${-hw * 0.28} ${-h + neck * 0.8} Q0 ${-h + neck * 1.1} ${hw * 0.28} ${-h + neck * 0.8}
+             L${hw * 0.7} ${-h + neck} Q${hw * 1.05} ${-h * 0.45} ${hw * 0.9} 0 Z" fill="#F8FAFC" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M${-hw * 0.28} ${-h + neck * 0.8} L${-hw * 0.4} ${-h} Q0 ${-h - 3} ${hw * 0.4} ${-h} L${hw * 0.28} ${-h + neck * 0.8}" fill="#F1F5F9" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M${-hw * 0.32} ${-h + neck * 0.85} Q0 ${-h + neck * 1.15} ${hw * 0.32} ${-h + neck * 0.85}" fill="none" stroke="#DC2626" stroke-width="3" stroke-linecap="round"/>
+    <rect x="${-hw * 0.78}" y="${-h * 0.56}" width="${hw * 1.56}" height="${h * 0.26}" rx="3" fill="#16A34A"/>
+    ${bagText(0, -h * 0.43, 'GẠO', Math.min(14, h * 0.18), '#fff')}
+    <path d="M${-hw * 0.6} ${-h * 0.2} q${hw * 0.2} ${h * 0.05} ${hw * 0.35} 0" stroke="#CBD5E1" stroke-width="1.5" fill="none"/>`;
+}
+
+// Túi đường: túi giấy nâu, miệng gấp, nhãn trắng.
+function sugarBag(w, h) {
+  const hw = w / 2;
+  return `
+    <path d="M${-hw} 0 L${-hw * 0.92} ${-h * 0.86} H${hw * 0.92} L${hw} 0 Z" fill="#E7C9A0" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M${-hw * 0.92} ${-h * 0.86} L${-hw * 0.85} ${-h} H${hw * 0.85} L${hw * 0.92} ${-h * 0.86} Z" fill="#D6B084" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+    <rect x="${-hw * 0.75}" y="${-h * 0.8}" width="${hw * 1.5}" height="${h * 0.28}" rx="4" fill="#fff" stroke="#B45309" stroke-width="1.5"/>
+    ${bagText(0, -h * 0.66, 'ĐƯỜNG', Math.min(11, w * 0.18), '#B45309')}`;
+}
+
+// Bao khoai lang: bao lưới cam, thấy củ khoai tím bên trong.
+function potatoNet(w, h) {
+  const hw = w / 2;
+  const r = Math.max(6, w * 0.13);
+  let spuds = '';
+  const rows = [[-0.45, -0.18], [0, -0.2], [0.45, -0.18], [-0.25, -0.5], [0.25, -0.5], [0, -0.75]];
+  for (const [dx, dy] of rows) spuds += sweetPotato(dx * hw, dy * h, r * 0.62);
+  let net = '';
+  for (let k = -3; k <= 3; k++) net += `<path d="M${k * hw * 0.3 - hw * 0.4} 0 L${k * hw * 0.3 + hw * 0.4} ${-h * 0.88}" stroke="#EA580C" stroke-width="1.2" opacity=".75"/>
+    <path d="M${k * hw * 0.3 + hw * 0.4} 0 L${k * hw * 0.3 - hw * 0.4} ${-h * 0.88}" stroke="#EA580C" stroke-width="1.2" opacity=".75"/>`;
+  return `
+    <defs><clipPath id="g2v-net-${Math.round(w * 10)}"><path d="M${-hw} 0 Q${-hw * 1.1} ${-h * 0.5} ${-hw * 0.55} ${-h * 0.88} H${hw * 0.55} Q${hw * 1.1} ${-h * 0.5} ${hw} 0 Z"/></clipPath></defs>
+    <path d="M${-hw} 0 Q${-hw * 1.1} ${-h * 0.5} ${-hw * 0.55} ${-h * 0.88} H${hw * 0.55} Q${hw * 1.1} ${-h * 0.5} ${hw} 0 Z" fill="#FFEDD5"/>
+    <g clip-path="url(#g2v-net-${Math.round(w * 10)})">${spuds}${net}</g>
+    <path d="M${-hw} 0 Q${-hw * 1.1} ${-h * 0.5} ${-hw * 0.55} ${-h * 0.88} H${hw * 0.55} Q${hw * 1.1} ${-h * 0.5} ${hw} 0 Z" fill="none" stroke="#C2410C" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M${-hw * 0.5} ${-h * 0.88} Q0 ${-h * 1.02} ${hw * 0.5} ${-h * 0.88}" fill="none" stroke="#C2410C" stroke-width="3" stroke-linecap="round"/>`;
+}
+
+/** Túi hàng: tên, cách vẽ, các cân nặng hay gặp ở chợ (kg). */
+export const BAGS = {
+  gao: { name: 'túi gạo', draw: riceSack, kg: [5, 6, 8, 10], k: 1.08 },
+  duong: { name: 'túi đường', draw: sugarBag, kg: [1, 2, 3], k: 0.95 },
+  khoai: { name: 'bao khoai lang', draw: potatoNet, kg: [2, 3, 4, 5, 6], k: 1 },
+};
+
+/**
+ * Một túi hàng nặng `kg` (gốc = giữa đáy). tag: thẻ treo trước túi, vd. "6 kg" (cấp 4) — không có thì không ghi số.
+ * Trả về { svg, w, h } (khung vẽ, để xếp trên đĩa cân và làm đích bay).
+ */
+export function bagArt(type, kg, tag = '') {
+  const b = BAGS[type];
+  const w = (26 + 10 * Math.sqrt(kg)) * b.k, h = w * 1.12;
+  const tw = Math.max(34, tag.length * 8 + 10);
+  const tagSvg = tag ? `<g>
+      <rect x="${-tw / 2}" y="-21" width="${tw}" height="18" rx="5" fill="#FEF3C7" stroke="#92400E" stroke-width="1.6"/>
+      ${bagText(0, -12, tag, 12.5, '#78350F')}</g>` : '';
+  return { svg: b.draw(w, h) + tagSvg, w, h: h + 4 };
+}
+
+/** Biểu tượng túi hàng (bảng giá, hoá đơn). */
+export function bagIcon(type, kg = 3, size = 30) {
+  const { svg, w, h } = bagArt(type, kg);
+  const s = Math.max(w, h) + 4;
+  return `<svg viewBox="${(-s / 2).toFixed(1)} ${(-h - 2).toFixed(1)} ${s.toFixed(1)} ${s.toFixed(1)}" width="${size}" height="${size}" aria-hidden="true">${svg}</svg>`;
+}

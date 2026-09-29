@@ -1,0 +1,14 @@
+<!DOCTYPE html><html><body style="margin:0;background:#fff">
+<svg id="s" viewBox="0 0 1100 420" width="1100" height="420"></svg>
+<script type="module">
+import * as A from '/src/games/grade2Games/art/water.js';
+const put = (vs, x, y, v) => `<g transform="translate(${x} ${y})">${vs.back}${A.waterSvg(vs, v)}${vs.front}</g>`;
+const g = A.barrelGeom(20, 80, 120, 220);
+let s = A.barrelSvg(g, true, 400) + A.streamSvg(g.nozzle.x, g.nozzle.y + 2, 330);
+s += put(A.caVessel(), g.nozzle.x, 400, 0.6);
+s += put(A.canVessel(5), 300, 400, 3) + put(A.canVessel(2, { color: '#7BCB8B' }), 390, 400, 2);
+s += put(A.bucketVessel(6), 500, 400, 4) + put(A.jarVessel(3, { label: true }), 620, 400, 1);
+s += put(A.bottleVessel(1), 700, 400, 1) + put(A.cupVessel(0.4), 760, 400, 0.3) + put(A.kettleVessel(2), 850, 400, 1.5);
+s += put(A.tankVessel(20), 1010, 400, 13);
+document.getElementById('s').innerHTML = s;
+</script></body></html>

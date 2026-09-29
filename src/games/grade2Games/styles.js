@@ -176,12 +176,12 @@ export function injectVegStyles() {
     .g3f-theme-veg .g3f-counter { background: linear-gradient(#ECFCCB, #D9F99D); border-bottom-color: #65A30D; }
     .g3f-theme-veg .g3f-sign { background: #16A34A; border-color: #14532D; color: #fff; text-shadow: 0 1px 0 rgba(20,83,45,0.5); }
     .g3f-theme-veg .g3f-main::after { background: rgba(15,23,42,0.06); } /* thẻ kết quả: cân phía trên vẫn sáng rõ */
-    /* Không gõ số: bỏ máy tính tiền, khách đứng to cả cột. */
-    .g3f-theme-veg .g3f-ask { display: none; }
+    /* Cấp chọn câu (g2v-nopad): không gõ số, bỏ máy tính tiền, khách đứng to cả cột. */
+    .g2v-nopad .g3f-ask { display: none; }
     .g3f-theme-veg .g3f-scale-host { padding-top: clamp(1.8rem, 6vh, 3rem); box-sizing: border-box; }
 
-    .g3f-theme-veg .g3f-npc { flex: 1 1 auto; }
-    .g3f-theme-veg .g3f-npc img { max-height: 420px; }
+    .g2v-nopad .g3f-npc { flex: 1 1 auto; }
+    .g2v-nopad .g3f-npc img { max-height: 420px; }
     .g2v-dock { flex: none; width: 100%; display: flex; gap: 0.6rem; container-type: inline-size; }
     /* --u: số px cho một đơn vị hình — chung cho cả hai khay, vừa chiều cao khay và nửa bề ngang quầy. */
     .g2v-tray { --u: min(clamp(44px, 11vh, 96px) / var(--hmax), (50cqw - 1.8rem) / var(--wmax)); }
@@ -194,6 +194,24 @@ export function injectVegStyles() {
     .g2v-dock-hint .g2v-tray:not(.g2v-tray-empty) svg { animation: g3fHop 2.2s ease-in-out infinite; }
     .g2v-dock-hint .g2v-tray:not(.g2v-tray-empty) { box-shadow: 0 0 0 3px #FDE68A; }
 
+    /* Cấp cân kg: túi hàng + khay quả cân, cùng một tỉ lệ theo chiều cao (--hmax). */
+    /* Cỡ theo chiều cao khay, nhưng cả hàng (túi + quả cân, --wsum) phải vừa bề ngang quầy trên một hàng (--gaps: số khay). */
+    .g2v-dock-kg .g2v-tray { --u: min(calc(clamp(44px, 10.5vh, 92px) / var(--hmax)), calc((100cqw - var(--gaps) * 2.4rem - 3rem) / var(--wsum))); }
+    .g2v-dock-kg .g2v-tray-bag { min-width: 0; }
+    .g2v-dock-kg .g2v-tray-bag { flex: 0 1 auto; }
+    .g2v-dock-kg .g2v-wtray { flex: 1 1 auto; cursor: default; }
+    div.g2v-tray, div.g2v-tray-bag { cursor: default; }
+    .g2v-wrow { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 0.25rem 0.4rem; }
+    .g2v-w { border: 0; background: none; padding: 0; cursor: pointer; touch-action: manipulation; display: block; }
+    span.g2v-w { cursor: default; }
+    .g2v-w svg { width: calc(var(--u) * var(--w)); height: calc(var(--u) * var(--h)); display: block; overflow: visible; }
+    .g2v-w-away svg { visibility: hidden; }
+    .g2v-tray-bag.g2v-tray-empty svg { visibility: hidden; }
+    .g2v-hint-bag .g2v-tray-bag svg, .g2v-hint-w .g2v-w:not(.g2v-w-away) svg { animation: g3fHop 2.2s ease-in-out infinite; }
+    .g2v-hint-w .g2v-w:nth-child(2) svg { animation-delay: .15s; } .g2v-hint-w .g2v-w:nth-child(3) svg { animation-delay: .3s; }
+    .g2v-hint-w .g2v-w:nth-child(4) svg { animation-delay: .45s; } .g2v-hint-w .g2v-w:nth-child(5) svg { animation-delay: .6s; }
+    .g2v-hint-bag .g2v-tray-bag, .g2v-hint-w .g2v-wtray { box-shadow: 0 0 0 3px #FDE68A; }
+    .g3f-q.g2v-bill-ans { animation: none; background: #16A34A; font-size: 0.9em; padding: 0 0.4em; }
     .g2v-choices { flex: none; width: 100%; display: flex; flex-direction: column; gap: 0.4rem; animation: g2vIn .35s cubic-bezier(.2,1.4,.4,1); }
     @keyframes g2vIn { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: none; } }
     .g2v-choices[hidden], .g2v-dock[hidden] { display: none; }
@@ -208,7 +226,24 @@ export function injectVegStyles() {
     .g2v-wrong b { background: #DC2626; }
     @media (max-height: 500px) {
       .g2v-choice { padding: 0.2rem 0.5rem; }
-      .g2v-choices { gap: 0.25rem; }
+      /* Cấp cân kg: túi hàng + khay quả cân, cùng một tỉ lệ theo chiều cao (--hmax). */
+    /* Cỡ theo chiều cao khay, nhưng cả hàng (túi + quả cân, --wsum) phải vừa bề ngang quầy trên một hàng (--gaps: số khay). */
+    .g2v-dock-kg .g2v-tray { --u: min(calc(clamp(44px, 10.5vh, 92px) / var(--hmax)), calc((100cqw - var(--gaps) * 2.4rem - 3rem) / var(--wsum))); }
+    .g2v-dock-kg .g2v-tray-bag { min-width: 0; }
+    .g2v-dock-kg .g2v-tray-bag { flex: 0 1 auto; }
+    .g2v-dock-kg .g2v-wtray { flex: 1 1 auto; cursor: default; }
+    div.g2v-tray, div.g2v-tray-bag { cursor: default; }
+    .g2v-wrow { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 0.25rem 0.4rem; }
+    .g2v-w { border: 0; background: none; padding: 0; cursor: pointer; touch-action: manipulation; display: block; }
+    span.g2v-w { cursor: default; }
+    .g2v-w svg { width: calc(var(--u) * var(--w)); height: calc(var(--u) * var(--h)); display: block; overflow: visible; }
+    .g2v-w-away svg { visibility: hidden; }
+    .g2v-tray-bag.g2v-tray-empty svg { visibility: hidden; }
+    .g2v-hint-bag .g2v-tray-bag svg, .g2v-hint-w .g2v-w:not(.g2v-w-away) svg { animation: g3fHop 2.2s ease-in-out infinite; }
+    .g2v-hint-w .g2v-w:nth-child(2) svg { animation-delay: .15s; } .g2v-hint-w .g2v-w:nth-child(3) svg { animation-delay: .3s; }
+    .g2v-hint-w .g2v-w:nth-child(4) svg { animation-delay: .45s; } .g2v-hint-w .g2v-w:nth-child(5) svg { animation-delay: .6s; }
+    .g2v-hint-bag .g2v-tray-bag, .g2v-hint-w .g2v-wtray { box-shadow: 0 0 0 3px #FDE68A; }
+    .g2v-choices { gap: 0.25rem; }
       .g3f-theme-veg .g3f-scale-host { padding-top: 0; }
       .g3f-theme-veg .g3f-sign { display: none; }
     }
@@ -219,6 +254,45 @@ export function injectVegStyles() {
     }
     /* Màn dọc (và màn thấp ở trên): bỏ bảng hiệu nhường chỗ cho cân, khách đã nói việc cần làm. */
     @media (orientation: portrait) { .g3f-theme-veg .g3f-sign { display: none; } .g3f-theme-veg .g3f-scale-host { padding-top: 0; } }
+  `;
+  document.head.appendChild(st);
+}
+
+export function injectWaterStyles() {
+  if (document.getElementById('g2w-styles')) return;
+  const st = document.createElement('style');
+  st.id = 'g2w-styles';
+  st.textContent = `
+    .g3f-theme-water .g3f-awning { background: repeating-linear-gradient(90deg, #60A5FA 0 36px, #FFF 36px 72px); border-bottom-color: #1D4ED8; }
+    .g3f-theme-water .g3f-counter { background: linear-gradient(#F0F9FF, #DBEAFE); border-bottom-color: #2563EB; }
+    .g3f-theme-water .g3f-sign { background: #2563EB; border-color: #1E3A8A; color: #fff; text-shadow: 0 1px 0 rgba(30,58,138,0.5); }
+    .g3f-theme-water .g3f-sign strong { color: #FEF08A; }
+    .g3f-theme-water .g3f-main::after { background: rgba(15,23,42,0.06); }
+    .g2w-scene { flex: 1 1 0; min-height: 0; width: 100%; display: flex; padding-top: clamp(1.6rem, 5vh, 2.8rem); box-sizing: border-box; }
+    .g2w-svg { width: 100%; height: 100%; display: block; overflow: visible; touch-action: none; user-select: none; -webkit-user-select: none; }
+    .g2w-l { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 400; }
+    .g2w-acts { flex: none; width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.45rem; }
+    .g2w-acts[hidden] { display: none; }
+    .g2w-acts .g2v-choices { flex: 1 1 100%; }
+    .g2w-btn { padding: 0.5rem 0.95rem; border-radius: 0.9rem; background: #fff; color: #1E293B; border: 3px solid #93C5FD; box-shadow: 0 4px 0 #BFDBFE; font-size: clamp(1rem, 1.5vh + 0.6rem, 1.3rem); line-height: 1.15; touch-action: none; }
+    .g2w-btn[hidden] { display: none; }
+    .g2w-hold { background: #DBEAFE; border-color: #2563EB; }
+    .g2w-full { background: #16A34A; color: #fff; border-color: #15803D; box-shadow: 0 4px 0 #166534; }
+    .g2w-next { animation: g2wNext 1.3s ease-in-out infinite; }
+    @keyframes g2wNext { 0%, 100% { box-shadow: 0 4px 0 #BFDBFE, 0 0 0 0 rgba(250,204,21,0.8); } 50% { box-shadow: 0 4px 0 #BFDBFE, 0 0 0 9px rgba(250,204,21,0); } }
+    .g2w-hint { animation: g3eNudge 0.45s ease-in-out 3; }
+    .g2w-wait { opacity: 0.55; }
+    .g2w-ready { animation: g2wNext 1.1s ease-in-out infinite; background: #2563EB; color: #fff; border-color: #1E3A8A; }
+    .g2w-tally { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.25rem; min-height: 2rem; font-weight: 800; color: #1E3A8A; font-size: clamp(0.95rem, 1.3vh + 0.5rem, 1.2rem); }
+    .g2w-cup { position: relative; display: inline-flex; align-items: flex-end; }
+    .g2w-cup b { position: absolute; right: -3px; bottom: -4px; background: #2563EB; color: #fff; border-radius: 999px; font-size: 0.7rem; min-width: 1.1rem; text-align: center; line-height: 1.1rem; }
+    .g2w-ca, .g2w-obj { cursor: pointer; }
+    .g2w-tap { cursor: pointer; }
+    .g2w-ca-ready .g2w-ca { animation: g2wBob 1.4s ease-in-out infinite; }
+    @keyframes g2wBob { 50% { filter: drop-shadow(0 0 6px #FACC15); } }
+    @media (prefers-reduced-motion: reduce) { .g2w-next, .g2w-ready { animation: none; box-shadow: 0 4px 0 #BFDBFE, 0 0 0 4px #FACC15; } }
+    @media (orientation: portrait) { .g3f-theme-water .g3f-sign { display: none; } .g2w-scene { padding-top: 0; } }
+    @media (orientation: landscape) and (max-height: 500px) { .g2w-btn { padding: 0.3rem 0.6rem; font-size: 0.95rem; } .g2w-scene { padding-top: 1.4rem; } }
   `;
   document.head.appendChild(st);
 }

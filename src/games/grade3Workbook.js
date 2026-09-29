@@ -119,8 +119,9 @@ import { gateCheckButton, keepWrongBanner } from '../engine/gameEngine.js';
 import { recordAttempt } from '../engine/activity.js';
 import { scopedKey } from '../engine/auth.js';
 import { attachPairDrop } from '../engine/pairDrop.js';
-import { attachBalancePlay } from '../engine/balancePlay.js';
-import { attachColorPaint } from '../engine/colorPaint.js';
+import { attachBalancePlay, revealBalancePlay } from '../engine/balancePlay.js';
+import { attachColorPaint, isPaintQuestion } from '../engine/colorPaint.js';
+import { attachPourPlay, revealPourPlay } from '../engine/pourPlay.js';
 import { GRADE3_GAMES } from '../data/features.js';
 import { levelsForUnit } from './grade3Games/catalog.js';
 import { attachTrainSwap, attachTrainPaint, trainEngine, trainMatchCar } from '../engine/trains.js';
@@ -4497,7 +4498,9 @@ export function renderWorkbook(app, onBack, cfg) {
     attachQuestionListHandlers();
     if (q.wordProblem) attachSolutionHandlers(q);
     attachAnswerHandlers(q);
-    if (q.balancePlay) attachBalancePlay(app, q);
+    if (q.balancePlay) attachBalancePlay(app, q, solved[current]);
+    // 🫗 Thử rót: bé rót nước để tự kiểm chứng (engine/pourPlay.js). q.pourAfter: chỉ mở khi đã làm đúng.
+    if (q.pourPlay) attachPourPlay(app, q, solved[current]);
     // 🖍️ câu "tô màu" có hình SVG: bé tô thật lên hình (engine/colorPaint.js).
     if (q.img) attachColorPaint(app, q);
     revealPinnedImageOnKeyboard();
@@ -4763,7 +4766,10 @@ export function renderWorkbook(app, onBack, cfg) {
           <div class="e3-qlist-grid">
             ${activeQuestions.map((q, i) => {
               const status = getQuestionStatus(i);
-              const pic = hasPicture(q) ? '<span class="e3-qitem-pic" aria-label="Có hình">🖼️</span>' : '';
+              const acts = actionsOf(q);
+              const pic = acts.length
+                ? `<span class="e3-qitem-pic e3-qitem-act" aria-label="${acts.map(a => a.label).join(', ')}">${acts.map(a => a.icon).join('')}</span>`
+                : hasPicture(q) ? '<span class="e3-qitem-pic" aria-label="Có hình">🖼️</span>' : '';
               return `<button class="e3-qitem e3-qitem-${status} ${i === current ? 'e3-qitem-current' : ''}" data-idx="${i}">${statusIcon[status] || (i + 1)}${pic}</button>`;
             }).join('')}
           </div>
@@ -4771,7 +4777,8 @@ export function renderWorkbook(app, onBack, cfg) {
             <span><i class="e3-legend-dot e3-legend-unanswered"></i>Chưa làm</span>
             <span><i class="e3-legend-dot e3-legend-correct"></i>Đúng</span>
             <span><i class="e3-legend-dot e3-legend-wrong"></i>Sai</span>
-            ${activeQuestions.some(hasPicture) ? '<span><i class="e3-legend-pic">🖼️</i>Có hình</span>' : ''}
+            ${activeQuestions.some(q => hasPicture(q) && !actionsOf(q).length) ? '<span><i class="e3-legend-pic">🖼️</i>Có hình</span>' : ''}
+            ${ACTIONS.filter(a => activeQuestions.some(q => a.has(q))).map(a => `<span><i class="e3-legend-pic">${a.icon}</i>${a.label}</span>`).join('')}
           </div>
           <button class="e3-btn e3-btn-primary" id="e3-qlist-finish">🏁 Nộp bài / Xem kết quả</button>
         </div>
@@ -5737,6 +5744,9 @@ export function renderWorkbook(app, onBack, cfg) {
     anchor.after(banner);
 
     if (isRight) {
+      // Câu tính toán có 🫗 Thử rót: làm đúng rồi mới mở bước kiểm chứng.
+      revealPourPlay(app, activeQuestions[current], banner);
+      revealBalancePlay(app, activeQuestions[current], banner);
       app.querySelector('#e3-nav').style.display = 'flex';
       app.querySelector('#e3-next').onclick = () => {
         current++;
@@ -5883,6 +5893,7 @@ function injectStyles() {
       .e3-qitem:hover { transform: translateY(-2px); }
       .e3-qitem { position: relative; }
       .e3-qitem-pic { position: absolute; top: -7px; right: -7px; font-size: 0.8rem; line-height: 1; background: #fff; border-radius: 50%; padding: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+      .e3-qitem-act { border-radius: 999px; padding: 2px 3px; letter-spacing: -1px; }
       .e3-legend-pic { font-style: normal; font-size: 0.85rem; margin-right: 2px; }
       .e3-qitem-current { border-color: #2563EB; border-width: 2px; box-shadow: 0 0 0 3px rgba(37,99,235,0.3); }
       .e3-qitem-correct { background: #dcfce7; border-color: #22c55e; color: #166534; }
@@ -6298,6 +6309,16 @@ function injectStyles() {
   `;
   document.head.appendChild(gwStyle);
 }
+
+/** Hành động trên hình (nút mở trong câu) — hiện icon trong danh sách câu hỏi thay cho 🖼️. */
+const ACTIONS = [
+  { icon: '⚖️', label: 'Thử cân', has: q => !!q.balancePlay },
+  { icon: '🫗', label: 'Thử rót', has: q => !!q.pourPlay },
+  { icon: '🖍️', label: 'Tô màu', has: q => !!q.trainPaint || (!!q.img && isPaintQuestion(q)) },
+  { icon: '🚂', label: 'Đổi toa', has: q => !!q.trainSwap },
+  { icon: '🧩', label: 'Ghép hình', has: q => !!q.pairDrop },
+];
+const actionsOf = q => ACTIONS.filter(a => a.has(q));
 
 /** Câu có hình minh hoạ (hình câu hỏi hoặc hình trong các ô nối) — đánh dấu 🖼️ trong danh sách câu hỏi. */
 function hasPicture(q) {

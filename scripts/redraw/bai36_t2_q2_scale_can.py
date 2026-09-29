@@ -13,8 +13,9 @@ parts = []
 parts.append(text(8, 30, 'a)', size=26, weight=600, anchor='start'))
 parts.append(text(500, 30, 'b)', size=26, weight=600, anchor='start'))
 
-left = watermelon(10, 0, 170, 96) + weight(-52, 0, '2 kg', w=66)
-right = weight(0, 0, '5 kg', w=86)
+# bal_item: cân nặng (gam) để ⚖️ Thử cân (engine/balancePlay.js) nghiêng đúng như sách.
+left = bal_item(watermelon(10, 0, 170, 96), 3000, 'quả dưa') + bal_item(weight(-52, 0, '2 kg', w=66), 2000, 'quả cân 2 kg')
+right = bal_item(weight(0, 0, '5 kg', w=86), 5000, 'quả cân 5 kg')
 parts.append(balance_scale(262, 242, left, right, tilt=0, arm=142, pan_w=176, post_h=88))
 
 # b) can 10 l nghiêng rót vào ca đầu tiên

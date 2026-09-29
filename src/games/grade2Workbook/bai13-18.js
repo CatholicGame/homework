@@ -43,6 +43,14 @@ const words = (label, list) => ({ label, answer: list.join(','), validate: phras
 // Several numbers in one row, in the book's order.
 const nums = (label, list) => ({ label, answer: list.join(','), validate: listValidate(list.map(String)) });
 // "Đ, S ?" row.
+// Bài 16 Tiết 1 Q1 — đồ đựng cho 🫗 Thử rót, số lít theo hình sách: cốc A ít hơn 1 l, ca B và bình C 1 l, bình D hơn 1 l.
+const POUR = {
+  A: { shape: 'cup', cap: 0.55, v: 0.45, label: 'A', name: 'cốc A' },
+  B: { shape: 'jug', cap: 1.2, v: 1, tag: 1, label: 'B', name: 'ca B' },
+  C: { shape: 'beaker', cap: 1, v: 1, tag: 1, aspect: 0.68, label: 'C', name: 'bình C' },
+  D: { shape: 'beaker', cap: 1.7, v: 1.5, aspect: 0.45, label: 'D', name: 'bình D' },
+};
+POUR.emptyC = { ...POUR.C, v: 0 };
 const ds = (label, isTrue) => ({ label, answer: isTrue ? 'Đ' : 'S', validate: dsValidate(isTrue) });
 // A table cell printed "...... kg": the child may write the unit or not.
 const kgCell = (n) => ({ blank: true, answer: String(n), validate: unitValidate(n, 'kg') });
@@ -243,6 +251,8 @@ export const BAI_13_18 = [
     questions: [
       {
         type: 'choice', section: 'Tiết 1', img: imgBai15T1Q1,
+        // ⚖️ Thử cân (engine/balancePlay.js): nhấc đồ xuống khay, đặt lên đĩa khác, cân nghiêng như thật.
+        balancePlay: true,
         q: '1. Quan sát tranh rồi khoanh vào chữ đặt trước câu đúng.',
         options: ['4 bạn thỏ nhẹ hơn 3 bạn chó.', '4 bạn thỏ nặng hơn 3 bạn chó.', '4 bạn thỏ nặng bằng 3 bạn chó.'],
         answer: 1,
@@ -250,6 +260,8 @@ export const BAI_13_18 = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgBai15T1Q2,
+        // ⚖️ Thử cân (engine/balancePlay.js): nhấc đồ xuống khay, đặt lên đĩa khác, cân nghiêng như thật.
+        balancePlay: true,
         q: '2. Quan sát tranh rồi viết “bưởi”, “cam” hoặc “táo” thích hợp vào chỗ chấm.',
         blanks: [
           word('a) Quả ... nặng hơn quả táo.', 'cam'),
@@ -260,6 +272,9 @@ export const BAI_13_18 = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgBai15T1Q3,
+        // ⚖️ Kiểm chứng: làm đúng rồi bé tự đặt từng quả chanh lên cân tới khi thăng bằng.
+        balanceAfter: true,
+        balancePlay: { start: ['quả chanh'], title: 'Đặt từng quả chanh từ khay lên đĩa cho tới khi cân thăng bằng.' },
         q: '3. Quan sát tranh rồi viết số thích hợp vào chỗ chấm.',
         blanks: [
           eq('a) Gấu bông nặng bằng ... quả chanh.', 4),
@@ -270,6 +285,8 @@ export const BAI_13_18 = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgBai15T2Q1,
+        // ⚖️ Thử cân (engine/balancePlay.js): nhấc đồ xuống khay, đặt lên đĩa khác, cân nghiêng như thật.
+        balancePlay: true,
         q: '1. Quan sát tranh rồi viết Đ (đúng), S (sai) vào ô trống.',
         blanks: [
           ds('a) Con chó nặng hơn 1 kg.', true),
@@ -298,6 +315,8 @@ export const BAI_13_18 = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgBai15T2Q3,
+        // ⚖️ Thử cân (engine/balancePlay.js): nhấc đồ xuống khay, đặt lên đĩa khác, cân nghiêng như thật.
+        balancePlay: true,
         q: '3. Quan sát tranh.\na) Viết “nặng hơn”, “nặng bằng” hoặc “nhẹ hơn” thích hợp vào chỗ chấm.\nb) Đ, S?',
         blanks: [
           words('a) Quả bí ngô ... 1 kg; quả dưa hấu ... 1 kg; nải chuối ... 1 kg.', ['nặng bằng', 'nhẹ hơn', 'nặng hơn']),
@@ -317,6 +336,9 @@ export const BAI_13_18 = [
       },
       {
         type: 'fill', section: 'Tiết 3', img: imgBai15T3Q2,
+        // ⚖️ Kiểm chứng: làm đúng rồi bé tự đặt quả cân lên đĩa để cân thăng bằng với túi gạo, túi đường.
+        balanceAfter: true,
+        balancePlay: { start: ['quả cân 1 kg', 'quả cân 5 kg', 'quả cân 2 kg'], title: 'Đặt quả cân từ khay lên đĩa cho tới khi mỗi cân thăng bằng.' },
         q: '2. Quan sát tranh rồi viết số thích hợp vào chỗ chấm.',
         blanks: [
           eq('a) Túi gạo cân nặng ... kg.', 6),
@@ -360,6 +382,13 @@ export const BAI_13_18 = [
           ds('d) Cốc A đựng lượng nước nhiều hơn bình D.', false),
         ],
         hints: [`Ca B và bình C đều đựng 1 ${L}. Cốc A ít nước hơn, bình D nhiều nước hơn.`],
+        // 🫗 Thử rót (engine/pourPlay.js): mỗi câu một thí nghiệm, bé rót nước rồi tự ghi Đ/S.
+        pourPlay: [
+          { vessels: [POUR.D, POUR.emptyC] },
+          { vessels: [POUR.A, POUR.emptyC] },
+          { vessels: [POUR.B, POUR.C, { ...POUR.emptyC, label: '', twin: 'C' }] },
+          { vessels: [POUR.A, POUR.D, { ...POUR.D, v: 0, label: '', twin: 'D' }] },
+        ],
       },
       {
         type: 'match', section: 'Tiết 1',
@@ -390,6 +419,25 @@ export const BAI_13_18 = [
           eq('b) Lượng nước ở cả hai bình là ... cốc.', 13),
         ],
         hints: ['Đếm số cốc dưới mỗi bình.'],
+        // 🫗 Kiểm chứng (engine/pourPlay.js): làm đúng rồi bé rót hết từng bình ra hàng cốc và đếm.
+        pourAfter: true,
+        pourPlay: [
+          {
+            tab: 'Bình A', row: 0, count: true, until: 'empty', title: 'Rót hết nước bình A vào các cốc. Được đầy mấy cốc?',
+            vessels: [{ shape: 'jug', cap: 2, v: 2, label: 'A', name: 'bình A' }, ...Array.from({ length: 10 }, () => ({ shape: 'cup', cap: 0.25, v: 0, name: 'cốc', row: 1 }))],
+          },
+          {
+            tab: 'Bình B', row: 0, count: true, until: 'empty', title: 'Rót hết nước bình B vào các cốc. Được đầy mấy cốc?',
+            vessels: [{ shape: 'jug', cap: 1.25, v: 1.25, label: 'B', name: 'bình B' }, ...Array.from({ length: 7 }, () => ({ shape: 'cup', cap: 0.25, v: 0, name: 'cốc', row: 1 }))],
+          },
+          {
+            tab: 'Cả hai', row: 1, count: true, until: 'empty', title: 'Rót hết nước cả hai bình vào các cốc. Được đầy mấy cốc?',
+            vessels: [
+              { shape: 'jug', cap: 2, v: 2, label: 'A', name: 'bình A' }, { shape: 'jug', cap: 1.25, v: 1.25, label: 'B', name: 'bình B' },
+              ...Array.from({ length: 8 }, () => ({ shape: 'cup', cap: 0.25, v: 0, name: 'cốc', row: 1 })), ...Array.from({ length: 7 }, () => ({ shape: 'cup', cap: 0.25, v: 0, name: 'cốc', row: 2 })),
+            ],
+          },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 2',
@@ -408,6 +456,35 @@ export const BAI_13_18 = [
           eq(`Khung ở hàng dưới: ... ${L}`, 11),
         ],
         hints: [`Cộng số lít của các đồ vật trong mỗi khung (mẫu: 2 ${L} + 3 ${L} = 5 ${L}).`],
+        // 🫗 Kiểm chứng: đổ các đồ vật trong khung vào một thùng có vạch lít.
+        pourAfter: true,
+        pourPlay: [
+          {
+            until: 'empty', title: `Đổ can 4 ${L} và can 6 ${L} vào thùng. Thùng có mấy lít?`,
+            vessels: [
+              { shape: 'can', cap: 4, v: 4, tag: 4, color: '#DCF3D3', label: `can 4 ${L}`, name: `can 4 ${L}` },
+              { shape: 'can', cap: 6, v: 6, tag: 6, color: '#DCF3D3', label: `can 6 ${L}`, name: `can 6 ${L}` },
+              { shape: 'beaker', cap: 12, v: 0, marks: true, aspect: 0.8, label: 'thùng', name: 'thùng' },
+            ],
+          },
+          {
+            until: 'empty', title: `Đổ xô 6 ${L} và xô 9 ${L} vào thùng. Thùng có mấy lít?`,
+            vessels: [
+              { shape: 'bucket', cap: 6, v: 6, tag: 6, label: `xô 6 ${L}`, name: `xô 6 ${L}` },
+              { shape: 'bucket', cap: 9, v: 9, tag: 9, label: `xô 9 ${L}`, name: `xô 9 ${L}` },
+              { shape: 'beaker', cap: 16, v: 0, marks: true, aspect: 0.8, label: 'thùng', name: 'thùng' },
+            ],
+          },
+          {
+            until: 'empty', title: `Đổ ca 2 ${L}, ca 3 ${L} và ca 6 ${L} vào thùng. Thùng có mấy lít?`,
+            vessels: [
+              { shape: 'jug', cap: 2, v: 2, tag: 2, label: `ca 2 ${L}`, name: `ca 2 ${L}` },
+              { shape: 'jug', cap: 3, v: 3, tag: 3, label: `ca 3 ${L}`, name: `ca 3 ${L}` },
+              { shape: 'jug', cap: 6, v: 6, tag: 6, label: `ca 6 ${L}`, name: `ca 6 ${L}` },
+              { shape: 'beaker', cap: 12, v: 0, marks: true, aspect: 0.8, label: 'thùng', name: 'thùng' },
+            ],
+          },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgBai16T2Q3,
@@ -417,6 +494,24 @@ export const BAI_13_18 = [
           eq(`Khung thứ ba: ... ${L}`, 10),
         ],
         hints: [`Số lít còn lại trong can (mẫu: 8 ${L} − 3 ${L} = 5 ${L}).`],
+        // 🫗 Bước kiểm chứng (engine/pourPlay.js): làm đúng rồi bé rót can ra đầy ca / xô, đọc vạch lít còn lại.
+        pourAfter: true,
+        pourPlay: [
+          {
+            tab: 'Khung 2', title: `Rót nước từ can 12 ${L} cho đầy ca 4 ${L}. Can còn lại mấy lít?`,
+            vessels: [
+              { shape: 'can', cap: 12, v: 12, marks: true, label: `can 12 ${L}`, name: 'can' },
+              { shape: 'jug', cap: 4, v: 0, tag: 4, label: `ca 4 ${L}`, name: 'ca' },
+            ],
+          },
+          {
+            tab: 'Khung 3', title: `Rót nước từ can 20 ${L} cho đầy xô 10 ${L}. Can còn lại mấy lít?`,
+            vessels: [
+              { shape: 'can', cap: 20, v: 20, marks: true, label: `can 20 ${L}`, name: 'can' },
+              { shape: 'bucket', cap: 10, v: 0, tag: 10, label: `xô 10 ${L}`, name: 'xô' },
+            ],
+          },
+        ],
       },
       {
         type: 'table', section: 'Tiết 2', img: imgBai16T2Q4,
@@ -429,11 +524,40 @@ export const BAI_13_18 = [
           tiles: ['Ấm', 'Bình', 'Can', 'Xô'],
         }],
         hints: [`Cộng số lít ghi trên các ca: can có 3 ${L} + 2 ${L} + 2 ${L} + 2 ${L}.`],
+        // 🫗 Kiểm chứng (nút dưới hình): đổ các ca vào đồ vật có vạch lít.
+        pourAfter: true,
+        pourPlay: [
+          {
+            tab: 'Ấm (mẫu)', until: 'empty', title: `Đổ 4 ca 1 ${L} vào ấm. Ấm có mấy lít?`,
+            vessels: [{ shape: 'jug', cap: 1, v: 1, tag: 1, label: `ca 1 ${L}`, name: `ca 1 ${L}`, row: 0 }, { shape: 'jug', cap: 1, v: 1, tag: 1, label: `ca 1 ${L}`, name: `ca 1 ${L}`, row: 0 }, { shape: 'jug', cap: 1, v: 1, tag: 1, label: `ca 1 ${L}`, name: `ca 1 ${L}`, row: 0 }, { shape: 'jug', cap: 1, v: 1, tag: 1, label: `ca 1 ${L}`, name: `ca 1 ${L}`, row: 0 }, { shape: 'beaker', cap: 5, v: 0, marks: true, aspect: 0.9, label: 'ấm', name: 'ấm', row: 1 }],
+          },
+          {
+            tab: 'Bình', until: 'empty', title: `Đổ 3 ca 1 ${L} vào bình. Bình có mấy lít?`,
+            vessels: [{ shape: 'jug', cap: 1, v: 1, tag: 1, label: `ca 1 ${L}`, name: `ca 1 ${L}`, row: 0 }, { shape: 'jug', cap: 1, v: 1, tag: 1, label: `ca 1 ${L}`, name: `ca 1 ${L}`, row: 0 }, { shape: 'jug', cap: 1, v: 1, tag: 1, label: `ca 1 ${L}`, name: `ca 1 ${L}`, row: 0 }, { shape: 'beaker', cap: 4, v: 0, marks: true, aspect: 0.55, label: 'bình', name: 'bình', row: 1 }],
+          },
+          {
+            tab: 'Can', until: 'empty', title: `Đổ ca 3 ${L} và ba ca 2 ${L} vào can. Can có mấy lít?`,
+            vessels: [{ shape: 'jug', cap: 3, v: 3, tag: 3, label: `ca 3 ${L}`, name: `ca 3 ${L}`, row: 0 }, { shape: 'jug', cap: 2, v: 2, tag: 2, label: `ca 2 ${L}`, name: `ca 2 ${L}`, row: 0 }, { shape: 'jug', cap: 2, v: 2, tag: 2, label: `ca 2 ${L}`, name: `ca 2 ${L}`, row: 0 }, { shape: 'jug', cap: 2, v: 2, tag: 2, label: `ca 2 ${L}`, name: `ca 2 ${L}`, row: 0 }, { shape: 'can', cap: 10, v: 0, marks: true, label: 'can', name: 'can', row: 1 }],
+          },
+          {
+            tab: 'Xô', until: 'empty', title: `Đổ hai ca 2 ${L} và hai ca 1 ${L} vào xô. Xô có mấy lít?`,
+            vessels: [{ shape: 'jug', cap: 2, v: 2, tag: 2, label: `ca 2 ${L}`, name: `ca 2 ${L}`, row: 0 }, { shape: 'jug', cap: 2, v: 2, tag: 2, label: `ca 2 ${L}`, name: `ca 2 ${L}`, row: 0 }, { shape: 'jug', cap: 1, v: 1, tag: 1, label: `ca 1 ${L}`, name: `ca 1 ${L}`, row: 0 }, { shape: 'jug', cap: 1, v: 1, tag: 1, label: `ca 1 ${L}`, name: `ca 1 ${L}`, row: 0 }, { shape: 'bucket', cap: 8, v: 0, marks: true, label: 'xô', name: 'xô', row: 1 }],
+          },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 2', wordProblem: true,
         q: `5. Trong can to có 15 ${L} nước mắm. Mẹ đã rót nước mắm từ can to vào đầy một can 5 ${L}. Hỏi trong can to còn lại bao nhiêu lít nước mắm?`,
         blanks: [{ label: 'Số lít nước mắm còn lại', answer: '10' }],
+        // 🫗 Kiểm chứng: rót can to cho đầy can 5 l, đọc vạch còn lại.
+        pourAfter: true,
+        pourPlay: [{
+          liquid: 'fishsauce', title: `Rót nước mắm từ can to cho đầy can 5 ${L}. Can to còn lại mấy lít?`,
+          vessels: [
+            { shape: 'can', cap: 15, v: 15, marks: true, label: `can to 15 ${L}`, name: 'can to' },
+            { shape: 'can', cap: 5, v: 0, tag: 5, label: `can 5 ${L}`, name: `can 5 ${L}` },
+          ],
+        }],
         hints: ['Làm phép trừ: 15 − 5.'],
       },
     ],
@@ -445,6 +569,8 @@ export const BAI_13_18 = [
     questions: [
       {
         type: 'fill', section: 'Tiết 1', img: imgBai17T1Q1,
+        // ⚖️ Thử cân (engine/balancePlay.js): nhấc đồ xuống khay, đặt lên đĩa khác, cân nghiêng như thật.
+        balancePlay: true,
         q: '1. a) Em cầm quyển sách, rồi cầm cái bút chì.\nEm ước lượng xem quyển sách nặng hơn hay nhẹ hơn bút chì rồi viết “nặng hơn”, “nhẹ hơn” thích hợp vào chỗ chấm.\nb) Quan sát hình bên rồi viết “nặng hơn”, “nhẹ hơn” hoặc “cân nặng” thích hợp vào chỗ chấm.',
         blanks: [
           word('a) Quyển sách ... bút chì.', 'nặng hơn'),
@@ -491,6 +617,26 @@ export const BAI_13_18 = [
           eq('c) Bình A chứa được nhiều hơn bình B ... cốc nước.', 2),
         ],
         hints: ['Đếm số cốc bên cạnh mỗi bình.'],
+        // 🫗 Kiểm chứng: rót mỗi bình ra hàng cốc và đếm; rót cả hai để so.
+        pourAfter: true,
+        pourPlay: [
+          {
+            tab: 'Bình A', row: 0, count: true, until: 'empty', title: 'Rót hết nước bình A vào các cốc. Được đầy mấy cốc?',
+            vessels: [{ shape: 'beaker', cap: 2.5, v: 2.5, aspect: 0.5, label: 'A', name: 'bình A' }, ...Array.from({ length: 12 }, () => ({ shape: 'cup', cap: 0.25, v: 0, name: 'cốc', row: 1 }))],
+          },
+          {
+            tab: 'Bình B', row: 1, count: true, until: 'empty', title: 'Rót hết nước bình B vào các cốc. Được đầy mấy cốc?',
+            vessels: [{ shape: 'beaker', cap: 2, v: 2, aspect: 0.5, label: 'B', name: 'bình B' }, ...Array.from({ length: 10 }, () => ({ shape: 'cup', cap: 0.25, v: 0, name: 'cốc', row: 1 }))],
+          },
+          {
+            tab: 'Cả hai', row: [2, 3], count: true, until: 'empty',
+            title: 'Rót bình A vào hàng cốc trên, bình B vào hàng cốc dưới. Cả hai được mấy cốc? Hàng nào nhiều hơn?',
+            vessels: [
+              { shape: 'beaker', cap: 2.5, v: 2.5, aspect: 0.5, label: 'A', name: 'bình A' }, { shape: 'beaker', cap: 2, v: 2, aspect: 0.5, label: 'B', name: 'bình B' },
+              ...Array.from({ length: 10 }, () => ({ shape: 'cup', cap: 0.25, v: 0, name: 'cốc', row: 1 })), ...Array.from({ length: 10 }, () => ({ shape: 'cup', cap: 0.25, v: 0, name: 'cốc', row: 2 })),
+            ],
+          },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 2',
@@ -500,6 +646,26 @@ export const BAI_13_18 = [
           eq(`b) Xô xanh có ... ${L} nước.`, 5),
         ],
         hints: [`Mỗi ca đựng 1 ${L} nước.`],
+        // 🫗 Kiểm chứng: múc ca 1 l trong thùng đổ vào xô có vạch, đếm số ca.
+        pourAfter: true,
+        pourPlay: [
+          {
+            tab: 'Xô đỏ', until: { name: 'xô đỏ', v: 4 }, title: `Múc 4 ca 1 ${L} đổ vào xô đỏ. Xô đỏ có mấy lít?`,
+            vessels: [
+              { shape: 'beaker', cap: 12, v: 12, aspect: 0.9, fixed: true, label: 'thùng', name: 'thùng' },
+              { shape: 'jug', cap: 1, v: 0, tag: 1, scoop: true, label: `ca 1 ${L}`, name: 'ca' },
+              { shape: 'bucket', cap: 6, v: 0, marks: true, color: '#FECACA', label: 'xô đỏ', name: 'xô đỏ' },
+            ],
+          },
+          {
+            tab: 'Xô xanh', until: { name: 'xô xanh', v: 5 }, title: `Múc 5 ca 1 ${L} đổ vào xô xanh. Xô xanh có mấy lít?`,
+            vessels: [
+              { shape: 'beaker', cap: 12, v: 12, aspect: 0.9, fixed: true, label: 'thùng', name: 'thùng' },
+              { shape: 'jug', cap: 1, v: 0, tag: 1, scoop: true, label: `ca 1 ${L}`, name: 'ca' },
+              { shape: 'bucket', cap: 6, v: 0, marks: true, color: '#BFDBFE', label: 'xô xanh', name: 'xô xanh' },
+            ],
+          },
+        ],
       },
     ],
   },

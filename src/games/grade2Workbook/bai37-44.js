@@ -263,6 +263,14 @@ export const BAI_37_44 = [
         ],
         pairs: [['w1', 'C'], ['w2', 'A'], ['w3', 'D'], ['w4', 'B']],
         hints: ['Mẫu: 3 ca, mỗi ca 2 l: 2 × 3 = 6 (l).'],
+        // 🫗 Kiểm chứng (nút dưới hình): đổ từng ca / can / chai vào thùng có vạch, mực nước dâng đều.
+        pourAfter: true,
+        pourPlay: [
+          { tab: '3 ca 2 l', until: 'empty', title: 'Đổ 3 ca 2 l vào thùng. Thùng có mấy lít?', vessels: [...Array.from({ length: 3 }, () => ({ shape: 'jug', cap: 2, v: 2, tag: 2, name: 'ca 2 l', row: 0 })), { shape: 'beaker', cap: 8, v: 0, marks: true, aspect: 0.8, label: 'thùng', name: 'thùng', row: 1 }] },
+          { tab: '3 can 5 l', until: 'empty', title: 'Đổ 3 can 5 l vào thùng. Thùng có mấy lít?', vessels: [...Array.from({ length: 3 }, () => ({ shape: 'can', cap: 5, v: 5, tag: 5, name: 'can 5 l', row: 0 })), { shape: 'beaker', cap: 16, v: 0, marks: true, aspect: 0.8, label: 'thùng', name: 'thùng', row: 1 }] },
+          { tab: '4 can 3 l', until: 'empty', title: 'Đổ 4 can 3 l vào thùng. Thùng có mấy lít?', vessels: [...Array.from({ length: 4 }, () => ({ shape: 'can', cap: 3, v: 3, tag: 3, name: 'can 3 l', row: 0 })), { shape: 'beaker', cap: 14, v: 0, marks: true, aspect: 0.8, label: 'thùng', name: 'thùng', row: 1 }] },
+          { tab: '5 chai 2 l', until: 'empty', title: 'Đổ 5 chai 2 l vào thùng. Thùng có mấy lít?', vessels: [...Array.from({ length: 5 }, () => ({ shape: 'beaker', cap: 2, v: 2, tag: 2, aspect: 0.4, name: 'chai 2 l', row: 0 })), { shape: 'beaker', cap: 12, v: 0, marks: true, aspect: 0.8, label: 'thùng', name: 'thùng', row: 1 }] },
+        ],
       },
       {
         type: 'table', section: 'Tiết 1',
@@ -564,6 +572,15 @@ export const BAI_37_44 = [
         type: 'fill', section: 'Tiết 2', img: imgB41T2Q4, wordProblem: true,
         q: '4. Rô-bốt chia 15 l nước mắm vào các can, mỗi can 5 l. Hỏi được bao nhiêu can nước mắm như vậy?',
         blanks: [{ label: 'Số can nước mắm', answer: '3' }],
+        // 🫗 Kiểm chứng: rót 15 l nước mắm vào các can 5 l, đếm số can đầy.
+        pourAfter: true,
+        pourPlay: [{
+          liquid: 'fishsauce', count: true, until: 'empty', title: 'Rót hết 15 l nước mắm vào các can 5 l. Được mấy can?',
+          vessels: [
+            { shape: 'can', cap: 15, v: 15, marks: true, label: 'can to 15 l', name: 'can to' },
+            ...Array.from({ length: 4 }, () => ({ shape: 'can', cap: 5, v: 0, tag: 5, name: 'can 5 l', row: 1 })),
+          ],
+        }],
       },
     ],
   },
@@ -844,6 +861,15 @@ export const BAI_37_44 = [
         type: 'fill', section: 'Tiết 2', wordProblem: true,
         q: '3. Bác Hoà rót 30 l mật vào các can, mỗi can 5 l. Hỏi bác Hoà rót được bao nhiêu can mật như vậy?',
         blanks: [{ label: 'Số can mật', answer: '6' }],
+        // 🫗 Kiểm chứng: rót 30 l mật vào các can 5 l, đếm số can đầy.
+        pourAfter: true,
+        pourPlay: [{
+          liquid: 'honey', count: true, until: 'empty', title: 'Rót hết 30 l mật vào các can 5 l. Được mấy can?',
+          vessels: [
+            { shape: 'can', cap: 30, v: 30, marks: true, label: 'thùng 30 l', name: 'thùng' },
+            ...Array.from({ length: 7 }, () => ({ shape: 'can', cap: 5, v: 0, tag: 5, name: 'can 5 l', row: 1 })),
+          ],
+        }],
       },
       {
         type: 'match', section: 'Tiết 2',

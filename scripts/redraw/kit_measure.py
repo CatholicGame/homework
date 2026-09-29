@@ -98,6 +98,19 @@ def _face(cx, cy, sw, eye=2.8, gap=7, blush=True):
     return ''.join(s)
 
 
+def bal_item(svg, grams, name=None):
+    """Đồ vật bé nhấc / đặt được trên đĩa cân (engine/balancePlay.js), cân nặng `grams` gam;
+    name: tên gọi trong câu nói ("quả chanh", "quả cân 1 kg"). Đồ nằm ngoài cân (không trong
+    balance_scale) thì engine đưa vào khay lúc mở."""
+    nm = f' data-name="{name}"' if name else ''
+    return f'<g data-bal-item="1" data-g="{grams}"{nm}>{svg}</g>'
+
+
+def bal_hint(svg):
+    """Chữ gợi ý trên đĩa (vd. "?"): engine ẩn đi khi đĩa có đồ."""
+    return f'<g data-bal-hint="1">{svg}</g>'
+
+
 # ═════════════════════════════ CÂN ĐĨA ═════════════════════════════════════
 
 def balance_geom(cx, base_y, arm=80, tilt=0, s=1.0, post_h=56, drop=14):
@@ -210,6 +223,7 @@ def dial_scale(cx, base_y, value, max_kg=5, items='', w=150, step=1, label_every
     h = w * 1.05
     top = base_y - h
     R = w * 0.34
+    X0, cx = cx, 0          # vẽ quanh x = 0, cuối hàm dịch về X0 (kim quay quanh (0, dcy))
     dcx, dcy = cx, base_y - h * 0.45
     s = []
     s.append(f'<ellipse cx="{cx}" cy="{base_y - 1}" rx="{w * .6}" ry="5" fill="{INK}" opacity=".12"/>')
@@ -238,13 +252,14 @@ def dial_scale(cx, base_y, value, max_kg=5, items='', w=150, step=1, label_every
             fs = max(10, R * 0.3)
             s.append(text(f'{dcx + sx * (R - 17):.1f}', f'{dcy + sy * (R - 17) + fs * .36:.1f}', f'{v:g}', size=fs, weight=700))
     t = 2 * math.pi * value / max_kg
-    s.append(f'<line x1="{dcx}" y1="{dcy}" x2="{dcx + math.sin(t) * (R - 6):.1f}" y2="{dcy - math.cos(t) * (R - 6):.1f}" '
-             f'stroke="{RED}" stroke-width="3.2" stroke-linecap="round"/>')
-    s.append(f'<circle cx="{dcx}" cy="{dcy}" r="4" fill="{RED}" stroke="{INK}" stroke-width="1.8"/>')
     s.append(text(dcx, dcy + R * .45, 'kg', size=max(9, R * .22), weight=700))
+    # data-dial-needle: phần vòng kim chỉ (value / max_kg), engine/balancePlay.js quay kim khi bé nhấc / đặt đồ.
+    s.append(f'<g data-dial-needle="{value / max_kg:.4f}" data-cy="{dcy:.2f}"><line x1="{dcx}" y1="{dcy}" x2="{dcx + math.sin(t) * (R - 6):.1f}" '
+             f'y2="{dcy - math.cos(t) * (R - 6):.1f}" stroke="{RED}" stroke-width="3.2" stroke-linecap="round"/></g>')
+    s.append(f'<circle cx="{dcx}" cy="{dcy}" r="4" fill="{RED}" stroke="{INK}" stroke-width="1.8"/>')
     if items:
         s.append(f'<g transform="translate({cx},{top - 15})">{items}</g>')
-    return ''.join(s)
+    return f'<g transform="translate({X0},0)"><g data-dial="1">' + ''.join(s) + '</g></g>'
 
 
 # ═════════════════════════════ CHẤT LỎNG ═══════════════════════════════════

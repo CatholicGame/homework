@@ -20,8 +20,10 @@ def tag(tx, ty, s, x2, y2, anchor):
     parts.append(text(tx, ty, s, size=24, weight=600, anchor=anchor))
 
 
-for cx, tilt, right, rlabel in ((225, -1, apple(0, 0, 19), 'táo'), (665, 1, pomelo(0, 0, 27), 'bưởi')):
-    parts.append(balance_scale(cx, 156, orange(0, 0, 21), right, tilt=tilt, **K))
+# bal_item: cân nặng (gam) để ⚖️ Thử cân (engine/balancePlay.js) nghiêng đúng như sách.
+for cx, tilt, right, rlabel in ((225, -1, bal_item(apple(0, 0, 19), 150, 'quả táo'), 'táo'),
+                                 (665, 1, bal_item(pomelo(0, 0, 27), 1000, 'quả bưởi'), 'bưởi')):
+    parts.append(balance_scale(cx, 156, bal_item(orange(0, 0, 21), 200, 'quả cam'), right, tilt=tilt, **K))
     g = balance_geom(cx, 156, tilt=tilt, arm=K['arm'], post_h=K['post_h'], drop=K['drop'])
     lx, ly = g['left']
     rx, ry = g['right']

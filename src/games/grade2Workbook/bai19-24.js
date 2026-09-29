@@ -206,6 +206,16 @@ export const BAI_19_24 = [
         type: 'fill', section: 'Tiết 2', wordProblem: true,
         q: '4. Buổi sáng, cô Hoa thu hoạch được 17 l mật ong. Buổi chiều, cô Hoa thu hoạch được 23 l. Hỏi ngày hôm đó cô Hoa thu hoạch được bao nhiêu lít mật ong?',
         blanks: [{ label: 'Số lít mật ong', answer: '40' }],
+        // 🫗 Kiểm chứng (engine/pourPlay.js): đổ mật hai buổi vào một thùng có vạch lít.
+        pourAfter: true,
+        pourPlay: [{
+          liquid: 'honey', until: 'empty', title: 'Đổ mật ong buổi sáng và buổi chiều vào thùng. Thùng có mấy lít?',
+          vessels: [
+            { shape: 'beaker', cap: 17, v: 17, tag: 17, aspect: 0.7, label: 'buổi sáng', name: `hũ 17 <i>l</i>` },
+            { shape: 'beaker', cap: 23, v: 23, tag: 23, aspect: 0.7, label: 'buổi chiều', name: `hũ 23 <i>l</i>` },
+            { shape: 'beaker', cap: 45, v: 0, marks: true, aspect: 0.8, label: 'thùng', name: 'thùng' },
+          ],
+        }],
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgB20Caterpillar,
@@ -289,6 +299,8 @@ export const BAI_19_24 = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB21Scale,
+        // ⚖️ Thử cân (engine/balancePlay.js): nhấc đồ xuống khay, đặt lên đĩa khác, cân nghiêng như thật.
+        balancePlay: true,
         q: '3. Số?',
         blanks: [{ label: 'Con bò: ... kg', answer: '31' }],
         hints: ['Cân thăng bằng: con bò nặng bằng con lợn và con dê cộng lại.'],
@@ -299,6 +311,19 @@ export const BAI_19_24 = [
         options: ['Xe cứu hoả ở trên', 'Xe cứu hoả ở dưới'],
         answer: 0,
         hints: ['Xe ở trên lấy 48 l + 32 l, xe ở dưới lấy 30 l + 39 l.'],
+        // 🫗 Kiểm chứng (nút dưới hình): đổ các bình trên đường của mỗi xe vào bồn xe, so mực nước.
+        pourAfter: true,
+        pourPlay: [{
+          until: 'empty', title: 'Xe trên lấy bình 48 l và 32 l, xe dưới lấy bình 30 l và 39 l. Đổ vào bồn từng xe.',
+          vessels: [
+            { shape: 'beaker', cap: 48, v: 48, tag: 48, aspect: 0.45, label: `48 <i>l</i>`, name: `bình 48 <i>l</i>` },
+            { shape: 'beaker', cap: 32, v: 32, tag: 32, aspect: 0.45, label: `32 <i>l</i>`, name: `bình 32 <i>l</i>` },
+            { shape: 'beaker', cap: 30, v: 30, tag: 30, aspect: 0.45, label: `30 <i>l</i>`, name: `bình 30 <i>l</i>` },
+            { shape: 'beaker', cap: 39, v: 39, tag: 39, aspect: 0.45, label: `39 <i>l</i>`, name: `bình 39 <i>l</i>` },
+            { shape: 'beaker', cap: 80, v: 0, marks: true, aspect: 0.8, color: '#FEE2E2', label: 'bồn xe trên', name: 'bồn xe trên', row: 1 },
+            { shape: 'beaker', cap: 80, v: 0, marks: true, aspect: 0.8, color: '#FEE2E2', label: 'bồn xe dưới', name: 'bồn xe dưới', row: 1 },
+          ],
+        }],
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB21Frog,

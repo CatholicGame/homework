@@ -8,6 +8,7 @@ import { renderGamesHub as renderHub } from './grade3Games.js';
 import { FROG_GAME } from './grade2Games/frog.js';
 import { BUS_GAME } from './grade2Games/bus.js';
 import { VEG_GAME } from './grade2Games/veg.js';
+import { WATER_GAME } from './grade2Games/water.js';
 import { EGG_GAME } from './grade3Games/market/eggs.js';
 import { levelMeta } from './grade2Games/catalog.js';
 
@@ -35,11 +36,12 @@ const GAMES = [
   },
   {
     id: 'market', icon: '🏪', title: 'Chợ phiên của bé',
-    desc: 'Làm chủ quầy hàng: cân rau củ, đóng trứng vào hộp!',
-    tags: ['Nặng, nhẹ', 'Nhân 2, 5'],
-    purpose: 'Giúp em thực hành kiến thức về nặng hơn, nhẹ hơn, bảng nhân 2 và bảng nhân 5 đã học trong bài. Em cân rau củ bằng cân đĩa và đóng trứng vào hộp cho khách.',
+    desc: 'Làm chủ quầy hàng: cân rau củ, đong nước, đóng trứng vào hộp!',
+    tags: ['Ki-lô-gam', 'Lít', 'Nhân 2, 5'],
+    purpose: 'Giúp em thực hành kiến thức về nặng hơn, nhẹ hơn, ki-lô-gam, lít, bảng nhân 2 và bảng nhân 5 đã học trong bài. Em cân rau củ bằng cân đĩa, đong nước bằng ca 1 lít và đóng trứng vào hộp cho khách.',
     stalls: [
-      { game: VEG_GAME, tags: 'nặng hơn · nhẹ hơn' },
+      { game: VEG_GAME, tags: 'nặng, nhẹ · ki-lô-gam' },
+      { game: WATER_GAME, tags: 'lít · ca 1 lít' },
       // Quầy trứng lớp 3 cấp 1 có cả hộp 10 quả (bảng nhân 10 không có ở lớp 2): lớp 2 chỉ hộp 2, 5 quả, tới 10 hộp.
       { game: only(EGG_GAME, 'egg-1', {
         sizes: [2, 5], boxes: [2, 10],

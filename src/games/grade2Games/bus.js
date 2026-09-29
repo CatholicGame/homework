@@ -18,13 +18,16 @@ import {
 import { stallMeta, levelMeta } from './catalog.js';
 import { injectBusStyles } from './styles.js';
 import { WORKER_NPCS, cap } from '../grade3Games/npc.js';
+import imgDriver from '../../assets/grade2-games/bus/driver.webp';
 import { mountStall, Q } from '../grade3Games/market/stall.js';
 import { makeRng } from '../grade3Games/loop.js';
-import { flyOne, calmMotion } from '../grade3Games/fly.js';
+import { flyOne, calmMotion, svgBoxOnScreen } from '../grade3Games/fly.js';
 import { sfx } from '../preschool/fx.js';
 
 const MINUS = '−';
-const DRIVER = WORKER_NPCS.find(n => n.id === 'taixe'); // Bác Ba tài xế
+// Bác Ba tài xế xe buýt trường: cùng tên, xưng hô với bác tài lớp 3 nhưng hình riêng (src/assets/school_bus_driver.png
+// cắt nền, thu còn 480px cao). Chưa có mặt buồn: 'sad' dùng lại hình thường (vẫn lắc đầu).
+const DRIVER = { ...WORKER_NPCS.find(n => n.id === 'taixe'), id: 'taixe-bus', img: imgDriver, sad: imgDriver };
 const WANT = (t) => `<b class="g3f-want">${t}</b>`;
 const BUS_STOPS = ['Trạm Chợ Hoa', 'Trạm Trường học', 'Trạm Công viên', 'Trạm Bệnh viện', 'Trạm Thư viện', 'Trạm Bưu điện', 'Trạm Sân bóng'];
 const TRAIN_STOPS = ['Ga Hà Nội', 'Ga Vinh', 'Ga Huế', 'Ga Đà Nẵng', 'Ga Nha Trang', 'Ga Sài Gòn'];
@@ -341,6 +344,48 @@ export const BUS_GAME = {
     const upperRect = (r) => r && ({ left: r.left, top: r.top, width: r.width, height: r.width * WIN_H / WIN_W });
     const gapFor = (count) => Math.max(45, Math.min(300, 2600 / Math.max(1, count)));
 
+    // ── Xe buýt: khách đi qua cửa (đầu xe, tầng dưới) rồi đi dọc lối tới ghế; xuống thì ngược lại, từng người một ──
+    const DOOR_SEAT = { x: 242, y: 36 }; // ô người ngồi (đầu + vai) đứng trong khung cửa
+    const DOOR_MAN = { x: 243, y: 38 }; // người đứng trong khung cửa (22 × 33)
+    const STAIR_X = seatXY(9).x; // cầu thang lên tầng trên ở sát đầu xe
+    const WALK = 0.42; // tốc độ đi trong xe (đơn vị hình / ms)
+    const HOP_MS = 480; // trạm ↔ cửa
+    const vehEl = (v) => svg.querySelector(`[data-v="${v}"]`);
+    /** Lối đi từ cửa tới ghế i: đi ngang tầng dưới; ghế tầng trên thì lên cầu thang ở đầu xe rồi đi ngang. */
+    function aisle(i) {
+      const { x, y } = seatXY(i);
+      const pts = [DOOR_SEAT];
+      if (y < DOOR_SEAT.y) pts.push({ x: STAIR_X, y: DOOR_SEAT.y }, { x: STAIR_X, y });
+      pts.push({ x, y });
+      return pts;
+    }
+    const pathLen = (pts) => pts.slice(1).reduce((s, p, k) => s + Math.hypot(p.x - pts[k].x, p.y - pts[k].y), 0);
+    const walkMs = (pts) => Math.max(220, Math.round(pathLen(pts) / WALK));
+    /** Hình (ô người ngồi) đi theo đường gấp khúc pts (toạ độ trong xe v), đều tốc. Trả về ms tới lúc tới nơi. */
+    function walk(html, v, pts, { delay = 0, ms, onStart, onLand }) {
+      const el0 = vehEl(v);
+      const boxes = pts.map(p => svgBoxOnScreen(el0, p.x, p.y, WIN_W, WIN_H));
+      if (!boxes[0]?.width) { setTimeout(() => { onStart?.(); onLand?.(); }, delay); return delay; }
+      const el = document.createElement('div');
+      el.className = 'g3-fly g2b-walker';
+      el.innerHTML = html;
+      const b0 = boxes[0];
+      Object.assign(el.style, { left: `${b0.left}px`, top: `${b0.top}px`, width: `${b0.width}px`, height: `${b0.height}px`, visibility: 'hidden' });
+      document.body.appendChild(el);
+      const seg = boxes.slice(1).map((b, k) => Math.hypot(b.left - boxes[k].left, b.top - boxes[k].top));
+      const total = seg.reduce((a, b) => a + b, 0) || 1;
+      let acc = 0;
+      const frames = boxes.map((b, k) => {
+        if (k) acc += seg[k - 1];
+        return { offset: Math.min(1, acc / total), transform: `translate(${(b.left - b0.left).toFixed(1)}px, ${(b.top - b0.top).toFixed(1)}px)` };
+      });
+      setTimeout(() => { el.style.visibility = ''; onStart?.(); }, delay);
+      el.animate(frames, { duration: ms, delay, easing: 'linear', fill: 'both' })
+        .finished.then(() => { el.remove(); onLand?.(); }, () => el.remove());
+      return delay + ms;
+    }
+    const doorManBox = (v) => svgBoxOnScreen(vehEl(v), DOOR_MAN.x, DOOR_MAN.y, MAN_W, MAN_H);
+
     /** Người đứng cuối hàng ở trạm lên ghế trống đầu tiên của xe đích. Trả về ms tới lúc ngồi xuống. */
     function boardOne(delay, num) {
       const j = stopPeople.length - 1;
@@ -350,21 +395,30 @@ export const BUS_GAME = {
       V[v].seats[i] = t;
       const man = svg.querySelector(`[data-p="${j}"]`);
       const seat = seatEl(v, i);
-      const from = upperRect(slotRect(man));
       setTimeout(() => { if (man) { man.style.visibility = 'hidden'; } }, delay);
       if (num) seatNums[`${v}:${i}`] = num;
-      return flyOne(flySeated(t), from, slotRect(seat), {
-        delay, minMs: 380, maxMs: 700,
-        onLand: () => {
-          const { x, y } = seatXY(i);
-          seat.querySelector('.g2b-who').innerHTML = seatedSvg(x, y, t);
-          if (num) seat.insertAdjacentHTML('beforeend', numBadge(x + WIN_W / 2, y - 1, num));
-          showCount(++st.onBoard);
-          sfx.pop(Math.min(8, num || 0));
-        },
+      const sit = () => {
+        const { x, y } = seatXY(i);
+        seat.querySelector('.g2b-who').innerHTML = seatedSvg(x, y, t);
+        if (num) seat.insertAdjacentHTML('beforeend', numBadge(x + WIN_W / 2, y - 1, num));
+        showCount(++st.onBoard);
+        sfx.pop(Math.min(8, num || 0));
+      };
+      if (train) {
+        return flyOne(flySeated(t), upperRect(slotRect(man)), slotRect(seat), { delay, minMs: 380, maxMs: 700, onLand: sit });
+      }
+      // Bước lên cửa, rồi đi dọc lối vào ghế.
+      const pts = aisle(i), ms = walkMs(pts);
+      flyOne(flyStanding(t), slotRect(man), doorManBox(v), {
+        delay, minMs: HOP_MS, maxMs: HOP_MS,
+        onLand: () => walk(flySeated(t), v, pts, { ms, onLand: sit }),
       });
+      return delay + HOP_MS + ms;
     }
-    /** Người ngồi ghế cuối xuống xe, đứng vào chỗ trống tiếp theo ở trạm. */
+    /**
+     * Người ngồi ghế cuối xuống xe, đứng vào chỗ trống tiếp theo ở trạm.
+     * Xe buýt: delay là lúc sớm nhất được tới cửa (người trước đã ra); trả về { door, end } (ms).
+     */
     function alightOne(delay, num) {
       const g = occupied() - 1;
       const { v, i } = locate(g);
@@ -375,20 +429,35 @@ export const BUS_GAME = {
       if (num) stopNums[j] = num;
       const seat = seatEl(v, i);
       const man = svg.querySelector(`[data-p="${j}"]`);
-      const from = slotRect(seat);
-      setTimeout(() => { seat.querySelector('.g2b-who').innerHTML = ''; showCount(--st.onBoard); }, delay);
-      return flyOne(flyStanding(t), from && { left: from.left, top: from.top, width: from.width, height: from.width * MAN_H / MAN_W }, slotRect(man), {
-        delay, minMs: 380, maxMs: 700,
+      const stand = () => {
+        const { x, y } = manXY(j);
+        if (man) {
+          man.classList.remove('g2b-man-empty');
+          man.insertAdjacentHTML('afterbegin', standingSvg(x, y, t));
+          if (num) man.insertAdjacentHTML('beforeend', numBadge(x + MAN_W / 2, y - 3, num));
+        }
+        sfx.pop(Math.min(8, num || 0));
+      };
+      const leaveSeat = () => { seat.querySelector('.g2b-who').innerHTML = ''; };
+      if (train) {
+        const from = slotRect(seat);
+        setTimeout(() => { leaveSeat(); showCount(--st.onBoard); }, delay);
+        const end = flyOne(flyStanding(t), from && { left: from.left, top: from.top, width: from.width, height: from.width * MAN_H / MAN_W }, slotRect(man), {
+          delay, minMs: 380, maxMs: 700, onLand: stand,
+        });
+        return { door: delay, end };
+      }
+      // Rời ghế, đi dọc lối ra cửa, qua cửa (bảng đếm bớt 1) rồi bước xuống trạm.
+      const pts = aisle(i).reverse(), ms = walkMs(pts);
+      const door = Math.max(delay, ms + 300);
+      walk(flySeated(t), v, pts, {
+        delay: door - ms, ms, onStart: leaveSeat,
         onLand: () => {
-          const { x, y } = manXY(j);
-          if (man) {
-            man.classList.remove('g2b-man-empty');
-            man.insertAdjacentHTML('afterbegin', standingSvg(x, y, t));
-            if (num) man.insertAdjacentHTML('beforeend', numBadge(x + MAN_W / 2, y - 3, num));
-          }
-          sfx.pop(Math.min(8, num || 0));
+          showCount(--st.onBoard);
+          flyOne(flyStanding(t), doorManBox(v), slotRect(man), { minMs: HOP_MS, maxMs: HOP_MS, onLand: stand });
         },
       });
+      return { door, end: door + HOP_MS };
     }
 
     // ── Lời bác tài, hoá đơn ──
@@ -466,11 +535,15 @@ export const BUS_GAME = {
       sfx.swish();
       const k = m.k;
       const up = m.dir > 0;
-      const gap = gapFor(k);
-      let end = 0;
+      // Xe buýt: mỗi lượt qua cửa một người, nên giãn cách đủ để người trước kịp đi khỏi cửa.
+      const gap = train ? gapFor(k) : Math.max(230, Math.min(450, 3600 / Math.max(1, k)));
+      let end = 0, next = 350;
       for (let q = 0; q < k; q++) {
         const num = m.kind === 'find' ? q + 1 : 0; // tìm số người lên / xuống: đánh số từng người cho bé đếm
-        end = Math.max(end, up ? boardOne(350 + q * gap, num) : alightOne(350 + q * gap, num));
+        if (up) { end = Math.max(end, boardOne(350 + q * gap, num)); continue; }
+        const r = alightOne(train ? 350 + q * gap : next, num);
+        next = r.door + gap;
+        end = Math.max(end, r.end);
       }
       setTimeout(() => {
         st.door = false;

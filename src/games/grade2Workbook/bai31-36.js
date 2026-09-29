@@ -323,6 +323,9 @@ export const BAI_31_36 = [
       },
       {
         type: 'choice', section: 'Tiết 2', img: imgB33T2Q3,
+        // ⚖️ Kiểm chứng: làm đúng rồi bé tự đặt hai túi lên đĩa phải xem cân có thăng bằng không.
+        balanceAfter: true,
+        balancePlay: { title: 'Chọn hai túi trong khay đặt lên đĩa bên phải. Cân thăng bằng không?' },
         q: '3. Khoanh vào chữ đặt trước câu trả lời đúng.\nPhải lấy hai trong bốn túi gạo nào đặt lên đĩa cân bên phải để cân thăng bằng?',
         options: ['Túi ① và ②', 'Túi ③ và ②', 'Túi ② và ④'],
         answer: 2,
@@ -497,6 +500,8 @@ export const BAI_31_36 = [
     questions: [
       {
         type: 'fill', section: 'Tiết 1', img: imgB35T1Q1,
+        // ⚖️ Thử cân (engine/balancePlay.js): nhấc đồ xuống khay, đặt lên đĩa khác, cân nghiêng như thật.
+        balancePlay: true,
         q: '1. Đ, S?',
         blanks: [
           { label: 'a) Quả bí ngô nặng hơn quả bưởi.', answer: 'Đ', validate: dsValidate(true) },
@@ -515,6 +520,9 @@ export const BAI_31_36 = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB35T1Q3,
+        // ⚖️ Kiểm chứng: làm đúng rồi bé nhấc quả cân 2 kg khỏi cân đồng hồ, kim chỉ cân nặng con thỏ.
+        balanceAfter: true,
+        balancePlay: { until: { dial: 4000 }, title: 'Nhấc quả cân khỏi cân đĩa, cân đồng hồ để kiểm chứng.' },
         q: '3. Quan sát tranh.\na) Viết số thích hợp vào chỗ chấm.',
         blanks: [
           { label: '... kg + ... kg = ... kg', answer: '2,5,7', validate: swapPairValidate(2, 5, 7) },
@@ -554,6 +562,22 @@ export const BAI_31_36 = [
           { label: 'b) Cả ba bình chứa được bao nhiêu lít nước?<br>... <i>l</i> + ... <i>l</i> + ... <i>l</i> = ... <i>l</i>', answer: '7,5,4,16', validate: sumAnyOrderValidate([7, 5, 4], 16) },
         ],
         hints: ['Đếm số ca 1 <i>l</i> bên cạnh mỗi bình.'],
+        // 🫗 Kiểm chứng (nút dưới hình): rót hết từng bình ra các ca 1 l và đếm.
+        pourAfter: true,
+        pourPlay: [
+          {
+            tab: 'Bình A (mẫu)', count: true, until: 'empty', title: 'Rót hết nước bình A vào các ca 1 <i>l</i>. Được đầy mấy ca?',
+            vessels: [{ shape: 'beaker', cap: 7, v: 7, aspect: 0.55, label: 'A', name: 'bình A' }, ...Array.from({ length: 9 }, () => ({ shape: 'jug', cap: 1, v: 0, tag: 1, name: 'ca 1 <i>l</i>', row: 1 }))],
+          },
+          {
+            tab: 'Bình B', count: true, until: 'empty', title: 'Rót hết nước bình B vào các ca 1 <i>l</i>. Được đầy mấy ca?',
+            vessels: [{ shape: 'beaker', cap: 5, v: 5, aspect: 0.55, label: 'B', name: 'bình B' }, ...Array.from({ length: 7 }, () => ({ shape: 'jug', cap: 1, v: 0, tag: 1, name: 'ca 1 <i>l</i>', row: 1 }))],
+          },
+          {
+            tab: 'Bình C', count: true, until: 'empty', title: 'Rót hết nước bình C vào các ca 1 <i>l</i>. Được đầy mấy ca?',
+            vessels: [{ shape: 'beaker', cap: 4, v: 4, aspect: 0.55, label: 'C', name: 'bình C' }, ...Array.from({ length: 6 }, () => ({ shape: 'jug', cap: 1, v: 0, tag: 1, name: 'ca 1 <i>l</i>', row: 1 }))],
+          },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 2',
@@ -581,6 +605,22 @@ export const BAI_31_36 = [
         options: ['Can 3 <i>l</i>, can 10 <i>l</i>, can 5 <i>l</i>, can 2 <i>l</i>', 'Can 2 <i>l</i>, can 5 <i>l</i>, can 15 <i>l</i>', 'Can 10 <i>l</i>, can 2 <i>l</i>, can 3 <i>l</i>, can 6 <i>l</i>'],
         answer: 0,
         hints: ['Cộng số lít của các can trong mỗi phương án, phương án nào được đúng 20 <i>l</i>?'],
+        // 🫗 Kiểm chứng (nút dưới hình): thử rót thùng 20 l vào các can của từng phương án.
+        pourAfter: true,
+        pourPlay: [
+          {
+            tab: 'A', until: 'empty', title: 'Phương án A: rót hết nước trong thùng vào các can.',
+            vessels: [{ shape: 'beaker', cap: 20, v: 20, marks: true, aspect: 0.8, label: `thùng 20 <i>l</i>`, name: 'thùng' }, { shape: 'can', cap: 3, v: 0, tag: 3, label: `can 3 <i>l</i>`, name: `can 3 <i>l</i>`, row: 1 }, { shape: 'can', cap: 10, v: 0, tag: 10, label: `can 10 <i>l</i>`, name: `can 10 <i>l</i>`, row: 1 }, { shape: 'can', cap: 5, v: 0, tag: 5, label: `can 5 <i>l</i>`, name: `can 5 <i>l</i>`, row: 1 }, { shape: 'can', cap: 2, v: 0, tag: 2, label: `can 2 <i>l</i>`, name: `can 2 <i>l</i>`, row: 1 }],
+          },
+          {
+            tab: 'B', until: 'empty', end: 'Phương án B không rót đầy được tất cả các can.', title: 'Phương án B: rót hết nước trong thùng vào các can.',
+            vessels: [{ shape: 'beaker', cap: 20, v: 20, marks: true, aspect: 0.8, label: `thùng 20 <i>l</i>`, name: 'thùng' }, { shape: 'can', cap: 2, v: 0, tag: 2, label: `can 2 <i>l</i>`, name: `can 2 <i>l</i>`, row: 1 }, { shape: 'can', cap: 5, v: 0, tag: 5, label: `can 5 <i>l</i>`, name: `can 5 <i>l</i>`, row: 1 }, { shape: 'can', cap: 15, v: 0, tag: 15, label: `can 15 <i>l</i>`, name: `can 15 <i>l</i>`, row: 1 }],
+          },
+          {
+            tab: 'C', until: 'empty', end: 'Phương án C không rót đầy được tất cả các can.', title: 'Phương án C: rót hết nước trong thùng vào các can.',
+            vessels: [{ shape: 'beaker', cap: 20, v: 20, marks: true, aspect: 0.8, label: `thùng 20 <i>l</i>`, name: 'thùng' }, { shape: 'can', cap: 10, v: 0, tag: 10, label: `can 10 <i>l</i>`, name: `can 10 <i>l</i>`, row: 1 }, { shape: 'can', cap: 2, v: 0, tag: 2, label: `can 2 <i>l</i>`, name: `can 2 <i>l</i>`, row: 1 }, { shape: 'can', cap: 3, v: 0, tag: 3, label: `can 3 <i>l</i>`, name: `can 3 <i>l</i>`, row: 1 }, { shape: 'can', cap: 6, v: 0, tag: 6, label: `can 6 <i>l</i>`, name: `can 6 <i>l</i>`, row: 1 }],
+          },
+        ],
       },
     ],
   },
@@ -652,12 +692,23 @@ export const BAI_31_36 = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgB36T2Q2,
+        // ⚖️ Thử cân (engine/balancePlay.js): nhấc đồ xuống khay, đặt lên đĩa khác, cân nghiêng như thật.
+        balancePlay: true,
         q: '2. Viết số thích hợp vào chỗ chấm.',
         blanks: [
           { label: 'a) Quả dưa cân nặng ... kg.', answer: '3' },
           { label: 'b) Rót đầy ba ca từ một can chứa đầy nước.<br>Trong can còn lại ... <i>l</i> nước.', answer: '4' },
         ],
         hints: ['a) Quả dưa và quả cân 2 kg nặng bằng quả cân 5 kg.', 'b) Ba ca 2 <i>l</i> chứa 2 <i>l</i> + 2 <i>l</i> + 2 <i>l</i> = 6 <i>l</i>.'],
+        // 🫗 Kiểm chứng câu b: rót can 10 l có vạch cho đầy ba ca 2 l.
+        pourAfter: true,
+        pourPlay: [null, {
+          until: 'empty', title: 'Rót nước từ can cho đầy ba ca 2 <i>l</i>. Can còn lại mấy lít?',
+          vessels: [
+            { shape: 'can', cap: 10, v: 10, marks: true, label: `can 10 <i>l</i>`, name: 'can' },
+            ...Array.from({ length: 3 }, () => ({ shape: 'jug', cap: 2, v: 0, tag: 2, name: 'ca 2 <i>l</i>' })),
+          ],
+        }],
       },
       {
         type: 'fill', section: 'Tiết 2', wordProblem: true,

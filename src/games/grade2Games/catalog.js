@@ -34,7 +34,21 @@ export const STALLS = [
   },
   {
     id: 'veg', title: 'Quầy rau củ', icon: '🥕',
-    levels: [{ id: 'veg-1', n: 1, title: 'Nặng hơn, nhẹ hơn', lessons: { g2: ['bai-15'] } }],
+    levels: [
+      { id: 'veg-1', n: 1, title: 'Nặng hơn, nhẹ hơn', lessons: { g2: ['bai-15'] }, also: { g2: ['bai-17'] } },
+      { id: 'veg-2', n: 2, title: 'So với 1 ki-lô-gam', lessons: { g2: ['bai-15'] } },
+      { id: 'veg-3', n: 3, title: 'Cân mấy ki-lô-gam?', lessons: { g2: ['bai-15', 'bai-17'] } },
+      { id: 'veg-4', n: 4, title: 'Cộng, trừ ki-lô-gam', lessons: { g2: ['bai-15', 'bai-17'] }, also: { g2: ['bai-18'] } },
+    ],
+  },
+  {
+    id: 'water', title: 'Quầy nước', icon: '💧',
+    purpose: 'Giúp em thực hành kiến thức về lít, nhiều hơn, ít hơn 1 lít và cộng, trừ số lít đã học trong bài. Em dùng ca 1 lít đong nước, so với vạch 1 lít và đổ nước kiểm tra phép tính.',
+    levels: [
+      { id: 'water-1', n: 1, title: 'Đong bằng ca 1 lít', lessons: { g2: ['bai-16'] }, also: { g2: ['bai-17'] } },
+      { id: 'water-2', n: 2, title: 'Nhiều hơn, ít hơn 1 lít', lessons: { g2: ['bai-16'] } },
+      { id: 'water-3', n: 3, title: 'Cộng, trừ số lít', lessons: { g2: ['bai-16'] }, also: { g2: ['bai-18'] } },
+    ],
   },
   {
     id: 'egg', title: 'Quầy trứng', icon: '🥚',

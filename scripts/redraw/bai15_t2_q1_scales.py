@@ -11,9 +11,10 @@ import sys, os; sys.path.insert(0, os.path.dirname(__file__)); from common impor
 W, H = 900, 136
 K = dict(arm=80, pan_w=122, post_h=42, drop=9)
 parts = []
-animals = [(plush_cat(0, 0, 52, fur=ORANGE, light=CREAM), -1),
-           (plush_bunny(0, 0, 66, fur=WHITE, shirt=PINK), 0),
-           (plush_dog(0, 0, 60, fur=WHITE, ear=INK, spots=True), 1)]
+# bal_item: cân nặng (gam) để ⚖️ Thử cân (engine/balancePlay.js) nghiêng đúng như sách.
+animals = [(bal_item(plush_cat(0, 0, 52, fur=ORANGE, light=CREAM), 800, 'con mèo'), -1),
+           (bal_item(plush_bunny(0, 0, 66, fur=WHITE, shirt=PINK), 1000, 'con thỏ'), 0),
+           (bal_item(plush_dog(0, 0, 60, fur=WHITE, ear=INK, spots=True), 1500, 'con chó'), 1)]
 for i, (pet, tilt) in enumerate(animals):
-    parts.append(balance_scale(150 + i * 300, 132, weight(0, 0, '1 kg', w=50), pet, tilt=tilt, **K))
+    parts.append(balance_scale(150 + i * 300, 132, bal_item(weight(0, 0, '1 kg', w=50), 1000, 'quả cân 1 kg'), pet, tilt=tilt, **K))
 save('bai15_t2_q1_scales', W, H, parts)

@@ -1,6 +1,6 @@
 # Thiết kế trò chơi tăng cường — Toán 2 (Tập 1 + Tập 2)
 
-> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số và Chợ phiên (quầy trứng cấp 1; quầy trái cây đã gỡ, xem dưới §4) đã phát hành trên production (cờ `GRADE2_GAMES = true`). 🚌 Xe buýt lên xuống đã code (cấp 1–5, chưa push). 🥕 Quầy rau củ cấp 1 "Nặng hơn, nhẹ hơn" đã code (chưa push), thay quầy trái cây ở Bài 15; quầy trứng thu hẹp còn hộp 2, 5 quả (chưa push). Các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
+> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số và Chợ phiên (quầy trứng cấp 1; quầy trái cây đã gỡ, xem dưới §4) đã phát hành trên production (cờ `GRADE2_GAMES = true`). 🚌 Xe buýt lên xuống đã code (cấp 1–5, chưa push). 🥕 Quầy rau củ cấp 1–4 (nặng nhẹ, so với 1 kg, cân kg, cộng trừ kg) đã code (chưa push), thay quầy trái cây ở Bài 15; quầy trứng thu hẹp còn hộp 2, 5 quả (chưa push). Các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
 >
 > Nguồn nội dung: Vở Bài tập Toán 2 Tập 1 (Bài 1–36, `src/games/grade2Workbook.js`) và Tập 2 (Bài 37–75, `src/games/grade2Workbook2.js`), bộ Kết nối tri thức.
 > Khung chung dùng lại của Toán 3: [docs/lop_3/thiet-ke-tro-choi-tap1.md](../lop_3/thiet-ke-tro-choi-tap1.md).
@@ -171,12 +171,17 @@ Dùng lại khung `mountStall` của Chợ phiên lớp 3, **bản dễ hơn**, 
 | Cấp | Nội dung | Ví dụ |
 |---|---|---|
 | 1 ✅ | Cân **so sánh** (Bài 15 tiết 1, chưa có số): khách đưa hai nhóm rau củ, bé chạm từng khay cho món bay lên đĩa cân, cân nghiêng; cả hai món đã lên cân mới hiện ba câu như vở *nhẹ hơn / nặng hơn / nặng bằng*. 5 lượt: lượt đầu lệch rõ, có 1 lượt nặng bằng, 1 lượt món to mà nhẹ (bó rau muống) | "3 củ khoai lang và 4 củ su hào: bên nào nặng hơn?" |
-| 2 | Chọn **quả cân 1 kg, 2 kg, 5 kg** cho đúng số khách mua, rồi nhặt củ cho cân thăng bằng (như trái cây cấp 1 lớp 3, tổng ≤ 10 kg) | "Bán cho bác 7 kg khoai" → 5 kg + 2 kg |
-| 3 | Cộng, trừ kg: "Bao gạo 8 kg, cô lấy ra 3 kg. Còn mấy ki-lô-gam?" → cân lại để kiểm chứng | 5 kg |
+| 2 ✅ | **So với 1 kg** (Bài 15 tiết 2, "Con thỏ nặng hơn 1 kg?"): rau củ lên một đĩa, quả cân 1 kg lên đĩa kia, chọn *nặng hơn / nhẹ hơn / nặng bằng 1 kg*. 5 lượt có đủ ba trường hợp | "4 củ su hào nặng hơn 1 kg." |
+| 3 ✅ | **Cân mấy ki-lô-gam?** (Bài 15 tiết 3 câu 2, Bài 17): túi gạo / túi đường / bao khoai chưa biết cân nặng; bé đặt túi lên cân, thêm, bớt quả cân 5, 2, 2, 1, 1 kg (chạm quả cân trên đĩa để nhấc xuống), tự bấm "Cân xong" (app không báo trước), rồi gõ số kg. Túi được treo thẻ số kg vừa cân | Cân thăng bằng với 5 kg + 1 kg → gõ 6 |
+| 4 ✅ | **Cộng, trừ ki-lô-gam** (Bài 15 tiết 3, Bài 17, 18): hai túi có thẻ số kg; "Cả hai túi nặng bao nhiêu?" / "Túi gạo nặng hơn túi đường mấy kg?" / "… nhẹ hơn … mấy kg?". Bé gõ số trước, rồi cân kiểm chứng: cộng thì hai túi lên đĩa trái, quả cân đúng số bé gõ (bộ 10, 5, 2, 2, 1 kg) lên đĩa phải; trừ thì túi nặng một bên, túi nhẹ và quả cân bên kia. Thăng bằng là đúng | Túi gạo 10 kg + bao khoai 5 kg → 15 kg |
+
+Bỏ ý "chọn quả cân cho đúng số khách mua rồi nhặt củ" (giống trái cây lớp 3): vở lớp 2 không có dạng này, dạng của vở là *đọc cân* (túi nặng bằng tổng các quả cân) và *cộng, trừ số đo kg*.
 
 Củ quả thật: khoai lang (≈ 250 g), bí đỏ (1–3 kg), bắp cải (≈ 1 kg), bao gạo 5 / 10 kg. Không ghi cân nặng trên củ.
 
-**Đã làm cấp 1 (2026-09-29):** `src/games/grade2Games/veg.js`, hình SVG `art/veg.js` (bí đỏ 2 kg, bắp cải 1 kg, su hào 500 g, khoai lang / bắp ngô / bó rau muống 250 g, cà rốt / cà chua 125 g: số tròn để có cặp nặng bằng nhau), CSS `injectVegStyles` trong `styles.js`. Dùng `mountStall` (theme `veg`, không máy tính tiền, không cameo) và cân `mountScale` với `tight` + `setRightSvg` (thêm vào `grade3Games/art/scale.js`). Hai khay vẽ cùng tỉ lệ để củ to trông to. Cấp 2, 3 chưa làm.
+**Đã làm cấp 1 (2026-09-29):** `src/games/grade2Games/veg.js`, hình SVG `art/veg.js` (bí đỏ 2 kg, bắp cải 1 kg, su hào 500 g, khoai lang / bắp ngô / bó rau muống 250 g, cà rốt / cà chua 125 g: số tròn để có cặp nặng bằng nhau), CSS `injectVegStyles` trong `styles.js`. Dùng `mountStall` (theme `veg`, không máy tính tiền, không cameo) và cân `mountScale` với `tight` + `setRightSvg` (thêm vào `grade3Games/art/scale.js`). Hai khay vẽ cùng tỉ lệ để củ to trông to.
+
+**Đã làm cấp 2–4 (2026-09-29):** cùng file `veg.js` (`mountCompare` cho cấp 1–2, `mountWeigh`, `mountAddSub`); túi hàng SVG `bagArt` trong `art/veg.js` (bao gạo 5–10 kg, túi đường 1–3 kg, bao khoai 2–6 kg, vẽ to theo căn bậc hai số kg); thêm quả cân 10 kg vào `grade3Games/art/weights.js`. Khay túi + quả cân cùng một tỉ lệ, vừa một hàng cả trên điện thoại dọc (`--hmax`, `--wsum`, container query).
 
 #### Quầy 💧 Nước — lít (Bài 16, 17)
 
@@ -186,6 +191,17 @@ Củ quả thật: khoai lang (≈ 250 g), bí đỏ (1–3 kg), bắp cải (�
 | 2 | Chọn can phù hợp / so sánh: can nào chứa nhiều hơn; "Can 5 l đã có 2 l. Rót thêm mấy lít cho đầy?" | 3 l |
 
 Dùng ca đong và vòi của quầy nước chanh; vạch trên can chỉ theo lít (không có ml).
+
+**Đã làm (2026-09-29):** 3 cấp trong `src/games/grade2Games/water.js`, hình SVG `art/water.js` (thùng nước có vòi, ca 1 l lấy từ ca đong lớp 3, can, xô, bình, chai, cốc, ấm, thùng có vạch lít), CSS `injectWaterStyles`. Theme `water`, không cameo.
+
+| Cấp | Tên | Nhiệm vụ |
+|---|---|---|
+| 1 | Đong bằng ca 1 lít (Bài 16, 17) | Xen kẽ: **rót đầy can 2–6 l** (can ghi số lít) và **đồ đựng chứa mấy lít** (xô, bình, ấm chưa ghi số: rót đầy rồi gõ số lít). Bấm giữ vòi, ca đầy tới vạch 1 l thì vòi tự khoá; chạm ca (hoặc nút) để đổ; ca chưa đầy thì không cho đổ. Bé tự bấm "Đầy rồi"; đổ thêm khi đã đầy thì nước tràn ra sàn, lượt đó thất bại. Dưới cảnh đếm "Đã đổ: 1, 2, 3 ca" |
+| 2 | Nhiều hơn, ít hơn 1 lít (Bài 16 tiết 1 câu 1) | Đồ đựng có sẵn nước đổ vào ca 1 l (dừng khi ca tới vạch 1 l), rồi chọn câu như vở: *… đựng nhiều hơn / ít hơn / đúng 1 l nước*. Có lượt bình, xô to mà ít nước hoặc chai thon mà nhiều nước |
+| 3 | Cộng, trừ số lít (Bài 16 tiết 2, Bài 18) | Xen kẽ **đổ hai can vào thùng** (a + b ≤ 18) và **can to rót ra đầy can nhỏ** (a − b). Gõ số trước, bấm "Đổ nước kiểm tra": thùng có vạch lít, vạch đúng số lít sáng lên, dấu "?" trên hoá đơn hiện đáp số |
+
+- Khi nghiêng đổ, mặt nước luôn nằm ngang (lớp nước xoay ngược góc nghiêng).
+- Khung nhìn ôm sát đồ vật cho cảnh to hết cỡ; màn dọc xếp đồ vật sát nhau hơn.
 
 #### Quầy 🪙 Tạp hóa — tiền Việt Nam (Bài 56, cần chốt §9)
 

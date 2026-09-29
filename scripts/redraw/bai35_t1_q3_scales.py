@@ -9,11 +9,13 @@ Nội dung toán giữ đúng sách:
 import sys, os; sys.path.insert(0, os.path.dirname(__file__)); from common import *; from kit_measure import *
 
 W, H = 900, 427
-P = [balance_scale(290, 414, weight(-54, 0, '2 kg', w=74) + weight(40, 0, '5 kg', w=96),
-                   pillow_bag(0, 0, 'GẠO', w=210, h=104, col='#CDEBFA', band=WHITE, size=28),
+# bal_item: cân nặng (gam) để ⚖️ Thử cân (engine/balancePlay.js) nghiêng đúng như sách.
+kg = lambda x, lab, w: bal_item(weight(x, 0, lab, w=w), int(lab.split()[0]) * 1000, f'quả cân {lab}')
+P = [balance_scale(290, 414, kg(-54, '2 kg', 74) + kg(40, '5 kg', 96),
+                   bal_item(pillow_bag(0, 0, 'GẠO', w=210, h=104, col='#CDEBFA', band=WHITE, size=28), 7000, 'túi gạo'),
                    tilt=0, arm=165, pan_w=210, post_h=74)]
 DW, BASE = 204, 414
-items = weight(-58, 0, '2 kg', w=66) + plush_bunny(34, 0, 150, fur=WHITE, inner=PINK)
+items = kg(-58, '2 kg', 66) + bal_item(plush_bunny(34, 0, 150, fur=WHITE, inner=PINK), 4000, 'con thỏ')
 P.append(dial_scale(764, BASE, 6, max_kg=8, items=items, w=DW))
 R, dcy = DW * .34, BASE - DW * 1.05 * .45
 P.append(text(764, dcy - R + 38, '8', size=14, weight=700))

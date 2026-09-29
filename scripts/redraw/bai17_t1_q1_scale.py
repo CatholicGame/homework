@@ -10,6 +10,7 @@ from kit_g1 import book_flat
 W, H = 654, 303
 cols = [RED, BLUE, YELLOW, GREEN, PURPLE]
 offs = [0, -8, 6, -4, 5]
-books = ''.join(book_flat(0, -i * 25, 190, 25, cols[i], dx=offs[i]) for i in range(5))
-parts = [balance_scale(327, 296, books, weight(0, 0, '1 kg', w=110), tilt=0, arm=180, pan_w=230, post_h=92)]
+# bal_item: cân nặng (gam) để ⚖️ Thử cân (engine/balancePlay.js) nghiêng đúng như sách.
+books = ''.join(bal_item(book_flat(0, -i * 25, 190, 25, cols[i], dx=offs[i]), 200, 'quyển sách') for i in range(5))
+parts = [balance_scale(327, 296, books, bal_item(weight(0, 0, '1 kg', w=110), 1000, 'quả cân 1 kg'), tilt=0, arm=180, pan_w=230, post_h=92)]
 save('bai17_t1_q1_scale', W, H, parts)

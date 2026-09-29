@@ -10,10 +10,11 @@ import sys, os; sys.path.insert(0, os.path.dirname(__file__)); from common impor
 
 W, H = 900, 351
 K = dict(arm=108, pan_w=156, post_h=52, drop=10)
-kg = lambda x=0: weight(x, 0, '1 kg', w=76)
+# bal_item: cân nặng (gam) để ⚖️ Thử cân (engine/balancePlay.js) nghiêng đúng như sách.
+kg = lambda x=0: bal_item(weight(x, 0, '1 kg', w=76), 1000, 'quả cân 1 kg')
 parts = [
-    balance_scale(170, 172, pumpkin(0, 0, 96, 64), kg(), **K),
-    balance_scale(730, 172, watermelon(-12, 0, 104, 64) + apple(56, 0, 14), kg(), **K),
-    balance_scale(450, 346, banana_bunch(0, 0, 150, n=8), kg(-14) + orange(56, 0, 16), **K),
+    balance_scale(170, 172, bal_item(pumpkin(0, 0, 96, 64), 1000, 'quả bí ngô'), kg(), **K),
+    balance_scale(730, 172, bal_item(watermelon(-12, 0, 104, 64), 850, 'quả dưa hấu') + bal_item(apple(56, 0, 14), 150, 'quả táo'), kg(), **K),
+    balance_scale(450, 346, bal_item(banana_bunch(0, 0, 150, n=8), 1200, 'nải chuối'), kg(-14) + bal_item(orange(56, 0, 16), 200, 'quả cam'), **K),
 ]
 save('bai15_t2_q3_scales', W, H, parts)

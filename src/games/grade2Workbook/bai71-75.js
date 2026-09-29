@@ -386,6 +386,8 @@ export const BAI_71_75 = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB73Scales,
+        // ⚖️ Thử cân (engine/balancePlay.js): nhấc đồ xuống khay, đặt lên đĩa khác, cân nghiêng như thật.
+        balancePlay: true,
         q: '2. Số?',
         blanks: [B('a) Con mèo cân nặng ... kg.', 7), B('b) Quả dưa cân nặng ... kg.', 3)],
         hints: ['Cân thăng bằng: hai đĩa cân nặng bằng nhau.'],
@@ -408,6 +410,22 @@ export const BAI_71_75 = [
           },
         ],
         hints: ['Can A đựng 10 l, can B 2 l, can C 3 l, can D 5 l.'],
+        // 🫗 Kiểm chứng: rót thử các can vào can trống có vạch lít.
+        pourAfter: true,
+        pourPlay: [
+          {
+            title: 'Rót can A cho đầy một can giống can B. Can A còn lại mấy lít?',
+            vessels: [{ shape: 'can', cap: 10, v: 10, marks: true, label: 'can A', name: 'can A' }, { shape: 'can', cap: 2, v: 0, tag: 2, label: 'can giống can B', name: 'can giống can B' }],
+          },
+          {
+            until: 'empty', title: 'Đổ can B và can D vào can trống. Được mấy lít?',
+            vessels: [{ shape: 'can', cap: 2, v: 2, tag: 2, label: 'can B', name: 'can B' }, { shape: 'can', cap: 5, v: 5, tag: 5, label: 'can D', name: 'can D' }, { shape: 'can', cap: 10, v: 0, marks: true, label: 'can trống', name: 'can trống' }],
+          },
+          {
+            until: 'empty', title: 'Đổ can B, can C và can D vào can giống can A. Được mấy lít?',
+            vessels: [{ shape: 'can', cap: 2, v: 2, tag: 2, label: 'can B', name: 'can B' }, { shape: 'can', cap: 3, v: 3, tag: 3, label: 'can C', name: 'can C' }, { shape: 'can', cap: 5, v: 5, tag: 5, label: 'can D', name: 'can D' }, { shape: 'can', cap: 10, v: 0, marks: true, label: 'can giống can A', name: 'can giống can A' }],
+          },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 2',
