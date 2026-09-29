@@ -397,7 +397,7 @@ function mountCut(ctx, m) {
       if (parts === d) return happy(ctx);
       st.speak(parts < d ? `Miếng này to quá, ${n.me} chỉ cần ${fracWord(d)} cái bánh thôi!` : `Miếng này nhỏ quá, ${n.me} cần ${fracWord(d)} cái bánh cơ!`, 'sad',
         `Đây là ${frac(1, parts)} cái bánh!`);
-      ctx.api.fail(`Bánh chia thành <b>${parts} phần</b> bằng nhau — 1 miếng là ${frac(1, parts)} cái bánh, chưa phải ${frac(1, d)}.`,
+      ctx.api.fail(`Bánh chia thành <b>${parts} phần</b> bằng nhau nên 1 miếng là ${frac(1, parts)} cái bánh, chưa phải ${frac(1, d)}.`,
         `Muốn lấy ${frac(1, d)} cái bánh: chia bánh thành <b>${d} phần bằng nhau</b> rồi lấy 1 phần.`);
     });
   });
@@ -436,12 +436,12 @@ function mountPick(ctx, m) {
       ctx.layer.querySelector(`[data-cake="${m.cakes.findIndex(k => k.right)}"]`)?.classList.add('g3k-right');
       if (!c.equal) {
         st.speak(`Các miếng của bánh này không bằng nhau ${n.you} ơi!`, 'sad', 'Các miếng <b>không bằng nhau</b>!');
-        ctx.api.fail(`Bánh này cắt ${c.n} miếng nhưng các miếng <b>không bằng nhau</b> — 1 miếng không phải ${frac(1, d)} cái bánh.`,
+        ctx.api.fail(`Bánh này cắt ${c.n} miếng nhưng các miếng <b>không bằng nhau</b>, nên 1 miếng không phải ${frac(1, d)} cái bánh.`,
           `${frac(1, d)} cái bánh: bánh chia thành <b>${d} phần bằng nhau</b>, lấy 1 phần. Bánh đúng đang sáng xanh.`);
         return;
       }
       st.speak(`Đây là ${fracWord(c.n)} cái bánh rồi, ${n.me} cần ${fracWord(d)} cơ!`, 'sad', `Đây là ${frac(1, c.n)} cái bánh!`);
-      ctx.api.fail(`Bánh này chia <b>${c.n} phần</b> bằng nhau — 1 miếng là ${frac(1, c.n)} cái bánh, chưa phải ${frac(1, d)}.`,
+      ctx.api.fail(`Bánh này chia <b>${c.n} phần</b> bằng nhau nên 1 miếng là ${frac(1, c.n)} cái bánh, chưa phải ${frac(1, d)}.`,
         `${frac(1, d)} cái bánh: bánh chia thành <b>${d} phần bằng nhau</b>, lấy 1 phần. Bánh đúng đang sáng xanh.`);
     });
   });
@@ -642,7 +642,7 @@ function mountCenterCut(ctx, m) {
       ctx.fx.innerHTML = `<line x1="${good.e0[0]}" y1="${good.e0[1]}" x2="${good.e1[0]}" y2="${good.e1[1]}" stroke="#16A34A" stroke-width="4" stroke-dasharray="10 7" stroke-linecap="round"/>`;
       st.speak(`Hai miếng không bằng nhau ${n.you} ơi!`, 'sad', 'Hai miếng <b>không bằng nhau</b>!');
       ctx.api.fail('Đường cắt <b>không đi qua tâm O</b> nên hai miếng không bằng nhau.',
-        'Muốn cắt đôi bánh tròn, đặt dao đi qua tâm O (nét xanh) — đường cắt đó là một <b>đường kính</b>.');
+        'Muốn cắt đôi bánh tròn, đặt dao đi qua tâm O (nét xanh). Đường cắt đó là một <b>đường kính</b>.');
     });
   }
 
@@ -755,7 +755,7 @@ function mountCenterCut(ctx, m) {
 
 /** Con dao nằm chờ cạnh bánh + bàn tay mời cầm lên. */
 function knifeRest() {
-  return `<g class="g3k-knife-rest" role="button" aria-label="Con dao — cầm kéo qua bánh">`
+  return `<g class="g3k-knife-rest" role="button" aria-label="Con dao, cầm kéo qua bánh">`
     + `<rect x="440" y="170" width="120" height="175" rx="20" fill="transparent"/>${knifeSvg(470, 330, 150, -70)}`
     + `<text class="g3k-hand" x="512" y="312" font-size="38" text-anchor="middle">👆</text></g>`;
 }
@@ -885,8 +885,8 @@ function mountName(ctx, m) {
     paint({ [i]: ORANGE, [right]: GREEN });
     const s = segs[i];
     const why = s.type === 'c' ? `${s.name} <b>không đi qua tâm O</b> nên không phải bán kính, cũng không phải đường kính.`
-      : s.type === 'd' ? `${s.name} đi qua tâm O, nối hai điểm trên mép bánh — đó là <b>đường kính</b>.`
-        : `${s.name} nối tâm O với một điểm trên mép bánh — đó là <b>bán kính</b>.`;
+      : s.type === 'd' ? `${s.name} đi qua tâm O, nối hai điểm trên mép bánh. Đó là <b>đường kính</b>.`
+        : `${s.name} nối tâm O với một điểm trên mép bánh. Đó là <b>bán kính</b>.`;
     st.speak(`Chưa đúng rồi ${n.you} ơi!`, 'sad', `Đó chưa phải ${word}!`);
     ctx.api.fail(`${why} ${cap(word)} là <b>${segs[right].name}</b> (nét xanh lá).`,
       'Bán kính: nối tâm O với một điểm trên mép. Đường kính: đi qua tâm O, nối hai điểm trên mép.');

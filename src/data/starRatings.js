@@ -2964,4 +2964,12 @@ export const STAR_RATINGS = {
   'g3games:detective-1': 2,
   'g3games:detective-2': 3,
   'g3games:detective-3': 3,
+  // g2games: trò chơi tăng cường Toán 2 (grade2Games.js) — một khoá cho mỗi cấp
+  'g2games:frog-1': 2,
+  'g2games:frog-2': 3,
+  'g2games:frog-3': 3,
+  'g2games:frog-4': 3,
+  'g2games:frog-5': 4,
+  'g2games:fruit-1': 3,
+  'g2games:egg-1': 2,
 };

@@ -7,6 +7,8 @@
  */
 
 import { renderWorkbook } from './grade3Workbook.js';
+import { GRADE2_GAMES } from '../data/features.js';
+import { levelsForUnit as gamesForUnit } from './grade2Games/catalog.js';
 import { BAI_37_44 } from './grade2Workbook/bai37-44.js';
 import { BAI_45_51 } from './grade2Workbook/bai45-51.js';
 import { BAI_52_58 } from './grade2Workbook/bai52-58.js';
@@ -28,6 +30,9 @@ const WORKBOOK2_TAP2_CONFIG = {
   menuLabel: 'Chọn bài để luyện tập:',
   unitWord: 'bài',
   unitName: (u) => `Bài ${u.number}. ${u.title}`,
+  // Trò chơi tăng cường Toán 2 (grade2Games.js) — hai thẻ Tập Một / Tập Hai dùng chung danh sách trò.
+  gamesBook: 'g2', gamesEnabled: GRADE2_GAMES, gamesLevelsForUnit: gamesForUnit,
+  loadGames: GRADE2_GAMES ? () => import('./grade2Games.js') : null, // production chưa bật: không đóng gói code trò chơi
 };
 
 export function render(app, onBack) {

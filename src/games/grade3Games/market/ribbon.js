@@ -361,7 +361,7 @@ export const RIBBON_GAME = {
     const want = m.mm;
     const tipFor = () => {
       const c = Math.floor(want / 10), r = want % 10;
-      if (price) return m.inMm ? `${want} mm = ${m.k} cm (1 cm = 10 mm): cắt ở vạch số <b>${m.k}</b>.` : `Cắt đúng ở vạch có số <b>${m.k}</b> — mỗi số trên thước là 1 cm.`;
+      if (price) return m.inMm ? `${want} mm = ${m.k} cm (1 cm = 10 mm): cắt ở vạch số <b>${m.k}</b>.` : `Cắt đúng ở vạch có số <b>${m.k}</b>. Mỗi số trên thước là 1 cm.`;
       if (!r) return `${cmmm(want)} = ${want} mm: cắt đúng ở vạch có số <b>${c}</b>.`;
       return `1 cm = 10 mm. Tìm vạch số <b>${c}</b> (${c * 10} mm) rồi đếm thêm <b>${r} vạch nhỏ</b> là ${want} mm.`;
     };
@@ -378,7 +378,7 @@ export const RIBBON_GAME = {
           const short = cutAt < want;
           speak(short ? `Ngắn quá ${n.you} ơi! ${cap(n.me)} cần ${price && !m.inMm ? `${m.k} xăng-ti-mét` : spokenMm(want)} cơ.` : `Dài quá ${n.you} ơi! ${cap(n.me)} chỉ cần ${price && !m.inMm ? `${m.k} xăng-ti-mét` : spokenMm(want)} thôi.`, 'sad',
             short ? 'Ngắn quá rồi!' : 'Dài quá rồi!');
-          api.fail(`Em cắt <b>${cutAt} mm</b> (${cmmm(cutAt)}), khách cần <b>${want} mm</b> (${cmmm(want)}) — ${short ? 'ngắn' : 'dài'} hơn ${Math.abs(want - cutAt)} mm.`, tipFor());
+          api.fail(`Em cắt <b>${cutAt} mm</b> (${cmmm(cutAt)}), khách cần <b>${want} mm</b> (${cmmm(want)}), ${short ? 'ngắn' : 'dài'} hơn ${Math.abs(want - cutAt)} mm.`, tipFor());
           return;
         }
         sfx.ding();

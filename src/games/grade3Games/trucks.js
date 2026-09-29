@@ -25,7 +25,7 @@ export const TRUCK_LEVELS = [
   {
     ...levelMeta('truck-1'), missions: 5,
     knowledge: 'phép chia hết, phép chia có dư',
-    ask: (n) => `Kho nhiều thùng lắm — tính giúp ${n.me} cần mấy xe!`,
+    ask: (n) => `Kho nhiều thùng lắm, tính giúp ${n.me} cần mấy xe!`,
     desc: '23 thùng, mỗi xe chở 5 thùng → 4 xe đầy, còn 3 thùng lẻ vẫn cần thêm 1 xe: 5 xe.',
     kinds: ['trucks'], quot: [2, 6],
     how: [['🧮', 'Tính số xe'], ['truck', 'Xếp lên xe'], ['🚚💨', 'Xe chạy']],
@@ -49,7 +49,7 @@ export const TRUCK_LEVELS = [
   {
     ...levelMeta('truck-4'), missions: 5,
     knowledge: 'chia số có ba chữ số cho số có một chữ số',
-    ask: (n) => `Kho lớn của ${n.me} có hơn một trăm thùng — tính giúp ${n.me}!`,
+    ask: (n) => `Kho lớn của ${n.me} có hơn một trăm thùng, tính giúp ${n.me}!`,
     desc: 'Số thùng có ba chữ số (tới 190): 125 thùng, mỗi xe 9 thùng → 14 xe.',
     kinds: ['trucks', 'crates'], total: [100, 190], k: [6, 9], maxQ: 22,
     how: [['🧮', 'Tính'], ['truck', 'Xe chạy'], ['crate', 'Đóng thùng']],

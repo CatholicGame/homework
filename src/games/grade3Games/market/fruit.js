@@ -54,7 +54,7 @@ export const FRUIT_LEVELS = [
   {
     ...levelMeta('fruit-2'), missions: 5,
     knowledge: 'bảng nhân 3 đến bảng nhân 9 và số tròn chục',
-    ask: (n) => `Giá 30, 40, 60 nghìn đồng 1 kg — cân rồi tính tiền giúp ${n.me}!`,
+    ask: (n) => `Giá 30, 40, 60 nghìn đồng 1 kg, cân rồi tính tiền giúp ${n.me}!`,
     desc: 'Giá tròn chục như 30, 40, 60 nghìn đồng 1 kg: 3 chục × 4 = 12 chục.',
     unit: 'kg', mass: [2, 9], price: (f) => f.tens.filter(p => p !== 20 && p !== 50), steps: ['pick', 'total'],
     sizes: 2, extra: [5, 6],
@@ -62,7 +62,7 @@ export const FRUIT_LEVELS = [
   {
     ...levelMeta('fruit-3'), missions: 5,
     knowledge: 'nhân số có hai chữ số với số có một chữ số',
-    ask: (n) => `Giá lẻ như ở chợ thật — cân rồi tính tiền giúp ${n.me}!`,
+    ask: (n) => `Giá lẻ như ở chợ thật, cân rồi tính tiền giúp ${n.me}!`,
     desc: 'Giá như ở chợ: 25, 38, 45 nghìn đồng 1 kg.',
     unit: 'kg', mass: [2, 6], price: (f) => f.mixed, steps: ['pick', 'total'],
     sizes: 3, extra: [5, 7], // to / vừa / nhỏ
@@ -78,7 +78,7 @@ export const FRUIT_LEVELS = [
   {
     ...levelMeta('fruit-5'), missions: 5,
     knowledge: 'gam, ki-lô-gam (1 kg = 1 000 g)',
-    ask: (n) => `Hôm nay cân bằng gam — cân rồi tính tiền giúp ${n.me}!`,
+    ask: (n) => `Hôm nay cân bằng gam, cân rồi tính tiền giúp ${n.me}!`,
     desc: 'Khách mua mấy trăm gam nho, dâu tây, nhãn, chanh: chọn quả cân 100 g, 200 g, 500 g cho đúng; giá tính cho 100 g.',
     unit: 'g', mass: [1, 9], price: (f) => f.per100, steps: ['pick', 'total'],
     sizes: 3, extra: [5, 7],
@@ -360,8 +360,8 @@ export const FRUIT_GAME = {
           if (d !== 0) {
             const few = d > 0; // bên quả cân nặng hơn → quả chưa đủ
             speak(few ? `Cân còn nghiêng mà ${n.you}, chưa đủ đâu!` : `Cân lệch sang bên ${f.name} rồi, nhiều quá!`, 'sad',
-              few ? 'Cân còn nghiêng — chưa đủ!' : 'Cân lệch — nhiều quá!');
-            api.fail(`Cân còn nghiêng về bên <b>${few ? 'quả cân' : f.name}</b> — ${f.name} ${few ? 'nhẹ hơn' : 'nặng hơn'} ${fmtMass(sum)}.`,
+              few ? 'Cân còn nghiêng, chưa đủ!' : 'Cân lệch, nhiều quá!');
+            api.fail(`Cân còn nghiêng về bên <b>${few ? 'quả cân' : f.name}</b>: ${f.name} ${few ? 'nhẹ hơn' : 'nặng hơn'} ${fmtMass(sum)}.`,
               'Đòn cân nằm ngang, kim chỉ đúng giữa mới là cân xong. Bên nào thấp hơn thì bên đó nặng hơn.');
             return;
           }
@@ -374,7 +374,7 @@ export const FRUIT_GAME = {
           const right = solveWeights(set, m.grams);
           speak(sum > m.grams ? `${cap(n.me)} chỉ mua ${spoken} thôi mà!` : `${cap(n.me)} mua ${spoken} cơ mà, sao ít vậy?`, 'sad',
             sum > m.grams ? `Nhiều quá! ${cap(n.me)} mua <b>${massText}</b> thôi.` : `Ít quá! ${cap(n.me)} mua <b>${massText}</b> cơ.`);
-          api.fail(`Đĩa cân có <b>${fmtMass(sum)}</b> ${f.name} — ${n.name} mua <b>${massText}</b>.`,
+          api.fail(`Đĩa cân có <b>${fmtMass(sum)}</b> ${f.name}, còn ${n.name} mua <b>${massText}</b>.`,
             right.length === 1 ? `Chỉ cần quả cân <b>${massText}</b>.` : `Chọn: <b>${partsOf(right)} = ${massText}</b>`);
         };
       },

@@ -35,7 +35,7 @@ export const LEMON_LEVELS = [
   {
     ...levelMeta('lemon-2'), missions: 5,
     knowledge: 'mi-li-lít, lít (1 l = 1 000 ml)',
-    ask: (n) => `Ca 1 lít có vạch 50 ml — rót thật khéo giúp ${n.me}!`,
+    ask: (n) => `Ca 1 lít có vạch 50 ml, rót thật khéo giúp ${n.me}!`,
     desc: 'Ca 1 l có số mỗi 100 ml; vạch ngắn ở giữa là thêm 50 ml. Ví dụ: "Rót 350 ml".',
     jug: { cap: 1000, step: 50, longEvery: 2, labels: 'long' }, rate: 150, tol: 12,
     kind: 'pour', amounts: [150, 250, 350, 450, 550, 650, 750, 850, 200, 400, 600, 800],
@@ -168,7 +168,7 @@ export const LEMON_GAME = {
         <g data-dump></g>
         <g data-spigot></g>
         <g data-glasses></g>
-        <g class="g3l-tap" data-tap tabindex="0" role="button" aria-label="Vòi rót — bấm giữ để rót">
+        <g class="g3l-tap" data-tap tabindex="0" role="button" aria-label="Vòi rót, bấm giữ để rót">
           <rect x="${DISP.bx - 14}" y="${DISP.pivot.y - 58}" width="92" height="${DISP.nozzle.y - DISP.pivot.y + 72}" rx="16" fill="transparent"/>
           <text class="g3l-hand" x="${DISP.pivot.x + 26}" y="${DISP.pivot.y - 34}" font-size="34" text-anchor="middle">👈</text>
         </g>
@@ -290,7 +290,7 @@ export const LEMON_GAME = {
       markTick('#EA580C');
       speak(few ? `Chưa đủ ${spoken(t)} mà ${n.you}!` : `Nhiều quá ${n.you} ơi, ${n.me} chỉ cần ${spoken(t)} thôi!`, 'sad',
         few ? `Chưa tới vạch <b>${t} ml</b>!` : `Quá vạch <b>${t} ml</b> rồi!`);
-      api.fail(few ? `Mặt nước <b>chưa tới</b> vạch <b>${t} ml</b> — còn thiếu.` : `Mặt nước đã <b>quá</b> vạch <b>${t} ml</b> — nhiều quá.`, tipFor(level, t));
+      api.fail(few ? `Mặt nước <b>chưa tới</b> vạch <b>${t} ml</b>, còn thiếu.` : `Mặt nước đã <b>quá</b> vạch <b>${t} ml</b>, nhiều quá.`, tipFor(level, t));
     };
 
     /** Tô vạch đích (sau khi bé đã xác nhận): xanh khi đúng, cam khi sai — kèm số ml cạnh vạch. */
@@ -403,7 +403,7 @@ function tipFor(level, t) {
     const lo = t - 50, hi = t + 50;
     return `Vạch ngắn nằm giữa hai vạch có số: giữa ${lo} ml và ${hi >= 1000 ? `1 ${L}` : `${hi} ml`} là <b>${t} ml</b>. Rót quá thì giữ "Đổ bớt".`;
   }
-  return `Rót tới vạch dài có số <b>${t} ml</b> — mặt nước nằm ngang đúng vạch. Rót quá thì giữ "Đổ bớt".`;
+  return `Rót tới vạch dài có số <b>${t} ml</b>, mặt nước nằm ngang đúng vạch. Rót quá thì giữ "Đổ bớt".`;
 }
 
 /** Nhãn "1 l" dán trên bình (cấp 3). */

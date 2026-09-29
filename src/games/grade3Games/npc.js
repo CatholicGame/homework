@@ -80,8 +80,11 @@ export const DETECTIVE_NPCS = [
 ];
 
 /** Hình NPC toàn thân; đổi `mood` thì vẽ lại để chuyển động chạy lại từ đầu. */
+// n.moods = { wait, happy, sad } (tuỳ chọn): nhân vật có hình riêng cho từng nét mặt, vd. mẹ ếch (grade2Games/frog.js).
 export function npcPic(n, mood = 'wait') {
-  return `<img class="g3-npc-img g3-npc-${mood}" src="${mood === 'sad' ? n.sad : n.img}" alt="${n.name}" draggable="false" decoding="async">`;
+  const src = n.moods?.[mood] || (mood === 'sad' ? n.sad : n.img);
+  // Hình theo nét mặt (mẹ ếch) gần vuông: bỏ khung dáng người đứng 21:40 ở mọi màn (giới thiệu cấp, màn chơi).
+  return `<img class="g3-npc-img g3-npc-${mood}"${n.moods ? ' style="aspect-ratio:auto"' : ''} src="${src}" alt="${n.name}" draggable="false" decoding="async">`;
 }
 
 // Tải sẵn mọi hình (vui + buồn) ngay khi mở trò chơi — khách mới hiện ra là có hình liền, không chờ mạng.

@@ -90,9 +90,22 @@ export function injectGameStyles() {
     .g3g-kicker { display: inline-block; padding: 0.05rem 0.9rem; border-radius: 999px; background: #FB923C; color: #fff; font-weight: 800; font-size: clamp(0.95rem, 3vw, 1.1rem); border: 3px solid #fff; box-shadow: 0 3px 0 #C2410C; }
     .g3g-stars { flex: none; padding: 0.3rem 0.8rem; border-radius: 999px; background: #fff; font-weight: 800; font-size: 1.1rem; color: #92400E; box-shadow: 0 3px 0 #FBBF24; }
     .g3g-top-spacer { flex: none; width: 52px; }
+    .g3g-purpose { box-sizing: border-box; max-width: 960px; margin: 0 auto 0.7rem; background: rgba(255,255,255,0.9); border: 2px solid #BAE6FD; border-radius: 1rem; padding: 0.45rem 0.9rem; text-align: center; color: #1E3A5F; line-height: 1.4; font-size: clamp(0.95rem, 1.1vh + 0.6rem, 1.12rem); }
+    .g3g-purpose b { color: #0369A1; }
     .g3g-lead { text-align: center; margin: 0 0 1rem; font-weight: 700; font-size: clamp(1rem, 3.2vw, 1.2rem); color: #075985; }
 
     /* Thẻ lựa chọn (trò / cấp) — trắng, bo tròn, có đế màu */
+    /* Ghi chú cho bố mẹ và em dưới danh sách cấp (game.note) */
+    .g3g-note { margin-top: 1.2rem; background: rgba(255,255,255,0.92); border: 3px solid #BAE6FD; border-radius: 1.2rem; padding: 0.9rem 1.1rem; color: #1E3A5F; line-height: 1.45; font-size: clamp(0.95rem, 1.2vh + 0.6rem, 1.15rem); box-shadow: 0 4px 0 rgba(14,116,144,0.12); }
+    .g3g-note h3 { margin: 0 0 0.6rem; font-size: 1.2em; color: #0C4A6E; }
+    .g3g-note-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 0.7rem; }
+    .g3g-note-cols > div { border-radius: 0.9rem; padding: 0.6rem 0.8rem; }
+    .g3g-note-yes { background: #F0FDF4; border: 2px solid #86EFAC; }
+    .g3g-note-later { background: #FFF7ED; border: 2px solid #FDBA74; }
+    .g3g-note ul { margin: 0.35rem 0 0; padding-left: 1.2rem; }
+    .g3g-note li { margin: 0.15rem 0; }
+    .g3g-note i { color: #64748B; font-style: normal; font-size: 0.9em; }
+    .g3g-note p { margin: 0.7rem 0 0; color: #334155; }
     .g3g-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 0.9rem 1rem; }
     .g3g-tile { display: flex; align-items: center; gap: 0.8rem; text-align: left; background: #fff; border: 3px solid #fff; border-radius: 1.3rem; padding: 0.8rem 0.9rem; cursor: pointer; color: var(--g3g-ink); box-shadow: 0 6px 0 #BAE6FD, 0 10px 18px rgba(2,132,199,0.12); transition: transform .12s, box-shadow .12s, border-color .15s; }
     .g3g-tile:hover { border-color: #7DD3FC; transform: translateY(-2px); }

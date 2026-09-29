@@ -58,7 +58,7 @@ export const EGG_LEVELS = [
   {
     ...levelMeta('egg-2'), missions: 5,
     knowledge: 'bảng nhân 3 đến 9, bảng chia 3 đến 9',
-    ask: (n) => `Đóng hộp 3, 4, 6, 8, 9 quả — nhân hay chia giúp ${n.me}!`,
+    ask: (n) => `Đóng hộp 3, 4, 6, 8, 9 quả, nhân hay chia giúp ${n.me}!`,
     desc: 'Hộp 3, 4, 6, 8, 9 quả: khách lấy mấy hộp thì nhân; khách mang trứng đến nhờ xếp hộp thì chia.',
     sizes: [3, 4, 6, 8, 9], kinds: ['mul', 'div'], boxes: [2, 9],
     how: [['carton', 'Đóng hộp'], ['✖️', 'Nhân'], ['➗', 'Chia']],
@@ -66,7 +66,7 @@ export const EGG_LEVELS = [
   {
     ...levelMeta('egg-3'), missions: 5,
     knowledge: 'phép chia hết, phép chia có dư',
-    ask: (n) => `Xếp trứng vào hộp — được mấy hộp, thừa mấy quả giúp ${n.me}!`,
+    ask: (n) => `Xếp trứng vào hộp, tính được mấy hộp, thừa mấy quả giúp ${n.me}!`,
     desc: 'Chia có dư: 50 quả xếp hộp 6 quả → 8 hộp, thừa 2 quả.',
     sizes: [3, 4, 5, 6, 7, 8, 9], kinds: ['rem'], boxes: [2, 9],
     how: [['➗', 'Số hộp'], ['egg', 'Số quả thừa'], ['carton', 'Đóng hộp']],
@@ -74,7 +74,7 @@ export const EGG_LEVELS = [
   {
     ...levelMeta('egg-4'), missions: 5,
     knowledge: 'chia số có 2–3 chữ số cho số có 1 chữ số',
-    ask: (n) => `Trang trại nhà ${n.me} nhiều trứng lắm — xếp hộp giúp ${n.me}!`,
+    ask: (n) => `Trang trại nhà ${n.me} nhiều trứng lắm, xếp hộp giúp ${n.me}!`,
     desc: 'Số trứng có hai, ba chữ số (tới 150 quả): 96 quả xếp hộp 8 quả → 12 hộp.',
     sizes: [2, 3, 4, 5, 6, 7, 8, 9], kinds: ['div', 'rem'], boxes: [10, 30], maxEggs: 150,
     how: [['➗', 'Số hộp'], ['egg', 'Số quả thừa'], ['carton', 'Đóng hộp']],
@@ -264,7 +264,7 @@ export const EGG_GAME = {
         if (ok) return done();
         main.classList.remove('g3e-packing');
         fail(answerText, rem && b === q && l >= k
-          ? `Số quả thừa phải bé hơn ${k} — đủ ${k} quả thì đóng thêm được 1 hộp.`
+          ? `Số quả thừa phải bé hơn ${k}. Đủ ${k} quả thì đóng thêm được 1 hộp.`
           : formula);
       };
       if (!b || b > PACK_MAX) return judge();

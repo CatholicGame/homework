@@ -35,7 +35,7 @@ export const MACHINE_LEVELS = [
   {
     ...levelMeta('machine-1'), missions: 5,
     knowledge: 'gấp một số lên một số lần',
-    ask: (n) => `Máy gấp lên — đoán xem máy ra bao nhiêu quả!`,
+    ask: (n) => `Máy gấp lên, đoán xem máy ra bao nhiêu quả!`,
     desc: '4 quả táo vào máy "gấp 3 lần" → máy ra 3 hàng, mỗi hàng 4 quả: 4 × 3 = 12 quả.',
     kind: 'mul',
     how: [['🍎', 'Cho vào máy'], ['🧮', 'Đoán số quả'], ['machine', 'Kéo cần gạt']],
@@ -43,7 +43,7 @@ export const MACHINE_LEVELS = [
   {
     ...levelMeta('machine-2'), missions: 5,
     knowledge: 'giảm một số đi một số lần',
-    ask: (n) => `Máy thu nhỏ — đoán xem còn lại bao nhiêu quả!`,
+    ask: (n) => `Máy thu nhỏ, đoán xem còn lại bao nhiêu quả!`,
     desc: '12 quả vào máy "giảm 3 lần" → máy chia 12 quả thành 3 phần bằng nhau, ra 1 phần: 12 : 3 = 4 quả.',
     kind: 'div',
     how: [['🍎', 'Cho vào máy'], ['🧮', 'Đoán số quả'], ['machine', 'Kéo cần gạt']],
@@ -51,8 +51,8 @@ export const MACHINE_LEVELS = [
   {
     ...levelMeta('machine-3'), missions: 6,
     knowledge: 'gấp một số lên một số lần, giảm một số đi một số lần',
-    ask: (n) => `Máy này làm gì? Gấp, giảm, thêm hay bớt — xem bảng thử rồi đoán!`,
-    desc: 'Bảng thử máy: 3 → 9, 5 → 15. Máy "gấp 3 lần" (không phải "thêm 6" — thử lại với số 5 là thấy).',
+    ask: (n) => `Máy này làm gì? Gấp, giảm, thêm hay bớt? Xem bảng thử rồi đoán!`,
+    desc: 'Bảng thử máy: 3 → 9, 5 → 15. Máy "gấp 3 lần" (không phải "thêm 6", thử lại với số 5 là thấy).',
     kind: 'guess',
     how: [['📋', 'Xem bảng thử'], ['❓', 'Chọn phép'], ['machine', 'Kéo cần gạt']],
   },
@@ -60,7 +60,7 @@ export const MACHINE_LEVELS = [
     ...levelMeta('machine-4'), missions: 5,
     knowledge: 'so sánh số lớn gấp mấy lần số bé',
     ask: (n) => `Rổ to gấp mấy lần rổ nhỏ? Cho máy gấp rổ nhỏ lên là biết!`,
-    desc: 'Rổ to 24 quả, rổ nhỏ 6 quả: 24 : 6 = 4 — rổ to gấp 4 lần rổ nhỏ.',
+    desc: 'Rổ to 24 quả, rổ nhỏ 6 quả: 24 : 6 = 4, rổ to gấp 4 lần rổ nhỏ.',
     kind: 'cmp',
     how: [['🧺', 'Hai rổ'], ['🧮', 'Gấp mấy lần?'], ['machine', 'Kéo cần gạt']],
   },
@@ -442,10 +442,10 @@ export const MACHINE_GAME = {
           const real = RULES[m.rule];
           const s = SIGN[m.rule];
           const tips = {
-            mul: `${a1} × ${m.x} = ${b1}, ${a2} × ${m.x} = ${b2} — cả hai lần đều nhân với ${m.x}. Gấp ${m.x} lần là nhân ${m.x}, thêm ${m.x} là cộng ${m.x}.`,
-            div: `${a1} : ${m.x} = ${b1}, ${a2} : ${m.x} = ${b2} — cả hai lần đều chia cho ${m.x}. Giảm ${m.x} lần là chia ${m.x}, bớt ${m.x} là trừ ${m.x}.`,
-            add: `${a1} + ${m.x} = ${b1}, ${a2} + ${m.x} = ${b2} — cả hai lần đều cộng ${m.x}.`,
-            sub: `${a1} − ${m.x} = ${b1}, ${a2} − ${m.x} = ${b2} — cả hai lần đều trừ ${m.x}.`,
+            mul: `${a1} × ${m.x} = ${b1}, ${a2} × ${m.x} = ${b2}: cả hai lần đều nhân với ${m.x}. Gấp ${m.x} lần là nhân ${m.x}, thêm ${m.x} là cộng ${m.x}.`,
+            div: `${a1} : ${m.x} = ${b1}, ${a2} : ${m.x} = ${b2}: cả hai lần đều chia cho ${m.x}. Giảm ${m.x} lần là chia ${m.x}, bớt ${m.x} là trừ ${m.x}.`,
+            add: `${a1} + ${m.x} = ${b1}, ${a2} + ${m.x} = ${b2}: cả hai lần đều cộng ${m.x}.`,
+            sub: `${a1} − ${m.x} = ${b1}, ${a2} − ${m.x} = ${b2}: cả hai lần đều trừ ${m.x}.`,
           };
           failWith('Máy chưa ra đúng bảng thử rồi!', `Máy này <b>${real.text(m.x)}</b>: ${a1} ${s} ${m.x} = ${b1}.`, tips[m.rule]);
         });

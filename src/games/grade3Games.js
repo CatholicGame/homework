@@ -4,6 +4,9 @@
  * Thiết kế: docs/lop_3/thiet-ke-tro-choi-tap1.md.
  *
  * ctx = { book: 'workbook'|'practice', units, unitName, storageKey, openUnit(unitId), onBack }
+ *
+ * Lớp khác dùng lại hub này với danh sách trò riêng: renderGamesHub(app, ctx, start, { games, kicker }) —
+ * xem grade2Games.js.
  */
 
 import { FRUIT_GAME } from './grade3Games/market/fruit.js';
@@ -20,11 +23,12 @@ import { NPCS, npcPic, cap, preloadNpcs } from './grade3Games/npc.js';
 import { injectGameStyles, menuBackdrop, fitMenu } from './grade3Games/styles.js';
 import { getTotalStars } from '../engine/stars.js';
 
-const GAMES = [
+export const GRADE3_LIST = [
   {
     id: 'market', icon: '🏪', title: 'Chợ phiên của bé',
     desc: 'Làm chủ quầy hàng: cân, đong, đếm và tính tiền cho khách!',
     tags: ['Khối lượng', 'Nhân', 'Tiền'],
+    purpose: 'Giúp em thực hành kiến thức về khối lượng, mi-li-lít, mi-li-mét, phép nhân, phép chia và một phần mấy đã học trong bài. Em làm chủ quầy hàng ở chợ: cân, đong, đo, đếm, chia phần và tính tiền cho khách. Mỗi quầy luyện một nhóm kiến thức.',
     stalls: [
       { game: FRUIT_GAME, tags: 'kg · g · tính tiền' },
       { game: EGG_GAME, tags: 'nhân · chia · chia có dư' },
@@ -42,7 +46,7 @@ const GAMES = [
   },
   {
     id: 'machine', icon: '🔍', title: 'Máy phóng to – thu nhỏ', single: true,
-    desc: 'Cỗ máy biến hình: gấp lên, giảm đi — đoán xem máy ra bao nhiêu!',
+    desc: 'Cỗ máy biến hình: gấp lên, giảm đi, đoán xem máy ra bao nhiêu!',
     tags: ['Gấp lên', 'Giảm đi', 'Gấp mấy lần'],
     stalls: [{ game: MACHINE_GAME }],
   },
@@ -65,7 +69,7 @@ function knowledgeChips(text) {
  * về thẳng bài học (ctx.onBack) thay vì đi qua danh sách cấp → quầy → trò; chỉ khi em bấm "Chọn cấp khác"
  * mới vào luồng danh sách như bình thường.
  */
-export function renderGamesHub(app, ctx, start = null) {
+export function renderGamesHub(app, ctx, start = null, { games: GAMES = GRADE3_LIST, kicker = '🎮 Toán 3' } = {}) {
   injectGameStyles();
   preloadNpcs();
   const found = start && GAMES.map(g => ({ g, s: g.stalls.find(s => s.game?.id === start.stall) })).find(x => x.s);
@@ -95,8 +99,8 @@ export function renderGamesHub(app, ctx, start = null) {
 
   function showGames() {
     shell(`
-      ${topbar('Trò chơi tăng cường', { kicker: '🎮 Toán 3', stars: true })}
-      <p class="g3g-lead">Mỗi lần chơi là một lượt mới — số mới, khách mới!</p>
+      ${topbar('Trò chơi tăng cường', { kicker, stars: true })}
+      <p class="g3g-lead">Mỗi lần chơi là một lượt mới: số mới, khách mới!</p>
       <div class="g3g-list">
         ${GAMES.map(g => `
           <button type="button" class="g3g-tile" data-game="${g.id}">
@@ -116,6 +120,7 @@ export function renderGamesHub(app, ctx, start = null) {
   function showStalls(g) {
     shell(`
       ${topbar(g.title, { kicker: `${g.icon} Chọn quầy` })}
+      ${g.purpose ? `<p class="g3g-purpose">🎯 ${g.purpose}</p>` : ''}
       <p class="g3g-lead">Hôm nay em mở quầy nào?</p>
       <div class="g3g-stalls">
         ${g.stalls.map((s, i) => s.soon ? `
@@ -130,7 +135,8 @@ export function renderGamesHub(app, ctx, start = null) {
     fromLesson = false;
     shell(`
       ${topbar(`${game.icon} ${game.title}`, { kicker: g.single ? '🎮 Trò chơi tăng cường' : `${g.icon} ${g.title}` })}
-      <p class="g3g-lead">Chọn cấp — cấp nào cũng chơi được!</p>
+      ${game.purpose ? `<p class="g3g-purpose">🎯 ${game.purpose}</p>` : ''}
+      <p class="g3g-lead">Chọn cấp. Cấp nào cũng chơi được!</p>
       <div class="g3g-list">
         ${game.levels.map(lv => {
           const best = bestFor(lv.id);
@@ -143,7 +149,8 @@ export function renderGamesHub(app, ctx, start = null) {
               <span class="g3g-go">▶</span>
             </button>`;
         }).join('')}
-      </div>`);
+      </div>
+      ${game.note ? `<aside class="g3g-note">${game.note}</aside>` : ''}`);
     app.querySelector('[data-act="back"]').onclick = () => (g.single ? showGames() : showStalls(g));
     app.querySelectorAll('[data-level]').forEach(b => { b.onclick = () => showIntro(g, game, game.levels.find(l => l.id === b.dataset.level)); });
   }

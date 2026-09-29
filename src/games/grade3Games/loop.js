@@ -143,7 +143,8 @@ function mountOrientation(play, btn) {
 }
 
 /** Sao của ván: không thất bại → đủ sao của cấp; mỗi nhiệm vụ thất bại bớt 1 (còn ít nhất 1). */
-const starKey = (level) => `g3games:${level.id}`;
+// game.starPrefix: trò của lớp khác ghi sao vào nhóm lớp đó (vd. 'g2games' — xem BOOK_GRADE trong stars.js).
+const starKey = (game, level) => `${game.starPrefix || 'g3games'}:${level.id}`;
 
 // onQuit: nút ✕ (mặc định = onExit) — trò mở từ một bài thì ✕ về thẳng bài đó.
 export function playRound(app, { game, level, onExit, onNextLevel, onQuit = null }) {
@@ -228,7 +229,7 @@ export function playRound(app, { game, level, onExit, onNextLevel, onQuit = null
     stopSpeaking();
     const ok = results.filter(Boolean).length;
     const fails = total - ok;
-    const key = starKey(level);
+    const key = starKey(game, level);
     let gotStars = 0;
     if (!hasEarned(key)) {
       for (let k = 0; k < fails; k++) recordWrong(key, null);

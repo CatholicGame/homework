@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>g2games dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" /><link rel="stylesheet" href="/src/styles/game.css" /></head>
+<body><div id="app"></div>
+<script type="module">
+// Trang dev: mở Vở BT Toán 2 không cần đăng nhập, bấm "🎮 Trò chơi tăng cường" để chơi. ?tap=2 cho Tập Hai.
+const book = new URLSearchParams(location.search).get('tap') === '2' ? 'grade2Workbook2' : 'grade2Workbook';
+const { render } = await import(/* @vite-ignore */ `/src/games/${book}.js`);
+render(document.getElementById('app'), () => location.reload());
+</script></body></html>

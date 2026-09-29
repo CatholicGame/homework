@@ -180,6 +180,22 @@ export const DETECTIVE_GAME = {
   npcs: NPCS,
   levels: DETECTIVE_LEVELS,
   stallIcon: () => ekeIcon(56),
+  // Ghi chú dưới danh sách cấp: lớp 3 học tới đâu về góc (để bố mẹ và em không chờ góc nhọn, góc tù hay số đo độ).
+  note: `
+    <h3>📐 Lớp 3 học gì về góc?</h3>
+    <div class="g3g-note-cols">
+      <div class="g3g-note-yes"><b>✅ Lớp 3 học</b><ul>
+        <li><b>Góc vuông</b> và <b>góc không vuông</b>: đỉnh và hai cạnh, gọi tên như "góc đỉnh O; cạnh OA, OB" <i>(Bài 18)</i></li>
+        <li>Dùng <b>ê-ke</b> để kiểm tra và vẽ góc vuông <i>(Bài 18, 20)</i></li>
+        <li>Hình chữ nhật, hình vuông có <b>4 góc vuông</b>; hình tam giác, hình tứ giác <i>(Bài 19)</i></li>
+      </ul></div>
+      <div class="g3g-note-later"><b>⏳ Lên lớp 4 mới học</b><ul>
+        <li>Góc nhọn, góc tù, góc bẹt</li>
+        <li>Số đo góc (độ, °) và thước đo góc</li>
+        <li>Hai đường thẳng vuông góc, song song</li>
+      </ul></div>
+    </div>
+    <p>Vì vậy trò chơi chỉ hỏi góc <b>vuông</b> hay <b>không vuông</b>, không có số độ. Ê-ke xoay từng nấc chỉ để em tập áp ê-ke cho khít cạnh.</p>`,
   summaryText: (ok, total) => `Em đã phá được <strong>${ok}/${total}</strong> vụ điều tra.`,
 
   howTo(level) {
@@ -563,8 +579,8 @@ export const DETECTIVE_GAME = {
         if (said === m.right) return ok(`Đúng! ${cap(angleName)} là <b>${verdict}</b>.`);
         bad(m.right ? 'Ê-ke khít cả hai cạnh mà!' : 'Còn khe hở kìa!', `${cap(angleName)} là <b>${verdict}</b>.`,
           m.right
-            ? `Một cạnh ê-ke trùng một cạnh của góc, cạnh kia của ê-ke cũng trùng cạnh còn lại — đó là góc vuông${m.o.name === 'khung tranh' || m.o.name === 'cửa sổ' || m.o.name === 'quyển sách' ? ', dù đồ vật treo nghiêng' : ''}.`
-            : `Một cạnh ê-ke trùng cạnh của góc, nhưng cạnh kia của ê-ke lệch khỏi cạnh còn lại (nét đứt đỏ) — đó là góc không vuông.`);
+            ? `Một cạnh ê-ke trùng một cạnh của góc, cạnh kia của ê-ke cũng trùng cạnh còn lại. Đó là góc vuông${m.o.name === 'khung tranh' || m.o.name === 'cửa sổ' || m.o.name === 'quyển sách' ? ', dù đồ vật treo nghiêng' : ''}.`
+            : `Một cạnh ê-ke trùng cạnh của góc, nhưng cạnh kia của ê-ke lệch khỏi cạnh còn lại (nét đứt đỏ). Đó là góc không vuông.`);
       });
       return;
     }
@@ -667,7 +683,7 @@ export const DETECTIVE_GAME = {
         const tips = {
           tri: 'Hình có 3 cạnh, 3 đỉnh là hình tam giác.',
           quad: `Hình có 4 cạnh là hình tứ giác. Hình này ${rightCount ? `chỉ có ${rightCount} góc vuông` : 'không có góc vuông nào'}, chưa đủ 4 góc vuông nên không phải hình chữ nhật hay hình vuông.`,
-          rect: 'Hình có 4 góc vuông là hình chữ nhật. Hai cạnh dài bằng nhau, hai cạnh ngắn bằng nhau — không phải 4 cạnh đều bằng nhau nên không phải hình vuông.',
+          rect: 'Hình có 4 góc vuông là hình chữ nhật. Hai cạnh dài bằng nhau, hai cạnh ngắn bằng nhau. Bốn cạnh không bằng nhau nên không phải hình vuông.',
           square: 'Hình có 4 góc vuông và 4 cạnh bằng nhau (đếm ô) là hình vuông.',
         };
         bad('Hình này không phải như vậy đâu!', fact, tips[real]);
@@ -745,8 +761,8 @@ export const DETECTIVE_GAME = {
         const fact = `Có <b>${want.length} ${tname}</b>: ${list}.`;
         if (want.length === chosen.size && want.every(i => chosen.has(i))) return ok(`Đúng! ${fact}`);
         const tip = m.target === 'rect'
-          ? 'Hình chữ nhật phải có đủ 4 góc vuông — hình nằm nghiêng một cạnh hay có góc lệch thì không phải.'
-          : 'Hình vuông có 4 góc vuông và 4 cạnh bằng nhau — đếm ô vuông trên mỗi cạnh để so. Hình dài hơn rộng một ô là hình chữ nhật.';
+          ? 'Hình chữ nhật phải có đủ 4 góc vuông. Hình có cạnh xiên hay có góc lệch thì không phải hình chữ nhật.'
+          : 'Hình vuông có 4 góc vuông và 4 cạnh bằng nhau. Em đếm ô vuông trên mỗi cạnh để so. Hình dài hơn rộng một ô là hình chữ nhật.';
         bad('Chưa tìm đúng rồi!', fact, tip);
       });
       return;
@@ -793,8 +809,8 @@ export const DETECTIVE_GAME = {
       v.pad.lock('g3g-keypad-bad');
       bad(`Có tới ${m.shapes.length} ${word} cơ!`, fact,
         m.kind === 'tri'
-          ? 'Đếm hình nhỏ trước, rồi tìm hình to ghép từ hai, ba hình nhỏ liền nhau — mỗi hình tam giác gọi tên bằng 3 đỉnh.'
-          : 'Đếm hình nhỏ trước, rồi ghép hai, ba hình liền nhau xem có thành hình tứ giác to hơn không — mỗi hình gọi tên bằng 4 đỉnh.');
+          ? 'Đếm hình nhỏ trước, rồi tìm hình to ghép từ hai, ba hình nhỏ liền nhau. Mỗi hình tam giác gọi tên bằng 3 đỉnh.'
+          : 'Đếm hình nhỏ trước, rồi ghép hai, ba hình liền nhau xem có thành hình tứ giác to hơn không. Mỗi hình gọi tên bằng 4 đỉnh.');
     };
     ask(row(m.kind === 'tri' ? '🔺' : '⬜', cap(word), Q, true), 'hình', (value, pad) => {
       pad.lock();

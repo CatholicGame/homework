@@ -4240,6 +4240,11 @@ export function render(app, onBack) {
 
 export function renderWorkbook(app, onBack, cfg) {
   const UNITS = cfg.units;
+  // Trò chơi tăng cường: mặc định của Toán 3 (grade3Games.js, cờ GRADE3_GAMES). Lớp khác truyền cờ, danh mục và
+  // hub riêng: cfg.gamesEnabled, cfg.gamesLevelsForUnit(book, unitId), cfg.loadGames() — vd. grade2Workbook.js.
+  const gamesOn = !!cfg.gamesBook && (cfg.gamesEnabled ?? GRADE3_GAMES);
+  const gamesFor = (unitId) => (cfg.gamesLevelsForUnit || levelsForUnit)(cfg.gamesBook, unitId);
+  const loadGames = cfg.loadGames || (() => import('./grade3Games.js'));
   const { getRecord, setRecord, clearUnitStorage, getLastUnit, setLastUnit, getUnitSummary } = makeStore(cfg.storageKey, cfg.lastUnitKey);
   let activeQuestions = [];
   let activeTitle = '';
@@ -4274,7 +4279,7 @@ export function renderWorkbook(app, onBack, cfg) {
           <p class="e3-sub">${cfg.subtitle}</p>
           <div class="star-total-chip" title="Tổng số sao bạn đã nhận">⭐ ${getTotalStars()} sao</div>
 
-          ${GRADE3_GAMES && cfg.gamesBook ? `<button type="button" class="gw-games-btn" id="gw-games-btn">🎮 Trò chơi tăng cường <span>chơi để luyện bài đã học</span></button>` : ''}
+          ${gamesOn ? `<button type="button" class="gw-games-btn" id="gw-games-btn">🎮 Trò chơi tăng cường <span>chơi để luyện bài đã học</span></button>` : ''}
 
           <div class="e3-section-label">${cfg.menuLabel}</div>
           <div class="gw-unit-list">
@@ -4298,8 +4303,8 @@ export function renderWorkbook(app, onBack, cfg) {
               ].filter(Boolean).join(' · ');
               // Bài có trò chơi tăng cường luyện đúng bài đó: 🎮 + biểu tượng từng quầy (chạm → mở quầy, cấp đầu tiên).
               const stalls = [];
-              if (GRADE3_GAMES && cfg.gamesBook) {
-                levelsForUnit(cfg.gamesBook, u.id).forEach(({ stall, level }) => {
+              if (gamesOn) {
+                gamesFor(u.id).forEach(({ stall, level }) => {
                   if (!stalls.some(x => x.stall.id === stall.id)) stalls.push({ stall, level });
                 });
               }
@@ -4336,8 +4341,8 @@ export function renderWorkbook(app, onBack, cfg) {
       g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(e); } });
     });
 
-    // Trò chơi tăng cường (bật / tắt bằng cờ GRADE3_GAMES — src/data/features.js).
-    if (GRADE3_GAMES && cfg.gamesBook) app.querySelector('#gw-games-btn').onclick = () => openGames();
+    // Trò chơi tăng cường (bật / tắt bằng cờ GRADE3_GAMES — src/data/features.js — hoặc cfg.gamesEnabled).
+    if (gamesOn) app.querySelector('#gw-games-btn').onclick = () => openGames();
 
     app.querySelector('#e3-back-btn').onclick = onBack;
     jumpToLastUnit();
@@ -4345,7 +4350,7 @@ export function renderWorkbook(app, onBack, cfg) {
 
   // Trò chơi tăng cường (tải động). start = { stall, level } → mở thẳng cấp đó (gợi ý ở màn kết quả bài).
   function openGames(start = null) {
-    import('./grade3Games.js').then(m => m.renderGamesHub(app, {
+    loadGames().then(m => m.renderGamesHub(app, {
       book: cfg.gamesBook, units: UNITS, unitName: cfg.unitName, storageKey: cfg.storageKey,
       openUnit, onBack: showIntro,
     }, start));
@@ -5750,7 +5755,7 @@ export function renderWorkbook(app, onBack, cfg) {
     const pct = Math.round((correctCount / total) * 100);
     const { emoji, label, color } = getGrade(pct);
     // Làm xong một bài có trò chơi luyện đúng bài đó → mời chơi (mở thẳng cấp phù hợp).
-    const games = GRADE3_GAMES && cfg.gamesBook && activeUnitIds.length === 1 ? levelsForUnit(cfg.gamesBook, activeUnitIds[0]) : [];
+    const games = gamesOn && activeUnitIds.length === 1 ? gamesFor(activeUnitIds[0]) : [];
 
     app.innerHTML = `
       <div class="e3-wrap gw-app">
