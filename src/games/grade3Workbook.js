@@ -4261,6 +4261,17 @@ export function renderWorkbook(app, onBack, cfg) {
   const starKey = (unitId, idx) => `${cfg.starBook}:${unitId}:${idx}`;
   const qStars = (q) => getQuestionStars(starKey(q.__unitId, q.__qIdx), q);
   const qEarned = (q) => earnedFor(starKey(q.__unitId, q.__qIdx));
+  // Where a question sits in the printed book, so the child can find it:
+  // "Bài 25" (or "Tuần 3"; the KT unit has no number → its title), the Tiết,
+  // and the book's own question number taken from the text ("1.", "2b.").
+  const unitById = new Map(UNITS.map(u => [u.id, u]));
+  const unitShort = (unitId) => {
+    const u = unitById.get(unitId);
+    return typeof u.number === 'number' ? `${cfg.unitWord[0].toUpperCase()}${cfg.unitWord.slice(1)} ${u.number}` : u.title;
+  };
+  const bookNum = (q) => (/^\s*(\d+[a-z]?)[.)]/i.exec(q.q || '') || [])[1] || '';
+  const qPlace = (q) => [unitShort(q.__unitId), q.section, bookNum(q) && `Câu ${bookNum(q)}`].filter(Boolean).join(' · ');
+  let qlistFilter = { unit: '', sec: '' }; // Bài / Tiết chosen in the question list's search row
   let multiSelected = [];
   let compareSelected = [];
   let matchLocked = new Set(); // leftIds confirmed correct after checking
@@ -4376,6 +4387,7 @@ export function renderWorkbook(app, onBack, cfg) {
     }
     resetProgress();
     current = 0;
+    qlistFilter = { unit: '', sec: '' };
     showQuestion();
   }
 
@@ -4448,7 +4460,7 @@ export function renderWorkbook(app, onBack, cfg) {
     const pinQuestion = !!(q.img || q.wordProblem);
     const questionCard = `
           <div class="e3-question-card${q.img ? ' gw-card-has-img' : ''}">
-            <div class="e3-q-num" style="color:${activeColor}">${q.section ? `${q.section} — ` : ''}Câu ${current + 1}${renderQuestionStars(starKey(q.__unitId, q.__qIdx), q)}</div>
+            <div class="e3-q-num" style="color:${activeColor}">${qPlace(q)}${renderQuestionStars(starKey(q.__unitId, q.__qIdx), q)}</div>
             ${renderStarRule(starKey(q.__unitId, q.__qIdx), q)}
             <div class="e3-q-text">${q.q.replace(/\n/g, '<br>')}</div>
             ${q.img ? `<img class="e3-q-img" src="${q.img}" alt="Hình minh họa câu ${current + 1}" loading="lazy">` : ''}
@@ -4754,8 +4766,60 @@ export function renderWorkbook(app, onBack, cfg) {
     return 'unanswered';
   }
 
+  // Questions grouped the way the book is: one block per Bài · Tiết, each
+  // button labeled with the book's question number (app order as fallback).
+  function questionGroups() {
+    const groups = [];
+    activeQuestions.forEach((q, i) => {
+      const last = groups[groups.length - 1];
+      if (last && last.unit === q.__unitId && last.sec === (q.section || '')) last.items.push(i);
+      else groups.push({ unit: q.__unitId, sec: q.section || '', items: [i] });
+    });
+    return groups;
+  }
+
+  const qlistOpt = (value, label, sel) => `<option value="${value}"${value === sel ? ' selected' : ''}>${label}</option>`;
+
+  // Search row: Bài (only when several units are open) → Tiết → Câu. Bài and
+  // Tiết narrow the list below; picking a Câu opens that question.
+  function renderQuestionSearch() {
+    const f = qlistFilter;
+    const multi = activeUnitIds.length > 1;
+    const inUnit = activeQuestions.map((q, i) => i).filter(i => !multi || !f.unit || activeQuestions[i].__unitId === f.unit);
+    const canPickQ = !multi || f.unit; // in "Tất cả", Tiết / Câu wait for a Bài
+    const secs = canPickQ ? [...new Set(inUnit.map(i => activeQuestions[i].section).filter(Boolean))] : [];
+    const qs = canPickQ ? inUnit.filter(i => !f.sec || activeQuestions[i].section === f.sec) : [];
+    return `
+      <div class="gw-qsearch">
+        ${multi ? `<select id="gw-qs-unit" aria-label="${cfg.unitWord}">${qlistOpt('', `${cfg.unitWord[0].toUpperCase()}${cfg.unitWord.slice(1)}…`, f.unit)}${activeUnitIds.map(id => qlistOpt(id, unitShort(id), f.unit)).join('')}</select>` : ''}
+        <select id="gw-qs-sec" aria-label="Tiết"${secs.length ? '' : ' disabled'}>${qlistOpt('', 'Tiết…', f.sec)}${secs.map(s => qlistOpt(s, s, f.sec)).join('')}</select>
+        <select id="gw-qs-q" aria-label="Câu"${qs.length ? '' : ' disabled'}>${qlistOpt('', 'Câu…', '')}${qs.map(i => qlistOpt(String(i), [!f.sec && activeQuestions[i].section, `Câu ${bookNum(activeQuestions[i]) || i + 1}`].filter(Boolean).join(' · '), '')).join('')}</select>
+      </div>`;
+  }
+
+  function renderQuestionGroups() {
+    const f = qlistFilter;
+    const multi = activeUnitIds.length > 1;
+    return questionGroups()
+      .filter(g => (!f.unit || g.unit === f.unit) && (!f.sec || g.sec === f.sec))
+      .map(g => `
+        <div class="gw-qgroup">
+          <div class="gw-qgroup-title">${[(multi || !g.sec) && unitShort(g.unit), g.sec].filter(Boolean).join(' · ')}</div>
+          <div class="e3-qlist-grid">
+            ${g.items.map(i => {
+              const q = activeQuestions[i];
+              const status = getQuestionStatus(i);
+              const acts = actionsOf(q);
+              const pic = acts.length
+                ? `<span class="e3-qitem-pic e3-qitem-act" aria-label="${acts.map(a => a.label).join(', ')}">${acts.map(a => a.icon).join('')}</span>`
+                : hasPicture(q) ? '<span class="e3-qitem-pic" aria-label="Có hình">🖼️</span>' : '';
+              return `<button class="e3-qitem e3-qitem-${status} ${i === current ? 'e3-qitem-current' : ''}" data-idx="${i}" title="${qPlace(q)}">${bookNum(q) || i + 1}${pic}</button>`;
+            }).join('')}
+          </div>
+        </div>`).join('');
+  }
+
   function renderQuestionList() {
-    const statusIcon = { unanswered: '', correct: '✓', wrong: '✕' };
     return `
       <div class="e3-qlist-overlay" id="e3-qlist-overlay" style="display:none">
         <div class="e3-qlist-panel">
@@ -4763,16 +4827,8 @@ export function renderWorkbook(app, onBack, cfg) {
             <span>Danh sách câu hỏi</span>
             <button class="e3-qlist-close" id="e3-qlist-close">✕</button>
           </div>
-          <div class="e3-qlist-grid">
-            ${activeQuestions.map((q, i) => {
-              const status = getQuestionStatus(i);
-              const acts = actionsOf(q);
-              const pic = acts.length
-                ? `<span class="e3-qitem-pic e3-qitem-act" aria-label="${acts.map(a => a.label).join(', ')}">${acts.map(a => a.icon).join('')}</span>`
-                : hasPicture(q) ? '<span class="e3-qitem-pic" aria-label="Có hình">🖼️</span>' : '';
-              return `<button class="e3-qitem e3-qitem-${status} ${i === current ? 'e3-qitem-current' : ''}" data-idx="${i}">${statusIcon[status] || (i + 1)}${pic}</button>`;
-            }).join('')}
-          </div>
+          <div id="gw-qsearch-wrap">${renderQuestionSearch()}</div>
+          <div class="gw-qgroups" id="gw-qgroups">${renderQuestionGroups()}</div>
           <div class="e3-qlist-legend">
             <span><i class="e3-legend-dot e3-legend-unanswered"></i>Chưa làm</span>
             <span><i class="e3-legend-dot e3-legend-correct"></i>Đúng</span>
@@ -4790,9 +4846,26 @@ export function renderWorkbook(app, onBack, cfg) {
     const overlay = app.querySelector('#e3-qlist-overlay');
     app.querySelector('#e3-qlist-close').onclick = () => { overlay.style.display = 'none'; };
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
-    app.querySelectorAll('.e3-qitem').forEach(btn => {
+    const bindItems = () => overlay.querySelectorAll('.e3-qitem').forEach(btn => {
       btn.onclick = () => showQuestion(parseInt(btn.dataset.idx, 10));
     });
+    const bindSearch = () => {
+      const unitSel = overlay.querySelector('#gw-qs-unit');
+      if (unitSel) unitSel.onchange = () => { qlistFilter = { unit: unitSel.value, sec: '' }; refresh(); };
+      const secSel = overlay.querySelector('#gw-qs-sec');
+      secSel.onchange = () => { qlistFilter = { ...qlistFilter, sec: secSel.value }; refresh(); };
+      const qSel = overlay.querySelector('#gw-qs-q');
+      qSel.onchange = () => { if (qSel.value !== '') showQuestion(parseInt(qSel.value, 10)); };
+    };
+    const refresh = () => {
+      overlay.querySelector('#gw-qsearch-wrap').innerHTML = renderQuestionSearch();
+      overlay.querySelector('#gw-qgroups').innerHTML = renderQuestionGroups();
+      overlay.querySelector('.e3-qlist-panel').scrollTop = 0;
+      bindSearch();
+      bindItems();
+    };
+    bindSearch();
+    bindItems();
     app.querySelector('#e3-qlist-finish').onclick = showResult;
   }
 
@@ -5888,6 +5961,11 @@ function injectStyles() {
       @keyframes e3SlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
       .e3-qlist-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: #1E293B; font-size: 1rem; }
       .e3-qlist-close { background: rgba(0,0,0,0.08); border: none; color: #1E293B; width: 1.9rem; height: 1.9rem; border-radius: 0.5rem; cursor: pointer; font-weight: 700; }
+      .gw-qsearch { display: flex; gap: 0.4rem; }
+      .gw-qsearch select { flex: 1 1 0; min-width: 0; padding: 0.45rem 0.3rem; border: 2px solid #e2e8f0; border-radius: 0.6rem; background: #f8fafc; color: #1E293B; font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+      .gw-qsearch select:disabled { opacity: 0.5; cursor: default; }
+      .gw-qgroups { display: flex; flex-direction: column; gap: 0.9rem; }
+      .gw-qgroup-title { font-size: 0.8rem; font-weight: 800; color: #475569; margin-bottom: 0.45rem; }
       .e3-qlist-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
       .e3-qitem { aspect-ratio: 1; border-radius: 0.6rem; border: 2px solid #e2e8f0; background: #f8fafc; color: #475569; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; transition: transform 0.1s, border-color 0.15s; }
       .e3-qitem:hover { transform: translateY(-2px); }
