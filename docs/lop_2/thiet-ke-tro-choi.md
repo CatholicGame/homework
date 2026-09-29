@@ -1,6 +1,6 @@
 # Thiết kế trò chơi tăng cường — Toán 2 (Tập 1 + Tập 2)
 
-> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số đã làm xong trên bản dev (cờ `GRADE2_GAMES`), các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
+> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số và Chợ phiên (quầy trái cây, quầy trứng cấp 1) đã phát hành trên production (cờ `GRADE2_GAMES = true`), các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
 >
 > Nguồn nội dung: Vở Bài tập Toán 2 Tập 1 (Bài 1–36, `src/games/grade2Workbook.js`) và Tập 2 (Bài 37–75, `src/games/grade2Workbook2.js`), bộ Kết nối tri thức.
 > Khung chung dùng lại của Toán 3: [docs/lop_3/thiet-ke-tro-choi-tap1.md](../lop_3/thiet-ke-tro-choi-tap1.md).
