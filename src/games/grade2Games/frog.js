@@ -305,8 +305,14 @@ export const FROG_GAME = {
       G.trail = svg.querySelector('.g2f-trail');
       G.ghost = svg.querySelector('.g2f-ghost');
       G.fx = svg.querySelector('.g2f-fx');
-      // Cấp chạm lá: chưa nhảy thì nhìn giữa hàng lá (không nhìn thẳng vào lá đích, cũng không bám ếch ở mép).
-      setCam(st.over ? overCam() : camFor(m.kind === 'near' && !st.moved ? (m.lo + m.hi) / 2 : st.pos));
+      // Cấp chạm lá, hàng vừa màn: chưa nhảy thì nhìn giữa cả hàng (camFor đặt giữa, không lộ lá đích).
+      // Hàng dài hơn màn (điện thoại dọc): mở lượt thì lướt từ giữa hàng tới ếch con để bé thấy ếch đang ở đâu.
+      if (st.over) setCam(overCam());
+      else if (m.kind === 'near' && !st.moved && !G.fits && !st.introPan) {
+        st.introPan = true;
+        setCam(camFor((m.lo + m.hi) / 2));
+        setTimeout(() => { if (G.world.isConnected && !st.moved && !st.busy) panTo(camFor(st.pos), 700); }, 450);
+      } else setCam(camFor(m.kind === 'near' && !st.moved && G.fits ? (m.lo + m.hi) / 2 : st.pos));
       if (st.fell) placeFrog(st.fell.x, padY + r * 1.75, 'wet');
       else placeFrog(X(st.pos), baseY(), st.over && st.pos !== m.target ? 'worry' : 'sit');
       st.log.forEach(([a, b]) => drawArc(G.trail, a, b, 'g2f-arc'));
