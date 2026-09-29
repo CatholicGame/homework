@@ -1,6 +1,6 @@
 # Thiết kế trò chơi tăng cường — Toán 2 (Tập 1 + Tập 2)
 
-> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số và Chợ phiên (quầy trứng cấp 1; quầy trái cây đã gỡ, xem dưới §4) đã phát hành trên production (cờ `GRADE2_GAMES = true`). 🚌 Xe buýt lên xuống đã code (cấp 1–5, chưa push). 🥕 Quầy rau củ cấp 1–4 (nặng nhẹ, so với 1 kg, cân kg, cộng trừ kg) đã code (chưa push), thay quầy trái cây ở Bài 15; quầy trứng thu hẹp còn hộp 2, 5 quả (chưa push). Các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
+> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số và Chợ phiên (quầy trứng cấp 1; quầy trái cây đã gỡ, xem dưới §4) đã phát hành trên production (cờ `GRADE2_GAMES = true`). 🚌 Xe buýt lên xuống đã code (cấp 1–5, chưa push). 🥕 Quầy rau củ cấp 1–4 (nặng nhẹ, so với 1 kg, cân kg, cộng trừ kg) đã code (chưa push), thay quầy trái cây ở Bài 15; quầy trứng thu hẹp còn hộp 2, 5 quả (chưa push). 🎂 Tiệc sinh nhật chia kẹo cấp 1–5 đã code (chưa push, 2026-09-29). Các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
 >
 > Nguồn nội dung: Vở Bài tập Toán 2 Tập 1 (Bài 1–36, `src/games/grade2Workbook.js`) và Tập 2 (Bài 37–75, `src/games/grade2Workbook2.js`), bộ Kết nối tri thức.
 > Khung chung dùng lại của Toán 3: [docs/lop_3/thiet-ke-tro-choi-tap1.md](../lop_3/thiet-ke-tro-choi-tap1.md).
@@ -230,6 +230,19 @@ Tờ tiền **vẽ lại đơn giản** (màu và số mệnh giá), không ché
 - **Sinh đề:** chỉ bảng 2 và 5, thừa số 1–10; chia luôn chia hết (lớp 2 chưa học chia có dư).
 - **Khi sai:** kẹo còn thừa trên đĩa hoặc bạn không đủ kẹo (mặt buồn); mẹo *"Chia đều là mỗi bạn nhận bằng nhau."*
 - **Đồ hoạ:** bàn tiệc, bánh kem, đĩa, kẹo nhiều màu, túi quà, đôi tất, găng tay; các bạn dùng NPC trẻ em.
+
+**Đã làm (2026-09-29):** cả 5 cấp — `src/games/grade2Games/party.js`, hình SVG `art/party.js` (kẹo, bánh quy, tất, cánh hoa, đĩa, túi quà, bông hoa, bạn nhỏ đội mũ sinh nhật có mặt vui / buồn, đĩa to), CSS `injectPartyStyles`. Khung quầy Chợ phiên (`mountStall`, theme `party`, không cameo). Người giao việc: Bạn Na, Bạn Tí, Chị Mai, Bạn Bin, Cô Lan (chưa vẽ NPC mẹ).
+
+| Cấp | Tên | Nhiệm vụ |
+|---|---|---|
+| 1 | Phép nhân (Bài 37) | q đĩa (2–6), mỗi đĩa 2 hoặc 5 cái kẹo. Bé chạm từng đĩa, kẹo bay từ đĩa to vào; bảng hiện 5 + 5 + 5. Chọn thẻ **5 × 3** (thẻ bẫy 3 × 5, dòng "5 được lấy 3 lần"), rồi gõ số kẹo |
+| 2 | Bảng nhân 2, bảng nhân 5 (Bài 39, 40) | Xoay vòng 4 chủ đề: đôi tất cho mỗi bạn, 2 cái bánh quy mỗi đĩa, bông hoa 5 cánh, túi quà 5 viên kẹo. Gõ số trước, bấm phát: đồ bay vào từng chỗ, dưới mỗi chỗ hiện số đếm thêm (2, 4, 6…) |
+| 3 | Chia đều (Bài 41, 43, 44) | N cái kẹo chia đều cho 2 hoặc 5 bạn. Gõ số kẹo mỗi bạn: đĩa mỗi bạn có đúng số chỗ bé gõ; bấm "Chia kẹo", kẹo bay mỗi bạn một cái, vòng tới vòng. Gõ ít: kẹo còn thừa trên đĩa to. Gõ nhiều: chỗ trống viền đỏ, các bạn mặt buồn |
+| 4 | Chia vào túi, chia đều | Xen kẽ **đóng túi** (N cái bánh, mỗi túi 2 hoặc 5 cái, được mấy túi: túi hiện đúng số bé gõ) và chia đều như cấp 3 |
+| 5 | Thừa số, tích, thương (Bài 38, 42) | Lượt gắn tên: chạm ô dưới số rồi chạm thẻ tên (có 1 thẻ thừa), thẻ bay vào ô, bấm "✓ Gắn xong". Lượt tìm số: "Tích là 15, một thừa số là 5" / "Số bị chia 40, số chia 5": gõ số, kẹo xếp ra đúng số đĩa bé gõ để kiểm tra |
+
+- Đồ vật trên đĩa to và trong chỗ đựng cùng một tỉ lệ; khung tự chọn đĩa to bên trái hay ở trên, hàng 10 hay hàng 5, cho đồ vật to nhất.
+- Tất theo đôi, cánh hoa theo bông cùng một màu. Gõ quá 12 (túi, đĩa, số kẹo mỗi bạn) thì không vẽ, báo sai luôn.
 
 ---
 

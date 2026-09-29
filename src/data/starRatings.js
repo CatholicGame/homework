@@ -2984,4 +2984,9 @@ export const STAR_RATINGS = {
   'g2games:water-3': 3,
   'g2games:fruit-1': 3, // đã gỡ khỏi lớp 2 (2026-09-29), giữ để sao bé đã nhận vẫn được tính
   'g2games:egg-1': 2,
+  'g2games:party-1': 2,
+  'g2games:party-2': 2,
+  'g2games:party-3': 3,
+  'g2games:party-4': 3,
+  'g2games:party-5': 3,
 };

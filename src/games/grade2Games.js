@@ -9,6 +9,7 @@ import { FROG_GAME } from './grade2Games/frog.js';
 import { BUS_GAME } from './grade2Games/bus.js';
 import { VEG_GAME } from './grade2Games/veg.js';
 import { WATER_GAME } from './grade2Games/water.js';
+import { PARTY_GAME } from './grade2Games/party.js';
 import { EGG_GAME } from './grade3Games/market/eggs.js';
 import { levelMeta } from './grade2Games/catalog.js';
 
@@ -33,6 +34,12 @@ const GAMES = [
     desc: 'Làm phụ xe: đếm khách lên xe, xuống xe cho bác tài!',
     tags: ['Thêm, bớt', 'Nhiều hơn, ít hơn', 'Có nhớ'],
     stalls: [{ game: BUS_GAME }],
+  },
+  {
+    id: 'party', icon: '🎂', title: 'Tiệc sinh nhật chia kẹo', single: true,
+    desc: 'Chuẩn bị tiệc sinh nhật: xếp kẹo ra đĩa, phát quà, chia đều kẹo cho các bạn!',
+    tags: ['Nhân 2, 5', 'Chia 2, 5', 'Thừa số, thương'],
+    stalls: [{ game: PARTY_GAME }],
   },
   {
     id: 'market', icon: '🏪', title: 'Chợ phiên của bé',

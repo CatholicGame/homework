@@ -296,3 +296,114 @@ export function injectWaterStyles() {
   `;
   document.head.appendChild(st);
 }
+
+/** CSS của trò 🎂 Tiệc sinh nhật chia kẹo (lớp g2p-*). Khung quầy, máy tính, thẻ kết quả dùng chung với Chợ phiên lớp 3 (theme 'party'). */
+export function injectPartyStyles() {
+  if (document.getElementById('g2p-styles')) return;
+  const st = document.createElement('style');
+  st.id = 'g2p-styles';
+  st.textContent = `
+    .g3f-theme-party .g3f-awning { background: repeating-linear-gradient(90deg, #F472B6 0 36px, #FFF 36px 72px); border-bottom-color: #BE185D; }
+    .g3f-theme-party .g3f-counter { background: linear-gradient(#FFF5FA, #FCE7F3); border-bottom-color: #DB2777; }
+    .g3f-theme-party .g3f-sign { background: #DB2777; border-color: #831843; color: #fff; text-shadow: 0 1px 0 rgba(131,24,67,0.5); }
+    .g3f-theme-party .g3f-sign strong { color: #FEF08A; }
+    .g3f-theme-party .g3f-main::after { background: rgba(15,23,42,0.06); }
+    /* Cấp gắn tên (không gõ số): bỏ máy tính tiền, bạn nhỏ đứng to cả cột. */
+    .g2p-nopad .g3f-ask { display: none; }
+    .g2p-nopad .g3f-npc { flex: 1 1 auto; }
+    .g2p-nopad .g3f-npc img { max-height: 420px; }
+
+    .g2p-bench { flex: 1 1 0; min-height: 0; width: 100%; display: flex; flex-direction: column; gap: 0.45rem; padding-top: clamp(2.6rem, 8vh, 4rem); box-sizing: border-box; }
+    .g2p-board { flex: none; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.2rem 0.5rem; font: 800 clamp(1rem, min(2.2vh + 0.6rem, 5.6vw), 1.8rem) 'Baloo 2', Quicksand, sans-serif; color: #831843; line-height: 1.2; min-height: 1.5em; } /* giữ chỗ sẵn: phép tính hiện ra không đẩy đĩa, túi */
+    .g2p-board[hidden], .g2p-stage[hidden], .g2p-src[hidden] { display: none; }
+    .g2p-sum { background: #fff; border-radius: 0.8rem; padding: 0.05em 0.6em; box-shadow: 0 3px 0 #FBCFE8; animation: g2pPop .3s cubic-bezier(.2,1.5,.4,1); }
+    .g2p-eq { color: #1E293B; background: #FEF9C3; border-radius: 0.8rem; padding: 0.05em 0.6em; box-shadow: 0 3px 0 #FDE68A; animation: g2pPop .3s cubic-bezier(.2,1.5,.4,1); }
+    .g2p-eq .g3f-q { font-size: 0.8em; height: 1.4em; min-width: 1.6em; }
+    .g2p-note { font-size: 0.72em; color: #9D174D; }
+    .g2p-ans { color: #16A34A; }
+    .g2p-typed { color: #EA580C; }
+    @keyframes g2pPop { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
+
+    .g2p-stage { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr); grid-template-rows: minmax(0, 1fr); gap: 10px; } /* = G trong fit() của party.js */
+    .g2p-stage.g2p-nosrc { grid-template-columns: minmax(0, 1fr); }
+    .g2p-src { min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; }
+    .g2p-bowl { line-height: 0; }
+    .g2p-bowl svg, .g2p-h svg { display: block; }
+    .g2p-src-cap { font-weight: 800; color: #9D174D; font-size: clamp(0.9rem, 1.3vh + 0.5rem, 1.2rem); line-height: 1.2; }
+    .g2p-dst { min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 8px; }
+    .g2p-h { position: relative; display: flex; flex-direction: column; align-items: center; padding: 0; border: 0; background: none; border-radius: 0.7rem; font: inherit; color: inherit; touch-action: manipulation; }
+    button.g2p-h { cursor: pointer; }
+    button.g2p-h:disabled { cursor: default; }
+    button.g2p-h:not(:disabled):active { transform: scale(0.95); }
+    .g2p-next { animation: g2pBob 1.3s ease-in-out infinite; }
+    .g2p-next svg { filter: drop-shadow(0 0 5px #FACC15); }
+    @keyframes g2pBob { 0%, 100% { transform: none; } 50% { transform: translateY(-5px); } }
+    .g2p-h-tag { min-height: 24px; margin-top: 2px; visibility: hidden; }
+    .g2p-h-tag:not(:empty) { visibility: visible; background: #DB2777; color: #fff; border-radius: 999px; padding: 0 0.55em; font-weight: 800; font-size: clamp(0.85rem, 1.2vh + 0.5rem, 1.15rem); line-height: 24px; box-shadow: 0 2px 0 #9D174D; animation: g2pPop .3s cubic-bezier(.2,1.5,.4,1); }
+    .g2p-ghost svg { opacity: .45; }
+    .g2p-ghost-q { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); display: grid; place-items: center; width: 2em; height: 2em; border-radius: 50%; background: #FB923C; color: #fff; font-weight: 800; font-size: clamp(1rem, 2vh + 0.5rem, 1.6rem); box-shadow: 0 3px 0 #C2410C; }
+    .g2p-kid { transform-box: fill-box; transform-origin: 50% 100%; }
+    .g2p-kid-happy { animation: g2pHop .5s ease 2; }
+    .g2p-kid-sad { animation: g2pShake .5s ease 2; }
+    @keyframes g2pHop { 50% { transform: translateY(-6px); } }
+    @keyframes g2pShake { 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }
+
+    .g2p-acts { flex: none; min-height: clamp(2.8rem, 5vh + 1.4rem, 4.2rem); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.5rem; }
+    .g2p-act { flex: none; border: 4px solid #fff; border-radius: 999px; padding: 0.35em 1.3em; background: linear-gradient(180deg, #4ADE80, #16A34A); color: #fff; font: 800 clamp(1.1rem, 2.2vh + 0.6rem, 1.7rem) 'Baloo 2', Quicksand, sans-serif; line-height: 1.15; text-shadow: 0 2px 0 rgba(21,128,61,.5); box-shadow: 0 5px 0 #15803D, 0 8px 18px rgba(21,128,61,.3); cursor: pointer; touch-action: manipulation; }
+    .g2p-act.g2p-wait { opacity: .55; }
+    .g2p-act.g2p-ready { opacity: 1; animation: g2pBob 1.2s ease-in-out infinite; }
+    .g2p-act:disabled { opacity: .35; animation: none; cursor: default; }
+    .g2p-act:not(:disabled):active { transform: translateY(3px); box-shadow: 0 2px 0 #15803D; }
+    .g2p-hint { animation: g2pNudge .6s ease; }
+    @keyframes g2pNudge { 0%, 100% { transform: none; } 20% { transform: translateX(-7px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+
+    .g2p-cards { display: flex; gap: 0.8rem; justify-content: center; animation: g2pPop .35s cubic-bezier(.2,1.4,.4,1); }
+    .g2p-card { min-width: 5.5em; border: 4px solid #F9A8D4; border-radius: 1rem; background: #fff; color: #1E293B; padding: 0.2em 0.7em; font: 800 clamp(1.4rem, 3vh + 0.6rem, 2.2rem) 'Baloo 2', Quicksand, sans-serif; box-shadow: 0 5px 0 #F9A8D4; cursor: pointer; touch-action: manipulation; }
+    .g2p-card:active { transform: translateY(3px); box-shadow: 0 2px 0 #F9A8D4; }
+    .g2p-locked .g2p-card { pointer-events: none; }
+    .g2p-locked .g2p-card:not(.g2p-right):not(.g2p-wrong) { opacity: .5; }
+    .g2p-card.g2p-right { border-color: #16A34A; background: #DCFCE7; box-shadow: 0 5px 0 #16A34A; }
+    .g2p-card.g2p-wrong { border-color: #DC2626; background: #FEE2E2; box-shadow: 0 5px 0 #DC2626; }
+
+    /* Bảng tiệc: số to, ô tên bên dưới mỗi số. */
+    .g2p-board-big { flex: 1 1 0; min-height: 0; font-size: clamp(1.4rem, min(7vh, 8vw) + 0.4rem, 4.6rem); gap: 0.3rem 0.6rem; }
+    .g2p-tok { display: inline-flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+    .g2p-num { min-width: 1.8em; padding: 0.05em 0.35em; background: #fff; border: 3px solid #F9A8D4; border-radius: 0.7rem; text-align: center; color: #1E293B; box-shadow: 0 3px 0 #FBCFE8; }
+    .g2p-num .g3f-q { font-size: 0.8em; }
+    .g2p-op { color: #9D174D; }
+    .g2p-lab { min-width: 6em; min-height: 2.1em; padding: 0.1em 0.4em; border: 3px dashed #F472B6; border-radius: 0.7rem; background: #FFFFFFAA; color: #1E293B; font: 800 0.42em Quicksand, sans-serif; display: grid; place-items: center; cursor: pointer; touch-action: manipulation; }
+    .g2p-board:not(.g2p-board-big) .g2p-lab { font-size: 0.55em; min-width: 5.4em; }
+    .g2p-lab-on { border-style: solid; border-color: #DB2777; box-shadow: 0 0 0 4px #FBCFE8; animation: g2pBob 1.3s ease-in-out infinite; }
+    .g2p-lab-full { border-style: solid; border-color: #D97706; background: #FEF3C7; }
+    .g2p-lab-fixed { border-style: solid; border-color: #FBCFE8; background: #FDF2F8; cursor: default; }
+    .g2p-lab-right { border-color: #16A34A; background: #DCFCE7; }
+    .g2p-lab-wrong { border-color: #DC2626; background: #FEE2E2; }
+    .g2p-lab s { color: #DC2626; }
+    .g2p-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+    .g2p-chip { border: 3px solid #D97706; border-radius: 0.8rem; background: #FDE68A; color: #78350F; padding: 0.3em 0.8em; font: 800 clamp(1rem, 1.8vh + 0.5rem, 1.45rem) Quicksand, sans-serif; box-shadow: 0 4px 0 #D97706; cursor: pointer; touch-action: manipulation; white-space: nowrap; }
+    .g2p-chip:active { transform: translateY(3px); box-shadow: 0 1px 0 #D97706; }
+    .g2p-chip-used { visibility: hidden; }
+    .g2p-chip-fly { display: grid; place-items: center; width: 100%; height: 100%; box-sizing: border-box; padding: 0; }
+    .g2p-how-count { font: 800 1.1rem 'Baloo 2', Quicksand, sans-serif; color: #DB2777; white-space: nowrap; }
+    .g3g-has-result .g2p-acts { visibility: hidden; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .g2p-next, .g2p-act.g2p-ready, .g2p-lab-on { animation-duration: 2.6s; }
+    }
+    @media (max-height: 500px) {
+      .g2p-bench { padding-top: 0.2rem; gap: 0.3rem; }
+      .g3f-theme-party .g3f-sign { display: none; } /* màn thấp: nhường chỗ cho các bạn, lời bạn nhỏ đã nói việc cần làm */
+      .g2p-act { font-size: 1rem; padding: 0.2em 1em; border-width: 3px; }
+      .g2p-card { font-size: 1.2rem; }
+      .g2p-chip { font-size: 0.95rem; padding: 0.2em 0.6em; }
+    }
+    /* Màn dọc: đĩa to trên, các bạn / đĩa / túi dưới; bỏ bảng hiệu nhường chỗ. */
+    @media (orientation: portrait) {
+      .g2p-bench { padding-top: 0.2rem; }
+      .g2p-stage { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 0.75fr) minmax(0, 1.5fr); }
+      .g2p-stage.g2p-nosrc { grid-template-rows: minmax(0, 1fr); }
+      .g3f-theme-party .g3f-sign { display: none; }
+    }
+  `;
+  document.head.appendChild(st);
+}

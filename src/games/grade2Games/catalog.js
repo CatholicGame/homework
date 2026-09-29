@@ -51,6 +51,17 @@ export const STALLS = [
     ],
   },
   {
+    id: 'party', title: 'Tiệc sinh nhật chia kẹo', icon: '🎂',
+    purpose: 'Giúp em thực hành kiến thức về phép nhân, bảng nhân 2, bảng nhân 5, phép chia, bảng chia 2, bảng chia 5 và tên các thành phần của phép nhân, phép chia đã học trong bài. Em chuẩn bị tiệc sinh nhật: xếp kẹo ra đĩa, phát quà, chia đều kẹo cho các bạn.',
+    levels: [
+      { id: 'party-1', n: 1, title: 'Phép nhân', lessons: { g2: ['bai-37'] }, also: { g2: ['bai-45'] } },
+      { id: 'party-2', n: 2, title: 'Bảng nhân 2, bảng nhân 5', lessons: { g2: ['bai-39', 'bai-40'] }, also: { g2: ['bai-45'] } },
+      { id: 'party-3', n: 3, title: 'Chia đều', lessons: { g2: ['bai-41', 'bai-43', 'bai-44'] }, also: { g2: ['bai-45'] } },
+      { id: 'party-4', n: 4, title: 'Chia vào túi, chia đều', lessons: { g2: ['bai-41', 'bai-43', 'bai-44'] }, also: { g2: ['bai-45'] } },
+      { id: 'party-5', n: 5, title: 'Thừa số, tích, thương', lessons: { g2: ['bai-38', 'bai-42'] }, also: { g2: ['bai-45'] } },
+    ],
+  },
+  {
     id: 'egg', title: 'Quầy trứng', icon: '🥚',
     levels: [{ id: 'egg-1', n: 1, title: 'Hộp 2 quả, hộp 5 quả', lessons: { g2: ['bai-39', 'bai-40'] }, also: { g2: ['bai-37', 'bai-38', 'bai-45'] } }],
   },
