@@ -20,13 +20,27 @@ export function hasDoneAny(level, ctx) {
   return lessonUnits(level, ctx).some(u => Object.values(data[u.id] || {}).some(rec => (rec?.attempts || 0) > 0));
 }
 
-/** "Bài 31. Gam" (short: "Bài 31") hoặc "Bài 9, 10, 11, 12" khi có nhiều bài. */
+/**
+ * "Bài 31. Gam" (short: "Bài 31") hoặc "Bài 9, 10, 11, 12" khi có nhiều bài.
+ * Bài không có trong thẻ sách đang mở (lớp 2: Bài 39 ở Tập Hai, mở trò từ Tập Một) vẫn ghi số, đọc từ mã 'bai-39'.
+ */
 export function lessonText(level, ctx, { short = false } = {}) {
-  const units = lessonUnits(level, ctx);
-  if (!units.length) return '';
-  if (units.length === 1 && !short) return ctx.unitName(units[0]);
+  return unitsText(level.lessons?.[ctx.book] || [], ctx, { short });
+}
+
+/** Như lessonText nhưng gộp mọi cấp của một quầy (thẻ chọn quầy): "Bài 39, 40". */
+export function stallLessonText(levels, ctx) {
+  const ids = [...new Set(levels.flatMap(l => l.lessons?.[ctx.book] || []))];
+  return unitsText(ids, ctx, { short: true });
+}
+
+function unitsText(ids, ctx, { short }) {
+  const found = ids.map(id => ctx.units.find(u => u.id === id));
+  if (found.length === 1 && found[0] && !short) return ctx.unitName(found[0]);
+  const nums = ids.map((id, i) => found[i]?.number ?? Number(id.match(/-(\d+)$/)?.[1])).filter(Boolean).sort((a, b) => a - b);
+  if (!nums.length) return '';
   const word = ctx.book === 'practice' ? 'Tuần' : 'Bài';
-  return `${word} ${units.map(u => u.number).join(', ')}`;
+  return `${word} ${nums.join(', ')}`;
 }
 
 export const bookName = (ctx) => (ctx.book === 'practice' ? 'sách Luyện tập' : 'Vở bài tập');

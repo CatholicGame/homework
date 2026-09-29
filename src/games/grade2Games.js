@@ -6,14 +6,18 @@
 
 import { renderGamesHub as renderHub } from './grade3Games.js';
 import { FROG_GAME } from './grade2Games/frog.js';
-import { FRUIT_GAME } from './grade3Games/market/fruit.js';
+import { BUS_GAME } from './grade2Games/bus.js';
+import { VEG_GAME } from './grade2Games/veg.js';
 import { EGG_GAME } from './grade3Games/market/eggs.js';
 import { levelMeta } from './grade2Games/catalog.js';
 
-/** Chỉ lấy cấp `id` của một quầy lớp 3, gắn bài học của sách lớp 2 và ghi sao vào lớp 2. */
-const only = (game, id) => ({
+/**
+ * Chỉ lấy cấp `id` của một quầy lớp 3, lấy tên cấp và bài học theo catalog lớp 2, ghi sao vào lớp 2.
+ * over: thu hẹp cấp đó cho vừa kiến thức lớp 2 (vd. quầy trứng chỉ hộp 2 và 5 quả).
+ */
+const only = (game, id, over = {}) => ({
   ...game, starPrefix: 'g2games',
-  levels: game.levels.filter(l => l.id === id).map(l => ({ ...l, lessons: levelMeta(id).lessons })),
+  levels: game.levels.filter(l => l.id === id).map(l => ({ ...l, ...levelMeta(id), ...over })), // tên cấp, bài học: theo catalog lớp 2
 });
 
 const GAMES = [
@@ -24,17 +28,28 @@ const GAMES = [
     stalls: [{ game: FROG_GAME }],
   },
   {
+    id: 'bus', icon: '🚌', title: 'Xe buýt lên xuống', single: true,
+    desc: 'Làm phụ xe: đếm khách lên xe, xuống xe cho bác tài!',
+    tags: ['Thêm, bớt', 'Nhiều hơn, ít hơn', 'Có nhớ'],
+    stalls: [{ game: BUS_GAME }],
+  },
+  {
     id: 'market', icon: '🏪', title: 'Chợ phiên của bé',
-    desc: 'Làm chủ quầy hàng: cân ki-lô-gam, đóng trứng vào hộp!',
-    tags: ['Ki-lô-gam', 'Nhân 2, 5'],
-    purpose: 'Giúp em thực hành kiến thức về ki-lô-gam, bảng nhân 2 và bảng nhân 5 đã học trong bài. Em cân hàng bằng cân đĩa và đóng trứng vào hộp cho khách.',
+    desc: 'Làm chủ quầy hàng: cân rau củ, đóng trứng vào hộp!',
+    tags: ['Nặng, nhẹ', 'Nhân 2, 5'],
+    purpose: 'Giúp em thực hành kiến thức về nặng hơn, nhẹ hơn, bảng nhân 2 và bảng nhân 5 đã học trong bài. Em cân rau củ bằng cân đĩa và đóng trứng vào hộp cho khách.',
     stalls: [
-      { game: only(FRUIT_GAME, 'fruit-1'), tags: 'kg · tính tiền' },
-      { game: only(EGG_GAME, 'egg-1'), tags: 'nhân 2, nhân 5' },
+      { game: VEG_GAME, tags: 'nặng hơn · nhẹ hơn' },
+      // Quầy trứng lớp 3 cấp 1 có cả hộp 10 quả (bảng nhân 10 không có ở lớp 2): lớp 2 chỉ hộp 2, 5 quả, tới 10 hộp.
+      { game: only(EGG_GAME, 'egg-1', {
+        sizes: [2, 5], boxes: [2, 10],
+        knowledge: 'bảng nhân 2, bảng nhân 5',
+        desc: 'Khách lấy mấy hộp trứng, mỗi hộp 2 hoặc 5 quả: đóng hộp rồi tính tất cả bao nhiêu quả.',
+      }), tags: 'nhân 2, nhân 5' },
     ],
   },
 ];
 
 export function renderGamesHub(app, ctx, start = null) {
-  renderHub(app, ctx, start, { games: GAMES, kicker: '🎮 Toán 2' });
+  renderHub(app, ctx, start, { games: GAMES, kicker: '🎮 Toán 2', stallLessons: true });
 }

@@ -2970,6 +2970,12 @@ export const STAR_RATINGS = {
   'g2games:frog-3': 3,
   'g2games:frog-4': 3,
   'g2games:frog-5': 4,
-  'g2games:fruit-1': 3,
+  'g2games:bus-1': 2,
+  'g2games:bus-2': 3,
+  'g2games:bus-3': 3,
+  'g2games:bus-4': 3,
+  'g2games:bus-5': 4,
+  'g2games:veg-1': 2,
+  'g2games:fruit-1': 3, // đã gỡ khỏi lớp 2 (2026-09-29), giữ để sao bé đã nhận vẫn được tính
   'g2games:egg-1': 2,
 };

@@ -1,6 +1,6 @@
 # Thiết kế trò chơi tăng cường — Toán 2 (Tập 1 + Tập 2)
 
-> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số và Chợ phiên (quầy trái cây, quầy trứng cấp 1) đã phát hành trên production (cờ `GRADE2_GAMES = true`), các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
+> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số và Chợ phiên (quầy trứng cấp 1; quầy trái cây đã gỡ, xem dưới §4) đã phát hành trên production (cờ `GRADE2_GAMES = true`). 🚌 Xe buýt lên xuống đã code (cấp 1–5, chưa push). 🥕 Quầy rau củ cấp 1 "Nặng hơn, nhẹ hơn" đã code (chưa push), thay quầy trái cây ở Bài 15; quầy trứng thu hẹp còn hộp 2, 5 quả (chưa push). Các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
 >
 > Nguồn nội dung: Vở Bài tập Toán 2 Tập 1 (Bài 1–36, `src/games/grade2Workbook.js`) và Tập 2 (Bài 37–75, `src/games/grade2Workbook2.js`), bộ Kết nối tri thức.
 > Khung chung dùng lại của Toán 3: [docs/lop_3/thiet-ke-tro-choi-tap1.md](../lop_3/thiet-ke-tro-choi-tap1.md).
@@ -76,7 +76,9 @@ Giống hệt lớp 3 (§3 tài liệu lớp 3), chỉ khác:
 | 8 | 📊 **Phóng viên nhí** | R | 64–67 | — | 8 |
 | 9 | 🎳 **Thử lăn khối hình** | L | 46 | — | 9 |
 
-Ngoài ra **gắn thêm vào sách lớp 2** các cấp lớp 3 vốn ghi "kiến thức lớp 2": 🍎 Trái cây cấp 1 (kg nguyên) → Bài 15, 17; 🥚 Trứng cấp 1 (hộp 2, 5, 10 quả) → Bài 39, 40. Không cần code mới, chỉ thêm `lessons` cho sách lớp 2 trong catalog.
+Ngoài ra **gắn thêm vào sách lớp 2** các cấp lớp 3 vốn ghi "kiến thức lớp 2": 🥚 Trứng cấp 1 → Bài 39, 40 (gợi ý thêm ở Bài 37 Phép nhân, 38 Thừa số, tích, 45 Luyện tập chung), **thu hẹp còn hộp 2 quả và 5 quả, 2–10 hộp** (bản lớp 3 có hộp 10 quả, mà lớp 2 chỉ học bảng nhân 2, 5). Thẻ chọn quầy của lớp 2 ghi bài học ("📚 Bài 39, 40", `stallLessons` của hub); bài ở thẻ sách kia vẫn ghi số (đọc từ mã `bai-39`). Không cần code mới: `only(game, id, over)` trong `src/games/grade2Games.js` lấy tên cấp, bài học theo catalog lớp 2 và ghi đè `sizes`, `boxes`.
+
+> **Bỏ hẳn quầy trái cây lớp 3 khỏi sách lớp 2 (chốt 2026-09-29).** Cấp 1 của nó bắt bé cộng quả cân 1, 2, 5 kg rồi **tính tiền** 20 hoặc 50 nghìn đồng × số kg (nhân số tròn chục, tiền hàng trăm nghìn: kiến thức lớp 3). Bài 15 tiết 1 mới học nặng hơn, nhẹ hơn trên cân. Bài 15 dùng 🥕 Quầy rau củ (§4.3); cân kg của lớp 2 sẽ là cấp 2 quầy rau củ (không tính tiền). Giữ dòng sao `g2games:fruit-1` trong starRatings.js để sao bé đã nhận vẫn được tính.
 
 Mỗi trò dưới đây có: **câu chuyện**, **luồng một nhiệm vụ**, **các cấp**, **sinh đề**, **khi sai**, **đồ hoạ**.
 
@@ -117,7 +119,7 @@ Mỗi trò dưới đây có: **câu chuyện**, **luồng một nhiệm vụ**,
 - Bấm "✓ Tới nơi" khi chưa nhảy → bạn nhỏ nhắc, thẻ rung (cấp 1: lá nhún). Chạm lá ở cấp dùng thẻ → nhắc chọn thẻ.
 - Khi sai: đường nhảy đúng hiện bằng nét đứt cam kèm nhãn ±k, khung nhìn lùi lại cho thấy cả đoạn; mẹo tách số ("Tách 5 = 2 + 3…").
 - Khung nhìn trượt theo ếch khi hàng lá dài hơn màn hình; **vuốt ngang** mặt suối để xem lá ở xa. Màn dọc thấy khoảng 5 lá to.
-- Chợ phiên của bé trong sách lớp 2: quầy trái cây cấp 1 (Bài 15, 39, 40) và quầy trứng cấp 1 (Bài 39, 40) của trò lớp 3, sao ghi vào lớp 2 (`g2games:fruit-1`, `g2games:egg-1`).
+- Chợ phiên của bé trong sách lớp 2: 🥕 quầy rau củ cấp 1 (Bài 15, của lớp 2) và quầy trứng cấp 1 bản thu hẹp hộp 2, 5 quả (Bài 39, 40) của trò lớp 3, sao ghi vào lớp 2 (`g2games:veg-1`, `g2games:egg-1`).
 
 ---
 
@@ -144,6 +146,20 @@ Mỗi trò dưới đây có: **câu chuyện**, **luồng một nhiệm vụ**,
 - **Khi sai:** gõ thiếu → còn khách đứng ở cửa không có ghế; gõ thừa → ghế trống bị viền đỏ. Mẹo: *"Lên xe là thêm, xuống xe là bớt."*
 - **Đồ hoạ:** xe buýt nhìn ngang có cửa sổ trong suốt (thấy ghế), trạm chờ, xe hai tầng, tàu hỏa; khách dùng NPC chibi thu nhỏ.
 
+**Đã làm (2026-09-29):** cấp 1–5 — `src/games/grade2Games/bus.js`, hình SVG `art/bus.js`, CSS `injectBusStyles` trong `styles.js`. Dùng khung quầy Chợ phiên (`mountStall`, theme `bus`, không có cameo), người giao việc là Bác Ba tài xế.
+
+| Cấp | Tên | Nhiệm vụ | Nút kiểm chứng |
+|---|---|---|---|
+| 1 | Lên xe, xuống xe | Xe 2 tầng 20 ghế (hàng 10), có a người, lên / xuống k người (xen kẽ, phần lớn qua 10) | 🚪 Mở cửa: khách bay lên ghế / xuống đứng ở trạm, bảng đếm chạy theo từng người |
+| 2 | Nhiều hơn, ít hơn | Xe xanh a người, xe đỏ nhiều hơn / ít hơn d người, xe đỏ kéo rèm kín | 🪟 Mở rèm từng cửa sổ; phần hơn được tô vàng và đánh số 1, 2, 3… |
+| 3 | Hơn kém mấy người? | Hai xe a, b người; hỏi "nhiều hơn mấy" / "ít hơn mấy" xen kẽ | 🔗 Ghép cặp ghế cùng chỗ của hai xe, người không có cặp được đánh số |
+| 4 | Mấy người lên, xuống? | "Có a, còn c: mấy người xuống?" / "Có a, cần đủ c: mấy người nữa lên?" (trạm đứng chờ nhiều hơn số cần) | 🚪 Mở cửa, người lên / xuống được đánh số |
+| 5 | Tàu hỏa có nhớ | Tàu 5 toa × 20 ghế + đầu máy có bảng đếm; lên / xuống có nhớ trong phạm vi 100 | 🚪 Mở cửa |
+
+- Bé gõ số trước (nút kiểm chứng mờ, bấm sớm thì bác tài nhắc và máy tính rung), OK xong nút mới nhún.
+- Sai: ghế thừa (gõ nhiều) viền đỏ nét đứt, người ngồi quá số bé gõ (gõ ít) viền đỏ; hoá đơn hiện đáp số thật. Đúng: xe / tàu chạy đi.
+- Chưa làm: cấp 6 (phạm vi 1 000, Tập 2).
+
 ---
 
 ### 4.3 🏪 Chợ phiên nhí
@@ -154,11 +170,13 @@ Dùng lại khung `mountStall` của Chợ phiên lớp 3, **bản dễ hơn**, 
 
 | Cấp | Nội dung | Ví dụ |
 |---|---|---|
-| 1 | Cân **so sánh**: đặt hai túi lên hai đĩa, bé chọn *nặng hơn / nhẹ hơn / nặng bằng* rồi xác nhận | Túi khoai và túi hành |
+| 1 ✅ | Cân **so sánh** (Bài 15 tiết 1, chưa có số): khách đưa hai nhóm rau củ, bé chạm từng khay cho món bay lên đĩa cân, cân nghiêng; cả hai món đã lên cân mới hiện ba câu như vở *nhẹ hơn / nặng hơn / nặng bằng*. 5 lượt: lượt đầu lệch rõ, có 1 lượt nặng bằng, 1 lượt món to mà nhẹ (bó rau muống) | "3 củ khoai lang và 4 củ su hào: bên nào nặng hơn?" |
 | 2 | Chọn **quả cân 1 kg, 2 kg, 5 kg** cho đúng số khách mua, rồi nhặt củ cho cân thăng bằng (như trái cây cấp 1 lớp 3, tổng ≤ 10 kg) | "Bán cho bác 7 kg khoai" → 5 kg + 2 kg |
 | 3 | Cộng, trừ kg: "Bao gạo 8 kg, cô lấy ra 3 kg. Còn mấy ki-lô-gam?" → cân lại để kiểm chứng | 5 kg |
 
 Củ quả thật: khoai lang (≈ 250 g), bí đỏ (1–3 kg), bắp cải (≈ 1 kg), bao gạo 5 / 10 kg. Không ghi cân nặng trên củ.
+
+**Đã làm cấp 1 (2026-09-29):** `src/games/grade2Games/veg.js`, hình SVG `art/veg.js` (bí đỏ 2 kg, bắp cải 1 kg, su hào 500 g, khoai lang / bắp ngô / bó rau muống 250 g, cà rốt / cà chua 125 g: số tròn để có cặp nặng bằng nhau), CSS `injectVegStyles` trong `styles.js`. Dùng `mountStall` (theme `veg`, không máy tính tiền, không cameo) và cân `mountScale` với `tight` + `setRightSvg` (thêm vào `grade3Games/art/scale.js`). Hai khay vẽ cùng tỉ lệ để củ to trông to. Cấp 2, 3 chưa làm.
 
 #### Quầy 💧 Nước — lít (Bài 16, 17)
 

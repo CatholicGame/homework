@@ -18,7 +18,7 @@ import { TRUCK_GAME } from './grade3Games/trucks.js';
 import { MACHINE_GAME } from './grade3Games/machine.js';
 import { DETECTIVE_GAME } from './grade3Games/detective.js';
 import { playRound, bestFor } from './grade3Games/loop.js';
-import { lessonText, hasDoneAny, lessonUnits, bookName } from './grade3Games/lessons.js';
+import { lessonText, stallLessonText, hasDoneAny, lessonUnits, bookName } from './grade3Games/lessons.js';
 import { NPCS, npcPic, cap, preloadNpcs } from './grade3Games/npc.js';
 import { injectGameStyles, menuBackdrop, fitMenu } from './grade3Games/styles.js';
 import { getTotalStars } from '../engine/stars.js';
@@ -68,8 +68,9 @@ function knowledgeChips(text) {
  * menu bài hoặc nút gợi ý ở màn kết quả của một bài. Khi đó nút quay lại (màn giới thiệu, ✕ trong màn chơi)
  * về thẳng bài học (ctx.onBack) thay vì đi qua danh sách cấp → quầy → trò; chỉ khi em bấm "Chọn cấp khác"
  * mới vào luồng danh sách như bình thường.
+ * stallLessons: thẻ chọn quầy ghi thêm bài học của quầy ("📚 Bài 39, 40") — lớp 2 (mỗi quầy ít cấp, dòng ngắn).
  */
-export function renderGamesHub(app, ctx, start = null, { games: GAMES = GRADE3_LIST, kicker = '🎮 Toán 3' } = {}) {
+export function renderGamesHub(app, ctx, start = null, { games: GAMES = GRADE3_LIST, kicker = '🎮 Toán 3', stallLessons = false } = {}) {
   injectGameStyles();
   preloadNpcs();
   const found = start && GAMES.map(g => ({ g, s: g.stalls.find(s => s.game?.id === start.stall) })).find(x => x.s);
@@ -77,6 +78,11 @@ export function renderGamesHub(app, ctx, start = null, { games: GAMES = GRADE3_L
   let fromLesson = !!lv;
   if (lv) showIntro(found.g, found.s.game, lv);
   else showGames();
+
+  const stallLesson = (game) => {
+    const text = stallLessonText(game.levels, ctx);
+    return text ? `<span class="g3g-stall-lesson">📚 ${text}</span>` : '';
+  };
 
   function shell(inner) {
     app.innerHTML = `<div class="g3g-wrap g3g-menu">${menuBackdrop()}<div class="g3g-screen animate-fadeIn">${inner}</div></div>`;
@@ -125,7 +131,7 @@ export function renderGamesHub(app, ctx, start = null, { games: GAMES = GRADE3_L
       <div class="g3g-stalls">
         ${g.stalls.map((s, i) => s.soon ? `
           <div class="g3g-stall g3g-stall-soon"><span class="g3g-stall-icon">${s.icon}</span><strong>${s.title}</strong><span>${s.tags}</span><em>Sắp mở</em></div>` : `
-          <button type="button" class="g3g-stall" data-stall="${i}"><span class="g3g-stall-icon">${s.game.stallIcon()}</span><strong>${s.game.title}</strong><span>${s.tags}</span><em class="g3g-stall-open">Đang mở</em></button>`).join('')}
+          <button type="button" class="g3g-stall" data-stall="${i}"><span class="g3g-stall-icon">${s.game.stallIcon()}</span><strong>${s.game.title}</strong><span>${s.tags}</span>${stallLessons ? stallLesson(s.game) : ''}<em class="g3g-stall-open">Đang mở</em></button>`).join('')}
       </div>`);
     app.querySelector('[data-act="back"]').onclick = showGames;
     app.querySelectorAll('[data-stall]').forEach(b => { b.onclick = () => showLevels(g, g.stalls[b.dataset.stall].game); });

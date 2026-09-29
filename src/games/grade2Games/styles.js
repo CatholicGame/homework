@@ -110,3 +110,115 @@ export function injectFrogStyles() {
   `;
   document.head.appendChild(st);
 }
+
+/** CSS của trò 🚌 Xe buýt lên xuống (lớp g2b-*). Khung quầy, máy tính, thẻ kết quả dùng chung với Chợ phiên lớp 3 (theme 'bus'). */
+export function injectBusStyles() {
+  if (document.getElementById('g2b-styles')) return;
+  const st = document.createElement('style');
+  st.id = 'g2b-styles';
+  st.textContent = `
+    .g3f-theme-bus .g3f-awning { background: repeating-linear-gradient(90deg, #FACC15 0 16px, #FDE68A 16px 22px); border-bottom-color: #CA8A04; }
+    .g3f-theme-bus .g3f-awning::after { display: none; }
+    .g3f-theme-bus .g3f-counter { background: linear-gradient(#E0F2FE, #F0F9FF 60%, #E2E8F0); border-bottom-color: #64748B; }
+    .g3f-theme-bus .g3f-sign { background: #2563EB; border-color: #1E3A8A; color: #fff; text-shadow: 0 1px 0 rgba(30,58,138,0.5); }
+    .g3f-theme-bus .g3f-sign strong { color: #FEF08A; }
+    .g3f-theme-bus .g3f-main::after { background: rgba(15,23,42,0.06); }
+    .g3f-q.g2b-bill-ans { animation: none; background: #16A34A; font-size: 0.9em; padding: 0 0.4em; }
+    .g2b-sign-pic { font-size: 1.7em; line-height: 1; }
+    .g2b-bench { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem; padding-top: clamp(2.8rem, 8vh, 4rem); box-sizing: border-box; }
+    .g2b-view { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+    .g2b-svg { display: block; overflow: visible; user-select: none; -webkit-user-select: none; }
+    .g2b-act { align-self: center; flex: none; border: 4px solid #fff; border-radius: 999px; padding: 0.35em 1.3em; background: linear-gradient(180deg, #4ADE80, #16A34A); color: #fff; font: 800 clamp(1.1rem, 2.2vh + 0.6rem, 1.7rem) 'Baloo 2', Quicksand, sans-serif; line-height: 1.15; text-shadow: 0 2px 0 rgba(21,128,61,.5); box-shadow: 0 5px 0 #15803D, 0 8px 18px rgba(21,128,61,.3); cursor: pointer; opacity: .55; touch-action: manipulation; }
+    .g2b-act.g2b-act-ready { opacity: 1; animation: g2bBob 1.2s ease-in-out infinite; }
+    .g2b-act:disabled { opacity: .35; animation: none; cursor: default; }
+    .g2b-act:not(:disabled):active { transform: translateY(3px); box-shadow: 0 2px 0 #15803D; }
+    @keyframes g2bBob { 0%, 100% { transform: none; } 50% { transform: translateY(-5px) scale(1.05); } }
+    @media (prefers-reduced-motion: reduce) { .g2b-act.g2b-act-ready { animation-duration: 2.4s; } }
+    .g3g-has-result .g2b-act { visibility: hidden; }
+
+    .g2b-count { fill: #86EFAC; font-family: 'Courier New', monospace; font-weight: 800; }
+    .g2b-tick { animation: g2bTick .3s ease; transform-box: fill-box; transform-origin: center; }
+    @keyframes g2bTick { 50% { transform: scale(1.25); fill: #FEF08A; } }
+    .g2b-label { font: 800 8.5px 'Baloo 2', Quicksand, sans-serif; fill: #fff; paint-order: stroke; stroke: rgba(15,23,42,.45); stroke-width: 2px; }
+    .g2b-glass { fill: #fff; opacity: .12; pointer-events: none; }
+    .g2b-door { cursor: pointer; }
+    .g2b-leaf { transition: transform .35s ease; transform-box: fill-box; transform-origin: 0 50%; }
+    .g2b-leaf-r { transform-origin: 100% 50%; }
+    .g2b-door-open .g2b-leaf { transform: scaleX(0.2); }
+    .g2b-curtain { transition: transform .3s ease, opacity .3s ease; transform-box: fill-box; transform-origin: 50% 0; }
+    .g2b-curtain-up { transform: scaleY(0.12); opacity: .6; }
+    .g2b-seat > rect:first-child { transition: stroke .2s; }
+    .g2b-paired .g2b-who { opacity: .45; }
+    .g2b-paired > rect:first-child { fill: #DCFCE7; stroke: #16A34A; stroke-width: 2; }
+    .g2b-extra > rect:first-child { fill: #FEF9C3; stroke: #F59E0B; stroke-width: 2.6; }
+    .g2b-over > rect:first-child { fill: #FEE2E2; stroke: #DC2626; stroke-width: 2.6; }
+    .g2b-miss > rect:first-child { fill: #FFF1F2; stroke: #DC2626; stroke-width: 2.2; stroke-dasharray: 3 2; }
+    .g2b-num circle { fill: #F97316; stroke: #fff; stroke-width: 1.6; }
+    .g2b-num text { fill: #fff; font: 800 9.5px 'Baloo 2', Quicksand, sans-serif; }
+    .g2b-num { animation: g2bNum .3s cubic-bezier(.2,1.5,.4,1); transform-box: fill-box; }
+    @keyframes g2bNum { from { opacity: 0; } to { opacity: 1; } }
+    @media (max-height: 500px) {
+      .g2b-bench { padding-top: 2.4rem; gap: 0.3rem; }
+      .g2b-act { font-size: 1rem; padding: 0.2em 1em; border-width: 3px; }
+    }
+    @media (orientation: portrait) { .g2b-bench { padding-top: 0.2rem; } .g3f-theme-bus .g3f-sign { display: none; } } /* màn dọc: nhường chỗ cho xe, tên trạm đã có trong lời bác tài */
+  `;
+  document.head.appendChild(st);
+}
+
+/** CSS của 🥕 Quầy rau củ (lớp g2v-*). Khung quầy, cân, thẻ kết quả dùng chung với Chợ phiên lớp 3 (theme 'veg'). */
+export function injectVegStyles() {
+  if (document.getElementById('g2v-styles')) return;
+  const st = document.createElement('style');
+  st.id = 'g2v-styles';
+  st.textContent = `
+    .g3f-theme-veg .g3f-awning { background: repeating-linear-gradient(90deg, #4ADE80 0 36px, #FFF 36px 72px); border-bottom-color: #15803D; }
+    .g3f-theme-veg .g3f-counter { background: linear-gradient(#ECFCCB, #D9F99D); border-bottom-color: #65A30D; }
+    .g3f-theme-veg .g3f-sign { background: #16A34A; border-color: #14532D; color: #fff; text-shadow: 0 1px 0 rgba(20,83,45,0.5); }
+    .g3f-theme-veg .g3f-main::after { background: rgba(15,23,42,0.06); } /* thẻ kết quả: cân phía trên vẫn sáng rõ */
+    /* Không gõ số: bỏ máy tính tiền, khách đứng to cả cột. */
+    .g3f-theme-veg .g3f-ask { display: none; }
+    .g3f-theme-veg .g3f-scale-host { padding-top: clamp(1.8rem, 6vh, 3rem); box-sizing: border-box; }
+
+    .g3f-theme-veg .g3f-npc { flex: 1 1 auto; }
+    .g3f-theme-veg .g3f-npc img { max-height: 420px; }
+    .g2v-dock { flex: none; width: 100%; display: flex; gap: 0.6rem; container-type: inline-size; }
+    /* --u: số px cho một đơn vị hình — chung cho cả hai khay, vừa chiều cao khay và nửa bề ngang quầy. */
+    .g2v-tray { --u: min(clamp(44px, 11vh, 96px) / var(--hmax), (50cqw - 1.8rem) / var(--wmax)); }
+    .g2v-tray { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 0.15rem; background: #FFFBEB; border: 3px solid #D97706; border-radius: 0.9rem; padding: 0.3rem 0.4rem; cursor: pointer; font: inherit; touch-action: manipulation; }
+    .g2v-tray svg { width: calc(var(--u) * var(--w)); height: calc(var(--u) * var(--h)); display: block; overflow: visible; }
+    .g2v-tray-name { font-weight: 800; color: #78350F; font-size: clamp(0.85rem, 1.2vh + 0.5rem, 1.1rem); line-height: 1.15; text-align: center; }
+    .g2v-tray-empty { border-style: dashed; background: transparent; cursor: default; }
+    .g2v-tray-empty svg { visibility: hidden; }
+    .g2v-tray-empty .g2v-tray-name { opacity: .45; }
+    .g2v-dock-hint .g2v-tray:not(.g2v-tray-empty) svg { animation: g3fHop 2.2s ease-in-out infinite; }
+    .g2v-dock-hint .g2v-tray:not(.g2v-tray-empty) { box-shadow: 0 0 0 3px #FDE68A; }
+
+    .g2v-choices { flex: none; width: 100%; display: flex; flex-direction: column; gap: 0.4rem; animation: g2vIn .35s cubic-bezier(.2,1.4,.4,1); }
+    @keyframes g2vIn { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: none; } }
+    .g2v-choices[hidden], .g2v-dock[hidden] { display: none; }
+    .g2v-choice { display: flex; align-items: center; gap: 0.6rem; text-align: left; background: #fff; border: 3px solid #E2E8F0; border-radius: 0.9rem; padding: 0.4rem 0.7rem; font: 700 clamp(0.95rem, 1.4vh + 0.55rem, 1.3rem) Quicksand, sans-serif; color: #1E293B; cursor: pointer; box-shadow: 0 3px 0 #CBD5E1; touch-action: manipulation; }
+    .g2v-choice b { flex: none; width: 1.8em; height: 1.8em; border-radius: 50%; background: #1E293B; color: #fff; display: grid; place-items: center; font-size: 0.85em; }
+    .g2v-choice:not(:disabled):active { transform: translateY(2px); box-shadow: 0 1px 0 #CBD5E1; }
+    .g2v-locked .g2v-choice { pointer-events: none; }
+    .g2v-locked .g2v-choice:not(.g2v-right):not(.g2v-wrong) { opacity: .5; }
+    .g2v-right { border-color: #16A34A; background: #DCFCE7; }
+    .g2v-right b { background: #16A34A; }
+    .g2v-wrong { border-color: #DC2626; background: #FEE2E2; }
+    .g2v-wrong b { background: #DC2626; }
+    @media (max-height: 500px) {
+      .g2v-choice { padding: 0.2rem 0.5rem; }
+      .g2v-choices { gap: 0.25rem; }
+      .g3f-theme-veg .g3f-scale-host { padding-top: 0; }
+      .g3f-theme-veg .g3f-sign { display: none; }
+    }
+    /* Màn ngang thấp (điện thoại): ba câu đứng bên phải cân để cân được cao hết quầy. */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .g2v-asking { flex-direction: row; align-items: stretch; }
+      .g2v-asking .g2v-choices { width: 48%; justify-content: center; }
+    }
+    /* Màn dọc (và màn thấp ở trên): bỏ bảng hiệu nhường chỗ cho cân, khách đã nói việc cần làm. */
+    @media (orientation: portrait) { .g3f-theme-veg .g3f-sign { display: none; } .g3f-theme-veg .g3f-scale-host { padding-top: 0; } }
+  `;
+  document.head.appendChild(st);
+}

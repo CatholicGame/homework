@@ -26,11 +26,12 @@ const R = 26;                     // bán kính mặt kim
 const st = `stroke="${INK}" stroke-width="${SW}" stroke-linejoin="round"`;
 
 /**
- * Vẽ cân vào `host`. Trả về { setLeft(svg), setRight(items), setStock(svg), setTilt(dir) }.
+ * Vẽ cân vào `host`. tight: bỏ lề hai bên (chỗ để hàng cạnh cân) cho cân to hơn trên màn hẹp.
+ * Trả về { setLeft(svg), setRight(items), setStock(svg), setTilt(dir) }.
  * items: [{ id, g }] — quả cân trên đĩa phải (bấm vào để nhấc ra: onRightTap(id)).
  * Đồ trên đĩa trái có data-pid thì bấm vào gọi onLeftTap(pid).
  */
-export function mountScale(host, { onRightTap, onLeftTap } = {}) {
+export function mountScale(host, { onRightTap, onLeftTap, tight = false } = {}) {
   const bw = ARM + PAN_W * 0.25;
   const ticks = [-50, -25, 0, 25, 50].map(t => {
     const r = (t * Math.PI) / 180;
@@ -38,7 +39,7 @@ export function mountScale(host, { onRightTap, onLeftTap } = {}) {
     return `<path d="M${p(R - 3)} L${p(R - 9)}" stroke="${INK}" stroke-width="${SW * 0.6}" stroke-linecap="round"/>`;
   }).join('');
   host.innerHTML = `
-    <svg class="g3-scale" viewBox="0 0 ${W} ${H}" role="img" aria-label="Cân đĩa">
+    <svg class="g3-scale" viewBox="${tight ? `${CX - 200} 0 400` : `0 0 ${W}`} ${H}" role="img" aria-label="Cân đĩa">
       <g data-stock transform="translate(62 ${BASE_Y}) scale(0.72)"></g>
       <g transform="translate(${CX} ${BASE_Y})">
         <ellipse cx="0" cy="-1" rx="${bw + 22}" ry="5" fill="${INK}" opacity=".12"/>
@@ -109,6 +110,10 @@ export function mountScale(host, { onRightTap, onLeftTap } = {}) {
     setLeft(inner) { loads[-1].innerHTML = inner; },
     /** Quả cân trên đĩa phải. */
     setRight(items) { loads[1].innerHTML = stackWeights(items); },
+    /** Hàng hoá trên đĩa phải (so hai món hàng, không dùng quả cân — quầy rau củ lớp 2). */
+    setRightSvg(inner) { loads[1].innerHTML = inner; },
+    /** Nhóm SVG đồ trên đĩa (side -1 trái / 1 phải) — đổi toạ độ mặt đĩa ra màn hình để đồ bay đáp đúng chỗ. */
+    load(side) { return loads[side]; },
     /** Hàng của quầy để cạnh cân (chuỗi SVG, gốc = giữa đáy). */
     setStock(inner) { svg.querySelector('[data-stock]').innerHTML = inner; },
     /**

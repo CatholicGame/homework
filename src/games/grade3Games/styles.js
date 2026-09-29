@@ -125,6 +125,7 @@ export function injectGameStyles() {
     .g3g-stall-icon { font-size: 2.8rem; line-height: 1; height: 56px; display: flex; align-items: center; }
     .g3g-stall em { position: absolute; top: -0.7rem; font-style: normal; font-weight: 800; font-size: 0.8rem; border-radius: 999px; padding: 0.05rem 0.6rem; border: 2px solid #fff; }
     .g3g-stall-open { background: #22C55E; color: #fff; box-shadow: 0 2px 0 #15803D; }
+    .g3g-stall-lesson { margin-top: 0.2rem; background: #E0F2FE; color: #075985; font-weight: 700; font-size: 0.85rem; border-radius: 999px; padding: 0.05rem 0.6rem; }
     .g3g-stall-soon { cursor: default; background: rgba(255,255,255,0.6); color: #64748B; box-shadow: 0 6px 0 rgba(148,163,184,0.45); }
     .g3g-stall-soon .g3g-stall-icon { filter: grayscale(0.6); opacity: 0.7; }
     .g3g-stall-soon em { background: #CBD5E1; color: #334155; }
