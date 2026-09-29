@@ -466,6 +466,21 @@
   font-size: 0.95rem;
 }
 
+.login-guest-warn {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md, 14px);
+  background: #EFF8FF;
+  border: 1.5px solid #93C5FD;
+  text-align: left;
+}
+.login-guest-warn-title { font-weight: 700; color: #1E3A8A; margin-bottom: 6px; }
+.login-guest-warn-list { margin: 0 0 12px; padding-left: 20px; font-size: 0.92rem; line-height: 1.45; color: var(--text); }
+.login-guest-warn-list li + li { margin-top: 4px; }
+.login-guest-warn-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.login-guest-warn .login-inapp-btn { border-color: #2563EB; background: #2563EB; }
+.login-guest-warn .login-inapp-btn.is-ghost { background: white; color: #1D4ED8; }
+
 .login-inapp {
   margin-top: 16px;
   padding: 14px 16px;
@@ -1557,6 +1572,21 @@
   font-weight: 600;
 }
 
+.lb-guest-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: #EFF8FF;
+  border: 1.5px solid #BFDBFE;
+  font-size: 0.92rem;
+  color: #1E3A8A;
+}
+.lb-guest-note span { flex: 1 1 220px; }
+.lb-guest-note .btn { padding: 8px 16px; }
 .lb-empty-icon { font-size: 2.6rem; margin-bottom: 8px; }
 .lb-empty p { margin-bottom: 16px; }
 .lb-loading .page-loading-spinner { margin: 0 auto 12px; }
@@ -1841,6 +1871,16 @@
 .adm-card.adm-guest { background: #eff8ff; border-color: #bfdbfe; }
 .adm-guest-tag { background: #0284c7; }
 .adm-tile.adm-tile-guest { background: #eff8ff; }
+.adm-h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin: 14px 0 8px; }
+.adm-ret .adm-tiles { margin-bottom: 4px; }
+.adm-ret-bars { display: flex; flex-direction: column; gap: 6px; }
+.adm-ret-row { display: grid; grid-template-columns: 84px 1fr 40px; align-items: center; gap: 8px; font-size: 0.9rem; }
+.adm-ret-label { color: var(--text-light); }
+.adm-ret-track { height: 14px; border-radius: 999px; background: #e0effb; overflow: hidden; }
+.adm-ret-fill { display: block; height: 100%; border-radius: 999px; background: #0284c7; }
+.adm-ret-n { text-align: right; font-weight: 700; color: var(--text); }
+.adm-ret-table td, .adm-ret-table th { text-align: center; white-space: nowrap; }
+.adm-ret-table td:first-child, .adm-ret-table th:first-child { text-align: left; }
 .adm-fake-tag {
   display: inline-block;
   margin-left: 4px;

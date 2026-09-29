@@ -191,6 +191,7 @@ window.addEventListener('tth:cloud-pulled', () => {
 
 // Router
 let navToken = 0;
+let guestChosenNow = false; // lần mở này bé vừa bấm "Dùng thử"
 let loginError = ''; // lỗi đăng nhập qua máy chủ, hiện một lần trên màn đăng nhập
 let profileReturn = 'home'; // màn quay về sau khi sửa hồ sơ
 let currentPage = null;
@@ -202,8 +203,10 @@ function navigate(gameId) {
 
   // Đăng nhập Google, hoặc bấm "Dùng thử" (khách: dữ liệu chỉ lưu trên máy này)
   const user = getCurrentUser() || (isGuest() ? { id: 'guest', guest: true, name: 'Khách' } : null);
-  if (!user) {
-    renderLogin(app, () => navigate(gameId || 'home'), { error: loginError });
+  // Khách đã bấm "Dùng thử" ở lần mở trước nhưng chưa chọn xong avatar (vd. mở link từ TikTok,
+  // Zalo… lần hai): coi như chưa chọn, hiện lại màn đăng nhập / dùng thử thay vì nhảy thẳng vào avatar.
+  if (!user || (user.guest && !guestChosenNow && !isSetupDone())) {
+    renderLogin(app, (u) => { if (!u) guestChosenNow = true; navigate(gameId || 'home'); }, { error: loginError });
     loginError = '';
     return;
   }
@@ -231,6 +234,7 @@ function navigate(gameId) {
       });
       return;
     }
+    if (user.guest) registerGuest(); // khách dừng ở màn chọn avatar vẫn được đếm ở trang admin
     renderProfileSetup(app, { mode: 'onboard', onDone: () => navigate(gameId || 'home') });
     return;
   }
@@ -283,6 +287,7 @@ function navigate(gameId) {
       registerUser();
       pullIfStale();
     } else {
+      syncMyScore(); // khách cũng có tên trên bảng xếp hạng (phiên Firebase ẩn danh)
       registerGuest(); // thống kê khách ở trang admin
     }
     renderHome(app, navigate, {

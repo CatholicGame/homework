@@ -113,12 +113,13 @@ service cloud.firestore {
     // mỗi trình duyệt tự ghi bản của mình tối đa 1 lần/ngày; admin đọc tất cả (thống kê trang #admin),
     // khách chỉ đọc bản của mình. convertedAt: lúc khách đó đăng nhập Google (ghi một lần).
     function validGuest(d) {
-      return d.keys().hasOnly(['nickname', 'avatar', 'grade', 'stars', 'device', 'createdAt', 'lastSeenAt', 'convertedAt'])
+      return d.keys().hasOnly(['nickname', 'avatar', 'grade', 'stars', 'device', 'days', 'createdAt', 'lastSeenAt', 'convertedAt'])
         && d.nickname is string && d.nickname.size() <= 20
         && d.avatar is string && d.avatar.size() <= 40
         && d.grade is int && (d.grade == 0 || validGrade(d.grade))
         && validStars(d.stars)
         && d.device is string && d.device.size() <= 120
+        && (!('days' in d) || (d.days is list && d.days.size() <= 1000))
         && (!('convertedAt' in d) || d.convertedAt is timestamp);
     }
 

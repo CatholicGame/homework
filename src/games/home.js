@@ -292,7 +292,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
           <div class="user-menu" id="user-menu" role="menu" hidden>
             <div class="user-menu-head">
               <strong>${escapeHtml(name)}</strong>
-              <span>${guest ? 'Đang dùng thử — bài làm chỉ lưu trên máy này' : escapeHtml(user.email)}</span>
+              <span>${guest ? 'Đang dùng thử, bài làm chỉ lưu trên máy này' : escapeHtml(user.email)}</span>
             </div>
             <button type="button" class="user-menu-item user-menu-edit" id="user-edit-profile" role="menuitem">✏️ Đổi lớp, avatar và biệt danh</button>
             ${guest ? `

@@ -100,12 +100,14 @@ export function render(app, onBack, { onEditProfile, onSignIn } = {}) {
     showMessage('🛠️', 'Bảng xếp hạng chưa được bật. Nhờ bố mẹ hoặc thầy cô cài đặt nhé!');
     return;
   }
-  // Khách (chưa đăng nhập): không có tên trên bảng → mời đăng nhập.
+  // Khách (chưa đăng nhập): vẫn đua sao trên bảng, nhắc đăng nhập để sao không mất khi đổi máy.
   if (onSignIn) {
-    showMessage('🔐', 'Đăng nhập Google để có tên trên bảng xếp hạng và lưu sao lên Google Drive nhé!',
-      '<button type="button" class="btn btn-primary" data-act="sign-in">Đăng nhập Google</button>');
-    body.querySelector('[data-act="sign-in"]').onclick = onSignIn;
-    return;
+    const note = document.createElement('div');
+    note.className = 'lb-guest-note';
+    note.innerHTML = `<span>Bạn đang dùng thử: sao chỉ lưu trên máy này, đổi máy sẽ mất. Đăng nhập Google để giữ sao.</span>
+      <button type="button" class="btn btn-primary" data-act="sign-in">🔐 Đăng nhập</button>`;
+    note.querySelector('[data-act="sign-in"]').onclick = onSignIn;
+    body.before(note);
   }
   load(false);
 
@@ -187,7 +189,7 @@ export function render(app, onBack, { onEditProfile, onSignIn } = {}) {
         ${top.map(r => studentRow(r, r.uid === myUid)).join('')}
       </ol>
       ${meOutside ? `<div class="lb-me-sep">⋯</div><ol class="lb-list">${studentRow(me, true)}</ol>` : ''}
-      ${me ? '' : `<p class="lb-hint">Em chưa có tên trên bảng này — làm bài ${gradeTitle(grade).toLowerCase()} để nhận sao nhé! 💪</p>`}
+      ${me ? '' : `<p class="lb-hint">Em chưa có tên trên bảng này, làm bài ${gradeTitle(grade).toLowerCase()} để nhận sao nhé! 💪</p>`}
       ${me && !getProfile().name ? `<div class="lb-note">Em đang hiện là "${ANON}". <button type="button" class="lb-link" data-act="edit-profile">Đặt biệt danh</button></div>` : ''}
     `;
     body.querySelectorAll('[data-act="edit-profile"]').forEach(b => { b.onclick = () => onEditProfile?.(); });

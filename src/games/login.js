@@ -32,7 +32,7 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
       <div class="login-card animate-fadeIn">
         <div class="login-logo">🎓</div>
         <h1 class="login-title">Toán Tiểu Học</h1>
-        <p class="login-sub">Học toán vui mỗi ngày — từ lớp 1 đến lớp 5</p>
+        <p class="login-sub">Học toán vui mỗi ngày, từ lớp 1 đến lớp 5</p>
 
         <button type="button" class="login-google-btn" id="login-google" disabled>
           <svg class="login-google-icon" viewBox="0 0 48 48" aria-hidden="true">
@@ -45,6 +45,20 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
         </button>
 
         <button type="button" class="login-guest-btn" id="login-guest">Dùng thử, không cần đăng nhập</button>
+
+        <div class="login-guest-warn" id="login-guest-warn" hidden>
+          <p class="login-guest-warn-title">📱 Dùng thử: bài làm chỉ lưu trên máy này</p>
+          <ul class="login-guest-warn-list">
+            <li>Sao của bé vẫn được đưa lên bảng xếp hạng để đua cùng các bạn.</li>
+            <li>Đổi sang máy khác, dùng trình duyệt khác hoặc xoá dữ liệu trình duyệt thì bài làm và sao sẽ mất.</li>
+            ${isInAppBrowser() ? '<li>Trình duyệt trong TikTok, Zalo, Facebook… có thể tự xoá dữ liệu. Mở bằng Safari / Chrome sẽ an toàn hơn.</li>' : ''}
+            <li>Đăng nhập Google lúc nào cũng được, bài đã làm sẽ được mang vào tài khoản.</li>
+          </ul>
+          <div class="login-guest-warn-actions">
+            <button type="button" class="login-inapp-btn" id="login-guest-ok">Đồng ý, dùng thử</button>
+            <button type="button" class="login-inapp-btn is-ghost" id="login-guest-cancel">Quay lại</button>
+          </div>
+        </div>
 
         <p class="login-error" id="login-error" hidden></p>
 
@@ -64,7 +78,7 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
 
         <p class="login-note">
           Đăng nhập: tiến trình học được lưu vào Google Drive của bạn để dùng trên mọi thiết bị.
-          Dùng thử: bài làm chỉ lưu trên máy này, đăng nhập sau sẽ được mang vào tài khoản.
+          Dùng thử: bài làm chỉ lưu trên máy này (đổi máy sẽ mất), đăng nhập sau sẽ được mang vào tài khoản.
         </p>
       </div>
     </div>
@@ -93,12 +107,24 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
       try { document.execCommand('copy'); } catch { /* ignore */ }
       ta.remove();
     }
-    b.textContent = '✅ Đã sao chép — dán vào Safari/Chrome';
+    b.textContent = '✅ Đã sao chép, dán vào Safari/Chrome';
   });
 
   preloadAuth().then(() => { btn.disabled = false; });
 
-  app.querySelector('#login-guest').addEventListener('click', () => {
+  // Dùng thử: báo trước dữ liệu chỉ nằm trên máy này, bé / bố mẹ bấm đồng ý mới vào.
+  const guestBtn = app.querySelector('#login-guest');
+  const guestWarn = app.querySelector('#login-guest-warn');
+  guestBtn.addEventListener('click', () => {
+    guestBtn.hidden = true;
+    guestWarn.hidden = false;
+    guestWarn.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+  app.querySelector('#login-guest-cancel').addEventListener('click', () => {
+    guestWarn.hidden = true;
+    guestBtn.hidden = false;
+  });
+  app.querySelector('#login-guest-ok').addEventListener('click', () => {
     enterGuest();
     onSignedIn(null);
   });

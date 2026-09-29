@@ -82,7 +82,11 @@ async function ensureSignedInSilently() {
   await fb.auth.authStateReady();
   if (matchesCurrentUser(fb.auth.currentUser)) return fb;
   // Phiên khách (ẩn danh) trên máy này vừa đăng nhập Google → ghi nhận trước khi thoát phiên đó.
-  if (fb.auth.currentUser?.isAnonymous) await markGuestConverted(fb).catch(() => {});
+  if (fb.auth.currentUser?.isAnonymous) {
+    await markGuestConverted(fb).catch(() => {});
+    // Sao của khách đã gộp vào tài khoản (cloudSync.adoptGuestData) → bỏ dòng khách, bé không hiện hai lần trên bảng.
+    await fb.fs.deleteDoc(fb.fs.doc(fb.db, COLLECTION, fb.auth.currentUser.uid)).catch(() => {});
+  }
   if (fb.auth.currentUser) await fb.auth.signOut(); // phiên của tài khoản khác trên máy này
   const token = await getFreshAccessToken(); // hết hạn thì lấy mới qua máy chủ (nếu có phiên)
   if (!token) return null;
@@ -94,12 +98,30 @@ async function ensureSignedInSilently() {
   }
 }
 
+/**
+ * Khách dùng thử: phiên Firebase ẩn danh (mỗi trình duyệt một uid, giữ qua các lần mở app) để
+ * có tên trên bảng xếp hạng và được đếm ở trang admin. Cần bật Anonymous trong Firebase Console.
+ */
+async function ensureGuestSession() {
+  if (!isLeaderboardConfigured() || !isGuest()) return null;
+  const fb = await loadFirebase();
+  const { auth, authMod } = fb;
+  await auth.authStateReady();
+  if (!isGuest()) return null;
+  if (auth.currentUser && !auth.currentUser.isAnonymous) await auth.signOut(); // phiên Google cũ còn sót
+  if (!auth.currentUser) await authMod.signInAnonymously(auth);
+  return fb;
+}
+
+/** Phiên cho bảng xếp hạng: tài khoản Google, hoặc ẩn danh nếu đang dùng thử. */
+const ensureBoardSession = () => (getCurrentUser() ? ensureSignedInSilently() : ensureGuestSession());
+
 /** Phiên Firebase dùng chung cho các module khác (đăng ký học sinh, trang admin). */
 export const firebaseSession = ensureSignedInSilently;
 
 /** Có cần bé bấm nút kết nối (có thể mở popup Google) trước khi xem bảng không. */
 export async function needsConnect() {
-  return !(await ensureSignedInSilently());
+  return !(await ensureBoardSession());
 }
 
 /**
@@ -155,7 +177,7 @@ function myEntry(remote = {}) {
 async function pushNow() {
   // Chờ lấy hồ sơ mới nhất (biệt danh sửa ở máy khác) để không ghi biệt danh cũ lên bảng.
   await profileSync?.catch(() => {});
-  const fb = await ensureSignedInSilently();
+  const fb = await ensureBoardSession();
   if (!fb) return null;
   const { db, fs, auth } = fb;
   const uid = auth.currentUser.uid;
@@ -202,7 +224,7 @@ export function getBoardGradeStars(grade) {
 
 /** Cập nhật điểm của mình lên bảng (gộp nhiều lần gọi liền nhau). Không bao giờ ném lỗi. */
 export function syncMyScore({ delay = 1500 } = {}) {
-  if (!isLeaderboardConfigured() || !getCurrentUser()) return;
+  if (!isLeaderboardConfigured() || (!getCurrentUser() && !isGuest())) return;
   clearTimeout(pushTimer);
   pushTimer = setTimeout(() => { pushNow().catch(() => {}); }, delay);
 }
@@ -342,7 +364,8 @@ async function registerNow() {
 }
 
 // ── Khách dùng thử (cho trang admin) ─────────────────────────────────────────
-// `guests/{uid ẩn danh}`: { nickname, avatar, grade, stars, device, createdAt, lastSeenAt, convertedAt? }
+// `guests/{uid ẩn danh}`: { nickname, avatar, grade, stars, device, days, createdAt, lastSeenAt, convertedAt? }
+// days: các ngày có mở app ('YYYY-MM-DD' giờ trên máy) — trang admin tính khách có quay lại không.
 // Firebase Anonymous Auth (bật trong Firebase Console → Authentication → Sign-in method → Anonymous):
 // mỗi trình duyệt một uid, giữ qua các lần mở app. Ghi tối đa một lần mỗi ngày.
 const GUESTS = 'guests';
@@ -357,19 +380,18 @@ function guestEntry(fs) {
     grade: p.grade || 0,
     stars: Math.min(getTotalStars(), 20000),
     device: [d.device, d.model, d.os, d.browser].filter(Boolean).join(' · ').slice(0, 120),
+    days: fs.arrayUnion(todayKey()),
     lastSeenAt: fs.serverTimestamp(),
   };
 }
 
 async function registerGuestNow() {
-  const fb = await loadFirebase();
-  const { auth, authMod, db, fs } = fb;
-  await auth.authStateReady();
-  if (!isGuest()) return;
-  if (auth.currentUser && !auth.currentUser.isAnonymous) await auth.signOut(); // phiên Google cũ còn sót
-  if (!auth.currentUser) await authMod.signInAnonymously(auth);
+  const fb = await ensureGuestSession();
+  if (!fb) return;
+  const { auth, db, fs } = fb;
   const uid = auth.currentUser.uid;
-  const mark = `${uid}|${todayKey()}`;
+  // Ghi lại lần nữa khi bé vừa chọn xong avatar / lớp (lần đầu có thể ghi lúc còn ở màn chọn avatar).
+  const mark = `${uid}|${todayKey()}|${getProfile().setupDone ? 1 : 0}`;
   const storeKey = 'tth_guest_seen';
   let stored = null;
   try { stored = localStorage.getItem(storeKey); } catch { /* storage unavailable */ }

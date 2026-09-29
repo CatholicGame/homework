@@ -189,6 +189,8 @@ export function render(app, onBack) {
           </div>`).join('')}
       </div>
 
+      ${retentionHtml(guests, today)}
+
       <section class="lb-card adm-section">
         <h2 class="adm-h2">Đăng ký mới ${CHART_DAYS} ngày gần đây</h2>
         ${chartHtml(rows, today)}
@@ -606,12 +608,122 @@ export function render(app, onBack) {
   }
 }
 
+// ── Khách có quay lại không ─────────────────────────────────────────────────
+// Mỗi khách: các ngày có mở app (guests/{uid}.days, ghi từ 29/09/2026) cộng ngày đầu và ngày gần nhất
+// (khách cũ chỉ có hai mốc này). "Ngày thứ n" = n ngày sau ngày đầu tiên.
+const dayKeyOf = (ms) => {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+const msOfKey = (k) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d).getTime(); };
+
+/** Các ngày (tính từ ngày đầu: 0, 1, 2…) khách có mở app, không trùng, tăng dần. */
+function activeOffsets(r) {
+  const keys = new Set(r.days || []);
+  if (r.createdAt) keys.add(dayKeyOf(r.createdAt));
+  if (r.lastSeenAt) keys.add(dayKeyOf(r.lastSeenAt));
+  const ms = [...keys].map(msOfKey).filter(Number.isFinite).sort((a, b) => a - b);
+  if (!ms.length) return [];
+  const first = r.createdAt ? startOfDay(r.createdAt) : ms[0];
+  return [...new Set(ms.map(t => Math.round((t - first) / DAY)).filter(n => n >= 0))];
+}
+
+const RET_CHECKS = [
+  { id: 'd1', label: 'Quay lại hôm sau', minAge: 1, test: (o) => o.includes(1) },
+  { id: 'w1', label: 'Quay lại trong 7 ngày', minAge: 7, test: (o) => o.some(n => n >= 1 && n <= 7) },
+  { id: 'd7', label: 'Còn dùng sau 7 ngày', minAge: 7, test: (o) => o.some(n => n >= 7) },
+  { id: 'd30', label: 'Còn dùng sau 30 ngày', minAge: 30, test: (o) => o.some(n => n >= 30) },
+];
+const DAY_BUCKETS = [
+  { label: '1 ngày', test: (n) => n === 1 },
+  { label: '2 ngày', test: (n) => n === 2 },
+  { label: '3–4 ngày', test: (n) => n >= 3 && n <= 4 },
+  { label: '5–9 ngày', test: (n) => n >= 5 && n <= 9 },
+  { label: 'Từ 10 ngày', test: (n) => n >= 10 },
+];
+
+/** Tỉ lệ khách đạt một mốc, chỉ tính khách đủ "tuổi" (vd. còn dùng sau 7 ngày: khách đến từ 7 ngày trước). */
+function retRate(list, check) {
+  const eligible = list.filter(g => g.age >= check.minAge);
+  if (!eligible.length) return null;
+  const hit = eligible.filter(g => check.test(g.offsets)).length;
+  return { hit, n: eligible.length, pct: Math.round((hit / eligible.length) * 100) };
+}
+
+function retentionHtml(guests, today) {
+  const list = guests.filter(r => r.createdAt).map(r => ({
+    offsets: activeOffsets(r),
+    age: Math.round((today - startOfDay(r.createdAt)) / DAY),
+    createdAt: r.createdAt,
+  }));
+  if (!list.length) return '';
+  const back = list.filter(g => g.offsets.length >= 2).length;
+  const avgDays = list.reduce((s, g) => s + g.offsets.length, 0) / list.length;
+  const rateTxt = (r, empty = 'chưa có') => (r ? `${r.pct}%` : empty);
+  const rateNote = (r) => (r ? `${r.hit}/${r.n} khách` : 'chưa đủ ngày');
+  const tiles = [
+    { label: 'Quay lại ít nhất 1 lần', value: `${Math.round((back / list.length) * 100)}%`, note: `${back}/${list.length} khách` },
+    ...RET_CHECKS.map(c => { const r = retRate(list, c); return { label: c.label, value: rateTxt(r), note: rateNote(r) }; }),
+    { label: 'Số ngày dùng trung bình', value: avgDays.toFixed(1).replace('.', ','), note: 'ngày mỗi khách' },
+  ];
+
+  // Theo tuần khách đến lần đầu (tuần bắt đầu thứ Hai), 8 tuần gần nhất.
+  const weekStart = (ms) => { const t = startOfDay(ms); return t - ((new Date(t).getDay() + 6) % 7) * DAY; };
+  const weeks = new Map();
+  list.forEach((g) => {
+    const w = weekStart(g.createdAt);
+    if (!weeks.has(w)) weeks.set(w, []);
+    weeks.get(w).push(g);
+  });
+  const ddmm = (ms) => new Date(ms).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+  const cohortRows = [...weeks.entries()].sort((a, b) => b[0] - a[0]).slice(0, 8).map(([w, gs]) => `
+    <tr>
+      <td>${ddmm(w)} – ${ddmm(w + 6 * DAY)}</td>
+      <td>${gs.length}</td>
+      ${RET_CHECKS.map((c) => { const r = retRate(gs, c); return `<td title="${rateNote(r)}">${rateTxt(r, '·')}</td>`; }).join('')}
+    </tr>`).join('');
+
+  const buckets = DAY_BUCKETS.map(b => ({ ...b, n: list.filter(g => b.test(g.offsets.length)).length }));
+  const maxB = Math.max(1, ...buckets.map(b => b.n));
+
+  return `
+    <section class="lb-card adm-section adm-ret">
+      <h2 class="adm-h2">Khách có quay lại không?</h2>
+      <p class="adm-chart-sub">Mỗi tỉ lệ chỉ tính khách đã đến đủ lâu, vd. "sau 7 ngày" chỉ tính khách đến từ 7 ngày trước trở về trước.
+        Danh sách ngày dùng ghi từ 29/09/2026, khách trước đó chỉ biết ngày đầu và ngày gần nhất.</p>
+      <div class="adm-tiles">
+        ${tiles.map(t => `
+          <div class="adm-tile adm-tile-guest">
+            <div class="adm-tile-label">${t.label}</div>
+            <div class="adm-tile-value">${t.value}</div>
+            <div class="adm-tile-note">${t.note}</div>
+          </div>`).join('')}
+      </div>
+      <h3 class="adm-h3">Số ngày mỗi khách đã dùng</h3>
+      <div class="adm-ret-bars">
+        ${buckets.map(b => `
+          <div class="adm-ret-row">
+            <span class="adm-ret-label">${b.label}</span>
+            <span class="adm-ret-track"><span class="adm-ret-fill" style="width:${(b.n / maxB) * 100}%"></span></span>
+            <span class="adm-ret-n">${b.n}</span>
+          </div>`).join('')}
+      </div>
+      <h3 class="adm-h3">Theo tuần khách đến lần đầu</h3>
+      <div class="adm-table-wrap">
+        <table class="adm-table adm-ret-table">
+          <thead><tr><th>Tuần</th><th>Khách mới</th>${RET_CHECKS.map(c => `<th>${c.label}</th>`).join('')}</tr></thead>
+          <tbody>${cohortRows}</tbody>
+        </table>
+      </div>
+    </section>`;
+}
+
 function downloadCsv(rows) {
   const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
   const lines = [
-    ['Biệt danh', 'Tên Google', 'Email', 'Lớp', 'Sao', 'Ngày đăng ký', 'Lần cuối', 'Loại', 'Máy', 'Khách đã đăng nhập'],
+    ['Biệt danh', 'Tên Google', 'Email', 'Lớp', 'Sao', 'Ngày đăng ký', 'Lần cuối', 'Loại', 'Máy', 'Khách đã đăng nhập', 'Số ngày dùng'],
     ...rows.map(r => [r.nickname, r.name, r.email, r.grade ? gradeLabel(r.grade) : '', r.stars, fmtDate(r.createdAt), fmtDateTime(r.lastSeenAt),
-      r.fake ? 'Ảo' : r.guest ? 'Khách' : 'Học sinh', r.device || '', r.convertedAt ? fmtDate(r.convertedAt) : '']),
+      r.fake ? 'Ảo' : r.guest ? 'Khách' : 'Học sinh', r.device || '', r.convertedAt ? fmtDate(r.convertedAt) : '', r.guest ? activeOffsets(r).length : '']),
   ].map(l => l.map(cell).join(','));
   const blob = new Blob([`﻿${lines.join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');

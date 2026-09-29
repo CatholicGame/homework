@@ -90,9 +90,18 @@ export async function fetchStudents() {
       const g = d.data();
       guests.push({ uid: d.id, email: '', name: '', nickname: g.nickname || '', avatar: g.avatar || '',
         grade: g.grade || 0, stars: g.stars || 0, createdAt: toMs(g.createdAt), lastSeenAt: toMs(g.lastSeenAt),
-        registered: false, guest: true, device: g.device || '', convertedAt: toMs(g.convertedAt) });
+        registered: false, guest: true, device: g.device || '', convertedAt: toMs(g.convertedAt),
+        days: Array.isArray(g.days) ? g.days.filter(k => typeof k === 'string') : [] });
     });
   } catch (e) { console.warn('[admin] Không đọc được guests/:', e?.code || e); }
+  // Khách cũng có dòng trên bảng xếp hạng (uid ẩn danh): gộp vào khách, không tính là học sinh.
+  guests.forEach((g) => {
+    const r = byUid.get(g.uid);
+    if (!r) return;
+    g.stars = Math.max(g.stars, r.stars);
+    g.lastSeenAt = Math.max(g.lastSeenAt, r.lastSeenAt);
+    byUid.delete(g.uid);
+  });
 
   const realRows = board.docs.map(d => d.data());
   const launchOf = (g) => launches.get(`g${g}`) || makeLaunch(realRows.filter(r => r.grade === g), g);
