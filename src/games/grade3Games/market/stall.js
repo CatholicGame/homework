@@ -13,9 +13,10 @@ import { keypad } from '../loop.js';
 /**
  * Vẽ quầy vào `stage`. `counter` là HTML phần chơi riêng (cân, bàn đóng hộp…), đặt dưới bảng hiệu `sign`.
  * theme: đổi màu mái che / quầy (vd. 'lemon' — mái sọc vàng trắng của quầy nước chanh).
+ * cameo: false — màn dọc không cho khách nhảy xuống đứng trên thẻ kết quả khi sai.
  * Trả về { counter, main, speak, row, ask, rest, nudge, fail, thanks } — rest(): máy tính tiền về nghỉ sau khi gõ xong.
  */
-export function mountStall(stage, { npc, sign, counter, api, theme = '' }) {
+export function mountStall(stage, { npc, sign, counter, api, theme = '', cameo: withCameo = true }) {
   stage.innerHTML = `
     <div class="g3f-scene g3f-pad-idle animate-fadeIn${theme ? ` g3f-theme-${theme}` : ''}">
       <div class="g3f-awning"></div>
@@ -91,7 +92,8 @@ export function mountStall(stage, { npc, sign, counter, api, theme = '' }) {
   // Màn dọc: thẻ kết quả bật lên ở đáy quầy, xa chỗ khách đứng — khách (mặt buồn) nhảy xuống đứng ngay trên
   // thẻ và nhắc bé đọc cách làm. Bọc api.fail để mọi chỗ báo sai của các quầy đều có (kể cả gọi api.fail trực tiếp).
   const apiFail = api.fail;
-  api.fail = (text, tip) => { apiFail(text, tip); cameo(tip); };
+  // withCameo: false — trò có chỗ kiểm chứng ngay trên thẻ (khay ra của máy biến hình): khách đứng yên ở trên.
+  api.fail = (text, tip) => { apiFail(text, tip); if (withCameo) cameo(tip); };
   const cameo = (tip) => {
     if (!matchMedia('(orientation: portrait)').matches) return;
     const card = main.querySelector(':scope > .g3g-result');

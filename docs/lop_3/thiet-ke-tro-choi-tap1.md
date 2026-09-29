@@ -260,6 +260,18 @@ Giá ghi thành câu rõ nghĩa: bảng giá "1 kg giá 30 nghìn đồng", câu
 - **Thao tác:** kéo thùng lên xe (cấp 1), xe đầy thì chạy đi. Xe cuối chở phần dư và chạy đi với thùng xe trống một phần.
 - **Đồ hoạ:** xe tải nhiều màu, thùng hàng, kho, bến xe.
 
+**Đã làm (2026-09-28):** 4 cấp — `src/games/grade3Games/trucks.js`, hình vẽ `art/trucks.js` (xe tải chép dáng `truck()` trong `scripts/redraw/kit_g7.py`; xem thử: `node scripts/g3games/preview-trucks.mjs`). Dùng khung quầy của Chợ phiên (khách + máy tính + thẻ kết quả), theme `depot`. Trong danh sách trò là một thẻ riêng (`single: true` — bấm vào tới thẳng danh sách cấp).
+
+| Cấp | Tên | Nhiệm vụ |
+|---|---|---|
+| 1 | Cần mấy xe? | *N* thùng (12–60), mỗi xe *k* thùng (3–9), thương 2–6; khoảng 1/5 số lần chia hết |
+| 2 | Chở hết hay đóng đầy | Xen kẽ **chở hết** (thùng lẻ cần thêm xe) và **đóng thùng** (hộp bánh vào thùng các-tông, cửa hàng chỉ nhận thùng đầy → bỏ phần dư); *N* 20–99 |
+| 3 | Hai bước tính | Xen kẽ *a dãy × b thùng* (bước 1: tổng số thùng) và *kho có N, đã chở đi d* (bước 1: số còn lại, d thùng bay ra khỏi kho); bước 2: cần mấy xe (≤ 10 xe) |
+| 4 | Kho hàng lớn | *N* 100–190, *k* 6–9, xen kẽ chở hết / đóng thùng |
+
+- **Kiểm chứng:** bé gõ số xe / số thùng trước; bãi xe hiện đúng số bé gõ (xe chạy vào từ bên trái). Từ 8 xe trở xuống bé **tự bấm từng xe** để xếp thùng (thùng bay từ kho lên xe, xe đầy thì chạy đi); nhiều hơn thì máy xếp lần lượt. Gõ ít → còn thùng nằm lại kho ("Còn 3 thùng chưa có xe chở kìa!"); gõ nhiều → xe chạy không (viền đỏ, ✖), thẻ kết quả dời sang phía kho để thấy xe đó. Đóng thùng: thùng đầy viền xanh sau khi hộp cuối rơi vào, thùng thiếu viền đỏ.
+- Thùng ở kho và trên xe vẽ cùng một cỡ (co giãn theo khung, thử các cách chia kho | bãi xe để thùng to nhất).
+
 ### 4.3 🔍 Máy phóng to – thu nhỏ
 
 **Câu chuyện:** Phòng thí nghiệm của giáo sư Cú có máy biến hình.
@@ -273,6 +285,18 @@ Giá ghi thành câu rõ nghĩa: bảng giá "1 kg giá 30 nghìn đồng", câu
 
 - **Đồ hoạ:** cỗ máy có ống vào, ống ra và đèn; các vật đi qua máy (táo, sao, cá); giáo sư Cú.
 
+**Đã làm (2026-09-28):** 4 cấp — `src/games/grade3Games/machine.js`, hình vẽ `art/machine.js` (xem thử: `node scripts/g3games/preview-machine.mjs`), quả dùng lại `art/fruits.js`. Theme `lab` của khung quầy; khách NPC đến thử máy (không có giáo sư Cú).
+
+| Cấp | Tên | Nhiệm vụ | Máy chạy (sau khi bé gõ số rồi kéo cần gạt) |
+|---|---|---|---|
+| 1 | Máy gấp lên | *n* quả (2–9) vào máy "gấp *t* lần" (2–5) → ra bao nhiêu? | quả bay vào phễu, máy rung, ra *t* hàng "Lần 1…", mỗi hàng *n* quả |
+| 2 | Máy giảm đi | *N* = *v* × *t* quả vào máy "giảm *t* lần" → ra bao nhiêu? | máy chia thành *t* hàng "Phần 1…" bằng nhau, các phần kia mờ đi, chỉ đưa ra 1 phần |
+| 3 | Đoán máy | Bảng thử máy 2 dòng (vào → ra); bé chọn **Gấp / Giảm / Thêm / Bớt** rồi gõ số | thẻ số bay vào máy, máy của bé cho ra số ở cột "Máy em" ✓ / ✗ (bẫy: 4 → 8 là "gấp 2" hay "thêm 4"? dòng thứ hai mới phân biệt được) |
+| 4 | Gấp mấy lần? | Rổ to *N* quả, rổ nhỏ *n* quả → rổ to gấp mấy lần? | máy gấp rổ nhỏ lên từng lần cho tới khi bằng rổ to, đếm được số lần |
+
+- Bấm máy khi chưa gõ số → khách nhắc "Đoán số ở máy tính trước!", máy tính rung; cấp 3 chưa chọn phép → 4 nút phép nảy lên.
+- Bố cục tự chọn giữa 3 cột (vào | máy | ra) và 2 tầng (vào + máy ở trên, khay ra ở dưới) cho quả to nhất; thẻ kết quả không che chỗ kiểm chứng (khay ra; ở cấp 3 là bảng thử máy).
+
 ### 4.4 📐 Thám tử góc vuông
 
 **Câu chuyện:** Bé là thám tử, dùng ê-ke kiểm tra các góc trong một căn phòng hay khu vườn.
@@ -284,6 +308,18 @@ Giá ghi thành câu rõ nghĩa: bảng giá "1 kg giá 30 nghìn đồng", câu
 | 3 | Bài 19 | Đếm số tam giác, tứ giác trong hình ghép |
 
 - **Đồ hoạ:** cảnh phòng (cửa sổ, tranh, bàn, diều, khung ảnh xiêu vẹo), ê-ke kéo xoay được, kính lúp.
+
+**Đã làm (2026-09-29):** 3 cấp — `src/games/grade3Games/detective.js`, hình vẽ `art/detective.js`. Theme `detective` của khung quầy; người giao vụ: Chú Khang công an (cắt từ `npc-sheet-jobs.png`) và các bạn nhỏ. Mỗi cấp 6 vụ.
+
+| Cấp | Tên | Nhiệm vụ (xen kẽ) |
+|---|---|---|
+| 1 | Góc vuông hay không? | **check** — một góc trên đồ vật (khung tranh / cửa sổ / quyển sách treo nghiêng hoặc méo, đồng hồ, cái kéo, mái nhà, chân tường – chân thang), tên góc kiểu sách "góc đỉnh O; cạnh OA, OB"; phải áp ê-ke rồi mới chọn *Góc vuông* / *Góc không vuông*. **find** — hình 3–5 đỉnh (có khi nằm nghiêng), bấm tên đỉnh để đánh dấu mọi góc vuông, ✔ Xong |
+| 2 | Hình chữ nhật, hình vuông | **what** — hình trên lưới ô vuông: *tam giác / tứ giác* → *chữ nhật / vuông / chỉ là tứ giác*; **pick** — 4 hình, tìm mọi hình chữ nhật (không kèm hình vuông) hoặc mọi hình vuông (luôn có một hình chữ nhật dài hơn rộng 1 ô để bẫy); **count** — gõ số góc vuông rồi 🔍 Soi |
+| 3 | Đếm hình tam giác, tứ giác | Hình ghép (quạt từ đỉnh, hình chữ nhật có đường chéo, chia cột, hình thang của Bài 19, tam giác cắt ngang…) — gõ số hình rồi 🔍 Soi: máy tô màu lần lượt từng hình, tên hình hiện thành thẻ |
+
+- **Ê-ke:** nằm trong hộp đồ nghề (màn ngang: bên phải bảng; màn dọc: dưới hình). Kéo ê-ke tới một đỉnh hoặc chạm vào đỉnh → đỉnh góc vuông của ê-ke dính vào đỉnh góc nhưng **còn lệch 2–4 bước**; bé **nắm chấm neo cam ở một trong hai đầu nhọn của ê-ke, kéo vòng quanh đỉnh** (cùng hay ngược chiều kim đồng hồ) — hoặc bấm ⟲ ⟳ — ê-ke xoay theo từng nấc **15°**; chấm neo nhấp nháy tới khi ê-ke khớp một cạnh (chia đều nên xoay đủ bước là một cạnh ê-ke trùng khít một cạnh của góc — cạnh đó sáng xanh). Khi ê-ke đang ở một góc, hàng trên bảng hiện **"Đang đo góc BAC — đỉnh A; cạnh AB, AC"**. Cấp 1 (check) chỉ cho kết luận khi ê-ke đã đặt vào góc và đã xoay khớp một cạnh. Bé tự nhìn khe hở. Soi lại: ê-ke đi lần lượt qua từng đỉnh (cũng xoay 2 bước cho khớp), đánh dấu ô vuông xanh (vuông) / ✗ đỏ (không vuông); góc không vuông ở cấp 1 có thêm nét đứt đỏ theo cạnh ê-ke không trùng để thấy khe hở.
+- Góc không vuông luôn lệch ít nhất 9–10° so với 90° (áp ê-ke là thấy), nhưng nhiều góc 76°–80°, 100°–108° để nhìn bằng mắt dễ nhầm; hình xoay nghiêng vẫn có góc vuông.
+- Loại hình (tam giác / tứ giác / chữ nhật / vuông) và số hình ghép đều **tính từ toạ độ** (`classify`, `figureShapes` — mọi tam giác, tứ giác lồi có cạnh nằm trên đường đã vẽ), không ghi tay đáp số.
 
 ### 4.5 🤖 Rô-bốt biểu thức
 

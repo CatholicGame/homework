@@ -11,6 +11,9 @@ import { EGG_GAME } from './grade3Games/market/eggs.js';
 import { LEMON_GAME } from './grade3Games/market/lemonade.js';
 import { CAKE_GAME } from './grade3Games/market/bakery.js';
 import { RIBBON_GAME } from './grade3Games/market/ribbon.js';
+import { TRUCK_GAME } from './grade3Games/trucks.js';
+import { MACHINE_GAME } from './grade3Games/machine.js';
+import { DETECTIVE_GAME } from './grade3Games/detective.js';
 import { playRound, bestFor } from './grade3Games/loop.js';
 import { lessonText, hasDoneAny, lessonUnits, bookName } from './grade3Games/lessons.js';
 import { NPCS, npcPic, cap, preloadNpcs } from './grade3Games/npc.js';
@@ -29,6 +32,25 @@ const GAMES = [
       { game: CAKE_GAME, tags: 'một phần mấy · hình tròn' },
       { game: RIBBON_GAME, tags: 'mi-li-mét · xăng-ti-mét' },
     ],
+  },
+  // single: trò chỉ có một phần chơi — bấm thẻ là tới thẳng danh sách cấp (không có màn chọn quầy).
+  {
+    id: 'trucks', icon: '🚚', title: 'Xe chở hàng', single: true,
+    desc: 'Điều phối kho hàng: tính cần mấy xe, xếp thùng lên xe cho xe chạy!',
+    tags: ['Chia có dư', 'Hai bước tính'],
+    stalls: [{ game: TRUCK_GAME }],
+  },
+  {
+    id: 'machine', icon: '🔍', title: 'Máy phóng to – thu nhỏ', single: true,
+    desc: 'Cỗ máy biến hình: gấp lên, giảm đi — đoán xem máy ra bao nhiêu!',
+    tags: ['Gấp lên', 'Giảm đi', 'Gấp mấy lần'],
+    stalls: [{ game: MACHINE_GAME }],
+  },
+  {
+    id: 'detective', icon: '📐', title: 'Thám tử góc vuông', single: true,
+    desc: 'Làm thám tử: áp ê-ke tìm góc vuông, điều tra hình chữ nhật, hình vuông, đếm hình ẩn!',
+    tags: ['Góc vuông', 'Ê-ke', 'Hình tứ giác'],
+    stalls: [{ game: DETECTIVE_GAME }],
   },
 ];
 
@@ -85,7 +107,10 @@ export function renderGamesHub(app, ctx, start = null) {
           </button>`).join('')}
       </div>`);
     app.querySelector('[data-act="back"]').onclick = ctx.onBack;
-    app.querySelectorAll('[data-game]').forEach(b => { b.onclick = () => showStalls(GAMES.find(g => g.id === b.dataset.game)); });
+    app.querySelectorAll('[data-game]').forEach(b => {
+      const g = GAMES.find(x => x.id === b.dataset.game);
+      b.onclick = () => (g.single ? showLevels(g, g.stalls[0].game) : showStalls(g));
+    });
   }
 
   function showStalls(g) {
@@ -104,7 +129,7 @@ export function renderGamesHub(app, ctx, start = null) {
   function showLevels(g, game) {
     fromLesson = false;
     shell(`
-      ${topbar(`${game.icon} ${game.title}`, { kicker: `${g.icon} ${g.title}` })}
+      ${topbar(`${game.icon} ${game.title}`, { kicker: g.single ? '🎮 Trò chơi tăng cường' : `${g.icon} ${g.title}` })}
       <p class="g3g-lead">Chọn cấp — cấp nào cũng chơi được!</p>
       <div class="g3g-list">
         ${game.levels.map(lv => {
@@ -119,7 +144,7 @@ export function renderGamesHub(app, ctx, start = null) {
             </button>`;
         }).join('')}
       </div>`);
-    app.querySelector('[data-act="back"]').onclick = () => showStalls(g);
+    app.querySelector('[data-act="back"]').onclick = () => (g.single ? showGames() : showStalls(g));
     app.querySelectorAll('[data-level]').forEach(b => { b.onclick = () => showIntro(g, game, game.levels.find(l => l.id === b.dataset.level)); });
   }
 
@@ -129,7 +154,8 @@ export function renderGamesHub(app, ctx, start = null) {
     const lesson = lessonText(lv, ctx, { short: true });
     const best = bestFor(lv.id);
     // Mỗi cấp một vị khách "giao nhiệm vụ" cố định — cùng bộ NPC gặp lại trong màn chơi.
-    const npc = NPCS[(lv.n - 1) % NPCS.length];
+    const pool = game.npcs || NPCS;
+    const npc = pool[(lv.n - 1) % pool.length];
     const lastUnit = units[units.length - 1];
     // Ít chữ: khách nói một câu ngắn, cách chơi là dãy hình (Cân → Tính tiền → …), nút Chơi to ngay bên dưới.
     // "Cần biết" / bài học dành cho bố mẹ — một dòng nhỏ ở cuối.

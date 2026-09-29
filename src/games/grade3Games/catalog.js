@@ -54,6 +54,33 @@ export const STALLS = [
       { id: 'ribbon-3', n: 3, title: 'Tính tiền ruy băng', lessons: { workbook: ['bai-23', 'bai-30'], practice: ['tuan-9', 'tuan-12'] } },
     ],
   },
+  // Trò riêng (không thuộc Chợ phiên) — trong danh sách trò là một thẻ, bấm vào là tới danh sách cấp.
+  {
+    id: 'truck', title: 'Xe chở hàng', icon: '🚚',
+    levels: [
+      { id: 'truck-1', n: 1, title: 'Cần mấy xe?', lessons: { workbook: ['bai-25'], practice: ['tuan-10'] } },
+      { id: 'truck-2', n: 2, title: 'Chở hết hay đóng đầy', lessons: { workbook: ['bai-26'], practice: ['tuan-11'] } },
+      { id: 'truck-3', n: 3, title: 'Hai bước tính', lessons: { workbook: ['bai-28'], practice: ['tuan-12'] } },
+      { id: 'truck-4', n: 4, title: 'Kho hàng lớn', lessons: { workbook: ['bai-37'], practice: ['tuan-15'] } },
+    ],
+  },
+  {
+    id: 'machine', title: 'Máy phóng to – thu nhỏ', icon: '🔍',
+    levels: [
+      { id: 'machine-1', n: 1, title: 'Máy gấp lên', lessons: { workbook: ['bai-24'], practice: ['tuan-10'] } },
+      { id: 'machine-2', n: 2, title: 'Máy giảm đi', lessons: { workbook: ['bai-27'], practice: ['tuan-11'] } },
+      { id: 'machine-3', n: 3, title: 'Đoán máy', lessons: { workbook: ['bai-24', 'bai-27'], practice: ['tuan-10', 'tuan-11'] } },
+      { id: 'machine-4', n: 4, title: 'Gấp mấy lần?', lessons: { workbook: ['bai-39'], practice: ['tuan-16'] } },
+    ],
+  },
+  {
+    id: 'detective', title: 'Thám tử góc vuông', icon: '📐',
+    levels: [
+      { id: 'detective-1', n: 1, title: 'Góc vuông hay không?', lessons: { workbook: ['bai-18'], practice: ['tuan-8'] }, also: { workbook: ['bai-20', 'bai-22', 'bai-43', 'bai-44'], practice: ['tuan-18'] } },
+      { id: 'detective-2', n: 2, title: 'Hình chữ nhật, hình vuông', lessons: { workbook: ['bai-19'], practice: ['tuan-8'] } },
+      { id: 'detective-3', n: 3, title: 'Đếm hình tam giác, tứ giác', lessons: { workbook: ['bai-19'], practice: ['tuan-8'] } },
+    ],
+  },
 ];
 
 const STALL_BY_ID = Object.fromEntries(STALLS.map(s => [s.id, s]));

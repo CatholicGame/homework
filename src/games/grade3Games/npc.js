@@ -24,6 +24,22 @@ import sadAnhMinh from '../../assets/grade3-games/npc/anh-minh-sad.webp';
 import sadBanNa from '../../assets/grade3-games/npc/ban-na-sad.webp';
 import sadBeTi from '../../assets/grade3-games/npc/be-ti-sad.webp';
 import sadBanBin from '../../assets/grade3-games/npc/ban-bin-sad.webp';
+// Người làm ở kho hàng / bến xe (trò Xe chở hàng) — cắt từ scripts/g3games/npc-sheet-truck.png (bác tài, chị giao hàng)
+// và npc-sheet-jobs.png (chú bốc hàng, cô thợ máy, anh quản lý kho). Chưa có tấm mặt buồn: 'sad' dùng lại hình thường
+// (vẫn có chuyển động lắc đầu).
+import imgBacBa from '../../assets/grade3-games/npc/bac-ba.webp';
+import imgChiHoa from '../../assets/grade3-games/npc/chi-hoa.webp';
+import imgChuTam from '../../assets/grade3-games/npc/chu-tam.webp';
+import imgCoThu from '../../assets/grade3-games/npc/co-thu.webp';
+import imgAnhNam from '../../assets/grade3-games/npc/anh-nam.webp';
+// Phòng thí nghiệm (trò Máy phóng to – thu nhỏ) — cũng cắt từ npc-sheet-jobs.png (logo trên laptop đã xoá);
+// mặt buồn của cô nhà khoa học cắt từ npc-scientist-sad.png, hai người kia chưa có.
+import imgCoHanh from '../../assets/grade3-games/npc/co-hanh.webp';
+import sadCoHanh from '../../assets/grade3-games/npc/co-hanh-sad.webp';
+import imgThayQuang from '../../assets/grade3-games/npc/thay-quang.webp';
+import imgChiLinh from '../../assets/grade3-games/npc/chi-linh.webp';
+// Văn phòng thám tử (trò Thám tử góc vuông) — chú công an cắt từ npc-sheet-jobs.png, chưa có mặt buồn.
+import imgChuKhang from '../../assets/grade3-games/npc/chu-khang.webp';
 
 export const NPCS = [
   { id: 'ba', name: 'Bà Tư', me: 'bà', you: 'cháu', img: imgBaTu, sad: sadBaTu },
@@ -37,17 +53,43 @@ export const NPCS = [
   { id: 'bin', name: 'Bạn Bin', me: 'mình', you: 'bạn', img: imgBanBin, sad: sadBanBin },
 ];
 
+export const WORKER_NPCS = [
+  { id: 'taixe', name: 'Bác Ba tài xế', me: 'bác', you: 'cháu', img: imgBacBa, sad: imgBacBa },
+  { id: 'giaohang', name: 'Chị Hoa giao hàng', me: 'chị', you: 'em', img: imgChiHoa, sad: imgChiHoa },
+  { id: 'bochang', name: 'Chú Tâm bốc hàng', me: 'chú', you: 'cháu', img: imgChuTam, sad: imgChuTam },
+  { id: 'thomay', name: 'Cô Thu thợ máy', me: 'cô', you: 'cháu', img: imgCoThu, sad: imgCoThu },
+  { id: 'quanly', name: 'Anh Nam quản lý kho', me: 'anh', you: 'em', img: imgAnhNam, sad: imgAnhNam },
+];
+
+/** Phòng thí nghiệm: 3 người làm máy + 2 bạn nhỏ đến xem máy (thứ tự = người giao nhiệm vụ ở màn giới thiệu cấp 1, 2, 3, 4). */
+export const LAB_NPCS = [
+  { id: 'khoahoc', name: 'Cô Hạnh nhà khoa học', me: 'cô', you: 'cháu', img: imgCoHanh, sad: sadCoHanh },
+  { id: 'giaosu', name: 'Thầy Quang giáo sư', me: 'thầy', you: 'em', img: imgThayQuang, sad: imgThayQuang },
+  { id: 'kysu', name: 'Chị Linh kỹ sư', me: 'chị', you: 'em', img: imgChiLinh, sad: imgChiLinh },
+  NPCS.find(n => n.id === 'ti'),
+  NPCS.find(n => n.id === 'ban'),
+];
+
+/** Văn phòng thám tử: chú công an giao vụ + các bạn nhỏ làm thám tử phụ (thứ tự = người giao nhiệm vụ cấp 1, 2, 3). */
+export const DETECTIVE_NPCS = [
+  { id: 'congan', name: 'Chú Khang công an', me: 'chú', you: 'cháu', img: imgChuKhang, sad: imgChuKhang },
+  NPCS.find(n => n.id === 'ban'),
+  NPCS.find(n => n.id === 'ti'),
+  NPCS.find(n => n.id === 'bin'),
+  NPCS.find(n => n.id === 'anh'),
+];
+
 /** Hình NPC toàn thân; đổi `mood` thì vẽ lại để chuyển động chạy lại từ đầu. */
 export function npcPic(n, mood = 'wait') {
   return `<img class="g3-npc-img g3-npc-${mood}" src="${mood === 'sad' ? n.sad : n.img}" alt="${n.name}" draggable="false" decoding="async">`;
 }
 
-// Tải sẵn cả 18 hình (vui + buồn) ngay khi mở trò chơi — khách mới hiện ra là có hình liền, không chờ mạng.
+// Tải sẵn mọi hình (vui + buồn) ngay khi mở trò chơi — khách mới hiện ra là có hình liền, không chờ mạng.
 // Giữ tham chiếu để trình duyệt không bỏ ảnh đã tải.
 const kept = [];
 export function preloadNpcs() {
   if (kept.length) return;
-  for (const n of NPCS) {
+  for (const n of [...NPCS, ...WORKER_NPCS, ...LAB_NPCS.slice(0, 3), DETECTIVE_NPCS[0]]) {
     for (const src of [n.img, n.sad]) {
       const im = new Image();
       im.decoding = 'async';
