@@ -14,7 +14,7 @@
  *     bạn chăm (cột sao/tháng cao trong CAST) rơi vào nhóm cao nhiều hơn, bạn lười thì ngược lại,
  *     và độ hăng hái đổi theo tuần → thứ hạng đổi chỗ nhưng vẫn có đầu bảng, cuối bảng.
  *   - CHỈ TĂNG, MỌI MÁY THẤY NHƯ NHAU: sao mỗi ngày tính tất định từ (bạn, ngày) bằng hàm băm,
- *     tổng = sao khởi động + các ngày đã qua; hôm nay tăng dần trong buổi học của bạn đó.
+ *     tổng = sao khởi động + các ngày đã qua; hôm nay tăng dần qua 1–3 buổi học (sáng sớm, trưa, chiều, tối).
  * Bé học 15–30 sao/ngày sẽ leo dần lên đầu; bé nghỉ vài ngày sẽ bị các bạn vượt.
  */
 
@@ -94,17 +94,32 @@ function dayStars(m, date) {
   return tier[0] + Math.floor(rand(m.id, 'n', key) * (tier[1] - tier[0]));
 }
 
-/** Khung học của bạn trong một ngày (giờ thập phân): bắt đầu 6h–21h, kéo dài 40–120 phút. */
-function studyWindow(id, date) {
+// Các khung giờ học trong ngày (giờ thập phân): sáng sớm trước giờ đi học, chiều, tối.
+const SLOTS = [[6, 7.5], [11.5, 13], [15, 18], [19, 21.5]];
+
+/**
+ * Các buổi học của bạn trong một ngày: 1–3 buổi ở các khung khác nhau, mỗi buổi 20–60 phút,
+ * chia nhau số sao cả ngày theo `share` — nên mở bảng giờ nào cũng thấy vài bạn vừa tăng sao.
+ */
+function studySessions(id, date) {
   const key = dayKey(date);
-  return { start: 6 + 15 * rand(id, 'h', key), len: (40 + 80 * rand(id, 'l', key)) / 60 };
+  const count = 1 + Math.floor(3 * rand(id, 'c', key));
+  const picked = SLOTS.map((slot, i) => ({ slot, r: rand(id, 's', i, key) }))
+    .sort((a, b) => a.r - b.r).slice(0, count)
+    .map(({ slot }) => slot).sort((a, b) => a[0] - b[0]);
+  const weights = picked.map((_, i) => 0.5 + rand(id, 'w', i, key));
+  const sum = weights.reduce((a, b) => a + b, 0);
+  return picked.map(([from, to], i) => {
+    const len = (20 + 40 * rand(id, 'l', i, key)) / 60;
+    return { start: from + (to - from - len) * rand(id, 'h', i, key), len, share: weights[i] / sum };
+  });
 }
 
 /** Phần sao hôm nay đã kiếm được tới lúc `now`. */
 function todayProgress(id, now) {
-  const { start, len } = studyWindow(id, now);
   const hour = now.getHours() + now.getMinutes() / 60;
-  return Math.max(0, Math.min(1, (hour - start) / len));
+  return studySessions(id, now)
+    .reduce((p, { start, len, share }) => p + share * clamp((hour - start) / len, 0, 1), 0);
 }
 
 const atHour = (date, h) => startOfDay(date).getTime() + Math.round(h * 3_600_000);
@@ -181,10 +196,9 @@ function lastSeen(m, now, fallback) {
   for (let i = 0; i < 60; i++) {
     const d = addDays(today, -i);
     if (!dayStars(m, d)) continue;
-    const { start, len } = studyWindow(m.id, d);
-    if (i > 0) return atHour(d, start + len);
-    const p = todayProgress(m.id, now);
-    if (p > 0) return atHour(d, start + len * p);
+    const hour = i > 0 ? 24 : now.getHours() + now.getMinutes() / 60;
+    const ends = studySessions(m.id, d).filter(s => s.start < hour).map(s => Math.min(hour, s.start + s.len));
+    if (ends.length) return atHour(d, Math.max(...ends));
   }
   return fallback;
 }
