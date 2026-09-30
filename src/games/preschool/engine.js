@@ -24,6 +24,7 @@ import COUNT_ITEMS from './count-items.json';
 import { awardStars, recordWrong, hasEarned, earnedFor, getQuestionStars, availableStars } from '../../engine/stars.js';
 import { recordAttempt } from '../../engine/activity.js';
 import { handButton, bindHandButton, resumeHand, stopHand } from './hand/handInput.js';
+import { fitStage } from './fit.js';
 
 // Khung đồ vật của hình đếm Tập 1–2 (scripts/count-detect.py), tra theo đường dẫn hình.
 const COUNT_NAME = Object.fromEntries(Object.entries(
@@ -292,6 +293,7 @@ export function renderPreschool(app, onBack, book) {
       ...PLAYERS3, ...PLAYERS4,
     };
     players[round.type](ctx);
+    addCleanup(fitStage(stage));
   }
 
   function stationComplete(station) {

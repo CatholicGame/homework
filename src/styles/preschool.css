@@ -459,7 +459,7 @@
 .pk-tile.is-dragging { opacity: 0.35; animation: none; }
 .pk-tile.is-used { visibility: hidden; }
 .pk-ghost {
-  position: fixed; z-index: 3000; translate: -50% -60%; scale: 1.2; pointer-events: none;
+  position: fixed; z-index: 3000; translate: -50% -60%; scale: calc(1.2 * var(--pk-fit, 1)); pointer-events: none;
   width: 74px; height: 74px; border-radius: 20px; border: 4px solid #fff;
   background: var(--c); color: #fff; font: 800 2.4rem/1 'Baloo 2', sans-serif;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
@@ -893,6 +893,10 @@
     .pk-play-page { --pk-free: calc(100cqh - var(--pk-head)); }
   }
   .pk-topbar, .pk-hello, .pk-guide, .pk-steps { max-width: 1200px; }
+  /* Màn hình ngang: thanh trên và lời Thỏ trải theo bề ngang (vùng chơi tự phóng to, fit.js). */
+  @media (orientation: landscape) {
+    .pk-play-page > .pk-topbar, .pk-play-page > .pk-guide, .pk-play-page > .pk-steps { max-width: min(1700px, 96vw); }
+  }
   .pk-stage, .pk-cmp { max-width: 1200px; }
   .pk-bubble { font-size: 1.45rem; }
 
