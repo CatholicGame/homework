@@ -67,7 +67,11 @@ function pinchRatio(lm, aspect) {
 
 // Tay càng gần camera thì hình càng to: cổ tay → gốc ngón giữa + gốc trỏ → gốc út.
 const handSpan = (lm) => Math.hypot(lm[9].x - lm[0].x, lm[9].y - lm[0].y) + Math.hypot(lm[17].x - lm[5].x, lm[17].y - lm[5].y);
-const palmOf = (lm) => ({ x: 1 - (lm[0].x + lm[5].x + lm[17].x) / 3, y: (lm[0].y + lm[5].y + lm[17].y) / 3 });
+// Lọc tay người khác (bố mẹ, anh chị đứng sau): chỉ nhận tay gần camera cỡ tay đang dùng
+// (to ít nhất HAND_KEEP lần tay gần nhất trước đó). Tay xa hơn chỉ được nhận khi đã HAND_WAIT_MS
+// không thấy tay gần nào.
+const HAND_KEEP = 0.7;
+const HAND_WAIT_MS = 3000;
 
 // Lọc One Euro: đứng yên thì con trỏ không rung, đưa tay nhanh thì bám kịp (thông số telerehabplay).
 class OneEuro {
@@ -124,7 +128,8 @@ export async function startTracking(video, { onFrame, onStatus }) {
     let pinchFlips = 0;
     let lastVideoTime = -1;
     let lastInfer = 0;
-    let sticky = null;
+    let lockSpan = 0; // cỡ tay gần nhất đang dùng
+    let lockAt = -Infinity; // lần cuối thấy tay gần đó
 
     const loop = () => {
       if (stopped) return;
@@ -135,27 +140,20 @@ export async function startTracking(video, { onFrame, onStatus }) {
       lastInfer = now;
       let result;
       try { result = landmarker.detectForVideo(video, now); } catch { return; }
-      const hands = (result.landmarks || []).filter(lm => lm.length >= 21);
+      let hands = (result.landmarks || []).filter(lm => lm.length >= 21);
+      if (hands.length && now - lockAt < HAND_WAIT_MS) hands = hands.filter(lm => handSpan(lm) >= lockSpan * HAND_KEEP);
       if (!hands.length) {
         tx.x = ty.x = null;
-        sticky = null;
         pinch = false;
         pinchFlips = 0;
         onFrame({ seen: false });
         return;
       }
-      // Hai tay trong khung (tay bố mẹ, hoặc cả hai tay bé): giữ tay đang dùng, trừ khi
-      // tay kia đưa gần camera hơn hẳn.
-      let best = hands.reduce((a, b) => (handSpan(b) > handSpan(a) ? b : a));
-      if (sticky && hands.length > 1) {
-        const near = hands.reduce((a, b) => {
-          const pa = palmOf(a), pb = palmOf(b);
-          return Math.hypot(pb.x - sticky.x, pb.y - sticky.y) < Math.hypot(pa.x - sticky.x, pa.y - sticky.y) ? b : a;
-        });
-        if (near !== best && handSpan(best) < handSpan(near) * 1.15) best = near;
-      }
-      const palm = palmOf(best);
-      sticky = palm;
+      // Luôn chọn tay gần camera nhất (hình to nhất).
+      const best = hands.reduce((a, b) => (handSpan(b) > handSpan(a) ? b : a));
+      // Bám theo cỡ tay mỗi lần thấy: bé lùi tay ra xa từ từ vẫn giữ được tay mình.
+      lockSpan = handSpan(best);
+      lockAt = now;
       // Đổi chụm ↔ tách chỉ khi thấy 2 lần liền (~0,1 giây): ngón đang khép dở không làm chọn nhầm.
       const aspect = (video.videoWidth / video.videoHeight) || 16 / 9;
       const r = pinchRatio(best, aspect);
