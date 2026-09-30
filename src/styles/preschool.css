@@ -1206,3 +1206,105 @@ button.pk4-box { cursor: pointer; }
 .pk3-eqres { display: inline-flex; align-items: center; gap: inherit; flex-wrap: nowrap; }
 .pk3-slots { gap: 0.45rem; }
 @media (min-width: 1024px) { .pk3-slots { flex-wrap: nowrap; } .pk3-eqres { gap: 0.8rem; } }
+
+/* ── Chơi bằng bàn tay trước camera (preschool/hand/handInput.js) ────────── */
+.pk-by-hand { display: none; }
+body.pk-hand-on .pk-by-hand { display: revert; }
+body.pk-hand-on .pk-by-touch { display: none; }
+
+/* Không AR: camera nhỏ ở góc dưới (soi gương) để bé biết tay mình có đang được thấy. */
+.pk-hand-video {
+  position: fixed; left: 12px; bottom: 12px; z-index: 60;
+  width: clamp(104px, 14vw, 168px); aspect-ratio: 4 / 3; object-fit: cover;
+  border-radius: 18px; border: 4px solid #fff; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  transform: scaleX(-1); background: #0F172A; pointer-events: none; transition: opacity 0.2s;
+}
+/* Bàn tay đưa tới góc camera: camera mờ đi để thấy nút phía sau. */
+body.pk-hand-near .pk-hand-video, body.pk-hand-near:not(.pk-ar) .pk-hand-status { opacity: 0.2; }
+.pk-hand-veil { display: none; }
+/* AR: bé thấy chính mình phía sau, một lớp trắng mỏng giữ chữ và hình dễ nhìn. */
+body.pk-ar .pk-hand-video {
+  inset: 0; z-index: -1; width: 100%; height: 100%; aspect-ratio: auto;
+  border: 0; border-radius: 0; box-shadow: none; opacity: 1 !important;
+}
+body.pk-ar .pk-hand-veil { display: block; position: fixed; inset: 0; z-index: -1; background: rgba(255, 255, 255, 0.22); pointer-events: none; }
+body.pk-ar .pk { background: transparent; }
+body.pk-ar .pk-sky { display: none; }
+
+.pk-hand-cursor {
+  position: fixed; left: 0; top: 0; z-index: 10000; pointer-events: none;
+  width: 0; height: 0;
+}
+/* Khung xương bàn tay (vẽ dưới con trỏ, chỗ chụm trùng tâm con trỏ). */
+.pk-hand-skel { position: fixed; inset: 0; z-index: 9999; width: 100%; height: 100%; pointer-events: none; }
+.pk-hand-cursor[hidden] { display: none; }
+.pk-hand-ring {
+  position: absolute; left: -30px; top: -30px; width: 60px; height: 60px; border-radius: 50%;
+  border: 5px solid #fff; background: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.55), 0 6px 14px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.pk-hand-dot {
+  position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 3px #0284C7;
+}
+.pk-hand-cursor.is-over .pk-hand-dot { box-shadow: 0 0 0 3px #16A34A; }
+.pk-hand-cursor.is-pinch .pk-hand-dot { box-shadow: 0 0 0 3px #EA580C; }
+.pk-hand-cursor.is-icon .pk-hand-ring, .pk-hand-cursor.is-icon .pk-hand-dot { display: none; }
+/* Vuốt (chụm ngón): tím, khác màu chọn để bé biết đang kéo trang chứ không bấm. */
+.pk-hand-cursor.is-swipe .pk-hand-ring { background: rgba(168, 85, 247, 0.4); box-shadow: 0 0 0 4px #9333EA, 0 6px 14px rgba(0, 0, 0, 0.25); }
+.pk-hand-cursor.is-swipe .pk-hand-dot { box-shadow: 0 0 0 3px #9333EA; }
+/* Tô chữ: con trỏ giữa ngón cái và ngón trỏ, vòng nhỏ như ngòi bút để thấy rõ nét đang tô. */
+.pk-hand-cursor.is-tip .pk-hand-ring { left: -16px; top: -16px; width: 32px; height: 32px; border-width: 4px; }
+.pk-hand-cursor.is-tip .pk-hand-dot { left: -5px; top: -5px; width: 10px; height: 10px; }
+.pk-hand-cursor.is-over .pk-hand-ring { background: rgba(74, 222, 128, 0.45); box-shadow: 0 0 0 4px #16A34A, 0 0 22px rgba(74, 222, 128, 0.8); transform: scale(1.12); }
+.pk-hand-cursor.is-pinch .pk-hand-ring { background: rgba(249, 115, 22, 0.5); box-shadow: 0 0 0 4px #EA580C, 0 6px 14px rgba(0, 0, 0, 0.25); transform: scale(0.88); }
+.pk-hand-cursor.is-press .pk-hand-ring { animation: pk-hand-press 0.35s ease-out; }
+@keyframes pk-hand-press { 0% { transform: scale(1.25); } 100% { transform: scale(0.88); } }
+/* Vật đang dưới con trỏ: sáng viền xanh, chụm ngón lại là chọn. */
+.pk-hand-hover { outline: 5px solid #22C55E !important; outline-offset: 3px; }
+.pk-item.pk-hand-hover { outline-offset: 0; background: rgba(34, 197, 94, 0.18); }
+
+.pk-hand-status {
+  position: fixed; left: 50%; bottom: 14px; translate: -50% 0; z-index: 61; max-width: calc(100vw - 32px);
+  padding: 0.5rem 1.2rem; border-radius: 999px; background: #1E3A5F; color: #fff;
+  font-family: 'Baloo 2', 'Quicksand', sans-serif; font-size: clamp(1rem, 2.6vw, 1.25rem); font-weight: 800;
+  text-align: center; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); pointer-events: none;
+}
+.pk-hand-status[hidden], .pk-hand-status:empty { display: none; }
+body.pk-hand-on:not(.pk-ar) .pk-hand-status {
+  left: 12px; translate: none; bottom: calc(12px + clamp(78px, 10.5vw, 126px) + 8px); width: max-content; max-width: clamp(104px, 14vw, 168px);
+  padding: 0.35rem 0.6rem; border-radius: 16px; font-size: 0.95rem; line-height: 1.3; transition: opacity 0.2s;
+}
+.pk-hand-guide + .pk-hand-guide { margin-top: 0.2rem; }
+.pk-hand-guide { display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; justify-content: center; }
+.pk-hand-guide i { font-style: normal; font-size: 1.6em; line-height: 1; }
+.pk-hand-guide b { color: #FCD34D; }
+
+/* Bảng chọn cách chơi */
+.pk-hand-sheet { position: fixed; inset: 0; z-index: 9000; display: grid; place-items: center; padding: 16px; background: rgba(15, 23, 42, 0.45); }
+.pk-hand-menu {
+  width: min(460px, 100%); padding: 1.2rem; border-radius: 28px; background: #fff; color: #1E3A5F;
+  font-family: 'Baloo 2', 'Quicksand', sans-serif; box-shadow: 0 8px 0 #38BDF8, 0 16px 40px rgba(0, 0, 0, 0.3);
+  display: flex; flex-direction: column; gap: 0.6rem;
+}
+.pk-hand-menu h2 { text-align: center; font-size: 1.5rem; font-weight: 800; color: #0369A1; }
+.pk-hand-opt {
+  display: flex; align-items: center; gap: 0.8rem; width: 100%; padding: 0.7rem 0.9rem; text-align: left;
+  border: 4px solid #E0F2FE; border-radius: 22px; background: #F8FAFC; color: inherit; font-family: inherit; cursor: pointer;
+}
+.pk-hand-opt.is-on { border-color: #F97316; background: #FFF7ED; }
+.pk-hand-opt-icon { font-size: 2.4rem; line-height: 1; }
+.pk-hand-opt-text { display: flex; flex-direction: column; }
+.pk-hand-opt-text b { font-size: 1.25rem; font-weight: 800; }
+.pk-hand-opt-text small { font-size: 1rem; font-weight: 600; color: #475569; line-height: 1.35; }
+.pk-hand-privacy { text-align: center; font-size: 0.9rem; color: #64748B; }
+.pk-hand-opt:disabled { opacity: 0.45; cursor: not-allowed; }
+.pk-hand-nocam { padding: 0.5rem 0.8rem; border-radius: 14px; background: #FEF3C7; color: #92400E; font-size: 1rem; font-weight: 700; text-align: center; }
+/* Nút cách chơi: có chữ nhỏ bên dưới để bố mẹ biết chỗ bật camera. */
+.pk-hand-btn { position: relative; }
+.pk-hand-btn small {
+  position: absolute; left: 50%; bottom: -1.1rem; translate: -50% 0; white-space: nowrap;
+  padding: 0 0.4rem; border-radius: 999px; background: #fff; color: #0369A1; font-size: 0.72rem; font-weight: 800; line-height: 1.35;
+  box-shadow: 0 2px 0 rgba(2, 132, 199, 0.3); pointer-events: none;
+}

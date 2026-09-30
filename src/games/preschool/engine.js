@@ -23,6 +23,7 @@ import { PLAYERS4 } from './play4.js';
 import COUNT_ITEMS from './count-items.json';
 import { awardStars, recordWrong, hasEarned, earnedFor, getQuestionStars, availableStars } from '../../engine/stars.js';
 import { recordAttempt } from '../../engine/activity.js';
+import { handButton, bindHandButton, resumeHand, stopHand } from './hand/handInput.js';
 
 // Khung đồ vật của hình đếm Tập 1–2 (scripts/count-detect.py), tra theo đường dẫn hình.
 const COUNT_NAME = Object.fromEntries(Object.entries(
@@ -52,9 +53,10 @@ export function renderPreschool(app, onBack, book) {
   const runCleanup = () => { cleanup.forEach(fn => fn()); cleanup = []; };
 
   // Rời trang (về trang chủ) thì dừng đọc.
-  const leave = () => { runCleanup(); stopSpeaking(); clearTimeout(voiceTimer); stopVoiceWatch?.(); onBack(); };
+  const leave = () => { runCleanup(); stopSpeaking(); stopHand(); clearTimeout(voiceTimer); stopVoiceWatch?.(); onBack(); };
 
   showMap();
+  resumeHand();
 
   // Máy không có giọng tiếng Việt: lặng lẽ báo admin (không hiện gì cho bé). Chờ danh sách
   // giọng của trình duyệt tải xong rồi mới kết luận; giọng trực tuyến hỏng giữa chừng thì báo lại.
@@ -149,9 +151,10 @@ export function renderPreschool(app, onBack, book) {
   }
 
   function muteButton() {
-    return `<button type="button" class="pk-round-btn" id="pk-mute" aria-label="${isMuted() ? 'Bật âm thanh' : 'Tắt âm thanh'}">${isMuted() ? '🔇' : '🔊'}</button>`;
+    return `${handButton()}<button type="button" class="pk-round-btn" id="pk-mute" aria-label="${isMuted() ? 'Bật âm thanh' : 'Tắt âm thanh'}">${isMuted() ? '🔇' : '🔊'}</button>`;
   }
   function bindMute() {
+    bindHandButton(app);
     const btn = app.querySelector('#pk-mute');
     btn.onclick = () => {
       setMuted(!isMuted());
@@ -354,7 +357,7 @@ export function renderPreschool(app, onBack, book) {
     const hint = document.createElement('span');
     hint.className = 'pk-tap-hint';
     hint.setAttribute('aria-hidden', 'true');
-    hint.innerHTML = '<i>👆</i><b>Chạm để đếm</b>';
+    hint.innerHTML = '<i class="pk-by-touch">👆</i><i class="pk-by-hand">🤏</i><b class="pk-by-touch">Chạm để đếm</b><b class="pk-by-hand">Chụm ngón để đếm</b>';
     const showHint = (on) => {
       hint.hidden = !on;
       wrap.classList.toggle('is-hinting', on);
