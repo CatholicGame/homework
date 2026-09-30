@@ -18,11 +18,13 @@ import { TRUCK_GAME } from './grade3Games/trucks.js';
 import { MACHINE_GAME } from './grade3Games/machine.js';
 import { DETECTIVE_GAME } from './grade3Games/detective.js';
 import { ROBOT_GAME } from './grade3Games/robot.js';
+import { PIN_GAME } from './grade3Games/pinboard.js';
 import { playRound, bestFor } from './grade3Games/loop.js';
 import { lessonText, stallLessonText, hasDoneAny, lessonUnits, bookName } from './grade3Games/lessons.js';
 import { NPCS, npcPic, cap, preloadNpcs } from './grade3Games/npc.js';
 import { injectGameStyles, menuBackdrop, fitMenu } from './grade3Games/styles.js';
 import { getTotalStars } from '../engine/stars.js';
+import { tablesForUnit } from './grade3Games/catalog.js';
 
 export const GRADE3_LIST = [
   {
@@ -63,6 +65,12 @@ export const GRADE3_LIST = [
     tags: ['Biểu thức', 'Thứ tự tính', 'Dấu ngoặc'],
     stalls: [{ game: ROBOT_GAME }],
   },
+  {
+    id: 'pinboard', icon: '🏗️', title: 'Kiến trúc sư bảng ghim', single: true,
+    desc: 'Nhận đơn thiết kế: cắm ghim tìm trung điểm, căng dây tạo hình, vẽ đường tròn bằng compa, tô hình trang trí!',
+    tags: ['Trung điểm', 'Hình chữ nhật', 'Compa'],
+    stalls: [{ game: PIN_GAME }],
+  },
 ];
 
 /** "ki-lô-gam (lớp 2) và bảng nhân 2, bảng nhân 5" → ['ki-lô-gam (lớp 2)', 'bảng nhân 2', 'bảng nhân 5'] */
@@ -75,14 +83,21 @@ function knowledgeChips(text) {
  * menu bài hoặc nút gợi ý ở màn kết quả của một bài. Khi đó nút quay lại (màn giới thiệu, ✕ trong màn chơi)
  * về thẳng bài học (ctx.onBack) thay vì đi qua danh sách cấp → quầy → trò; chỉ khi em bấm "Chọn cấp khác"
  * mới vào luồng danh sách như bình thường.
+ * start.unit = bài đang mở: cấp gắn với bài đó chỉ ra phép tính của bài — game.focus(level, focus) với
+ * focus = unitFocus(book, unit) (lớp 3 Bài 4 → { tables: [2, 5] }; lớp 2: grade2Games/catalog.js unitFocus). Vào từ nút "Trò chơi tăng cường" / "Chọn cấp khác" thì đủ mọi bảng.
  * stallLessons: thẻ chọn quầy ghi thêm bài học của quầy ("📚 Bài 39, 40") — lớp 2 (mỗi quầy ít cấp, dòng ngắn).
  */
-export function renderGamesHub(app, ctx, start = null, { games: GAMES = GRADE3_LIST, kicker = '🎮 Toán 3', stallLessons = false } = {}) {
+export function renderGamesHub(app, ctx, start = null, { games: GAMES = GRADE3_LIST, kicker = '🎮 Toán 3', stallLessons = false, unitFocus = tablesForUnit } = {}) {
   injectGameStyles();
   preloadNpcs();
   const found = start && GAMES.map(g => ({ g, s: g.stalls.find(s => s.game?.id === start.stall) })).find(x => x.s);
   const lv = found && found.s.game.levels.find(l => l.id === start.level);
   let fromLesson = !!lv;
+  const unit = start?.unit;
+  const unitFocused = unit && unitFocus ? unitFocus(ctx.book, unit) : null;
+  // Chỉ các cấp luyện đúng bài đó (lessons / also) — "Cấp tiếp theo" sang bảng khác thì chơi như thường.
+  const linked = (l) => l.lessons?.[ctx.book]?.includes(unit) || l.also?.[ctx.book]?.includes(unit);
+  const focused = (game, l) => (fromLesson && unitFocused && game.focus && linked(l) ? game.focus(l, unitFocused) : l);
   if (lv) showIntro(found.g, found.s.game, lv);
   else showGames();
 
@@ -168,7 +183,8 @@ export function renderGamesHub(app, ctx, start = null, { games: GAMES = GRADE3_L
     app.querySelectorAll('[data-level]').forEach(b => { b.onclick = () => showIntro(g, game, game.levels.find(l => l.id === b.dataset.level)); });
   }
 
-  function showIntro(g, game, lv) {
+  function showIntro(g, game, baseLv) {
+    const lv = focused(game, baseLv);
     const units = lessonUnits(lv, ctx);
     const done = hasDoneAny(lv, ctx);
     const lesson = lessonText(lv, ctx, { short: true });
@@ -206,11 +222,11 @@ export function renderGamesHub(app, ctx, start = null, { games: GAMES = GRADE3_L
       </div>`);
     app.querySelector('[data-act="back"]').onclick = fromLesson ? ctx.onBack : () => showLevels(g, game);
     app.querySelector('[data-act="lesson"]')?.addEventListener('click', () => ctx.openUnit(lastUnit.id));
-    app.querySelector('[data-act="play"]').onclick = () => play(g, game, lv);
+    app.querySelector('[data-act="play"]').onclick = () => play(g, game, baseLv, lv);
   }
 
-  function play(g, game, lv) {
-    const idx = game.levels.indexOf(lv);
+  function play(g, game, baseLv, lv) {
+    const idx = game.levels.indexOf(baseLv);
     const nextLv = game.levels[idx + 1];
     playRound(app, {
       game, level: lv,

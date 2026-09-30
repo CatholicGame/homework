@@ -9,7 +9,7 @@ import { weightIcon, weightLabel, weightSize } from '../art/weights.js';
 import { FRUITS, fruitIcon, pieceIcon, panHeapSvg } from '../art/fruits.js';
 import { NPCS, cap } from '../npc.js';
 import { mountStall, Q } from './stall.js';
-import { stallMeta, levelMeta } from '../catalog.js';
+import { stallMeta, levelMeta, tablesText } from '../catalog.js';
 import { flyOne, svgBoxOnScreen } from '../fly.js';
 import { sfx } from '../../preschool/fx.js';
 
@@ -160,6 +160,16 @@ export const FRUIT_GAME = {
   stallIcon: () => fruitIcon('cam', 56),
   summaryText: (ok, total) => `Em đã phục vụ <strong>${ok}/${total}</strong> khách hài lòng.`,
 
+  /** Mở từ biểu tượng của một bài bảng nhân (catalog.js tablesForUnit): chỉ phép nhân trong các bảng đó. */
+  focus(level, { tables } = {}) {
+    if (!tables) return level;
+    return {
+      ...level, tables,
+      knowledge: level.knowledge.replace(/bảng nhân.*(?= và số tròn chục)/, tablesText(tables)),
+      ask: (n) => `Cân đúng số ki-lô-gam rồi tính tiền giúp ${n.me}!`,
+    };
+  },
+
   makeMission(rng, level, history) {
     const prev = history[history.length - 1];
     const recentNpcs = history.slice(-3).map(m => m.npc.id);
@@ -169,7 +179,10 @@ export const FRUIT_GAME = {
     // Số kg (100 g) khách mua chọn trước, trải đều cả khoảng của cấp (để bảng nhân nào cũng gặp);
     // rồi chọn loại quả có giá hợp lệ ở cấp này và nhặt được vừa tay (vd. 8 kg thì là bưởi, dưa hấu —
     // không ai nhặt 40 quả cam).
-    const fits = (id, a) => level.price(table[id]).length && a >= (table[id].min || 1) && sizeSets(table[id], level.sizes, a * unitG).length;
+    // Mở từ bài một bảng (focus): một thừa số là số của bảng — số kg, hoặc số chục của giá (30 → 3).
+    const T = level.tables;
+    const prices = (id, a) => level.price(table[id]).filter(p => !T || T.includes(a) || T.includes(p / 10));
+    const fits = (id, a) => prices(id, a).length && a >= (table[id].min || 1) && sizeSets(table[id], level.sizes, a * unitG).length;
     const amounts = range(level.mass[0], level.mass[1]).filter(a => Object.keys(table).some(id => fits(id, a)));
     let amount;
     do { amount = rng.pick(amounts); } while (prev && amount === prev.amount && amounts.length > 1);
@@ -177,7 +190,7 @@ export const FRUIT_GAME = {
     const fresh = pool.filter(id => id !== prev?.fruit).length ? pool.filter(id => id !== prev?.fruit) : pool;
     const fruit = rng.pick(fresh);
     const info = table[fruit];
-    const price = rng.pick(level.price(info));
+    const price = rng.pick(prices(fruit, amount));
     const grams = amount * unitG;
     const total = price * amount;
     const paid = level.steps.includes('change') ? NOTES.find(n => n > total) : 0;

@@ -125,13 +125,17 @@ function makeMissing(rng, history) {
   return { kind: 'missing', sign, start: s, target: s + sign * k, k, lo: 0, hi: 20, cards: [1, 2, 3, 4, 5, 6, 7, 8, 9] };
 }
 
-function makeCarry(rng, history) {
+// Tên phép tính theo đúng tên Bài 19, 20, 22, 23 (focus từ grade2Games/catalog.js unitFocus).
+const carryText = (sign, digits) => `phép ${sign > 0 ? 'cộng' : 'trừ'} có nhớ số có hai chữ số ${sign > 0 ? 'với' : 'cho'} số có ${digits === 1 ? 'một' : 'hai'} chữ số`;
+
+// Mở từ Bài 19–23 (lv.sign, lv.digits): chỉ cộng hoặc chỉ trừ, số thứ hai đúng số chữ số của bài.
+function makeCarry(rng, history, lv = {}) {
   const prev = history[history.length - 1];
-  const sign = prev ? -prev.sign : rng.pick([1, -1]);
+  const sign = lv.sign || (prev ? -prev.sign : rng.pick([1, -1]));
   const seen = new Set(history.map(h => `${h.a}${h.sign}${h.b}`));
   let a, b;
   do {
-    const two = rng() < 0.6; // số trừ / số hạng có hai chữ số
+    const two = lv.digits ? lv.digits === 2 : rng() < 0.6; // số trừ / số hạng có hai chữ số
     if (sign > 0) {
       a = rng.int(1, 7) * 10 + rng.int(2, 9);
       const u = rng.int(10 - (a % 10), 9);
@@ -143,7 +147,7 @@ function makeCarry(rng, history) {
       const maxT = Math.floor((a - u - 1) / 10);
       b = two && maxT >= 1 ? rng.int(1, Math.min(maxT, 5)) * 10 + u : u;
     }
-  } while (seen.has(`${a}${sign}${b}`) || a + sign * b < 1 || a + sign * b > 99);
+  } while (seen.has(`${a}${sign}${b}`) || a + sign * b < 1 || a + sign * b > 99 || (lv.digits === 2 && b < 10));
   return { kind: 'carry', sign, a, b, start: a, target: a + sign * b, lo: 0, hi: 100, cards: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30] };
 }
 
@@ -180,6 +184,12 @@ export const FROG_GAME = {
     return [...level.how.map(([p, label]) => ({ pic: pic(p), label })), { pic: '😊', label: 'Bạn vui' }];
   },
 
+  /** Mở từ biểu tượng của Bài 19, 20, 22, 23 (grade2Games/catalog.js unitFocus): chỉ phép tính của bài. */
+  focus(level, { sign, digits } = {}) {
+    if (!sign || level.kind !== 'carry') return level;
+    return { ...level, sign, digits, knowledge: carryText(sign, digits) };
+  },
+
   makeMission(rng, level, history) {
     const npc = FROG_MOM;
     const k = level.kind;
@@ -187,7 +197,7 @@ export const FROG_GAME = {
       : k === 'add10' ? makeCross(rng, history, 1)
       : k === 'sub10' ? makeCross(rng, history, -1)
       : k === 'missing' ? makeMissing(rng, history)
-      : makeCarry(rng, history);
+      : makeCarry(rng, history, level);
     return { ...m, npc };
   },
 

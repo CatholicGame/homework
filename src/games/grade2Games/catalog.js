@@ -116,3 +116,25 @@ export function levelsForUnit(book, unitId) {
   const has = (l) => l.lessons[book]?.includes(unitId) || l.also?.[book]?.includes(unitId);
   return STALLS.flatMap(stall => stall.levels.filter(has).map(level => ({ stall, level })));
 }
+
+/**
+ * Kiến thức riêng của từng bài: mở trò chơi từ biểu tượng ở bài đó (hoặc nút gợi ý ở màn kết quả) thì cấp gắn với
+ * bài chỉ ra phép tính của bài — bé mới học Bài 39 Bảng nhân 2 chưa gặp bảng 5, Bài 19 (cộng có nhớ) chưa gặp phép trừ.
+ * Mở từ nút "Trò chơi tăng cường" thì vẫn trộn như thường. Mỗi trò đọc phần của mình trong game.focus(level, focus):
+ *   tables: bảng nhân / chia (quầy trứng, tiệc) · names: 'mul' | 'div' tên gọi thành phần (tiệc cấp 5)
+ *   sign: 1 cộng | -1 trừ, digits: số thứ hai có 1 hay 2 chữ số (ếch, tàu hỏa) · op + carry (xưởng, phạm vi 1 000)
+ * Bài 41 (Phép chia) và các bài Luyện tập chung vẫn trộn.
+ */
+const UNIT_FOCUS = {
+  'bai-19': { sign: 1, digits: 1 }, 'bai-20': { sign: 1, digits: 2 },
+  'bai-22': { sign: -1, digits: 1 }, 'bai-23': { sign: -1, digits: 2 },
+  'bai-38': { names: 'mul' }, 'bai-42': { names: 'div' },
+  'bai-39': { tables: [2] }, 'bai-40': { tables: [5] }, 'bai-43': { tables: [2] }, 'bai-44': { tables: [5] },
+  'bai-59': { op: 'add', carry: false }, 'bai-60': { op: 'add', carry: true },
+  'bai-61': { op: 'sub', carry: false }, 'bai-62': { op: 'sub', carry: true },
+};
+
+/** Focus của bài `unitId` cho game.focus(level, focus), hoặc null khi bài vẫn trộn. */
+export function unitFocus(book, unitId) {
+  return UNIT_FOCUS[unitId] || null;
+}

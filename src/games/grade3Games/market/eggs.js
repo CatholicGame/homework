@@ -8,7 +8,7 @@
 import { cartonSvg, cartonSize, cartonIcon, looseEggsSvg, looseTraySize, eggSvg } from '../art/eggs.js';
 import { NPCS, cap } from '../npc.js';
 import { mountStall, Q } from './stall.js';
-import { stallMeta, levelMeta } from '../catalog.js';
+import { stallMeta, levelMeta, tablesText } from '../catalog.js';
 import { sfx } from '../../preschool/fx.js';
 import { flyOne, calmMotion } from '../fly.js';
 
@@ -93,6 +93,22 @@ export const EGG_GAME = {
     return [...level.how.map(([p, label]) => ({ pic: pic(p), label })), { pic: '😊', label: 'Khách vui' }];
   },
 
+  /**
+   * Mở từ biểu tượng của một bài bảng nhân (catalog.js tablesForUnit): chỉ các bảng của bài đó —
+   * hộp đúng cỡ bảng (Bài 4: hộp 2, 5 quả); không có hộp cỡ đó (bảng 7) thì số hộp là số của bảng.
+   */
+  focus(level, { tables } = {}) {
+    if (!tables) return level;
+    const sizes = level.sizes.filter(s => tables.includes(s));
+    const div = level.kinds.some(k => k !== 'mul');
+    return {
+      ...level, tables,
+      sizes: sizes.length ? sizes : level.sizes,
+      knowledge: tablesText(tables, { div }),
+      ask: div ? (n) => `Hôm nay mình luyện bảng ${tables.join(', ')}, nhân hay chia giúp ${n.me}!` : level.ask,
+    };
+  },
+
   makeMission(rng, level, history) {
     const prev = history[history.length - 1];
     const recentNpcs = history.slice(-3).map(m => m.npc.id);
@@ -102,10 +118,14 @@ export const EGG_GAME = {
       ? (prev ? level.kinds.find(k => k !== prev.kind) : rng.pick(level.kinds))
       : level.kinds[0];
     if (kind === 'rem' && level.id === 'egg-3' && rng() < 0.2) kind = 'div';
-    const k = rng.pick(level.sizes.filter(s => s !== prev?.k));
+    const sizes = level.sizes.filter(s => s !== prev?.k);
+    const k = rng.pick(sizes.length ? sizes : level.sizes);
     const hi = Math.min(level.boxes[1], level.maxEggs ? Math.floor((level.maxEggs - k + 1) / k) : 99);
+    // Mở từ bài một bảng (focus): hộp không có cỡ đúng bảng đó (không có hộp 7 quả) thì số hộp là số của bảng.
+    const qs = level.tables && !level.tables.includes(k) ? level.tables.filter(t => t >= level.boxes[0] && t <= hi) : [];
     let q;
-    do { q = rng.int(level.boxes[0], hi); } while (prev && q === prev.q && hi > level.boxes[0]);
+    if (qs.length) q = rng.pick(qs.filter(t => t !== prev?.q).length ? qs.filter(t => t !== prev?.q) : qs);
+    else do { q = rng.int(level.boxes[0], hi); } while (prev && q === prev.q && hi > level.boxes[0]);
     const r = kind === 'rem' ? rng.int(1, k - 1) : 0;
     return { npc, kind, k, q, r, eggs: q * k + r };
   },

@@ -68,7 +68,8 @@ export const PARTY_LEVELS = [
 
 // ── Sinh nhiệm vụ ───────────────────────────────────────────────────────────────────────────────
 const lastOf = (h) => h[h.length - 1];
-const altK = (rng, h) => (lastOf(h) ? (lastOf(h).k === 2 ? 5 : 2) : rng.pick([2, 5]));
+// Bảng 2 và bảng 5 xen kẽ; mở từ bài một bảng (focus, lv.tables = [2]) thì chỉ bảng đó.
+const altK = (rng, h, lv) => (lv?.tables?.length === 1 ? lv.tables[0] : lastOf(h) ? (lastOf(h).k === 2 ? 5 : 2) : rng.pick([2, 5]));
 const tries = (make, ok) => { let v; for (let t = 0; t < 40; t++) { v = make(); if (ok(v)) break; } return v; };
 
 // Cấp 2: đồ vật trong bảng nhân 2 và bảng nhân 5.
@@ -79,45 +80,50 @@ const THEMES = {
   bag: { k: 5, holder: 'bag', item: 'candy', unit: 'viên', each: 'túi', act: '🍬 Bỏ kẹo vào túi' },
 };
 
-function makePlates(rng, h) {
-  const k = altK(rng, h);
+function makePlates(rng, h, lv) {
+  const k = altK(rng, h, lv);
   const q = tries(() => rng.int(2, 6), (v) => v !== k && !h.some(x => x.k === k && x.q === v));
   return { mode: 'plates', k, q, ans: k * q, item: 'candy' };
 }
 
-function makeTimes(rng, h) {
-  const order = h[0]?.order || [...rng.shuffle(Object.keys(THEMES)), rng.pick(['sock', 'petal'])];
+function makeTimes(rng, h, lv) {
+  const themes = Object.keys(THEMES).filter(t => !lv?.tables || lv.tables.includes(THEMES[t].k));
+  const order = h[0]?.order || [...rng.shuffle(themes), rng.pick(themes.filter(t => t === 'sock' || t === 'petal'))];
   const th = order[h.length % order.length];
   const { k } = THEMES[th];
   const q = tries(() => (k === 2 ? rng.int(3, 10) : rng.int(3, 8)), (v) => v !== lastOf(h)?.q && !h.some(x => x.theme === th && x.q === v));
   return { mode: 'times', order, theme: th, k, q, ans: k * q, item: THEMES[th].item };
 }
 
-function makeShare(rng, h) {
-  const n = lastOf(h) ? (lastOf(h).n === 2 ? 5 : 2) : rng.pick([2, 5]);
+function makeShare(rng, h, lv) {
+  const n = lv?.tables?.length === 1 ? lv.tables[0] : lastOf(h) ? (lastOf(h).n === 2 ? 5 : 2) : rng.pick([2, 5]);
   const q = tries(() => (n === 2 ? rng.int(3, 10) : rng.int(2, 8)), (v) => !h.some(x => x.n === n && x.q === v));
   return { mode: 'share', n, q, N: n * q, ans: q, item: 'candy' };
 }
 
-function makeGroup(rng, h) {
-  const k = altK(rng, h.filter(x => x.mode === 'group'));
+function makeGroup(rng, h, lv) {
+  const k = altK(rng, h.filter(x => x.mode === 'group'), lv);
   const t = tries(() => (k === 2 ? rng.int(3, 10) : rng.int(2, 8)), (v) => !h.some(x => x.mode === 'group' && x.k === k && x.t === v));
   return { mode: 'group', k, t, N: k * t, ans: t, item: 'cookie' };
 }
 
-function makeSplit(rng, h) {
+function makeSplit(rng, h, lv) {
   // Xen kẽ hai kiểu chia để bé phân biệt: đóng túi (chia theo nhóm) trước, rồi chia đều.
-  return h.length % 2 === 0 ? makeGroup(rng, h) : makeShare(rng, h.filter(x => x.mode === 'share'));
+  return h.length % 2 === 0 ? makeGroup(rng, h, lv) : makeShare(rng, h.filter(x => x.mode === 'share'), lv);
 }
 
-function makeNames(rng, h) {
-  const plan = h[0]?.plan || ['lmul', 'fmul', 'ldiv', 'fdiv', rng.pick(['lmul', 'ldiv'])];
+function makeNames(rng, h, lv) {
+  // Mở từ Bài 38 (lv.names = 'mul') chỉ tên gọi của phép nhân, Bài 42 ('div') chỉ của phép chia.
+  const pair = lv?.names === 'mul' ? ['lmul', 'fmul'] : lv?.names === 'div' ? ['ldiv', 'fdiv'] : ['lmul', 'fmul', 'ldiv', 'fdiv'];
+  const plan = h[0]?.plan || [...pair, ...(pair.length === 2 ? pair : []), rng.pick([pair[0], pair[pair.length - 2]])];
   const mode = plan[h.length % plan.length];
-  const k = altK(rng, h);
+  const k = altK(rng, h, lv);
   const q = tries(() => rng.int(2, 10), (v) => v !== k && !h.some(x => x.k === k && x.q === v));
   const mul = mode === 'lmul' || mode === 'fmul';
   const want = mul ? ['Thừa số', 'Thừa số', 'Tích'] : ['Số bị chia', 'Số chia', 'Thương'];
-  const chips = rng.shuffle([...want, mul ? rng.pick(['Thương', 'Số chia']) : rng.pick(['Tích', 'Thừa số'])]);
+  // Thẻ thừa: tên gọi bé đã học — chưa học phép chia (Bài 38) thì lấy tên của phép cộng.
+  const extra = mul ? (lv?.names === 'mul' ? ['Tổng', 'Số hạng'] : ['Thương', 'Số chia']) : ['Tích', 'Thừa số'];
+  const chips = rng.shuffle([...want, rng.pick(extra)]);
   // fmul: k × ? = p (? đĩa, mỗi đĩa k cái). fdiv: p : k = ? (xếp p cái kẹo, mỗi đĩa k cái).
   return { mode, plan, k, q, p: k * q, want, chips, ans: q, N: k * q, t: q, item: 'candy' };
 }
@@ -142,8 +148,23 @@ export const PARTY_GAME = {
     return [...level.how.map(([p, label]) => ({ pic: pic(p), label })), { pic: '😊', label: 'Bạn vui' }];
   },
 
+  /** Mở từ biểu tượng của một bài (grade2Games/catalog.js unitFocus): chỉ bảng của bài / tên gọi của bài. */
+  focus(level, { tables, names } = {}) {
+    if (tables?.length === 1 && level.kind === 'times') {
+      const things = tables[0] === 2 ? 'chiếc tất, cái bánh' : 'cánh hoa, viên kẹo';
+      return { ...level, tables, knowledge: `bảng nhân ${tables[0]}`, ask: (n) => `Tiệc cần bao nhiêu ${things}? ${cap(n.you)} tính giúp ${n.me}!` };
+    }
+    if (tables?.length === 1 && (level.kind === 'share' || level.kind === 'split')) {
+      return { ...level, tables, knowledge: `phép chia, bảng chia ${tables[0]}` };
+    }
+    if (names && level.kind === 'names') {
+      return { ...level, names, knowledge: names === 'mul' ? 'thừa số, tích' : 'số bị chia, số chia, thương' };
+    }
+    return level;
+  },
+
   makeMission(rng, level, history) {
-    const m = MAKERS[level.kind](rng, history);
+    const m = MAKERS[level.kind](rng, history, level);
     const recent = history.slice(-2).map(x => x.npc.id);
     return {
       ...m, level: level.kind, npc: rng.pick(HOSTS.filter(n => !recent.includes(n.id))),

@@ -2968,6 +2968,10 @@ export const STAR_RATINGS = {
   'g3games:robot-2': 4,
   'g3games:robot-3': 4,
   'g3games:robot-4': 4,
+  'g3games:pin-1': 2,
+  'g3games:pin-2': 3,
+  'g3games:pin-3': 3,
+  'g3games:pin-4': 2,
   // g2games: trò chơi tăng cường Toán 2 (grade2Games.js) — một khoá cho mỗi cấp
   'g2games:fac-1': 2,
   'g2games:fac-2': 2,

@@ -146,11 +146,13 @@ function makeCmp3(rng, h) {
   return { kind: 'cmp', a, b, order };
 }
 
-function makeCalc(rng, h) {
-  const plan = h[0]?.plan || ['add', 'sub', 'add', 'sub', rng.pick(['add', 'sub'])];
+// Mở từ Bài 59–62 (lv.op, lv.carry): chỉ cộng hoặc chỉ trừ, chỉ có nhớ hoặc chỉ không nhớ — đúng tên bài.
+function makeCalc(rng, h, lv = {}) {
+  const plan = h[0]?.plan || (lv.op ? [lv.op] : ['add', 'sub', 'add', 'sub', rng.pick(['add', 'sub'])]);
   const op = plan[h.length % plan.length];
   // Nhớ / tháo ở cột đơn vị hoặc cột chục (nhiều nhất một cột); lượt thứ 5 có thể không nhớ.
-  const carry = h.length === 4 ? rng.pick(['u', 't', 'none']) : rng.pick(['u', 'u', 't']);
+  const carry = lv.carry === false ? 'none'
+    : lv.carry || h.length !== 4 ? rng.pick(['u', 'u', 't']) : rng.pick(['u', 't', 'none']);
   for (let k = 0; k < 400; k++) {
     const a = rng.int(120, 860), b = rng.int(rng() < 0.4 ? 12 : 105, 480);
     const A = split(a), B = split(b);
@@ -187,8 +189,14 @@ export const FACTORY_GAME = {
     return [...level.how.map(([p, label]) => ({ pic: pic(p), label })), { pic: '😊', label: 'Khách vui' }];
   },
 
+  /** Mở từ biểu tượng của Bài 59–62 (grade2Games/catalog.js unitFocus): chỉ phép tính của bài. */
+  focus(level, { op, carry } = {}) {
+    if (!op || level.kind !== 'calc') return level;
+    return { ...level, op, carry, knowledge: `phép ${op === 'add' ? 'cộng' : 'trừ'} (${carry ? 'có' : 'không'} nhớ) trong phạm vi 1 000` };
+  },
+
   makeMission(rng, level, history) {
-    const m = MAKERS[level.kind](rng, history);
+    const m = MAKERS[level.kind](rng, history, level);
     const recent = history.slice(-3).map(x => x.npc.id);
     return { ...m, level: level.kind, npc: rng.pick(NPCS.filter(n => !recent.includes(n.id))) };
   },

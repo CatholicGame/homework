@@ -14,7 +14,7 @@ import { CLOCK_GAME } from './grade2Games/clock.js';
 import { ANT_GAME } from './grade2Games/ant.js';
 import { FACTORY_GAME } from './grade2Games/factory.js';
 import { EGG_GAME } from './grade3Games/market/eggs.js';
-import { levelMeta } from './grade2Games/catalog.js';
+import { levelMeta, unitFocus } from './grade2Games/catalog.js';
 
 /**
  * Chỉ lấy cấp `id` của một quầy lớp 3, lấy tên cấp và bài học theo catalog lớp 2, ghi sao vào lớp 2.
@@ -81,5 +81,5 @@ const GAMES = [
 ];
 
 export function renderGamesHub(app, ctx, start = null) {
-  renderHub(app, ctx, start, { games: GAMES, kicker: '🎮 Toán 2', stallLessons: true });
+  renderHub(app, ctx, start, { games: GAMES, kicker: '🎮 Toán 2', stallLessons: true, unitFocus });
 }

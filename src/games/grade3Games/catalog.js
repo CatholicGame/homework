@@ -100,6 +100,16 @@ export const STALLS = [
       { id: 'robot-4', n: 4, title: 'Lắp biểu thức ra mã', lessons: { workbook: ['bai-42'], practice: ['tuan-17', 'tuan-18'] } },
     ],
   },
+  {
+    id: 'pinboard', title: 'Kiến trúc sư bảng ghim', icon: '🏗️',
+    purpose: 'Giúp em thực hành kiến thức về trung điểm của đoạn thẳng, hình chữ nhật, hình vuông, hình tròn và vẽ trang trí đã học trong bài. Em cắm ghim, căng dây chun tạo hình, vẽ đường tròn bằng compa và tô hình trang trí theo đơn đặt hàng.',
+    levels: [
+      { id: 'pin-1', n: 1, title: 'Trung điểm', lessons: { workbook: ['bai-16'], practice: ['tuan-7'] }, also: { workbook: ['bai-22', 'bai-44'], practice: ['tuan-9', 'tuan-18'] } },
+      { id: 'pin-2', n: 2, title: 'Căng dây theo đơn', lessons: { workbook: ['bai-19', 'bai-20'], practice: ['tuan-8'] } },
+      { id: 'pin-3', n: 3, title: 'Vẽ đường tròn bằng compa', lessons: { workbook: ['bai-17', 'bai-20'], practice: ['tuan-7'] }, also: { workbook: ['bai-22', 'bai-43'], practice: ['tuan-18'] } },
+      { id: 'pin-4', n: 4, title: 'Vẽ trang trí', lessons: { workbook: ['bai-20'], practice: ['tuan-8'] } },
+    ],
+  },
 ];
 
 const STALL_BY_ID = Object.fromEntries(STALLS.map(s => [s.id, s]));
@@ -120,4 +130,26 @@ export function levelMeta(id) {
 export function levelsForUnit(book, unitId) {
   const has = (l) => l.lessons[book]?.includes(unitId) || l.also?.[book]?.includes(unitId);
   return STALLS.flatMap(stall => stall.levels.filter(has).map(level => ({ stall, level })));
+}
+
+/**
+ * Bảng nhân / bảng chia chính của từng bài. Mở trò chơi từ biểu tượng ở bài đó (hoặc nút gợi ý ở màn kết quả)
+ * thì các cấp nhân, chia (quầy trứng, quầy trái cây) chỉ ra phép tính trong các bảng này — bé mới học bảng 2, 5
+ * không gặp 6 × 7. Mở từ nút "Trò chơi tăng cường" thì vẫn đủ mọi bảng như thường.
+ * Tuần 3 có "Luyện tập chung" (Bài 8) ôn bảng 2 đến 5 nên lấy cả bốn bảng.
+ */
+const UNIT_TABLES = {
+  workbook: { 'bai-4': [2, 5], 'bai-5': [3], 'bai-6': [4], 'bai-9': [6], 'bai-10': [7], 'bai-11': [8], 'bai-12': [9] },
+  practice: { 'tuan-2': [2, 3, 5], 'tuan-3': [2, 3, 4, 5], 'tuan-4': [6, 7], 'tuan-5': [7, 8, 9], 'tuan-6': [9] },
+};
+
+/** Focus của bài `unitId` cho game.focus(level, focus): { tables: [2, 5] }, hoặc null khi bài không học riêng bảng nào. */
+export function tablesForUnit(book, unitId) {
+  const tables = UNIT_TABLES[book]?.[unitId];
+  return tables ? { tables } : null;
+}
+
+/** [2, 5] → "bảng nhân 2, bảng nhân 5" (thêm "bảng chia …" khi div). */
+export function tablesText(tables, { div = false } = {}) {
+  return tables.flatMap(t => (div ? [`bảng nhân ${t}`, `bảng chia ${t}`] : [`bảng nhân ${t}`])).join(', ');
 }

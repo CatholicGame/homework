@@ -362,6 +362,20 @@ Giá ghi thành câu rõ nghĩa: bảng giá "1 kg giá 30 nghìn đồng", câu
 
 - **Đồ hoạ:** bảng ghim (lưới điểm), dây chun nhiều màu, compa, phiếu đặt hàng.
 
+**Đã làm (2026-09-30):** 4 cấp — `src/games/grade3Games/pinboard.js`, hình vẽ `art/pinboard.js` (bảng gỗ có lưới đinh, ghim đầu tròn, dây chun, compa, giấy ô vuông). Theme `pin` của khung quầy (mái sọc cam); khách đặt đơn là bộ NPC chung. Phiếu đơn hàng nằm trên bảng; bé luôn tự bấm **✔ Xong**, trò chơi không báo trước là đã đúng.
+
+| Cấp | Tên | Nhiệm vụ (xen kẽ) |
+|---|---|---|
+| 1 | Trung điểm (6 đơn) | **mid**: dây chun AB căng sẵn (ngang, dọc hoặc chéo), cắm ghim vào trung điểm. **between**: chỉ có hai ghim A, B, cắm ghim vào một điểm ở giữa; lần thứ hai trong ván là "ở giữa nhưng không phải trung điểm". Khi kiểm tra, dây chun căng A → ghim → B nên thấy ngay dây thẳng hay gập. **check**: câu Đ / S như vở (5 điểm trên một hàng, có khi một điểm lệch hàng), một câu về trung điểm và một câu về điểm ở giữa |
+| 2 | Căng dây theo đơn (5 đơn) | Hình chữ nhật dài a ô rộng b ô, hình vuông cạnh s ô, tam giác có / không có góc vuông, **dời một ghim** cho thành hình chữ nhật / vuông, tứ giác có đúng 2 / không có góc vuông. Cắm tối đa 5 ghim từ hộp, chạm ghim để cất, kéo ghim để dời; dây chun tự căng quanh các ghim theo vòng (cắm thứ tự nào cũng thành hình không tự cắt) |
+| 3 | Vẽ đường tròn bằng compa (5 đơn) | 1 ô = 1 cm. Bán kính r; đường kính d (gõ bán kính trước ở máy tính); đi qua điểm A (có khi A nằm chéo, bán kính không tròn số); đường kính là đoạn thẳng AB (tâm = trung điểm AB) |
+| 4 | Vẽ trang trí (5 đơn) | Tô màu ô vuông (kéo để tô liền nhiều ô, chạm lại để xoá): **mirror** tô nốt nửa còn lại của hình gấp đôi (trái tim, cây thông, ngôi nhà, con bướm, tên lửa, vương miện, con cá, mũi tên), **copy** vẽ theo mẫu 4 × 4, **repeat** vẽ tiếp hoa văn lặp lại 2 hoặc 3 cột |
+
+- **Kiểm tra (hoạt cảnh):** cấp 1 đếm từng ô bằng bong bóng số từ mỗi đầu tới ghim ("3 ô" và "3 ô"); cấp 2 soi từng góc (dấu góc vuông xanh / ✗ đỏ) rồi ghi số ô trên mỗi cạnh ngang, dọc; cấp 3 compa bay về hộp, vẽ bán kính và đường kính có số cm, sai thì hiện đường tròn đúng bằng nét đứt xanh; cấp 4 nửa có sẵn lật qua nét gấp (hoặc khung mẫu / nhóm cột cuối trượt sang), ô đúng có ✓, ô thiếu viền đỏ nét đứt, ô thừa ✗.
+- **Compa:** chạm một cái đinh là compa bay ra, mũi nhọn cắm vào đó (chạm đinh khác để dời). Kéo đầu bút chì **ra xa / lại gần tâm** là mở compa (đầu bút dừng ở đinh); kéo đầu bút **dọc theo đường tròn** là vẽ (lệch quá nửa ô thì thành mở compa, nét đã vẽ bị xoá); kéo ngắn rồi thả trên một đinh khác khoảng cách cũng là mở tới đinh đó. Nắm thân compa kéo vòng cũng vẽ được. Chưa đủ một vòng thì nút Xong chỉ nhắc, không tính thất bại.
+- **Sinh đề:** trong khung chung 7 × 6 ô rồi dời vào giữa bảng thật (màn ngang 10 × 6 ô, màn dọc 7 × 8 ô). Mọi đáp án tính từ toạ độ (thẳng hàng, trung điểm, góc vuông, độ dài cạnh). Đường tròn luôn nằm gọn trong bảng.
+- **Bố cục:** chỉ đơn đường kính cần máy tính tiền, các đơn khác cất máy tính đi cho bảng to hơn. Thẻ kết quả: màn ngang thử cả bên phải lẫn bên dưới, chọn chỗ để bảng còn to hơn; bảng không co quá nửa khung.
+
 ### 4.7 🚌 Xe buýt lên xuống
 
 | Cấp | Phù hợp khi đã học | Nội dung |

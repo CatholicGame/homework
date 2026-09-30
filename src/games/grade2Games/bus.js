@@ -124,12 +124,16 @@ function makeFind(rng, h) {
   return { dir, a, k, c: a + dir * k, ans: k, crowd, stopMax: dir > 0 ? crowd : k };
 }
 
-function makeTrain(rng, h) {
-  const dir = nextDir(rng, h);
+// Tên phép tính theo đúng tên Bài 19, 20, 22, 23 (focus từ grade2Games/catalog.js unitFocus).
+const carryText = (sign, digits) => `phép ${sign > 0 ? 'cộng' : 'trừ'} có nhớ số có hai chữ số ${sign > 0 ? 'với' : 'cho'} số có ${digits === 1 ? 'một' : 'hai'} chữ số`;
+
+// Mở từ Bài 19–23 (lv.sign, lv.digits): chỉ lên (cộng) hoặc chỉ xuống (trừ), số người đúng số chữ số của bài.
+function makeTrain(rng, h, lv = {}) {
+  const dir = lv.sign || nextDir(rng, h);
   const seen = new Set(h.map(x => `${x.a}${x.dir}${x.k}`));
   let a, k;
   do {
-    const two = rng() < 0.65; // số người lên / xuống có hai chữ số
+    const two = lv.digits ? lv.digits === 2 : rng() < 0.65; // số người lên / xuống có hai chữ số
     if (dir > 0) {
       a = rng.int(1, 6) * 10 + rng.int(2, 9);
       const u = rng.int(10 - (a % 10), 9); // luôn có nhớ
@@ -141,7 +145,7 @@ function makeTrain(rng, h) {
       const maxT = Math.floor((a - u - 5) / 10);
       k = two && maxT >= 1 ? rng.int(1, Math.min(maxT, 4)) * 10 + u : u;
     }
-  } while (seen.has(`${a}${dir}${k}`) || a + dir * k < 5 || a + dir * k > 99);
+  } while (seen.has(`${a}${dir}${k}`) || a + dir * k < 5 || a + dir * k > 99 || (lv.digits === 2 && k < 10));
   return { dir, a, k, ans: a + dir * k, stopMax: k };
 }
 
@@ -162,9 +166,15 @@ export const BUS_GAME = {
     return [...level.how.map(([p, label]) => ({ pic: pic(p), label })), { pic: '😊', label: 'Bác vui' }];
   },
 
+  /** Mở từ biểu tượng của Bài 19, 20, 22, 23 (grade2Games/catalog.js unitFocus): chỉ phép tính của bài. */
+  focus(level, { sign, digits } = {}) {
+    if (!sign || level.kind !== 'train') return level;
+    return { ...level, sign, digits, knowledge: carryText(sign, digits) };
+  },
+
   makeMission(rng, level, history) {
     const sameKind = history.filter(x => x.kind === level.kind);
-    const m = MAKERS[level.kind](rng, sameKind);
+    const m = MAKERS[level.kind](rng, sameKind, level);
     const stops = level.kind === 'train' ? TRAIN_STOPS : BUS_STOPS;
     const used = history.map(x => x.stop);
     const stop = rng.pick(stops.filter(s => !used.slice(-3).includes(s)));

@@ -4348,7 +4348,7 @@ export function renderWorkbook(app, onBack, cfg) {
     app.querySelectorAll('.gw-unit-games').forEach((c) => c.addEventListener('click', (e) => e.stopPropagation()));
     app.querySelectorAll('.gw-unit-game').forEach((g) => {
       // Nhớ bài này là bài vừa mở → quay lại từ trò chơi, menu cuộn tới và nháy đúng bài đó.
-      const play = (e) => { e.stopPropagation(); setLastUnit(g.closest('.gw-unit-row').dataset.unit); openGames({ stall: g.dataset.stall, level: g.dataset.level }); };
+      const play = (e) => { e.stopPropagation(); const unit = g.closest('.gw-unit-row').dataset.unit; setLastUnit(unit); openGames({ stall: g.dataset.stall, level: g.dataset.level, unit }); };
       g.addEventListener('click', play);
       g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(e); } });
     });
@@ -4360,7 +4360,7 @@ export function renderWorkbook(app, onBack, cfg) {
     jumpToLastUnit();
   }
 
-  // Trò chơi tăng cường (tải động). start = { stall, level } → mở thẳng cấp đó (gợi ý ở màn kết quả bài).
+  // Trò chơi tăng cường (tải động). start = { stall, level, unit } → mở thẳng cấp đó, chỉ phép tính của bài unit.
   function openGames(start = null) {
     loadGames().then(m => m.renderGamesHub(app, {
       book: cfg.gamesBook, units: UNITS, unitName: cfg.unitName, storageKey: cfg.storageKey,
@@ -5893,7 +5893,7 @@ export function renderWorkbook(app, onBack, cfg) {
     };
     app.querySelector('#e3-home-result').onclick = showIntro;
     app.querySelectorAll('.gw-result-game').forEach(b => {
-      b.onclick = () => openGames({ stall: b.dataset.stall, level: b.dataset.level });
+      b.onclick = () => openGames({ stall: b.dataset.stall, level: b.dataset.level, unit: activeUnitIds[0] });
     });
   }
 

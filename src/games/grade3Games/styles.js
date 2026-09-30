@@ -920,6 +920,86 @@ export function injectGameStyles() {
       .g3o-dance .g3o-arm-l, .g3o-dance .g3o-arm-r { animation-duration: 1.2s; animation-iteration-count: 2; }
       .g3o-run-ready { animation: none; box-shadow: 0 4px 0 #C2410C, 0 0 0 4px #FDBA74; }
     }
+
+    /* Kiến trúc sư bảng ghim (g3p-*, pinboard.js): mái sọc cam, bàn gỗ; phiếu đơn hàng · bảng ghim SVG · hộp đồ nghề.
+       Có kết quả: bảng co lại (padding do pinboard.js đo theo thẻ) — thẻ nằm bên phải (màn ngang) / dưới (màn dọc). */
+    .g3f-theme-pin .g3f-awning { background: repeating-linear-gradient(90deg, #F97316 0 32px, #FFF7ED 32px 64px); border-bottom-color: #9A3412; }
+    .g3f-theme-pin .g3f-awning::after { background: radial-gradient(circle at 16px 0, #F97316 15px, transparent 16px) 0 0 / 64px 10px repeat-x, radial-gradient(circle at 16px 0, #FFF7ED 15px, transparent 16px) 32px 0 / 64px 10px repeat-x; }
+    .g3f-theme-pin .g3f-counter { background: linear-gradient(#FFFBF3, #F3E2C3); border-bottom-color: #8A5A2B; }
+    .g3f-theme-pin .g3f-sign { background: #9A3412; border-color: #7C2D12; color: #fff; }
+    .g3f-theme-pin .g3f-sign strong { color: #FED7AA; }
+    .g3p-sign-ic { font-size: 1.6em; line-height: 1; }
+    .g3f-theme-pin .g3f-main > .g3g-result { left: auto; right: 0.7rem; width: min(42%, 420px); transform: none; animation-name: g3lCard; }
+    .g3f-theme-pin .g3f-main.g3p-low > .g3g-result { left: 50%; right: auto; width: min(94%, 600px); transform: translateX(-50%); animation-name: g3fPop; }
+    .g3f-theme-pin .g3f-main::after { background: rgba(120,53,15,0.08); }
+    @media (orientation: portrait) { .g3f-theme-pin .g3f-main > .g3g-result { left: 50%; right: auto; width: min(94%, 460px); transform: translateX(-50%); animation-name: g3fPop; } }
+    /* Đơn không cần gõ số (g3p-nopad): không có máy tính tiền, cột khách hẹp lại cho bảng ghim to ra. */
+    .g3p-nopad .g3f-ask { display: none; }
+    .g3f-scene.g3p-nopad { grid-template-columns: clamp(210px, 25%, 340px) minmax(0, 1fr); }
+    @media (orientation: landscape) and (max-height: 500px) {
+      .g3f-scene.g3p-nopad { grid-template-columns: clamp(150px, 23%, 230px) minmax(0, 1fr); }
+      .g3p-nopad.g3f-pad-idle .g3f-customer { grid-template-columns: minmax(0, 1fr); grid-template-areas: "say" "npc"; }
+      .g3f-theme-pin .g3f-main > .g3g-result { width: min(56%, 440px); }
+      .g3f-theme-pin .g3g-result .g3g-result-text { font-size: 0.95rem; }
+      .g3f-theme-pin .g3g-result .g3g-tip { font-size: 0.8rem; padding: 0.3rem 0.5rem; }
+      .g3p-fin .g3p-order { display: none; }
+    }
+    @media (orientation: portrait) { .g3f-scene.g3p-nopad { grid-template-columns: minmax(0, 1fr); } }
+    @media (orientation: portrait) and (max-width: 600px) { .g3f-scene.g3p-nopad { grid-template-columns: auto minmax(0, 1fr); } }
+    .g3p-bench { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; gap: 0.45rem; padding-top: 0.2rem; box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+    /* Phiếu đơn hàng — trên dải của bảng hiệu (chừa chỗ bên phải cho bảng hiệu). */
+    .g3p-order { flex: none; align-self: flex-start; display: flex; align-items: center; gap: 0.45rem; min-height: clamp(2.6rem, 6.5vh, 3.3rem); margin-right: clamp(9.5rem, 24%, 13rem); box-sizing: border-box; background: #fff; border: 3px dashed #F97316; border-radius: 0.8rem; padding: 0.15rem 0.7rem; font-weight: 700; color: #1E293B; line-height: 1.2; font-size: clamp(0.95rem, 1.4vh + 0.5rem, 1.25rem); }
+    .g3p-order-ic { font-size: 1.3em; }
+    .g3p-order b { color: #1D4ED8; font-weight: 800; }
+    .g3p-hl { color: #C2410C; font-weight: 800; }
+    .g3p-unit { margin-left: 0.4rem; white-space: nowrap; color: #64748B; font-size: 0.8em; background: #F1F5F9; border-radius: 0.4rem; padding: 0 0.35rem; }
+    .g3p-board { flex: 1 1 0; min-height: 0; display: flex; justify-content: center; }
+    .g3p-svg { width: 100%; height: 100%; display: block; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer; }
+    .g3p-acts { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem; min-height: 3rem; }
+    .g3p-done .g3p-acts { display: none; }
+    .g3p-btn { padding: 0.5rem 1rem; border-radius: 0.9rem; background: #fff; color: #1E293B; border: 3px solid #94A3B8; box-shadow: 0 4px 0 #CBD5E1; font-size: clamp(1rem, 1.5vh + 0.6rem, 1.35rem); line-height: 1.15; }
+    .g3p-btn.g3p-on { background: #F97316; color: #fff; border-color: #C2410C; box-shadow: 0 4px 0 #9A3412; }
+    .g3p-btn:disabled.g3p-on { opacity: 1; }
+    .g3p-ok-btn { background: #16A34A; color: #fff; border-color: #15803D; box-shadow: 0 4px 0 #166534; }
+    .g3p-redo { background: #F1F5F9; }
+    /* Hộp ghim / hộp compa: ghim còn lại xếp chồng; nhấp nháy mời bé lấy ghim tới khi cắm cái đầu tiên. */
+    .g3p-box { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.8rem 0.3rem 0.5rem; border-radius: 0.9rem; background: #FFF7ED; border: 3px dashed #C2410C; color: #7C2D12; font-family: inherit; font-weight: 800; font-size: clamp(0.95rem, 1.4vh + 0.55rem, 1.25rem); cursor: pointer; touch-action: manipulation; }
+    .g3p-box-pins { display: inline-flex; align-items: center; min-width: 1.6em; }
+    .g3p-box-pin { width: 1.6em; height: 1.6em; display: inline-block; }
+    .g3p-box-pin + .g3p-box-pin { margin-left: -0.55em; }
+    .g3p-box-none { color: #C2A58A; font-size: 1.4em; line-height: 1; }
+    .g3p-box-empty { opacity: 0.6; border-style: dotted; }
+    .g3p-cbox-ic { width: 2.6em; height: 2.2em; display: inline-flex; align-items: center; justify-content: center; }
+    .g3p-cbox.g3p-box-empty .g3p-cbox-ic { visibility: hidden; }
+    .g3p-wait { animation: g3pWait 1.1s ease-in-out infinite; }
+    @keyframes g3pWait { 0%, 100% { box-shadow: 0 0 0 0 rgba(249,115,22,0.7); } 50% { box-shadow: 0 0 0 9px rgba(249,115,22,0); } }
+    .g3p-nudge { animation: g3eNudge 0.5s ease-in-out 3, g3pWait 1.1s ease-out 2; }
+    .g3p-swatch { width: clamp(2.4rem, 6vh, 3rem); height: clamp(2.4rem, 6vh, 3rem); border-radius: 50%; border: 4px solid #fff; background: var(--c); box-shadow: 0 0 0 3px #94A3B8, 0 3px 0 3px #CBD5E1; cursor: pointer; touch-action: manipulation; transition: transform .12s; }
+    .g3p-swatch.g3p-on { box-shadow: 0 0 0 4px #1E293B, 0 3px 0 4px #475569; transform: scale(1.12); }
+    .g3p-hop { transform-box: fill-box; transform-origin: center; animation: g3pHop .28s ease-out; }
+    @keyframes g3pHop { from { transform: scale(0.2); opacity: 0; } to { transform: none; opacity: 1; } }
+    .g3p-ring { transform-box: fill-box; transform-origin: center; animation: g3pHop .3s ease-out; }
+    .g3p-snap { animation: g3pSnap .45s ease-out; }
+    @keyframes g3pSnap { 0% { opacity: 0.2; } 40% { opacity: 1; } 60% { opacity: 0.7; } 100% { opacity: 1; } }
+    .g3p-cellpop { transform-box: fill-box; transform-origin: center; animation: g3pHop .2s ease-out; }
+    /* Compa: đầu bút chì nhấp nháy mời kéo (xanh dương: mở compa; mở rồi thì xanh lá: kéo vòng quanh để vẽ). */
+    .g3p-compass { filter: drop-shadow(0 3px 2px rgba(15,23,42,0.25)); cursor: grab; }
+    .g3p-openme .g3p-tipdot { animation: g3pTip 1.1s ease-in-out infinite; }
+    @keyframes g3pTip { 50% { stroke-width: 6; r: 12; } }
+    .g3p-turnme .g3p-tipdot { stroke: #16A34A; animation: g3pTip 1.1s ease-in-out infinite; }
+    .g3p-dot { color: #F97316; }
+    @media (orientation: portrait) and (max-width: 600px) {
+      .g3p-order { margin-right: 0; align-self: stretch; } .g3p-bench { padding-top: 0; } .g3p-btn { padding: 0.4rem 0.7rem; }
+      .g3p-fin .g3f-sign, .g3p-fin .g3p-order { display: none; } /* có kết quả: nhường chỗ cho bảng (thẻ kết quả đã ghi rõ) */
+    }
+    @media (orientation: landscape) and (max-height: 500px) { .g3p-bench { gap: 0.3rem; } .g3p-order { min-height: 2.2rem; font-size: 0.95rem; } .g3p-btn { padding: 0.3rem 0.7rem; font-size: 0.95rem; } .g3p-acts { min-height: 2.2rem; } .g3p-box { font-size: 0.95rem; padding: 0.15rem 0.6rem; } .g3p-swatch { width: 2.1rem; height: 2.1rem; } }
+    @media (prefers-reduced-motion: reduce) {
+      .g3p-wait { animation: none; box-shadow: 0 0 0 4px #FDBA74; }
+      .g3p-nudge { animation: g3pWait 1.2s ease-out 2; }
+      .g3p-openme .g3p-tipdot { animation: g3pTipCalm 1.1s steps(1) infinite; }
+      @keyframes g3pTipCalm { 50% { stroke-width: 6; } }
+      .g3p-turnme .g3p-tipdot { animation: g3pTipCalm 1.1s steps(1) infinite; }
+    }
   `;
   document.head.appendChild(style);
 }
