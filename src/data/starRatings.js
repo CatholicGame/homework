@@ -2989,4 +2989,13 @@ export const STAR_RATINGS = {
   'g2games:party-3': 3,
   'g2games:party-4': 3,
   'g2games:party-5': 3,
+  'g2games:clock-1': 2,
+  'g2games:clock-2': 3,
+  'g2games:clock-3': 3,
+  'g2games:clock-4': 3,
+  'g2games:clock-5': 3,
+  'g2games:ant-1': 2,
+  'g2games:ant-2': 3,
+  'g2games:ant-3': 3,
+  'g2games:ant-4': 2,
 };

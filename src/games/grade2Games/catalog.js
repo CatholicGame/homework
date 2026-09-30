@@ -51,6 +51,27 @@ export const STALLS = [
     ],
   },
   {
+    id: 'clock', title: 'Đồng hồ hẹn giờ & Tờ lịch', icon: '⏰',
+    purpose: 'Giúp em thực hành kiến thức về xem đồng hồ, giờ đúng, 15 phút, 30 phút, giờ buổi chiều, buổi tối, xem lịch, ngày, tháng đã học trong bài. Em làm thư ký của cả nhà: kéo kim đặt đồng hồ báo thức và xem tờ lịch treo tường.',
+    levels: [
+      { id: 'clock-1', n: 1, title: 'Giờ đúng', lessons: { g2: ['bai-29'] }, also: { g2: ['bai-32'] } },
+      { id: 'clock-2', n: 2, title: 'Giờ, 15 phút, 30 phút', lessons: { g2: ['bai-29', 'bai-31'] }, also: { g2: ['bai-32'] } },
+      { id: 'clock-3', n: 3, title: 'Giờ chiều, giờ tối', lessons: { g2: ['bai-29', 'bai-31'] }, also: { g2: ['bai-32'] } },
+      { id: 'clock-4', n: 4, title: 'Xem lịch: ngày, thứ', lessons: { g2: ['bai-30', 'bai-31'] } },
+      { id: 'clock-5', n: 5, title: 'Tháng có mấy ngày?', lessons: { g2: ['bai-30', 'bai-31'] } },
+    ],
+  },
+  {
+    id: 'ant', title: 'Chú kiến tìm đường', icon: '🐜',
+    purpose: 'Giúp em thực hành kiến thức về điểm, đoạn thẳng, đường thẳng, đường cong, ba điểm thẳng hàng, đo độ dài, đường gấp khúc, hình tứ giác và vẽ đoạn thẳng đã học trong bài. Em giúp Kiến Vàng tha mồi về tổ: căng chỉ qua các hạt đường, đặt thước đo cành cây, chọn đường ngắn hơn, vẽ cầu.',
+    levels: [
+      { id: 'ant-1', n: 1, title: 'Ba điểm thẳng hàng', lessons: { g2: ['bai-25'] }, also: { g2: ['bai-28'] } },
+      { id: 'ant-2', n: 2, title: 'Độ dài đường gấp khúc', lessons: { g2: ['bai-25', 'bai-26'] }, also: { g2: ['bai-28'] } },
+      { id: 'ant-3', n: 3, title: 'Đường ngắn hơn, hình tứ giác', lessons: { g2: ['bai-26'] }, also: { g2: ['bai-28'] } },
+      { id: 'ant-4', n: 4, title: 'Vẽ đoạn thẳng', lessons: { g2: ['bai-27'] }, also: { g2: ['bai-28'] } },
+    ],
+  },
+  {
     id: 'party', title: 'Tiệc sinh nhật chia kẹo', icon: '🎂',
     purpose: 'Giúp em thực hành kiến thức về phép nhân, bảng nhân 2, bảng nhân 5, phép chia, bảng chia 2, bảng chia 5 và tên các thành phần của phép nhân, phép chia đã học trong bài. Em chuẩn bị tiệc sinh nhật: xếp kẹo ra đĩa, phát quà, chia đều kẹo cho các bạn.',
     levels: [

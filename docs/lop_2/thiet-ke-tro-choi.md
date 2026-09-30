@@ -1,6 +1,6 @@
 # Thiết kế trò chơi tăng cường — Toán 2 (Tập 1 + Tập 2)
 
-> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số và Chợ phiên (quầy trứng cấp 1; quầy trái cây đã gỡ, xem dưới §4) đã phát hành trên production (cờ `GRADE2_GAMES = true`). 🚌 Xe buýt lên xuống đã code (cấp 1–5, chưa push). 🥕 Quầy rau củ cấp 1–4 (nặng nhẹ, so với 1 kg, cân kg, cộng trừ kg) đã code (chưa push), thay quầy trái cây ở Bài 15; quầy trứng thu hẹp còn hộp 2, 5 quả (chưa push). 🎂 Tiệc sinh nhật chia kẹo cấp 1–5 đã code (chưa push, 2026-09-29). Các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
+> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số và Chợ phiên (quầy trứng cấp 1; quầy trái cây đã gỡ, xem dưới §4) đã phát hành trên production (cờ `GRADE2_GAMES = true`). 🚌 Xe buýt lên xuống đã code (cấp 1–5, chưa push). 🥕 Quầy rau củ cấp 1–4 (nặng nhẹ, so với 1 kg, cân kg, cộng trừ kg) đã code (chưa push), thay quầy trái cây ở Bài 15; quầy trứng thu hẹp còn hộp 2, 5 quả (chưa push). 🎂 Tiệc sinh nhật chia kẹo cấp 1–5 đã code (chưa push, 2026-09-29). ⏰ Đồng hồ hẹn giờ & Tờ lịch cấp 1–5 đã code (chưa push, 2026-09-29). 🐜 Chú kiến tìm đường cấp 1–4 (Tập Một) đã code (chưa push, 2026-09-30). Các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
 >
 > Nguồn nội dung: Vở Bài tập Toán 2 Tập 1 (Bài 1–36, `src/games/grade2Workbook.js`) và Tập 2 (Bài 37–75, `src/games/grade2Workbook2.js`), bộ Kết nối tri thức.
 > Khung chung dùng lại của Toán 3: [docs/lop_3/thiet-ke-tro-choi-tap1.md](../lop_3/thiet-ke-tro-choi-tap1.md).
@@ -262,6 +262,16 @@ Tờ tiền **vẽ lại đơn giản** (màu và số mệnh giá), không ché
 - **Theo nguyên tắc đã chốt:** kim dừng trước vòng số, không che số nào; kim bám theo nấc 5 phút (cấp 2) để bé không phải chỉnh từng phút.
 - **Đồ hoạ:** đồng hồ báo thức (chép kiểu mặt số của Vở BT), 4 cảnh trời, tờ lịch treo tường có thể lật.
 
+**Đã làm (2026-09-29):** cả 5 cấp — `src/games/grade2Games/clock.js`, hình SVG `art/clock.js` (đồng hồ báo thức chép `clock()` của `kit_g3.py`, cửa sổ 4 buổi + rèm "?", đồng hồ điện tử, ghim), CSS `injectClockStyles`, theme `clock`. Người giao việc: cả nhà (Bà Tư, Ông Sáu, Cô Lan, Chú Hùng, Chị Mai, Anh Minh). Tờ lịch là lịch thật của năm hiện tại.
+
+| Cấp | Tên | Nhiệm vụ |
+|---|---|---|
+| 1 | Giờ đúng (Bài 29) | Xen kẽ **đặt giờ** (kéo kim ngắn, kim dài đứng ở 12, nhả tay thì kim bám số giờ gần nhất) và **đọc giờ** (gõ số giờ). Đúng: chuông reo; sai: kim mờ xanh chỉ giờ đúng |
+| 2 | Giờ, 15 phút, 30 phút (Bài 29, 31) | Kéo kim dài thì kim ngắn trượt theo (nấc 5 phút); kéo kim ngắn thì đổi giờ, giữ phút. Xen kẽ đọc giờ bằng 3 thẻ (thẻ bẫy: giờ kế tiếp, phút 15 ↔ 30) |
+| 3 | Giờ chiều, giờ tối (Bài 29, 31) | Đồng hồ điện tử 16 : 30 → đặt kim 4 giờ 30 phút, rồi chọn buổi (rèm mở ra đúng trời bé chọn). Xen kẽ: đồng hồ kim + trời chiều → gõ số giờ của đồng hồ điện tử |
+| 4 | Xem lịch: ngày, thứ (Bài 30, 31) | Ngày … là thứ mấy (chạm tên thứ, kiểm chứng: sáng dần lên đầu cột) · thứ … tuần này / tuần sau · ngày mai, hôm qua (chạm ngày, ghim đi từng ngày từ hôm nay) |
+| 5 | Tháng có mấy ngày? (Bài 30, 31) | Khoanh các ngày bé đi học vẽ (thứ … hằng tuần) rồi đếm số buổi · tháng có mấy ngày (các ô sáng lần lượt tới ngày cuối) · ngày mai / hôm qua sang tháng khác (lật tờ lịch) · còn mấy ngày đến sinh nhật (ghim đi từng ngày, ghi số đếm) |
+
 ---
 
 ### 4.6 🏭 Xưởng đóng gói trăm – chục
@@ -295,6 +305,15 @@ Tờ tiền **vẽ lại đơn giản** (màu và số mệnh giá), không ché
 
 - **Khi sai:** kiến đi theo đường bé chọn và lộ ra đoạn dài hơn; mẹo *"Cộng độ dài từng đoạn."*
 - **Đồ hoạ:** mặt đất nhìn từ trên, kiến, tổ kiến, hạt đường, thước thẳng (chép thước của `kit`), bản đồ đảo.
+
+**Đã làm (2026-09-30):** cấp 1–4 (Tập Một) — `src/games/grade2Games/ant.js`, hình SVG `art/ant.js` (kiến nhìn từ trên đi bằng 6 chân, Kiến Vàng đứng với ba nét mặt làm người giao việc, tổ kiến, hạt đường, bút chì, nền đất / vũng nước), thước dùng lại `rulerSvg` của quầy ruy băng lớp 3, CSS `injectAntStyles`, theme `ant`. Mọi hình vẽ đúng tỉ lệ cm (thước, nhãn độ dài, quãng kiến đi khớp nhau); bố cục sinh theo khung thật (ngang / dọc) từ seed của lượt. Cấp 5 (bản đồ km, Bài 55, Tập Hai) chưa làm.
+
+| Cấp | Tên | Nhiệm vụ |
+|---|---|---|
+| 1 | Ba điểm thẳng hàng (Bài 25) | Xen kẽ **chạm 3 hạt đường thẳng hàng** trong 5 hạt rồi "🧵 Căng chỉ" (chỉ thẳng thì kiến đi một mạch; sai thì chỉ gấp khúc, hiện đường thẳng đúng nét đứt) và **chạm đúng đoạn thẳng / đường thẳng / đường cong** (kiến bò trên đường bé chọn, tên ba đường hiện ra) |
+| 2 | Độ dài đường gấp khúc (Bài 25, 26) | Xen kẽ **đo cành cây** (chạm thước: thước bay tới nằm dọc cành, vạch 0 ở một đầu; gõ số cm; kiến bò đếm từng cm) và **độ dài đường gấp khúc** 2–4 đoạn có ghi cm (gõ tổng; kiến tha mồi đi từng đoạn về tổ, bảng cộng dần 3 cm + 4 cm + 2 cm = 9 cm) |
+| 3 | Đường ngắn hơn, hình tứ giác (Bài 26) | **Chọn đường về tổ ngắn hơn** (đỏ / xanh, tổng chênh 1–3 cm; hai kiến đi cùng tốc độ, đường ngắn về trước 🏁) · **chạm các hòn sỏi hình tứ giác** trên vũng nước (đếm đỉnh từng hòn cùng lúc; đúng thì kiến bước qua các hòn tứ giác) · **đếm hình tứ giác** trong vườn chia ô (2 ô → 3, 3 ô → 6, vách chéo → 3, vách từ góc → 2; sáng lần lượt từng hình) |
+| 4 | Vẽ đoạn thẳng (Bài 27) | Xen kẽ **vẽ đoạn AB dài cho trước dọc theo thước** (kéo bút chì từ vạch 0, bám vạch cm) và **vẽ trên giấy kẻ ô** (mỗi cạnh ô 1 cm, bám chấm). Kiểm chứng: kiến bò đếm từng cm; sai thì hiện đoạn đúng nét đứt xanh |
 
 ---
 
