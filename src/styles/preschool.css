@@ -881,6 +881,9 @@
    hàng (max-width vẫn giữ). :where để các khối tự đặt width (fit-content) vẫn thắng. */
 :where(.pk-play-page .pk-stage) > * { width: 100%; }
 .pk-play-page > .pk-topbar, .pk-play-page > .pk-steps, .pk-play-page > .pk-guide { width: 100%; }
+/* Vùng chơi phóng to (fit.js) thì cả khung của nó cũng to ra, trùm lên hàng lượt chơi và lời Thỏ:
+   đặt hai hàng này lên trên để nút 1 2 3 4 và bạn Thỏ vẫn bấm được. */
+.pk-play-page > .pk-steps, .pk-play-page > .pk-guide { z-index: 3; }
 
 /* Màn hình lớn (máy tính, iPad ngang): hình và nút to hơn cho bé dễ chạm.
    Chiều cao hình = phần còn trống thật sự của màn hình (--pk-free) trừ đi các

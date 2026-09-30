@@ -226,6 +226,43 @@ function tone(freq, start, dur, { type = 'sine', vol = 0.18, slide = 0 } = {}) {
   osc.stop(t + dur + 0.05);
 }
 
+/**
+ * Tiếng lặp từ file (vd. máy ô tô khi bé kéo xe tô số). Phát qua cùng AudioContext với tiếng
+ * động (đã mở khoá từ lần chạm trước), không dùng thẻ <audio>: iPad chặn audio.play() gọi
+ * trong pointerdown, bàn tay trước camera thì không có lần chạm thật nào.
+ */
+export function loopSound(url, { volume = 0.5 } = {}) {
+  let buf = null, loading = null, src = null, gain = null, want = false;
+  const load = (c) => loading || (loading = fetch(url).then(r => r.arrayBuffer())
+    .then(data => new Promise((ok, no) => c.decodeAudioData(data, ok, no)))
+    .then(b => { buf = b; }).catch(() => { loading = null; }));
+  const begin = (c) => {
+    if (!want || src || !buf) return;
+    gain = c.createGain();
+    gain.gain.value = volume;
+    src = c.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+    src.connect(gain).connect(c.destination);
+    src.start();
+  };
+  return {
+    start() {
+      want = true;
+      const c = audio();
+      if (!c) return;
+      if (buf) begin(c); else load(c).then(() => begin(c));
+    },
+    stop() {
+      want = false;
+      if (!src) return;
+      try { src.stop(); } catch { /* đã dừng */ }
+      src.disconnect(); gain.disconnect();
+      src = gain = null;
+    },
+  };
+}
+
 export const sfx = {
   /** Chạm / đếm một đồ vật: cao dần theo số đếm. */
   pop(step = 0) { tone(420 + step * 45, 0, 0.12, { type: 'triangle', vol: 0.2, slide: 1.6 }); },

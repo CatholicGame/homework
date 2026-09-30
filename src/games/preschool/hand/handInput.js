@@ -489,6 +489,14 @@ function press(now) {
 function move() {
   const p = S.pos;
   const pr = S.pressed;
+  // Chụm ở ngoài rồi đưa tay vào khung tô chữ / tô số: nhặt luôn bút tô (đưa tới ô tô / chấm xanh là tô).
+  const board = (pr?.kind === 'wait' || pr?.kind === 'swipe') && hitAt(p)?.closest('.pk-trace-svg');
+  if (board) {
+    if (pr.target.isConnected) fire('pointerup', pr.target, p, 0);
+    S.capture = null;
+    fire('pointerdown', board, p, 1);
+    if (S.capture) Object.assign(pr, { kind: 'drag', target: board, at: p, scroller: null });
+  }
   if (pr?.kind === 'swipe' && pr.scroller) {
     pr.scroller.scrollTop -= p.y - pr.last.y;
     pr.scroller.scrollLeft -= p.x - pr.last.x;

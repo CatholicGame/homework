@@ -27,6 +27,12 @@ export function numberStrokes(n) {
   return { width: 170, strokes: [shift(DIGITS[1][0], -8), shift(DIGITS[0][0], 70)] };
 }
 
+import { loopSound } from './fx.js';
+
+// Tiếng máy ô tô chạy lặp khi bé đang kéo xe (chỉ kiểu bút 'car').
+const carLoop = loopSound(new URL('../../assets/car_loop_sound.mp3', import.meta.url).href, { volume: 0.5 });
+const carSound = (on) => (on ? carLoop.start() : carLoop.stop());
+
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const STEP = 2.5;       // khoảng cách giữa các điểm mẫu trên nét
 const REACH = 17;       // ngón tay cách nét bao nhiêu vẫn tính là đang tô
@@ -131,6 +137,10 @@ export function mountTracer(host, n, { color = '#2563EB', pen = getPen(), onStro
   let stroke = 0;   // nét đang tô
   let idx = 0;      // điểm mẫu xa nhất đã tô tới trên nét hiện tại
   let drawing = false;
+  // Đang giữ tay / chụm ngón (bàn tay trước camera) nhưng chưa chạm ô tô / chấm xanh: đưa tới là
+  // kéo được luôn, không cần nhấc lên đặt lại. `missed`: cả lần giữ chưa chạm tới (nhắc khi thả).
+  let armed = false;
+  let missed = false;
   let done = false;
   let carAt = null;  // { x, y, dx, dy }: vị trí và hướng chạy (vector đơn vị) của xe
   let lastPuff = 0;
@@ -231,6 +241,10 @@ export function mountTracer(host, n, { color = '#2563EB', pen = getPen(), onStro
       stroke++;
       idx = 0;
       drawing = false;
+      armed = true; // vẫn giữ tay: đưa tới đầu nét sau là tô tiếp
+      missed = false;
+      carSound(false);
+      svg.classList.remove('is-driving');
       placeStart();
       if (stroke >= samples.length) {
         done = true;
@@ -240,25 +254,37 @@ export function mountTracer(host, n, { color = '#2563EB', pen = getPen(), onStro
     }
   }
 
-  function down(e) {
-    if (done) return;
-    const p = toSvg(e);
+  // Ngón tay chạm chỗ đang tô dở (ô tô / chấm xanh ở đầu nét)?
+  function onPen(p) {
     const first = samples[stroke].pts[idx];
-    // Phải bắt đầu gần chỗ đang tô dở (hoặc chấm bắt đầu của nét).
-    if (Math.hypot(first.x - p.x, first.y - p.y) > REACH * 1.6) {
-      onTouch?.(false);
-      start.classList.remove('is-hint'); void start.getBoundingClientRect(); start.classList.add('is-hint');
-      return;
-    }
+    return Math.hypot(first.x - p.x, first.y - p.y) <= REACH * 1.6;
+  }
+
+  function begin() {
+    armed = false;
+    missed = false;
     drawing = true;
     svg.classList.add('is-driving');
+    carSound(pen === 'car');
     onTouch?.(true);
+  }
+
+  function down(e) {
+    if (done) return;
     svg.setPointerCapture?.(e.pointerId);
+    // Chạm / chụm ở chỗ khác trong khung: chưa tô, giữ nguyên tay đưa tới ô tô / chấm xanh là kéo.
+    if (onPen(toSvg(e))) begin();
+    else {
+      armed = true;
+      missed = true;
+      start.classList.remove('is-hint'); void start.getBoundingClientRect(); start.classList.add('is-hint');
+    }
     move(e);
   }
 
   function move(e) {
     const p = toSvg(e);
+    if (armed && !done && onPen(p)) begin();
     // Chấm xanh: vòng cam theo ngón tay như cũ (ô tô thì chính xe đã đi theo ngón tay).
     finger.setAttribute('cx', p.x);
     finger.setAttribute('cy', p.y);
@@ -267,7 +293,12 @@ export function mountTracer(host, n, { color = '#2563EB', pen = getPen(), onStro
   }
 
   function up() {
+    // Thả tay mà chưa lần nào chạm tới ô tô / chấm xanh: nhắc chỗ đặt ngón tay.
+    if (armed && missed && !done) onTouch?.(false);
+    armed = false;
+    missed = false;
     drawing = false;
+    carSound(false);
     svg.classList.remove('is-driving');
     finger.style.opacity = '0';
   }
@@ -279,8 +310,9 @@ export function mountTracer(host, n, { color = '#2563EB', pen = getPen(), onStro
   svg.addEventListener('lostpointercapture', up);
 
   return {
-    destroy() { clearInterval(idleTimer); host.innerHTML = ''; },
+    destroy() { clearInterval(idleTimer); carSound(false); host.innerHTML = ''; },
     setPen(next) {
+      if (next !== 'car') carSound(false);
       svg.classList.replace(`pen-${pen}`, `pen-${next}`);
       pen = next;
       placeDir();
