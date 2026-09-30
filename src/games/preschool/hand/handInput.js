@@ -66,20 +66,38 @@ function openMenu() {
   const noCam = !canUseCamera();
   const sheet = document.createElement('div');
   sheet.className = 'pk-hand-sheet';
+  // Hai nhóm: chạm màn hình, hoặc bàn tay trước camera (chọn nền: màn chơi như cũ / thấy mình).
+  const handOn = cur !== 'touch';
+  const lock = noCam ? ' disabled' : '';
+  const bg = (id, pic, label, note) => `
+        <button type="button" class="pk-hand-bg${id === cur ? ' is-on' : ''}" data-mode="${id}"${lock}>
+          <span class="pk-hand-bg-pic pic-${id}" aria-hidden="true">${pic}</span>
+          <b>${label}</b><small>${note}</small>
+        </button>`;
   sheet.innerHTML = `
     <div class="pk-hand-menu" role="dialog" aria-label="Cách chơi">
       <h2>Bé chơi bằng cách nào?</h2>
-      ${HAND_MODES.map(m => `
-        <button type="button" class="pk-hand-opt${m.id === cur ? ' is-on' : ''}" data-mode="${m.id}"${noCam && m.id !== 'touch' ? ' disabled' : ''}>
-          <span class="pk-hand-opt-icon">${m.icon}</span>
-          <span class="pk-hand-opt-text"><b>${m.label}</b><small>${m.note}</small></span>
-        </button>`).join('')}
+      <button type="button" class="pk-hand-opt${handOn ? '' : ' is-on'}" data-mode="touch">
+        <span class="pk-hand-opt-icon">👆</span>
+        <span class="pk-hand-opt-text"><b>Chạm màn hình</b><small>Bé chạm ngón tay vào màn hình.</small></span>
+      </button>
+      <div class="pk-hand-group${handOn ? ' is-on' : ''}${noCam ? ' is-off' : ''}">
+        <button type="button" class="pk-hand-opt" data-mode="${cur === 'ar' ? 'ar' : 'hand'}"${lock}>
+          <span class="pk-hand-opt-icon">🖐️</span>
+          <span class="pk-hand-opt-text"><b>Dùng bàn tay trước camera</b><small>Đưa tay tới hình, chụm ngón cái và ngón trỏ để chọn.</small></span>
+        </button>
+        <div class="pk-hand-bgs" role="group" aria-label="Nền màn hình">
+          ${bg('hand', '<i>🐰</i><em></em>', 'Nền trò chơi', 'Camera nhỏ ở góc')}
+          ${bg('ar', '<i>🧒</i>', 'Nền camera', 'Bé thấy mình phía sau')}
+        </div>
+      </div>
       ${noCam ? `<p class="pk-hand-nocam">Trình duyệt này chưa cho dùng camera. Hãy mở trang bằng địa chỉ https:// (hoặc localhost trên máy tính).</p>` : ''}
       <p class="pk-hand-privacy">Hình camera chỉ xử lý trên máy này, không gửi đi đâu.</p>
     </div>`;
   document.body.appendChild(sheet);
   sheet.addEventListener('click', (e) => {
-    const opt = e.target.closest('.pk-hand-opt');
+    const opt = e.target.closest('[data-mode]');
+    if (opt?.disabled) return;
     if (!opt && e.target.closest('.pk-hand-menu')) return;
     sheet.remove();
     if (opt) setHandMode(opt.dataset.mode, { greet: true });

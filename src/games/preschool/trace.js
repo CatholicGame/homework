@@ -141,6 +141,7 @@ export function mountTracer(host, n, { color = '#2563EB', pen = getPen(), onStro
   // kéo được luôn, không cần nhấc lên đặt lại. `missed`: cả lần giữ chưa chạm tới (nhắc khi thả).
   let armed = false;
   let missed = false;
+  let trail = null; // chỗ ngón tay lần di chuyển trước (đang giữ tay), toạ độ SVG
   let done = false;
   let carAt = null;  // { x, y, dx, dy }: vị trí và hướng chạy (vector đơn vị) của xe
   let lastPuff = 0;
@@ -272,6 +273,7 @@ export function mountTracer(host, n, { color = '#2563EB', pen = getPen(), onStro
   function down(e) {
     if (done) return;
     svg.setPointerCapture?.(e.pointerId);
+    trail = null;
     // Chạm / chụm ở chỗ khác trong khung: chưa tô, giữ nguyên tay đưa tới ô tô / chấm xanh là kéo.
     if (onPen(toSvg(e))) begin();
     else {
@@ -284,12 +286,21 @@ export function mountTracer(host, n, { color = '#2563EB', pen = getPen(), onStro
 
   function move(e) {
     const p = toSvg(e);
-    if (armed && !done && onPen(p)) begin();
+    // Bàn tay trước camera chỉ báo ~30 lần mỗi giây nên tay đi nhanh là nhảy cóc một quãng dài, vượt
+    // khỏi tầm tìm phía trước xe (xe đứng lại, tay đi mất). Đi lần theo cả đoạn từ chỗ trước tới chỗ
+    // này: xe vẫn chạy theo, và tay lướt qua ô tô / chấm xanh cũng tính là chạm tới.
+    const from = trail || p;
+    trail = armed || drawing ? p : null;
+    const steps = Math.min(200, Math.max(1, Math.ceil(Math.hypot(p.x - from.x, p.y - from.y) / STEP)));
+    for (let k = 1; k <= steps && !done; k++) {
+      const q = { x: from.x + (p.x - from.x) * k / steps, y: from.y + (p.y - from.y) * k / steps };
+      if (armed && onPen(q)) begin();
+      if (drawing) advance(q);
+    }
     // Chấm xanh: vòng cam theo ngón tay như cũ (ô tô thì chính xe đã đi theo ngón tay).
     finger.setAttribute('cx', p.x);
     finger.setAttribute('cy', p.y);
     finger.style.opacity = drawing ? '1' : '0';
-    if (drawing && !done) advance(p);
   }
 
   function up() {
@@ -297,6 +308,7 @@ export function mountTracer(host, n, { color = '#2563EB', pen = getPen(), onStro
     if (armed && missed && !done) onTouch?.(false);
     armed = false;
     missed = false;
+    trail = null;
     drawing = false;
     carSound(false);
     svg.classList.remove('is-driving');

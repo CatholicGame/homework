@@ -1307,6 +1307,30 @@ body.pk-hand-on:not(.pk-ar) .pk-hand-status {
 .pk-hand-opt-text small { font-size: 1rem; font-weight: 600; color: #475569; line-height: 1.35; }
 .pk-hand-privacy { text-align: center; font-size: 0.9rem; color: #64748B; }
 .pk-hand-opt:disabled { opacity: 0.45; cursor: not-allowed; }
+/* Nhóm bàn tay trước camera: nút chính + hai ô chọn nền bên dưới. */
+.pk-hand-group { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem; border: 4px solid #E0F2FE; border-radius: 26px; background: #F8FAFC; }
+.pk-hand-group.is-on { border-color: #F97316; background: #FFF7ED; }
+.pk-hand-group.is-off { opacity: 0.45; }
+.pk-hand-group > .pk-hand-opt { border: 0; padding: 0.2rem 0.4rem; background: none; }
+.pk-hand-bgs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.pk-hand-bg {
+  display: flex; flex-direction: column; align-items: center; gap: 0.1rem; padding: 0.5rem; border-radius: 18px;
+  border: 3px solid #E2E8F0; background: #fff; color: inherit; font-family: inherit; cursor: pointer; text-align: center;
+}
+.pk-hand-bg.is-on { border-color: #F97316; box-shadow: 0 3px 0 #FDBA74; }
+.pk-hand-bg:disabled { cursor: not-allowed; }
+.pk-hand-bg b { font-size: 1.05rem; font-weight: 800; line-height: 1.2; }
+.pk-hand-bg small { font-size: 0.85rem; font-weight: 600; color: #475569; line-height: 1.25; }
+/* Hình nhỏ minh hoạ nền: màn trời xanh + ô camera ở góc / cả khung là camera (bé phía sau). */
+.pk-hand-bg-pic {
+  position: relative; display: grid; place-items: center; width: 84px; height: 54px; margin-bottom: 0.2rem;
+  border-radius: 10px; border: 3px solid #CBD5E1; overflow: hidden; font-size: 1.6rem; line-height: 1;
+}
+.pk-hand-bg-pic i { font-style: normal; }
+.pk-hand-bg-pic.pic-hand { background: linear-gradient(#7DD3FC, #E0F2FE); }
+.pk-hand-bg-pic.pic-hand em { position: absolute; left: 4px; bottom: 4px; width: 22px; height: 15px; border-radius: 4px; background: #475569; border: 2px solid #fff; }
+.pk-hand-bg-pic.pic-ar { background: linear-gradient(135deg, #A8A29E, #57534E); font-size: 2.1rem; align-items: end; }
+.pk-hand-bg-pic.pic-ar i { translate: 0 4px; }
 .pk-hand-nocam { padding: 0.5rem 0.8rem; border-radius: 14px; background: #FEF3C7; color: #92400E; font-size: 1rem; font-weight: 700; text-align: center; }
 /* Nút cách chơi: có chữ nhỏ bên dưới để bố mẹ biết chỗ bật camera. */
 .pk-hand-btn { position: relative; }
