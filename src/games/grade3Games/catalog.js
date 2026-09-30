@@ -90,6 +90,16 @@ export const STALLS = [
       { id: 'detective-3', n: 3, title: 'Đếm hình tam giác, tứ giác', lessons: { workbook: ['bai-19'], practice: ['tuan-8'] } },
     ],
   },
+  {
+    id: 'robot', title: 'Rô-bốt biểu thức', icon: '🤖',
+    purpose: 'Giúp em thực hành kiến thức về biểu thức số và thứ tự thực hiện các phép tính đã học trong bài. Em chọn phép tính làm trước, tính từng bước để nạp mã năng lượng cho rô-bốt, rồi tự lắp biểu thức ra đúng mã.',
+    levels: [
+      { id: 'robot-1', n: 1, title: 'Từ trái sang phải', lessons: { workbook: ['bai-38'], practice: ['tuan-15'] }, also: { workbook: ['bai-40', 'bai-42'], practice: ['tuan-17'] } },
+      { id: 'robot-2', n: 2, title: 'Nhân, chia trước', lessons: { workbook: ['bai-38'], practice: ['tuan-16'] }, also: { workbook: ['bai-40', 'bai-42'], practice: ['tuan-17'] } },
+      { id: 'robot-3', n: 3, title: 'Có dấu ngoặc', lessons: { workbook: ['bai-38'], practice: ['tuan-16'] }, also: { workbook: ['bai-40', 'bai-42'], practice: ['tuan-17'] } },
+      { id: 'robot-4', n: 4, title: 'Lắp biểu thức ra mã', lessons: { workbook: ['bai-42'], practice: ['tuan-17', 'tuan-18'] } },
+    ],
+  },
 ];
 
 const STALL_BY_ID = Object.fromEntries(STALLS.map(s => [s.id, s]));

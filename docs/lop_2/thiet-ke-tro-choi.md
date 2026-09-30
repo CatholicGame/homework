@@ -1,6 +1,6 @@
 # Thiết kế trò chơi tăng cường — Toán 2 (Tập 1 + Tập 2)
 
-> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số và Chợ phiên (quầy trứng cấp 1; quầy trái cây đã gỡ, xem dưới §4) đã phát hành trên production (cờ `GRADE2_GAMES = true`). 🚌 Xe buýt lên xuống đã code (cấp 1–5, chưa push). 🥕 Quầy rau củ cấp 1–4 (nặng nhẹ, so với 1 kg, cân kg, cộng trừ kg) đã code (chưa push), thay quầy trái cây ở Bài 15; quầy trứng thu hẹp còn hộp 2, 5 quả (chưa push). 🎂 Tiệc sinh nhật chia kẹo cấp 1–5 đã code (chưa push, 2026-09-29). ⏰ Đồng hồ hẹn giờ & Tờ lịch cấp 1–5 đã code (chưa push, 2026-09-29). 🐜 Chú kiến tìm đường cấp 1–4 (Tập Một) đã code (chưa push, 2026-09-30). Các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
+> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số và Chợ phiên (quầy trứng cấp 1; quầy trái cây đã gỡ, xem dưới §4) đã phát hành trên production (cờ `GRADE2_GAMES = true`). 🚌 Xe buýt lên xuống đã code (cấp 1–5, chưa push). 🥕 Quầy rau củ cấp 1–4 (nặng nhẹ, so với 1 kg, cân kg, cộng trừ kg) đã code (chưa push), thay quầy trái cây ở Bài 15; quầy trứng thu hẹp còn hộp 2, 5 quả (chưa push). 🎂 Tiệc sinh nhật chia kẹo cấp 1–5 đã code (chưa push, 2026-09-29). ⏰ Đồng hồ hẹn giờ & Tờ lịch cấp 1–5 đã code (chưa push, 2026-09-29). 🐜 Chú kiến tìm đường cấp 1–4 (Tập Một) đã code (chưa push, 2026-09-30). 🏭 Xưởng đóng gói trăm – chục cấp 1–5 đã code (chưa push, 2026-09-30). Các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
 >
 > Nguồn nội dung: Vở Bài tập Toán 2 Tập 1 (Bài 1–36, `src/games/grade2Workbook.js`) và Tập 2 (Bài 37–75, `src/games/grade2Workbook2.js`), bộ Kết nối tri thức.
 > Khung chung dùng lại của Toán 3: [docs/lop_3/thiet-ke-tro-choi-tap1.md](../lop_3/thiet-ke-tro-choi-tap1.md).
@@ -288,6 +288,18 @@ Tờ tiền **vẽ lại đơn giản** (màu và số mệnh giá), không ché
 
 - **Tự xác nhận:** nút **"🚚 Giao hàng"**; khách đếm lại từng loại, sai thì chỉ ra thiếu/thừa ở loại nào.
 - **Đồ hoạ:** khối lẻ, thanh 10, tấm 100 (vẽ phẳng như hình sách), băng chuyền, máy ép, xe tải của trò Xe chở hàng.
+
+**Đã làm (2026-09-30):** cả 5 cấp — `src/games/grade2Games/factory.js`, hình SVG `art/factory.js` (khối lẻ 1 ô, thanh chục cột 10 ô, tấm trăm 10 × 10 ô vẽ phẳng như Vở BT; máy đóng gói có phễu, pít-tông ép), CSS `injectFactoryStyles`, theme `factory`. Người đặt hàng: 9 khách của Chợ phiên. Khay giao hàng luôn có ba cột **Trăm | Chục | Đơn vị** (cột trống vẫn hiện, để thấy số 506 không có chục).
+
+| Cấp | Tên | Nhiệm vụ |
+|---|---|---|
+| 1 | Đơn vị, chục, trăm (Bài 48) | Xen kẽ thùng khối lẻ (23–69) và thùng thanh chục (12–39), rải lộn xộn. Bấm "📦 Đóng 10 …": 10 miếng bay vào máy, máy ép ra 1 thanh chục (1 tấm trăm) bay xuống khay; chưa đủ 10 thì máy kêu, khách nhắc còn mấy miếng. "✓ Đóng xong" khi còn đủ 10 là thất bại; không thì phần lẻ xuống khay, bé gõ tất cả bao nhiêu khối, máy đếm lại từng miếng (10, 20, 30, 31…) |
+| 2 | Số tròn trăm, tròn chục (Bài 49, 50) | Xen kẽ **xếp hàng** (đơn 470 khối / 600 khối: chạm tấm, thanh, khối trong kho cho bay lên khay, chạm miếng trong khay để trả lại, "🚚 Giao hàng") và **so sánh** hai xe hàng số tròn (300 và 500, 470 và 740, 510 và 490) |
+| 3 | Số có ba chữ số (Bài 51, 52) | Xen kẽ **đơn hàng bằng chữ** ("năm trăm linh sáu", "bốn trăm mười lăm", "hai trăm bốn mươi mốt"…: xếp hàng rồi gõ số) và **viết thành tổng** (khay có sẵn hàng: 347 = 300 + ? + 7; cột của số còn thiếu sáng lên, đếm từng miếng) |
+| 4 | So sánh số có ba chữ số (Bài 53) | Hai xe hàng, chọn dấu >, <, =; máy so từng cột: trăm trước (bằng thì cột xám, sang chục), cột lớn hơn sáng xanh. Có bẫy: 419 và 391 (số bé có chục, đơn vị lớn hơn), 362 và 326 (đảo chữ số) |
+| 5 | Cộng, trừ trong phạm vi 1 000 (Bài 59–62) | Xen kẽ cộng và trừ, nhớ / tháo ở hàng đơn vị hoặc hàng chục (nhiều nhất một hàng). Gõ kết quả trước, rồi bấm: cộng thì từng miếng khay 2 bay sang khay 1, **đủ 10 khối lẻ là đóng ngay 1 thanh** sang cột chục (thẻ "nhớ 1"); trừ thì hàng bay sang khay của khách (chỗ trống nét mờ), thiếu thì **tháo 1 thanh thành 10 khối** (thẻ "tháo 1") |
+
+- Cỡ ô vuông chung cho mọi miếng trên màn (tấm trăm luôn to bằng 10 thanh chục). Máy tự chọn tấm trăm 2 / 3 / 5 / 9 tấm một hàng, thanh chục 5 / 10 thanh một hàng, các khay xếp ngang hay dọc, để miếng hàng to nhất; hai xe ở cấp so sánh luôn cùng một cách xếp.
 
 ---
 

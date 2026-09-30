@@ -17,6 +17,7 @@ import { RIBBON_GAME } from './grade3Games/market/ribbon.js';
 import { TRUCK_GAME } from './grade3Games/trucks.js';
 import { MACHINE_GAME } from './grade3Games/machine.js';
 import { DETECTIVE_GAME } from './grade3Games/detective.js';
+import { ROBOT_GAME } from './grade3Games/robot.js';
 import { playRound, bestFor } from './grade3Games/loop.js';
 import { lessonText, stallLessonText, hasDoneAny, lessonUnits, bookName } from './grade3Games/lessons.js';
 import { NPCS, npcPic, cap, preloadNpcs } from './grade3Games/npc.js';
@@ -55,6 +56,12 @@ export const GRADE3_LIST = [
     desc: 'Làm thám tử: áp ê-ke tìm góc vuông, điều tra hình chữ nhật, hình vuông, đếm hình ẩn!',
     tags: ['Góc vuông', 'Ê-ke', 'Hình tứ giác'],
     stalls: [{ game: DETECTIVE_GAME }],
+  },
+  {
+    id: 'robot', icon: '🤖', title: 'Rô-bốt biểu thức', single: true,
+    desc: 'Nạp mã năng lượng: tính giá trị biểu thức đúng thứ tự, lắp biểu thức ra đúng mã!',
+    tags: ['Biểu thức', 'Thứ tự tính', 'Dấu ngoặc'],
+    stalls: [{ game: ROBOT_GAME }],
   },
 ];
 

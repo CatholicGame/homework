@@ -828,6 +828,98 @@ export function injectGameStyles() {
     @media (orientation: portrait) and (max-width: 600px) { .g3d-bench { flex: 1 1 0; padding-top: 0; } .g3d-no-eke { padding-top: 0; } .g3d-btn { padding: 0.4rem 0.7rem; } }
     @media (orientation: landscape) and (max-height: 500px) { .g3d-bench { gap: 0.3rem; } .g3d-no-eke { padding-top: 1.8rem; } .g3d-meter { min-height: 2.2rem; } .g3d-rot { width: 2.3rem; height: 2.3rem; font-size: 1.25rem; } .g3d-meter-lab small { display: none; } .g3d-btn { padding: 0.3rem 0.7rem; font-size: 0.95rem; } .g3d-acts { min-height: 2.2rem; } }
     @media (prefers-reduced-motion: reduce) { .g3d-soi-ready { animation: none; box-shadow: 0 4px 0 #475569, 0 0 0 4px #FACC15; } }
+    /* Rô-bốt biểu thức (g3o-*, robot.js): mái sọc xanh ngọc; mã năng lượng · băng chuyền biểu thức · dòng ghi các bước ·
+       khay đồ lắp (cấp 4) | rô-bốt. Cỡ chữ băng chuyền --fs và bề ngang cột rô-bốt --bot do robot.js tính. */
+    .g3f-theme-robot .g3f-awning { background: repeating-linear-gradient(90deg, #2DD4BF 0 36px, #FFF 36px 72px); border-bottom-color: #0F766E; }
+    .g3f-theme-robot .g3f-awning::after { background: radial-gradient(circle at 18px 0, #2DD4BF 17px, transparent 18px) 0 0 / 72px 10px repeat-x, radial-gradient(circle at 18px 0, #fff 17px, transparent 18px) 36px 0 / 72px 10px repeat-x; }
+    .g3f-theme-robot .g3f-counter { background: linear-gradient(#F8FFFE, #CCFBF1); border-bottom-color: #0F766E; }
+    .g3f-theme-robot .g3f-sign { background: #0F766E; border-color: #134E4A; color: #fff; text-shadow: 0 1px 0 rgba(19,78,74,0.5); }
+    .g3f-theme-robot .g3f-sign strong { color: #FEF08A; }
+    .g3f-theme-robot .g3f-main::after { background: rgba(15,23,42,0.1); }
+    .g3o-sign-ic { font-size: 1.6em; line-height: 1; }
+    .g3o-bench { --fs: 40px; --bot: 200px; flex: 1; min-height: 0; width: 100%; box-sizing: border-box; display: grid; gap: 10px 16px;
+      grid-template-columns: minmax(0, 1fr) var(--bot); grid-template-rows: auto auto minmax(0, 1fr) auto;
+      grid-template-areas: "tgt tgt" "belt belt" "log bot" "tools tools"; }
+    .g3o-bench.g3o-wide { grid-template-areas: "tgt bot" "belt bot" "log bot" "tools bot"; padding-top: clamp(2.6rem, 8vh, 4rem); }
+    .g3o-target { grid-area: tgt; justify-self: start; align-self: end; background: #1E293B; color: #F8FAFC; border-radius: 0.8rem; padding: 0.15rem 0.8rem; font-weight: 800; font-size: clamp(1rem, calc(var(--fs) * 0.5), 1.6rem); white-space: nowrap; box-shadow: 0 4px 0 rgba(15,23,42,0.2); }
+    .g3o-target b { color: #86EFAC; }
+    .g3o-target .g3f-q { font-size: 1em; }
+    .g3o-batt { font-size: 1.1em; }
+    .g3o-belt { grid-area: belt; min-width: 0; font-size: var(--fs); background: linear-gradient(#F1F5F9, #E2E8F0) padding-box; border: 3px solid #64748B; border-radius: 0.35em; padding: 0.35em 0.4em 0.55em; position: relative; box-shadow: 0 5px 0 rgba(51,65,85,0.18); }
+    .g3o-belt::after { content: ''; position: absolute; left: 0.3em; right: 0.3em; bottom: 0.12em; height: 0.16em; border-radius: 0.1em; background: repeating-linear-gradient(90deg, #64748B 0 0.3em, #CBD5E1 0.3em 0.6em); }
+    .g3o-expr { display: flex; align-items: center; justify-content: center; gap: 0.28em; min-height: 1.4em; }
+    .g3o-tk { font-family: 'Baloo 2', Quicksand, sans-serif; font-weight: 800; font-size: 1em; line-height: 1; box-sizing: border-box; flex: none; transition: box-shadow .25s, background .25s, transform .2s; }
+    .g3o-n { background: #fff; color: #1E293B; border: 3px solid #3F3A40; border-radius: 0.24em; padding: 0.14em 0.3em 0.04em; min-width: 1.1em; text-align: center; box-shadow: 0 0.07em 0 rgba(0,0,0,0.18); }
+    .g3o-op { width: 1.3em; height: 1.3em; border-radius: 50%; background: var(--c); color: #fff; border: 3px solid #3F3A40; display: inline-flex; align-items: center; justify-content: center; padding: 0 0 0.06em; cursor: pointer; text-shadow: 0 1px 0 rgba(0,0,0,0.2); }
+    .g3o-p { color: #0F766E; font-size: 1.25em; font-weight: 700; padding: 0 0.02em 0.08em; border-radius: 0.2em; }
+    .g3o-box { width: 1.3em; height: 1.3em; border-radius: 50%; border: 3px dashed #0F766E; background: #F0FDFA; padding: 0; cursor: pointer; animation: g3oAsk 1.2s ease-in-out infinite; }
+    .g3o-empty .g3f-q { font-size: 1em; }
+    .g3o-hl { box-shadow: 0 0 0 0.09em #FACC15, 0 0 0.3em 0.1em rgba(250,204,21,0.7); }
+    .g3o-p.g3o-hl { background: #FEF9C3; }
+    .g3o-bad { box-shadow: 0 0 0 0.09em #EF4444; }
+    .g3o-p.g3o-bad { background: #FEE2E2; }
+    .g3o-new { background: #DCFCE7; border-color: #16A34A; }
+    .g3o-hide { visibility: hidden; }
+    .g3o-tight .g3o-belt { padding: 0.25em 0.2em 0.5em; }
+    .g3o-tight .g3o-expr { gap: 0.16em; }
+    .g3o-tight .g3o-n { padding: 0.12em 0.14em 0.03em; border-width: 2px; min-width: 0.9em; }
+    .g3o-tight .g3o-op, .g3o-tight .g3o-box { width: 1.12em; height: 1.12em; border-width: 2px; }
+    .g3o-ask { animation: g3oAsk 1s ease-in-out infinite; }
+    @keyframes g3oAsk { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(250,204,21,0.9); } 50% { transform: scale(1.12); box-shadow: 0 0 0 0.14em rgba(250,204,21,0); } }
+    .g3o-pop { animation: g3eDrop .35s cubic-bezier(.3,1.5,.5,1) both; }
+    .g3o-log { grid-area: log; align-self: start; justify-self: start; max-width: 100%; min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 0.08em; font-family: 'Baloo 2', Quicksand, sans-serif; font-weight: 800; color: #334155; font-size: clamp(0.95rem, calc(var(--fs) * 0.56), 2.2rem); line-height: 1.25; background: #fff; border: 2px dashed #5EEAD4; border-radius: 0.6em; padding: 0.25em 0.7em; }
+    .g3o-log:empty { display: none; }
+    .g3o-line { white-space: nowrap; }
+    .g3o-line + .g3o-line { padding-left: 1.2em; }
+    .g3o-eq { color: #0F766E; }
+    .g3o-line-new { animation: g3gUp .3s ease; }
+    .g3o-tools { grid-area: tools; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem 0.8rem; min-width: 0; }
+    .g3o-tools:empty { display: none; }
+    .g3o-done .g3o-tools { display: none; }
+    .g3o-pal { display: flex; gap: 0.35em; font-size: clamp(1.6rem, calc(var(--fs) * 0.95), 3.4rem); padding: 0.15em 0.3em; background: #fff; border: 3px solid #99F6E4; border-radius: 0.5em; }
+    .g3o-tile { box-shadow: 0 0.07em 0 rgba(0,0,0,0.2); }
+    .g3o-picks { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+    .g3o-pick { background: #fff; color: #1E293B; border: 3px solid #5EEAD4; box-shadow: 0 4px 0 #99F6E4; font-family: 'Baloo 2', Quicksand, sans-serif; font-weight: 800; font-size: clamp(1rem, calc(var(--fs) * 0.6), 1.9rem); padding: 0.2em 0.7em; border-radius: 0.7em; text-shadow: none; white-space: nowrap; }
+    .g3o-pick.g3o-pick-on { background: #14B8A6; color: #fff; border-color: #0F766E; box-shadow: 0 4px 0 #115E59; }
+    .g3o-pick.g3o-pick-right { box-shadow: 0 0 0 4px #4ADE80, 0 4px 0 #99F6E4; }
+    .g3o-note { font-weight: 800; color: #0F766E; font-size: clamp(0.95rem, calc(var(--fs) * 0.45), 1.4rem); }
+    .g3o-locked { pointer-events: none; }
+    .g3o-locked .g3o-pal, .g3o-locked .g3o-note { opacity: 0.5; }
+    .g3o-run { font-size: clamp(1rem, 1.6vh + 0.5rem, 1.35rem); padding: 0.45rem 0.9rem; border-radius: 0.9rem; line-height: 1.15; }
+    .g3o-run-wait { background: #CBD5E1; color: #fff; box-shadow: 0 4px 0 #94A3B8; text-shadow: none; }
+    .g3o-run-ready { background: #F97316; color: #fff; box-shadow: 0 4px 0 #C2410C; animation: g3mReady 1.1s ease-in-out infinite; }
+    .g3o-hint { animation: g3oHint .6s ease-in-out 2; }
+    @keyframes g3oHint { 0%, 100% { transform: none; } 25% { transform: translateY(-6px) scale(1.04); } 75% { transform: translateY(2px); } }
+    .g3o-flycard { width: 100%; height: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: #fff; border: 3px solid #0F766E; border-radius: 0.7rem; font-family: 'Baloo 2', Quicksand, sans-serif; font-weight: 800; color: #1E293B; white-space: nowrap; font-size: clamp(1rem, 2.4vh, 1.7rem); }
+    .g3o-bot { grid-area: bot; min-width: 0; min-height: 0; display: flex; align-items: flex-end; justify-content: center; }
+    .g3o-robot { display: block; width: 100%; height: 100%; max-height: 100%; overflow: visible; }
+    .g3o-eyes { display: none; }
+    .g3o-robot[data-mood="idle"] .g3o-eyes-idle, .g3o-robot[data-mood="work"] .g3o-eyes-work, .g3o-robot[data-mood="happy"] .g3o-eyes-happy,
+    .g3o-robot[data-mood="sad"] .g3o-eyes-sad, .g3o-robot[data-mood="code"] .g3o-eyes-code { display: inline; }
+    .g3o-arm { transition: transform .4s; }
+    .g3o-robot[data-mood="sad"] .g3o-arm-l { transform: rotate(14deg); }
+    .g3o-robot[data-mood="sad"] .g3o-arm-r { transform: rotate(-14deg); }
+    .g3o-robot[data-mood="sad"] .g3o-ant { fill: #94A3B8; }
+    .g3o-on .g3o-robot { animation: g3mShake .25s ease-in-out infinite; }
+    .g3o-on .g3o-ant { animation: g3mBlink .4s steps(2) infinite; }
+    .g3o-dot { animation: g3oDot .9s ease-in-out infinite; }
+    .g3o-dot:nth-child(2) { animation-delay: .15s; } .g3o-dot:nth-child(3) { animation-delay: .3s; }
+    @keyframes g3oDot { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+    .g3o-dance .g3o-robot { animation: g3oHop .5s ease-in-out 4; }
+    .g3o-dance .g3o-arm-l { animation: g3oWaveL .5s ease-in-out 4 alternate; }
+    .g3o-dance .g3o-arm-r { animation: g3oWaveR .5s ease-in-out 4 alternate; }
+    @keyframes g3oHop { 0%, 100% { transform: none; } 50% { transform: translateY(-6%); } }
+    @keyframes g3oWaveL { from { transform: rotate(0deg); } to { transform: rotate(70deg); } }
+    @keyframes g3oWaveR { from { transform: rotate(0deg); } to { transform: rotate(-70deg); } }
+    @media (orientation: portrait) and (max-width: 600px) { .g3o-bench { gap: 6px 10px; } .g3o-run { padding: 0.35rem 0.7rem; } }
+    @media (orientation: landscape) and (max-height: 500px) { .g3o-bench { gap: 6px 12px; } .g3o-bench.g3o-wide { padding-top: 2.2rem; } .g3o-run { padding: 0.3rem 0.7rem; font-size: 0.95rem; } }
+    @media (prefers-reduced-motion: reduce) {
+      .g3o-on .g3o-robot { animation: none; }
+      .g3o-ask, .g3o-box { animation: none; box-shadow: 0 0 0 0.1em #FACC15; }
+      .g3o-dance .g3o-robot { animation: none; }
+      .g3o-dance .g3o-arm-l, .g3o-dance .g3o-arm-r { animation-duration: 1.2s; animation-iteration-count: 2; }
+      .g3o-run-ready { animation: none; box-shadow: 0 4px 0 #C2410C, 0 0 0 4px #FDBA74; }
+    }
   `;
   document.head.appendChild(style);
 }

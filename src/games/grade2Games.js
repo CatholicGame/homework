@@ -12,6 +12,7 @@ import { WATER_GAME } from './grade2Games/water.js';
 import { PARTY_GAME } from './grade2Games/party.js';
 import { CLOCK_GAME } from './grade2Games/clock.js';
 import { ANT_GAME } from './grade2Games/ant.js';
+import { FACTORY_GAME } from './grade2Games/factory.js';
 import { EGG_GAME } from './grade3Games/market/eggs.js';
 import { levelMeta } from './grade2Games/catalog.js';
 
@@ -54,6 +55,12 @@ const GAMES = [
     desc: 'Chuẩn bị tiệc sinh nhật: xếp kẹo ra đĩa, phát quà, chia đều kẹo cho các bạn!',
     tags: ['Nhân 2, 5', 'Chia 2, 5', 'Thừa số, thương'],
     stalls: [{ game: PARTY_GAME }],
+  },
+  {
+    id: 'factory', icon: '🏭', title: 'Xưởng đóng gói trăm – chục', single: true,
+    desc: 'Đóng khối gỗ thành thanh chục, tấm trăm; xếp hàng theo đơn cho khách!',
+    tags: ['Trăm, chục, đơn vị', 'Số có ba chữ số', 'Cộng, trừ 1 000'],
+    stalls: [{ game: FACTORY_GAME }],
   },
   {
     id: 'market', icon: '🏪', title: 'Chợ phiên của bé',

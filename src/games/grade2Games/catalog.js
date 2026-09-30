@@ -83,6 +83,17 @@ export const STALLS = [
     ],
   },
   {
+    id: 'factory', title: 'Xưởng đóng gói trăm – chục', icon: '🏭',
+    purpose: 'Giúp em thực hành kiến thức về đơn vị, chục, trăm, số tròn trăm, số tròn chục, số có ba chữ số, so sánh và cộng, trừ trong phạm vi 1 000 đã học trong bài. Em đóng 10 khối lẻ thành thanh chục, 10 thanh chục thành tấm trăm, xếp hàng theo đơn và gộp hàng cho khách.',
+    levels: [
+      { id: 'fac-1', n: 1, title: 'Đơn vị, chục, trăm', lessons: { g2: ['bai-48'] } },
+      { id: 'fac-2', n: 2, title: 'Số tròn trăm, tròn chục', lessons: { g2: ['bai-49', 'bai-50'] } },
+      { id: 'fac-3', n: 3, title: 'Số có ba chữ số', lessons: { g2: ['bai-51', 'bai-52'] }, also: { g2: ['bai-54'] } },
+      { id: 'fac-4', n: 4, title: 'So sánh số có ba chữ số', lessons: { g2: ['bai-53'] }, also: { g2: ['bai-54'] } },
+      { id: 'fac-5', n: 5, title: 'Cộng, trừ trong phạm vi 1 000', lessons: { g2: ['bai-59', 'bai-60', 'bai-61', 'bai-62'] }, also: { g2: ['bai-63'] } },
+    ],
+  },
+  {
     id: 'egg', title: 'Quầy trứng', icon: '🥚',
     levels: [{ id: 'egg-1', n: 1, title: 'Hộp 2 quả, hộp 5 quả', lessons: { g2: ['bai-39', 'bai-40'] }, also: { g2: ['bai-37', 'bai-38', 'bai-45'] } }],
   },

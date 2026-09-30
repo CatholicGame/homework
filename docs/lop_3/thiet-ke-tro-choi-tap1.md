@@ -335,6 +335,20 @@ Giá ghi thành câu rõ nghĩa: bảng giá "1 kg giá 30 nghìn đồng", câu
 - **Thao tác:** rô-bốt "chạy" từng bước tính và làm sáng phép tính đang làm, nhờ vậy bé thấy thứ tự thực hiện.
 - **Đồ hoạ:** rô-bốt có cục pin năng lượng, các thẻ số, đèn báo.
 
+**Đã làm (2026-09-30):** 4 cấp — `src/games/grade3Games/robot.js`, hình vẽ `art/robot.js` (rô-bốt SVG: khe nạp thẻ trên đầu, màn hình mặt đổi nét mặt, pin 5 vạch, khe ra thẻ). Theme `robot` của khung quầy (mái sọc xanh ngọc); người giao nhiệm vụ là người phòng thí nghiệm (`LAB_NPCS`).
+
+| Cấp | Tên | Nhiệm vụ |
+|---|---|---|
+| 1 | Từ trái sang phải | Xen kẽ chỉ có cộng trừ (`a − b + c`, `a + b − c`, `a − b − c`) và chỉ có nhân chia (`a × b : c`, `a : b × c`, `a : b : c`) |
+| 2 | Nhân, chia trước | Một phép nhân / chia và một phép cộng / trừ, đứng trước hoặc sau (`30 + 9 : 3`, `78 × 2 + 181`…) |
+| 3 | Có dấu ngoặc | Ngoặc ở đầu hoặc cuối, trong ngoặc có đủ bốn phép (`12 × (7 − 4)`, `(48 − 13) : 7`, `90 : (15 : 3)`, `42 : (2 × 3)`…) |
+| 4 | Lắp biểu thức ra mã | 6 lượt, đủ 3 kiểu xen kẽ: **đặt dấu** (`4 ☐ 4 ☐ 4 = 20`, khay 4 dấu, mã có nhiều nhất 2 cách lắp), **đặt ngoặc** (chạm vào dấu phép tính để đặt ngoặc quanh nó), **chọn thẻ** (3 thẻ biểu thức; bẫy là cùng các số, bỏ hoặc dời ngoặc) — rồi bấm ▶ Chạy rô-bốt |
+
+- **Cấp 1–3:** biểu thức nằm trên băng chuyền. Bé **chạm vào dấu** của phép tính phải làm trước (các dấu nhún nhảy chờ); chạm sai dấu là nhiệm vụ thất bại (dấu bé chạm đỏ, phép đúng sáng vàng, mẹo ghi quy tắc của sách + lời giải đủ bước). Chạm đúng → gõ kết quả phép đó ở máy tính → ba thẻ bay vào khe trên đầu rô-bốt, rô-bốt chạy, thẻ kết quả (xanh) bay ra khe dưới pin về đúng chỗ; khung ghi bên dưới chép thêm dòng "= …" như cách trình bày trong vở. Còn một phép tính thì không phải chọn nữa. Tính xong: màn hình mặt hiện mã, pin sạc từng vạch, rô-bốt vẫy tay.
+- **Cấp 4:** rô-bốt tự tính từng bước (cùng hoạt cảnh) để kiểm chứng biểu thức bé lắp; không chia hết / không trừ được thì rô-bốt báo lỗi. Sai mã: thẻ kết quả ghi giá trị bé lắp được và một cách lắp đúng.
+- **Sinh đề:** cây biểu thức từ hình mẫu (`a+b*c`, `a*(b-c)`…), điền số sao cho mọi bước chia hết, không âm, nhân có một thừa số một chữ số, chia cho số một chữ số, kết quả mọi bước 2–999. Bẫy ở cấp 4 cũng trong phạm vi đó.
+- Thẻ kết quả hiện ra thì quầy chừa đáy cho thẻ (không che băng chuyền, dòng ghi, rô-bốt). Màn ngang: rô-bốt cột phải cao hết khung; khung hẹp (điện thoại dọc): xếp dọc, thẻ gọn hơn để biểu thức dài vẫn to.
+
 ### 4.6 🏗️ Kiến trúc sư bảng ghim
 
 **Câu chuyện:** Bé là kiến trúc sư nhận đơn thiết kế.
