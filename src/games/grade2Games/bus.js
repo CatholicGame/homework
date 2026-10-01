@@ -8,6 +8,7 @@
  *   compare: hai xe a và b người → hơn, kém nhau mấy người? Ghép cặp từng ghế, đếm phần thừa (Bài 4)
  *   find:    xe có a người, còn c người → mấy người xuống? / cần đủ c người → mấy người nữa lên? (Bài 3)
  *   train:   tàu hỏa 5 toa × 20 ghế, lên / xuống có nhớ trong phạm vi 100 (Bài 19–23)
+ *   long:    tàu Bắc – Nam 10 toa × 100 ghế, lên / xuống theo đoàn 100, nhóm 10, khách lẻ (phạm vi 1 000, Bài 59–62; busLong.js)
  * Dùng khung quầy của Chợ phiên lớp 3 (market/stall.js: bác tài + máy tính + thẻ kết quả), theme 'bus'.
  */
 
@@ -23,6 +24,7 @@ import { mountStall, Q } from '../grade3Games/market/stall.js';
 import { makeRng } from '../grade3Games/loop.js';
 import { flyOne, calmMotion, svgBoxOnScreen } from '../grade3Games/fly.js';
 import { sfx } from '../preschool/fx.js';
+import { makeLong, mountLong, LONG_STOPS } from './busLong.js';
 
 const MINUS = '−';
 // Bác Ba tài xế xe buýt trường: cùng tên, xưng hô với bác tài lớp 3 nhưng hình riêng (src/assets/school_bus_driver.png
@@ -66,6 +68,13 @@ export const BUS_LEVELS = [
     knowledge: 'phép cộng, phép trừ có nhớ trong phạm vi 100',
     ask: (n) => `Tàu hỏa có 5 toa, mỗi toa 20 ghế. ${cap(n.you)} đếm khách giúp ${n.me}!`,
     desc: 'Tàu có 38 người, ga này lên 27 người: 38 + 27 = 65 người.',
+    how: [['🧮', 'Gõ số người'], ['🚪', 'Mở cửa'], ['train', 'Tàu chạy']],
+  },
+  {
+    ...levelMeta('bus-6'), missions: 5, kind: 'long',
+    knowledge: 'phép cộng, phép trừ trong phạm vi 1 000',
+    ask: (n) => `Tàu Bắc – Nam có 10 toa, mỗi toa 100 ghế. ${cap(n.you)} đếm khách giúp ${n.me}!`,
+    desc: 'Tàu có 456 người, ga này lên 138 người: 456 + 138 = 594 người. Khách lẻ lên trước, rồi nhóm 10 người, rồi đoàn 100 người.',
     how: [['🧮', 'Gõ số người'], ['🚪', 'Mở cửa'], ['train', 'Tàu chạy']],
   },
 ];
@@ -149,7 +158,7 @@ function makeTrain(rng, h, lv = {}) {
   return { dir, a, k, ans: a + dir * k, stopMax: k };
 }
 
-const MAKERS = { addsub: makeAddSub, more: makeMore, compare: makeCompare, find: makeFind, train: makeTrain };
+const MAKERS = { addsub: makeAddSub, more: makeMore, compare: makeCompare, find: makeFind, train: makeTrain, long: makeLong };
 
 // ── Trò chơi ────────────────────────────────────────────────────────────────────────────────────
 export const BUS_GAME = {
@@ -167,7 +176,10 @@ export const BUS_GAME = {
   },
 
   /** Mở từ biểu tượng của Bài 19, 20, 22, 23 (grade2Games/catalog.js unitFocus): chỉ phép tính của bài. */
-  focus(level, { sign, digits } = {}) {
+  focus(level, { sign, digits, op, carry } = {}) {
+    if (op && level.kind === 'long') {
+      return { ...level, op, carry, knowledge: `phép ${op === 'add' ? 'cộng' : 'trừ'} (${carry ? 'có' : 'không'} nhớ) trong phạm vi 1 000` };
+    }
     if (!sign || level.kind !== 'train') return level;
     return { ...level, sign, digits, knowledge: carryText(sign, digits) };
   },
@@ -175,13 +187,14 @@ export const BUS_GAME = {
   makeMission(rng, level, history) {
     const sameKind = history.filter(x => x.kind === level.kind);
     const m = MAKERS[level.kind](rng, sameKind, level);
-    const stops = level.kind === 'train' ? TRAIN_STOPS : BUS_STOPS;
+    const stops = level.kind === 'long' ? LONG_STOPS : level.kind === 'train' ? TRAIN_STOPS : BUS_STOPS;
     const used = history.map(x => x.stop);
     const stop = rng.pick(stops.filter(s => !used.slice(-3).includes(s)));
     return { ...m, kind: level.kind, stop, npc: DRIVER, seed: rng.int(1, 1e9) };
   },
 
   mountMission(stage, m, level, api) {
+    if (m.kind === 'long') return mountLong(stage, m, level, api, { injectStyles: injectBusStyles });
     injectBusStyles();
     const n = m.npc;
     const train = m.kind === 'train';

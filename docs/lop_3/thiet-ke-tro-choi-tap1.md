@@ -386,6 +386,12 @@ Giá ghi thành câu rõ nghĩa: bảng giá "1 kg giá 30 nghìn đồng", câu
 
 - **Đồ hoạ:** xe buýt, trạm, hành khách (dùng lại vài NPC của Chợ phiên), tàu hỏa.
 
+**Đã làm (2026-10-01): 🚆 Chuyến tàu Bắc – Nam** (`src/games/grade3Games/train.js`, hình `art/train.js`, cấp `train-1..3`). Số khách tới hàng trăm nên cả trò dùng đoàn tàu thay xe buýt (lớp 2 đã có trò xe buýt 20 ghế):
+- Mỗi toa 100 ghế nhìn từ trên xuống (10 hàng × 10 ghế, một hàng là một chục), tối đa 10 toa. Bảng đếm trên đầu máy chạy theo từng người ngồi xuống, đứng dậy.
+- Khách trên sân ga đứng theo **nhóm trăm (thảm 10 × 10) – nhóm chục (hàng 10) – người lẻ**, lên / xuống theo từng nhóm.
+- Cấp 1 (Bài 2): lên **hoặc** xuống, số có hai, ba chữ số, phần lớn có nhớ. Cấp 2 (Bài 3): đủ 4 kiểu mỗi ván: mấy người xuống (số trừ), mấy người lên (số hạng, sân ga có thêm người chờ tàu khác), lúc đầu có bao nhiêu (số hạng / số bị trừ, nút **⏪ Tua lại** cho khách đi ngược về). Cấp 3: qua 2 ga, mỗi ga xuống trước rồi lên sau, gõ số sau mỗi ga.
+- Bé gõ số trước, rồi tự bấm Mở cửa / Tua lại để kiểm chứng. Sai: ghế chênh lệch viền đỏ, mẹo nêu đúng quy tắc tìm thành phần của Bài 3.
+
 ### 4.8 🌱 Vườn trồng theo hàng
 
 | Cấp | Phù hợp khi đã học | Nội dung |

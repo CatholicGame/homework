@@ -7,7 +7,7 @@
  *   ant-3 (Bài 26): chọn đường về tổ ngắn hơn (hai kiến đi cùng tốc độ, đường ngắn tới trước) · chạm các hòn sỏi
  *          hình tứ giác (đếm đỉnh từng hòn) · đếm hình tứ giác trong vườn chia ô (tính cả hình ghép).
  *   ant-4 (Bài 27): vẽ đoạn thẳng dài cho trước dọc theo thước, xen kẽ vẽ trên giấy kẻ ô vuông (mỗi cạnh ô 1 cm).
- * Cấp 5 (bản đồ km, Bài 55, Tập Hai) chưa làm. Dùng khung quầy Chợ phiên lớp 3 (market/stall.js), theme 'ant'.
+ *   ant-5 (Bài 55, Tập Hai): bản đồ đảo đúng tỉ lệ km, đổi đơn vị km, m, dm, cm (antMap.js). Dùng khung quầy Chợ phiên lớp 3 (market/stall.js), theme 'ant'.
  * Hình phẳng tính bằng cm (U đơn vị SVG cho 1 cm), vẽ đúng tỉ lệ: thước, kiến đi, nhãn độ dài khớp nhau.
  * Bố cục sinh lúc dựng màn theo khung thật (ngang / dọc), từ seed của nhiệm vụ.
  * App không báo trước lúc đúng: bé tự bấm "✓ Căng chỉ" / "✓ Chọn xong" / "✓ Vẽ xong".
@@ -23,6 +23,7 @@ import { cap } from '../grade3Games/npc.js';
 import { mountStall, Q } from '../grade3Games/market/stall.js';
 import { makeRng } from '../grade3Games/loop.js';
 import { sfx } from '../preschool/fx.js';
+import { makeMapData, mountMap, mapIcon, MAP_PLAN } from './antMap.js';
 
 const WANT = (t) => `<b class="g3f-want">${t}</b>`;
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -63,6 +64,13 @@ export const ANT_LEVELS = [
     desc: 'Vẽ đoạn thẳng AB dài 5 cm: chấm A ở vạch 0, chấm B ở vạch 5 của thước rồi nối lại.',
     how: [['ruler', 'Nhìn thước'], ['✏️', 'Kéo bút chì'], ['✓', 'Vẽ xong']],
   },
+  {
+    ...levelMeta('ant-5'), missions: 5, kind: 'map',
+    knowledge: 'đề-xi-mét, mét, ki-lô-mét; cộng, trừ số đo ki-lô-mét',
+    ask: () => 'Bạn xem bản đồ giúp mình đi biển!',
+    desc: 'Đi từ bến qua đảo này tới đảo kia: cộng số ki-lô-mét từng chặng. 1 km = 1 000 m, 1 m = 10 dm = 100 cm.',
+    how: [['boat', 'Xem bản đồ'], ['🔢', 'Gõ số km'], ['boat', 'Thuyền đi']],
+  },
 ];
 
 // ── Sinh nhiệm vụ (số liệu); bố cục hình sinh lúc dựng màn từ m.seed ─────────────────────────────
@@ -73,6 +81,7 @@ const PLANS = {
   line: ['line', 'kind', 'line', 'kind', 'line'],
   poly: ['measure', 'total', 'measure', 'total', 'total'],
   route: ['shorter', 'quad', 'count', 'shorter', 'quad'],
+  map: MAP_PLAN,
   draw: ['ruler', 'dots', 'ruler', 'dots', 'ruler'],
 };
 const tries = (make, ok) => { let v; for (let t = 0; t < 60; t++) { v = make(); if (ok(v)) break; } return v; };
@@ -116,19 +125,21 @@ export const ANT_GAME = {
   summaryText: (ok, total) => `Em đã giúp Kiến Vàng đúng <strong>${ok}/${total}</strong> lượt.`,
 
   howTo(level) {
-    const pic = (p) => (p === 'ant' ? antIcon(46) : p === 'ruler' ? rulerIcon(46) : p);
+    const pic = (p) => (p === 'ant' ? antIcon(46) : p === 'ruler' ? rulerIcon(46) : p === 'boat' ? mapIcon(50) : p);
     return [...level.how.map(([p, label]) => ({ pic: pic(p), label })), { pic: '😊', label: 'Kiến vui' }];
   },
 
   makeMission(rng, level, history) {
     const plan = PLANS[level.kind];
     const mode = plan[history.length % plan.length];
-    return { mode, level: level.kind, ...makeData(rng, mode, history), seed: rng.int(1, 2 ** 30), npc: ANT };
+    const data = level.kind === 'map' ? makeMapData(rng, mode, history) : makeData(rng, mode, history);
+    return { mode, level: level.kind, ...data, seed: rng.int(1, 2 ** 30), npc: ANT };
   },
 
   mountMission(stage, m, level, api) {
     injectAntStyles();
     if (import.meta.env.DEV) window.__g2ant = m;
+    if (m.level === 'map') return mountMap(stage, m, api, { npc: ANT });
     return mountAntGame(stage, m, api);
   },
 };

@@ -1,6 +1,6 @@
 # Thiết kế trò chơi tăng cường — Toán 2 (Tập 1 + Tập 2)
 
-> Trạng thái (2026-09-29): 🐸 Ếch nhảy tia số và Chợ phiên (quầy trứng cấp 1; quầy trái cây đã gỡ, xem dưới §4) đã phát hành trên production (cờ `GRADE2_GAMES = true`). 🚌 Xe buýt lên xuống đã code (cấp 1–5, chưa push). 🥕 Quầy rau củ cấp 1–4 (nặng nhẹ, so với 1 kg, cân kg, cộng trừ kg) đã code (chưa push), thay quầy trái cây ở Bài 15; quầy trứng thu hẹp còn hộp 2, 5 quả (chưa push). 🎂 Tiệc sinh nhật chia kẹo cấp 1–5 đã code (chưa push, 2026-09-29). ⏰ Đồng hồ hẹn giờ & Tờ lịch cấp 1–5 đã code (chưa push, 2026-09-29). 🐜 Chú kiến tìm đường cấp 1–4 (Tập Một) đã code (chưa push, 2026-09-30). 🏭 Xưởng đóng gói trăm – chục cấp 1–5 đã code (chưa push, 2026-09-30). Các trò khác chưa code. Câu hỏi còn mở ở [§9](#9-câu-hỏi-cần-chốt).
+> Trạng thái (2026-10-01): **đã code đủ 9 trò** của §4. Đã phát hành: 🐸 Ếch, 🚌 Xe buýt cấp 1–5, Chợ phiên (🥕 rau củ, 💧 nước, 🥚 trứng), 🎂 Tiệc, ⏰ Đồng hồ, 🐜 Kiến cấp 1–4, 🏭 Xưởng. Mới code ngày 2026-10-01 (chưa push): 🚌 cấp 6 Tàu Bắc – Nam phạm vi 1 000, 🐜 cấp 5 Bản đồ đảo (km), 🪙 Quầy tạp hóa cấp 1–3, 📊 Phóng viên nhí cấp 1–3, 🎳 Thử lăn khối hình cấp 1–2. Chưa làm: chế độ "Trộn đề" (§8, dùng chung với lớp 3). §9 câu 1 (tiền) chốt theo đề xuất: giữ tờ 100, 200, 500, 1 000 đồng của sách, bối cảnh "Hội chợ của lớp".
 >
 > Nguồn nội dung: Vở Bài tập Toán 2 Tập 1 (Bài 1–36, `src/games/grade2Workbook.js`) và Tập 2 (Bài 37–75, `src/games/grade2Workbook2.js`), bộ Kết nối tri thức.
 > Khung chung dùng lại của Toán 3: [docs/lop_3/thiet-ke-tro-choi-tap1.md](../lop_3/thiet-ke-tro-choi-tap1.md).
@@ -158,7 +158,7 @@ Mỗi trò dưới đây có: **câu chuyện**, **luồng một nhiệm vụ**,
 
 - Bé gõ số trước (nút kiểm chứng mờ, bấm sớm thì bác tài nhắc và máy tính rung), OK xong nút mới nhún.
 - Sai: ghế thừa (gõ nhiều) viền đỏ nét đứt, người ngồi quá số bé gõ (gõ ít) viền đỏ; hoá đơn hiện đáp số thật. Đúng: xe / tàu chạy đi.
-- Chưa làm: cấp 6 (phạm vi 1 000, Tập 2).
+- **Cấp 6 (2026-10-01)** — `src/games/grade2Games/busLong.js`: Tàu Bắc – Nam 10 toa, mỗi toa 100 ghế (10 hàng × 10, khe giữa sau hàng / ghế thứ 5), số khách mỗi toa ghi trên toa. Sân ga có đoàn 100 người (tấm 10 × 10), nhóm 10 người, khách lẻ. Mở cửa: khách lẻ lên / xuống trước, rồi nhóm 10, rồi đoàn 100 (thứ tự đặt tính); ghế lấp lần lượt nên đủ 10 khách lẻ thì đầy một hàng, thẻ "nhớ 1" (trừ: "tháo 1") hiện ngay chỗ đó. Sinh đề như phép tính của Xưởng (nhớ / tháo nhiều nhất một hàng); mở từ Bài 59–62 thì chỉ phép tính của bài.
 
 ---
 
@@ -212,6 +212,14 @@ Dùng ca đong và vòi của quầy nước chanh; vạch trên can chỉ theo 
 | 3 | Tổng hai món (cộng trong phạm vi 1 000, Bài 59–62) rồi trả | Bút chì 200 đồng + tẩy 500 đồng → 700 đồng |
 
 Tờ tiền **vẽ lại đơn giản** (màu và số mệnh giá), không chép mẫu tiền thật.
+
+**Đã làm (2026-10-01)** — `src/games/grade2Games/shop.js`, quầy thứ tư của Chợ phiên, theme `shop`. Bối cảnh "Hội chợ của lớp": khách (9 khách Chợ phiên) nhờ bé lấy tiền trong ví, tính tiền, trả lại tiền. Hàng ở hội chợ giá tròn trăm tới 1 000 đồng (nhãn dán, kẹo, bút chì, cục tẩy, thước, bóng bay, vở, bút sáp, diều).
+
+| Cấp | Tên | Nhiệm vụ |
+|---|---|---|
+| 1 (Bài 56) | Các tờ tiền | Xen kẽ **chạm một tờ vừa đúng giá** (ví có 4 tờ 100, 200, 500, 1 000) và **đếm số tờ một loại** trong ví (gõ số; các tờ đó bay ra khay, đánh số) |
+| 2 (Bài 56, 59) | Lấy tiền vừa đủ | Ghép 2–4 tờ trong ví (không có tờ nào bằng đúng giá) đưa ra khay, bấm "💵 Trả tiền": cô thu ngân cộng dần từng tờ, so với giá |
+| 3 (Bài 59, 61) | Tính tiền, trả lại tiền | Xen kẽ **tổng tiền hai món** (gõ tổng; hai thẻ giá bay lại cộng) và **trả lại tiền** khi khách đưa tờ 1 000 đồng (gõ số; tờ 100 đồng bay ra từ ngăn kéo, đếm thêm từ giá lên 1 000). Giá tròn trăm nên không có nhớ: không gắn Bài 60, 62 |
 
 ---
 
@@ -318,7 +326,7 @@ Tờ tiền **vẽ lại đơn giản** (màu và số mệnh giá), không ché
 - **Khi sai:** kiến đi theo đường bé chọn và lộ ra đoạn dài hơn; mẹo *"Cộng độ dài từng đoạn."*
 - **Đồ hoạ:** mặt đất nhìn từ trên, kiến, tổ kiến, hạt đường, thước thẳng (chép thước của `kit`), bản đồ đảo.
 
-**Đã làm (2026-09-30):** cấp 1–4 (Tập Một) — `src/games/grade2Games/ant.js`, hình SVG `art/ant.js` (kiến nhìn từ trên đi bằng 6 chân, Kiến Vàng đứng với ba nét mặt làm người giao việc, tổ kiến, hạt đường, bút chì, nền đất / vũng nước), thước dùng lại `rulerSvg` của quầy ruy băng lớp 3, CSS `injectAntStyles`, theme `ant`. Mọi hình vẽ đúng tỉ lệ cm (thước, nhãn độ dài, quãng kiến đi khớp nhau); bố cục sinh theo khung thật (ngang / dọc) từ seed của lượt. Cấp 5 (bản đồ km, Bài 55, Tập Hai) chưa làm.
+**Đã làm (2026-09-30):** cấp 1–4 (Tập Một) — `src/games/grade2Games/ant.js`, hình SVG `art/ant.js` (kiến nhìn từ trên đi bằng 6 chân, Kiến Vàng đứng với ba nét mặt làm người giao việc, tổ kiến, hạt đường, bút chì, nền đất / vũng nước), thước dùng lại `rulerSvg` của quầy ruy băng lớp 3, CSS `injectAntStyles`, theme `ant`. Mọi hình vẽ đúng tỉ lệ cm (thước, nhãn độ dài, quãng kiến đi khớp nhau); bố cục sinh theo khung thật (ngang / dọc) từ seed của lượt. **Cấp 5 (2026-10-01)** — `antMap.js`: Bản đồ đảo vẽ đúng tỉ lệ km (thuyền lá chở Kiến Vàng). Xen kẽ: **đi mấy km** (bến → 1–2 đảo → đảo đích, gõ tổng, thuyền đi từng chặng, bảng cộng dần) · **đảo nào gần hơn, gần hơn mấy km** (chạm đảo rồi gõ hiệu; hai thuyền đi cùng tốc độ, 🏁 ở đảo tới trước) · **đổi đơn vị** 1 km = 1 000 m, 1 m = 10 dm = 100 cm, 1 dm = 10 cm (thanh đo chia 10 phần, đếm 100, 200 … 1 000) · **đảo nào xa hơn X km** (chạm nhiều đảo; vòng tròn X km quanh bến hiện ra kiểm chứng).
 
 | Cấp | Tên | Nhiệm vụ |
 |---|---|---|
@@ -340,6 +348,14 @@ Tờ tiền **vẽ lại đơn giản** (màu và số mệnh giá), không ché
 | 3 | Bài 66 | **Chắc chắn – có thể – không thể**: nhìn túi bi (thấy bên trong), chọn một trong ba thẻ cho câu "lấy được bi đỏ"; rồi bé **bốc thử** 5 lần để thấy kết quả | Túi toàn bi xanh → *không thể* lấy bi đỏ |
 
 - **Sinh đề:** số mỗi loại 2–15; cấp 3 luôn có ít nhất một câu của mỗi loại trong ván.
+
+**Đã làm (2026-10-01)** — `src/games/grade2Games/reporter.js`, theme `rep`, người giao việc Chị Mai phóng viên.
+
+| Cấp | Nhiệm vụ |
+|---|---|
+| 1 (Bài 64, 67) | Xe / con vật đi qua từng chiếc, **dừng ở chỗ phóng viên tới khi bé chạm đúng cột** (không ép thời gian, không cần nút ⏸); vạch kiểm đếm nhóm 5 có gạch chéo. Hết lượt: gõ số của một loại, hoặc chạm loại nhiều nhất / ít nhất. Kiểm chứng: mọi chiếc chạy về xếp hàng đúng cột, đánh số; cột gạch sai tô đỏ |
+| 2 (Bài 65) | Xen kẽ **vẽ biểu đồ tranh** theo bảng số liệu (chạm tên hàng để thêm hình, chạm hình cuối để bớt, "✓ Vẽ xong": đếm từng hàng) và **đọc biểu đồ** (chạm loại nhiều nhất / ít nhất, hoặc gõ "nhiều hơn mấy": ghép cặp từng cột, phần thừa đánh số) |
+| 3 (Bài 66) | Túi lưới thấy bi bên trong, câu "… lấy được bi đỏ": chọn Chắc chắn / Có thể / Không thể, rồi bốc thử 5 lần (bỏ lại vào túi). Ba lượt đầu của ván là ba loại khác nhau |
 - **Đồ hoạ:** con đường, xe cộ, thú nuôi; bảng kiểm đếm; khung biểu đồ tranh; túi lưới trong suốt với bi màu.
 
 ---
@@ -355,6 +371,8 @@ Tờ tiền **vẽ lại đơn giản** (màu và số mệnh giá), không ché
 
 - **Đồ hoạ:** dốc trượt, đồ vật 3D góc nhìn chéo (vẽ SVG), hiệu ứng lăn / trượt.
 - Trò ngắn, làm cuối.
+
+**Đã làm (2026-10-01)** — `src/games/grade2Games/roll.js`, theme `roll`, bạn Tí rủ chơi. Đồ vật vẽ SVG góc nhìn chéo (15 món: 6 khối cầu, 5 khối trụ, 4 khối khác gồm hộp sữa, xúc xắc, hộp quà, cái nón). Cấp 1: từng món hiện trên băng chuyền, chạm hộp Khối trụ / Khối cầu / Khối khác (món bay vào hộp), đủ 5 món thì mở hộp kiểm tra ✓ / ✗. Cấp 2: món đặt trên đỉnh dốc (khối cầu, khối trụ nằm ngang thấy mặt đáy tròn, khối trụ dựng đứng, hộp), chọn "Lăn" / "Không lăn" rồi thả: lăn thì đi xuống dốc và quay (khối trụ quay mặt đáy), không lăn thì lắc nhẹ rồi đứng yên.
 
 ---
 

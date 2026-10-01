@@ -348,9 +348,12 @@ function drawSkeleton(f) {
   const g = fitCanvas();
   g.clearRect(0, 0, innerWidth, innerHeight);
   if (!f.lm) return;
-  const c = toViewport(f.penRaw.x, f.penRaw.y, false);
-  const dx = S.pos.x - c.x, dy = S.pos.y - c.y;
-  const pts = f.lm.map(q => { const v = toViewport(q.x, q.y, false); return [v.x + dx, v.y + dy]; });
+  // Cỡ khung xương luôn như chế độ thấy mình (camera phủ cả màn hình), kể cả khi không thấy mình:
+  // con trỏ phóng vùng giữa khung camera ra cả màn hình, khung xương mà phóng theo thì to và méo hơn tay thật.
+  const vw = S.video.videoWidth || 640, vh = S.video.videoHeight || 480;
+  const k = Math.max(innerWidth / vw, innerHeight / vh);
+  const sx = vw * k, sy = vh * k;
+  const pts = f.lm.map(q => [S.pos.x + (q.x - f.penRaw.x) * sx, S.pos.y + (q.y - f.penRaw.y) * sy]);
   const phase = S.pinchPhase;
   const accent = phase === 'swipe' || phase === 'hold' ? '#A855F7' : phase === 'press' ? '#F97316' : S.hover ? '#22C55E' : '#22D3EE';
   g.lineCap = 'round';

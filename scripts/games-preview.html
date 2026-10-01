@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>games preview</title>
+<link rel="stylesheet" href="/src/styles/global.css" /><link rel="stylesheet" href="/src/styles/game.css" /></head>
+<body><div id="app"></div>
+<script type="module">
+// Mở thẳng một cấp của một trò để chụp màn hình kiểm tra bố cục (xem .claude/skills/game-screen-layout).
+//   /scripts/games-preview.html?mod=grade2Games/reporter.js&game=REPORTER_GAME&lv=1&h=0&fast=6
+//   mod: đường dẫn trong src/games · game: tên export · lv: chỉ số cấp · h: số lượt giả trước đó (đổi đề theo lượt)
+//   fast: chia mọi setTimeout cho số này (chụp nhanh trạng thái cuối lượt bằng --virtual-time-budget)
+const p = new URLSearchParams(location.search);
+const fast = +(p.get('fast') || 1);
+if (fast > 1) { const st0 = window.setTimeout; window.setTimeout = (f, ms, ...a) => st0(f, (ms || 0) / fast, ...a); }
+const { injectGameStyles } = await import('/src/games/grade3Games/styles.js');
+const { playRound } = await import('/src/games/grade3Games/loop.js');
+const mod = await import(/* @vite-ignore */ `/src/games/${p.get('mod')}`);
+injectGameStyles();
+const base = mod[p.get('game')];
+const h = +(p.get('h') || 0);
+const game = { ...base, makeMission(rng, level, history) { return base.makeMission.call(this, rng, level, history.length ? history : Array(h).fill({})); } };
+playRound(document.getElementById('app'), { game, level: base.levels[+(p.get('lv') || 0)], onExit() {}, onNextLevel: null });
+</script></body></html>

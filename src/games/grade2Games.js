@@ -13,6 +13,9 @@ import { PARTY_GAME } from './grade2Games/party.js';
 import { CLOCK_GAME } from './grade2Games/clock.js';
 import { ANT_GAME } from './grade2Games/ant.js';
 import { FACTORY_GAME } from './grade2Games/factory.js';
+import { SHOP_GAME } from './grade2Games/shop.js';
+import { REPORTER_GAME } from './grade2Games/reporter.js';
+import { ROLL_GAME } from './grade2Games/roll.js';
 import { EGG_GAME } from './grade3Games/market/eggs.js';
 import { levelMeta, unitFocus } from './grade2Games/catalog.js';
 
@@ -35,7 +38,7 @@ const GAMES = [
   {
     id: 'bus', icon: '🚌', title: 'Xe buýt lên xuống', single: true,
     desc: 'Làm phụ xe: đếm khách lên xe, xuống xe cho bác tài!',
-    tags: ['Thêm, bớt', 'Nhiều hơn, ít hơn', 'Có nhớ'],
+    tags: ['Thêm, bớt', 'Nhiều hơn, ít hơn', 'Có nhớ', 'Phạm vi 1 000'],
     stalls: [{ game: BUS_GAME }],
   },
   {
@@ -46,8 +49,8 @@ const GAMES = [
   },
   {
     id: 'ant', icon: '🐜', title: 'Chú kiến tìm đường', single: true,
-    desc: 'Giúp Kiến Vàng tha mồi về tổ: căng chỉ, đặt thước đo cành cây, vẽ cầu!',
-    tags: ['Thẳng hàng', 'Đường gấp khúc', 'Tứ giác'],
+    desc: 'Giúp Kiến Vàng tha mồi về tổ: căng chỉ, đặt thước đo cành cây, vẽ cầu, đi biển!',
+    tags: ['Thẳng hàng', 'Đường gấp khúc', 'Tứ giác', 'Ki-lô-mét'],
     stalls: [{ game: ANT_GAME }],
   },
   {
@@ -63,10 +66,22 @@ const GAMES = [
     stalls: [{ game: FACTORY_GAME }],
   },
   {
+    id: 'rep', icon: '📊', title: 'Phóng viên nhí', single: true,
+    desc: 'Làm phóng viên báo tường: đếm xe đi qua, vẽ biểu đồ tranh, đoán màu bi!',
+    tags: ['Kiểm đếm', 'Biểu đồ tranh', 'Có thể, không thể'],
+    stalls: [{ game: REPORTER_GAME }],
+  },
+  {
+    id: 'roll', icon: '🎳', title: 'Thử lăn khối hình', single: true,
+    desc: 'Cùng bạn Tí xếp đồ chơi vào hộp và thử thả xuống dốc trượt!',
+    tags: ['Khối trụ', 'Khối cầu', 'Lăn, không lăn'],
+    stalls: [{ game: ROLL_GAME }],
+  },
+  {
     id: 'market', icon: '🏪', title: 'Chợ phiên của bé',
-    desc: 'Làm chủ quầy hàng: cân rau củ, đong nước, đóng trứng vào hộp!',
-    tags: ['Ki-lô-gam', 'Lít', 'Nhân 2, 5'],
-    purpose: 'Giúp em thực hành kiến thức về nặng hơn, nhẹ hơn, ki-lô-gam, lít, bảng nhân 2 và bảng nhân 5 đã học trong bài. Em cân rau củ bằng cân đĩa, đong nước bằng ca 1 lít và đóng trứng vào hộp cho khách.',
+    desc: 'Làm chủ quầy hàng: cân rau củ, đong nước, đóng trứng vào hộp, bán đồ ở hội chợ!',
+    tags: ['Ki-lô-gam', 'Lít', 'Nhân 2, 5', 'Tiền'],
+    purpose: 'Giúp em thực hành kiến thức về nặng hơn, nhẹ hơn, ki-lô-gam, lít, bảng nhân 2, bảng nhân 5 và tiền Việt Nam đã học trong bài. Em cân rau củ bằng cân đĩa, đong nước bằng ca 1 lít, đóng trứng vào hộp và bán đồ ở hội chợ của lớp.',
     stalls: [
       { game: VEG_GAME, tags: 'nặng, nhẹ · ki-lô-gam' },
       { game: WATER_GAME, tags: 'lít · ca 1 lít' },
@@ -76,6 +91,7 @@ const GAMES = [
         knowledge: 'bảng nhân 2, bảng nhân 5',
         desc: 'Khách lấy mấy hộp trứng, mỗi hộp 2 hoặc 5 quả: đóng hộp rồi tính tất cả bao nhiêu quả.',
       }), tags: 'nhân 2, nhân 5' },
+      { game: SHOP_GAME, tags: 'tiền Việt Nam · 1 000 đồng' },
     ],
   },
 ];

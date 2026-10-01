@@ -19,6 +19,7 @@ import { MACHINE_GAME } from './grade3Games/machine.js';
 import { DETECTIVE_GAME } from './grade3Games/detective.js';
 import { ROBOT_GAME } from './grade3Games/robot.js';
 import { PIN_GAME } from './grade3Games/pinboard.js';
+import { TRAIN_GAME } from './grade3Games/train.js';
 import { playRound, bestFor } from './grade3Games/loop.js';
 import { lessonText, stallLessonText, hasDoneAny, lessonUnits, bookName } from './grade3Games/lessons.js';
 import { NPCS, npcPic, cap, preloadNpcs } from './grade3Games/npc.js';
@@ -70,6 +71,12 @@ export const GRADE3_LIST = [
     desc: 'Nhận đơn thiết kế: cắm ghim tìm trung điểm, căng dây tạo hình, vẽ đường tròn bằng compa, tô hình trang trí!',
     tags: ['Trung điểm', 'Hình chữ nhật', 'Compa'],
     stalls: [{ game: PIN_GAME }],
+  },
+  {
+    id: 'train', icon: '🚆', title: 'Chuyến tàu Bắc – Nam', single: true,
+    desc: 'Làm phụ tàu: đếm khách lên, xuống theo nhóm trăm, chục, tìm số người lên, xuống, lúc đầu!',
+    tags: ['Cộng, trừ đến 1 000', 'Tìm thành phần'],
+    stalls: [{ game: TRAIN_GAME }],
   },
 ];
 

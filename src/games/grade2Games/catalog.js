@@ -23,13 +23,14 @@ export const STALLS = [
   },
   {
     id: 'bus', title: 'Xe buýt lên xuống', icon: '🚌',
-    purpose: 'Giúp em thực hành kiến thức về bài toán thêm, bớt, nhiều hơn, ít hơn, hơn kém nhau bao nhiêu và phép cộng, phép trừ có nhớ đã học trong bài. Em làm phụ xe, đếm khách lên xuống cho bác tài.',
+    purpose: 'Giúp em thực hành kiến thức về bài toán thêm, bớt, nhiều hơn, ít hơn, hơn kém nhau bao nhiêu và phép cộng, phép trừ có nhớ (phạm vi 100 và 1 000) đã học trong bài. Em làm phụ xe, đếm khách lên xuống cho bác tài.',
     levels: [
       { id: 'bus-1', n: 1, title: 'Lên xe, xuống xe', lessons: { g2: ['bai-9'] }, also: { g2: ['bai-10'] } },
       { id: 'bus-2', n: 2, title: 'Nhiều hơn, ít hơn', lessons: { g2: ['bai-13'] }, also: { g2: ['bai-14'] } },
       { id: 'bus-3', n: 3, title: 'Hơn kém mấy người?', lessons: { g2: ['bai-4'] }, also: { g2: ['bai-6'] } },
       { id: 'bus-4', n: 4, title: 'Mấy người lên, xuống?', lessons: { g2: ['bai-3'] } },
       { id: 'bus-5', n: 5, title: 'Tàu hỏa có nhớ', lessons: { g2: ['bai-19', 'bai-20', 'bai-22', 'bai-23'] }, also: { g2: ['bai-21', 'bai-24'] } },
+      { id: 'bus-6', n: 6, title: 'Tàu Bắc – Nam, phạm vi 1 000', lessons: { g2: ['bai-59', 'bai-60', 'bai-61', 'bai-62'] }, also: { g2: ['bai-63'] } },
     ],
   },
   {
@@ -51,6 +52,15 @@ export const STALLS = [
     ],
   },
   {
+    id: 'shop', title: 'Quầy tạp hóa', icon: '🪙',
+    purpose: 'Giúp em thực hành kiến thức về tiền Việt Nam (tờ 100 đồng, 200 đồng, 500 đồng, 1 000 đồng) và cộng, trừ trong phạm vi 1 000 đã học trong bài. Em đứng quầy hội chợ của lớp: lấy đúng tờ tiền, ghép tiền vừa đủ giá, tính tiền và trả lại tiền cho khách.',
+    levels: [
+      { id: 'shop-1', n: 1, title: 'Các tờ tiền', lessons: { g2: ['bai-56'] }, also: { g2: ['bai-58'] } },
+      { id: 'shop-2', n: 2, title: 'Lấy tiền vừa đủ', lessons: { g2: ['bai-56'] }, also: { g2: ['bai-58', 'bai-59'] } },
+      { id: 'shop-3', n: 3, title: 'Tính tiền, trả lại tiền', lessons: { g2: ['bai-59', 'bai-61'] }, also: { g2: ['bai-63'] } },
+    ],
+  },
+  {
     id: 'clock', title: 'Đồng hồ hẹn giờ & Tờ lịch', icon: '⏰',
     purpose: 'Giúp em thực hành kiến thức về xem đồng hồ, giờ đúng, 15 phút, 30 phút, giờ buổi chiều, buổi tối, xem lịch, ngày, tháng đã học trong bài. Em làm thư ký của cả nhà: kéo kim đặt đồng hồ báo thức và xem tờ lịch treo tường.',
     levels: [
@@ -63,12 +73,13 @@ export const STALLS = [
   },
   {
     id: 'ant', title: 'Chú kiến tìm đường', icon: '🐜',
-    purpose: 'Giúp em thực hành kiến thức về điểm, đoạn thẳng, đường thẳng, đường cong, ba điểm thẳng hàng, đo độ dài, đường gấp khúc, hình tứ giác và vẽ đoạn thẳng đã học trong bài. Em giúp Kiến Vàng tha mồi về tổ: căng chỉ qua các hạt đường, đặt thước đo cành cây, chọn đường ngắn hơn, vẽ cầu.',
+    purpose: 'Giúp em thực hành kiến thức về điểm, đoạn thẳng, đường thẳng, đường cong, ba điểm thẳng hàng, đo độ dài, đường gấp khúc, hình tứ giác, vẽ đoạn thẳng, đề-xi-mét, mét và ki-lô-mét đã học trong bài. Em giúp Kiến Vàng tha mồi về tổ: căng chỉ qua các hạt đường, đặt thước đo cành cây, chọn đường ngắn hơn, vẽ cầu, xem bản đồ đi biển.',
     levels: [
       { id: 'ant-1', n: 1, title: 'Ba điểm thẳng hàng', lessons: { g2: ['bai-25'] }, also: { g2: ['bai-28'] } },
       { id: 'ant-2', n: 2, title: 'Độ dài đường gấp khúc', lessons: { g2: ['bai-25', 'bai-26'] }, also: { g2: ['bai-28'] } },
       { id: 'ant-3', n: 3, title: 'Đường ngắn hơn, hình tứ giác', lessons: { g2: ['bai-26'] }, also: { g2: ['bai-28'] } },
       { id: 'ant-4', n: 4, title: 'Vẽ đoạn thẳng', lessons: { g2: ['bai-27'] }, also: { g2: ['bai-28'] } },
+      { id: 'ant-5', n: 5, title: 'Bản đồ đảo: ki-lô-mét', lessons: { g2: ['bai-55'] }, also: { g2: ['bai-58'] } },
     ],
   },
   {
@@ -91,6 +102,23 @@ export const STALLS = [
       { id: 'fac-3', n: 3, title: 'Số có ba chữ số', lessons: { g2: ['bai-51', 'bai-52'] }, also: { g2: ['bai-54'] } },
       { id: 'fac-4', n: 4, title: 'So sánh số có ba chữ số', lessons: { g2: ['bai-53'] }, also: { g2: ['bai-54'] } },
       { id: 'fac-5', n: 5, title: 'Cộng, trừ trong phạm vi 1 000', lessons: { g2: ['bai-59', 'bai-60', 'bai-61', 'bai-62'] }, also: { g2: ['bai-63'] } },
+    ],
+  },
+  {
+    id: 'rep', title: 'Phóng viên nhí', icon: '📊',
+    purpose: 'Giúp em thực hành kiến thức về thu thập, phân loại, kiểm đếm số liệu, biểu đồ tranh và chắc chắn, có thể, không thể đã học trong bài. Em làm phóng viên báo tường: gạch vạch đếm xe, vẽ và đọc biểu đồ tranh, đoán màu bi lấy ra từ túi.',
+    levels: [
+      { id: 'rep-1', n: 1, title: 'Kiểm đếm số liệu', lessons: { g2: ['bai-64', 'bai-67'] }, also: { g2: ['bai-74'] } },
+      { id: 'rep-2', n: 2, title: 'Biểu đồ tranh', lessons: { g2: ['bai-65'] }, also: { g2: ['bai-74'] } },
+      { id: 'rep-3', n: 3, title: 'Chắc chắn, có thể, không thể', lessons: { g2: ['bai-66'] }, also: { g2: ['bai-74'] } },
+    ],
+  },
+  {
+    id: 'roll', title: 'Thử lăn khối hình', icon: '🎳',
+    purpose: 'Giúp em thực hành kiến thức về khối trụ, khối cầu đã học trong bài. Em cùng bạn Tí xếp đồ chơi vào hộp khối trụ, khối cầu và đoán xem đồ vật nào lăn được xuống dốc trượt.',
+    levels: [
+      { id: 'roll-1', n: 1, title: 'Khối trụ, khối cầu', lessons: { g2: ['bai-46'] }, also: { g2: ['bai-47'] } },
+      { id: 'roll-2', n: 2, title: 'Lăn hay không lăn?', lessons: { g2: ['bai-46'] }, also: { g2: ['bai-47'] } },
     ],
   },
   {

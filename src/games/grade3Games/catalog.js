@@ -110,6 +110,15 @@ export const STALLS = [
       { id: 'pin-4', n: 4, title: 'Vẽ trang trí', lessons: { workbook: ['bai-20'], practice: ['tuan-8'] } },
     ],
   },
+  {
+    id: 'train', title: 'Chuyến tàu Bắc – Nam', icon: '🚆',
+    purpose: 'Giúp em thực hành kiến thức về phép cộng, phép trừ trong phạm vi 1 000 và tìm thành phần trong phép cộng, phép trừ đã học trong bài. Em đếm khách lên, xuống tàu theo nhóm trăm, chục, đơn vị và tìm số người lên, xuống, lúc đầu.',
+    levels: [
+      { id: 'train-1', n: 1, title: 'Lên tàu, xuống tàu', lessons: { workbook: ['bai-2'], practice: ['tuan-1'] }, also: { workbook: ['bai-8'] } },
+      { id: 'train-2', n: 2, title: 'Tìm số người lên, xuống', lessons: { workbook: ['bai-3'], practice: ['tuan-1', 'tuan-2'] }, also: { workbook: ['bai-8'] } },
+      { id: 'train-3', n: 3, title: 'Qua nhiều ga', lessons: { workbook: ['bai-2', 'bai-3'], practice: ['tuan-1', 'tuan-2'] } },
+    ],
+  },
 ];
 
 const STALL_BY_ID = Object.fromEntries(STALLS.map(s => [s.id, s]));
