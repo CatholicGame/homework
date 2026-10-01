@@ -580,3 +580,74 @@ input[data-vk-attached][type=number] {
 
 /* Nút "App vừa được cập nhật" (main.js — bản build mới, tab đang mở còn file cũ) */
 #update-banner { position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 3000; border: none; border-radius: 999px; padding: 0.75rem 1.3rem; background: linear-gradient(135deg, #FF6B9D, #C084FC); color: #fff; font-family: var(--font); font-size: 1rem; font-weight: 700; box-shadow: var(--shadow-lg); cursor: pointer; max-width: calc(100vw - 2rem); }
+
+/* ── Giữ tay lên từ tiếng Anh → nghĩa tiếng Việt (engine/wordHint.js) ── */
+/* Học bằng tiếng Anh trên iPad / điện thoại: giữ tay không bôi đen chữ / mở menu "Sao chép".
+   Máy tính (chuột) vẫn bôi đen được: bôi đen / nhấp đúp một từ cũng hiện nghĩa. */
+@media (pointer: coarse) {
+  html[lang="en"] #app { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  html[lang="en"] #app input, html[lang="en"] #app textarea { -webkit-user-select: text; user-select: text; }
+}
+.wh-mark {
+  position: fixed; z-index: 10000; pointer-events: none;
+  border-radius: 6px; background: rgba(250, 204, 21, 0.35); box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.6);
+}
+.wh-bubble {
+  position: fixed; z-index: 10001; pointer-events: none; max-width: min(400px, calc(100vw - 16px));
+  padding: 10px 14px; border-radius: 14px;
+  background: #1E293B; color: #fff; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.3);
+  font-size: 1rem; line-height: 1.4; animation: wh-pop 0.15s ease-out;
+}
+.wh-bubble::after {
+  content: ''; position: absolute; left: var(--wh-tip, 50%); bottom: -7px; transform: translateX(-50%) rotate(45deg);
+  width: 14px; height: 14px; background: #1E293B; border-radius: 3px;
+}
+.wh-bubble.wh-below::after { bottom: auto; top: -7px; }
+.wh-bubble [lang="en"] { font-family: inherit; }
+/* Một từ: chữ to + IPA, nghĩa bên dưới */
+.wh-say {
+  pointer-events: auto; flex: none; align-self: center; width: 34px; height: 34px; padding: 0; margin-right: 2px;
+  border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.14); font-size: 1.05rem; line-height: 34px; cursor: pointer;
+}
+.wh-say:active { background: rgba(253, 230, 138, 0.4); }
+.wh-rows .wh-say { width: 28px; height: 28px; line-height: 28px; font-size: 0.9rem; }
+.wh-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.wh-head .wh-mean { flex-basis: 100%; }
+.wh-one { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+.wh-w { font-size: 1.25rem; font-weight: 800; color: #FDE68A; }
+.wh-ipa { font-size: 0.95rem; color: #93C5FD; font-family: "Segoe UI", "Lucida Sans Unicode", "Arial Unicode MS", sans-serif; white-space: nowrap; }
+.wh-mean { margin-top: 2px; font-size: 1.15rem; font-weight: 700; }
+.wh-weak, .wh-weak .wh-vi { color: #94A3B8; font-weight: 500; }
+/* Cụm từ: nghĩa cả cụm, rồi mỗi từ một dòng: từ · IPA · nghĩa */
+.wh-head { padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.18); }
+.wh-head .wh-w { font-size: 1.1rem; }
+.wh-rows { display: grid; grid-template-columns: auto auto auto 1fr; gap: 3px 12px; align-items: baseline; }
+.wh-row { display: contents; }
+.wh-row b { font-weight: 800; color: #FDE68A; }
+.wh-row.wh-weak b { color: #CBD5E1; font-weight: 600; }
+.wh-row .wh-ipa { font-size: 0.88rem; }
+.wh-vi { font-weight: 600; }
+.wh-src { margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, 0.18); font-size: 0.88rem; color: #CBD5E1; }
+@keyframes wh-pop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .wh-bubble { animation: none; } }
+/* Hướng dẫn lần đầu: tô sáng một từ + bàn tay gõ nhẹ + bong bóng "Chạm vào một từ tiếng Anh" */
+.wh-coach-ring { animation: wh-coach-pulse 1.2s ease-in-out infinite; }
+.wh-coach-hand {
+  position: fixed; z-index: 10002; pointer-events: none; font-size: 28px; line-height: 1;
+  filter: drop-shadow(0 2px 3px rgba(15, 23, 42, 0.35)); animation: wh-coach-tap 1.2s ease-in-out infinite;
+}
+.wh-coach-tip { background: #7C3AED; text-align: center; }
+.wh-coach-tip::after { background: #7C3AED; }
+.wh-coach-title { font-weight: 800; font-size: 1.05rem; }
+.wh-coach-sub { font-size: 0.9rem; opacity: 0.92; }
+@keyframes wh-coach-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.7), 0 0 0 0 rgba(250, 204, 21, 0.5); }
+  50% { box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.7), 0 0 0 8px rgba(250, 204, 21, 0); }
+}
+@keyframes wh-coach-tap { 0%, 100% { transform: translateY(6px); } 45% { transform: translateY(-2px) scale(0.92); } }
+/* Máy tắt hiệu ứng: vẫn dạy, nhưng chậm và nhẹ hơn. */
+@media (prefers-reduced-motion: reduce) {
+  .wh-coach-ring { animation-duration: 2.4s; }
+  .wh-coach-hand { animation: wh-coach-tap-calm 2.4s ease-in-out infinite; }
+  @keyframes wh-coach-tap-calm { 0%, 100% { opacity: 1; transform: none; } 50% { opacity: 0.55; transform: translateY(-2px); } }
+}

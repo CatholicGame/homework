@@ -17,6 +17,7 @@
  */
 
 import { scopedKey } from './auth.js';
+import { isEnglish, localizeSvgText } from './i18n.js';
 
 const SVG_CACHE = new Map();
 const SHAPES = 'circle, ellipse, rect, polygon, path';
@@ -62,8 +63,10 @@ export function isPaintQuestion(q) {
 }
 
 function loadSvg(url) {
-  if (!SVG_CACHE.has(url)) SVG_CACHE.set(url, fetch(url).then(r => r.text()));
-  return SVG_CACHE.get(url);
+  // Học bằng tiếng Anh: chữ trong hình cũng dịch (engine/i18n.js); bộ nhớ đệm tách theo ngôn ngữ.
+  const key = `${isEnglish() ? 'en' : 'vi'}|${url}`;
+  if (!SVG_CACHE.has(key)) SVG_CACHE.set(key, fetch(url).then(r => r.text()).then(localizeSvgText));
+  return SVG_CACHE.get(key);
 }
 
 // ── lưu theo hình ───────────────────────────────────────────────────────────

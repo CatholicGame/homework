@@ -282,6 +282,17 @@
 
 .game-card:hover .card-go { transform: scale(1.06); }
 
+/* English: sách chưa có bản tiếng Anh / sách học tiếng Việt */
+.card-lang {
+  margin: -8px 0 12px;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: #FEF3C7;
+  color: #92400E;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 /* Chữ của thẻ: máy tính/iPad xếp dọc như cũ; điện thoại chuyển sang hàng ngang (xem bên dưới). */
 .card-text { display: flex; flex-direction: column; align-items: center; }
 
@@ -589,11 +600,11 @@
   align-items: center;
   gap: 8px;
   max-width: 100%;
-  padding: 4px 12px 4px 4px;
-  border: none;
+  padding: 2px 10px 2px 2px;
+  border: 2px solid #CBD5E1;
   border-radius: var(--radius-full);
   background: white;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 0 0 3px rgba(203, 213, 225, 0.4), 0 2px 8px rgba(100, 116, 139, 0.18);
   font-family: var(--font);
   cursor: pointer;
   transition: box-shadow 0.2s;
@@ -601,7 +612,7 @@
 
 .user-menu-btn:hover,
 .user-menu-btn[aria-expanded="true"] {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 0 0 3px rgba(203, 213, 225, 0.6), 0 4px 12px rgba(100, 116, 139, 0.25);
 }
 
 .user-caret {
@@ -1297,8 +1308,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
-  border: none;
+  padding: 4px 12px;
+  border: 2px solid #EA580C;
   border-radius: var(--radius-full);
   background: var(--grad-orange);
   color: white;
@@ -1306,12 +1317,13 @@
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
+  /* Viền + quầng như ô ⭐ (.user-stars) để cả thanh đồng nhất. */
+  box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.3), 0 2px 8px rgba(234, 88, 12, 0.3);
   white-space: nowrap;
   transition: transform 0.15s, box-shadow 0.2s;
 }
 
-.user-rank-btn:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.user-rank-btn:hover { transform: translateY(-1px); }
 
 /* ☁️ Lưu Google Drive / 🔐 Đăng nhập (khách) */
 .user-cloud-btn {
@@ -1319,8 +1331,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
-  border: 1.5px solid var(--border);
+  padding: 4px 12px;
+  border: 2px solid #CBD5E1;
   border-radius: var(--radius-full);
   background: white;
   color: var(--text);
@@ -1328,10 +1340,10 @@
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 0 0 3px rgba(203, 213, 225, 0.4), 0 2px 8px rgba(100, 116, 139, 0.18);
   white-space: nowrap;
 }
-.user-cloud-btn.is-warn { border-color: #F59E0B; background: #FFFBEB; color: #92400E; }
+.user-cloud-btn.is-warn { border-color: #F59E0B; background: #FFFBEB; color: #92400E; box-shadow: 0 0 0 3px rgba(252, 211, 77, 0.35), 0 2px 8px rgba(245, 158, 11, 0.3); }
 .user-cloud-btn.is-busy { opacity: 0.7; }
 .user-cloud-ok { color: #16A34A; font-size: 0.8rem; }
 
@@ -1354,9 +1366,9 @@
 
 @media (max-width: 520px) {
   .user-rank-btn span { display: none; }
-  .user-cloud-btn { padding: 6px 10px; }
-  .user-bar { gap: 6px; }
-  .user-rank-btn { padding: 6px 10px; }
+  .user-cloud-btn { padding: 4px 8px; }
+  .user-bar { gap: 8px; }
+  .user-rank-btn { padding: 4px 8px; }
   .user-stars { padding: 3px 10px 3px 6px; font-size: 0.95rem; }
   .user-menu-btn { gap: 6px; padding-right: 8px; }
 }
@@ -1642,7 +1654,8 @@
 }
 
 .profile-grade-num { font-size: 1.4rem; font-weight: 800; line-height: 1.1; color: var(--grade-color); }
-.profile-grade-sub { font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+/* Chữ phụ được xuống dòng, căn giữa trong ô (tiếng Anh "Coming soon" dài hơn ô hẹp). */
+.profile-grade-sub { max-width: 100%; font-size: 0.75rem; font-weight: 700; line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
 .profile-grade-btn:not(:disabled):hover { transform: translateY(-2px); }
 
 .profile-grade-btn.is-selected {
@@ -1941,3 +1954,6 @@
 @media (max-width: 640px) {
   .adm-table-wrap.adm-vc-wrap { display: block; }
 }
+
+/* Nút 🌐 đổi ngôn ngữ: luôn ghi VI / EN, kể cả trên điện thoại (các nút khác chỉ còn biểu tượng). */
+.user-bar .user-lang-btn span { display: inline; font-weight: 800; }

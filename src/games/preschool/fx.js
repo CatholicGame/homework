@@ -4,6 +4,8 @@
  * Tiếng động tổng hợp bằng Web Audio, không cần tải file âm thanh.
  */
 
+import { isEnglish, tr } from '../../engine/i18n.js';
+
 const MUTE_KEY = 'pre1-mute';
 
 let muted = false;
@@ -22,13 +24,20 @@ export function setMuted(on) {
 // đọc được theo `lang` — khi đó cứ đọc bằng vi-VN. Chỉ im lặng khi máy CÓ liệt kê giọng
 // mà không có giọng tiếng Việt (tránh giọng Anh đọc sai).
 let viVoice = null;
+let enVoice = null; // English mode (engine/i18n.js): lời dặn được dịch và đọc bằng giọng Anh–Mỹ
 let noVoiceList = true;
 function pickVoice() {
   const voices = window.speechSynthesis?.getVoices() || [];
   noVoiceList = voices.length === 0;
   viVoice = voices.find(v => /^vi/i.test(v.lang) && /natural|online|google/i.test(v.name))
     || voices.find(v => /^vi/i.test(v.lang)) || null;
+  const us = voices.filter(v => /^en[-_]?US/i.test(v.lang));
+  const en = us.length ? us : voices.filter(v => /^en/i.test(v.lang));
+  enVoice = en.find(v => /natural|online|google/i.test(v.name)) || en.find(v => v.localService) || en[0] || null;
 }
+/** Ngôn ngữ đang đọc: 'en' khi trang đang hiện tiếng Anh, còn lại 'vi'. */
+const curLang = () => (isEnglish() ? 'en' : 'vi');
+const voiceFor = (lang) => (lang === 'en' ? enVoice : viVoice);
 if ('speechSynthesis' in window) {
   pickVoice();
   window.speechSynthesis.addEventListener?.('voiceschanged', () => { pickVoice(); emitStatus(); });
@@ -43,8 +52,8 @@ if ('speechSynthesis' in window) {
   document.addEventListener('pointerdown', unlock, { once: true, capture: true });
 }
 
-/** Giọng của máy đọc được tiếng Việt không. */
-const canSpeakLocal = () => 'speechSynthesis' in window && (!!viVoice || noVoiceList);
+/** Giọng của máy đọc được tiếng Việt (tiếng Anh khi `lang` = 'en') không. */
+const canSpeakLocal = (lang = curLang()) => 'speechSynthesis' in window && (!!voiceFor(lang) || noVoiceList);
 
 // ── Giọng đọc trực tuyến (dự phòng) ─────────────────────────────────────────
 // Chrome trên Windows không có giọng tiếng Việt nào (giọng Google của Chrome không có tiếng
@@ -56,7 +65,7 @@ let onlineFrame = null;
 let onlineQueue = [];
 let player = null;
 let onlineFailures = 0; // số lần liền dịch vụ trực tuyến không trả về tiếng (mất mạng, bị chặn…)
-const useOnline = () => !viVoice && !noVoiceList;
+const useOnline = (lang = curLang()) => !voiceFor(lang) && !noVoiceList;
 
 let frameReady = false;
 /** Tài liệu của iframe "no-referrer"; null khi iframe chưa tải xong (srcdoc tải bất đồng bộ). */
@@ -99,7 +108,7 @@ function playNextOnline() {
   const item = onlineQueue.shift();
   if (!item) { player = null; return; }
   const a = doc.createElement('audio');
-  a.src = `https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&ttsspeed=${item.rate < 0.85 ? 0.8 : 1}&q=${encodeURIComponent(item.text)}`;
+  a.src = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${item.lang === 'en' ? 'en-US' : 'vi'}&client=tw-ob&ttsspeed=${item.rate < 0.85 ? 0.8 : 1}&q=${encodeURIComponent(item.text)}`;
   const done = () => { if (player === a) { a.remove(); playNextOnline(); } };
   a.onended = () => { if (onlineFailures) { onlineFailures = 0; emitStatus(); } done(); };
   a.onerror = () => { onlineFailures++; if (onlineFailures === 2) emitStatus(); done(); };
@@ -108,9 +117,9 @@ function playNextOnline() {
   a.play().catch(done);
 }
 
-function sayOnline(text, rate, queue) {
+function sayOnline(text, rate, queue, lang = 'vi') {
   if (!queue) stopOnline();
-  onlineQueue.push(...chunksOf(text).map(t => ({ text: t, rate })));
+  onlineQueue.push(...chunksOf(text).map(t => ({ text: t, rate, lang })));
   if (!player) playNextOnline();
 }
 
@@ -149,21 +158,44 @@ export function onVoiceStatus(fn) {
   };
 }
 
-/** Máy đọc được tiếng Việt không (bằng giọng của máy hoặc giọng trực tuyến). */
-export const canSpeak = () => canSpeakLocal() || (useOnline() && navigator.onLine !== false);
+/** Máy đọc được tiếng Việt (tiếng Anh khi đang ở English) không (bằng giọng của máy hoặc giọng trực tuyến). */
+export const canSpeak = (lang = curLang()) => canSpeakLocal(lang) || (useOnline(lang) && navigator.onLine !== false);
+
+const VN_CHAR = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu;
+/**
+ * English mode: lời dặn tiếng Việt → câu tiếng Anh để đọc (cùng từ điển với chữ trên màn hình).
+ * Chưa có bản dịch: câu không có chữ tiếng Việt ("A", "B 3") vẫn đọc nguyên văn, còn lại im lặng
+ * (không để giọng Anh đọc chữ Việt). Bản dev ghi câu thiếu vào window.__i18nMissing ("[say] …").
+ */
+function englishSpeech(text) {
+  const en = tr(text);
+  if (en == null) {
+    if (!VN_CHAR.test(text)) return text;
+    if (import.meta.env.DEV) window.__i18nMissing?.add(`[say] ${String(text).replace(/\s+/g, ' ').trim()}`);
+    return null;
+  }
+  return String(en).replace(EMOJI, '').replace(/\s+/g, ' ').trim() || null;
+}
 
 /** Đọc một câu; `queue` = đọc nối sau câu đang đọc thay vì cắt ngang. */
 export function say(text, { queue = false, rate = 0.9 } = {}) {
   if (muted || !text || !('speechSynthesis' in window)) return;
-  if (!viVoice) pickVoice(); // danh sách giọng có thể tới muộn mà không báo voiceschanged
-  if (useOnline()) { if (canSpeak()) sayOnline(text, rate, queue); return; }
-  if (!canSpeakLocal()) return;
+  const lang = curLang();
+  if (lang === 'en') {
+    text = englishSpeech(text);
+    if (!text) { if (!queue) stopSpeaking(); return; }
+  }
+  if (!voiceFor(lang)) pickVoice(); // danh sách giọng có thể tới muộn mà không báo voiceschanged
+  if (useOnline(lang)) { if (canSpeak(lang)) sayOnline(text, rate, queue, lang); return; }
+  if (!canSpeakLocal(lang)) return;
   const synth = window.speechSynthesis;
   if (!queue) synth.cancel();
   synth.resume(); // Chrome/Edge Android đôi khi kẹt ở trạng thái paused
   const u = new SpeechSynthesisUtterance(text);
-  if (viVoice) u.voice = viVoice;
-  u.lang = viVoice?.lang || 'vi-VN';
+  const voice = voiceFor(lang);
+  if (voice) u.voice = voice;
+  u.lang = voice?.lang || (lang === 'en' ? 'en-US' : 'vi-VN');
   u.rate = rate;
   u.pitch = 1.15;
   synth.speak(u);

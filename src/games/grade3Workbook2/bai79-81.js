@@ -38,7 +38,7 @@ const numListVal = (arr) => (v) => {
 };
 
 // Point names typed with or without separators, "và" or the words "điểm"/"góc"…
-const letters = (s) => stripVN(s).toUpperCase().replace(/\b(DIEM|GOC|DINH|CANH|DOAN|THANG|VA|LA)\b/g, ' ');
+const letters = (s) => stripVN(s).toUpperCase().replace(/\b(DIEM|GOC|DINH|CANH|DOAN|THANG|VA|LA|POINTS?|ANGLES?|VERTEX|VERTICES|SIDES?|SEGMENTS?|LINES?|STRAIGHT|AND|IS|ARE|THE)\b/g, ' '); // tiếng Anh: "angle AMO", "points A, M, B"
 
 // Bài 79 Tiết 1 Q1a: the 4 triples of collinear points, one per side of the
 // square ("A, M, B; B, N, C; …" or "AMB, BNC, …"); any order of triples and of

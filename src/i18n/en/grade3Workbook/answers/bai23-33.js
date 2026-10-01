@@ -1,0 +1,42 @@
+/** Vở BT Toán 3 Tập 1, Bài 23–33: đáp án bé gõ bằng tiếng Anh → chữ trong đáp án của sách. */
+export default {
+  // Bài 23 (ô chữ): tên địa danh
+  'cu chi tunnels': 'Địa đạo Củ Chi',
+  'the cu chi tunnels': 'Địa đạo Củ Chi',
+  'cu chi tunnel': 'Địa đạo Củ Chi',
+  // Bài 27: "gấp" / "giảm"
+  increase: 'gấp',
+  decrease: 'giảm',
+  'increase 2 times': 'gấp 2 lần',
+  'decrease 3 times': 'giảm 3 lần',
+  'increased 2 times': 'gấp 2 lần',
+  'decreased 3 times': 'giảm 3 lần',
+  'increase by 2 times': 'gấp 2 lần',
+  'decrease by 3 times': 'giảm 3 lần',
+  // Bài 30: con vật
+  grasshopper: 'cào cào',
+  'a grasshopper': 'cào cào',
+  grasshoppers: 'cào cào',
+  'praying mantis': 'bọ ngựa',
+  'a praying mantis': 'bọ ngựa',
+  mantis: 'bọ ngựa',
+  'a mantis': 'bọ ngựa',
+  locust: 'châu chấu',
+  'a locust': 'châu chấu',
+  // Bài 33: địa danh, buổi trong ngày, cách đọc nhiệt độ
+  'ha long': 'Hạ Long',
+  'halong': 'Hạ Long',
+  'sapa': 'Sa Pa',
+  'early morning': 'Sáng sớm',
+  morning: 'Sáng sớm',
+  noon: 'Trưa',
+  midday: 'Trưa',
+  afternoon: 'Chiều',
+  night: 'Đêm',
+  'fifteen degrees celsius': 'mười lăm độ xê',
+  'fifteen degree celsius': 'mười lăm độ xê',
+  'fifteen degrees c': 'mười lăm độ xê',
+  'fifteen degrees': 'mười lăm độ xê',
+  'fifteen °c': 'mười lăm độ xê',
+  'fifteen celsius': 'mười lăm độ xê',
+};

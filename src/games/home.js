@@ -10,6 +10,10 @@ import { getSpinStatus, countOwned, getSets } from '../engine/stickers.js';
 import { isAdminUser } from '../engine/admin.js';
 import { getBoardGradeStars } from '../engine/leaderboard.js';
 import { getCloudStatus, syncNow } from '../engine/cloudSync.js';
+import { getLang, setLang, hasEnglish, LANGS } from '../engine/i18n.js';
+
+// Sách học tiếng Việt: luôn 100% tiếng Việt, kể cả khi chọn English (engine/i18n.js).
+const VI_BOOKS = new Set(['pre3-abc']);
 
 const WEEKDAYS = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
 const WEEKDAYS_SHORT = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -92,6 +96,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
                 <span class="card-text">
                   <h3>${g.title}</h3>
                   <p>${g.desc}</p>
+                  ${langTag(g.id)}
                 </span>
                 <span class="card-go">Vào học ➜</span>
               </button>
@@ -111,6 +116,12 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
     app.querySelectorAll('.game-card').forEach(card => {
       card.addEventListener('click', () => navigate(card.dataset.game));
     });
+  }
+
+  // English: thẻ sách chưa có bản tiếng Anh (hoặc sách học tiếng Việt) ghi rõ là học bằng tiếng Việt.
+  function langTag(gameId) {
+    if (getLang() !== 'en' || hasEnglish(gameId)) return '';
+    return `<span class="card-lang">${VI_BOOKS.has(gameId) ? 'Học tiếng Việt' : 'Chưa có tiếng Anh'}</span>`;
   }
 
   // ── Đầu trang: lời chào, nút "Tiếp tục", tiến độ sticker ─────────────────
@@ -280,6 +291,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
         ${guest
           ? '<button type="button" class="user-cloud-btn is-warn" id="user-login-btn" title="Đăng nhập Google để lưu bài làm lên Google Drive">🔐<span>Đăng nhập</span></button>'
           : '<button type="button" class="user-cloud-btn" id="user-cloud-btn"></button>'}
+        ${langButton()}
         <button type="button" class="user-rank-btn" id="user-sticker-btn" title="Vòng quay sticker">🎁 <span>Sticker</span>${getSpinStatus().spins ? `<b class="user-badge">${getSpinStatus().spins}</b>` : ''}</button>
         <button type="button" class="user-rank-btn" id="user-rank-btn" title="Bảng xếp hạng">🏆 <span>Xếp hạng</span></button>
         <span class="user-stars" title="Số sao đã nhận ở lớp đang học"><span class="user-stars-icon">⭐</span><span class="user-stars-count">${headerStars()}</span></span>
@@ -306,7 +318,14 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
     `;
   }
 
+  // Nút đổi ngôn ngữ: ghi ngôn ngữ sẽ chuyển sang (cờ emoji trên Windows hiện thành chữ "VN" nên dùng 🌐).
+  function langButton() {
+    const next = LANGS.find(l => l.id !== getLang());
+    return `<button type="button" class="user-rank-btn user-lang-btn" id="user-lang-btn" data-no-i18n data-lang="${next.id}" title="${next.id === 'en' ? 'Học Toán bằng tiếng Anh' : 'Học bằng tiếng Việt'}" aria-label="${next.label}">🌐 <span>${next.short}</span></button>`;
+  }
+
   function bindUserBar() {
+    app.querySelector('#user-lang-btn')?.addEventListener('click', (e) => setLang(e.currentTarget.dataset.lang));
     const btn = app.querySelector('#user-menu-btn');
     const menu = app.querySelector('#user-menu');
     if (!btn || !menu) return;

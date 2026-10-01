@@ -14,9 +14,16 @@ import { syncMyScore, syncMyProfile, registerUser, registerGuest, fetchRemotePro
 import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
 import { initLightbox } from './engine/lightbox.js';
 import { initKeyboardInset } from './engine/keyboardInset.js';
+import { initI18n, setI18nPage } from './engine/i18n.js';
+import { initWordHint } from './engine/wordHint.js';
 
 // Tiến trình học ↔ Google Drive của người đăng nhập
 initCloudSync();
+
+// Tiếng Anh cho Toán: dịch chữ trên màn hình khi bé chọn English (engine/i18n.js)
+initI18n();
+initWordHint(); // giữ tay lên từ tiếng Anh → nghĩa tiếng Việt
+window.addEventListener('tth:lang-changed', () => navigate(currentPage));
 
 // Init virtual keyboard globally — auto-attaches to all number inputs
 initVirtualKeyboard();
@@ -199,13 +206,16 @@ function navigate(gameId) {
   currentPage = gameId || 'home';
   const app = document.getElementById('app');
   app.innerHTML = '';
+  app.removeAttribute('data-no-i18n');
   const token = ++navToken;
+  setI18nPage(currentPage);
 
   // Đăng nhập Google, hoặc bấm "Dùng thử" (khách: dữ liệu chỉ lưu trên máy này)
   const user = getCurrentUser() || (isGuest() ? { id: 'guest', guest: true, name: 'Khách' } : null);
   // Khách đã bấm "Dùng thử" ở lần mở trước nhưng chưa chọn xong avatar (vd. mở link từ TikTok,
   // Zalo… lần hai): coi như chưa chọn, hiện lại màn đăng nhập / dùng thử thay vì nhảy thẳng vào avatar.
   if (!user || (user.guest && !guestChosenNow && !isSetupDone())) {
+    setI18nPage('login');
     renderLogin(app, (u) => { if (!u) guestChosenNow = true; navigate(gameId || 'home'); }, { error: loginError });
     loginError = '';
     return;
@@ -235,6 +245,7 @@ function navigate(gameId) {
       return;
     }
     if (user.guest) registerGuest(); // khách dừng ở màn chọn avatar vẫn được đếm ở trang admin
+    setI18nPage('profile');
     renderProfileSetup(app, { mode: 'onboard', onDone: () => navigate(gameId || 'home') });
     return;
   }
@@ -345,6 +356,7 @@ function navigate(gameId) {
 
 // Bản dev: phím tắt thử nghiệm sticker (Ctrl+Alt+H xem danh sách). Không có trong bản build.
 if (import.meta.env.DEV) {
+  window.__navigate = navigate; // scripts/i18n-crawl.mjs mở thẳng một sách
   import('./engine/devShortcuts.js').then(({ initDevShortcuts }) => initDevShortcuts({
     navigate,
     refresh: () => { if (currentPage === 'home' || currentPage === 'stickers') navigate(currentPage); },

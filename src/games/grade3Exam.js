@@ -159,6 +159,7 @@ export function render(app, onBack) {
     app.innerHTML = `
       <div class="e3-wrap ex-app">
         <div class="e3-intro animate-fadeIn">
+          <div class="e3-intro-head"><button type="button" class="e3-head-back" id="e3-back-btn">← Quay lại</button></div>
           <div class="e3-badge">📝</div>
           <h1 class="e3-title">Ôn Luyện Đề — ${exam.title}</h1>
           <p class="e3-sub">${exam.subtitle}</p>
@@ -179,9 +180,6 @@ export function render(app, onBack) {
               </button>
             `).join('')}
           </div>
-
-          <div class="e3-divider"></div>
-          <button class="e3-btn e3-btn-ghost" id="e3-back-btn">← Quay lại</button>
         </div>
       </div>
     `;
@@ -805,6 +803,9 @@ function injectStyles() {
     .e3-btn-ghost { background: #f1f5f9; color: #475569; }
     .e3-btn-ghost:hover { background: #e2e8f0; }
     .e3-intro .e3-btn { width: auto; }
+    .e3-intro-head { display: flex; justify-content: flex-start; margin: -1rem 0 0.6rem; }
+    .e3-head-back { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: none; background: var(--purple-light, #EDE9FE); color: var(--purple, #7C3AED); font-family: inherit; font-weight: 700; font-size: 0.9rem; border-radius: 999px; cursor: pointer; transition: background 0.2s, color 0.2s; }
+    .e3-head-back:hover { background: var(--purple, #7C3AED); color: #fff; }
     .e3-back-icon {
       background: rgba(0,0,0,0.08); border: none; color: #1E293B; font-size: 1rem;
       width: 2.2rem; height: 2.2rem; border-radius: 0.6rem; cursor: pointer; font-weight: 700; flex-shrink: 0;

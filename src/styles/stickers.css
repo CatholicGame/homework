@@ -1,7 +1,7 @@
 /* ====== STICKER PHẦN THƯỞNG ====== */
 
 /* Nút "Sticker" trên thanh người dùng: màu hồng tím, có chấm số lượt quay. */
-#user-sticker-btn { background: var(--grad-primary); position: relative; }
+#user-sticker-btn { background: var(--grad-primary); position: relative; border-color: #A855F7; box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.3), 0 2px 8px rgba(168, 85, 247, 0.3); }
 
 .user-badge {
   min-width: 20px;

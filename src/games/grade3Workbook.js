@@ -124,9 +124,19 @@ import { attachColorPaint, isPaintQuestion } from '../engine/colorPaint.js';
 import { attachPourPlay, revealPourPlay } from '../engine/pourPlay.js';
 import { GRADE3_GAMES } from '../data/features.js';
 import { levelsForUnit } from './grade3Games/catalog.js';
+import { toVietnameseAnswer, isEnglish, tr } from '../engine/i18n.js';
 import { attachTrainSwap, attachTrainPaint, trainEngine, trainMatchCar } from '../engine/trains.js';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
+
+// Câu đã giải mở lại: ô hiện đáp án của sách; học bằng tiếng Anh thì hiện bản tiếng Anh (Đ/S → T/F).
+function shownAnswer(v) {
+  const s = String(v ?? '');
+  if (!isEnglish() || !/[A-Za-zÀ-ỹ]/.test(s)) return s;
+  if (s === 'Đ') return 'T';
+  if (s === 'S') return 'F';
+  return tr(s) ?? s;
+}
 
 export function soDoc(n) {
   const ones = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
@@ -193,7 +203,9 @@ export function blank(answer, opts = {}) {
 // "Đ" easy to reach) — so accept both, plus the written-out words.
 export function dsValidate(isTrue) {
   const accepted = isTrue ? ['đ', 'd', 'đúng', 'dung'] : ['s', 'sai'];
-  return (value) => accepted.includes(String(value).trim().toLowerCase());
+  const check = (value) => accepted.includes(String(value).trim().toLowerCase());
+  check.ds = true; // tiếng Anh: T/F (engine/i18n.js toVietnameseAnswer)
+  return check;
 }
 
 // Bài 13 Tiết 2 Q4: "lập được các phép nhân hoặc phép chia thích hợp" from
@@ -388,6 +400,10 @@ export function feverValidate() {
   return (value) => {
     const v = stripVN(value).trim().replace(/\s+/g, ' ');
     if (/^khong\b/.test(v) || /khong (bi )?sot/.test(v)) return false;
+    // Học bằng tiếng Anh: "Yes, …", "Nam has a fever"; "No", "no fever", "does not have a fever" là sai.
+    const en = v.toLowerCase();
+    if (/^no\b/.test(en) || /\bno fever\b|\bnot (have )?a fever\b|n't have a fever/.test(en)) return false;
+    if (/^yes\b/.test(en) || /\bfever\b/.test(en)) return true;
     return /^co\b/.test(v) || /\bsot\b/.test(v);
   };
 }
@@ -4282,10 +4298,12 @@ export function renderWorkbook(app, onBack, cfg) {
 
   // ── INTRO / UNIT MENU ──────────────────────────────────────────────────────
   function showIntro() {
+    app.removeAttribute('data-no-i18n');
     const totalQ = UNITS.reduce((s, u) => s + u.questions.length, 0);
     app.innerHTML = `
       <div class="e3-wrap gw-app">
         <div class="e3-intro animate-fadeIn gw-intro-wide">
+          <div class="e3-intro-head"><button type="button" class="e3-head-back" id="e3-back-btn">← Quay lại</button></div>
           <div class="e3-badge">${cfg.badge}</div>
           <h1 class="e3-title">${cfg.title}</h1>
           <p class="e3-sub">${cfg.subtitle}</p>
@@ -4334,9 +4352,6 @@ export function renderWorkbook(app, onBack, cfg) {
               `;
             }).join('')}
           </div>
-
-          <div class="e3-divider"></div>
-          <button class="e3-btn e3-btn-ghost" id="e3-back-btn">← Quay lại</button>
         </div>
       </div>
     `;
@@ -4362,6 +4377,8 @@ export function renderWorkbook(app, onBack, cfg) {
 
   // Trò chơi tăng cường (tải động). start = { stall, level, unit } → mở thẳng cấp đó, chỉ phép tính của bài unit.
   function openGames(start = null) {
+    // Trò chơi tăng cường chưa có bản tiếng Anh: giữ nguyên tiếng Việt (engine/i18n.js bỏ qua [data-no-i18n]).
+    app.setAttribute('data-no-i18n', '');
     loadGames().then(m => m.renderGamesHub(app, {
       book: cfg.gamesBook, units: UNITS, unitName: cfg.unitName, storageKey: cfg.storageKey,
       openUnit, onBack: showIntro,
@@ -4440,6 +4457,7 @@ export function renderWorkbook(app, onBack, cfg) {
 
   // ── QUIZ ──────────────────────────────────────────────────────────────────
   function showQuestion(idx = current) {
+    app.removeAttribute('data-no-i18n');
     current = idx;
     multiSelected = [];
     selectedMatchItem = null;
@@ -5405,6 +5423,8 @@ export function renderWorkbook(app, onBack, cfg) {
   }
 
   function checkBlank(b, value) {
+    // Học bằng tiếng Anh: "twenty-five", "8 tens and 2 ones", T/F → dạng tiếng Việt của sách.
+    value = toVietnameseAnswer(value, { ds: !!b.validate?.ds });
     if (b.validate) return b.validate(value);
     // Ô nhiều chỗ trống: giá trị được nối bằng dấu phẩy ("7,5,4") — so từng phần,
     // không để parseFloat đọc "7,5,4" thành 7.5 (bỏ qua các ô sau).
@@ -5514,7 +5534,7 @@ export function renderWorkbook(app, onBack, cfg) {
         const group = groups[i];
         const parts = group.length > 1 ? splitAnswerParts(b.answer) : [b.answer];
         group.forEach((inp, j) => {
-          inp.value = parts[j] ?? '';
+          inp.value = shownAnswer(parts[j]);
           inp.disabled = true;
           inp.classList.add('e3-correct-input');
         });
@@ -5571,11 +5591,11 @@ export function renderWorkbook(app, onBack, cfg) {
     if (solved[current]) {
       inputs.forEach(inp => {
         const cell = tableCell(q, inp.dataset.t, inp.dataset.r, inp.dataset.c);
-        inp.value = cell.answer;
+        inp.value = shownAnswer(cell.answer);
       });
       (q.blanks || []).forEach((b, i) => {
         const parts = blankGroups[i].length > 1 ? splitAnswerParts(b.answer) : [b.answer];
-        blankGroups[i].forEach((inp, j) => { inp.value = parts[j] ?? ''; });
+        blankGroups[i].forEach((inp, j) => { inp.value = shownAnswer(parts[j]); });
       });
       allInputs.forEach(inp => { inp.disabled = true; inp.classList.add('e3-correct-input'); });
       attachTrainActions(q, blankGroups);
@@ -5974,6 +5994,9 @@ function injectStyles() {
       .e3-btn-ghost { background: #f1f5f9; color: #475569; }
       .e3-btn-ghost:hover { background: #e2e8f0; }
       .e3-intro .e3-btn { width: auto; }
+      .e3-intro-head { display: flex; justify-content: flex-start; margin: -1rem 0 0.6rem; }
+      .e3-head-back { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: none; background: var(--purple-light, #EDE9FE); color: var(--purple, #7C3AED); font-family: inherit; font-weight: 700; font-size: 0.9rem; border-radius: 999px; cursor: pointer; transition: background 0.2s, color 0.2s; }
+      .e3-head-back:hover { background: var(--purple, #7C3AED); color: #fff; }
       .e3-back-icon { background: rgba(0,0,0,0.08); border: none; color: #1E293B; font-size: 1rem; width: 2.2rem; height: 2.2rem; border-radius: 0.6rem; cursor: pointer; font-weight: 700; flex-shrink: 0; }
       .e3-qlist-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.45); z-index: 1000; display: flex; justify-content: flex-end; align-items: stretch; }
       .e3-qlist-panel { width: min(320px, 85vw); background: #fff; box-shadow: -8px 0 30px rgba(0,0,0,0.18); padding: 1.2rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; animation: e3SlideIn 0.2s ease; }

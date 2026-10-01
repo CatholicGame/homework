@@ -122,7 +122,7 @@ export function initLightbox() {
   const addToggles = () => {
     document.querySelectorAll('.e3-q-img:not([data-orig-checked])').forEach(img => {
       img.dataset.origChecked = '1';
-      if (img.closest('table') || !originalLoader(img.getAttribute('src'))) return;
+      if (img.closest('table') || !originalLoader(img.dataset.i18nSrc || img.getAttribute('src'))) return;
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'e3-orig-toggle';
@@ -137,7 +137,7 @@ export function initLightbox() {
 async function toggleInline(btn) {
   const img = btn.previousElementSibling;
   if (!img?.classList.contains('e3-q-img')) return;
-  const svgSrc = img.dataset.svgSrc || img.getAttribute('src');
+  const svgSrc = img.dataset.svgSrc || img.dataset.i18nSrc || img.getAttribute('src');
   const showOrig = img.dataset.showingOrig !== '1';
   img.dataset.svgSrc = svgSrc;
   img.src = showOrig ? await originalLoader(svgSrc)() : (img.dataset.paintedSrc || svgSrc);

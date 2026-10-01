@@ -16,6 +16,8 @@
  * and a tile already written in another slot of the same row is used up.
  */
 
+import { isEnglish, EN_WORD_ROWS, tr } from './i18n.js';
+
 const VK_CLASS = 'vk-panel';
 const VK_SELECTOR = 'input[type="number"], input[inputmode="numeric"], input[data-vk-words], input[data-vk-tiles]';
 const TILE_SEP = ', ';
@@ -72,19 +74,26 @@ function createKeyboard() {
 }
 
 function createWordKeyboard() {
+  // Học Toán bằng tiếng Anh: chữ số tiếng Anh ("twenty", "five"); dựng lại khi đổi ngôn ngữ.
+  const lang = isEnglish() ? 'en' : 'vi';
   const existing = document.getElementById('virtual-keyboard-words');
-  if (existing) return existing;
+  if (existing && existing.dataset.lang === lang) return existing;
+  existing?.remove();
+  const rows = lang === 'en' ? EN_WORD_ROWS : WORD_ROWS;
 
   const wp = document.createElement('div');
   wp.id = 'virtual-keyboard-words';
   wp.className = `${VK_CLASS} vk-words`;
+  wp.dataset.lang = lang;
   wp.setAttribute('aria-label', 'Bàn phím chữ đọc số');
-  wp.innerHTML = NAV_ROW + WORD_ROWS.map(row => `
+  wp.innerHTML = NAV_ROW + rows.map(row => `
     <div class="vk-row">
       ${row.map(k => `<button class="vk-key ${k === '⌫' ? 'vk-backspace' : ''} ${k === '✓' ? 'vk-confirm' : ''}" data-key="${k}" type="button">${k}</button>`).join('')}
     </div>
   `).join('');
 
+  // Phím chữ tiếng Việt ("hai", "mươi") không được dịch: phím ghi gì thì viết ra đúng chữ đó.
+  if (lang === 'vi') wp.querySelectorAll('.vk-row:not(.vk-nav)').forEach(r => r.setAttribute('data-no-i18n', ''));
   document.body.appendChild(wp);
   return wp;
 }
@@ -97,7 +106,12 @@ let tilePanel = null;
 
 // ── Item tiles (data-vk-tiles) ───────────────────────────────────────────────
 function tilesOf(input) {
-  try { return JSON.parse(input.dataset.vkTiles); } catch { return []; }
+  let tiles;
+  try { tiles = JSON.parse(input.dataset.vkTiles); } catch { return []; }
+  // Học bằng tiếng Anh: thẻ chữ ("Ấm", "Bình") ghi tiếng Anh; khi chấm, i18n.toVietnameseAnswer đổi lại.
+  // Thẻ Đ / S → T / F (dsValidate nhận T/F qua toVietnameseAnswer).
+  if (isEnglish() && tiles.length === 2 && tiles[0] === 'Đ' && tiles[1] === 'S') return ['T', 'F'];
+  return isEnglish() ? tiles.map(t => (/[A-Za-zÀ-ỹ]{2,}/.test(t) && tr(t)) || t) : tiles;
 }
 // data-vk-sep: the book's own separator ("D; B; A; C"), ", " by default.
 const sepOf = (input) => input.dataset.vkSep || TILE_SEP;
@@ -192,7 +206,7 @@ function showKeyboard(input) {
   if (suppressReshow) return;          // cooldown after ✓ → don't reopen
   activeInput = input;
   panel = panel || createKeyboard();
-  wordPanel = wordPanel || createWordKeyboard();
+  wordPanel = createWordKeyboard();
   const words = !!input.dataset.vkWords;
   const tiles = !!input.dataset.vkTiles;
   wordPanel.classList.toggle('vk-visible', words);
