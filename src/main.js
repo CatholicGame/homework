@@ -16,9 +16,13 @@ import { initLightbox } from './engine/lightbox.js';
 import { initKeyboardInset } from './engine/keyboardInset.js';
 import { initI18n, setI18nPage } from './engine/i18n.js';
 import { initWordHint } from './engine/wordHint.js';
+import { initAppUpdate } from './engine/appUpdate.js';
 
 // Tiến trình học ↔ Google Drive của người đăng nhập
 initCloudSync();
+
+// Quay lại trình duyệt trên điện thoại: có bản mới thì tải lại / hiện nút Cập nhật
+initAppUpdate();
 
 // Tiếng Anh cho Toán: dịch chữ trên màn hình khi bé chọn English (engine/i18n.js)
 initI18n();
