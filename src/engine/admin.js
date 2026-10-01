@@ -107,3 +107,25 @@ export async function fetchStudents() {
   const launchOf = (g) => launches.get(`g${g}`) || makeLaunch(realRows.filter(r => r.grade === g), g);
   return [...byUid.values(), ...guests, ...castStudents(launchOf)];
 }
+
+/**
+ * Xoá một dòng ở trang admin (bạn ảo không xoá được).
+ * Khách: guests/, dòng bảng xếp hạng và mã máy (máy đó được dùng thử lại).
+ * Học sinh: users/, profiles/, leaderboard/ — bài làm trên Drive của bé không bị đụng tới;
+ * bé mở app lại thì sổ đăng ký tự ghi lại.
+ * Khách / bé vẫn đang dùng app trên máy cũ sẽ hiện lại ở lần mở sau (phiên đăng nhập vẫn còn).
+ */
+export async function deleteStudent(row) {
+  if (row.fake) throw new Error('fake');
+  const fb = await firebaseSession();
+  if (!fb) throw new Error('need-connect');
+  const { db, fs } = fb;
+  const del = (c, id) => fs.deleteDoc(fs.doc(db, c, id));
+  if (row.guest) {
+    const devices = await fs.getDocs(fs.query(fs.collection(db, 'guestDevices'), fs.where('uid', '==', row.uid)))
+      .then(s => s.docs.map(d => d.id)).catch(() => []);
+    await Promise.all([del('guests', row.uid), del('leaderboard', row.uid), ...devices.map(id => del('guestDevices', id))]);
+  } else {
+    await Promise.all(['users', 'profiles', 'leaderboard'].map(c => del(c, row.uid)));
+  }
+}

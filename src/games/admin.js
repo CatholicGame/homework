@@ -11,7 +11,7 @@
 import { isLeaderboardConfigured, needsConnect, connectLeaderboard } from '../engine/leaderboard.js';
 import { preloadAuth, getCurrentUser } from '../engine/auth.js';
 import { avatarUrl } from '../engine/profile.js';
-import { isAdminUser, fetchStudents } from '../engine/admin.js';
+import { isAdminUser, fetchStudents, deleteStudent } from '../engine/admin.js';
 import { PRESCHOOL, gradeTitle } from '../data/grades.js';
 import { fetchReviews, replyReview, deleteReview, reviewStats, REPLY_MAX } from '../engine/reviews.js';
 import { starsHtml, reviewerHtml } from './reviews.js';
@@ -46,7 +46,7 @@ const KINDS = [
 ];
 
 export function render(app, onBack) {
-  const state = { tab: 'students', rows: null, search: '', grade: 'all', sort: 'created', kind: 'all', page: 1,
+  const state = { tab: 'students', rows: null, search: '', grade: 'all', sort: 'created', kind: 'all', page: 1, selected: new Set(),
     reviews: null, rvFilter: 'all', replying: null, voice: null, vcFilter: 'open' };
 
   preloadAuth();
@@ -200,7 +200,7 @@ export function render(app, onBack) {
         <h2 class="adm-h2">Danh sách học sinh</h2>
         <div class="lb-chips adm-chips" id="adm-grades"></div>
         <div class="adm-controls">
-          <input type="search" class="adm-input" id="adm-search" placeholder="Tìm theo email, tên, biệt danh…" value="${escapeHtml(state.search)}">
+          <input type="search" class="adm-input" id="adm-search" placeholder="Tìm theo email, tên, biệt danh, máy…" value="${escapeHtml(state.search)}">
           <select class="adm-input adm-select" id="adm-sort" aria-label="Sắp xếp">
             ${SORTS.map(s => `<option value="${s.id}"${s.id === state.sort ? ' selected' : ''}>${s.label}</option>`).join('')}
           </select>
@@ -284,7 +284,7 @@ export function render(app, onBack) {
     return state.rows
       .filter(kind)
       .filter(r => state.grade === 'all' || String(r.grade || 0) === state.grade)
-      .filter(r => !q || [r.email, r.name, r.nickname].some(v => v.toLowerCase().includes(q)))
+      .filter(r => !q || [r.email, r.name, r.nickname, r.device || ''].some(v => v.toLowerCase().includes(q)))
       .sort((a, b) => sortKey(b) - sortKey(a));
   }
 
@@ -317,28 +317,45 @@ export function render(app, onBack) {
       return;
     }
 
+    // Chọn để xoá: chỉ giữ các dòng còn trong danh sách đang lọc; bạn ảo không xoá được.
+    const visible = new Set(rows.filter(r => !r.fake).map(r => r.uid));
+    state.selected.forEach(uid => { if (!visible.has(uid)) state.selected.delete(uid); });
+    const pageDeletable = items.filter(r => !r.fake);
+    const allOnPage = pageDeletable.length > 0 && pageDeletable.every(r => state.selected.has(r.uid));
+    const pick = (r) => (r.fake ? '' : `<input type="checkbox" class="adm-pick" data-pick="${escapeHtml(r.uid)}"${state.selected.has(r.uid) ? ' checked' : ''} aria-label="Chọn để xoá">`);
+    const delBtn = (r) => (r.fake ? '' : `<button type="button" class="btn btn-ghost rv-danger adm-vc-del" data-del="${escapeHtml(r.uid)}" title="Xoá dòng này" aria-label="Xoá">🗑</button>`);
+
     list.innerHTML = `
-      <p class="adm-count">${rows.length} học sinh${pages > 1 ? ` · trang ${state.page}/${pages}` : ''}</p>
+      <div class="adm-count adm-count-bar">
+        <span>${rows.length} học sinh${pages > 1 ? ` · trang ${state.page}/${pages}` : ''}</span>
+        <span class="adm-count-actions">
+        ${visible.size > pageDeletable.length && state.selected.size < visible.size ? `<button type="button" class="btn btn-ghost" id="adm-pick-all">☑️ Chọn cả ${visible.size} dòng đang lọc</button>` : ''}
+        ${state.selected.size ? `<button type="button" class="btn btn-ghost rv-danger" id="adm-del-many">🗑 Xoá ${state.selected.size} dòng đã chọn</button>` : ''}
+        </span>
+      </div>
       <div class="adm-table-wrap">
         <table class="adm-table">
           <thead><tr>
-            <th>Học sinh</th><th>Email</th><th>Lớp</th><th class="adm-num">Sao</th><th>Đăng ký</th><th>Lần cuối</th>
+            <th class="adm-pick-col">${pageDeletable.length ? `<input type="checkbox" class="adm-pick" id="adm-pick-page"${allOnPage ? ' checked' : ''} aria-label="Chọn cả trang">` : ''}</th>
+            <th>Học sinh</th><th>Email</th><th>Lớp</th><th class="adm-num">Sao</th><th>Đăng ký</th><th>Lần cuối</th><th></th>
           </tr></thead>
           <tbody>${items.map(r => `
             <tr${r.fake ? ' class="adm-fake"' : r.guest ? ' class="adm-guest"' : ''}>
+              <td class="adm-pick-col">${pick(r)}</td>
               <td>${who(r)}</td>
               <td class="adm-email">${r.email ? escapeHtml(r.email) : `<span class="adm-muted">${noEmail(r)}</span>`}</td>
               <td>${gradeLabel(r.grade)}</td>
               <td class="adm-num">⭐ ${r.stars}</td>
               <td>${fmtDate(r.createdAt)}</td>
               <td>${fmtDateTime(r.lastSeenAt)}</td>
+              <td>${delBtn(r)}</td>
             </tr>`).join('')}
           </tbody>
         </table>
       </div>
       <div class="adm-cards">${items.map(r => `
         <div class="adm-card${r.fake ? ' adm-fake' : r.guest ? ' adm-guest' : ''}">
-          ${who(r)}
+          <div class="adm-card-head">${pick(r)}${who(r)}${delBtn(r)}</div>
           <div class="adm-card-email">${r.email ? escapeHtml(r.email) : `<span class="adm-muted">${noEmail(r)}</span>`}</div>
           <div class="adm-card-meta">
             <span>${gradeLabel(r.grade)}</span><span>⭐ ${r.stars}</span>
@@ -356,6 +373,57 @@ export function render(app, onBack) {
     list.querySelectorAll('[data-page]').forEach(b => {
       b.onclick = () => { state.page = Number(b.dataset.page); drawList(); };
     });
+    list.querySelectorAll('[data-pick]').forEach(c => {
+      c.onchange = () => {
+        if (c.checked) state.selected.add(c.dataset.pick); else state.selected.delete(c.dataset.pick);
+        drawList();
+      };
+    });
+    const pagePick = list.querySelector('#adm-pick-page');
+    if (pagePick) {
+      pagePick.onchange = () => {
+        pageDeletable.forEach(r => (pagePick.checked ? state.selected.add(r.uid) : state.selected.delete(r.uid)));
+        drawList();
+      };
+    }
+    list.querySelectorAll('[data-del]').forEach(b => {
+      b.onclick = () => removeStudents(state.rows.filter(r => r.uid === b.dataset.del && !r.fake), b);
+    });
+    const pickAll = list.querySelector('#adm-pick-all');
+    if (pickAll) pickAll.onclick = () => { visible.forEach(uid => state.selected.add(uid)); drawList(); };
+    const many = list.querySelector('#adm-del-many');
+    if (many) many.onclick = () => removeStudents(state.rows.filter(r => state.selected.has(r.uid) && !r.fake), many);
+  }
+
+  async function removeStudents(targets, btn) {
+    if (!targets.length) return;
+    const guests = targets.filter(r => r.guest).length;
+    const real = targets.length - guests;
+    const what = [real && `${real} học sinh đăng nhập`, guests && `${guests} khách`].filter(Boolean).join(' và ');
+    const name = targets.length === 1 ? ` "${targets[0].nickname || targets[0].name || targets[0].email || 'Khách'}"` : '';
+    const note = real
+      ? '\nHọc sinh: xoá sổ đăng ký, hồ sơ và dòng bảng xếp hạng (bài làm trên Drive của bé vẫn còn). Bé mở app lại sẽ hiện lại.'
+      : '';
+    if (!confirm(`Xoá ${what}${name}? Không khôi phục được.${note}`)) return;
+    btn.disabled = true;
+    const done = new Set();
+    let failed = null;
+    for (const r of targets) {
+      try {
+        await deleteStudent(r);
+        done.add(r.uid);
+      } catch (e) {
+        failed = e;
+      }
+    }
+    state.rows = state.rows.filter(r => !done.has(r.uid));
+    done.forEach(uid => state.selected.delete(uid));
+    drawAll();
+    if (failed) {
+      alert(failed?.code === 'permission-denied'
+        ? `Đã xoá ${done.size}/${targets.length}. Firestore từ chối phần còn lại: kiểm tra đã triển khai firestore.rules mới (quyền xoá của admin) chưa.`
+        : `Đã xoá ${done.size}/${targets.length}. Phần còn lại xoá thất bại, thử lại.`);
+    }
   }
 
   // ── Tab Đánh giá ──────────────────────────────────────────────────────────

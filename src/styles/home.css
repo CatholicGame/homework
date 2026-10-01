@@ -488,6 +488,7 @@
 .login-guest-warn-title { font-weight: 700; color: #1E3A8A; margin-bottom: 6px; }
 .login-guest-warn-list { margin: 0 0 12px; padding-left: 20px; font-size: 0.92rem; line-height: 1.45; color: var(--text); }
 .login-guest-warn-list li + li { margin-top: 4px; }
+.login-guest-blocked-text { margin: 0; font-size: 0.92rem; line-height: 1.45; color: var(--text); }
 .login-guest-warn-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .login-guest-warn .login-inapp-btn { border-color: #2563EB; background: #2563EB; }
 .login-guest-warn .login-inapp-btn.is-ghost { background: white; color: #1D4ED8; }
@@ -1841,6 +1842,12 @@
 .adm-csv { flex: 0 0 auto; }
 
 .adm-count { font-size: 0.9rem; color: var(--text-light); margin-bottom: 6px; }
+.adm-count-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; min-height: 36px; }
+.adm-count-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.adm-pick { width: 18px; height: 18px; accent-color: #DC2626; cursor: pointer; }
+.adm-pick-col { width: 28px; }
+.adm-card-head { display: flex; align-items: center; gap: 8px; }
+.adm-card-head .adm-who { flex: 1; min-width: 0; }
 .adm-empty { color: var(--text-light); padding: 12px 0; }
 .adm-muted { color: var(--text-light); font-style: italic; }
 

@@ -59,7 +59,7 @@ service cloud.firestore {
       allow create: if isOwner(uid) && validEntry(request.resource.data);
       allow update: if isOwner(uid) && validEntry(request.resource.data)
         && request.resource.data.totalStars >= resource.data.totalStars;
-      allow delete: if isOwner(uid);
+      allow delete: if isOwner(uid) || isAdmin();
     }
 
     // Ảnh chụp khởi động các bạn ảo trên bảng xếp hạng (src/engine/leaderboardCast.js), mỗi lớp một bản
@@ -87,7 +87,7 @@ service cloud.firestore {
 
     match /profiles/{uid} {
       allow read: if isOwner(uid) || isAdmin();
-      allow delete: if isOwner(uid);
+      allow delete: if isOwner(uid) || isAdmin();
       allow create, update: if isOwner(uid) && validProfile(request.resource.data);
     }
 
@@ -107,6 +107,7 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
       allow update: if isOwner(uid) && validUser(request.resource.data)
         && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isAdmin();
     }
 
     // Khách dùng thử không đăng nhập (Firebase Anonymous Auth, src/engine/leaderboard.js registerGuest):
@@ -137,6 +138,21 @@ service cloud.firestore {
         && (!('convertedAt' in resource.data) || request.resource.data.convertedAt == resource.data.convertedAt)
         && (!('convertedAt' in request.resource.data) || 'convertedAt' in resource.data
           || request.resource.data.convertedAt == request.time);
+      allow delete: if isAdmin();
+    }
+
+    // Mỗi máy một khách (src/engine/leaderboard.js claimGuestDevice): `{mã máy băm}` → uid ẩn danh đầu tiên
+    // dùng thử trên máy đó. Khách chỉ đọc từng mã (không liệt kê), chỉ ghi một lần với uid của chính mình;
+    // không ai sửa được. Admin xem / xoá (xoá = máy đó được dùng thử lại).
+    match /guestDevices/{key} {
+      allow get: if request.auth != null;
+      allow list: if isAdmin();
+      allow create: if request.auth != null && request.auth.token.firebase.sign_in_provider == 'anonymous'
+        && key.matches('[0-9a-f]{32}')
+        && request.resource.data.keys().hasOnly(['uid', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.createdAt == request.time;
+      allow delete: if isAdmin();
     }
 
     // Đánh giá ứng dụng: mỗi tài khoản một đánh giá (gửi lại = sửa), ai đăng nhập cũng xem được.

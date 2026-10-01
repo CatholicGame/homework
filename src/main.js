@@ -190,6 +190,12 @@ function goSignIn() {
   navigate(back);
 }
 
+// Máy này đã có khách dùng thử khác (leaderboard.js openGuestSession): về màn đăng nhập, báo dùng email.
+window.addEventListener('tth:guest-blocked', () => {
+  guestChosenNow = false;
+  navigate(currentPage);
+});
+
 // Bài làm ở máy khác vừa được tải về từ Drive → vẽ lại các trang hiện số sao / sticker.
 window.addEventListener('tth:cloud-pulled', () => {
   syncMyScore();

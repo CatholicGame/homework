@@ -3,6 +3,7 @@
  */
 
 import { signIn, preloadAuth, enterGuest } from '../engine/auth.js';
+import { startGuest, isGuestBlockedHere } from '../engine/leaderboard.js';
 
 /**
  * Trình duyệt nhúng trong app khác (Zalo, Facebook, Messenger, Instagram, TikTok…):
@@ -58,6 +59,14 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
             <button type="button" class="login-inapp-btn" id="login-guest-ok">Đồng ý, dùng thử</button>
             <button type="button" class="login-inapp-btn is-ghost" id="login-guest-cancel">Quay lại</button>
           </div>
+        </div>
+
+        <div class="login-guest-warn" id="login-guest-blocked" hidden>
+          <p class="login-guest-warn-title">🔒 Máy này đã dùng thử rồi</p>
+          <p class="login-guest-blocked-text">
+            Mỗi máy chỉ có một bạn dùng thử. Bố mẹ hãy bấm <b>Đăng nhập bằng Google</b> (email) ở trên để bé học tiếp,
+            bài làm sẽ được lưu vào tài khoản.
+          </p>
         </div>
 
         <p class="login-error" id="login-error" hidden></p>
@@ -124,7 +133,23 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
     guestWarn.hidden = true;
     guestBtn.hidden = false;
   });
-  app.querySelector('#login-guest-ok').addEventListener('click', () => {
+  // Mỗi máy một khách: máy đã có khách khác (kể cả trình duyệt khác / ẩn danh) → phải đăng nhập email.
+  const blockedEl = app.querySelector('#login-guest-blocked');
+  const showBlocked = () => {
+    guestBtn.hidden = true;
+    guestWarn.hidden = true;
+    blockedEl.hidden = false;
+    blockedEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  };
+  if (isGuestBlockedHere()) showBlocked();
+  const guestOk = app.querySelector('#login-guest-ok');
+  guestOk.addEventListener('click', async () => {
+    guestOk.disabled = true;
+    guestOk.textContent = 'Đang kiểm tra…';
+    if (!(await startGuest())) {
+      showBlocked();
+      return;
+    }
     enterGuest();
     onSignedIn(null);
   });

@@ -42,6 +42,8 @@ for (let i = 0; i < 120; i++) {
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1100, height: 900 } });
+// Không đụng Firebase thật: mỗi lần chạy là một trình duyệt trống, trước đây tạo ra một khách "Test" mới trên trang admin.
+await page.route(/(firestore|identitytoolkit|securetoken)\.googleapis\.com/, r => r.abort());
 await page.addInitScript((g) => {
   localStorage.setItem('tth_guest', 'true');
   localStorage.setItem('tth_profile_guest', JSON.stringify({ setupDone: true, grade: g, name: 'Test', gender: 'boy', avatar: 'boys/boy1' }));

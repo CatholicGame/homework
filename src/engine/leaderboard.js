@@ -15,11 +15,12 @@
  * SDK Firebase được tải lười (dynamic import) để không làm nặng lần mở app.
  */
 
-import { getCurrentUser, getAccessToken, getFreshAccessToken, isGuest } from './auth.js';
+import { getCurrentUser, getAccessToken, getFreshAccessToken, isGuest, leaveGuest } from './auth.js';
 import { getTotalStars, getStarsByGrade, getGradePeriodStars } from './stars.js';
 import { getProfile, saveProfile, markProfileSynced, NAME_MAX } from './profile.js';
 import { castRows, makeLaunch } from './leaderboardCast.js';
 import { describeDevice } from './voiceReport.js';
+import { deviceKey } from './deviceKey.js';
 
 // Cấu hình web app Firebase (công khai, không phải bí mật) — Project settings → Your apps.
 const firebaseConfig = {
@@ -34,6 +35,9 @@ const FETCH_LIMIT = 500;
 const CACHE_MS = 60_000;
 
 export function isLeaderboardConfigured() {
+  // Trình duyệt tự động (Playwright, script kiểm tra) không ghi lên Firebase thật: mỗi lần chạy là
+  // một trình duyệt trống, trước đây tạo ra một khách mới trên trang admin.
+  if (typeof navigator !== 'undefined' && navigator.webdriver) return false;
   return !!(firebaseConfig.apiKey && firebaseConfig.projectId);
 }
 
@@ -108,9 +112,86 @@ async function ensureGuestSession() {
   const { auth, authMod } = fb;
   await auth.authStateReady();
   if (!isGuest()) return null;
-  if (auth.currentUser && !auth.currentUser.isAnonymous) await auth.signOut(); // phiên Google cũ còn sót
-  if (!auth.currentUser) await authMod.signInAnonymously(auth);
+  if (!(await openGuestSession(fb))) {
+    // Máy này đã có khách khác: thoát chế độ khách, màn đăng nhập báo phải dùng email.
+    leaveGuest();
+    window.dispatchEvent(new CustomEvent('tth:guest-blocked'));
+    return null;
+  }
   return fb;
+}
+
+// ── Mỗi máy một khách ────────────────────────────────────────────────────────
+// `guestDevices/{mã máy}`: { uid, createdAt } — uid ẩn danh đầu tiên dùng thử trên máy (deviceKey.js,
+// giống nhau ở mọi trình duyệt / cửa sổ ẩn danh). Thêm dấu trên máy (không xoá khi đăng nhập / đăng xuất)
+// cho trường hợp mã máy đổi. Phiên khách đang có vẫn dùng tiếp; chỉ chặn khi phải tạo uid ẩn danh mới.
+const GUEST_DEVICES = 'guestDevices';
+const DEVICE_GUEST_MARK = 'tth_device_guest';
+const BLOCKED_FLAG = 'tth_guest_blocked';
+
+const localGet = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+const localSet = (k, v) => { try { localStorage.setItem(k, v); } catch { /* storage unavailable */ } };
+
+/** Mã máy còn trống hoặc đã thuộc về uid này. Lỗi (luật chưa deploy, mất mạng) → cho qua. */
+async function claimGuestDevice(fb, uid, fresh) {
+  try {
+    const { db, fs } = fb;
+    const ref = fs.doc(db, GUEST_DEVICES, await deviceKey());
+    const snap = await fs.getDoc(ref);
+    if (!snap.exists()) {
+      await fs.setDoc(ref, { uid, createdAt: fs.serverTimestamp() });
+      return true;
+    }
+    return snap.data().uid === uid || !fresh;
+  } catch (e) {
+    console.warn('[guest] Không kiểm tra được mã máy:', e?.code || e);
+    return true;
+  }
+}
+
+/** Phiên Firebase ẩn danh cho khách. false = máy này đã có khách khác (uid mới vừa tạo bị xoá). */
+async function openGuestSession(fb) {
+  const { auth, authMod } = fb;
+  if (auth.currentUser && !auth.currentUser.isAnonymous) await auth.signOut(); // phiên Google cũ còn sót
+  const fresh = !auth.currentUser;
+  if (fresh) await authMod.signInAnonymously(auth);
+  const uid = auth.currentUser.uid;
+  const mark = localGet(DEVICE_GUEST_MARK);
+  const ok = !(fresh && mark && mark !== uid) && await claimGuestDevice(fb, uid, fresh);
+  if (!ok) {
+    await auth.currentUser.delete().catch(() => auth.signOut());
+    localSet(BLOCKED_FLAG, '1');
+    return false;
+  }
+  if (!mark) localSet(DEVICE_GUEST_MARK, uid);
+  return true;
+}
+
+/**
+ * Bé bấm "Đồng ý, dùng thử": mở phiên khách nếu máy chưa có khách nào khác.
+ * @returns {Promise<boolean>} false = máy này đã dùng thử rồi, phải đăng nhập email.
+ */
+export async function startGuest() {
+  if (!isLeaderboardConfigured()) return true;
+  let fb;
+  try {
+    fb = await loadFirebase();
+    await fb.auth.authStateReady();
+  } catch {
+    return true; // không tải được Firebase (mất mạng): vẫn cho dùng thử như trước
+  }
+  try {
+    return await openGuestSession(fb);
+  } catch (e) {
+    // Chưa bật Anonymous / mất mạng: không có uid nào để đếm trùng, cho dùng thử như trước.
+    console.warn('[guest] Không mở được phiên khách:', e?.code || e);
+    return true;
+  }
+}
+
+/** Máy này từng bị chặn tạo khách thứ hai — màn đăng nhập hiện lời nhắc ngay. */
+export function isGuestBlockedHere() {
+  return localGet(BLOCKED_FLAG) === '1';
 }
 
 /** Phiên cho bảng xếp hạng: tài khoản Google, hoặc ẩn danh nếu đang dùng thử. */
