@@ -28,7 +28,8 @@ export const GRADES = [
   {
     num: 3, title: 'Lớp 3', icon: '3️⃣', color: '#34D399',
     games: [
-      { id: 'grade3-workbook', icon: '📗', color: '#10B981', title: 'Vở Bài Tập Toán 3', desc: 'Tập Một — Bài 1–44' },
+      { id: 'grade3-workbook', icon: '📗', color: '#10B981', title: 'Vở Bài Tập Toán 3 — Tập Một', desc: 'Bài 1–44' },
+      { id: 'grade3-workbook-2', icon: '📕', color: '#EF4444', title: 'Vở Bài Tập Toán 3 — Tập Hai', desc: 'Bài 45–81' },
       { id: 'grade3-practice', icon: '📘', color: '#3B82F6', title: 'Luyện Tập Toán 3', desc: 'Tập Một — Luyện tập theo tuần' },
       { id: 'grade3-exam', icon: '📝', color: '#F97316', title: 'Ôn Luyện Đề', desc: 'Đề 1 — Ôn luyện tổng hợp khối 3' },
     ],

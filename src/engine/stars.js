@@ -171,7 +171,7 @@ export function awardStars(key, q, { silent = false } = {}) {
 }
 
 // Sổ tiến trình cũ của từng sách: khoá localStorage → tiền tố khoá sao.
-const LEGACY_PROGRESS = { 'gw-progress-v1': 'workbook', 'gp-progress-v1': 'practice', 'g2w-progress-v1': 'workbook2', 'g2w2-progress-v1': 'workbook2' };
+const LEGACY_PROGRESS = { 'gw-progress-v1': 'workbook', 'gw2-progress-v1': 'workbook', 'gp-progress-v1': 'practice', 'g2w-progress-v1': 'workbook2', 'g2w2-progress-v1': 'workbook2' };
 
 /**
  * Cộng bù (không hiệu ứng) sao cho những bài đã giải từ trước khi có hệ thống sao.

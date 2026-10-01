@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:700;src:url(data:font/woff2;base64,d09GMgABAAAAAANEABAAAAAABpwAAALpAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbdBwqBmA/U1RBVCoARBEICoIIgWIBNgIkAxALCgAEIAWENgcgDAcbUgVRlC3KXoKvDmxj8mMN49nYOCymyrkYDgvhZhWN+NxG36v0NqJqP96evftEYXJIDlho8MRCEggTF5svQ8pEszCpyLexpmlZva7MVRHRyD4AGTGpUYsxHYxpyuED62wEG1zJtpWib7f8SGoAmxU/fpLyn7Ow7gDn/2ZaFPY8rG8JBJpgoNuzsTwbU7dHFtC6tZ4f0NmyKXAYnrkrkfJYm9awtC4P+bx9rWAaUCKaCCZt0xA9tTm9AHGddDQgdBgIco21NEgjiK6Mi3FlnTi2KYlqACBKaTjeNqLQ9B1ySOYcAHqdqG9GqGf1AeCibpPL0GgXgYbM98jfCt/O+/i/Q9DfpwoE8r++YZOYiHHBMhGsE33EC04ESiAj9Q0UGpaJCZaJ2wOMG1c4783HoKsdPg2Tw4QAiAzMIToYxwguAVcB6ICI1iE4GBIm3drEANtgeHsH290C4VVphYFVTN84p9TXB25vjB190VaeaZ2sTCo9Ueuq672gqwqgaVR7pwhMqxO4+WRidG/EibF5FI6PY+GxygVB0S22h40vfnl7IOSXS/PLL+ch+INUBeIRItqHwkHqTSaURt3dR/kLs8+nETDfvRLZofOaNH7AMxqnhvtjvNAYT4cUb2Xh3b4hwG0RtDw9ykB+vEI88W+8tb/wfWf5FH7/aN/YsP96Ul8YVSA8za4PNnSM90RI9zoHuZY6OrF7bSfebRNrCLFvwl0x6RNkFbBAbGgVKLM5BJoDnap3LxixpsfEqA29I4XpLEJ5xvF8c5LOELKIeAIHaqip60MvBCx05xLRZDaShoFuLDoJi+ZAcy6HQGexoRyBw2GwDVRV8cQ830WpoOlU1dhpWVi+MgOJpxBpSD6SpnrG/A2SSqQIVQDBvBLkw/4HemDZWBYPi4E2dBoHuiCpWCgLyZ5Z6HQrFjA1nktBsjRV1NR0DF1cXawNg6hl+M2x2MTDakhF9qF3Kf3Ugk7BiAHD9hHuT/lvsX8CAAA=) format('woff2')}</style><!--/embedded-font-->
+<rect x="2" y="2" width="296" height="296" rx="18" fill="#D6EFFB" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="214" cy="62" r="26" fill="#FFD166" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="247.0" y1="62.0" x2="257.0" y2="62.0" stroke="#F4A259" stroke-width="4" stroke-linecap="round"/>
+<line x1="240.7" y1="81.4" x2="248.8" y2="87.3" stroke="#F4A259" stroke-width="4" stroke-linecap="round"/>
+<line x1="224.2" y1="93.4" x2="227.3" y2="102.9" stroke="#F4A259" stroke-width="4" stroke-linecap="round"/>
+<line x1="203.8" y1="93.4" x2="200.7" y2="102.9" stroke="#F4A259" stroke-width="4" stroke-linecap="round"/>
+<line x1="187.3" y1="81.4" x2="179.2" y2="87.3" stroke="#F4A259" stroke-width="4" stroke-linecap="round"/>
+<line x1="181.0" y1="62.0" x2="171.0" y2="62.0" stroke="#F4A259" stroke-width="4" stroke-linecap="round"/>
+<line x1="187.3" y1="42.6" x2="179.2" y2="36.7" stroke="#F4A259" stroke-width="4" stroke-linecap="round"/>
+<line x1="203.8" y1="30.6" x2="200.7" y2="21.1" stroke="#F4A259" stroke-width="4" stroke-linecap="round"/>
+<line x1="224.2" y1="30.6" x2="227.3" y2="21.1" stroke="#F4A259" stroke-width="4" stroke-linecap="round"/>
+<line x1="240.7" y1="42.6" x2="248.8" y2="36.7" stroke="#F4A259" stroke-width="4" stroke-linecap="round"/>
+<ellipse cx="150" cy="208" rx="128" ry="66" fill="#2E8FC8" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="150" cy="196" rx="128" ry="66" fill="#4FB3E8" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="150" cy="196" rx="96" ry="42" fill="#FFFFFF" stroke="#2E8FC8" stroke-width="2.4"/>
+<text x="44.8" y="181.3" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="11.5" fill="#3F3A40">VII</text>
+<line x1="71.1" y1="184.0" x2="62.6" y2="182.3" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="38.2" y="196.8" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="10.5" fill="#3F3A40">VIII</text>
+<line x1="66.1" y1="194.1" x2="57.1" y2="193.9" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="41.3" y="213.8" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13" fill="#3F3A40">IX</text>
+<line x1="68.4" y1="204.4" x2="59.7" y2="205.6" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="53.8" y="228.8" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13" fill="#3F3A40">X</text>
+<line x1="77.8" y1="213.9" x2="70.1" y2="216.5" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="74.6" y="241.4" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13" fill="#3F3A40">XI</text>
+<line x1="93.5" y1="221.9" x2="87.4" y2="225.6" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="102.0" y="249.8" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="11.5" fill="#3F3A40">XII</text>
+<line x1="114.0" y1="227.6" x2="110.1" y2="232.1" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="133.5" y="255.1" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13" fill="#3F3A40">I</text>
+<line x1="137.6" y1="230.6" x2="136.3" y2="235.6" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="166.5" y="255.1" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13" fill="#3F3A40">II</text>
+<line x1="162.4" y1="230.6" x2="163.7" y2="235.6" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="198.0" y="249.8" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="11.5" fill="#3F3A40">III</text>
+<line x1="186.0" y1="227.6" x2="189.9" y2="232.1" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="225.4" y="241.4" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13" fill="#3F3A40">IV</text>
+<line x1="206.5" y1="221.9" x2="212.6" y2="225.6" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="246.2" y="228.8" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13" fill="#3F3A40">V</text>
+<line x1="222.2" y1="213.9" x2="229.9" y2="216.5" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="258.7" y="213.8" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="13" fill="#3F3A40">VI</text>
+<line x1="231.6" y1="204.4" x2="240.3" y2="205.6" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="261.8" y="197.2" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="11.5" fill="#3F3A40">VII</text>
+<line x1="233.9" y1="194.1" x2="242.9" y2="193.9" stroke="#3F3A40" stroke-width="1.8"/>
+<text x="255.2" y="181.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="10.5" fill="#3F3A40">VIII</text>
+<line x1="228.9" y1="184.0" x2="237.4" y2="182.3" stroke="#3F3A40" stroke-width="1.8"/>
+<line x1="150" y1="196" x2="114.8" y2="226.7" stroke="#8A939C" stroke-width="7" stroke-linecap="round" opacity=".85"/>
+<rect x="145" y="116" width="10" height="80" rx="4" fill="#6B6F76" stroke="#3F3A40" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<ellipse cx="150" cy="196" rx="8" ry="4" fill="#3F3A40"/>
+</svg>

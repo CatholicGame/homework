@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 250" width="580" height="250"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:700;src:url(data:font/woff2;base64,d09GMgABAAAAAAL4ABAAAAAABhAAAAKcAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbIBwqBmA/U1RBVCoANBEICoFogUsBNgIkAwwLCAAEIAWENgcgDAcb0wRRlAzKHIqfh7FjoimjK5E66UrQjT7YeZskZiNUcoLC7r+e3f064h2E6DIqMiMqE3OQlTujI/pqv/0ensgkZofklty+1Ke+h/QG08GYphye/5yF/3tLO07qebi+JZDirBeW4HUB3R7ZwL+NsGFUYuEw/Vu8RLrELv3MmuddqsBQkEAJQAiJEALFVJfHunQ7PCAjg/8AijRUFGPLTh9DLuRYFT9LOiWX5JGsSgYDvSeWGKldS/BCxnksHL76Ov3b5ZNtjVZAQHxPLqG2uBAKBSpgqC42d5JODBJFz8NJkKKCuPbyhNpAJhPoN+g7/08JEOI/pRFSkI8EPYBBAGSAEI1rOGr17opDug07WHz1ZdmyS8VWXYm0w/+WXZW27Kk0tF2y7FCxVUcib/nVuav3U/ToTGyk7NMOJMWf3GRC/XT5wZWXSr1b+ImX/TGzac0qA6t1zpWrXr1u7s7kax1XHb39PbrqSostv3KfclU/5TpX7WzExSpPqnTP1c2V3DdpxaetD3Pvq67bpe5PXfSq+O1+uW1gNIY0Vk4flS0YVbrT18I0fQv3Woy6Ca9fdLiiN0je3mXkS0DwjTRtxyh7VxwhT5Meivx7ojdJNcZOArhFZoiLrIioAmwg1KwKJEpFR0i1r8sxIyFPrnlBvpptCgUl4pgSTyyMSzrz+D5CBo2OoLamlhH0oFOgK84gsUQELhm6CHlMCglBUxzReUIRVKQjxBcZa2jQGA3nRHUSj6NhlSukeKnxCTQ2g0vwInA1UuArAofB9lH3T0uq0CvqP9CNIqIIPSlkaMXjIuhE4FCgQsT8hVb1oGo6yabhbIJQR11TU9/EydnJ0sQTram/RShi5DrgWCMrf3H51IzHJosD/9cW+ufif8eytQAAAA==) format('woff2')}</style><!--/embedded-font-->
+<line x1="20" y1="12" x2="20" y2="208" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="80" y1="12" x2="80" y2="208" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="140" y1="12" x2="140" y2="208" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="200" y1="12" x2="200" y2="208" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="260" y1="12" x2="260" y2="208" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="320" y1="12" x2="320" y2="208" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="380" y1="12" x2="380" y2="208" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="440" y1="12" x2="440" y2="208" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="500" y1="12" x2="500" y2="208" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="560" y1="12" x2="560" y2="208" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="12" y1="20" x2="568" y2="20" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="12" y1="80" x2="568" y2="80" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="12" y1="140" x2="568" y2="140" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="12" y1="200" x2="568" y2="200" stroke="#9AA0A6" stroke-width="1.2"/>
+<line x1="20" y1="80" x2="200" y2="200" stroke="#8FD3F2" stroke-width="4" stroke-linecap="round"/>
+<rect x="20" y="80" width="180" height="120" fill="none" stroke="#1BA3DD" stroke-width="4"/>
+<line x1="380" y1="20" x2="380" y2="200" stroke="#8FD3F2" stroke-width="4" stroke-linecap="round"/>
+<polygon points="260,200 380,20 500,200" fill="none" stroke="#1BA3DD" stroke-width="4" stroke-linejoin="round"/>
+<path d="M212.0,125.0 Q233.0,95.0 254.0,122.0" fill="none" stroke="#231F20" stroke-width="3" stroke-linecap="round"/>
+<path d="M243.0,116.0 L256.0,125.0 L248.0,105.0" fill="#231F20" stroke="#231F20" stroke-width="1.5" stroke-linejoin="round"/>
+<text x="110.0" y="238" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="24" fill="#231F20" font-style="italic">M</text>
+<text x="380" y="238" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="24" fill="#231F20" font-style="italic">N</text>
+</svg>

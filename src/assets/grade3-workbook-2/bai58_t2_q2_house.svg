@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 300" width="380" height="300">
+<ellipse cx="200" cy="276" rx="185" ry="26" fill="#BFE6F7" stroke="#7CC6E8" stroke-width="2"/>
+<path d="M47,270 L50,198.0 L62,198.0 L65,270 Z" fill="#B07A4F" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="32.24" cy="188.88" r="30.239999999999995" fill="#7CC6E8" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="79.75999999999999" cy="191.04" r="30.239999999999995" fill="#7CC6E8" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="56" cy="175.92" r="34.559999999999995" fill="#7CC6E8" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><path d="M17.120000000000005,201.84 Q56,232.07999999999998 94.88,201.84" fill="#7CC6E8" stroke="none"/>
+<path d="M331,260 L334,194.0 L346,194.0 L349,260 Z" fill="#B07A4F" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="318.22" cy="185.64" r="27.72" fill="#7CC6E8" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="361.78" cy="187.62" r="27.72" fill="#7CC6E8" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="340" cy="173.76" r="31.680000000000003" fill="#7CC6E8" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><path d="M304.36,197.52 Q340,225.24 375.64,197.52" fill="#7CC6E8" stroke="none"/>
+<path d="M260,100 L330,50 L330,220 L260,270 Z" fill="#9FD3F0" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M90,100 L160,50 L330,50 L260,100 Z" fill="#E8F6FD" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round"/>
+<rect x="90" y="100" width="170" height="170" fill="#D6EEFA" stroke="#3F3A40" stroke-width="2.6"/>
+<path d="M90,100 L160,50 L330,50 L260,100 Z" fill="none" stroke="#1B7FC4" stroke-width="6" stroke-linejoin="round"/>
+<rect x="112" y="124" width="40" height="42" fill="#F4FBFF" stroke="#3F3A40" stroke-width="2.2"/><path d="M132,124 v42 M112,145 h40" stroke="#3F3A40" stroke-width="1.8"/>
+<rect x="198" y="124" width="40" height="42" fill="#F4FBFF" stroke="#3F3A40" stroke-width="2.2"/><path d="M218,124 v42 M198,145 h40" stroke="#3F3A40" stroke-width="1.8"/>
+<rect x="149.0" y="196" width="52" height="74" fill="#F4FBFF" stroke="#3F3A40" stroke-width="2.2"/><path d="M175.0,196 v74" stroke="#3F3A40" stroke-width="1.8"/>
+</svg>

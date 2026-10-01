@@ -4894,7 +4894,7 @@ export function renderWorkbook(app, onBack, cfg) {
         ${q.options.map((opt, i) => `
           <button class="e3-option" data-idx="${i}">
             <span class="e3-option-label">${labels[i]}</span>
-            <span class="e3-option-text">${opt}</span>
+            <span class="e3-option-text">${String(opt).replace(new RegExp(`^${labels[i]}\\.\\s*`), '')}</span>
           </button>
         `).join('')}
       </div>
@@ -5083,7 +5083,7 @@ export function renderWorkbook(app, onBack, cfg) {
   // by side under one question — the book shows this for e.g. "1. Số?" with a
   // separate a) addition table and b) subtraction table, which don't share
   // columns and so can't be merged into rows of a single table.
-  function tableGroups(q) { return q.tables || [{ rows: q.rows, headers: q.headers }]; }
+  function tableGroups(q) { return q.tables || [{ rows: q.rows, headers: q.headers, colWidths: q.colWidths }]; }
   function tableCell(q, t, r, c) { return rowCells(tableGroups(q)[t].rows[r])[c]; }
 
   // A headers-less table (every "Số?" sequence/fact-family drill: a)/b) rows
@@ -5129,7 +5129,9 @@ export function renderWorkbook(app, onBack, cfg) {
     return Array.from({ length: dataColCount }, (_, c) => {
       const colVals = t.rows.map(row => {
         const cell = rowCells(row)[c];
-        if (cell && typeof cell === 'object') return cell.blank ? cell.answer : cell.value;
+        // A blank with a printed unit after it (cell.suffix "cm") needs room for
+        // the typed number, the unit, and a dotted-line's worth of space.
+        if (cell && typeof cell === 'object') return cell.blank ? (cell.suffix ? `${cell.answer}${' '.repeat(4)}${cell.suffix}` : cell.answer) : cell.value;
         return cell;
       });
       const maxLen = Math.max(1, ...colVals.map(v => String(v).length));
@@ -5170,6 +5172,18 @@ export function renderWorkbook(app, onBack, cfg) {
   function isWrapLabel(v) {
     return typeof v === 'string' && v.length > 14 && /[^\d\s]/.test(v);
   }
+  // t.headers is normally one row of strings. It may also be several rows
+  // (an array of arrays) whose cells can be { text, colspan, rowspan } — a
+  // two-level header like Tập hai Bài 80 "Bạn | Số hạt đậu: Nảy mầm / Không
+  // nảy mầm / Tổng" — or { diag: [topRight, bottomLeft] } for the book's
+  // corner cell split by a diagonal line ("Môn thi" / "Số học sinh").
+  function headerRowsOf(t) { return Array.isArray(t.headers[0]) ? t.headers : [t.headers]; }
+  function headerCellHtml(h) {
+    if (!h || typeof h !== 'object') return `<th>${h ?? ''}</th>`;
+    const span = `${h.colspan ? ` colspan="${h.colspan}"` : ''}${h.rowspan ? ` rowspan="${h.rowspan}"` : ''}`;
+    if (h.diag) return `<th${span} class="gw-th-diag"><span class="gw-th-diag-tr">${h.diag[0]}</span><span class="gw-th-diag-bl">${h.diag[1]}</span></th>`;
+    return `<th${span}>${h.text ?? ''}</th>`;
+  }
 
   function renderTableArea(q) {
     const groups = tableGroups(q);
@@ -5183,7 +5197,9 @@ export function renderWorkbook(app, onBack, cfg) {
         ${groups.map((t, ti) => {
           const colWidths = t.headers ? null : tableColWidthsPx(t);
           const hasRowLabel = t.rows.some(rowLabelOf);
-          const headerWidths = t.headers ? headerColWidths(t) : null;
+          // t.colWidths (or q.colWidths): explicit CSS widths per column of a headers
+          // table, e.g. ['72%', '28%'] for a long "Đọc" column beside a short "Viết" one.
+          const headerWidths = t.headers ? (t.colWidths || headerColWidths(t)) : null;
           const colgroup = colWidths ? `
             <colgroup>
               ${hasRowLabel ? '<col style="width:1.8rem">' : ''}
@@ -5201,7 +5217,7 @@ export function renderWorkbook(app, onBack, cfg) {
             <div class="gw-table-wrap">
               <table class="gw-table${colWidths ? ' gw-table-fixed' : ''}">
                 ${colgroup}
-                ${t.headers ? `<thead><tr>${t.rows.some(rowLabelOf) ? '<th></th>' : ''}${t.headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>` : ''}
+                ${t.headers ? `<thead>${headerRowsOf(t).map((hr, hi) => `<tr>${hi === 0 && t.rows.some(rowLabelOf) ? `<th rowspan="${headerRowsOf(t).length}"></th>` : ''}${hr.map(headerCellHtml).join('')}</tr>`).join('')}</thead>` : ''}
                 <tbody>
                   ${t.rows.map((row, r) => `<tr class="${isSampleRow(row) ? 'gw-table-sample-row' : ''}">${rowLabelOf(row) ? `<td class="gw-table-rowlabel">${rowLabelOf(row)}</td>` : ''}${rowCells(row).map((cell, c) => {
                     if (cell && typeof cell === 'object' && cell.blank) {
@@ -5210,6 +5226,9 @@ export function renderWorkbook(app, onBack, cfg) {
                       // cell.prefix: the book's blue sample already written at the start of
                       // the cell, before the dotted part (Lớp 2 Bài 25 "MN, ........").
                       if (cell.prefix) return `<td class="gw-table-input-cell"><div class="gw-table-prefix-wrap"><span class="gw-sample-text gw-table-prefix">${cell.prefix}</span>${inputHtml}</div></td>`;
+                      // cell.suffix: the unit the book prints after the dotted part of
+                      // the cell (Tập hai Bài 53 "...... cm"), the child writes only the number.
+                      if (cell.suffix) return `<td class="gw-table-input-cell"><div class="gw-table-prefix-wrap">${inputHtml}<span class="gw-table-suffix">${cell.suffix}</span></div></td>`;
                       return `<td class="gw-table-input-cell">${inputHtml}</td>`;
                     }
                     // sampleCell(): a single blue "theo mẫu" cell/column, for
@@ -6015,7 +6034,7 @@ function injectStyles() {
       .gw-blank-inline.gw-blank-dashed:focus { outline: none; border-bottom-color: #34D399; border-bottom-style: solid; }
       .gw-blank-inline.gw-blank-dashed:disabled.e3-correct-input { background: transparent; border-bottom-style: solid; border-bottom-color: #22c55e; color: #166534; }
       .gw-blank-inline.gw-blank-dashed:disabled.e3-wrong-input { background: transparent; border-bottom-style: solid; border-bottom-color: #ef4444; color: #991b1b; }
-      .gw-blank-inline.gw-blank-fill { flex: 1 1 auto; width: auto; text-align: left; }
+      .gw-blank-inline.gw-blank-fill { flex: 1 1 5rem; width: auto; text-align: left; }
       .e3-feedback { border-radius: 0.85rem; padding: 0.85rem 1.1rem; font-size: 1.05rem; font-weight: 600; margin-top: 0.8rem; line-height: 1.45; }
       .e3-feedback-right { background: #dcfce7; color: #166534; border: 1.5px solid #86efac; }
       .e3-feedback-wrong { background: #fee2e2; color: #991b1b; border: 1.5px solid #fca5a5; }
@@ -6258,6 +6277,10 @@ function injectStyles() {
     .gw-table { border-collapse: collapse; width: 100%; min-width: 100%; }
     .gw-table.gw-table-fixed { table-layout: fixed; }
     .gw-table th { background: #e0f2fe; color: #0c4a6e; font-size: 0.88rem; font-weight: 700; padding: 0.5rem 0.4rem; border: 1.5px solid #bae6fd; white-space: nowrap; }
+    .gw-table th.gw-th-diag { min-width: 8.5rem; padding: 0.3rem 0.45rem; background: linear-gradient(to top right, #e0f2fe calc(50% - 1px), #7dd3fc calc(50% - 0.5px), #7dd3fc calc(50% + 0.5px), #e0f2fe calc(50% + 1px)); }
+    .gw-th-diag-tr, .gw-th-diag-bl { display: block; }
+    .gw-th-diag-tr { text-align: right; }
+    .gw-th-diag-bl { text-align: left; margin-top: 0.35rem; }
     .gw-table td { border: 1.5px solid #bae6fd; padding: 0.35rem; text-align: center; }
     .gw-table-given { background: #e0f2fe; color: #0c4a6e; font-weight: 700; font-size: 1.02rem; white-space: nowrap; padding: 0.55rem 0.6rem !important; }
     .gw-table-sample-row .gw-table-given,
@@ -6333,6 +6356,8 @@ function injectStyles() {
     .gw-table-prefix-wrap { display: flex; align-items: center; }
     .gw-table-prefix { padding-left: 0.6rem; white-space: nowrap; font-weight: 700; }
     .gw-table-prefix-wrap .gw-table-input { flex: 1 1 auto; min-width: 4.5rem; text-align: left; padding-left: 0.4rem; }
+    .gw-table-suffix { padding-right: 0.6rem; white-space: nowrap; font-weight: 700; color: #0c4a6e; }
+    .gw-table-prefix-wrap .gw-table-input:first-child { min-width: 3rem; height: 30px; margin: 5px 0 5px 0.6rem; text-align: center; padding: 0; border-bottom: 2px dashed #7dd3fc; }
     .gw-table-input { display: block; width: 100%; height: 40px; text-align: center; font-size: 1.05rem; font-weight: 700; font-family: inherit; color: inherit; background: transparent; border: none; border-radius: 0; box-sizing: border-box; }
     .gw-table-input:focus { outline: none; box-shadow: inset 0 0 0 2px #34D399; }
     .gw-table-input.e3-wrong-input { background: #fee2e2; color: #991b1b; box-shadow: inset 0 0 0 2px #ef4444; }
