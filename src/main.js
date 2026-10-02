@@ -347,7 +347,7 @@ function navigate(gameId) {
       clearTimeout(loadingTimer);
       if (token !== navToken) return;
       app.innerHTML = '';
-      mod.render(app, () => navigate('home'));
+      mod.render(app, () => navigate('home'), { onSignIn: user.guest ? goSignIn : null });
     }).catch(() => {
       clearTimeout(loadingTimer);
       if (token !== navToken) return;

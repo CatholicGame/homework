@@ -12,6 +12,11 @@ const p = new URLSearchParams(location.search);
 if (p.get('book')) {
   const m = await import(/* @vite-ignore */ `/src/games/${p.get('book')}`);
   m.render(document.getElementById('app'), () => {}, { open: p.get('open') || undefined });
+  // click: bấm lần lượt các phần tử (CSS selector, lặp lại được), vd. &click=.ws-folder&click=.ws-card-locked
+  for (const sel of p.getAll('click')) {
+    await new Promise(r => setTimeout(r, 600));
+    document.querySelector(sel)?.click();
+  }
   throw new Error('book preview'); // dừng phần trò chơi bên dưới
 }
 const fast = +(p.get('fast') || 1);

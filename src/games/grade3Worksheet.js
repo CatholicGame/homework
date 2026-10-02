@@ -24,6 +24,10 @@ const loader = (mods) => {
 const loadSheets = loader(SHEETS);
 const loadMidterm = loader(MIDTERM);
 
+// Chưa đăng nhập (khách dùng thử): mỗi bộ chỉ làm được FREE_SHEETS phiếu / đề đầu, còn lại khoá.
+const FREE_SHEETS = 2;
+const lockedAt = (i) => !getCurrentUser() && i >= FREE_SHEETS;
+
 const COLLECTIONS = [
   {
     id: 'phieu', icon: '🗒️', name: 'Phiếu bài tập', desc: 'Luyện theo từng bài học', unit: 'phiếu',
@@ -221,7 +225,10 @@ function teacherComment(sheet, idx, grades, score) {
 }
 
 // ── màn hình ─────────────────────────────────────────────────────────────────
-/** `opts.open`: id phiếu / đề mở thẳng (dùng cho scripts/games-preview.html). */
+/**
+ * `opts.open`: id phiếu / đề mở thẳng (dùng cho scripts/games-preview.html).
+ * `opts.onSignIn`: khách bấm "Đăng nhập" trên phiếu bị khoá.
+ */
 export function render(app, onBack, opts = {}) {
   injectStyles();
   if (opts.open) {
@@ -283,9 +290,19 @@ export function render(app, onBack, opts = {}) {
       const grid = app.querySelector('#ws-grid');
       if (!grid) return;
       const store = loadStore();
-      grid.innerHTML = list.map(s => {
+      grid.innerHTML = list.map((s, i) => {
         const rec = store[s.id];
         const best = rec?.best;
+        if (lockedAt(i)) return `
+          <button type="button" class="ws-card ws-card-locked" data-sheet="${s.id}" data-locked="1">
+            <span class="ws-card-paper">
+              <span class="ws-card-short">${s.short}</span>
+              <span class="ws-card-desc">${s.desc}</span>
+              <span class="ws-card-lines"></span>
+            </span>
+            <span class="ws-card-score ws-card-lock">🔒</span>
+            <span class="ws-card-go">Đăng nhập để làm</span>
+          </button>`;
         return `
           <button type="button" class="ws-card" data-sheet="${s.id}">
             <span class="ws-card-paper">
@@ -298,9 +315,30 @@ export function render(app, onBack, opts = {}) {
           </button>`;
       }).join('');
       grid.querySelectorAll('.ws-card').forEach(btn => {
-        btn.onclick = () => openSheet(list.find(s => s.id === btn.dataset.sheet), col, () => showList(col));
+        btn.onclick = () => (btn.dataset.locked
+          ? showLockPopup(col)
+          : openSheet(list.find(s => s.id === btn.dataset.sheet), col, () => showList(col)));
       });
     });
+  }
+
+  function showLockPopup(col) {
+    const pop = document.createElement('div');
+    pop.className = 'ws-cover';
+    pop.innerHTML = `
+      <div class="ws-cover-card">
+        <div class="ws-cover-icon">🔒</div>
+        <p class="ws-cover-title">Đăng nhập để làm tiếp</p>
+        <p class="ws-cover-sub">Khi dùng thử, con làm được ${FREE_SHEETS} ${col.unit} đầu tiên.<br>Đăng nhập để mở tất cả ${col.count} ${col.unit}.</p>
+        ${opts.onSignIn ? '<div class="ws-cover-btns"><button type="button" class="ws-start" data-act="signin">Đăng nhập</button></div>' : ''}
+        <button type="button" class="ws-cover-back" data-act="close">Để sau</button>
+      </div>`;
+    pop.onclick = (ev) => {
+      const act = ev.target.closest('[data-act]')?.dataset.act;
+      if (act === 'signin') { pop.remove(); opts.onSignIn(); }
+      else if (act === 'close' || ev.target === pop) pop.remove();
+    };
+    app.querySelector('.ws-desk').appendChild(pop);
   }
 
   /** opts.autostart: bỏ qua tấm che "Bắt đầu" (vừa chọn "Làm lại từ đầu" trên tấm che). */
@@ -1340,6 +1378,9 @@ function injectStyles() {
     .ws-card-lines { height: 4.2rem; background: repeating-linear-gradient(to bottom, transparent 0 1.35rem, var(--line) 1.35rem calc(1.35rem + 1px)); }
     .ws-card-score { position: absolute; top: 0.8rem; right: 1rem; width: 5rem; height: 5rem; border: 2px solid #94a3b8; display: flex; align-items: center; justify-content: center; font-family: 'Dancing Script', cursive; font-weight: 700; font-size: 3rem; color: var(--red); transform: rotate(-6deg); background: #fff; }
     .ws-card-new { font-family: inherit; font-size: 0.9rem; color: #94a3b8; font-weight: 700; transform: none; }
+    .ws-card-locked .ws-card-paper { opacity: 0.55; }
+    .ws-card-lock { font-family: inherit; font-size: 2.2rem; color: inherit; transform: none; background: #f1f5f9; }
+    .ws-card-locked .ws-card-go { background: #64748b; }
     .ws-card-go { align-self: flex-end; background: #8b5cf6; color: #fff; font-weight: 800; padding: 0.55rem 1.2rem; border-radius: 999px; font-size: 1.05rem; }
     .ws-list-many .ws-card { padding: 1rem 1rem 0.9rem; gap: 0.5rem; }
     .ws-list-many .ws-card-paper { padding-right: 4rem; }
