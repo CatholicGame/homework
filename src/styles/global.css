@@ -578,8 +578,6 @@ input[data-vk-attached][type=number] {
 }
 .e3-feedback-close:hover { background: rgba(153, 27, 27, 0.2); }
 
-/* Nút "App vừa được cập nhật" (main.js — bản build mới, tab đang mở còn file cũ) */
-#update-banner { position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 3000; border: none; border-radius: 999px; padding: 0.75rem 1.3rem; background: linear-gradient(135deg, #FF6B9D, #C084FC); color: #fff; font-family: var(--font); font-size: 1rem; font-weight: 700; box-shadow: var(--shadow-lg); cursor: pointer; max-width: calc(100vw - 2rem); }
 
 /* ── Giữ tay lên từ tiếng Anh → nghĩa tiếng Việt (engine/wordHint.js) ── */
 /* Học bằng tiếng Anh trên iPad / điện thoại: giữ tay không bôi đen chữ / mở menu "Sao chép".

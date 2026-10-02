@@ -347,6 +347,7 @@ export function render(app, onBack, opts = {}) {
             : `<p class="ws-cover-title">Thời gian làm bài: 45 phút</p>
                <p class="ws-cover-sub">Đồng hồ bắt đầu chạy khi con bấm nút.</p>
                <div class="ws-cover-btns"><button type="button" class="ws-start" data-act="start">▶ Bắt đầu làm bài</button></div>`}
+          <button type="button" class="ws-cover-back" data-act="back">← Danh sách ${noun}</button>
         </div>
       </div>`;
 
@@ -390,7 +391,6 @@ export function render(app, onBack, opts = {}) {
             </div>
           </section>
           <div class="ws-body">
-          ${coverHtml}
           ${sheet.parts.map((part, pi) => `
             <section class="ws-part">
               <h2 class="ws-part-title">${part.title}</h2>
@@ -403,6 +403,7 @@ export function render(app, onBack, opts = {}) {
           </footer>
           </div>
         </article>
+        ${coverHtml}
       </div>`;
 
     app.querySelector('#ws-close').onclick = back;
@@ -567,6 +568,7 @@ export function render(app, onBack, opts = {}) {
     const cover = app.querySelector('#ws-cover');
     let restartArm = null;
     cover?.addEventListener('click', (ev) => {
+      if (ev.target.closest('[data-act="back"]')) { stopTimer(); back(); return; }
       const b = ev.target.closest('.ws-start');
       if (!b) return;
       if (b.dataset.act === 'restart') {
@@ -1381,14 +1383,18 @@ function injectStyles() {
     .ws-body { position: relative; }
     .ws-locked .ws-body { max-height: max(26rem, 62vh); overflow: hidden; }
     .ws-desk:has(.ws-locked) .ws-prog-row { opacity: 0.35; pointer-events: none; }
-    .ws-cover { position: absolute; inset: -0.5rem -0.5rem 0; z-index: 5; display: flex; justify-content: center; align-items: flex-start; padding-top: clamp(0.6rem, 4vh, 4rem);
-      background: #fff repeating-linear-gradient(to bottom, transparent 0 2.2rem, #e0e7ff 2.2rem calc(2.2rem + 1px)); transition: opacity 0.4s; }
+    .ws-locked .ws-body > * { visibility: hidden; }
+    /* Popup giữa màn hình: nền tối mờ tách hẳn khỏi tờ đề phía sau. */
+    .ws-cover { position: fixed; inset: 0; z-index: 60; display: flex; justify-content: center; align-items: center; padding: 1rem; box-sizing: border-box;
+      background: rgba(41, 24, 10, 0.62); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); transition: opacity 0.4s; }
     .ws-cover-out { opacity: 0; pointer-events: none; }
-    .ws-cover-card { width: min(34rem, 100%); box-sizing: border-box; text-align: center; background: #fffdf7; border: 2px solid #1f2937; border-radius: 1.2rem; padding: 1.6rem 1.4rem 1.8rem; box-shadow: 0 10px 0 #e5e7eb, 0 18px 30px rgba(0,0,0,0.12); }
+    .ws-cover-card { width: min(30rem, 100%); max-height: 100%; overflow: auto; box-sizing: border-box; text-align: center; background: #fffdf7; border-radius: 1.4rem; padding: 1.6rem 1.4rem 1.8rem; box-shadow: 0 8px 0 #b45309, 0 24px 50px rgba(0,0,0,0.45); font-size: clamp(1rem, 2.4vw, 1.2rem); animation: wsPop 0.35s ease-out; }
+    @keyframes wsPop { from { transform: scale(0.85); opacity: 0; } }
     .ws-cover-icon { font-size: clamp(3rem, 9vh, 4.5rem); line-height: 1; }
     .ws-cover-title { margin: 0.6rem 0 0.3rem; font-size: 1.35em; font-weight: 800; }
     .ws-cover-sub { margin: 0 0 1.2rem; color: #475569; }
     .ws-cover-sub b { color: var(--ink); }
+    .ws-cover-back { margin-top: 1.1rem; border: none; background: none; font: inherit; font-size: 0.9em; font-weight: 700; color: #7c2d12; text-decoration: underline; cursor: pointer; padding: 0.4rem; }
     .ws-cover-btns { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; }
     .ws-start { flex: 1 1 auto; white-space: nowrap; border: none; border-radius: 999px; padding: 0.9rem 1.3rem; font: inherit; font-size: 1.15em; font-weight: 800; color: #fff; background: #16a34a; box-shadow: 0 6px 0 #15803d; cursor: pointer; animation: wsPulse 1.8s ease-in-out infinite; }
     @keyframes wsPulse { 50% { transform: scale(1.04); } }

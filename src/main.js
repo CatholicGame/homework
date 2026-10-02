@@ -16,7 +16,7 @@ import { initLightbox } from './engine/lightbox.js';
 import { initKeyboardInset } from './engine/keyboardInset.js';
 import { initI18n, setI18nPage } from './engine/i18n.js';
 import { initWordHint } from './engine/wordHint.js';
-import { initAppUpdate } from './engine/appUpdate.js';
+import { initAppUpdate, showUpdateCard } from './engine/appUpdate.js';
 
 // Tiến trình học ↔ Google Drive của người đăng nhập
 initCloudSync();
@@ -74,7 +74,7 @@ const RELOAD_KEY = 'tth-reload-for-update';
 const AUTO_RELOAD_PAGES = ['home', 'leaderboard', 'reviews', 'stickers', 'profile', 'admin'];
 window.addEventListener('vite:preloadError', () => {
   if (navigator.onLine === false) return;
-  if (currentPage && !AUTO_RELOAD_PAGES.includes(currentPage)) { showUpdateBanner(); return; }
+  if (currentPage && !AUTO_RELOAD_PAGES.includes(currentPage)) { showUpdateCard(); return; }
   try {
     if (Date.now() - Number(sessionStorage.getItem(RELOAD_KEY) || 0) < 10_000) return;
     sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
@@ -82,15 +82,6 @@ window.addEventListener('vite:preloadError', () => {
   location.reload();
 });
 
-function showUpdateBanner() {
-  if (document.getElementById('update-banner')) return;
-  const btn = document.createElement('button');
-  btn.id = 'update-banner';
-  btn.type = 'button';
-  btn.textContent = '🔄 App vừa được cập nhật — bấm để tải lại';
-  btn.onclick = () => location.reload();
-  document.body.appendChild(btn);
-}
 
 
 // Màn hình chờ khi đang tải một sách/trò chơi (file lớn, mạng chậm)
