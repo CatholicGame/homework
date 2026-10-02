@@ -1240,8 +1240,8 @@ function columnHtml(p, nm, slot) {
   return `
     <span class="ws-col">
       <span class="ws-col-op">${p.op}</span><span class="ws-col-n">${p.a}</span>
-      <span></span><span class="ws-col-n ws-col-under">${p.b}</span>
-      <span></span><span class="ws-col-n">${slot(0, 'ws-in-col')}</span>
+      <span class="ws-col-n ws-col-under">${p.b}</span>
+      <span class="ws-col-n">${slot(0, 'ws-in-col')}</span>
     </span>`;
 }
 
@@ -1259,8 +1259,8 @@ function staticOpHtml(it) {
   return `
     <span class="ws-col">
       <span class="ws-col-op">${p.op}</span><span class="ws-col-n">${p.a}</span>
-      <span></span><span class="ws-col-n ws-col-under">${p.b}</span>
-      <span></span><span class="ws-col-n">${it.res}</span>
+      <span class="ws-col-n ws-col-under">${p.b}</span>
+      <span class="ws-col-n">${it.res}</span>
     </span>`;
 }
 
@@ -1531,8 +1531,9 @@ function injectStyles() {
 
     /* Đặt tính dọc và chia cột. */
     .ws-col { display: inline-grid; grid-template-columns: 1.2em auto; align-items: center; font-variant-numeric: tabular-nums; font-weight: 700; padding: 0.1rem 0.2rem; }
-    .ws-col-op { align-self: center; grid-row: span 2; font-weight: 800; }
-    .ws-col-n { text-align: right; letter-spacing: 0.08em; min-width: 3.4em; }
+    .ws-col-op { grid-column: 1; grid-row: 1 / span 2; align-self: center; font-weight: 800; }
+    .ws-col-n { grid-column: 2; text-align: right; letter-spacing: 0.08em; min-width: 3.4em; padding-right: 0.15em; }
+    .ws-col-n .ws-in-col { margin-right: -0.15em; }
     .ws-col-under { border-bottom: 2px solid #1f2937; }
     .ws-in-col { width: 3.4em; text-align: right; padding-right: 0.15em; letter-spacing: 0.08em; }
     .ws-ld { display: inline-grid; grid-template-columns: auto auto; font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: 0.08em; }
