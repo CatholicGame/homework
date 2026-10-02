@@ -8,6 +8,12 @@
 //   mod: đường dẫn trong src/games · game: tên export · lv: chỉ số cấp · h: số lượt giả trước đó (đổi đề theo lượt)
 //   fast: chia mọi setTimeout cho số này (chụp nhanh trạng thái cuối lượt bằng --virtual-time-budget)
 const p = new URLSearchParams(location.search);
+// book: mở thẳng một sách / màn có render(app, onBack, { open }), vd. ?book=grade3Worksheet.js&open=de-01
+if (p.get('book')) {
+  const m = await import(/* @vite-ignore */ `/src/games/${p.get('book')}`);
+  m.render(document.getElementById('app'), () => {}, { open: p.get('open') || undefined });
+  throw new Error('book preview'); // dừng phần trò chơi bên dưới
+}
 const fast = +(p.get('fast') || 1);
 if (fast > 1) { const st0 = window.setTimeout; window.setTimeout = (f, ms, ...a) => st0(f, (ms || 0) / fast, ...a); }
 const { injectGameStyles } = await import('/src/games/grade3Games/styles.js');

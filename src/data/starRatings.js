@@ -1026,6 +1026,295 @@ export const STAR_RATINGS = {
   'practice:kt-hk1:5': 3,
   'practice:kt-hk1:6': 4,
   'practice:kt-hk1:7': 5,
+  // worksheet:bai-5 (Phiếu bài tập lớp 3: một khoá cho mỗi Phần)
+  'worksheet:bai-5:p0': 2,
+  'worksheet:bai-5:p1': 2,
+  'worksheet:bai-5:p2': 2,
+  'worksheet:bai-5:p3': 5,
+  'worksheet:bai-5:p4': 3,
+  // worksheet:bai-1 (Phiếu bài tập lớp 3, Bài 1: Ôn tập các số đến 1000: một khoá cho mỗi Phần)
+  'worksheet:bai-1:p0': 4,
+  // worksheet:bai-1b (Phiếu bài tập lớp 3, Bài 1: Đọc, viết, so sánh các số có 3 chữ số: một khoá cho mỗi Phần)
+  'worksheet:bai-1b:p0': 2,
+  'worksheet:bai-1b:p1': 3,
+  'worksheet:bai-1b:p2': 4,
+  'worksheet:bai-1b:p3': 4,
+  // worksheet:bai-1c (Phiếu bài tập lớp 3, Bài 1: Ôn tập các số đến 1000: một khoá cho mỗi Phần)
+  'worksheet:bai-1c:p0': 4,
+  // worksheet:bai-2 (Phiếu bài tập lớp 3, Bài 2: Ôn tập phép cộng, phép trừ trong phạm vi 1000: một khoá cho mỗi Phần)
+  'worksheet:bai-2:p0': 4,
+  'worksheet:bai-2:p1': 4,
+  // worksheet:bai-3 (Phiếu bài tập lớp 3, Bài 3: Tìm thành phần chưa biết của phép tính: một khoá cho mỗi Phần)
+  'worksheet:bai-3:p0': 4,
+  // worksheet:bai-4 (Phiếu bài tập lớp 3, Bài 4: Ôn tập bảng nhân 2, bảng chia 2, bảng nhân 5, bảng chia 5: một khoá cho mỗi Phần)
+  'worksheet:bai-4:p0': 4,
+  // worksheet:bai-5b (Phiếu bài tập lớp 3, Bài 5: Bảng nhân 3, bảng chia 3: một khoá cho mỗi Phần)
+  'worksheet:bai-5b:p0': 2,
+  'worksheet:bai-5b:p1': 2,
+  'worksheet:bai-5b:p2': 5,
+  'worksheet:bai-5b:p3': 2,
+  // worksheet:bai-6 (Phiếu bài tập lớp 3, Bài 6: Bảng nhân 4, bảng chia 4: một khoá cho mỗi Phần)
+  'worksheet:bai-6:p0': 2,
+  'worksheet:bai-6:p1': 2,
+  'worksheet:bai-6:p2': 2,
+  'worksheet:bai-6:p3': 5,
+  'worksheet:bai-6:p4': 3,
+  // worksheet:bai-7 (Phiếu bài tập lớp 3, Bài 7: Ôn tập hình học và đo lường: một khoá cho mỗi Phần)
+  'worksheet:bai-7:p0': 4,
+  // worksheet:bai-8 (Phiếu bài tập lớp 3, Bài 8: Luyện tập: một khoá cho mỗi Phần)
+  'worksheet:bai-8:p0': 3,
+  'worksheet:bai-8:p1': 3,
+  'worksheet:bai-8:p2': 2,
+  'worksheet:bai-8:p3': 3,
+  'worksheet:bai-8:p4': 2,
+  'worksheet:bai-8:p5': 5,
+  'worksheet:bai-8:p6': 4,
+  // worksheet:bai-9 (Phiếu bài tập lớp 3, Bài 9: Bảng nhân 6, bảng chia 6: một khoá cho mỗi Phần)
+  'worksheet:bai-9:p0': 2,
+  'worksheet:bai-9:p1': 2,
+  'worksheet:bai-9:p2': 3,
+  'worksheet:bai-9:p3': 5,
+  // worksheet:bai-11 (Phiếu bài tập lớp 3, Bài 11: Bảng nhân 8, bảng chia 8: một khoá cho mỗi Phần)
+  'worksheet:bai-11:p0': 2,
+  'worksheet:bai-11:p1': 2,
+  'worksheet:bai-11:p2': 3,
+  'worksheet:bai-11:p3': 4,
+  'worksheet:bai-11:p4': 3,
+  'worksheet:bai-11:p5': 3,
+  'worksheet:bai-11:p6': 2,
+  'worksheet:bai-11:p7': 3,
+  'worksheet:bai-11:p8': 4,
+  'worksheet:bai-11:p9': 2,
+  // worksheet:bai-12 (Phiếu bài tập lớp 3, Bài 12: Bảng nhân 9, bảng chia 9: một khoá cho mỗi Phần)
+  'worksheet:bai-12:p0': 2,
+  'worksheet:bai-12:p1': 2,
+  'worksheet:bai-12:p2': 4,
+  'worksheet:bai-12:p3': 4,
+  'worksheet:bai-12:p4': 2,
+  'worksheet:bai-12:p5': 2,
+  'worksheet:bai-12:p6': 3,
+  'worksheet:bai-12:p7': 3,
+  'worksheet:bai-12:p8': 4,
+  'worksheet:bai-12:p9': 2,
+  // worksheet:bai-13 (Phiếu bài tập lớp 3, Bài 13: Tìm thành phần trong phép nhân, phép chia: một khoá cho mỗi Phần)
+  'worksheet:bai-13:p0': 2,
+  'worksheet:bai-13:p1': 2,
+  'worksheet:bai-13:p2': 2,
+  'worksheet:bai-13:p3': 2,
+  'worksheet:bai-13:p4': 2,
+  'worksheet:bai-13:p5': 3,
+  'worksheet:bai-13:p6': 2,
+  'worksheet:bai-13:p7': 3,
+  'worksheet:bai-13:p8': 4,
+  'worksheet:bai-13:p9': 3,
+  // worksheet:bai-14 (Phiếu bài tập lớp 3, Bài 14: Một phần mấy: một khoá cho mỗi Phần)
+  'worksheet:bai-14:p0': 2,
+  'worksheet:bai-14:p1': 3,
+  'worksheet:bai-14:p2': 3,
+  'worksheet:bai-14:p3': 2,
+  'worksheet:bai-14:p4': 2,
+  'worksheet:bai-14:p5': 3,
+  'worksheet:bai-14:p6': 2,
+  'worksheet:bai-14:p7': 2,
+  'worksheet:bai-14:p8': 2,
+  'worksheet:bai-14:p9': 4,
+  // worksheet:bai-15 (Phiếu bài tập lớp 3, Bài 15: Luyện tập chung: một khoá cho mỗi Phần)
+  'worksheet:bai-15:p0': 4,
+  // worksheet:de-01 (Đề số 1, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-01:p0': 3,
+  'worksheet:de-01:p1': 4,
+  // worksheet:de-02 (Đề số 2, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-02:p0': 3,
+  'worksheet:de-02:p1': 4,
+  // worksheet:de-03 (Đề số 3, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-03:p0': 3,
+  'worksheet:de-03:p1': 4,
+  // worksheet:de-04 (Đề số 4, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-04:p0': 3,
+  'worksheet:de-04:p1': 4,
+  // worksheet:de-05 (Đề số 5, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-05:p0': 3,
+  'worksheet:de-05:p1': 4,
+  // worksheet:de-06 (Đề số 6, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-06:p0': 3,
+  'worksheet:de-06:p1': 4,
+  // worksheet:de-07 (Đề số 7, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-07:p0': 3,
+  'worksheet:de-07:p1': 4,
+  // worksheet:de-08 (Đề số 8, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-08:p0': 3,
+  'worksheet:de-08:p1': 4,
+  // worksheet:de-09 (Đề số 9, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-09:p0': 3,
+  'worksheet:de-09:p1': 4,
+  // worksheet:de-10 (Đề số 10, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-10:p0': 3,
+  'worksheet:de-10:p1': 4,
+  // worksheet:de-11 (Đề số 11, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-11:p0': 3,
+  'worksheet:de-11:p1': 4,
+  // worksheet:de-12 (Đề số 12, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-12:p0': 3,
+  'worksheet:de-12:p1': 4,
+  // worksheet:de-13 (Đề số 13, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-13:p0': 3,
+  'worksheet:de-13:p1': 4,
+  // worksheet:de-14 (Đề số 14, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-14:p0': 3,
+  'worksheet:de-14:p1': 4,
+  // worksheet:de-15 (Đề số 15, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-15:p0': 3,
+  'worksheet:de-15:p1': 4,
+  // worksheet:de-16 (Đề số 16, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-16:p0': 3,
+  'worksheet:de-16:p1': 4,
+  // worksheet:de-17 (Đề số 17, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-17:p0': 3,
+  'worksheet:de-17:p1': 4,
+  // worksheet:de-18 (Đề số 18, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-18:p0': 3,
+  'worksheet:de-18:p1': 4,
+  // worksheet:de-19 (Đề số 19, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-19:p0': 3,
+  'worksheet:de-19:p1': 4,
+  // worksheet:de-20 (Đề số 20, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-20:p0': 3,
+  'worksheet:de-20:p1': 4,
+  // worksheet:de-21 (Đề số 21, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-21:p0': 3,
+  'worksheet:de-21:p1': 4,
+  // worksheet:de-22 (Đề số 22, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-22:p0': 3,
+  'worksheet:de-22:p1': 4,
+  // worksheet:de-23 (Đề số 23, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-23:p0': 3,
+  'worksheet:de-23:p1': 4,
+  // worksheet:de-24 (Đề số 24, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-24:p0': 3,
+  'worksheet:de-24:p1': 4,
+  // worksheet:de-25 (Đề số 25, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-25:p0': 3,
+  'worksheet:de-25:p1': 4,
+  // worksheet:de-26 (Đề số 26, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-26:p0': 3,
+  'worksheet:de-26:p1': 4,
+  // worksheet:de-27 (Đề số 27, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-27:p0': 3,
+  'worksheet:de-27:p1': 4,
+  // worksheet:de-28 (Đề số 28, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-28:p0': 3,
+  'worksheet:de-28:p1': 4,
+  // worksheet:de-29 (Đề số 29, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-29:p0': 3,
+  'worksheet:de-29:p1': 4,
+  // worksheet:de-30 (Đề số 30, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-30:p0': 3,
+  'worksheet:de-30:p1': 4,
+  // worksheet:de-31 (Đề số 31, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-31:p0': 3,
+  'worksheet:de-31:p1': 4,
+  // worksheet:de-32 (Đề số 32, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-32:p0': 3,
+  'worksheet:de-32:p1': 4,
+  // worksheet:de-33 (Đề số 33, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-33:p0': 3,
+  'worksheet:de-33:p1': 4,
+  // worksheet:de-34 (Đề số 34, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-34:p0': 3,
+  'worksheet:de-34:p1': 4,
+  // worksheet:de-35 (Đề số 35, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-35:p0': 3,
+  'worksheet:de-35:p1': 4,
+  // worksheet:de-36 (Đề số 36, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-36:p0': 3,
+  'worksheet:de-36:p1': 4,
+  // worksheet:de-37 (Đề số 37, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-37:p0': 3,
+  'worksheet:de-37:p1': 4,
+  // worksheet:de-38 (Đề số 38, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-38:p0': 3,
+  'worksheet:de-38:p1': 4,
+  // worksheet:de-39 (Đề số 39, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-39:p0': 3,
+  'worksheet:de-39:p1': 4,
+  // worksheet:de-40 (Đề số 40, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-40:p0': 3,
+  'worksheet:de-40:p1': 4,
+  // worksheet:de-41 (Đề số 41, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-41:p0': 3,
+  'worksheet:de-41:p1': 4,
+  // worksheet:de-42 (Đề số 42, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-42:p0': 3,
+  'worksheet:de-42:p1': 4,
+  // worksheet:de-43 (Đề số 43, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-43:p0': 3,
+  'worksheet:de-43:p1': 4,
+  // worksheet:de-44 (Đề số 44, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-44:p0': 3,
+  'worksheet:de-44:p1': 4,
+  // worksheet:de-45 (Đề số 45, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-45:p0': 3,
+  'worksheet:de-45:p1': 4,
+  // worksheet:de-46 (Đề số 46, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-46:p0': 3,
+  'worksheet:de-46:p1': 4,
+  // worksheet:de-47 (Đề số 47, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-47:p0': 3,
+  'worksheet:de-47:p1': 4,
+  // worksheet:de-48 (Đề số 48, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-48:p0': 3,
+  'worksheet:de-48:p1': 4,
+  // worksheet:de-49 (Đề số 49, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-49:p0': 3,
+  'worksheet:de-49:p1': 4,
+  // worksheet:de-50 (Đề số 50, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-50:p0': 3,
+  'worksheet:de-50:p1': 4,
+  // worksheet:de-51 (Đề số 51, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-51:p0': 3,
+  'worksheet:de-51:p1': 4,
+  // worksheet:de-52 (Đề số 52, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-52:p0': 3,
+  'worksheet:de-52:p1': 4,
+  // worksheet:de-53 (Đề số 53, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-53:p0': 3,
+  'worksheet:de-53:p1': 4,
+  // worksheet:de-54 (Đề số 54, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-54:p0': 3,
+  'worksheet:de-54:p1': 4,
+  // worksheet:de-55 (Đề số 55, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-55:p0': 3,
+  'worksheet:de-55:p1': 4,
+  // worksheet:de-56 (Đề số 56, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-56:p0': 3,
+  'worksheet:de-56:p1': 4,
+  // worksheet:de-57 (Đề số 57, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-57:p0': 3,
+  'worksheet:de-57:p1': 4,
+  // worksheet:de-58 (Đề số 58, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-58:p0': 3,
+  'worksheet:de-58:p1': 4,
+  // worksheet:de-59 (Đề số 59, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-59:p0': 3,
+  'worksheet:de-59:p1': 4,
+  // worksheet:de-60 (Đề số 60, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-60:p0': 3,
+  'worksheet:de-60:p1': 4,
+  // worksheet:de-61 (Đề số 61, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-61:p0': 3,
+  'worksheet:de-61:p1': 4,
+  // worksheet:de-62 (Đề số 62, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-62:p0': 3,
+  'worksheet:de-62:p1': 4,
+  // worksheet:de-63 (Đề số 63, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-63:p0': 3,
+  'worksheet:de-63:p1': 4,
+  // worksheet:de-64 (Đề số 64, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-64:p0': 3,
+  'worksheet:de-64:p1': 4,
+  // worksheet:de-65 (Đề số 65, ôn tập giữa kì I: một khoá cho mỗi Phần)
+  'worksheet:de-65:p0': 3,
+  'worksheet:de-65:p1': 4,
   // exam:de-1:math
   'exam:de-1:math:0': 4,
   'exam:de-1:math:1': 4,

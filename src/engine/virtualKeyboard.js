@@ -216,7 +216,7 @@ function showKeyboard(input) {
   if (words || tiles) {
     panel.classList.remove('vk-visible');
     document.body.classList.add('vk-active');
-    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    centerInput(input);
     return;
   }
   // The "," key shows wherever the operator keys do (every text blank), not only
@@ -228,6 +228,14 @@ function showKeyboard(input) {
   panel.classList.toggle('vk-no-ops', input.type === 'number');
   panel.classList.add('vk-visible');
   document.body.classList.add('vk-active'); // hides the floating fullscreen button, which sits at bottom-right and would otherwise overlap the now-wide keypad's ✓ key
+  centerInput(input);
+}
+
+// Screens that keep the blank in view themselves (sticky header, own scroll
+// rules) mark a container with data-vk-noscroll: a second scroll from here
+// would make the page jump twice on every ◀ / ▶.
+function centerInput(input) {
+  if (input.closest('[data-vk-noscroll]')) return;
   input.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 

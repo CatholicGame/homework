@@ -335,6 +335,7 @@ function navigate(gameId) {
     'exam': () => import('./games/exam.js'),
     'giao-ly': () => import('./games/giaoly.js'),
     'grade3-exam': () => import('./games/grade3Exam.js'),
+    'grade3-worksheet': () => import('./games/grade3Worksheet.js'),
     'grade3-workbook': () => import('./games/grade3Workbook.js'),
     'grade3-workbook-2': () => import('./games/grade3Workbook2.js'),
     'grade3-practice': () => import('./games/grade3Practice.js'),

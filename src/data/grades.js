@@ -32,6 +32,7 @@ export const GRADES = [
       { id: 'grade3-workbook-2', icon: '📕', color: '#EF4444', title: 'Vở Bài Tập Toán 3 — Tập Hai', desc: 'Bài 45–81' },
       { id: 'grade3-practice', icon: '📘', color: '#3B82F6', title: 'Luyện Tập Toán 3', desc: 'Tập Một — Luyện tập theo tuần' },
       { id: 'grade3-exam', icon: '📝', color: '#F97316', title: 'Ôn Luyện Đề', desc: 'Đề 1 — Ôn luyện tổng hợp khối 3' },
+      { id: 'grade3-worksheet', icon: '✏️', color: '#8B5CF6', title: 'Luyện Đề', desc: 'Phiếu bài tập theo bài học, 65 đề ôn tập giữa học kì I' },
     ],
   },
   { num: 4, title: 'Lớp 4', icon: '4️⃣', color: '#C084FC', games: [] },
