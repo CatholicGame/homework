@@ -7,7 +7,7 @@
  *
  * Cách mở: bấm một lần vào chữ thường (đề bài, nhãn, ô bảng); giữ 450 ms ở bất cứ đâu, kể cả chữ trên nút
  * (xê dịch quá 10 px là huỷ; lần nhả tay đó không tính là bấm); máy tính: bôi đen một từ / cụm từ.
- * Không dùng nhấp đúp (trùng tiện ích tra từ của trình duyệt). Chạm chỗ khác, cuộn trang hoặc sau 8 giây thì ẩn.
+ * Không dùng nhấp đúp (trùng tiện ích tra từ của trình duyệt). Bong bóng ở yên tới khi bé chạm ra ngoài, bấm ✕ hoặc cuộn trang.
  * Bong bóng hiện là đọc to từ / cụm tiếng Anh (engine/speakEn.js); nút 🔊 cạnh mỗi từ để nghe lại.
  */
 
@@ -154,11 +154,10 @@ function scanAt(x, y) {
 }
 
 // ── Bong bóng ─────────────────────────────────────────────────────────────────
-let bubble = null, mark = null, hideTimer = null;
+let bubble = null, mark = null;
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 function hide() {
-  clearTimeout(hideTimer);
   bubble?.remove(); mark?.remove();
   bubble = mark = null;
   hideCoach();
@@ -206,10 +205,9 @@ function show(node, hit, rect) {
   bubble.setAttribute('data-no-i18n', '');
   bubble.setAttribute('role', 'tooltip');
   bubble.setAttribute('lang', 'vi');
-  bubble.innerHTML = bubbleHtml(hit, src);
+  bubble.innerHTML = `<button type="button" class="wh-close" aria-label="Đóng">✕</button>${bubbleHtml(hit, src)}`;
   document.body.append(mark, bubble);
   place(bubble, rect);
-  hideTimer = setTimeout(hide, 8000);
   sayEn(hit.en);
   coachLearned(); // bé đã tự mở nghĩa một lần → thôi hướng dẫn
 }
@@ -360,13 +358,9 @@ function cancel() { clearTimeout(timer); timer = null; start = null; }
 
 function onDown(e) {
   unlockSpeech();
-  // Nút 🔊 trong bong bóng: giữ bong bóng, đọc lại khi nhả tay (onClick).
-  if (e.target.closest?.('.wh-say')) {
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(hide, 8000);
-    return;
-  }
-  hide(); // bong bóng không nhận chạm (pointer-events: none): chạm đâu cũng ẩn
+  // Chạm trong bong bóng (🔊, ✕, đọc chữ) giữ bong bóng; nút xử lý khi nhả tay (onClick).
+  if (bubble?.contains(e.target)) return;
+  hide(); // chạm ra ngoài bong bóng thì ẩn
   if (!isEnglish() || e.button > 0 || e.target.closest?.(SKIP)) return;
   shownByHold = false;
   start = { x: e.clientX, y: e.clientY };
@@ -399,6 +393,10 @@ function isClickable(el) {
 }
 
 function onClick(e) {
+  if (bubble?.contains(e.target)) {
+    e.stopPropagation(); // không lọt xuống bài dưới bong bóng
+    if (e.target.closest('.wh-close')) { e.preventDefault(); hide(); }
+  }
   const sayBtn = e.target.closest?.('.wh-say');
   if (sayBtn) {
     e.preventDefault();

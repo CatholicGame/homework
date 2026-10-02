@@ -593,8 +593,8 @@ input[data-vk-attached][type=number] {
   border-radius: 6px; background: rgba(250, 204, 21, 0.35); box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.6);
 }
 .wh-bubble {
-  position: fixed; z-index: 10001; pointer-events: none; max-width: min(400px, calc(100vw - 16px));
-  padding: 10px 14px; border-radius: 14px;
+  position: fixed; z-index: 10001; max-width: min(400px, calc(100vw - 16px));
+  padding: 10px 44px 10px 14px; border-radius: 14px;
   background: #1E293B; color: #fff; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.3);
   font-size: 1rem; line-height: 1.4; animation: wh-pop 0.15s ease-out;
 }
@@ -603,6 +603,13 @@ input[data-vk-attached][type=number] {
   width: 14px; height: 14px; background: #1E293B; border-radius: 3px;
 }
 .wh-bubble.wh-below::after { bottom: auto; top: -7px; }
+/* Nút ✕: bong bóng chỉ đóng khi bấm ✕ hoặc chạm ra ngoài */
+.wh-close {
+  position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; padding: 0;
+  border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.14); color: #fff;
+  font-size: 1rem; line-height: 32px; cursor: pointer;
+}
+.wh-close:active { background: rgba(255, 255, 255, 0.3); }
 .wh-bubble [lang="en"] { font-family: inherit; }
 /* Một từ: chữ to + IPA, nghĩa bên dưới */
 .wh-say {
@@ -636,7 +643,7 @@ input[data-vk-attached][type=number] {
   position: fixed; z-index: 10002; pointer-events: none; font-size: 28px; line-height: 1;
   filter: drop-shadow(0 2px 3px rgba(15, 23, 42, 0.35)); animation: wh-coach-tap 1.2s ease-in-out infinite;
 }
-.wh-coach-tip { background: #7C3AED; text-align: center; }
+.wh-coach-tip { background: #7C3AED; text-align: center; pointer-events: none; padding-right: 14px; }
 .wh-coach-tip::after { background: #7C3AED; }
 .wh-coach-title { font-weight: 800; font-size: 1.05rem; }
 .wh-coach-sub { font-size: 0.9rem; opacity: 0.92; }
