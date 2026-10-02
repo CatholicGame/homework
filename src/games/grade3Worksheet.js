@@ -209,25 +209,15 @@ const fmtClock = (ms) => { const sec = Math.ceil(ms / 1000); return `${Math.floo
 const fmtDuration = (ms) => { const sec = Math.round(ms / 1000), m = Math.floor(sec / 60); return m ? `${m} phút ${String(sec % 60).padStart(2, '0')} giây` : `${sec} giây`; };
 const fmtScore = (s) => String(s).replace('.', ',');
 
+// Hai dòng ngắn, mỗi dòng vừa một dòng kẻ của ô nhận xét (không liệt kê từng câu).
 function teacherComment(sheet, idx, grades, score) {
-  const wrong = idx.filter((e, i) => grades[i].score < 1);
-  if (score >= 10) return ['Bài làm rất tốt!', 'Con trình bày sạch đẹp, lời giải đầy đủ.'];
-  if (score >= 8) {
-    const refs = sheet.numbering
-      ? wrong.slice(0, 3).map(e => e.ref).join(', ')
-      : `câu ${wrong.slice(0, 3).map(e => e.n).join(', ')}`;
-    return ['Con làm bài tốt.', `Cần xem lại ${refs}${wrong.length > 3 ? '…' : '.'}`];
-  }
-  if (score >= 6.5 && sheet.parts.length === 1) {
-    return ['Con nắm được bài.', `Cần cẩn thận hơn ở ${wrong.slice(0, 3).map(e => e.ref || `câu ${e.n}`).join(', ')}${wrong.length > 3 ? '…' : '.'}`];
-  }
-  if (score >= 6.5) {
-    const lost = sheet.parts.map((p, pi) => idx.reduce((s, e, i) => s + (e.pi === pi ? 1 - grades[i].score : 0), 0));
-    const worst = lost.indexOf(Math.max(...lost));
-    return ['Con nắm được bài.', `Cần cẩn thận hơn ở phần ${partName(sheet.parts[worst]).replace(/\s*\(.*\)$/, '')}.`];
-  }
-  if (score >= 5) return [`Con cần ôn lại ${(sheet.review || sheet.desc).toLowerCase()}.`, 'Cố gắng lên!'];
-  return [`Con hãy làm lại ${/^de-/.test(sheet.id) ? 'đề' : 'phiếu'} này cùng bố mẹ.`, 'Cô tin con sẽ làm được!'];
+  const wrong = grades.filter(g => g.score < 1).length;
+  const fix = wrong > 1 ? 'Con xem lại các câu chưa đúng.' : 'Con xem lại câu chưa đúng.';
+  if (score >= 10) return ['Bài làm rất tốt!', 'Con trình bày sạch đẹp.'];
+  if (score >= 8) return ['Con làm bài tốt.', fix];
+  if (score >= 6.5) return ['Con nắm được bài.', 'Cần cẩn thận hơn khi làm bài.'];
+  if (score >= 5) return ['Con cần ôn lại bài.', fix];
+  return [`Con làm lại ${/^de-/.test(sheet.id) ? 'đề' : 'phiếu'} này cùng bố mẹ.`, 'Cô tin con sẽ làm được!'];
 }
 
 // ── màn hình ─────────────────────────────────────────────────────────────────
@@ -323,6 +313,8 @@ export function render(app, onBack, opts = {}) {
     if (!graded && !rec.draft) rec.draft = {};
     const answers = {};
     idx.forEach(e => { answers[e.id] = restoreAnswer(e, (graded ? rec.result.answers : rec.draft)[e.id]); });
+    // Nhận xét tính lại khi mở, để bài chấm cũ cũng hiện lời nhận xét mới.
+    const comment = graded ? teacherComment(sheet, idx, idx.map(e => gradeQuestion(e, answers[e.id])), rec.result.score) : [];
     const persist = () => { rec.draft = answers; saveStore(store); };
 
     const name = getProfile().name || getCurrentUser()?.name || '';
@@ -386,7 +378,7 @@ export function render(app, onBack, opts = {}) {
             <div class="ws-commentbox">
               <div class="ws-box-label">Nhận xét của thầy cô:</div>
               <div class="ws-comment-lines">
-                ${[0, 1].map(i => `<div class="ws-cline">${graded ? `<span class="ws-red ws-write" style="--d:${1.1 + i * 0.9}s">${rec.result.comment[i] || ''}</span>` : ''}</div>`).join('')}
+                ${[0, 1].map(i => `<div class="ws-cline">${graded ? `<span class="ws-red ws-write" style="--d:${1.1 + i * 0.9}s">${comment[i] || ''}</span>` : ''}</div>`).join('')}
               </div>
             </div>
           </section>
@@ -1412,7 +1404,7 @@ function injectStyles() {
     .ws-ring { position: absolute; inset: 8% 10%; width: 80%; height: 84%; overflow: visible; }
     .ws-ring path { fill: none; stroke: var(--red); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 340; stroke-dashoffset: 340; animation: wsDraw 0.9s ease-out 0.9s forwards; }
     .ws-comment-lines { padding: 0 0.9rem 0.6rem; }
-    .ws-cline { height: 2.6rem; border-bottom: 1.5px dashed #cbd5e1; display: flex; align-items: flex-end; }
+    .ws-cline { min-height: 2.6rem; border-bottom: 1.5px dashed #cbd5e1; display: flex; align-items: flex-end; }
     .ws-cline .ws-red { font-family: 'Dancing Script', cursive; font-weight: 700; font-size: 1.5em; line-height: 1.1; transform: rotate(-1.5deg); transform-origin: left bottom; }
     /* Chữ "viết ra" từ trái sang phải. */
     .ws-write { clip-path: inset(0 100% 0 0); animation: wsWrite 1s steps(14) var(--d, 0s) forwards; display: inline-block; }
