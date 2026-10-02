@@ -256,4 +256,5 @@ Nguồn: `docs/lop_3/De_thi/Bài N_ … .pdf` và `Phiếu bài tập - Bài N_ 
 | bai11.js – bai15.js | Bài 11 – 15 (chưa có PDF Bài 10) |
 
 Lỗi của bản PDF (bảng thiếu dữ liệu, phương án trùng, hình thiếu) đã sửa ít nhất có thể, mỗi chỗ có ghi chú `// sửa:` ngay trên câu.
+- Mở phiếu / đề chưa chấm: phần đề bị che, đồng hồ đứng yên cho tới khi bấm **Bắt đầu làm bài**. Đang làm dở thì tấm che ghi số câu đã làm, thời gian đã dùng, còn lại, với hai nút **Làm tiếp** và **Làm lại từ đầu** (chạm hai lần, xoá bài nháp). Thẻ trong danh sách ghi "Làm tiếp (N phút)".
 - Đồng hồ 45 phút (mọi phiếu và đề, `LIMIT_MS`): đếm ngược trên thanh trên cùng, chỉ chạy khi tờ phiếu đang mở và trang đang hiện. Rời phiếu / ẩn trang thì dừng, số giờ đã làm lưu trong `rec.elapsed`; mở lại chạy tiếp. Còn 5 phút: cam; hết giờ: đỏ, nhắc làm nốt rồi nộp (không khoá bài). Bài đã chấm ghi "Làm trong N phút" (`result.used`). "Làm lại" đặt lại về 45 phút.

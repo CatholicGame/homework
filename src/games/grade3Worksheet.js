@@ -205,6 +205,8 @@ export function gradeQuestion(e, a) {
 }
 
 function roundHalf(x) { return Math.round(x * 2) / 2; }
+const fmtClock = (ms) => { const sec = Math.ceil(ms / 1000); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; };
+const fmtDuration = (ms) => { const sec = Math.round(ms / 1000), m = Math.floor(sec / 60); return m ? `${m} phút ${String(sec % 60).padStart(2, '0')} giây` : `${sec} giây`; };
 const fmtScore = (s) => String(s).replace('.', ',');
 
 function teacherComment(sheet, idx, grades, score) {
@@ -302,7 +304,7 @@ export function render(app, onBack, opts = {}) {
               <span class="ws-card-lines"></span>
             </span>
             <span class="ws-card-score${best == null ? ' ws-card-new' : ''}">${best == null ? 'Chưa làm' : fmtScore(best)}</span>
-            <span class="ws-card-go">${rec?.draft && Object.keys(rec.draft).length ? 'Làm tiếp ➜' : best == null ? 'Làm bài ➜' : 'Xem bài ➜'}</span>
+            <span class="ws-card-go">${rec?.draft && (Object.keys(rec.draft).length || rec.elapsed) ? `Làm tiếp${rec.elapsed >= 60000 ? ` (${Math.round(rec.elapsed / 60000)} phút)` : ''} ➜` : best == null ? 'Làm bài ➜' : 'Xem bài ➜'}</span>
           </button>`;
       }).join('');
       grid.querySelectorAll('.ws-card').forEach(btn => {
@@ -311,7 +313,8 @@ export function render(app, onBack, opts = {}) {
     });
   }
 
-  function openSheet(sheet, col, back) {
+  /** opts.autostart: bỏ qua tấm che "Bắt đầu" (vừa chọn "Làm lại từ đầu" trên tấm che). */
+  function openSheet(sheet, col, back, opts = {}) {
     const idx = indexSheet(sheet);
     const store = loadStore();
     const rec = store[sheet.id] || (store[sheet.id] = {});
@@ -327,6 +330,25 @@ export function render(app, onBack, opts = {}) {
     const dateText = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
     const grades = graded ? idx.map(e => gradeQuestion(e, answers[e.id])) : null;
     const noun = col.id === 'giuaki' ? 'đề' : 'phiếu';
+    // Tấm che phần đề: đồng hồ chỉ chạy sau khi bấm Bắt đầu / Làm tiếp. Đang làm dở thì cho chọn làm tiếp hoặc làm lại.
+    const doneCount = graded ? 0 : idx.filter(e => isFilled(e, answers[e.id])).length;
+    const touched = !graded && (rec.elapsed > 0 || idx.some(e => JSON.stringify(answers[e.id]) !== JSON.stringify(emptyAnswer(e))));
+    const coverHtml = graded || opts.autostart ? '' : `
+      <div class="ws-cover" id="ws-cover">
+        <div class="ws-cover-card">
+          <div class="ws-cover-icon">${touched ? '📝' : '⏱️'}</div>
+          ${touched
+            ? `<p class="ws-cover-title">Con đang làm dở ${noun} này</p>
+               <p class="ws-cover-sub">Đã làm <b>${doneCount}/${idx.length}</b> câu, đã dùng <b>${fmtDuration(rec.elapsed || 0)}</b>.<br>${(rec.elapsed || 0) < LIMIT_MS ? `Còn <b>${fmtClock(LIMIT_MS - (rec.elapsed || 0))}</b>.` : 'Đã hết 45 phút, con vẫn làm tiếp được.'}</p>
+               <div class="ws-cover-btns">
+                 <button type="button" class="ws-start" data-act="resume">▶ Làm tiếp</button>
+                 <button type="button" class="ws-start ws-start-alt" data-act="restart">🔄 Làm lại từ đầu</button>
+               </div>`
+            : `<p class="ws-cover-title">Thời gian làm bài: 45 phút</p>
+               <p class="ws-cover-sub">Đồng hồ bắt đầu chạy khi con bấm nút.</p>
+               <div class="ws-cover-btns"><button type="button" class="ws-start" data-act="start">▶ Bắt đầu làm bài</button></div>`}
+        </div>
+      </div>`;
 
     app.innerHTML = `
       <div class="ws-desk">
@@ -346,7 +368,7 @@ export function render(app, onBack, opts = {}) {
           <button type="button" class="ws-prog-arrow" id="ws-prog-next" aria-label="Các câu sau">▶</button>
           </div>
         </div>
-        <article class="ws-paper${graded ? ' ws-graded' : ''}" data-vk-noscroll>
+        <article class="ws-paper${graded ? ' ws-graded' : ''}${coverHtml ? ' ws-locked' : ''}" data-vk-noscroll>
           <header class="ws-head">
             <h1 class="ws-title">${sheet.title.toUpperCase()}</h1>
             <div class="ws-sub">${col.sub(sheet)}</div>
@@ -367,6 +389,8 @@ export function render(app, onBack, opts = {}) {
               </div>
             </div>
           </section>
+          <div class="ws-body">
+          ${coverHtml}
           ${sheet.parts.map((part, pi) => `
             <section class="ws-part">
               <h2 class="ws-part-title">${part.title}</h2>
@@ -377,6 +401,7 @@ export function render(app, onBack, opts = {}) {
               ? `<button type="button" class="ws-submit" id="ws-redo">🔄 Làm lại ${noun}</button>`
               : '<button type="button" class="ws-submit" id="ws-submit" disabled>📮 Nộp bài</button><button type="button" class="ws-foot-note" id="ws-foot-note">&nbsp;</button>'}
           </footer>
+          </div>
         </article>
       </div>`;
 
@@ -504,6 +529,7 @@ export function render(app, onBack, opts = {}) {
     // Rời phiếu / ẩn trang thì dừng, lưu số giây đã làm; mở lại chạy tiếp từ đó.
     const timerEl = app.querySelector('#ws-timer');
     rec.elapsed = rec.elapsed || 0;
+    let running = !coverHtml;
     let last = Date.now();
     let lastSave = last;
     const showTimer = () => {
@@ -516,10 +542,10 @@ export function render(app, onBack, opts = {}) {
     const tick = () => {
       const now = Date.now();
       if (!paper.isConnected) { stopTimer(); return; }
-      if (document.visibilityState === 'visible') rec.elapsed += Math.min(now - last, 5000);
+      if (running && document.visibilityState === 'visible') rec.elapsed += Math.min(now - last, 5000);
       last = now;
       showTimer();
-      if (now - lastSave > 15000) { lastSave = now; saveStore(store); }
+      if (running && now - lastSave > 15000) { lastSave = now; saveStore(store); }
       if (rec.elapsed >= LIMIT_MS) refreshSubmit();
     };
     const onVis = () => {
@@ -536,6 +562,35 @@ export function render(app, onBack, opts = {}) {
     }
     app.querySelector('#ws-close').onclick = () => { tick(); stopTimer(); back(); };
     showTimer();
+
+    // Tấm che: Bắt đầu / Làm tiếp → mở đề, đồng hồ chạy. Làm lại từ đầu: chạm hai lần (xoá bài đang làm).
+    const cover = app.querySelector('#ws-cover');
+    let restartArm = null;
+    cover?.addEventListener('click', (ev) => {
+      const b = ev.target.closest('.ws-start');
+      if (!b) return;
+      if (b.dataset.act === 'restart') {
+        if (!restartArm) {
+          b.textContent = '🔄 Chạm lần nữa để xoá bài cũ';
+          b.classList.add('ws-armed');
+          restartArm = setTimeout(() => { restartArm = null; b.textContent = '🔄 Làm lại từ đầu'; b.classList.remove('ws-armed'); }, 4000);
+          return;
+        }
+        clearTimeout(restartArm);
+        stopTimer();
+        rec.draft = {};
+        rec.elapsed = 0;
+        saveStore(store);
+        openSheet(sheet, col, back, { autostart: true });
+        return;
+      }
+      running = true;
+      last = Date.now();
+      paper.classList.remove('ws-locked');
+      cover.classList.add('ws-cover-out');
+      setTimeout(() => cover.remove(), 450);
+      saveStore(store);
+    });
     paper.addEventListener('input', (ev) => {
       const inp = ev.target.closest('.ws-in');
       if (!inp) return;
@@ -1322,6 +1377,26 @@ function injectStyles() {
     .ws-ink { color: var(--ink); font-weight: 700; }
     .ws-red { color: var(--red); }
 
+    /* Tấm che phần đề trước khi bấm Bắt đầu: che kín, thẻ nút đứng giữa khoảng nhìn thấy. */
+    .ws-body { position: relative; }
+    .ws-locked .ws-body { max-height: max(26rem, 62vh); overflow: hidden; }
+    .ws-desk:has(.ws-locked) .ws-prog-row { opacity: 0.35; pointer-events: none; }
+    .ws-cover { position: absolute; inset: -0.5rem -0.5rem 0; z-index: 5; display: flex; justify-content: center; align-items: flex-start; padding-top: clamp(0.6rem, 4vh, 4rem);
+      background: #fff repeating-linear-gradient(to bottom, transparent 0 2.2rem, #e0e7ff 2.2rem calc(2.2rem + 1px)); transition: opacity 0.4s; }
+    .ws-cover-out { opacity: 0; pointer-events: none; }
+    .ws-cover-card { width: min(34rem, 100%); box-sizing: border-box; text-align: center; background: #fffdf7; border: 2px solid #1f2937; border-radius: 1.2rem; padding: 1.6rem 1.4rem 1.8rem; box-shadow: 0 10px 0 #e5e7eb, 0 18px 30px rgba(0,0,0,0.12); }
+    .ws-cover-icon { font-size: clamp(3rem, 9vh, 4.5rem); line-height: 1; }
+    .ws-cover-title { margin: 0.6rem 0 0.3rem; font-size: 1.35em; font-weight: 800; }
+    .ws-cover-sub { margin: 0 0 1.2rem; color: #475569; }
+    .ws-cover-sub b { color: var(--ink); }
+    .ws-cover-btns { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; }
+    .ws-start { flex: 1 1 auto; white-space: nowrap; border: none; border-radius: 999px; padding: 0.9rem 1.3rem; font: inherit; font-size: 1.15em; font-weight: 800; color: #fff; background: #16a34a; box-shadow: 0 6px 0 #15803d; cursor: pointer; animation: wsPulse 1.8s ease-in-out infinite; }
+    @keyframes wsPulse { 50% { transform: scale(1.04); } }
+    @media (prefers-reduced-motion: reduce) { .ws-start { animation-duration: 3s; } }
+    .ws-start:active { transform: translateY(4px); box-shadow: 0 2px 0 #15803d; }
+    .ws-start-alt { background: #fff; color: #7c2d12; box-shadow: 0 6px 0 #d6d3d1; border: 2px solid #d6d3d1; animation: none; }
+    .ws-start-alt:active { box-shadow: 0 2px 0 #d6d3d1; }
+    .ws-start-alt.ws-armed { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
     .ws-mark-row { display: grid; grid-template-columns: minmax(7rem, 22%) 1fr; margin: 1rem 0 0.5rem; border: 2px solid #1f2937; }
     .ws-scorebox { border-right: 2px solid #1f2937; display: flex; flex-direction: column; }
     .ws-box-label { font-weight: 800; font-size: 0.95em; padding: 0.3rem 0.7rem; }
