@@ -769,7 +769,7 @@ export function render(app, onBack, opts = {}) {
       if (e.q.type !== 'word') return;
       const a = answers[qid];
       const box = paper.querySelector(`.ws-q[data-q="${qid}"]`);
-      const next = box.querySelector(`.ws-panel-${a.step} .ws-next`);
+      const next = box.querySelector('.ws-next');
       if (next) next.disabled = !stepReady(a, a.step);
     }
 
@@ -784,7 +784,7 @@ export function render(app, onBack, opts = {}) {
 
       // Chạm vào dòng trên tờ bài giải: mở bước của dòng đó; chưa tới bước thì nhắc làm bước đang dở.
       const line = t.closest('.ws-l1, .ws-l2, .ws-l3');
-      if (line && !t.closest('.ws-tile, .ws-in')) {
+      if (line && !t.closest('.ws-tile, .ws-in, .ws-next')) {
         const want = line.classList.contains('ws-l1') ? 2 : line.classList.contains('ws-l2') ? 3 : 4;
         if (want === a.step) return;
         if (want <= (a.max || 1)) { a.step = want; persist(); rerenderWord(qid); return; }
@@ -792,7 +792,7 @@ export function render(app, onBack, opts = {}) {
         if (!panel) return;
         const hint = panel.querySelector('.ws-hint');
         if (hint && !hint.classList.contains('ws-hint-ok')) { hint.style.visibility = 'visible'; hint.textContent = 'Con chọn phép tính ở đây trước đã!'; }
-        const nudge = panel.querySelector(a.step === 1 ? '.ws-keys' : '.ws-next') || panel;
+        const nudge = (a.step === 1 ? panel.querySelector('.ws-keys') : box.querySelector('.ws-next')) || panel;
         nudge.classList.remove('ws-shake'); void nudge.offsetWidth; nudge.classList.add('ws-shake');
         return;
       }
@@ -1114,6 +1114,9 @@ export function render(app, onBack, opts = {}) {
     const sentenceRight = q.sentence.join(' ');
     const lineMark = (k, fixText2) => (g ? (g.items[k] ? '<span class="ws-tick">✓</span>' : `<span class="ws-cross">✗</span><div class="ws-fixline">${fixText2}</div>`) : '');
     const ready = (s) => stepReady(a, s);
+    // Nút sang bước sau nằm ngay cuối dòng đang viết.
+    const NEXT_LABELS = { 2: 'Tiếp: viết phép tính', 3: 'Tiếp: viết đáp số', 4: 'Xong bài giải' };
+    const nextBtn = (k) => (g || step !== k ? '' : `<button type="button" class="ws-next${k === 4 ? ' ws-next-done' : ''}"${ready(k) ? '' : ' disabled'} aria-label="${NEXT_LABELS[k]}" title="${NEXT_LABELS[k]}">${k === 4 ? '✓' : '➜'}</button>`);
 
     const panels = g ? '' : `
       <div class="ws-panels">
@@ -1127,17 +1130,14 @@ export function render(app, onBack, opts = {}) {
         <div class="ws-panel ws-panel-2${step === 2 ? ' ws-on' : ''}">
           <div class="ws-ask">Chạm các mảnh để ghép thành câu lời giải:</div>
           <div class="ws-pool">${e.pool.map((p, t) => `<button type="button" class="ws-tile" data-t="${t}" data-where="pool"${a.tiles.includes(t) ? ' style="visibility:hidden"' : ''}>${p}</button>`).join('')}</div>
-          <button type="button" class="ws-next"${ready(2) ? '' : ' disabled'}>Tiếp: viết phép tính ➜</button>
         </div>
         <div class="ws-panel ws-panel-3${step === 3 ? ' ws-on' : ''}">
           <div class="ws-ask">Chạm từng ô trên dòng phép tính, gõ số và dấu bằng bàn phím. Rồi chọn đơn vị:</div>
           <div class="ws-keys ws-units">${e.unitPool.map(u => `<button type="button" class="ws-key ws-unitk${a.unit === u ? ' ws-key-on' : ''}" data-u="${u}">${u}</button>`).join('')}</div>
-          <button type="button" class="ws-next"${ready(3) ? '' : ' disabled'}>Tiếp: viết đáp số ➜</button>
         </div>
         <div class="ws-panel ws-panel-4${step === 4 ? ' ws-on' : ''}">
           <div class="ws-ask">Gõ số vào dòng Đáp số rồi chọn đơn vị:</div>
           <div class="ws-keys ws-units">${e.unitPool.map(u => `<button type="button" class="ws-key ws-unitk${a.ansUnit === u ? ' ws-key-on' : ''}" data-u="${u}">${u}</button>`).join('')}</div>
-          <button type="button" class="ws-next"${ready(4) ? '' : ' disabled'}>Xong bài giải ✓</button>
         </div>
         <div class="ws-panel ws-panel-5${step === 5 ? ' ws-on' : ''}">
           <div class="ws-done">✓ Con đã viết xong bài giải.</div>
@@ -1154,18 +1154,18 @@ export function render(app, onBack, opts = {}) {
         <div class="ws-solve">
           <div class="ws-oly">
             <div class="ws-line ws-l0">Bài giải</div>
-            <div class="ws-line ws-l1${lineCls(2)}">${placed || (g ? '' : '<span class="ws-ph">(câu lời giải)</span>')}${lineMark('line1', sentenceRight)}</div>
+            <div class="ws-line ws-l1${lineCls(2)}">${placed || (g ? '' : '<span class="ws-ph">(câu lời giải)</span>')}${lineMark('line1', sentenceRight)}${nextBtn(2)}</div>
             <div class="ws-line ws-l2${lineCls(3)}">
               ${field('a', a.a, 'ws-in-n')}
               ${g ? field('op', a.op, 'ws-in-op') : `<input class="ws-in ws-in-op" data-k="${id}|op" value="${escapeHtml(a.op)}" maxlength="1" inputmode="numeric" placeholder="?" autocomplete="off" aria-label="Dấu phép tính">`}
               ${field('b', a.b, 'ws-in-n')}<span>=</span>${field('r', a.r, 'ws-in-n')}
               <span class="ws-keep">(<span class="ws-slot ws-unitbox${a.unit ? '' : ' ws-empty'}">${a.unit || 'đơn vị'}</span>)</span>
-              ${lineMark('line2', `${x.a} ${x.op} ${x.b} = ${x.result} (${x.unit})`)}
+              ${lineMark('line2', `${x.a} ${x.op} ${x.b} = ${x.result} (${x.unit})`)}${nextBtn(3)}
             </div>
             <div class="ws-line ws-l3${lineCls(4)}">
               <span class="ws-u">Đáp số:</span>${field('ans', a.ans, 'ws-in-n')}
               <span class="ws-keep"><span class="ws-slot ws-ansunitbox${a.ansUnit ? '' : ' ws-empty'}">${a.ansUnit || 'đơn vị'}</span>.</span>
-              ${lineMark('line3', `Đáp số: ${x.result} ${x.unit}.`)}
+              ${lineMark('line3', `Đáp số: ${x.result} ${x.unit}.`)}${nextBtn(4)}
             </div>
           </div>
           ${panels}
@@ -1690,6 +1690,8 @@ function injectStyles() {
     .ws-panels { display: grid; background: #f5f3ff; border-radius: 0.8rem; padding: 0.9rem; }
     .ws-panel { grid-area: 1 / 1; visibility: hidden; display: flex; flex-direction: column; gap: 0.55rem; }
     .ws-panel.ws-on { visibility: visible; }
+    /* Màn hẹp: bảng nằm dưới tờ bài giải nên co theo nội dung bước đang làm, không giữ chỗ trống của bảng cao nhất. */
+    @container (max-width: 760px) { .ws-panel { display: none; } .ws-panel.ws-on { display: flex; } }
     .ws-guide { background: #fff; border-radius: 0.6rem; padding: 0.4rem 0.7rem; font-size: 0.95em; }
     .ws-ask { font-weight: 800; color: #5b21b6; font-size: 0.95em; }
     .ws-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
@@ -1705,7 +1707,11 @@ function injectStyles() {
     .ws-hint { visibility: hidden; background: #fef9c3; color: #713f12; border-radius: 0.6rem; padding: 0.4rem 0.7rem; font-size: 0.9em; font-weight: 600; min-height: 2.6em; }
     .ws-hint.ws-hint-ok { visibility: visible; background: #dcfce7; color: #166534; }
     .ws-pool { display: flex; flex-wrap: wrap; gap: 0.6rem; align-content: flex-start; flex: 1; }
-    .ws-next { margin-top: auto; align-self: flex-end; border: none; background: #8b5cf6; color: #fff; font: inherit; font-weight: 800; padding: 0.6rem 1.2rem; border-radius: 999px; cursor: pointer; box-shadow: 0 4px 0 #6d28d9; }
+    /* Nút ➜ cuối dòng: chỗ bên phải luôn để sẵn ở mọi dòng, đổi bước không làm dòng nhảy. */
+    .ws-paper:not(.ws-graded) .ws-word .ws-l1, .ws-paper:not(.ws-graded) .ws-word .ws-l2, .ws-paper:not(.ws-graded) .ws-word .ws-l3 { position: relative; padding-right: 2.9rem; }
+    .ws-next { position: absolute; right: 0; top: 0; bottom: 0; margin: auto 0; width: 2.5rem; height: 2.5rem; border: none; background: #8b5cf6; color: #fff; font: inherit; font-weight: 800; font-size: 1.2rem; line-height: 1; padding: 0; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 0 #6d28d9; }
+    .ws-next:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #6d28d9; }
+    .ws-next-done { background: #22c55e; box-shadow: 0 4px 0 #16a34a; }
     .ws-next:disabled { background: #cbd5e1; box-shadow: 0 4px 0 #94a3b8; cursor: default; }
     .ws-done { font-weight: 800; color: #166534; background: #dcfce7; border-radius: 0.6rem; padding: 0.6rem 0.8rem; }
 
