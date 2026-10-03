@@ -3,6 +3,8 @@
  * Đề ngắn + sơ đồ vẽ đúng tỉ lệ như trong sách. Em chọn phép tính (nút to), gõ kết quả, rồi xem sơ đồ kiểm chứng:
  *   gấp: đoạn của bạn thứ nhất bay sang lấp từng phần của đoạn thứ hai; gấp mấy lần: đoạn ngắn bay đặt lên đoạn dài
  *   từng lần, đếm 1, 2, 3…; giảm / một phần mấy: phần cần tìm sáng lên; hơn / kém: phần thêm, phần bớt sáng lên.
+ * Lớp 2 (grade2Drills.js) dùng lại với các dạng thêm, bớt, hơn kém nhau bao nhiêu và opt.g2: bẫy là phép cộng / trừ
+ * ngược (lớp 2 chưa học gấp, giảm), opt.big: số trong phạm vi 100 có nhớ.
  */
 
 import { mountDrill, shake, setActive, fresh, flyOne, sfx, sleep, how, TEACHER, INK } from './kit.js';
@@ -15,10 +17,26 @@ const THINGS = [
 const FRAC = (t) => `<span class="g3s-frac"><i>1</i><i>${t}</i></span>`;
 const COL = { a: '#60A5FA', b: '#F472B6', x: '#FACC15' };
 
-function makeProblem(rng, kind) {
+/** Phép cộng a + b có nhớ (hàng đơn vị). */
+const carryAdd = (a, b) => (a % 10) + (b % 10) >= 10;
+
+export function makeProblem(rng, kind, { g2 = false, big = false } = {}) {
   const [A, B] = rng.shuffle(NAMES).slice(0, 2);
   const th = rng.pick(THINGS);
-  const base = { kind, A, B, ...th };
+  const base = { kind, A, B, g2, ...th };
+  if (g2) {
+    // Lớp 2: một phép cộng hoặc trừ. Số nhỏ: qua 10 trong phạm vi 20; big: có nhớ trong phạm vi 100.
+    const pair = () => {
+      for (;;) {
+        const n = big ? rng.int(25, 79) : rng.int(5, 12), t = big ? rng.int(6, 29) : rng.int(3, 9);
+        if (big ? carryAdd(n, t) && n + t < 100 : n + t > 10 && n + t <= 20) return [n, t];
+      }
+    };
+    const [n, t] = pair();
+    if (kind === 'them' || kind === 'hon') return { ...base, n, t, ans: n + t };
+    if (kind === 'bot' || kind === 'kem') return { ...base, N: n + t, t, ans: n };
+    return { ...base, kind: 'hk', N: n + t, n, t, ans: t };
+  }
   if (kind === 'gap') { const n = rng.int(2, 9), t = rng.int(2, 5); return { ...base, n, t, ans: n * t }; }
   if (kind === 'giam') { const v = rng.int(2, 9), t = rng.int(2, 5); return { ...base, N: v * t, t, ans: v }; }
   if (kind === 'lan') { const n = rng.int(2, 9), t = rng.int(2, 6); return { ...base, N: n * t, n, ans: t }; }
@@ -56,16 +74,34 @@ function textOf(p) {
       rule: `Muốn tìm một phần ${p.t} của ${p.N}, ta lấy ${p.N} chia cho ${p.t}.`,
       label: `${A} cho ${B} số ${u} là`, unit: s,
     };
+    case 'them': return {
+      story: `${A} có <b>${p.n}</b> ${u}. ${B} cho ${A} <b>thêm ${p.t}</b> ${u}. Hỏi ${A} có tất cả bao nhiêu ${u}?`,
+      opts: [[`${p.n} + ${p.t}`, true], [`${p.n} − ${p.t}`, false]],
+      rule: `Được cho thêm thì nhiều lên: lấy ${p.n} cộng ${p.t}.`,
+      label: `${A} có tất cả số ${u} là`, unit: s,
+    };
+    case 'bot': return {
+      story: `${A} có <b>${p.N}</b> ${u}. ${A} cho ${B} <b>${p.t}</b> ${u}. Hỏi ${A} <b>còn lại</b> bao nhiêu ${u}?`,
+      opts: [[`${p.N} − ${p.t}`, true], [`${p.N} + ${p.t}`, false]],
+      rule: `Cho bạn bớt đi thì ít đi: lấy ${p.N} trừ ${p.t}.`,
+      label: `${A} còn lại số ${u} là`, unit: s,
+    };
+    case 'hk': return {
+      story: `${A} có <b>${p.N}</b> ${u}, ${B} có <b>${p.n}</b> ${u}. Hỏi ${A} có <b>nhiều hơn</b> ${B} bao nhiêu ${u}?`,
+      opts: [[`${p.N} − ${p.n}`, true], [`${p.N} + ${p.n}`, false]],
+      rule: `Muốn biết nhiều hơn bao nhiêu, lấy số lớn trừ số bé: ${p.N} − ${p.n}.`,
+      label: `${A} có nhiều hơn ${B} số ${u} là`, unit: s,
+    };
     case 'hon': return {
       story: `${A} có <b>${p.n}</b> ${u}. ${B} có <b>nhiều hơn</b> ${A} <b>${p.t}</b> ${u}. Hỏi ${B} có bao nhiêu ${u}?`,
-      opts: [[`${p.n} + ${p.t}`, true], [`${p.n} × ${p.t}`, false]],
-      rule: `Nhiều hơn ${p.t} là cộng thêm ${p.t}. Gấp lên mấy lần mới là nhân.`,
+      opts: [[`${p.n} + ${p.t}`, true], [p.g2 ? `${p.n} − ${p.t}` : `${p.n} × ${p.t}`, false]],
+      rule: p.g2 ? `Nhiều hơn ${p.t} là cộng thêm ${p.t}: ${p.n} + ${p.t}.` : `Nhiều hơn ${p.t} là cộng thêm ${p.t}. Gấp lên mấy lần mới là nhân.`,
       label: `Số ${u} của ${B} là`, unit: s,
     };
     default: return {
       story: `${A} có <b>${p.N}</b> ${u}. ${B} có <b>ít hơn</b> ${A} <b>${p.t}</b> ${u}. Hỏi ${B} có bao nhiêu ${u}?`,
-      opts: [[`${p.N} − ${p.t}`, true], [`${p.N} : ${p.t}`, false]],
-      rule: `Ít hơn ${p.t} là trừ đi ${p.t}. Giảm đi mấy lần mới là chia.`,
+      opts: [[`${p.N} − ${p.t}`, true], [p.g2 ? `${p.N} + ${p.t}` : `${p.N} : ${p.t}`, false]],
+      rule: p.g2 ? `Ít hơn ${p.t} là bớt đi ${p.t}: ${p.N} − ${p.t}.` : `Ít hơn ${p.t} là trừ đi ${p.t}. Giảm đi mấy lần mới là chia.`,
       label: `Số ${u} của ${B} là`, unit: s,
     };
   }
@@ -88,6 +124,13 @@ function diagram(p) {
     { name: p.B, parts: [{ v: p.n, c: COL.b, id: 'src' }], top: [[0, 1, p.n]] });
   else if (p.kind === 'phan') rows.push(
     { name: p.A, parts: Array.from({ length: p.t }, (_, i) => ({ v: p.ans, c: i ? COL.a : COL.b, id: i ? '' : 'ans' })), top: [[0, p.t, p.N]], brace: [0, 1] });
+  else if (p.kind === 'them') rows.push(
+    { name: p.A, parts: [{ v: p.n, c: COL.a }, { v: p.t, c: COL.x, id: 'extra' }], top: [[0, 1, p.n], [1, 2, `+${p.t}`]], brace: [0, 2] });
+  else if (p.kind === 'bot') rows.push(
+    { name: p.A, parts: [{ v: p.ans, c: COL.a, id: 'ans' }, { v: p.t, c: '#fff', ghost: true, id: 'extra', label: `−${p.t}` }], top: [[0, 2, p.N]], brace: [0, 1] });
+  else if (p.kind === 'hk') rows.push(
+    { name: p.A, parts: [{ v: p.N, c: COL.a }], top: [[0, 1, p.N]] },
+    { name: p.B, parts: [{ v: p.n, c: COL.b }, { v: p.t, c: '#fff', ghost: true, id: 'extra' }], top: [[0, 1, p.n]], brace: [1, 2] });
   else if (p.kind === 'hon') rows.push(
     { name: p.A, parts: [{ v: p.n, c: COL.a }], top: [[0, 1, p.n]] },
     { name: p.B, parts: [{ v: p.n, c: COL.b }, { v: p.t, c: COL.x, id: 'extra' }], top: [[1, 2, p.t]], brace: [0, 2] });
@@ -105,6 +148,7 @@ function diagram(p) {
     svg += `<text x="${X0 - 24}" y="${y + 12}" text-anchor="end" class="g3s-name">${r.name}</text>`;
     r.parts.forEach((pt, i) => {
       svg += `<rect x="${xs[i]}" y="${y - 14}" width="${xs[i + 1] - xs[i]}" height="28" fill="${pt.c}" ${pt.ghost ? 'stroke-dasharray="8 6" ' : ''}stroke="${INK}" stroke-width="4" ${pt.dim ? 'fill-opacity="0.25" ' : ''}${pt.id ? `data-part="${pt.id}"` : ''}/>`;
+      if (pt.label) svg += `<text x="${(xs[i] + xs[i + 1]) / 2}" y="${y + 58}" text-anchor="middle" class="g3s-val">${pt.label}</text>`;
     });
     for (const [a, b, text] of r.top || []) {
       const mx = (xs[a] + xs[b]) / 2;
@@ -224,7 +268,7 @@ export const SEGMENT_GAME = {
           } }) + 80);
         }
       } else {
-        const hot = part(p.kind === 'hon' || p.kind === 'kem' ? 'extra' : 'ans');
+        const hot = part(['hon', 'kem', 'them', 'bot', 'hk'].includes(p.kind) ? 'extra' : 'ans');
         hot?.classList.add('g3s-hot');
         sfx.ding();
         await sleep(900);

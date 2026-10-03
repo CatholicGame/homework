@@ -66,7 +66,7 @@ function mentalFact(rng, U, op) {
   return { id: `m:${x}${op}${y}`, parts: [x, op, y, '=', null], ans: r, say: `${x} ${OPW[op]} ${y} bằng ${r}.`, tip };
 }
 
-function makeMental(units, ops) {
+export function makeMental(units, ops) {
   return (rng, history) => {
     const used = new Set(history.flatMap(h => h?.facts?.map(f => f.id) || []));
     const weak = loadWeak();
@@ -160,7 +160,8 @@ function mountFacts(stage, m, level, api) {
   next();
 }
 
-const gameOf = (meta, levels) => ({
+/** Một công cụ "4 dòng phép tính" (dùng lại ở Luyện Tính lớp 2: grade2Drills/facts.js). level.gen(rng, history) → { facts }. */
+export const factsGame = (meta, levels) => ({
   ...meta, unitWord: 'lượt', starPrefix: 'drill', npcs: [TEACHER], levels,
   stallIcon: () => meta.icon,
   summaryText: (ok, total) => `Em làm đúng cả 4 phép ở <strong>${ok}/${total}</strong> lượt.`,
@@ -169,13 +170,13 @@ const gameOf = (meta, levels) => ({
   mountMission: mountFacts,
 });
 
-export const TABLES_GAME = gameOf({
+export const TABLES_GAME = factsGame({
   id: 'drill-tab', icon: '🔢', title: 'Bảng nhân, bảng chia',
   purpose: 'Giúp em thuộc bảng nhân, bảng chia 2 đến 9. Phép nào em hay sai sẽ được ra lại nhiều hơn cho tới khi em thuộc.',
   howTo: how(['👀', 'Đọc phép tính'], ['⌨️', 'Gõ kết quả'], ['✅', 'Đúng cả 4 phép']),
 }, TABLE_LEVELS);
 
-export const MENTAL_GAME = gameOf({
+export const MENTAL_GAME = factsGame({
   id: 'drill-men', icon: '🧠', title: 'Tính nhẩm số tròn',
   purpose: 'Giúp em tính nhẩm với số tròn chục, tròn trăm, tròn nghìn như cách học ở lớp: đổi ra chục, trăm, nghìn rồi tính với số nhỏ.',
   howTo: how(['🔟', 'Đổi ra chục, trăm, nghìn'], ['🧠', 'Nhẩm số nhỏ'], ['⌨️', 'Gõ kết quả']),

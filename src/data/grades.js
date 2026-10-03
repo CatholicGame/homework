@@ -23,6 +23,7 @@ export const GRADES = [
     games: [
       { id: 'grade2-workbook', icon: '📒', color: '#0EA5E9', title: 'Vở Bài Tập Toán 2 — Tập Một', desc: 'Bài 1–36' },
       { id: 'grade2-workbook-2', icon: '📙', color: '#F59E0B', title: 'Vở Bài Tập Toán 2 — Tập Hai', desc: 'Bài 37–75' },
+      { id: 'grade2-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Làm tròn 10, bảng cộng trừ, đặt tính, bảng nhân chia 2 và 5, tính nhẩm, bài toán có lời văn' },
     ],
   },
   {
