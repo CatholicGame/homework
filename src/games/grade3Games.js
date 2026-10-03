@@ -94,7 +94,12 @@ function knowledgeChips(text) {
  * focus = unitFocus(book, unit) (lớp 3 Bài 4 → { tables: [2, 5] }; lớp 2: grade2Games/catalog.js unitFocus). Vào từ nút "Trò chơi tăng cường" / "Chọn cấp khác" thì đủ mọi bảng.
  * stallLessons: thẻ chọn quầy ghi thêm bài học của quầy ("📚 Bài 39, 40") — lớp 2 (mỗi quầy ít cấp, dòng ngắn).
  */
-export function renderGamesHub(app, ctx, start = null, { games: GAMES = GRADE3_LIST, kicker = '🎮 Toán 3', stallLessons = false, unitFocus = tablesForUnit } = {}) {
+// title / icon / lead / levelLead: chữ của hub — thẻ Luyện Tính (grade3Drills.js) dùng lại hub với chữ riêng.
+export function renderGamesHub(app, ctx, start = null, {
+  games: GAMES = GRADE3_LIST, kicker = '🎮 Toán 3', stallLessons = false, unitFocus = tablesForUnit,
+  title: hubTitle = 'Trò chơi tăng cường', icon: hubIcon = '🎮',
+  lead = 'Mỗi lần chơi là một lượt mới: số mới, khách mới!', levelLead = 'Chọn cấp. Cấp nào cũng chơi được!',
+} = {}) {
   injectGameStyles();
   preloadNpcs();
   const found = start && GAMES.map(g => ({ g, s: g.stalls.find(s => s.game?.id === start.stall) })).find(x => x.s);
@@ -134,8 +139,8 @@ export function renderGamesHub(app, ctx, start = null, { games: GAMES = GRADE3_L
 
   function showGames() {
     shell(`
-      ${topbar('Trò chơi tăng cường', { kicker, stars: true })}
-      <p class="g3g-lead">Mỗi lần chơi là một lượt mới: số mới, khách mới!</p>
+      ${topbar(hubTitle, { kicker, stars: true })}
+      <p class="g3g-lead">${lead}</p>
       <div class="g3g-list">
         ${GAMES.map(g => `
           <button type="button" class="g3g-tile" data-game="${g.id}">
@@ -169,9 +174,9 @@ export function renderGamesHub(app, ctx, start = null, { games: GAMES = GRADE3_L
   function showLevels(g, game) {
     fromLesson = false;
     shell(`
-      ${topbar(`${game.icon} ${game.title}`, { kicker: g.single ? '🎮 Trò chơi tăng cường' : `${g.icon} ${g.title}` })}
+      ${topbar(`${game.icon} ${game.title}`, { kicker: g.single ? `${hubIcon} ${hubTitle}` : `${g.icon} ${g.title}` })}
       ${game.purpose ? `<p class="g3g-purpose">🎯 ${game.purpose}</p>` : ''}
-      <p class="g3g-lead">Chọn cấp. Cấp nào cũng chơi được!</p>
+      <p class="g3g-lead">${levelLead}</p>
       <div class="g3g-list">
         ${game.levels.map(lv => {
           const best = bestFor(lv.id);

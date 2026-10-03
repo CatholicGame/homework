@@ -250,7 +250,7 @@ export function playRound(app, { game, level, onExit, onNextLevel, onQuit = null
           <p class="g3g-summary-best">${newBest ? '🏆 Kỷ lục mới! ' : ''}Kỷ lục của em: ${best.ok}/${best.total}</p>
           ${fails > total / 2 ? `<p class="g3g-tip">💡 Em có thể thử cấp dễ hơn hoặc xem lại bài học rồi chơi tiếp.</p>` : ''}
           <div class="g3g-actions">
-            <button type="button" class="g3g-btn g3g-btn-primary" data-act="again">🔁 Chơi lại (khách mới)</button>
+            <button type="button" class="g3g-btn g3g-btn-primary" data-act="again">🔁 ${game.againText || 'Chơi lại (khách mới)'}</button>
             ${onNextLevel ? `<button type="button" class="g3g-btn g3g-btn-secondary" data-act="up">⬆️ Cấp tiếp theo</button>` : ''}
             <button type="button" class="g3g-btn g3g-btn-ghost" data-act="list">← Chọn cấp khác</button>
           </div>

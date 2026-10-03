@@ -163,7 +163,7 @@ function relationInfo(numbers) {
 function fixText(type, n) {
   const first = (v) => String(v).split('|')[0];
   if (type === 'calc') return n.rem ? `${n.ans[0]} dư ${n.ans[1]}` : `${n.ans[0]}${n.unit ? ` ${n.unit}` : ''}`;
-  if (type === 'findx') return `${n.v} = ${n.ans[0]}`;
+  if (type === 'findx') return n.inv ? `${n.v} = ${n.inv.join(' ')}, ${n.v} = ${n.ans[0]}` : `${n.v} = ${n.ans[0]}`;
   return n.ans.map(first).join(', ');
 }
 
@@ -948,7 +948,7 @@ export function render(app, onBack, opts = {}) {
     const stripLetter = (t) => String(t).replace(/^\s*[a-h][).]\s*/, '');
 
     if (FILL_TYPES.has(q.type)) {
-      const maxLen = Math.max(...e.norm.map(nm => plain(nm.t).length + holes(nm.t) * 3 + (q.type === 'calc' ? 4 + (nm.unit ? 3 : 0) : 0)));
+      const maxLen = Math.max(...e.norm.map(nm => plain(nm.t).length + holes(nm.t) * 3 + (q.type === 'calc' ? 4 + (nm.unit ? 3 : 0) : 0) + (nm.inv ? 6 : 0)));
       // Ý dài: tối đa 2 cột (điện thoại 1 cột), rất dài: mỗi ý một dòng.
       const cls = q.col ? 'ws-items ws-items-col' : maxLen > 26 ? 'ws-items ws-items-1' : maxLen > 14 ? 'ws-items ws-items-2' : `ws-items ws-items-${Math.min(4, e.norm.length)}`;
       const showLetters = q.type !== 'fill' || e.norm.every(nm => plain(nm.t).length <= 30);
@@ -961,6 +961,12 @@ export function render(app, onBack, opts = {}) {
             if (q.type === 'calc' && q.col && columnParts(t)) body = columnHtml(columnParts(t), nm, (j, cls2) => field(`${i}|${j}`, v[j], cls2, nm.ans[j]));
             else if (q.type === 'calc') {
               body = `<span>${rich(t)} =</span>${field(`${i}|0`, v[0], '', nm.ans[0])}${nm.rem ? `<span>dư</span>${field(`${i}|1`, v[1])}` : ''}${nm.unit ? `<span>${nm.unit}</span>` : ''}`;
+            } else if (q.type === 'findx' && nm.inv) {
+              // Như vở: đề, (tính vế phải), x = số dấu số, x = kết quả.
+              const f = (j) => field(`${i}|${j}`, v[j] ?? '');
+              body = `<span class="ws-fx"><span>${rich(t)}</span>${nm.pre ? `<span class="ws-fx-ans">${rich(nm.lhs)} = ${f(4)}</span>` : ''}`
+                + `<span class="ws-fx-ans">${nm.v} = ${f(1)}${signBox(`${i}|2`, v[2] ?? '', OPS)}${f(3)}</span>`
+                + `<span class="ws-fx-ans">${nm.v} = ${f(0)}</span></span>`;
             } else if (q.type === 'findx') {
               body = `<span class="ws-fx"><span>${rich(t)}</span><span class="ws-fx-ans">${nm.v} = ${field(`${i}|0`, v[0])}</span></span>`;
             } else if (q.type === 'compare') {
@@ -1707,7 +1713,7 @@ function injectStyles() {
     @keyframes wsShake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     .ws-hint { visibility: hidden; background: #fef9c3; color: #713f12; border-radius: 0.6rem; padding: 0.4rem 0.7rem; font-size: 0.9em; font-weight: 600; min-height: 2.6em; }
     .ws-hint.ws-hint-ok { visibility: visible; background: #dcfce7; color: #166534; }
-    .ws-pool { display: flex; flex-wrap: wrap; gap: 0.6rem; align-content: flex-start; flex: 1; }
+    .ws-pool { display: flex; flex-wrap: wrap; gap: 0.6rem; align-content: flex-start; }
     /* Nút ➜ cuối dòng: chỗ bên phải luôn để sẵn ở mọi dòng, đổi bước không làm dòng nhảy. */
     .ws-paper:not(.ws-graded) .ws-word .ws-l1, .ws-paper:not(.ws-graded) .ws-word .ws-l2, .ws-paper:not(.ws-graded) .ws-word .ws-l3 { position: relative; padding-right: 2.9rem; }
     .ws-next { position: absolute; right: 0; top: 0; bottom: 0; margin: auto 0; width: 2.5rem; height: 2.5rem; border: none; background: #8b5cf6; color: #fff; font: inherit; font-weight: 800; font-size: 1.2rem; line-height: 1; padding: 0; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 0 #6d28d9; }

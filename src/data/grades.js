@@ -33,6 +33,7 @@ export const GRADES = [
       { id: 'grade3-practice', icon: '📘', color: '#3B82F6', title: 'Luyện Tập Toán 3', desc: 'Tập Một — Luyện tập theo tuần' },
       { id: 'grade3-exam', icon: '📝', color: '#F97316', title: 'Ôn Luyện Đề', desc: 'Đề 1 — Ôn luyện tổng hợp khối 3' },
       { id: 'grade3-worksheet', icon: '✏️', color: '#8B5CF6', title: 'Luyện Đề', desc: 'Phiếu bài tập theo bài học, 65 đề ôn tập giữa học kì I' },
+      { id: 'grade3-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Đặt tính cộng trừ nhân chia, bảng nhân chia, tìm thành phần, tính nhẩm, sơ đồ đoạn thẳng' },
     ],
   },
   { num: 4, title: 'Lớp 4', icon: '4️⃣', color: '#C084FC', games: [] },

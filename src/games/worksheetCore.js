@@ -54,6 +54,41 @@ export function columnParts(t) {
   return { a: m[1], op, b: m[3] };
 }
 
+const OP_N = { '-': '−', '÷': ':', '*': '×', 'x': '×' };
+/**
+ * Các dòng biến đổi của "x × 4 = 32" như vở: x = 32 : 4, x = 8.
+ * Trả { lhs: vế có x, rhs: giá trị vế kia, pre: vế kia là phép tính (phải tính trước), inv: [số, dấu, số], comm }
+ * hoặc null nếu không phải dạng "a dấu x = …" / "x dấu b = …".
+ */
+export function findxSteps(t, v, x) {
+  const [l, r] = String(t).split('=').map(s => s.trim());
+  if (r == null || !l.includes(v)) return null;
+  const m = l.replace(/\s+/g, '').match(new RegExp(`^(?:(\\d+)([+−\\-×÷:*])${v}|${v}([+−\\-×÷:*])(\\d+))$`));
+  if (!m) return null;
+  const c = evalExpr(r);
+  if (!Number.isInteger(c)) return null;
+  const pre = !/^\d+$/.test(r.replace(/\s+/g, ''));
+  const left = m[1] != null;
+  const n = +(left ? m[1] : m[4]);
+  const op = OP_N[left ? m[2] : m[3]] || (left ? m[2] : m[3]);
+  // Số hạng = tổng − số hạng kia; số bị trừ = hiệu + số trừ; số trừ = số bị trừ − hiệu;
+  // thừa số = tích : thừa số kia; số bị chia = thương × số chia; số chia = số bị chia : thương.
+  const inv = op === '+' ? [c, '−', n]
+    : op === '×' ? [c, ':', n]
+      : op === '−' ? (left ? [n, '−', c] : [c, '+', n])
+        : (left ? [n, ':', c] : [c, '×', n]);
+  if (evalExpr(inv.join(' ')) !== x) return null;
+  return { lhs: l, rhs: c, pre, inv, comm: inv[1] === '+' || inv[1] === '×' };
+}
+
+/** Chấm từng ô của một ý tìm x: dòng giữa nhận cả hai thứ tự khi là phép cộng / nhân. */
+function gradeFindx(vals, n) {
+  const ok = n.ans.map((r, i) => matchSlot(vals[i], r));
+  ok[2] = matchSlot(OP_N[String(vals[2] ?? '').trim()] || vals[2], n.inv[1]);
+  if (n.comm && ok[2] && !(ok[1] && ok[3]) && matchSlot(vals[1], n.inv[2]) && matchSlot(vals[3], n.inv[0])) ok[1] = ok[3] = true;
+  return ok;
+}
+
 /** Các chỗ trống trong một dòng điền: □ (ô vuông) hoặc … (chỗ chấm). */
 export const holes = (t) => (String(t).match(/□|…/g) || []).length;
 export const splitHoles = (t) => String(t).split(/□|…/);
@@ -73,7 +108,11 @@ export function normItem(type, it) {
   if (type === 'fill') return { ...o, ans: given || [solveBox(o.t.replace(/…/g, '□'))] };
   if (type === 'findx') {
     const v = findVar(o.t);
-    return { ...o, v, ans: given || [solveBox(o.t.replace(new RegExp(`(^|[^A-Za-zÀ-ỹ])${v}(?![A-Za-zÀ-ỹ])`), `$1□`))] };
+    const x = given ? given[0] : solveBox(o.t.replace(new RegExp(`(^|[^A-Za-zÀ-ỹ])${v}(?![A-Za-zÀ-ỹ])`), `$1□`));
+    const st = findxSteps(o.t, v, x);
+    if (!st) return { ...o, v, ans: given || [x] };
+    // Ô: [x, số thứ nhất, dấu, số thứ hai] và thêm [vế phải] nếu vế phải là một phép tính.
+    return { ...o, v, ...st, ans: [x, st.inv[0], st.inv[1], st.inv[2], ...(st.pre ? [st.rhs] : [])] };
   }
   if (type === 'compare') return { ...o, ans: given || [compareAnswer(o.t)] };
   return { ...o, ans: given || [] };
@@ -104,7 +143,7 @@ export function normQuestion(q) {
 /** Số ô học sinh phải điền của một ý đã chuẩn hoá. */
 export function itemSlots(type, n) {
   if (type === 'calc') return n.rem ? 2 : 1;
-  if (type === 'findx') return 1;
+  if (type === 'findx') return n.inv ? (n.pre ? 5 : 4) : 1;
   return Math.max(1, holes(n.t));
 }
 
@@ -138,6 +177,7 @@ export function matchSlot(given, right) {
 
 /** Đúng/sai từng ô của một ý: anyOrder thì đối chiếu như một tập hợp. */
 export function gradeSlots(vals, n) {
+  if (n.inv) return gradeFindx(vals, n);
   if (!n.anyOrder) return n.ans.map((r, i) => matchSlot(vals[i], r));
   const left = [...n.ans];
   return vals.map(v => {
