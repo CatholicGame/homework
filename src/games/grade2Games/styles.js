@@ -436,7 +436,7 @@ export function injectClockStyles() {
     .g2c-stage-cal { display: block; container-type: size; }
     .g2c-clock { min-width: 0; min-height: 0; height: 100%; display: flex; justify-content: center; align-items: center; }
     .g2c-clock-svg { width: 100%; height: 100%; display: block; overflow: visible; user-select: none; -webkit-user-select: none; }
-    .g2c-grabbable { touch-action: none; cursor: grab; }
+    .g2c-grabbable { touch-action: none; cursor: grab; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
     .g2c-dragging .g2c-grabbable { cursor: grabbing; }
     .g2c-hand-on line:nth-child(2) { filter: drop-shadow(0 0 4px #FACC15); }
     .g2c-hand-hint line:nth-child(2) { animation: g2cGlow 1.1s ease-in-out 4; }

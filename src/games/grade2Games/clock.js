@@ -296,6 +296,7 @@ function mountClock(host, { T = 0, grab = false }) {
   const tick = () => { const k = Math.round(t / 5); if (k !== lastTick) { lastTick = k; sfx.tap(); } };
   if (grab) {
     svg.classList.add('g2c-grabbable');
+    for (const ev of ['contextmenu', 'selectstart', 'dragstart']) svg.addEventListener(ev, (e) => e.preventDefault());
     svg.addEventListener('pointerdown', (e) => {
       if (locked) return;
       const a = angleAt(e);

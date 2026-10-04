@@ -893,6 +893,8 @@ function mountTime(stage, m, level, api) {
       draw();
     };
     svg.classList.add('g3t-grab');
+    const block = (e) => e.preventDefault();
+    for (const ev of ['contextmenu', 'selectstart', 'dragstart']) el.addEventListener(ev, block);
     svg.addEventListener('pointerdown', down);
     svg.addEventListener('pointermove', move);
     svg.addEventListener('pointerup', up);
@@ -1102,6 +1104,8 @@ function injectTimeStyles() {
     .g3t-clk-face svg { position: absolute; inset: 0; width: 100%; height: 100%; }
     .g3t-clk:not(.g3t-ghosted) [data-ghost] { display: none; }
     .g3t-clk [data-ghost] { opacity: 1; }
+    /* Giữ tay lâu trên điện thoại: không bôi chọn số, không hiện menu chép / lưu ảnh của trình duyệt. */
+    .g3t-clk { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
     .g3t-grab { touch-action: none; cursor: grab; }
     .g3t-grab .g2c-hand-on line:nth-child(2) { filter: drop-shadow(0 0 4px #FACC15); }
     .g3t-clk.g3d-on { background: none; box-shadow: none; animation: none; }
