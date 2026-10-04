@@ -11,6 +11,7 @@ import { COLUMN_GAME } from './grade3Drills/column.js';
 import { TABLES_GAME, MENTAL_GAME } from './grade3Drills/facts.js';
 import { FINDX_GAME } from './grade3Drills/findx.js';
 import { SEGMENT_GAME } from './grade3Drills/segment.js';
+import { TIME_GAME, CAL_GAME } from './grade3Drills/time.js';
 
 const tool = (id, game, desc, tags) => ({ id, icon: game.icon, title: game.title, desc, tags, single: true, stalls: [{ game }] });
 
@@ -21,6 +22,8 @@ export const DRILL_LIST = [
   tool('x', FINDX_GAME, 'Gọi tên số cần tìm, chọn phép tính, tính rồi thử lại.', ['Số hạng', 'Thừa số', 'Số chia']),
   tool('men', MENTAL_GAME, '3 nghìn + 5 nghìn = 8 nghìn: nhẩm nhanh với số tròn.', ['Tròn chục, trăm', 'Tròn nghìn']),
   tool('seg', SEGMENT_GAME, 'Gấp lên, giảm đi, gấp mấy lần, một phần mấy bằng sơ đồ.', ['Gấp, giảm', 'Gấp mấy lần', 'Một phần mấy']),
+  tool('time', TIME_GAME, 'Xem giờ đến từng phút, tính giờ xong, giờ bắt đầu, kéo dài bao lâu.', ['Xem giờ', 'Chỉnh kim', 'Đổi giờ', 'Tính giờ']),
+  tool('cal', CAL_GAME, 'Tháng có mấy ngày, ngày ... là thứ mấy, kéo dài mấy ngày.', ['Xem lịch', 'Thứ trong tuần', 'Đếm ngày']),
 ];
 
 export function render(app, onBack) {

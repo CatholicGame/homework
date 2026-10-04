@@ -29,4 +29,7 @@ const base = mod[p.get('game')];
 const h = +(p.get('h') || 0);
 const game = { ...base, makeMission(rng, level, history) { return base.makeMission.call(this, rng, level, history.length ? history : Array(h).fill({})); } };
 playRound(document.getElementById('app'), { game, level: base.levels[+(p.get('lv') || 0)], onExit() {}, onNextLevel: null });
+// steps: tự giải N bước của Luyện Tính (window.__g3drill.step()), mỗi bước cách nhau `gap` ms — chụp giữa / cuối lượt.
+const nSteps = +(p.get('steps') || 0), gap = +(p.get('gap') || 1800);
+for (let s = 0; s < nSteps; s++) { await new Promise(r => setTimeout(r, s ? gap : 1200)); window.__g3drill?.step(); }
 </script></body></html>

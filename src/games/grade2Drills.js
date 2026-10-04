@@ -12,6 +12,7 @@ import { SEGMENT_GAME, makeProblem } from './grade3Drills/segment.js';
 import { how } from './grade3Drills/kit.js';
 import { TEN_GAME } from './grade2Drills/tenframe.js';
 import { ADD_GAME, TAB_GAME, MEN_GAME } from './grade2Drills/facts.js';
+import { TIME2_GAME, CAL2_GAME } from './grade3Drills/time.js';
 
 // ── ✍️ Đặt tính rồi tính ──────────────────────────────────────────────────────────────────────────────
 const carries = (op, a, b) => columnSteps(op, a, b).filter(s => s.kind === 'carry').length;
@@ -100,6 +101,8 @@ export const DRILL2_LIST = [
   tool('tab', TAB_GAME, 'Thuộc bảng nhân, bảng chia 2 và 5.', ['Bảng nhân 2, 5', 'Bảng chia 2, 5']),
   tool('men', MEN_GAME, '30 + 50: 3 chục cộng 5 chục bằng 8 chục.', ['Tròn chục', 'Tròn trăm', 'Không nhớ']),
   tool('word', WORD_GAME, 'Đọc đề, nhìn sơ đồ, chọn phép cộng hay phép trừ.', ['Thêm, bớt', 'Nhiều hơn, ít hơn', 'Hơn kém']),
+  tool('time', TIME2_GAME, 'Xem giờ, đổi giờ chiều tối, tính giờ bắt đầu, giờ xong.', ['Xem giờ', 'Chỉnh kim', 'Giờ chiều, tối', 'Tính giờ']),
+  tool('cal', CAL2_GAME, 'Ngày ... là thứ mấy, tuần sau, còn mấy ngày nữa.', ['Xem lịch', 'Ngày, thứ', 'Đếm ngày']),
 ];
 
 export function render(app, onBack) {
