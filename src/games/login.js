@@ -34,6 +34,7 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
         <div class="login-logo">🎓</div>
         <h1 class="login-title">Toán Tiểu Học</h1>
         <p class="login-sub">Học toán vui mỗi ngày, từ lớp 1 đến lớp 5</p>
+        <p class="login-perk">☁️ Lưu tiến trình, học tiếp trên mọi thiết bị</p>
 
         <button type="button" class="login-google-btn" id="login-google" disabled>
           <svg class="login-google-icon" viewBox="0 0 48 48" aria-hidden="true">

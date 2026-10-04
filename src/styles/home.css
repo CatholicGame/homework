@@ -431,7 +431,21 @@
 .login-sub {
   color: var(--text-light);
   font-weight: 500;
-  margin-bottom: 28px;
+  margin-bottom: 14px;
+}
+
+.login-perk {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #e8f0fe;
+  border: 1.5px solid #4285f4;
+  color: #1a56c4;
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
 .login-google-btn {
