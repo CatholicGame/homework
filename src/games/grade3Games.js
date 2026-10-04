@@ -20,6 +20,7 @@ import { DETECTIVE_GAME } from './grade3Games/detective.js';
 import { ROBOT_GAME } from './grade3Games/robot.js';
 import { PIN_GAME } from './grade3Games/pinboard.js';
 import { TRAIN_GAME } from './grade3Games/train.js';
+import { BIRD_GAMES_G3 } from './grade3Games/birds.js';
 import { playRound, bestFor } from './grade3Games/loop.js';
 import { lessonText, stallLessonText, hasDoneAny, lessonUnits, bookName } from './grade3Games/lessons.js';
 import { NPCS, npcPic, cap, preloadNpcs } from './grade3Games/npc.js';
@@ -77,6 +78,16 @@ export const GRADE3_LIST = [
     desc: 'Làm phụ tàu: đếm khách lên, xuống theo nhóm trăm, chục, tìm số người lên, xuống, lúc đầu!',
     tags: ['Cộng, trừ đến 1 000', 'Tìm thành phần'],
     stalls: [{ game: TRAIN_GAME }],
+  },
+  {
+    id: 'birds', icon: '🐦', title: 'Săn chim',
+    desc: 'Làm nhà điểu học nhí: bắt chim chia vào lồng, thi bắn ná!',
+    tags: ['Chia có dư', 'Hai bước tính', 'Biểu thức'],
+    purpose: 'Giúp em thực hành kiến thức về bảng nhân, bảng chia, phép chia có dư, bài toán hai bước tính và giá trị biểu thức đã học trong bài. Em bắt chim chia vào lồng, và bắn ná trúng con chim mang đúng kết quả.',
+    stalls: [
+      { game: BIRD_GAMES_G3[0], tags: 'chia · chia có dư · hai bước' },
+      { game: BIRD_GAMES_G3[1], tags: 'tính nhẩm · biểu thức' },
+    ],
   },
 ];
 

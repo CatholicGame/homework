@@ -15,12 +15,14 @@ export const GRADES = [
       { id: 'pre1-math', icon: '🐰', color: '#EC4899', title: 'Bé Học Vui Toán — Tập 1', desc: 'Đếm và viết số 1–20' },
       { id: 'pre2-math', icon: '🐊', color: '#7C3AED', title: 'Bé Học Vui Toán — Tập 2', desc: 'So sánh: bằng nhau, nhiều hơn – ít hơn, dấu > < =' },
       { id: 'pre4-math', icon: '🧮', color: '#F59E0B', title: 'Bé Tập Làm Toán', desc: '99 đề toán chuẩn bị vào lớp 1: cộng trừ, số đến 100, hình, quy luật, giờ, tiền' },
+      { id: 'pre5-photo', icon: '📷', color: '#0EA5E9', title: 'Bé Chụp Ảnh Chim', desc: 'Chụp ảnh đàn chim rồi chạm đếm: đến 5, 10, 20' },
     ],
   },
   {
     num: 1, title: 'Lớp 1', icon: '1️⃣', color: '#FF6B9D',
     games: [
       { id: 'grade1-workbook', icon: '📒', color: '#FF6B9D', title: 'Vở Bài Tập Toán 1 — Tập Một', desc: 'Bài 1–34' },
+      { id: 'grade1-photo', icon: '📷', color: '#0EA5E9', title: 'Bé Chụp Ảnh Chim', desc: 'Chụp ảnh đàn chim rồi chạm đếm: đến 20, đếm theo chục đến 100' },
     ],
   },
   {
@@ -42,7 +44,12 @@ export const GRADES = [
       { id: 'grade3-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Đặt tính cộng trừ nhân chia, bảng nhân chia, tìm thành phần, tính nhẩm, sơ đồ đoạn thẳng' },
     ],
   },
-  { num: 4, title: 'Lớp 4', icon: '4️⃣', color: '#C084FC', games: [] },
+  {
+    num: 4, title: 'Lớp 4', icon: '4️⃣', color: '#C084FC',
+    games: [
+      { id: 'grade4-tools', icon: '🧰', color: '#8B5CF6', title: 'Toán 4: Học bằng công cụ', desc: 'Tập Một, Bài 1–37: bảng hàng, tia số, thước đo góc, ê ke… em tự tay khám phá rồi thực hành' },
+    ],
+  },
   { num: 5, title: 'Lớp 5', icon: '5️⃣', color: '#FBBF24', games: [] },
 ];
 

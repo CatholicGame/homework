@@ -9,13 +9,14 @@ export function menuBackdrop() {
  * Màn menu to theo màn hình: đặt --z (zoom) trên .g3g-menu — theo chiều rộng, nhưng không để
  * màn thấp phải cuộn quá nhiều. Điện thoại giữ cỡ gốc (1), màn máy tính / iPad ngang to tới 1,8.
  */
-function menuZoom() {
-  const z = Math.min(window.innerWidth / 1000, window.innerHeight / 380, 1.8);
+function menuZoom(max = 1.8) {
+  const z = Math.min(window.innerWidth / 1000, window.innerHeight / 380, max);
   return Math.max(1, Math.round(z * 100) / 100);
 }
 let fitListening = false;
 export function fitMenu(root) {
-  const apply = (el) => el.style.setProperty('--z', menuZoom());
+  // data-zmax trên .g3g-menu: trần zoom riêng (vd. Toán 4 nhiều chữ, 1,8 thì quá khổ).
+  const apply = (el) => el.style.setProperty('--z', menuZoom(+el.dataset.zmax || undefined));
   root.querySelectorAll('.g3g-menu').forEach(apply);
   if (!fitListening) {
     fitListening = true;

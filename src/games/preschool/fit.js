@@ -9,8 +9,9 @@ const MAX_SCALE = 2.2;
 const SIDE = 16; // chừa mép trái / phải (px)
 const GAP = 12; // chừa trên / dưới trong vùng chơi (px)
 
-// Không tính vào khung nội dung: gợi ý nhún nhảy, số đếm gắn ở góc đồ vật (thò ra ngoài hình).
-const SKIP = '.pk-tap-hint, .pk-tap-hint *, .pk-mark';
+// Không tính vào khung nội dung: gợi ý nhún nhảy, số đếm gắn ở góc đồ vật (thò ra ngoài hình),
+// đàn chim đang bay (play5.js: bay ra ngoài mép cảnh).
+const SKIP = '.pk-tap-hint, .pk-tap-hint *, .pk-mark, .pk5-flock, .pk5-flock *';
 
 const landscape = () => innerWidth > innerHeight && innerWidth >= 900;
 

@@ -4,6 +4,7 @@
  * Ảnh minh họa được cắt trực tiếp từ các trang có hình vẽ/sơ đồ không thể diễn tả bằng chữ.
  */
 
+import { isNumberWords, sameReading } from '../engine/numberWords.js';
 import imgBai2Flowchart from '../assets/grade3-workbook/bai2_ex2_flowchart.svg';
 import imgBai2Flowers from '../assets/grade3-workbook/bai2_ex3_flowers.svg';
 import imgBai2Shapes from '../assets/grade3-workbook/bai2_ex4_shapes.svg';
@@ -4942,14 +4943,10 @@ export function renderWorkbook(app, onBack, cfg) {
   function isPlainInt(s) {
     return /^-?\d+$/.test(String(s).trim());
   }
-  // Whether an expected answer is a number read out in words ("hai mươi lăm",
-  // "ba trăm linh tư"): such a blank gets the word-tile keypad (data-vk-words),
-  // so the child builds the reading by tapping "hai", "mươi", "lăm" in order.
-  const NUM_WORDS = new Set(['không', 'một', 'mốt', 'hai', 'ba', 'bốn', 'tư', 'năm', 'lăm', 'sáu', 'bảy', 'tám', 'chín', 'mười', 'mươi', 'trăm', 'linh', 'nghìn']);
-  function isNumberWords(s) {
-    const ws = String(s).trim().toLowerCase().split(/\s+/);
-    return ws[0] !== '' && ws.every(w => NUM_WORDS.has(w));
-  }
+  // An expected answer that is a number read out in words ("hai mươi lăm",
+  // "ba trăm linh tư", isNumberWords in engine/numberWords.js) gets the
+  // word-tile keypad (data-vk-words), so the child builds the reading by
+  // tapping "hai", "mươi", "lăm" in order.
   // An expression made only of numbers, + − × : and brackets ("100+30+9",
   // "162 + 29 − 18", "(8 + 2) × 5", a lone "×" for "viết dấu phép tính"):
   // every character is on the virtual number pad ("=" too: Lớp 1 "3 + 2 = 5").
@@ -5432,6 +5429,9 @@ export function renderWorkbook(app, onBack, cfg) {
   function checkBlank(b, value) {
     // Học bằng tiếng Anh: "twenty-five", "8 tens and 2 ones", T/F → dạng tiếng Việt của sách.
     value = toVietnameseAnswer(value, { ds: !!b.validate?.ds });
+    // Ô đọc số: mọi cách đọc đúng đều được, dù bài có validate riêng hay không
+    // ("bốn trăm linh tư" = "bốn trăm linh bốn", "hai mươi lăm" = "hai mươi năm").
+    if (typeof b.answer === 'string' && isNumberWords(b.answer) && sameReading(value, b.answer)) return true;
     if (b.validate) return b.validate(value);
     // Ô nhiều chỗ trống: giá trị được nối bằng dấu phẩy ("7,5,4") — so từng phần,
     // không để parseFloat đọc "7,5,4" thành 7.5 (bỏ qua các ô sau).

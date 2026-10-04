@@ -19,6 +19,9 @@ export default {
     'Máy phóng to – thu nhỏ': 'Enlarge and shrink machine',
     'Quầy nước chanh': 'Lemonade stall',
     'Rô-bốt biểu thức': 'Expression Robot',
+    // Săn chim (birds.js): hai quầy
+    'Lưới và lồng': 'Net and cages',
+    'Ná cao su': 'Slingshot',
   },
   patterns: [
     // "Tuần 3. Bảng nhân 4, …" (cfg.unitName): dịch phần tên tuần.

@@ -1,6 +1,7 @@
 /**
  * Bé Học Vui Toán — engine dùng chung cho các tập Tiền tiểu học (Tập 1: data.js, Tập 2: data2.js,
- * Chữ cái: data3.js — dạng lượt chơi học đọc ở play3.js, 99 đề toán: data4.js — dạng lượt chơi riêng ở play4.js).
+ * Chữ cái: data3.js — dạng lượt chơi học đọc ở play3.js, 99 đề toán: data4.js — dạng lượt chơi riêng ở play4.js,
+ * Bé Chụp Ảnh Chim: data5.js — dạng lượt chụp ảnh ở play5.js).
  *
  * Thiết kế cho bé mầm non (chưa đọc được chữ): bản đồ phiêu lưu với các trạm,
  * bạn Thỏ đọc to lời dặn, bé chạm đếm từng đồ vật, kéo số, tô số bằng ngón tay;
@@ -20,6 +21,7 @@ import { letterGlyph } from './letters.js';
 import { soundName } from './phonics.js';
 import { PLAYERS3 } from './play3.js';
 import { PLAYERS4 } from './play4.js';
+import { PLAYERS5 } from './play5.js';
 import COUNT_ITEMS from './count-items.json';
 import { awardStars, recordWrong, hasEarned, earnedFor, getQuestionStars, availableStars } from '../../engine/stars.js';
 import { recordAttempt } from '../../engine/activity.js';
@@ -290,7 +292,7 @@ export function renderPreschool(app, onBack, book) {
       intro: playIntro, match: playMatch, count: playCount, trace: playTrace, order: playOrder, fill: playFill, rows: playRows,
       compare: playCompare, crossout: playCrossout, pairs: playPairs, pick: playPick, lesson: playLesson,
       chart: playChart, letter: playLetter, find: playFind,
-      ...PLAYERS3, ...PLAYERS4,
+      ...PLAYERS3, ...PLAYERS4, ...PLAYERS5,
     };
     players[round.type](ctx);
     addCleanup(fitStage(stage));

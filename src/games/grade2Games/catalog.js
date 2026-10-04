@@ -121,6 +121,26 @@ export const STALLS = [
       { id: 'roll-2', n: 2, title: 'Lăn hay không lăn?', lessons: { g2: ['bai-46'] }, also: { g2: ['bai-47'] } },
     ],
   },
+  // 🐦 Săn chim (thiết kế docs/tro-choi-san-chim.md, code chung với lớp 3: grade3Games/birds.js).
+  {
+    id: 'bird2-net', title: 'Lưới và lồng', icon: '🥅',
+    purpose: 'Giúp em thực hành kiến thức về bài toán thêm, phép nhân và phép chia (bảng 2, bảng 5) đã học trong bài. Em tính trước số chim cần bắt, vung lưới bắt chim, chia chim vào lồng rồi thả chim bay đi.',
+    levels: [
+      { id: 'bird2-net-1', n: 1, title: 'Bắt thêm cho đủ lồng', lessons: { g2: ['bai-9'] }, also: { g2: ['bai-10'] } },
+      { id: 'bird2-net-2', n: 2, title: 'Mỗi lồng 2 con, 5 con', lessons: { g2: ['bai-39', 'bai-40'] }, also: { g2: ['bai-37', 'bai-45'] } },
+      { id: 'bird2-net-3', n: 3, title: 'Chia chim vào lồng', lessons: { g2: ['bai-41', 'bai-43', 'bai-44'] }, also: { g2: ['bai-45'] } },
+    ],
+  },
+  {
+    id: 'bird2-sling', title: 'Ná cao su', icon: '🎯',
+    purpose: 'Giúp em thực hành tính nhẩm phép cộng, phép trừ (qua 10, có nhớ, phạm vi 1 000) và bảng nhân, bảng chia 2, 5 đã học trong bài. Mỗi con chim đeo một vòng số, em bắn ná trúng con chim mang đúng kết quả.',
+    levels: [
+      { id: 'bird2-sling-1', n: 1, title: 'Cộng, trừ qua 10', lessons: { g2: ['bai-7', 'bai-8', 'bai-11', 'bai-12'] }, also: { g2: ['bai-10', 'bai-14'] } },
+      { id: 'bird2-sling-2', n: 2, title: 'Cộng, trừ có nhớ', lessons: { g2: ['bai-19', 'bai-20', 'bai-22', 'bai-23'] }, also: { g2: ['bai-21', 'bai-24'] } },
+      { id: 'bird2-sling-3', n: 3, title: 'Nhân, chia 2 và 5', lessons: { g2: ['bai-39', 'bai-40', 'bai-43', 'bai-44'] }, also: { g2: ['bai-45'] } },
+      { id: 'bird2-sling-4', n: 4, title: 'Phạm vi 1 000', lessons: { g2: ['bai-59', 'bai-60', 'bai-61', 'bai-62'] }, also: { g2: ['bai-63'] } },
+    ],
+  },
   {
     id: 'egg', title: 'Quầy trứng', icon: '🥚',
     levels: [{ id: 'egg-1', n: 1, title: 'Hộp 2 quả, hộp 5 quả', lessons: { g2: ['bai-39', 'bai-40'] }, also: { g2: ['bai-37', 'bai-38', 'bai-45'] } }],

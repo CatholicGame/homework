@@ -119,6 +119,25 @@ export const STALLS = [
       { id: 'train-3', n: 3, title: 'Qua nhiều ga', lessons: { workbook: ['bai-2', 'bai-3'], practice: ['tuan-1', 'tuan-2'] } },
     ],
   },
+  // 🐦 Săn chim: hai quầy (lưới, ná) — thiết kế docs/tro-choi-san-chim.md. Lớp 2 có quầy riêng (grade2Games/catalog.js).
+  {
+    id: 'bird-net', title: 'Lưới và lồng', icon: '🥅',
+    purpose: 'Giúp em thực hành kiến thức về bảng chia, phép chia có dư và bài toán giải bằng hai bước tính đã học trong bài. Em vung lưới bắt đàn chim, chia chim vào lồng, rồi thả chim bay đi.',
+    levels: [
+      { id: 'bird-net-1', n: 1, title: 'Chia chim vào lồng', lessons: { workbook: ['bai-5', 'bai-6', 'bai-9', 'bai-10', 'bai-11', 'bai-12'], practice: ['tuan-2', 'tuan-3', 'tuan-4', 'tuan-5', 'tuan-6'] } },
+      { id: 'bird-net-2', n: 2, title: 'Chim dư đậu nóc lồng', lessons: { workbook: ['bai-25'], practice: ['tuan-10'] }, also: { workbook: ['bai-26'], practice: ['tuan-11'] } },
+      { id: 'bird-net-3', n: 3, title: 'Bắt rồi thả: hai bước tính', lessons: { workbook: ['bai-28'], practice: ['tuan-12'] } },
+    ],
+  },
+  {
+    id: 'bird-sling', title: 'Ná cao su', icon: '🎯',
+    purpose: 'Giúp em thực hành tính nhẩm với bảng nhân, bảng chia, phép nhân, phép chia số có hai, ba chữ số và giá trị biểu thức đã học trong bài. Mỗi con chim đeo một vòng số, em bắn ná trúng con chim mang đúng kết quả.',
+    levels: [
+      { id: 'bird-sling-1', n: 1, title: 'Bảng nhân, bảng chia', lessons: { workbook: ['bai-4', 'bai-5', 'bai-6', 'bai-9', 'bai-10', 'bai-11', 'bai-12'], practice: ['tuan-2', 'tuan-3', 'tuan-4', 'tuan-5', 'tuan-6'] } },
+      { id: 'bird-sling-2', n: 2, title: 'Nhân, chia số lớn', lessons: { workbook: ['bai-23', 'bai-26', 'bai-36', 'bai-37'], practice: ['tuan-9', 'tuan-11', 'tuan-14', 'tuan-15'] } },
+      { id: 'bird-sling-3', n: 3, title: 'Giá trị biểu thức', lessons: { workbook: ['bai-38', 'bai-42'], practice: ['tuan-15', 'tuan-16', 'tuan-17'] } },
+    ],
+  },
 ];
 
 const STALL_BY_ID = Object.fromEntries(STALLS.map(s => [s.id, s]));

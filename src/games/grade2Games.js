@@ -17,6 +17,7 @@ import { SHOP_GAME } from './grade2Games/shop.js';
 import { REPORTER_GAME } from './grade2Games/reporter.js';
 import { ROLL_GAME } from './grade2Games/roll.js';
 import { EGG_GAME } from './grade3Games/market/eggs.js';
+import { BIRD_GAMES_G2 } from './grade3Games/birds.js';
 import { levelMeta, unitFocus } from './grade2Games/catalog.js';
 
 /**
@@ -76,6 +77,16 @@ const GAMES = [
     desc: 'Cùng bạn Tí xếp đồ chơi vào hộp và thử thả xuống dốc trượt!',
     tags: ['Khối trụ', 'Khối cầu', 'Lăn, không lăn'],
     stalls: [{ game: ROLL_GAME }],
+  },
+  {
+    id: 'birds', icon: '🐦', title: 'Săn chim',
+    desc: 'Làm nhà điểu học nhí: bắt chim bỏ vào lồng, thi bắn ná!',
+    tags: ['Thêm, bớt', 'Nhân, chia 2, 5', 'Cộng, trừ'],
+    purpose: 'Giúp em thực hành kiến thức về bài toán thêm, phép cộng, phép trừ, bảng nhân, bảng chia 2 và 5 đã học trong bài. Em bắt chim bỏ vào lồng, và bắn ná trúng con chim mang đúng kết quả.',
+    stalls: [
+      { game: BIRD_GAMES_G2[0], tags: 'thêm · nhân · chia 2, 5' },
+      { game: BIRD_GAMES_G2[1], tags: 'cộng, trừ · nhân, chia' },
+    ],
   },
   {
     id: 'market', icon: '🏪', title: 'Chợ phiên của bé',

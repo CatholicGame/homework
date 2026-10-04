@@ -11,5 +11,8 @@ export default {
     'Xe chở hàng': 'Delivery trucks',
     'Quầy nước chanh': 'Lemonade stall',
     'Rô-bốt biểu thức': 'Expression robot',
+    // Săn chim (birds.js): hai quầy
+    'Lưới và lồng': 'Net and cages',
+    'Ná cao su': 'Slingshot',
   },
 };

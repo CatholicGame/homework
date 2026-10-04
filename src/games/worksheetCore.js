@@ -4,6 +4,8 @@
  * docs/lop_3/de-on-tap-giua-ki.md.
  */
 
+import { isNumberWords, sameReading } from '../engine/numberWords.js';
+
 /** Giá trị biểu thức "3 × 2", "27 ÷ 3", "4 + 5 × 2", "20 : 4 × 5" (nhân chia trước, trái sang phải). */
 export function evalExpr(s) {
   const toks = String(s).replace(/\s+/g, '').match(/\d+|[×÷:+−\-*/]/g) || [];
@@ -169,10 +171,11 @@ export function readNumber(n) {
 }
 
 const norm = (v) => String(v ?? '').normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ').replace(/[.]$/, '');
-/** So một ô: đáp án số, chữ (nhiều cách viết ngăn bằng |), dấu. */
+/** So một ô: đáp án số, chữ (nhiều cách viết ngăn bằng |), dấu. Ô đọc số nhận
+ *  mọi cách đọc đúng: "linh tư" = "linh bốn", "mươi lăm" = "mươi năm" (numberWords.js). */
 export function matchSlot(given, right) {
   if (typeof right === 'number') return String(given ?? '').trim() !== '' && Number(given) === right;
-  return String(right).split('|').some(r => norm(r) === norm(given));
+  return String(right).split('|').some(r => norm(r) === norm(given) || (isNumberWords(r) && sameReading(r, given)));
 }
 
 /** Đúng/sai từng ô của một ý: anyOrder thì đối chiếu như một tập hợp. */
@@ -190,3 +193,5 @@ export function gradeSlots(vals, n) {
 
 /** Ô nhập chữ hay số: có đáp án không phải số thì cho gõ chữ. */
 export const isTextSlot = (right) => typeof right !== 'number';
+/** Ô đọc số: dùng bàn phím chữ đọc số (virtualKeyboard.js, data-vk-words). */
+export const isWordsSlot = (right) => isTextSlot(right) && isNumberWords(String(right).split('|')[0]);

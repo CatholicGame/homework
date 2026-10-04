@@ -12,7 +12,7 @@ import { scopedKey, getCurrentUser } from '../engine/auth.js';
 import { getProfile } from '../engine/profile.js';
 import { awardStars, recordWrong, earnedFor } from '../engine/stars.js';
 import { flyOne } from './grade3Games/fly.js';
-import { normQuestion, tablesOf, NORM_TYPES, itemSlots, gradeSlots, isTextSlot, columnParts, holes } from './worksheetCore.js';
+import { normQuestion, tablesOf, NORM_TYPES, itemSlots, gradeSlots, isTextSlot, isWordsSlot, columnParts, holes } from './worksheetCore.js';
 
 // bai01.js, bai01b.js… (cùng số bài, nhiều phiếu: thêm chữ cái), de01.js… de65.js. Nạp khi mở thư mục.
 const SHEETS = import.meta.glob('../data/grade3Worksheets/bai*.js');
@@ -524,10 +524,10 @@ export function render(app, onBack, opts = {}) {
     // body.vk-active .ws-desk) để những câu cuối vẫn cuộn lên được.
     const fitAboveKeypad = (inp) => {
       if (!inp?.isConnected) return;
-      const pad = document.getElementById('virtual-keyboard');
+      const pad = document.querySelector('.vk-panel.vk-visible'); // bàn phím số hoặc bàn phím chữ đọc số
       const vv = window.visualViewport;
       let bottom = vv ? vv.offsetTop + vv.height : window.innerHeight;
-      if (pad && document.body.classList.contains('vk-active') && pad.classList.contains('vk-visible')) bottom = Math.min(bottom, window.innerHeight - pad.offsetHeight); // chiều cao thật, không đo lúc đang trượt lên
+      if (pad && document.body.classList.contains('vk-active')) bottom = Math.min(bottom, window.innerHeight - pad.offsetHeight); // chiều cao thật, không đo lúc đang trượt lên
       const top = bar.getBoundingClientRect().bottom;
       const r = inp.getBoundingClientRect();
       // Ô đã nằm gọn trong khoảng nhìn thấy (chừa lề) thì để yên: bấm ◀ / ▶ giữa các ô gần nhau không làm trang nhảy.
@@ -937,7 +937,7 @@ export function render(app, onBack, opts = {}) {
       if (g) return `<span class="ws-filled ${cls}">${escapeHtml(v)}</span>`;
       const w = text ? ` style="width:${Math.min(14, Math.max(3.4, String(right).split('|')[0].length * 0.62))}em"` : '';
       return text
-        ? `<input class="ws-in ws-in-text ${cls}" data-k="${id}|${k}" data-text="1" value="${escapeHtml(v)}"${w} autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Chỗ trống">`
+        ? `<input class="ws-in ws-in-text ${cls}" data-k="${id}|${k}" data-text="1"${isWordsSlot(right) ? ' data-vk-words="1"' : ''} value="${escapeHtml(v)}"${w} autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Chỗ trống">`
         : `<input class="ws-in ${cls}" data-k="${id}|${k}" value="${escapeHtml(v)}" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Ô trống">`;
     };
     const signBox = (k, v, choices, extra = '') => (g
