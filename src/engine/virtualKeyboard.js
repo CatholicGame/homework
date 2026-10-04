@@ -56,11 +56,11 @@ function createKeyboard() {
     ['4', '5', '6', '−'],
     ['1', '2', '3', '×'],
     ['(', '0', ')', ':'],
-    ['⌫', ',', '✓'],
+    ['⌫', ',', '=', '✓'],
   ];
-  const OPS = new Set(['+', '−', '×', ':', '(', ')']);
+  const OPS = new Set(['+', '−', '×', ':', '(', ')', '=']);
   const cls = (k) => [
-    k === '⌫' && 'vk-backspace', k === '✓' && 'vk-confirm', k === ',' && 'vk-comma', OPS.has(k) && 'vk-op',
+    k === '⌫' && 'vk-backspace', k === '✓' && 'vk-confirm', k === ',' && 'vk-comma', k === '=' && 'vk-eq', OPS.has(k) && 'vk-op',
   ].filter(Boolean).join(' ');
 
   panel.innerHTML = NAV_ROW + keys.map((row, r) => `
@@ -226,6 +226,8 @@ function showKeyboard(input) {
   const tiny = input.maxLength > 0 && input.maxLength < 3;
   panel.classList.toggle('vk-with-comma', input.type !== 'number' && !tiny);
   panel.classList.toggle('vk-no-ops', input.type === 'number');
+  // "=" only where the answer is a whole equation (Lớp 1 "Viết phép tính thích hợp": data-vk-eq).
+  panel.classList.toggle('vk-with-eq', input.type !== 'number' && input.dataset.vkEq === '1');
   panel.classList.add('vk-visible');
   document.body.classList.add('vk-active'); // hides the floating fullscreen button, which sits at bottom-right and would otherwise overlap the now-wide keypad's ✓ key
   centerInput(input);
@@ -274,7 +276,7 @@ function pressKey(key) {
     // Backspace
     // ", " and " + " are typed as one key, so they are erased as one too
     const v = activeInput.value;
-    activeInput.value = v.endsWith(', ') ? v.slice(0, -2) : / [+\-−×:] $/.test(v) ? v.slice(0, -3) : v.slice(0, -1);
+    activeInput.value = v.endsWith(', ') ? v.slice(0, -2) : / [+\-−×:=] $/.test(v) ? v.slice(0, -3) : v.slice(0, -1);
   } else if (key === '✓') {
     // Confirm — suppress keyboard reshow for 600ms (games call focus() internally)
     suppressReshow = true;
@@ -293,7 +295,7 @@ function pressKey(key) {
     const cap = isNum ? 4 : 40;
     const maxChars = activeInput.maxLength > 0 ? Math.min(cap, activeInput.maxLength) : cap;
     const v = activeInput.value;
-    const op = { '+': '+', '−': isNum ? '-' : '−', '×': '×', ':': ':' }[key];
+    const op = { '+': '+', '−': isNum ? '-' : '−', '×': '×', ':': ':', '=': '=' }[key];
     if (v.length >= maxChars) return;
     if (key === ',') {
       // No leading or doubled comma; add the space the book writes after it
@@ -304,7 +306,7 @@ function pressKey(key) {
       // A leading "−" is a negative number, a one-character box holds the sign
       // alone; otherwise the operator gets the spaces the book writes: "3 × 4".
       const bare = !op || !v || (activeInput.maxLength > 0 && activeInput.maxLength < 3);
-      if (!bare && / [+\-−×:] $/.test(v)) return;  // no doubled operator
+      if (!bare && / [+\-−×:=] $/.test(v)) return;  // no doubled operator
       activeInput.value = bare ? v + (op || key) : v.trimEnd() + ` ${op} `;
     } else {
       activeInput.value += key;

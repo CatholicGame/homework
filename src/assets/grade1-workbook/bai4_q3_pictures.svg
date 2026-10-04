@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260" width="900" height="260">
+<rect x="3" y="3" width="894" height="254" rx="22" fill="#FFF4DF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="70" y="105" width="150" height="130" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="122" y="180" width="46" height="46" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="40.0,105.0 145.0,25.0 250.0,105.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="322" y="160" width="16" height="75" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="255.0,165.0 330.0,95.0 405.0,165.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="275.0,110.0 330.0,60.0 385.0,110.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="295.0,70.0 330.0,34.0 365.0,70.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="560.0,50.0 560.0,220.0 480.0,135.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="574.0,50.0 574.0,220.0 654.0,135.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="734.0,50.0 734.0,220.0 654.0,135.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="748.0,50.0 748.0,220.0 828.0,135.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="880.0,50.0 880.0,220.0 828.0,135.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

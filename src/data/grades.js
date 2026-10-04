@@ -17,7 +17,12 @@ export const GRADES = [
       { id: 'pre4-math', icon: '🧮', color: '#F59E0B', title: 'Bé Tập Làm Toán', desc: '99 đề toán chuẩn bị vào lớp 1: cộng trừ, số đến 100, hình, quy luật, giờ, tiền' },
     ],
   },
-  { num: 1, title: 'Lớp 1', icon: '1️⃣', color: '#FF6B9D', games: [] },
+  {
+    num: 1, title: 'Lớp 1', icon: '1️⃣', color: '#FF6B9D',
+    games: [
+      { id: 'grade1-workbook', icon: '📒', color: '#FF6B9D', title: 'Vở Bài Tập Toán 1 — Tập Một', desc: 'Bài 1–34' },
+    ],
+  },
   {
     num: 2, title: 'Lớp 2', icon: '2️⃣', color: '#60A5FA',
     games: [

@@ -348,6 +348,10 @@ body.vk-active #global-fullscreen-btn {
 #virtual-keyboard .vk-comma { display: none; }
 #virtual-keyboard.vk-with-comma .vk-comma { display: flex; }
 #virtual-keyboard.vk-with-comma .vk-row-ctrl { grid-template-columns: repeat(3, 1fr); }
+#virtual-keyboard .vk-eq { display: none; }
+#virtual-keyboard.vk-with-eq .vk-eq { display: flex; }
+#virtual-keyboard.vk-with-eq .vk-row-ctrl { grid-template-columns: repeat(3, 1fr); }
+#virtual-keyboard.vk-with-eq.vk-with-comma .vk-row-ctrl { grid-template-columns: repeat(4, 1fr); }
 
 /* Number-word tiles ("Đọc số"): 5 per row, smaller text so "nghìn" fits */
 .vk-words { width: min(96vw, 560px); }

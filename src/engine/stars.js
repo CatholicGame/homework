@@ -110,7 +110,7 @@ export function earnedFor(key) {
 
 // Tiền tố khoá sao của từng sách → lớp (1–5; -1 = Tiền tiểu học, xem PRESCHOOL trong data/grades.js).
 // Thêm sách mới thì thêm một dòng.
-const BOOK_GRADE = { exam: 3, worksheet: 3, workbook: 3, practice: 3, g3games: 3, drill: 3, workbook2: 2, drill2: 2, g2games: 2, pre1: -1, pre2: -1, pre3: -1, pre4: -1 };
+const BOOK_GRADE = { exam: 3, worksheet: 3, workbook: 3, practice: 3, g3games: 3, drill: 3, workbook2: 2, workbook1: 1, drill2: 2, g2games: 2, pre1: -1, pre2: -1, pre3: -1, pre4: -1 };
 
 /**
  * Sao của một lớp theo từng khoảng thời gian (giờ máy):
@@ -171,7 +171,7 @@ export function awardStars(key, q, { silent = false } = {}) {
 }
 
 // Sổ tiến trình cũ của từng sách: khoá localStorage → tiền tố khoá sao.
-const LEGACY_PROGRESS = { 'gw-progress-v1': 'workbook', 'gw2-progress-v1': 'workbook', 'gp-progress-v1': 'practice', 'g2w-progress-v1': 'workbook2', 'g2w2-progress-v1': 'workbook2' };
+const LEGACY_PROGRESS = { 'gw-progress-v1': 'workbook', 'gw2-progress-v1': 'workbook', 'gp-progress-v1': 'practice', 'g2w-progress-v1': 'workbook2', 'g2w2-progress-v1': 'workbook2', 'g1w-progress-v1': 'workbook1' };
 
 /**
  * Cộng bù (không hiệu ứng) sao cho những bài đã giải từ trước khi có hệ thống sao.

@@ -338,6 +338,7 @@ function navigate(gameId) {
     'pre2-math': () => import('./games/preschoolMath2.js'),
     'pre3-abc': () => import('./games/preschoolAbc.js'),
     'pre4-math': () => import('./games/preschoolMath4.js'),
+    'grade1-workbook': () => import('./games/grade1Workbook.js'),
   };
 
   const loader = gameModules[gameId];

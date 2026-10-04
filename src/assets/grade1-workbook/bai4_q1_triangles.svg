@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" width="900" height="200">
+<rect x="3" y="3" width="894" height="194" rx="22" fill="#FFF4DF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="40.0,170.0 78.0,102.0 116.0,170.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="130.0,170.0 158.0,40.0 186.0,170.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="200.0,170.0 238.0,102.0 276.0,170.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="290.0,170.0 318.0,40.0 346.0,170.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="360.0,170.0 398.0,102.0 436.0,170.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="500.0,170.0 538.0,100.0 576.0,170.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="570.0,66.0 646.0,66.0 608.0,136.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="638.0,170.0 676.0,100.0 714.0,170.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="708.0,66.0 784.0,66.0 746.0,136.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="776.0,170.0 814.0,100.0 852.0,170.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

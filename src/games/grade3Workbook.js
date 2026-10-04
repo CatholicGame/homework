@@ -4466,7 +4466,7 @@ export function renderWorkbook(app, onBack, cfg) {
     matchPairs = new Map();
     matchLocked = new Set();
     if (q.type === 'match' && solved[current]) matchLocked = new Set(q.pairs.map(p => p[0]));
-    else if (q.type === 'match' && q.matchSample) matchLocked = new Set([q.matchSample[0]]);
+    else if (q.type === 'match' && q.matchSample) matchLocked = new Set(samplePairs(q).map(p => p[0]));
 
     const visitedCount = solved.filter(Boolean).length + attempted.filter((a, i) => a && !solved[i]).length;
     const pct = Math.round((visitedCount / activeQuestions.length) * 100);
@@ -4952,10 +4952,10 @@ export function renderWorkbook(app, onBack, cfg) {
   }
   // An expression made only of numbers, + − × : and brackets ("100+30+9",
   // "162 + 29 − 18", "(8 + 2) × 5", a lone "×" for "viết dấu phép tính"):
-  // every character is on the virtual number pad.
+  // every character is on the virtual number pad ("=" too: Lớp 1 "3 + 2 = 5").
   function isExpr(s) {
     const t = String(s).trim();
-    return /^[\d\s+\-−–×x*:÷()]+$/.test(t) && /[+\-−–×x*:÷]/.test(t);
+    return /^[\d\s+\-−–×x*:÷()=]+$/.test(t) && /[+\-−–×x*:÷=]/.test(t);
   }
   function kbAttr(answer) {
     return isPlainInt(answer) || isExpr(answer) ? 'inputmode="numeric"' : isNumberWords(answer) ? 'data-vk-words="1"'
@@ -5030,7 +5030,10 @@ export function renderWorkbook(app, onBack, cfg) {
     // "(8 + 2) × 5") get the virtual number pad, which has + − × : ( ) keys.
     // A letter (like "A và E") must fall back to a normal free-typing field,
     // or that character could never be entered.
-    const numeric = /^[\d\s,;-]+$/.test(String(b.answer)) || isExpr(b.answer);
+    const numeric = /^[\d\s,;-]+$/.test(String(b.answer)) || isExpr(b.answer)
+      || (b.boxes && /^[\d\s,+\-−=]+$/.test(String(b.answer))); // "3,+,2,=,5": one sign per box
+    // Lớp 1 "Viết phép tính thích hợp": the keypad also offers "=".
+    const eqAttr = numeric && String(b.answer).includes('=') ? ' data-vk-eq="1"' : '';
     // One blank holding several numbers ("59, 56, 51, 53") needs a "," key
     // on the keypad to separate them.
     const listInOne = numeric && slotCount === 1 && /[,;]/.test(String(b.answer));
@@ -5060,8 +5063,12 @@ export function renderWorkbook(app, onBack, cfg) {
     // 42), so a one-character box gives nothing away, and a 9ch dotted line per
     // digit would break "1☐3 × 6 = 61☐" over several lines on a phone.
     if (b.boxes) {
+      // A box holding a two-digit number (Lớp 1: "10") is a little wider, and every box of the row
+      // gets that width so the size doesn't tell which box holds the 10.
+      const boxLen = Math.max(1, ...splitAnswerParts(b.answer).map(s => String(s).trim().length));
+      const boxStyle = boxLen > 1 ? ` style="width:${1.4 + boxLen * 0.8}rem"` : '';
       const boxHtml = parts.map((text, idx) => idx === parts.length - 1 ? text
-        : `${text}<input type="text" ${b.tiles ? tilesAttr(b, true) : numeric ? 'inputmode="numeric"' : isPointLetters(b.answer) ? UPPER_ATTR : ''} maxlength="1" class="game-input e3-blank-input gw-blank-inline gw-blank-box" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`
+        : `${text}<input type="text" ${b.tiles ? tilesAttr(b, true) : numeric ? 'inputmode="numeric"' : isPointLetters(b.answer) ? UPPER_ATTR : ''}${eqAttr} maxlength="${boxLen}"${boxStyle} class="game-input e3-blank-input gw-blank-inline gw-blank-box" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`
       ).join('');
       return `
         <div class="e3-blank-row e3-blank-row-inline">
@@ -5080,7 +5087,7 @@ export function renderWorkbook(app, onBack, cfg) {
       const words = !numeric && isNumberWords(slotAnswer);
       const kb = b.tiles ? tilesAttr(b, slotCount > 1 || b.tileOne) : numeric ? 'inputmode="numeric"' : words ? 'data-vk-words="1"'
         : isPointLetters(slotAnswer) ? UPPER_ATTR : '';
-      const input = `<input type="text" ${kb}${listInOne && !b.tiles ? ' data-vk-comma="1"' : ''} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed${fillClass}" style="${style}" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`;
+      const input = `<input type="text" ${kb}${listInOne && !b.tiles ? ' data-vk-comma="1"' : ''}${eqAttr} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed${fillClass}" style="${style}" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`;
       return `${text}${input}`;
     }).join('');
     return `
@@ -5688,6 +5695,12 @@ export function renderWorkbook(app, onBack, cfg) {
     };
   }
 
+  // q.matchSample: one [left, right] link, or a list of them (a 3-column nối's mẫu is two links).
+  function samplePairs(q) {
+    if (!q.matchSample) return [];
+    return Array.isArray(q.matchSample[0]) ? q.matchSample : [q.matchSample];
+  }
+
   function attachMatchHandlers(q) {
     const checkBtn = app.querySelector('#gw-match-check');
     watchMatchLayout();
@@ -5714,14 +5727,22 @@ export function renderWorkbook(app, onBack, cfg) {
     }
 
     const allBtns = [...app.querySelectorAll('.gw-match-item')];
-    const isSample = (id) => !!q.matchSample && q.matchSample.includes(id);
+    const samples = samplePairs(q);
+    const isSample = (id) => samples.some(p => p.includes(id));
 
     // The book's "theo mẫu" link is already drawn, in ink, and cannot be moved.
-    if (q.matchSample) {
-      const [a, b] = q.matchSample;
+    // An item that still has other links to make (a right item several groups point to, Lớp 1:
+    // two groups both "10") stays tappable.
+    const sampleKeys = new Set(samples.map(p => p.join('|')));
+    samples.forEach(([a, b]) => {
       drawMatchLine(a, b, '#231F20');
-      [a, b].forEach(id => { const el = itemBtn(id); if (el) { el.disabled = true; el.classList.add('gw-match-sample'); } });
-    }
+      [a, b].forEach(id => {
+        const el = itemBtn(id);
+        if (!el) return;
+        el.classList.add('gw-match-sample');
+        el.disabled = q.pairs.filter(p => p[0] === id || p[1] === id).every(p => sampleKeys.has(p.join('|')));
+      });
+    });
 
     // Train layout (q.trains): 👆 guide line and "↺ Làm lại" for the pending links.
     const guide = app.querySelector('.gw-match-trains + .gw-act-guide');
