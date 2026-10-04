@@ -431,21 +431,7 @@
 .login-sub {
   color: var(--text-light);
   font-weight: 500;
-  margin-bottom: 14px;
-}
-
-.login-free {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 24px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: #e8f8ee;
-  border: 1.5px solid #34a853;
-  color: #1e7e34;
-  font-weight: 700;
-  font-size: 0.95rem;
+  margin-bottom: 28px;
 }
 
 .login-google-btn {
