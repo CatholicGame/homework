@@ -3,7 +3,7 @@
  */
 
 import { signIn, preloadAuth, enterGuest } from '../engine/auth.js';
-import { startGuest, isGuestBlockedHere } from '../engine/leaderboard.js';
+import { startGuest, isGuestBlockedHere, isGuestEnabled } from '../engine/leaderboard.js';
 
 /**
  * Trình duyệt nhúng trong app khác (Zalo, Facebook, Messenger, Instagram, TikTok…):
@@ -34,6 +34,7 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
         <div class="login-logo">🎓</div>
         <h1 class="login-title">Toán Tiểu Học</h1>
         <p class="login-sub">Học toán vui mỗi ngày, từ lớp 1 đến lớp 5</p>
+        <p class="login-free">🎁 Miễn phí hoàn toàn, không thu phí</p>
 
         <button type="button" class="login-google-btn" id="login-google" disabled>
           <svg class="login-google-icon" viewBox="0 0 48 48" aria-hidden="true">
@@ -45,7 +46,7 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
           <span>Đăng nhập bằng Google</span>
         </button>
 
-        <button type="button" class="login-guest-btn" id="login-guest">Dùng thử, không cần đăng nhập</button>
+        <button type="button" class="login-guest-btn" id="login-guest" hidden>Dùng thử, không cần đăng nhập</button>
 
         <div class="login-guest-warn" id="login-guest-warn" hidden>
           <p class="login-guest-warn-title">📱 Dùng thử: bài làm chỉ lưu trên máy này</p>
@@ -87,7 +88,7 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
 
         <p class="login-note">
           Đăng nhập: tiến trình học được lưu vào Google Drive của bạn để dùng trên mọi thiết bị.
-          Dùng thử: bài làm chỉ lưu trên máy này (đổi máy sẽ mất), đăng nhập sau sẽ được mang vào tài khoản.
+          <span id="login-guest-note" hidden>Dùng thử: bài làm chỉ lưu trên máy này (đổi máy sẽ mất), đăng nhập sau sẽ được mang vào tài khoản.</span>
         </p>
       </div>
     </div>
@@ -141,12 +142,25 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
     blockedEl.hidden = false;
     blockedEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   };
-  if (isGuestBlockedHere()) showBlocked();
+  // Dùng thử do admin bật / tắt (mặc định tắt): chỉ hiện khi đọc được là đang bật.
+  const guestNote = app.querySelector('#login-guest-note');
+  const hideGuest = () => { guestBtn.hidden = true; guestWarn.hidden = true; guestNote.hidden = true; };
+  isGuestEnabled().then((on) => {
+    if (!on || !guestBtn.isConnected) return;
+    guestNote.hidden = false;
+    if (isGuestBlockedHere()) showBlocked();
+    else guestBtn.hidden = false;
+  });
   const guestOk = app.querySelector('#login-guest-ok');
   guestOk.addEventListener('click', async () => {
     guestOk.disabled = true;
     guestOk.textContent = 'Đang kiểm tra…';
-    if (!(await startGuest())) {
+    const started = await startGuest();
+    if (started === 'disabled') {
+      hideGuest();
+      return;
+    }
+    if (!started) {
       showBlocked();
       return;
     }

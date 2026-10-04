@@ -8,7 +8,7 @@
  * Chỉ tài khoản trong ADMIN_EMAILS vào được (Firestore rules chặn phần còn lại).
  */
 
-import { isLeaderboardConfigured, needsConnect, connectLeaderboard } from '../engine/leaderboard.js';
+import { isLeaderboardConfigured, needsConnect, connectLeaderboard, isGuestEnabled, setGuestEnabled } from '../engine/leaderboard.js';
 import { preloadAuth, getCurrentUser } from '../engine/auth.js';
 import { avatarUrl } from '../engine/profile.js';
 import { isAdminUser, fetchStudents, deleteStudent } from '../engine/admin.js';
@@ -122,7 +122,7 @@ export function render(app, onBack) {
         const byUid = new Map(rows.map(r => [r.uid, r]));
         state.voice = issues.map(v => ({ ...v, student: byUid.get(v.uid) || null }));
       } else {
-        state.rows = await fetchStudents();
+        [state.rows, state.guestEnabled] = await Promise.all([fetchStudents(), isGuestEnabled()]);
       }
       if (tab !== state.tab) return; // đã chuyển tab trong lúc tải
       refreshBtn.hidden = false;
@@ -180,6 +180,14 @@ export function render(app, onBack) {
     ];
 
     body.innerHTML = `
+      <section class="lb-card adm-section adm-guest-switch">
+        <div>
+          <h2 class="adm-h2">Cho phép dùng thử (khách)</h2>
+          <p class="adm-chart-sub" id="adm-guest-state"></p>
+        </div>
+        <button type="button" class="btn" id="adm-guest-toggle"></button>
+      </section>
+
       <div class="adm-tiles">
         ${tiles.map(t => `
           <div class="adm-tile${t.guest ? ' adm-tile-guest' : ''}">
@@ -218,8 +226,36 @@ export function render(app, onBack) {
     const kindSel = body.querySelector('#adm-kind');
     if (kindSel) kindSel.onchange = (e) => { state.kind = e.target.value; state.page = 1; drawList(); };
     body.querySelector('#adm-csv').onclick = () => downloadCsv(filtered());
+    wireGuestSwitch();
     wireChart();
     drawList();
+  }
+
+  function wireGuestSwitch() {
+    const btn = body.querySelector('#adm-guest-toggle');
+    const note = body.querySelector('#adm-guest-state');
+    const paint = () => {
+      const on = state.guestEnabled;
+      note.textContent = on
+        ? 'Đang bật: màn đăng nhập có nút "Dùng thử, không cần đăng nhập".'
+        : 'Đang tắt: bé mới phải đăng nhập Google. Khách đang dùng thử trên máy của mình vẫn dùng tiếp.';
+      btn.textContent = on ? '⏸️ Tắt dùng thử' : '▶️ Bật dùng thử';
+      btn.className = `btn ${on ? 'btn-ghost' : 'btn-primary'}`;
+    };
+    paint();
+    btn.onclick = async () => {
+      btn.disabled = true;
+      try {
+        await setGuestEnabled(!state.guestEnabled);
+        state.guestEnabled = !state.guestEnabled;
+      } catch (e) {
+        alert(e?.code === 'permission-denied'
+          ? 'Firestore từ chối ghi. Kiểm tra đã triển khai firestore.rules mới (phần config) chưa.'
+          : 'Không lưu được, thử lại.');
+      }
+      btn.disabled = false;
+      paint();
+    };
   }
 
   function chartHtml(rows, today) {

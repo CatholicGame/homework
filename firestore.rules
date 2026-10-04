@@ -141,6 +141,16 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Cấu hình app do admin bật / tắt (src/engine/leaderboard.js isGuestEnabled): ai cũng đọc được,
+    // kể cả lúc chưa đăng nhập (màn đăng nhập cần biết có hiện nút "Dùng thử" không); chỉ admin ghi.
+    match /config/{id} {
+      allow read: if true;
+      allow write: if isAdmin() && id == 'app'
+        && request.resource.data.keys().hasOnly(['guestEnabled', 'updatedAt'])
+        && request.resource.data.guestEnabled is bool
+        && request.resource.data.updatedAt == request.time;
+    }
+
     // Mỗi máy một khách (src/engine/leaderboard.js claimGuestDevice): `{mã máy băm}` → uid ẩn danh đầu tiên
     // dùng thử trên máy đó. Khách chỉ đọc từng mã (không liệt kê), chỉ ghi một lần với uid của chính mình;
     // không ai sửa được. Admin xem / xoá (xoá = máy đó được dùng thử lại).

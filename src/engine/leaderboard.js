@@ -169,10 +169,12 @@ async function openGuestSession(fb) {
 
 /**
  * Bé bấm "Đồng ý, dùng thử": mở phiên khách nếu máy chưa có khách nào khác.
- * @returns {Promise<boolean>} false = máy này đã dùng thử rồi, phải đăng nhập email.
+ * @returns {Promise<boolean|'disabled'>} false = máy này đã dùng thử rồi, phải đăng nhập email;
+ *   'disabled' = admin vừa tắt dùng thử.
  */
 export async function startGuest() {
   if (!isLeaderboardConfigured()) return true;
+  if (!(await isGuestEnabled())) return 'disabled';
   let fb;
   try {
     fb = await loadFirebase();
@@ -187,6 +189,32 @@ export async function startGuest() {
     console.warn('[guest] Không mở được phiên khách:', e?.code || e);
     return true;
   }
+}
+
+// ── Bật / tắt dùng thử (admin) ───────────────────────────────────────────────
+// `config/app`: { guestEnabled, updatedAt } — ai cũng đọc được (cả lúc chưa đăng nhập), chỉ admin ghi.
+// Chưa có bản ghi / không đọc được → tắt. Khách đang dùng thử trên máy vẫn dùng tiếp.
+const CONFIG_REF = ['config', 'app'];
+
+/** Admin có đang cho phép bé mới bấm "Dùng thử" không. */
+export async function isGuestEnabled() {
+  if (!isLeaderboardConfigured()) return true; // trình duyệt kiểm tra tự động: giữ luồng khách như trước
+  try {
+    const { db, fs } = await loadFirebase();
+    const snap = await fs.getDoc(fs.doc(db, ...CONFIG_REF));
+    return snap.exists() && snap.data().guestEnabled === true;
+  } catch (e) {
+    console.warn('[guest] Không đọc được config/app:', e?.code || e);
+    return false;
+  }
+}
+
+/** Trang admin bật / tắt nút "Dùng thử" ở màn đăng nhập. */
+export async function setGuestEnabled(on) {
+  const fb = await ensureSignedInSilently();
+  if (!fb) throw new Error('need-connect');
+  const { db, fs } = fb;
+  await fs.setDoc(fs.doc(db, ...CONFIG_REF), { guestEnabled: !!on, updatedAt: fs.serverTimestamp() });
 }
 
 /** Máy này từng bị chặn tạo khách thứ hai — màn đăng nhập hiện lời nhắc ngay. */
