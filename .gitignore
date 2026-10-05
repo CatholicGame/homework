@@ -44,3 +44,7 @@ Thumbs.db
 docs/**/*.pdf
 scripts/redraw/_preview/
 __pycache__/
+
+# Công cụ quay video (scripts/video)
+scripts/video/.pylib/
+scripts/video/out/

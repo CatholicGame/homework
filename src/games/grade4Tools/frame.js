@@ -282,6 +282,7 @@ export function injectFrameStyles() {
       .g4-nudge { animation: g4TapCalm 1s ease-in-out 3; }
     }
     @media (orientation: portrait) {
+      .g4-ov-choices .g4-choice { font-size: min(5.2cqh, 7.4cqi); padding: 0.45em 0.3em; }
       .g3d-scene.g4-scene { grid-template-rows: auto minmax(0, 1fr) clamp(84px, 10%, 140px); }
       .g4-nav { flex-direction: row; align-items: stretch; }
       .g4-replay { align-self: stretch; }

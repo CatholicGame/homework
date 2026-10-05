@@ -12,18 +12,30 @@ import { fmt, readVN } from '../num.js';
 
 const EVEN = '#2563EB', ODD = '#EA580C';
 
-/** n chấm (n ≤ 20) xếp hai hàng theo từng đôi; chấm lẻ ra sáng màu cam. */
-function dotsSvg(n) {
-  const pairs = Math.floor(n / 2), odd = n % 2;
-  const s = 92, x0 = 500 - ((pairs + odd) * s) / 2 + s / 2, y0 = 250;
+/**
+ * n chấm (n ≤ 20) xếp theo từng đôi; chấm lẻ ra sáng màu cam. Tờ giấy ngang: hai hàng, mỗi đôi một cột
+ * (khung DOTS_WIDE); tờ giấy dựng đứng (tall): hai cột, mỗi đôi một hàng (khung DOTS_TALL), chấm to gấp đôi.
+ */
+const DOTS_WIDE = [150, 60, 700, 350], DOTS_TALL = [300, 20, 400, 860];
+function dotsSvg(n, tall = false) {
+  const pairs = Math.floor(n / 2), odd = n % 2, s = 92, groups = pairs + odd;
+  // vị trí chấm thứ k: theo đôi (a) và trong đôi (b)
+  const x0 = 500 - (groups * s) / 2 + s / 2, y0 = 250;               // ngang
+  const tx = 500 - s / 2, ty = 470 - (groups * s) / 2 + s / 2;        // dọc: nhóm chấm giữa khung
+  const at = (a, b) => (tall ? [tx + b * s, ty + a * s] : [x0 + a * s, y0 + b * s]);
   let g = '';
   for (let k = 0; k < n; k++) {
-    const col = Math.floor(k / 2), row = k % 2;
     const isOdd = odd && k === n - 1;
-    g += `<circle class="g4pa-d" cx="${x0 + col * s}" cy="${y0 + row * s}" r="36" fill="${isOdd ? ODD : '#60A5FA'}" stroke="${INK}" stroke-width="4" data-k="${k}"/>`;
+    const [cx, cy] = at(Math.floor(k / 2), k % 2);
+    g += `<circle class="g4pa-d" cx="${cx}" cy="${cy}" r="36" fill="${isOdd ? ODD : '#60A5FA'}" stroke="${INK}" stroke-width="4" data-k="${k}"/>`;
   }
-  for (let col = 0; col < pairs; col++) g += `<rect class="g4pa-pair" x="${x0 + col * s - 44}" y="${y0 - 44}" width="88" height="${s + 88}" rx="42" fill="none" stroke="#16A34A" stroke-width="4" stroke-dasharray="8 6" opacity="0"/>`;
-  return `<text x="500" y="160" class="g4v-t" font-size="110">${n}</text>${g}`;
+  for (let a = 0; a < pairs; a++) {
+    const [cx, cy] = at(a, 0);
+    g += tall
+      ? `<rect class="g4pa-pair" x="${cx - 44}" y="${cy - 44}" width="${s + 88}" height="88" rx="42" fill="none" stroke="#16A34A" stroke-width="4" stroke-dasharray="8 6" opacity="0"/>`
+      : `<rect class="g4pa-pair" x="${cx - 44}" y="${cy - 44}" width="88" height="${s + 88}" rx="42" fill="none" stroke="#16A34A" stroke-width="4" stroke-dasharray="8 6" opacity="0"/>`;
+  }
+  return `<text x="500" y="${tall ? ty - 66 : 160}" class="g4v-t" font-size="110">${n}</text>${g}`;
 }
 
 /** Con phố: dãy nhà chẵn trên, dãy nhà lẻ dưới, mỗi nhà một số. */
@@ -33,8 +45,8 @@ function streetSvg(evens, odds) {
     <rect x="-34" y="${flip ? 8 : 8}" width="68" height="20" rx="5" fill="#fff" stroke="${INK}" stroke-width="2"/><text x="0" y="24" class="g4v-t" font-size="18">${fmt(n)}</text></g>`;
   return `<rect x="0" y="0" width="1000" height="560" fill="#BBF7D0"/>
     <rect x="0" y="250" width="1000" height="110" fill="#94A3B8"/><path d="M0 305 H1000" stroke="#fff" stroke-width="6" stroke-dasharray="40 30"/>
-    <text x="40" y="40" class="g4v-t" font-size="28" style="text-anchor:start" fill="${EVEN}">Bên số chẵn</text>
-    <text x="40" y="545" class="g4v-t" font-size="28" style="text-anchor:start" fill="${ODD}">Bên số lẻ</text>
+    <text x="115" y="40" class="g4v-t" font-size="28" style="text-anchor:start" fill="${EVEN}">Bên số chẵn</text>
+    <text x="115" y="545" class="g4v-t" font-size="28" style="text-anchor:start" fill="${ODD}">Bên số lẻ</text>
     ${evens.map((n, i) => house(170 + i * 160, 140, n, EVEN)).join('')}
     ${odds.map((n, i) => house(170 + i * 160, 420, n, ODD)).join('')}`;
 }
@@ -45,9 +57,11 @@ const B3 = {
     steps: [
       async (c) => {
         const t = c.t;
+        const tall = t.portrait();
+        t.frame(...(tall ? DOTS_TALL : DOTS_WIDE)); // khung đủ cho 13 chấm, giữ nguyên cỡ chấm suốt bước
         t.caption('Xếp các chấm thành <b>từng đôi</b>');
         for (const n of [6, 7, 10, 13]) {
-          t.draw(dotsSvg(n));
+          t.draw(dotsSvg(n, tall));
           await t.anim('.g4pa-d', [{ opacity: 0, transform: 'translateY(-30px)' }, { opacity: 1, transform: 'none' }], 300, { stagger: 50 });
           await t.anim('.g4pa-pair', [{ opacity: 0 }, { opacity: 1 }], 300, { stagger: 80 });
           const even = n % 2 === 0;
@@ -60,6 +74,7 @@ const B3 = {
       async (c) => {
         const t = c.t;
         const ns = [36, 315, 108, 71, 194, 2027];
+        t.frame(150, 40, 700, 420);
         t.draw(ns.map((n, i) => {
           const s = String(n), last = s.slice(-1), head = s.slice(0, -1);
           const even = n % 2 === 0;
@@ -73,6 +88,8 @@ const B3 = {
       },
       async (c) => {
         const t = c.t;
+        t.frame(100, 0, 800, t.portrait() ? 560 : 670); // sát dãy nhà, ngang chừa dải cỏ đáy cho nút chọn; phần thừa là cỏ
+        t.svg.style.background = '#BBF7D0';
         t.draw(streetSvg([10, 12, 14, 16, 18], [11, 13, 15, 17, 19]));
         t.caption('Nhà số chẵn một bên, nhà số lẻ một bên');
         await c.say('Trên một con phố, người ta đánh số nhà chẵn ở một bên, số lẻ ở bên kia, để dễ tìm. Hai nhà cạnh nhau cùng bên hơn kém nhau 2 đơn vị.');

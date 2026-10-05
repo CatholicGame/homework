@@ -2,6 +2,7 @@
  * Tấm vẽ SVG chung cho các bài đo lường (diện tích, thời gian): dòng chữ trên + SVG co giãn kín chỗ trống.
  * t.draw(html) thay nội dung; t.add(html) thêm; t.anim(selector, keyframes, ms) chạy hiệu ứng;
  * t.tiles(...) lưới ô bấm để lát (sự kiện 'tile').
+ * t.frame(x, y, w, h) khoanh vùng có hình (khung nhìn gốc) để hình phóng kín tờ giấy; t.portrait() tờ giấy dựng đứng.
  */
 
 import { css, emitter, INK, sfx } from './frame.js';
@@ -41,7 +42,12 @@ export function createCanvas(host, { w = 1000, h = 560, bg = '#fff' } = {}) {
       requestAnimationFrame(step);
     });
   };
-  t.resetView = () => svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  let base = `0 0 ${w} ${h}`;
+  /** Khung nhìn gốc = vùng có hình (để hình to kín tờ giấy); resetView về khung này. */
+  t.frame = (x, y, fw, fh) => { base = `${x} ${y} ${fw} ${fh}`; svg.setAttribute('viewBox', base); };
+  t.resetView = () => svg.setAttribute('viewBox', base);
+  /** Tờ giấy dựng đứng (điện thoại dọc): bài vẽ bố trí theo chiều dọc. */
+  t.portrait = () => svg.clientHeight > svg.clientWidth;
 
   /** Lưới ô bấm để lát: cols × rows ô cỡ s tại (x, y). Bấm ô → tô màu, sự kiện 'tile'. */
   t.tiles = (x, y, cols, rows, s, { color = '#FDBA74', label = '' } = {}) => {
@@ -82,5 +88,6 @@ function injectCanvasStyles() {
     .g4v-tile { cursor: pointer; }
     .g4v-tl { font-weight: 800; fill: ${INK}; text-anchor: middle; dominant-baseline: middle; }
     .g4v-t { font-weight: 800; fill: ${INK}; text-anchor: middle; }
+    @media (orientation: portrait) { .g4v-cap { font-size: min(4.6cqh, 6.4cqi); } }
   `);
 }
