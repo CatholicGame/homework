@@ -10,16 +10,19 @@ import { css, INK, sfx, injectFrameStyles } from './frame.js';
 import { fmt } from './num.js';
 import { lessonByN, pagesText } from './catalog.js';
 
+/** Sách mặc định: Toán 4. Toán 5 (grade5Tools) truyền sách riêng: catalog, sao 'tool5', bàn phím có dấu phẩy. */
+const G4_BOOK = { label: 'Toán 4', lessonByN, pagesText, starPrefix: 'tool4', idPrefix: 'g4', comma: false };
+
 /** Dòng tham chiếu SGK của câu: kiến thức nằm ở bài nào, trang nào. */
-const refHtml = (n) => {
-  const l = lessonByN(n);
-  return l ? `<div class="g4-ref"><span>📖 SGK<span class="g4-ref-x"> Toán 4</span> · <b>Bài ${l.n}</b></span><span class="g4-ref-t">${l.title}</span><span>· ${pagesText(l)}</span></div>` : '';
+const refHtml = (n, book) => {
+  const l = book.lessonByN(n);
+  return l ? `<div class="g4-ref"><span>📖 SGK<span class="g4-ref-x"> ${book.label}</span> · <b>Bài ${l.n}</b></span><span class="g4-ref-t">${l.title}</span><span>· ${book.pagesText(l)}</span></div>` : '';
 };
 
 /** Trò (theo định dạng của loop.js) cho bài `lesson` với danh sách task. */
-export function practiceGame(lesson, tasks) {
+export function practiceGame(lesson, tasks, book = G4_BOOK) {
   return {
-    id: `g4-${lesson.id}`, title: `Bài ${lesson.n}`, icon: '✏️', unitWord: 'câu', starPrefix: 'tool4',
+    id: `${book.idPrefix}-${lesson.id}`, title: `Bài ${lesson.n}`, icon: '✏️', unitWord: 'câu', starPrefix: book.starPrefix,
     againText: 'Làm lại (câu mới)',
     levels: [{ id: lesson.id, n: 1, title: `Bài ${lesson.n}: Thực hành`, missions: 5 }],
     summaryText: (ok, total) => `Em làm đúng ngay ${ok}/${total} câu.`,
@@ -38,7 +41,7 @@ export function practiceGame(lesson, tasks) {
       if (own.stage) { own.stage(stage, m, api); return; } // task tự dựng cả màn (vd. đặt tính của Luyện Tính lớp 3)
       injectFrameStyles();
       injectPracticeStyles();
-      const d = mountDrill(stage, { api, board: `<div class="g4-board g4-pboard">${refHtml(own.src ?? lesson.n)}<div class="g4-q"></div><div class="g4-tool"></div><div class="g4-choices"></div></div>`, cls: 'g4-scene g4-prac' });
+      const d = mountDrill(stage, { api, board: `<div class="g4-board g4-pboard">${refHtml(own.src ?? lesson.n, book)}<div class="g4-q"></div><div class="g4-tool"></div><div class="g4-choices"></div></div>`, cls: 'g4-scene g4-prac', comma: book.comma });
       const board = d.scene.querySelector('.g4-board');
       const f = {
         ...d, board,
@@ -61,15 +64,19 @@ export function practiceGame(lesson, tasks) {
 export function ask(f, { box, answer, max = String(answer).length + 1, hint, say: sayText, shown }) {
   if (sayText) f.say(sayText, shown);
   setActive(f.board, box);
+  // Đáp án là chuỗi "3,25" (số thập phân, Toán 5): so theo giá trị (3,250 = 3,25), hiện đúng như em gõ.
+  const isDec = typeof answer === 'string';
+  const val = (s) => Number(String(s).replace(',', '.'));
+  const show = (s) => (isDec ? fmtDec(s) : fmt(+s));
   if (import.meta.env.DEV) window.__g4ans = { kind: 'ask', answer: String(answer), pad: f.pad };
   let wrong = 0;
   return new Promise((res) => {
     f.pad.want({
       max,
-      onType: (s) => { box.textContent = s ? fmt(+s) : ''; },
+      onType: (s) => { box.textContent = s ? show(s) : ''; },
       onSubmit: (s) => {
-        if (+s === answer) {
-          box.textContent = fmt(answer);
+        if (isDec ? Math.abs(val(s) - val(answer)) < 1e-9 : +s === answer) {
+          box.textContent = isDec ? fmtDec(s) : fmt(answer);
           box.classList.add('g4-box-ok');
           setActive(f.board, null);
           f.pad.off();
@@ -82,12 +89,15 @@ export function ask(f, { box, answer, max = String(answer).length + 1, hint, say
         shake(box);
         f.pad.clear();
         box.textContent = '';
-        const h = typeof hint === 'function' ? hint(+s, wrong) : hint;
+        const h = typeof hint === 'function' ? hint(isDec ? val(s) : +s, wrong) : hint;
         if (h) f.hint(h);
       },
     });
   });
 }
+
+/** "1234,5" → "1 234,5" (tách lớp phần nguyên; phần thập phân giữ nguyên như em gõ). */
+export const fmtDec = (s) => { const [i, d] = String(s).split(','); return fmt(+i) + (d !== undefined ? `,${d}` : ''); };
 
 /**
  * Nút chọn to (dưới công cụ). options: [{ html, value }] hoặc chuỗi. Trả về Promise(value đúng).

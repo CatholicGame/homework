@@ -96,12 +96,14 @@ export const CLASSROOM = `<svg class="g3d-backdrop" viewBox="0 0 1600 900" prese
 
 // ── Bàn phím số ────────────────────────────────────────────────────────────────────────────────────
 // Phím to chia đều vùng bàn phím. Gõ bằng bàn phím máy tính cũng được (số, Backspace, Enter).
+// comma: thêm phím dấu phẩy (số thập phân, lớp 5): 1–9 / , 0 ⌫ / OK.
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'del', '0', 'ok'];
-function keypadHtml() {
-  return `<div class="g3d-keys g3d-keys-off">${KEYS.map(k => k === 'del'
+const KEYS_COMMA = ['1', '2', '3', '4', '5', '6', '7', '8', '9', ',', '0', 'del', 'ok'];
+function keypadHtml(comma) {
+  return `<div class="g3d-keys g3d-keys-off${comma ? ' g3d-keys-comma' : ''}">${(comma ? KEYS_COMMA : KEYS).map(k => k === 'del'
     ? '<button type="button" class="g3d-key g3d-key-del" data-k="del" aria-label="Xoá">⌫</button>'
     : k === 'ok' ? '<button type="button" class="g3d-key g3d-key-ok" data-k="ok">OK</button>'
-      : `<button type="button" class="g3d-key" data-k="${k}">${k}</button>`).join('')}</div>`;
+      : `<button type="button" class="g3d-key${k === ',' ? ' g3d-key-comma' : ''}" data-k="${k}"${k === ',' ? ' aria-label="Dấu phẩy"' : ''}>${k}</button>`).join('')}</div>`;
 }
 
 /**
@@ -110,7 +112,7 @@ function keypadHtml() {
  * pad.want({ max, auto, onType(s), onSubmit(s) }) — auto: đủ `max` chữ số là tự nộp (ô một chữ số trong phép tính
  * dọc); không auto thì bấm OK. pad.off() — bàn phím nghỉ.
  */
-export function mountDrill(stage, { api, board, cls = '' }) {
+export function mountDrill(stage, { api, board, cls = '', comma = false }) {
   injectGameStyles();
   injectDrillStyles();
   stage.innerHTML = `
@@ -120,7 +122,7 @@ export function mountDrill(stage, { api, board, cls = '' }) {
         <div class="g3d-npc">${npcPic(TEACHER, 'wait')}</div>
         <div class="g3d-bubble"><span class="g3d-name">${TEACHER.name}</span><span class="g3d-say">&nbsp;</span></div>
       </div>
-      <div class="g3d-padzone">${keypadHtml()}</div>
+      <div class="g3d-padzone">${keypadHtml(comma)}</div>
       <div class="g3d-board"><div class="g3d-paper">${board}</div></div>
     </div>`;
   const scene = stage.querySelector('.g3d-scene');
@@ -166,6 +168,7 @@ export function mountDrill(stage, { api, board, cls = '' }) {
   const press = (k) => {
     if (!cur) return;
     if (k === 'del') typed = typed.slice(0, -1);
+    else if (k === ',') { if (!comma || typed.includes(',') || typed.length >= cur.max) return; typed = (typed || '0') + ','; }
     else if (k === 'ok') { if (!typed) return; const s = typed; sfx.tap(); cur.onSubmit(s); return; }
     else if (typed.length < cur.max) typed = typed === '0' && !cur.auto ? k : typed + k;
     else return;
@@ -179,6 +182,7 @@ export function mountDrill(stage, { api, board, cls = '' }) {
     if (!scene.isConnected) { document.removeEventListener('keydown', onKey); return; }
     if (scene.closest('.g3g-has-result')) return;
     if (/^[0-9]$/.test(e.key)) press(e.key);
+    else if (e.key === ',' || e.key === '.') press(',');
     else if (e.key === 'Backspace') press('del');
     else if (e.key === 'Enter') press('ok');
     else return;
@@ -428,6 +432,17 @@ export function injectDrillStyles() {
       font-size: min(11cqh, 12cqi, 3rem); box-shadow: 0 4px 0 #94A3B8; min-height: 0; padding: 0; }
     @container (aspect-ratio > 1.7) { .g3d-key { font-size: min(26cqh, 6.5cqi, 3rem); } }
     .g3d-key:active { transform: translateY(3px); box-shadow: 0 1px 0 #94A3B8; }
+    /* Có phím dấu phẩy: 3 cột × 5 hàng (OK cả hàng cuối); khung dẹt: 7 cột × 2 hàng (1–6 ⌫ / 7 8 9 , 0 OK). */
+    .g3d-keys-comma { grid-template-rows: repeat(5, minmax(0, 1fr)); }
+    .g3d-keys-comma .g3d-key-ok { grid-column: span 3; }
+    .g3d-key-comma { background: #E0F2FE; color: #0369A1; box-shadow: 0 4px 0 #7DD3FC; }
+    @container (aspect-ratio > 1.7) {
+      .g3d-keys-comma { grid-template-columns: repeat(7, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
+      .g3d-keys-comma .g3d-key { order: 2; }
+      .g3d-keys-comma .g3d-key:nth-child(-n+6) { order: 0; }
+      .g3d-keys-comma .g3d-key-del { order: 1; }
+      .g3d-keys-comma .g3d-key-ok { order: 3; grid-column: span 2; }
+    }
     .g3d-key-del { background: #FEE2E2; color: #B91C1C; box-shadow: 0 4px 0 #FCA5A5; }
     .g3d-key-ok { background: #22C55E; color: #fff; box-shadow: 0 4px 0 #15803D; }
     .g3d-key-ok[hidden] { display: block; visibility: hidden; }

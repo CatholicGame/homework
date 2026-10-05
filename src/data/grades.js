@@ -51,7 +51,13 @@ export const GRADES = [
       { id: 'grade4-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Nhân, chia đặt tính với số có một, hai, ba chữ số: tích riêng, ước lượng thương' },
     ],
   },
-  { num: 5, title: 'Lớp 5', icon: '5️⃣', color: '#FBBF24', games: [] },
+  {
+    num: 5, title: 'Lớp 5', icon: '5️⃣', color: '#FBBF24',
+    games: [
+      { id: 'grade5-tools', icon: '🧰', color: '#F59E0B', title: 'Toán 5: Học bằng công cụ', desc: 'Tập Một, Bài 1–35: băng phân số, số thập phân, bảng đơn vị đo, cắt ghép hình… em tự tay khám phá rồi thực hành' },
+      { id: 'grade5-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Cộng, trừ, nhân, chia số thập phân đặt tính; nhân chia nhẩm với 10, 100, 0,1; phân số' },
+    ],
+  },
 ];
 
 export function getGrade(num) {
