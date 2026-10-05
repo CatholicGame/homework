@@ -363,6 +363,38 @@ export function shake(el) {
   setTimeout(() => el.classList.remove('pk-shake'), 600);
 }
 
+/** Dấu X đỏ đè lên hình bé chọn sai, tự tắt sau `ms`. Lớp phủ nằm ngoài bố cục nên không làm giật màn. */
+const crossMarks = new WeakMap();
+export function crossMark(el, ms = 3000) {
+  if (!el?.isConnected) return;
+  crossMarks.get(el)?.();
+  const r = el.getBoundingClientRect();
+  const size = Math.max(36, Math.min(r.width, r.height) * 0.8);
+  const mark = document.createElement('div');
+  mark.className = 'pk-cross';
+  mark.setAttribute('aria-hidden', 'true');
+  Object.assign(mark.style, {
+    left: `${r.left + r.width / 2 - size / 2}px`,
+    top: `${r.top + r.height / 2 - size / 2}px`,
+    width: `${size}px`,
+    height: `${size}px`,
+  });
+  mark.innerHTML = '<svg viewBox="0 0 100 100"><path d="M22 22 78 78M78 22 22 78" stroke="#fff" stroke-width="26" stroke-linecap="round"/><path d="M22 22 78 78M78 22 22 78" stroke="#EF4444" stroke-width="16" stroke-linecap="round"/></svg>';
+  document.body.appendChild(mark);
+  const timer = setTimeout(done, ms);
+  function done() {
+    clearTimeout(timer);
+    mark.remove();
+    if (crossMarks.get(el) === done) crossMarks.delete(el);
+  }
+  crossMarks.set(el, done);
+}
+
+/** Bỏ mọi dấu X còn hiện (bé đã làm đúng / sang lượt khác). */
+export function clearCrossMarks() {
+  document.querySelectorAll('.pk-cross').forEach((m) => m.remove());
+}
+
 export function centerOf(el) {
   const r = el.getBoundingClientRect();
   return [r.left + r.width / 2, r.top + r.height / 2];

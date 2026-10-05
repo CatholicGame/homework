@@ -14,7 +14,7 @@
 
 import '../../styles/preschool.css';
 import { NUMBER_COLORS, numberWord } from './numbers.js';
-import { say, stopSpeaking, whenQuiet, sfx, burst, rain, shake, centerOf, isMuted, setMuted, voiceStatus, onVoiceStatus, voiceInfo } from './fx.js';
+import { say, stopSpeaking, whenQuiet, sfx, burst, rain, shake, crossMark, clearCrossMarks, centerOf, isMuted, setMuted, voiceStatus, onVoiceStatus, voiceInfo } from './fx.js';
 import { reportVoiceStatus } from '../../engine/voiceReport.js';
 import { mountTracer, getPen, setPen, CAR } from './trace.js';
 import { letterGlyph } from './letters.js';
@@ -53,7 +53,7 @@ export function renderPreschool(app, onBack, book) {
 
   let cleanup = [];
   const addCleanup = (fn) => cleanup.push(fn);
-  const runCleanup = () => { cleanup.forEach(fn => fn()); cleanup = []; };
+  const runCleanup = () => { cleanup.forEach(fn => fn()); cleanup = []; clearCrossMarks(); };
 
   // Rời trang (về trang chủ) thì dừng đọc.
   const leave = () => { runCleanup(); stopSpeaking(); stopHand(); clearTimeout(voiceTimer); stopVoiceWatch?.(); onBack(); };
@@ -243,6 +243,7 @@ export function renderPreschool(app, onBack, book) {
         if (finished) return;
         sfx.boing();
         shake(el);
+        crossMark(el);
         recordAttempt(false);
         recordWrong(key, round);
         talk(text, { keep: true, mood: 'is-sad' });
@@ -256,6 +257,7 @@ export function renderPreschool(app, onBack, book) {
       solve(text = 'Giỏi quá! Bé làm đúng rồi!') {
         if (finished) return;
         finished = true;
+        clearCrossMarks();
         recordAttempt(true);
         awardStars(key, round);
         sfx.fanfare();
