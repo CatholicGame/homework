@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 350" width="820" height="350"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:700;src:url(data:font/woff2;base64,d09GMgABAAAAAATAABAAAAAACbwAAARmAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhwbgRYcKgZgP1NUQVQqAFQRCAqHSIV0ATYCJAMsCxgABCAFhDYHIAwHG7gHERWkg0F8cWDTDQsvhDS1jfp466kQBq2pW5Kj7xf3MZ7/Z412359ZUc2LS9vQ4fQleTUNBQ+dRAmWCYVIsjgHedYkaZeIFiBeJE7Ei69rAPz8Om9bKm+Ak5OUP3hy/os3ThwzXQXQMG034M2mM60uyzLZDbCsg/7x7Z++QaNV57JwgMIBmWUdkwRv1xQMAyJ6ROplwaBtutCrju7+wHcjJj8T+LTw4cg4SMjNBA4yRquwZdDeXRjHQGMRTRqi0avPgBhA9HYrsxhYJQvRAKKUHiXZrYAKjH6XMpws6KPbMkePgEm9RIMB7Kvd5BroRhOEtsH4weQbh9NwyHfsc8em/YRoAQjkfx0BWIeJ6BdMQ7AMvZeUnI8AigDuGU6hwTSM9DMMF4Fh/UrrKGfJMn1nsYBDwOtYD7p9A3qRgEjXEenAGGIIzAJD5DhArgMYvlKgQWlI+8VRPoYKnwqpaSklHNV4DIz7R1wNJwiz/BQvMCCeF4YPGh88gEJtWPnEgeq9vAaoFZ+bkw6z71ZPXQuqLLgEk3oDjgFOCbiLgfLvmkspVwvqneWOokdc4zyUzXHxNCw036lHSPldCe7tkV1TxgmLaou3HnGvM+f9+97+eFDjtOj0PnfjtXNI+cZVroYpQ8CCc5AIUtGHL3LzNi5DWZ+Iv2bvLpN3f9L2UHFmIClO8YbhUfDHeZcFnGjFkqKJi2rowQNnCu8Qs0+LBnSb+RoOSVt6sPtS4kIaWveRSlYCn2NK9iTvBELWnV0txBKtgJ6kx2yQ+TPaVIyakoFEqSnz39uyP3fyYd38Fg1LZ4hcd3W3EOeTtadUlLPOQ4YBaovjd7rgp7gu/e+Bs8FTUVKPkn7XGtVTzS0R0221hSsZJIsk/pP+9CuKEnry2UnVT0p3SFs4x+vXqZQLt8YFs6DugY2IlF2svkG0rZF1TWpN6xxkveZ0uDz8bk0q01hZ8Y2KBH5pTohoxfmml1YPZv54vVpdqTc07+M3a8fjU0m8ZoHmmtHGrjZpRSbeCk6CI2HfRwgOeEIJ0Q/tT/92j2X13haNofA3ZhWlQwI0umcPCpZMmBu+cfqUGj9hIsjX1Bfg9nxUIA7YdgFDr8Gv+tE9wWf02b3Xgib1decOhqP4zX9zYNhn+KkRdRN+fWnoYT3p/lQV+h69CoQjLa8fBgCVUocqlqFyBmXZy365go3vcNp31pPyB5tUg0iZgFFR+W25AxdGBEPOw2xA3bGgcQNuwqTlBJkHeCTGakhiGY0hsXE09o2tGbHHYor5vVOQDhIEDGftniJM6M8RuA6ulwdKyAgmo/EaPpLBM1bEDJFD4RG4mpEIdnEk3SCElowiL9wMh0K14TEeENceulw2YGnfQ8JSDkoN2g1D4J8l21ZWPnCe3u5ButCx8GIhCxJG4ew6EdxcMF6vTSWXh61w2SaG8/8mYgsF08FotNje7rfT1gllH/BjbpVCBdUAbqqhAv5ceVd716Il6IZg0hO/RPVaGw==) format('woff2')}</style><!--/embedded-font-->
+<rect x="20.0" y="60.0" width="46.0" height="46.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="66.0" y="60.0" width="46.0" height="46.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="112.0" y="60.0" width="46.0" height="46.0" fill="#F4A259" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="112.0" y="106.0" width="46.0" height="46.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="112.0" y="152.0" width="46.0" height="46.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<text x="89.0" y="330" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">Hình 1</text>
+<polygon points="290.0,175.0 266.5,142.6 290.0,75.0 313.5,142.6" fill="#F4A259" stroke="#3F3A40" stroke-width="2.5" stroke-linejoin="round"/>
+<polygon points="290.0,175.0 313.5,142.6 385.1,144.1 328.0,187.4" fill="#F4A259" stroke="#3F3A40" stroke-width="2.5" stroke-linejoin="round"/>
+<polygon points="290.0,175.0 328.0,187.4 348.8,255.9 290.0,215.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5" stroke-linejoin="round"/>
+<polygon points="290.0,175.0 290.0,215.0 231.2,255.9 252.0,187.4" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5" stroke-linejoin="round"/>
+<polygon points="290.0,175.0 252.0,187.4 194.9,144.1 266.5,142.6" fill="#F4A259" stroke="#3F3A40" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="290" y="330" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">Hình 2</text>
+<rect x="440.0" y="50.0" width="48.0" height="48.0" fill="#F4A259" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="488.0" y="50.0" width="48.0" height="48.0" fill="#F4A259" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="440.0" y="98.0" width="48.0" height="48.0" fill="#F4A259" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="488.0" y="98.0" width="48.0" height="48.0" fill="#F4A259" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="440.0" y="146.0" width="48.0" height="48.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="488.0" y="146.0" width="48.0" height="48.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="440.0" y="194.0" width="48.0" height="48.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="488.0" y="194.0" width="48.0" height="48.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="440.0" y="242.0" width="48.0" height="48.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<rect x="488.0" y="242.0" width="48.0" height="48.0" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<text x="488" y="330" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">Hình 3</text>
+<circle cx="640" cy="95" r="34" fill="#F4A259" stroke="#3F3A40" stroke-width="2.5"/>
+<circle cx="725" cy="100" r="34" fill="#F4A259" stroke="#3F3A40" stroke-width="2.5"/>
+<circle cx="612" cy="172" r="34" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<circle cx="685" cy="158" r="34" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<circle cx="760" cy="180" r="34" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<circle cx="685" cy="236" r="34" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.5"/>
+<text x="685" y="330" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">Hình 4</text>
+</svg>

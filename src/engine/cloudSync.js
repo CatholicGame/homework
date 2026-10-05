@@ -27,7 +27,7 @@ const UPLOAD_API = 'https://www.googleapis.com/upload/drive/v3/files';
 // Khoá đặt theo tài khoản từ trước: `${tên}_${id}`.
 const PER_USER = ['tth_stars', 'tth_activity', 'tth_stickers'];
 // Khoá trước đây lưu chung cả máy, nay là `${tên}@${id}` (auth.scopedKey).
-const SCOPED = ['gw-progress-v1', 'gw2-progress-v1', 'gp-progress-v1', 'g2w-progress-v1', 'g2w2-progress-v1', 'g1w-progress-v1',
+const SCOPED = ['gw-progress-v1', 'gw2-progress-v1', 'gp-progress-v1', 'g2w-progress-v1', 'g2w2-progress-v1', 'g1w-progress-v1', 'g4s-progress-v1',
   'g3games-best-v1', 'g3ws-v1', 'g3drill-weak-v1', 'math_game_progress', 'math_exam_history'];
 const SCOPED_PREFIX = ['gw-paint:'];
 

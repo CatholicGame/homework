@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 130" width="820" height="130"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:700;src:url(data:font/woff2;base64,d09GMgABAAAAAAUMABAAAAAACSgAAASzAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhQbeBwqBmA/U1RBVCoAVBEICoZshVIBNgIkAyALEgAEIAWENgcgDAcbZAdRVFASCL5IMPQ6UzfEq7DhqGOIItuyLXVQp/SJbfZMeBsP/e/3vz1zz/0qmGsoJGh4wptbKIT6I5YCVPfEevNfp/0kNWammqQ0I7/uDUx2XRJr3Uimg7GbcjD/owESUMN9+PuZLhJswyqB4XRm/7/l219jNkUFyXhAGVd85wUSCXx4SunWopa3vKcycSwDVwh0AOLwENpMYQO7JSAsDsgdzebQgJwCP42KI/ksGpDAylQkFhtWHxHSx9FjwooSDZVak71uPL/TYaUZsJDX+LK94jRGVKjh5XTJNflMTd7IPQDYjdPEXmDTPKN8AP+PfB4sWMDz3hOjPIz52LXxL59hApyYkYMBWD8G9nRhEQcDmYSrz4JEhQG4xLuK2ADo0CIVi9hz5MxzJgMLrL+1fXt2baQKJNAURzcyeOt7AG3ENCAOjeECLeUbTT5GTw9k4QzpKZwyVcgW3LmDOXn3rrTw9m3g1q0E4fFdzMk7R1KCg1vA7UNpwRwGB8eVSOEtT5omlrdLC2dBMZMr7ATnOqRkBF1uOJ+K7hITE1BJS0K427R7v3RxVJxavOCOSVmdOyotNC4d3VvuLttsS1uRyKmqq049sXpaWjZzjnqcdvn0el/6+KwO9Uy4HewOxs3GVIoqOsgc2KMvQBE3ta7bcPzuXV39kpkNqakx4gU7A0KDm9LC7eGJoa3Uk/MCtRtGJSMmXU2m87KlB7fsSkoAM/Pwxwu6MG2Ru60TyM2ykUzgpbg3kcjujQgTbAhayCQ7gjvi+SYreFJUNJ64YmJ862CJjrJ+6FtgTRvkx+0g+weqkC2MvryaWXZWWksJ8UF8wCYV+g+p/4PikKcwrHT/XaBJrI5NjZUyM/LLPF9KzUtNkQ4u3PZW0fHNsbPP8nH0Okc6d7UDfG/Vj1Vr3XqhoLirodT0M1PFyp+QbmKgfxmvcxynjP/D19H+ZCeljq9yX2wHsrWazHSDfYlubkU+ob70E25gXQT2guXSvih10a86DclCZNPFPLJfgjYcEszcwtEse4Jctj7Ft6AoOlRlSFo9SEd9n/c4wcszra1h/3yPsU+Wk32R6ABPDyLRw5OKoncIU8fMCajlXcLkO5aqVyNKiLE3VGhBwN2eoolb8H8ni2ntZ5dl5OhP8/Am+tpohRUEoW0KeOzUBPSc5PBe66tW77uxE18cwFkYVHG96crj+Znya/5IVNX78GLuvj14++FGhYH/m+vydTRJEHy1ltxP0cDgPuglSUvuAEabfUZdNrCVHLcBeG0qXrWCzbqNhkGL1YXbvJxrdQxOlFZiBGDjhXGN4KWuWMarLGnLYGF5tVGdgU1+0gOpoCOG3kHUWuKZzegYirEQFSrCgbJhxZozVJwi+VDRuIhykbFlo8mDisJCR5IvFwfKGxdHEToWNpRR0b0cDGwuLFkqRESewZXDQi46Ksv7XVny8ZljyFaIgogmG58aZ6kBA7CaioiimEWDbGNmUPxmxagY+djy75B3BOqJAHQ0aSyiDJjjGMKxvc+DClsr0AAWkv+JIhuLLQtWrDhwFSFSBH+uhWTNcQnK9cKIYgNoqW7ScYna8U/5oKPIgwMaNRZ5SX0UjctD5TY=) format('woff2')}</style><!--/embedded-font-->
+<line x1="20.0" y1="40.0" x2="790.0" y2="40.0" stroke="#3F3A40" stroke-width="3" stroke-linecap="round"/>
+<polygon points="804,40 790,33 790,47" fill="#3F3A40"/>
+<line x1="40.0" y1="31.0" x2="40.0" y2="49.0" stroke="#3F3A40" stroke-width="2.5" stroke-linecap="round"/>
+<text x="40.0" y="86" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="22" fill="#3F3A40">0</text>
+<line x1="109.0" y1="31.0" x2="109.0" y2="49.0" stroke="#3F3A40" stroke-width="2.5" stroke-linecap="round"/>
+<text x="109.0" y="80" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">1</text>
+<line x1="92.0" y1="86.0" x2="126.0" y2="86.0" stroke="#3F3A40" stroke-width="2" stroke-linecap="round"/>
+<text x="109.0" y="105.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">10</text>
+<line x1="178.0" y1="31.0" x2="178.0" y2="49.0" stroke="#3F3A40" stroke-width="2.5" stroke-linecap="round"/>
+<text x="178.0" y="80" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">2</text>
+<line x1="161.0" y1="86.0" x2="195.0" y2="86.0" stroke="#3F3A40" stroke-width="2" stroke-linecap="round"/>
+<text x="178.0" y="105.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">10</text>
+<line x1="247.0" y1="31.0" x2="247.0" y2="49.0" stroke="#3F3A40" stroke-width="2.5" stroke-linecap="round"/>
+<rect x="225.0" y="58" width="44" height="56" rx="6" fill="#fff" stroke="#2F7FD1" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="247.0" y="94" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="22" fill="#2F7FD1">?</text>
+<line x1="316.0" y1="31.0" x2="316.0" y2="49.0" stroke="#3F3A40" stroke-width="2.5" stroke-linecap="round"/>
+<rect x="294.0" y="58" width="44" height="56" rx="6" fill="#fff" stroke="#2F7FD1" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="316.0" y="94" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="22" fill="#2F7FD1">?</text>
+<line x1="385.0" y1="31.0" x2="385.0" y2="49.0" stroke="#3F3A40" stroke-width="2.5" stroke-linecap="round"/>
+<text x="385.0" y="80" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">5</text>
+<line x1="368.0" y1="86.0" x2="402.0" y2="86.0" stroke="#3F3A40" stroke-width="2" stroke-linecap="round"/>
+<text x="385.0" y="105.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">10</text>
+<line x1="454.0" y1="31.0" x2="454.0" y2="49.0" stroke="#3F3A40" stroke-width="2.5" stroke-linecap="round"/>
+<rect x="432.0" y="58" width="44" height="56" rx="6" fill="#fff" stroke="#2F7FD1" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="454.0" y="94" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="22" fill="#2F7FD1">?</text>
+<line x1="523.0" y1="31.0" x2="523.0" y2="49.0" stroke="#3F3A40" stroke-width="2.5" stroke-linecap="round"/>
+<text x="523.0" y="80" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">7</text>
+<line x1="506.0" y1="86.0" x2="540.0" y2="86.0" stroke="#3F3A40" stroke-width="2" stroke-linecap="round"/>
+<text x="523.0" y="105.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">10</text>
+<line x1="592.0" y1="31.0" x2="592.0" y2="49.0" stroke="#3F3A40" stroke-width="2.5" stroke-linecap="round"/>
+<rect x="570.0" y="58" width="44" height="56" rx="6" fill="#fff" stroke="#2F7FD1" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="592.0" y="94" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="22" fill="#2F7FD1">?</text>
+<line x1="661.0" y1="31.0" x2="661.0" y2="49.0" stroke="#3F3A40" stroke-width="2.5" stroke-linecap="round"/>
+<text x="661.0" y="80" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">9</text>
+<line x1="644.0" y1="86.0" x2="678.0" y2="86.0" stroke="#3F3A40" stroke-width="2" stroke-linecap="round"/>
+<text x="661.0" y="105.0" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="20" fill="#3F3A40">10</text>
+<line x1="730.0" y1="31.0" x2="730.0" y2="49.0" stroke="#3F3A40" stroke-width="2.5" stroke-linecap="round"/>
+<text x="730.0" y="86" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="22" fill="#3F3A40">1</text>
+</svg>

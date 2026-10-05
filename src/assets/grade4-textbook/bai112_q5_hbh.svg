@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 396" width="520" height="396"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:700;src:url(data:font/woff2;base64,d09GMgABAAAAAAQsABAAAAAAB/gAAAPSAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbgQIcKgZgP1NUQVQqADwRCAqEUINvATYCJAMYCw4ABCAFhDYHIAwHG20GUZQwSjLIzwTbVsNaEVouwi43Dkp6xFmG0DvM4vvg///XfvvcN38wlaQWCiWbZ/FQCeVHxKtmQmFRVbbmzI9V9WRuikkBgP4CgHclhG63/QceQsKBlAeeSIgZhg3p5eXJmppApqusTVwBTRwzXSbuvBJsOJ1ZddssEmyCA886Hw3X9vdCj29ujWHlR+iIubNzSfTuLghEAgAjEiAC4Qr1Zbbd5QPMSX0TGB7gi9F0CK4JJZwkHqOXUCZ/E1SaynKA/39DA1Ecv/GIcQUQMQGwHESLVeFlFS7Aa4sdEYDdNgLAsDeJduinGgiL9C+St0MKOh3Gw78P71ENo26jr0dAriyRUAKJCMiUuSTZJ5DpuWixIwAMOJAoS4U+pxTgV4rpccjeA50mBkv6f4x4RNwLxgDxAUSCCHACPAIADwAYR4wbyY3iJpJkGRQKBRXmUdVFKO2Bctj9a2dF4W5O33KQPRVbxOXl4U52DYMPQfbBAYHf0x1W8S5mL1iA0DmLRFcCO2AjwotQzoKHAfevspHU3ixRNSbWsUEoPdg5ANmHu4dEeFO8c5yzu0mkbWuNUHoEApRznCTCh2HCqs3sC1MWKGeQODaFHcHmD88DVPYcPUjuP0kIGZCs+Y7/g9bo3PVseMkf1zi0IOMi6NPShsgtz8pYjz36qE1Ti6UwYkHebICvp4e8rJmnmJEOvz3NSkrBRsdIytlU9qgQ/eUS4jK6/o7bhJHt8akx3kMR6Q4u+kTRfvWCnIOirDonUKmuKxJbzrNMteZVcxFc4HNV0RXyPHfmUeT2LLMs2NVog+sCknktsmVDPDULPW1VcgL88lTsZJyZIHHWIkrVJkAs0yLQtCHfN/B5tuMvLPTtDURC9eVZXKQNjEXlB6vuvEDpLIcRH3Hi5GE4aKVjuxBv+DvahBbiFpwBMI8Al+X7Gpe+f0zLa6hzDwB3sv43gPvbzS/h/1d37QLwGQDhpTXbWxDCxyCo9DsA1S61zCbDHetpLr3cLcOIUqBetrbAtjCjsjTDQCvQI0t2UskmOs1kpzE9/d4ockB6pjU+A9lhEUQm+EMVIDRHdLPYEi6FROZDfV09M+hDJkBPAQVH46FMPPTgsqgEHB9aCvhkFpcHVcl8PptnrqNDorTpAVYbx2LoKJ7rEkRabJREpzBRET+qk8H0Hcqg0CXa2o01TSiapxK9CLyWc4WErD07lknz1d0UpE83olJbR0PoskpS7f8mCego10BbV9fYws3dzdZCQ7AF/ElXSqfk1IcqndwJ+KvsT61YdLwsAP7rqIfqPf0XBL11) format('woff2')}</style><!--/embedded-font-->
+<g transform="translate(-130.0,-111.9)">
+<rect x="150" y="260" width="480" height="100" fill="#fff" stroke="#3F3A40" stroke-width="2.5"/>
+<polygon points="224.1,383.5 495.4,136.9 585.9,236.5 314.6,483.1" fill="none" stroke="#3F3A40" stroke-width="2.5" stroke-linejoin="round"/>
+<polygon points="360.0,260.0 560.0,260.0 450.0,360.0 250.0,360.0" fill="#C9D3DD" stroke="#3F3A40" stroke-width="3" stroke-linejoin="round"/>
+<line x1="360.0" y1="260.0" x2="360.0" y2="360.0" stroke="#3F3A40" stroke-width="2.5" stroke-linecap="round"/>
+<polyline points="360.0,346.0 374.0,346.0 374.0,360.0" fill="none" stroke="#3F3A40" stroke-width="2"/>
+<text x="356" y="248" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="28" fill="#3F3A40">A</text>
+<text x="554" y="246" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="28" fill="#3F3A40">B</text>
+<text x="458" y="390" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="28" fill="#3F3A40">C</text>
+<text x="228" y="350" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="28" fill="#3F3A40">D</text>
+<text x="360" y="390" text-anchor="middle" font-family="Quicksand" font-weight="700" font-size="28" fill="#3F3A40">H</text>
+</g>
+</svg>

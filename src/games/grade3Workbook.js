@@ -123,6 +123,7 @@ import { attachPairDrop } from '../engine/pairDrop.js';
 import { attachBalancePlay, revealBalancePlay } from '../engine/balancePlay.js';
 import { attachColorPaint, isPaintQuestion } from '../engine/colorPaint.js';
 import { attachPourPlay, revealPourPlay } from '../engine/pourPlay.js';
+import { attachCalcPlay, hasCalc } from '../engine/calcPlay.js';
 import { GRADE3_GAMES } from '../data/features.js';
 import { levelsForUnit } from './grade3Games/catalog.js';
 import { toVietnameseAnswer, isEnglish, tr } from '../engine/i18n.js';
@@ -189,7 +190,8 @@ function anyOrderFlags(blanks, values, check) {
 }
 
 export function listValidate(expectedArr) {
-  const norm = (arr) => arr.map(x => foldVN(x)).filter(Boolean).join('|');
+  // "38 000" = "38000": số lớn viết cách lớp hay viết liền đều được.
+  const norm = (arr) => arr.map(x => foldVN(x).replace(/(\d)\s+(?=\d)/g, '$1')).filter(Boolean).join('|');
   const target = norm(expectedArr);
   return (value) => norm(String(value).split(/[,;>]+/)) === target;
 }
@@ -363,6 +365,27 @@ export function phraseOrderValidate(phrases) {
   const norm = (x) => stripVN(x).replace(/\d+\s*(°\s*c?|do\s*(c|xe)\b)?/g, '').replace(/[^a-z]/g, '');
   const target = phrases.map(norm).join('');
   return (value) => norm(value) === target;
+}
+
+/**
+ * Phân số viết như trong sách: tử số trên, gạch ngang, mẫu số dưới — fr(3, 4).
+ * Dùng được trong đề, nhãn ô điền, lựa chọn, ô bảng, hàng so sánh.
+ */
+export function fr(a, b) {
+  return `<span class="gw-frac"><span>${a}</span><span>${b}</span></span>`;
+}
+
+/**
+ * Hỗn hợp tử/mẫu bé điền: trong nhãn ô điền, "{/}" là một phân số cần viết (hai ô chồng lên nhau,
+ * gạch ngang ở giữa). Đáp án ghi "tử,mẫu" ("5,6"); fracValidate(5, 6) nhận mọi phân số bằng 5/6,
+ * fracValidate(5, 6, true) chỉ nhận phân số tối giản đó.
+ */
+export function fracValidate(a, b, exact = false) {
+  return (v) => {
+    const [x, y] = String(v).split(',').map(t => Number(String(t).trim()));
+    if (!Number.isInteger(x) || !Number.isInteger(y) || y === 0) return false;
+    return exact ? x === a && y === b : x * b === y * a;
+  };
 }
 
 // A "Mẫu:" worked example inside q, printed in the book's blue sample color
@@ -4344,7 +4367,9 @@ export function renderWorkbook(app, onBack, cfg) {
                     <span class="gw-unit-games-pad" aria-hidden="true">🎮</span>
                     ${stalls.map(({ stall, level }) => `<span class="gw-unit-game" role="button" tabindex="0" data-stall="${stall.id}" data-level="${level.id}" title="Chơi ${stall.title}" aria-label="Chơi ${stall.title}">${stall.icon}</span>`).join('')}
                   </span>` : '';
-              return `
+              // Sách chia chương (u.chapter): dòng tên chương trước bài đầu tiên của chương.
+              const chapter = u.chapter && u.chapter !== UNITS[idx - 1]?.chapter ? `<div class="gw-unit-chapter">${u.chapter}</div>` : '';
+              return `${chapter}
                 <button class="gw-unit-row" data-unit="${u.id}">
                   <span class="gw-unit-badge" style="background:${color}">${u.number}</span>
                   <span class="gw-unit-info"><strong>${cfg.unitName(u)}</strong><span class="gw-unit-sub">${badges}</span></span>${gamesChip}
@@ -4532,6 +4557,8 @@ export function renderWorkbook(app, onBack, cfg) {
     if (q.balancePlay) attachBalancePlay(app, q, solved[current]);
     // 🫗 Thử rót: bé rót nước để tự kiểm chứng (engine/pourPlay.js). q.pourAfter: chỉ mở khi đã làm đúng.
     if (q.pourPlay) attachPourPlay(app, q, solved[current]);
+    // ✍️ Tính: phép tính số lớn mở tờ vở đặt tính của Luyện Tính, bé tự ghi kết quả (engine/calcPlay.js).
+    attachCalcPlay(app, q);
     // 🖍️ câu "tô màu" có hình SVG: bé tô thật lên hình (engine/colorPaint.js).
     if (q.img) attachColorPaint(app, q);
     revealPinnedImageOnKeyboard();
@@ -4954,8 +4981,11 @@ export function renderWorkbook(app, onBack, cfg) {
     const t = String(s).trim();
     return /^[\d\s+\-−–×x*:÷()=]+$/.test(t) && /[+\-−–×x*:÷=]/.test(t);
   }
+  // Số đọc dài (Lớp 4: hàng triệu, tỉ): bàn phím chữ thêm hàng "triệu", "tỉ" và nhận tới 30 chữ.
+  const wordsAttr = (answer) => (/triệu|tỉ/.test(String(answer)) || String(answer).split(/\s+/).length > 8
+    ? 'data-vk-words="1" data-vk-big="1"' : 'data-vk-words="1"');
   function kbAttr(answer) {
-    return isPlainInt(answer) || isExpr(answer) ? 'inputmode="numeric"' : isNumberWords(answer) ? 'data-vk-words="1"'
+    return isPlainInt(answer) || isExpr(answer) ? 'inputmode="numeric"' : isNumberWords(answer) ? wordsAttr(answer)
       : isPointLetters(answer) ? UPPER_ATTR : '';
   }
   // An answer made only of point/vertex/segment names ("B, M, C", "A,B", "Q",
@@ -5012,7 +5042,9 @@ export function renderWorkbook(app, onBack, cfg) {
     // above its first answer line) must really start a new line, but a plain
     // <br> is ignored inside the inline-flex label — a full-width, zero-height
     // flex item forces the wrap instead.
-    const label = b.label.replace(/<br\s*\/?>/g, '<span class="gw-line-break"></span>');
+    // "{/}": một phân số bé viết (tử, mẫu) — hai chỗ trống chồng lên nhau, gói lại sau khi dựng ô.
+    const label = b.label.replace(/<br\s*\/?>/g, '<span class="gw-line-break"></span>')
+      .split('{/}').join('[[fa]]...[[fb]]...[[fc]]');
     const parts = label.split('...');
     if (parts.length === 1) {
       const input = `<input type="text" ${b.tiles ? tilesAttr(b, b.tileOne) : kbAttr(b.answer)} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed gw-blank-fill" style="min-width:3ch" data-idx="${i}" autocomplete="off">`;
@@ -5069,7 +5101,7 @@ export function renderWorkbook(app, onBack, cfg) {
       ).join('');
       return `
         <div class="e3-blank-row e3-blank-row-inline">
-          <label class="e3-blank-label e3-blank-label-inline gw-blank-label-boxes">${boxHtml}</label>
+          <label class="e3-blank-label e3-blank-label-inline gw-blank-label-boxes">${fracWrap(boxHtml)}</label>
         </div>
       `;
     }
@@ -5082,17 +5114,18 @@ export function renderWorkbook(app, onBack, cfg) {
         ? 'min-width:3ch'
         : `width:${Math.max(9, numeric ? String(slotAnswer).length + 2 : textSlotCh)}ch`;
       const words = !numeric && isNumberWords(slotAnswer);
-      const kb = b.tiles ? tilesAttr(b, slotCount > 1 || b.tileOne) : numeric ? 'inputmode="numeric"' : words ? 'data-vk-words="1"'
+      const kb = b.tiles ? tilesAttr(b, slotCount > 1 || b.tileOne) : numeric ? 'inputmode="numeric"' : words ? wordsAttr(slotAnswer)
         : isPointLetters(slotAnswer) ? UPPER_ATTR : '';
       const input = `<input type="text" ${kb}${listInOne && !b.tiles ? ' data-vk-comma="1"' : ''}${eqAttr} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed${fillClass}" style="${style}" data-idx="${i}" data-slot="${slot++}" autocomplete="off">`;
       return `${text}${input}`;
     }).join('');
     return `
       <div class="e3-blank-row e3-blank-row-inline">
-        <label class="e3-blank-label e3-blank-label-inline">${html}</label>
+        <label class="e3-blank-label e3-blank-label-inline">${fracWrap(html)}</label>
       </div>
     `;
   }
+  const fracWrap = (html) => html.split('[[fa]]').join('<span class="gw-frac-in">').split('[[fb]]').join('<span class="gw-frac-bar"></span>').split('[[fc]]').join('</span>');
 
   // For reveal-on-solved display of a multi-slot blank's answer (e.g. "36,37"
   // or "A và E") back into its individual boxes.
@@ -6390,6 +6423,12 @@ function injectStyles() {
     @keyframes gw-hand-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
     .gw-line-break { flex-basis: 100%; height: 0; }
     .gw-blank-label-boxes { gap: 0.3rem; }
+    .gw-frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.1; margin: 0 0.12em; font-size: 0.95em; }
+    .gw-frac > span { padding: 0 0.2em; }
+    .gw-frac > span + span { border-top: 2px solid currentColor; }
+    .gw-frac-in { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; vertical-align: middle; margin: 0 0.25rem; }
+    .gw-frac-in .gw-blank-inline { width: 3.2rem !important; min-width: 0 !important; height: 2.3rem; text-align: center; flex: none; }
+    .gw-frac-bar { display: block; width: 3.6rem; border-top: 3px solid #334155; }
     .gw-blank-inline.gw-blank-box { flex: 0 0 auto; width: 2.6rem; height: 2.6rem; padding: 0; border: 2px solid #475569; border-radius: 0.55rem; background: #fff; text-align: center; font-size: 1.25rem; }
     .gw-blank-inline.gw-blank-box:focus { outline: none; border-color: #34D399; box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25); }
     .gw-blank-inline.gw-blank-box.e3-wrong-input { border-color: #ef4444; background: #fee2e2; color: #991b1b; }
@@ -6437,6 +6476,10 @@ function injectStyles() {
     .gw-match-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: clamp(1.5rem, 8vw, 5rem); row-gap: 0.6rem; align-items: stretch; position: relative; z-index: 1; }
     .gw-match.gw-match-3 { max-width: 860px; }
     .gw-match-cols { grid-template-columns: 1fr 1fr; }
+    .gw-book-table { border-collapse: collapse; margin: 0.5rem 0; font-size: 0.95em; }
+    .gw-book-table th, .gw-book-table td { border: 1.5px solid #94A3B8; padding: 0.3rem 0.7rem; text-align: center; }
+    .gw-book-table th { background: #F1F5F9; font-weight: 700; }
+    .gw-unit-chapter { margin: 0.9rem 0.2rem 0.1rem; font-weight: 800; font-size: 0.95rem; color: #475569; letter-spacing: 0.02em; }
     .gw-match-col { display: flex; flex-direction: column; justify-content: space-around; gap: 0.6rem; min-width: 0; }
     .gw-match-col > .gw-match-item { flex: 1 1 auto; height: auto; }
     .gw-match-col > .gw-match-item:not(:has(img)) { max-height: 7rem; }
@@ -6464,6 +6507,7 @@ const ACTIONS = [
   { icon: '🖍️', label: 'Tô màu', has: q => !!q.trainPaint || (!!q.img && isPaintQuestion(q)) },
   { icon: '🚂', label: 'Đổi toa', has: q => !!q.trainSwap },
   { icon: '🧩', label: 'Ghép hình', has: q => !!q.pairDrop },
+  { icon: '✍️', label: 'Đặt tính', has: q => hasCalc(q) },
 ];
 const actionsOf = q => ACTIONS.filter(a => a.has(q));
 

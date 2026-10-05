@@ -37,6 +37,8 @@ const WORD_ROWS = [
   ['mươi', 'mốt', 'lăm', 'tư', 'linh'],
   ['không', 'trăm', 'nghìn', '⌫', '✓'],
 ];
+// Số có hàng triệu, tỉ (Lớp 4): hàng phím thêm, chỉ hiện ở ô có data-vk-big.
+const BIG_ROW = ['triệu', 'tỉ'];
 
 // ── Create the keyboard DOM (once, global) ──────────────────────────────────
 function createKeyboard() {
@@ -90,7 +92,8 @@ function createWordKeyboard() {
     <div class="vk-row">
       ${row.map(k => `<button class="vk-key ${k === '⌫' ? 'vk-backspace' : ''} ${k === '✓' ? 'vk-confirm' : ''}" data-key="${k}" type="button">${k}</button>`).join('')}
     </div>
-  `).join('');
+  `).join('') + (lang === 'vi' ? `
+    <div class="vk-row vk-big-row">${BIG_ROW.map(k => `<button class="vk-key" data-key="${k}" type="button">${k}</button>`).join('')}</div>` : '');
 
   // Phím chữ tiếng Việt ("hai", "mươi") không được dịch: phím ghi gì thì viết ra đúng chữ đó.
   if (lang === 'vi') wp.querySelectorAll('.vk-row:not(.vk-nav)').forEach(r => r.setAttribute('data-no-i18n', ''));
@@ -210,6 +213,7 @@ function showKeyboard(input) {
   const words = !!input.dataset.vkWords;
   const tiles = !!input.dataset.vkTiles;
   wordPanel.classList.toggle('vk-visible', words);
+  wordPanel.classList.toggle('vk-big-on', words && input.dataset.vkBig === '1');
   if (tiles) showTiles(input);
   else if (tilePanel) tilePanel.classList.remove('vk-visible');
   refreshNav();
@@ -266,7 +270,7 @@ function pressKey(key) {
     // Word tiles: a tap adds one whole word, ⌫ takes the last word back off.
     const ws = activeInput.value.trim().split(/\s+/).filter(Boolean);
     if (key === '⌫') ws.pop();
-    else if (ws.length < 8) ws.push(key);
+    else if (ws.length < (activeInput.dataset.vkBig ? 30 : 8)) ws.push(key);
     activeInput.value = ws.join(' ');
     activeInput.dispatchEvent(new Event('input', { bubbles: true }));
     return;

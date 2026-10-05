@@ -47,6 +47,7 @@ export const GRADES = [
   {
     num: 4, title: 'Lớp 4', icon: '4️⃣', color: '#C084FC',
     games: [
+      { id: 'grade4-textbook', icon: '📖', color: '#6366F1', title: 'Sách Toán 4', desc: 'Sách giáo khoa Toán 4, bài 1–175: làm bài tập ngay trong sách, phép tính lớn có nút ✍️ Tính để đặt tính' },
       { id: 'grade4-tools', icon: '🧰', color: '#8B5CF6', title: 'Toán 4: Học bằng công cụ', desc: 'Tập Một, Bài 1–37: bảng hàng, tia số, thước đo góc, ê ke… em tự tay khám phá rồi thực hành' },
       { id: 'grade4-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Nhân, chia đặt tính với số có một, hai, ba chữ số: tích riêng, ước lượng thương' },
     ],

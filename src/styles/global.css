@@ -358,6 +358,8 @@ body.vk-active #global-fullscreen-btn {
 .vk-words .vk-row,
 .vk-words .vk-row:last-child { grid-template-columns: repeat(5, 1fr); }
 .vk-words .vk-key { font-size: 1.1rem; font-weight: 700; padding: 0 2px; }
+.vk-words .vk-big-row { display: none; }
+.vk-words.vk-big-on .vk-big-row { display: grid; }
 
 /* Item tiles: the book's own numbers/names, each usable once */
 .vk-tiles { width: min(96vw, 560px); }
