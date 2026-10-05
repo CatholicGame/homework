@@ -107,7 +107,14 @@ export function createAngle(host, { o = { x: 500, y: 430 }, a = 0, b = 60, names
         gShade.innerHTML = `<path d="M${S.o.x} ${S.o.y} L${p1.x} ${p1.y} A ${r} ${r} 0 ${m > 180 ? 1 : 0} ${sweep} ${p2.x} ${p2.y} Z" fill="${KIND_COLOR[k]}" stroke="${KIND_INK[k]}" stroke-width="3"/>`;
       }
     }
-    const lab = (P, deg, txt) => { const q = pt(S.o, deg, rayLen + (S.fan ? 58 : 34)); return `<text x="${q.x}" y="${q.y + 14}" class="g4a-name">${txt}</text>`; };
+    // tên điểm giữ trong khung nhìn (cạnh OB xoay sát mép trái/phải thì chữ không bị cắt)
+    const vb = svg.viewBox.baseVal;
+    const lab = (P, deg, txt) => {
+      const q = pt(S.o, deg, rayLen + (S.fan ? 58 : 34));
+      const x = vb && vb.width ? Math.min(vb.x + vb.width - 30, Math.max(vb.x + 30, q.x)) : q.x;
+      const lift = Math.abs(x - q.x) > 4 ? (S.fan ? 52 : 36) : 0; // bị kéo vào trong: nhấc lên, khỏi đè đầu cạnh / chấm kéo
+      return `<text x="${x}" y="${q.y + 14 - lift}" class="g4a-name">${txt}</text>`;
+    };
     gRays.innerHTML = `
       <line x1="${S.o.x}" y1="${S.o.y}" x2="${A.x}" y2="${A.y}" class="g4a-ray"/>
       <line x1="${S.o.x}" y1="${S.o.y}" x2="${B.x}" y2="${B.y}" class="g4a-ray g4a-ray-b"/>
@@ -226,7 +233,9 @@ export function createAngle(host, { o = { x: 500, y: 430 }, a = 0, b = 60, names
     if (!r.width || !r.height) return;
     const asp = r.width / r.height;
     if (asp > W / H) { const w = H * asp; svg.setAttribute('viewBox', `${(W - w) / 2} 0 ${w} ${H}`); }
-    else { const h = W / asp; svg.setAttribute('viewBox', `0 ${(H - h) * 0.7} ${W} ${h}`); }
+    // màn dọc: chừa thêm 100 mỗi bên, thước xoay nghiêng quanh O (gần mép trái) không bị cắt
+    else { const ww = W + 200, h = ww / asp; svg.setAttribute('viewBox', `-100 ${(H - h) * 0.7} ${ww} ${h}`); }
+    drawRays();
   };
   const ro = new ResizeObserver(() => { if (!svg.isConnected) { ro.disconnect(); return; } fit(); });
   ro.observe(svg);

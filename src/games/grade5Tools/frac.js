@@ -73,6 +73,13 @@ export function createFrac(host, { reserve = 0, cap = true } = {}) {
   // màn dọc: nút chọn thấp hơn (cỡ chữ theo bề ngang) nên chừa ít hơn
   const res = host.clientHeight > host.clientWidth ? reserve * 0.72 : reserve;
   t.bot = reserve ? Math.round(H - (host.clientHeight * res) / pxPerU) : H;
+  // dòng chữ trên cao cố định (không đẩy hình): câu dài xuống 2 dòng (màn dọc) thì chữ thu nhỏ cho vừa, không bị cắt
+  const cap0 = host.querySelector('.g4v-cap');
+  t.caption = (html) => {
+    cap0.innerHTML = `<span class="g5f-capin">${html || '&nbsp;'}</span>`;
+    const inner = cap0.firstElementChild;
+    for (let s = 1; s > 0.5 && inner.offsetHeight > cap0.clientHeight + 1; s -= 0.06) inner.style.fontSize = `${s - 0.06}em`;
+  };
   svg.innerHTML = '<g class="g5f-bg"></g><g class="g5f-figs"></g><g class="g5f-top"></g>';
   const bgL = svg.querySelector('.g5f-bg'), figL = svg.querySelector('.g5f-figs'), topL = svg.querySelector('.g5f-top');
   t.draw = (html) => { bgL.innerHTML = html; };
@@ -354,6 +361,7 @@ function injectFracStyles() {
     .g5f .g4v-cap { height: 2.35em; min-height: 0; line-height: 1.1; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0 0.25em; overflow: hidden; }
     .g5f-nocap .g4v-cap { display: none; }
     .g5f .g4v-cap .g5-fr { font-size: 0.8em; }
+    .g5f-capin { display: block; max-width: 100%; text-align: center; }
     .g5f-btns { position: absolute; z-index: 4; left: 2cqi; right: 2cqi; bottom: 2cqh; display: flex; gap: 1.4cqi; justify-content: center; pointer-events: none; }
     .g5f-btns:empty { display: none; }
     .g5f-btn { pointer-events: auto; flex: 0 1 auto; min-width: 30%; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: min(6.4cqh, 3.8cqi); line-height: 1.15; padding: 0.35em 0.9em;
@@ -362,6 +370,7 @@ function injectFracStyles() {
     .g5f-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #C2410C; }
     .g5f-btn:disabled { background: #CBD5E1; box-shadow: 0 6px 0 #94A3B8; text-shadow: none; cursor: default; }
     .g5f-btn .g5-fr { font-size: 0.75em; }
+    @media (orientation: portrait) { .g5f .g4v-cap { height: 3.3em; } }
     @media (orientation: portrait) { .g5f-btn { font-size: min(5.4cqh, 6.6cqi); flex: 1 1 0; } }
   `);
 }

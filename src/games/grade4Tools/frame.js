@@ -287,9 +287,12 @@ export function injectFrameStyles() {
       .g4-nav { flex-direction: row; align-items: stretch; }
       .g4-replay { align-self: stretch; }
       .g4-next { max-height: none; }
-      .g4-end { flex-direction: row; flex-wrap: wrap; align-items: stretch; }
-      .g4-end-title { flex: 1 1 100%; padding: 0.1em; }
-      .g4-end .g4-nav-btn { flex: 1 1 0; }
+      /* vùng nút dọc thấp: dòng chúc mừng đè lên đáy tờ giấy (chỗ trống của nút chọn), ba nút một hàng vừa kín vùng */
+      .g3d-scene.g4-scene > .g3d-padzone { z-index: 3; }
+      .g4-nav { position: relative; }
+      .g4-end { flex-direction: row; align-items: stretch; }
+      .g4-end-title { position: absolute; left: 8%; right: 8%; bottom: calc(100% + 0.9rem); z-index: 5; padding: 0.15em 0.4em; box-shadow: 0 4px 0 rgba(63,58,64,0.25); }
+      .g4-end .g4-nav-btn { flex: 1 1 0; min-width: 0; max-height: none; font-size: min(5.4cqi, 30cqh); line-height: 1.1; padding: 0.2em 0.25em; }
     }
     @media (orientation: landscape) and (max-height: 500px) {
       .g4-nav { gap: 0.3rem; }

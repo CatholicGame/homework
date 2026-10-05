@@ -233,7 +233,7 @@ function taskDiv(id, lv) {
 /** Biết 7 657 : 31 = 247, tìm 765,7 : 31 (dấu phẩy số bị chia dời sang trái → thương cũng vậy). */
 function taskKnown() {
   return {
-    id: 'known',
+    id: 'knowndiv',
     make: (rng) => {
       for (;;) {
         const d = rng.int(12, 48), Q = rng.int(102, 899);

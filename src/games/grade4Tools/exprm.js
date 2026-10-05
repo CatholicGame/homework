@@ -62,10 +62,12 @@ export function createExpr(host, { machines, shape = null, rows = 4, title = '' 
     if (!svg) return;
     const a = vals?.a, b = shape === 'rect' ? vals?.b : a;
     if (a == null) { svg.innerHTML = ''; return; }
-    const k = 220 / Math.max(a, b || a, 10);
-    const w = a * k, h = (b || a) * k, x = 200 - w / 2, y = 150 - h / 2;
+    // hình chữ nhật lệch trái để nhãn b (bên phải) nằm trọn trong khung 400
+    const rect = shape === 'rect', cx = rect ? 140 : 200;
+    const k = (rect ? 190 : 220) / Math.max(a, b || a, 10);
+    const w = a * k, h = (b || a) * k, x = cx - w / 2, y = 150 - h / 2;
     svg.innerHTML = `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#FEF3C7" stroke="${INK}" stroke-width="5"/>
-      <text x="200" y="${y - 14}" class="g4e-sl" fill="${LETTER_COLOR.a}">a = ${a} cm</text>
+      <text x="${cx}" y="${y - 14}" class="g4e-sl" fill="${LETTER_COLOR.a}">a = ${a} cm</text>
       ${shape === 'rect' ? `<text x="${x + w + 12}" y="${150 + 10}" class="g4e-sl" fill="${LETTER_COLOR.b}" style="text-anchor:start">b = ${b} cm</text>` : ''}`;
   }
 
@@ -201,6 +203,9 @@ function injectExprStyles() {
   styled = true;
   css('g4-expr', `
     .g4e { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 2cqh; padding: 2cqh 2cqi; font-family: 'Baloo 2', sans-serif; box-sizing: border-box; }
+    /* Khám phá: nút chọn đè lên đáy tờ giấy, chừa sẵn chỗ để không che bảng và dòng công thức */
+    .g4-board:not(.g4-pboard) > .g4e { padding-bottom: calc(min(6.4cqh, 3.6cqi) * 2 + 2cqh + 12px); }
+    @media (orientation: portrait) { .g4-board:not(.g4-pboard) > .g4e { padding-bottom: calc(min(5.2cqh, 7.4cqi) * 2.1 + 2cqh + 12px); } }
     .g4e-top { flex: 1 1 0; min-height: 0; display: flex; gap: 2cqi; align-items: stretch; }
     .g4e-ms { flex: 1 1 0; display: flex; gap: 2cqi; min-width: 0; }
     @media (orientation: portrait) { .g4e-ms { flex-direction: column; gap: 1.6cqh; } }

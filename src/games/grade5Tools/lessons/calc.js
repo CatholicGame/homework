@@ -31,11 +31,14 @@ const column = (m, full = false) => (board) => {
   return t;
 };
 
+/** Dòng dài "1,65 m = 165 cm · 1,26 m = 126 cm": chỉ xuống dòng ở dấu ·, không tách giữa một phép tính. */
+const keepParts = (l) => l.split(' · ').map(p => `<span class="g5c-part">${p}</span>`).join(' · ');
+
 /** Tình huống: hình vẽ + các dòng tính hiện dần (chỗ đã giữ sẵn, không đẩy hình). */
 const story = (svg, lines) => (board) => {
   injectStyles();
   board.innerHTML = `<div class="g5c-story"><div class="g5c-pic">${svg}</div>
-    <div class="g5c-lines">${lines.map((l, i) => `<div class="g5c-line" data-l="${i}">${l}</div>`).join('')}</div></div>`;
+    <div class="g5c-lines">${lines.map((l, i) => `<div class="g5c-line" data-l="${i}">${keepParts(l)}</div>`).join('')}</div></div>`;
   const t = emitter({});
   t.line = (i) => board.querySelector(`[data-l="${i}"]`).classList.add('g5c-on');
   t.lab = (k, text) => { const el = board.querySelector(`[data-lab="${k}"]`); if (el) { el.textContent = text; el.classList.remove('g5c-pop'); void el.getBoundingClientRect(); el.classList.add('g5c-pop'); } };
@@ -602,9 +605,10 @@ function injectStyles() {
     .g5c-pic { flex: 1 1 0; min-height: 0; display: flex; justify-content: center; }
     .g5c-pic svg { width: 100%; height: 100%; }
     .g5c-lines { flex: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6cqh 2cqi; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #1E293B; font-size: min(5.6cqh, 3.4cqi); line-height: 1.25; }
-    .g5c-line { visibility: hidden; background: #F8FAFC; border: 3px solid #CBD5E1; border-radius: 0.6em; padding: 0.1em 0.5em; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .g5c-line { visibility: hidden; background: #F8FAFC; border: 3px solid #CBD5E1; border-radius: 0.6em; padding: 0.1em 0.5em; text-align: center; text-wrap: balance; }
     .g5c-line.g5c-on { visibility: visible; animation: g5cIn .4s ease-out; }
     .g5c-line b { color: #C2410C; }
+    .g5c-part { white-space: nowrap; }
     @keyframes g5cIn { from { opacity: 0; transform: translateY(0.4em); } }
     @container (orientation: portrait) { .g5c-lines { grid-template-columns: minmax(0, 1fr); font-size: min(4.6cqh, 5.4cqi); } }
     .g5c-pop { animation: g5cPop .45s cubic-bezier(.2,1.5,.4,1); transform-box: fill-box; transform-origin: center; }

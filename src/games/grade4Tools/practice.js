@@ -30,14 +30,15 @@ export function practiceGame(lesson, tasks, book = G4_BOOK) {
       // Đổi dạng câu lần lượt (trộn thứ tự một lần cho cả ván) để 5 câu khác nhau.
       if (!history.length) this._order = rng.shuffle(tasks.map((_, i) => i));
       const order = this._order || tasks.map((_, i) => i);
-      const task = tasks[order[history.length % order.length]];
+      const ti = order[history.length % order.length], task = tasks[ti];
       const seen = new Set(history.map(h => h?.key).filter(Boolean));
       let m;
       for (let k = 0; k < 40; k++) { m = task.make(rng); if (!seen.has(`${task.id}:${JSON.stringify(m)}`)) break; }
-      return { ...m, task: task.id, order, key: `${task.id}:${JSON.stringify(m)}` };
+      // ti: vị trí dạng câu (bài trộn có thể có hai dạng trùng id, tìm theo id sẽ lấy nhầm dạng)
+      return { ...m, task: task.id, ti, order, key: `${task.id}:${JSON.stringify(m)}` };
     },
     mountMission(stage, m, level, api) {
-      const own = tasks.find(x => x.id === m.task);
+      const own = tasks[m.ti] || tasks.find(x => x.id === m.task);
       if (own.stage) { own.stage(stage, m, api); return; } // task tự dựng cả màn (vd. đặt tính của Luyện Tính lớp 3)
       injectFrameStyles();
       injectPracticeStyles();
@@ -51,8 +52,7 @@ export function practiceGame(lesson, tasks, book = G4_BOOK) {
         choose: (o) => choose(f, o),
         finish: (o) => d.done(f.mistakes, o),
       };
-      const task = tasks.find(x => x.id === m.task);
-      task.mount(f, m);
+      own.mount(f, m);
     },
   };
 }
@@ -165,6 +165,8 @@ function injectPracticeStyles() {
     .g4-pboard:has(.g4-tool:empty) .g4-choices { flex: 0 0 34%; }
     .g4-pboard:has(.g4-tool:empty) .g4-choices-col { flex: 0 0 52%; }
     .g4-pboard:has(.g4-tool:empty) .g4-choice { font-size: min(8cqh, 4.6cqi); }
+    /* nút chữ dài (cách đọc số: 2 dòng mỗi nút): chữ nhỏ hơn để 3 nút vừa vùng nút */
+    .g4-pboard:has(.g4-tool:empty) .g4-choices-long .g4-choice { font-size: min(4.4cqh, 3.4cqi); line-height: 1.15; padding: 0.25em 0.5em; text-wrap: balance; }
     .g4-ref { flex: none; align-self: flex-start; display: flex; gap: 0.3em; max-width: 100%; white-space: nowrap; font-family: 'Baloo 2', sans-serif; font-weight: 700;
       font-size: min(3.2cqh, 3.2cqi); line-height: 1.3; color: #7C2D12; background: #FFEDD5; border-radius: 999px; padding: 0.1em 0.8em; box-sizing: border-box; }
     .g4-ref > span { flex: none; }
@@ -173,6 +175,7 @@ function injectPracticeStyles() {
     @container (orientation: portrait) {
       .g4-q { font-size: min(7cqh, 6.2cqi); text-wrap: balance; }
       .g4-pboard:has(.g4-tool:empty) .g4-q { font-size: min(8.5cqh, 7.6cqi); }
+      .g4-pboard:has(.g4-tool:empty) .g4-choices-long .g4-choice { font-size: min(3.8cqh, 5.2cqi); }
       .g4-ref { font-size: min(3.6cqh, 4.4cqi); }
       .g4-ref-x, .g4-ref .g4-ref-t { display: none; }
     }

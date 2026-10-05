@@ -310,7 +310,7 @@ export const MUL_GAME = {
       done(mistakes, { ok: `${fmt(a)} × ${fmt(b)} = ${fmt(R)}.`, tip: firstWrong ? `Nhớ: ${firstWrong}` : '' });
     }
 
-    if (import.meta.env.DEV) window.__g3drill = { m, steps, step: () => (tracing ? tracing.finish() : pad.type(steps[k]?.write ?? '')),
+    if (import.meta.env.DEV) window.__g3drill = { m, steps, cur: () => steps[k], step: () => (tracing ? tracing.finish() : pad.type(steps[k]?.write ?? '')),
       wrong: () => pad.type([...(steps[k]?.write ?? '')].map(c => (Number(c) + 1) % 10).join('')) };
     start();
   },

@@ -21,6 +21,7 @@
  *   v.label(html) / v.label('')    nhãn nhỏ chú thích cho bố mẹ (mép trên, không che chỗ bấm)
  *   v.say(text)                    người dẫn đọc một câu (giọng scene.narrator), chờ đọc xong
  *   v.tap(selector | fn, { arg })  ngón tay bay tới phần tử rồi bấm (fn(arg) chạy trong trang, trả về phần tử)
+ *   v.drag(selector, { from: [0, 0.5], to: [1, 0.5], ms })   ngón tay kéo trên phần tử (toạ độ theo tỉ lệ khung phần tử)
  *   v.waitFor(selector, ms?)       chờ phần tử hiện ra
  *   v.wait(ms)
  *   v.heard('câu') / v.heard({ sfx: 'ding' })   chờ thầy bắt đầu đọc câu có chứa chữ đó / chờ tiếng động
@@ -118,6 +119,10 @@ await context.addInitScript(({ grade }) => {
   localStorage.setItem('tth_guest', 'true');
   localStorage.setItem('tth_profile_guest', JSON.stringify({ setupDone: true, grade, name: 'Bé', gender: 'girl', avatar: 'girls/girl1' }));
   localStorage.setItem('pre1-mute', '0');
+  // Trò chơi xin toàn màn hình khi bắt đầu: trình duyệt không giao diện sẽ đổi khung về 800×600 → bỏ qua, giữ khổ điện thoại.
+  Element.prototype.requestFullscreen = function () { return Promise.resolve(); };
+  Element.prototype.webkitRequestFullscreen = function () {};
+  try { if (screen.orientation) screen.orientation.lock = () => Promise.resolve(); } catch { /* */ }
 
   // speechSynthesis giả: "đọc" đúng bằng độ dài mp3 do tts.py tạo.
   class Utterance { constructor(text) { Object.assign(this, { text, lang: '', voice: null, rate: 1, pitch: 1, volume: 1, onend: null, onstart: null }); } }
@@ -260,6 +265,41 @@ const v = {
   async uncard() {
     await page.evaluate(() => document.querySelectorAll('.v-card').forEach(c => { c.classList.remove('v-on'); setTimeout(() => c.remove(), 450); }));
     await sleep(450);
+  },
+  /** Ngón tay đặt ở `from` rồi kéo tới `to` (tỉ lệ trong khung phần tử), chuột thật bấm giữ suốt nét kéo. */
+  async drag(sel, { from = [0, 0.5], to = [1, 0.5], ms = 1000, move = 650, after = 350 } = {}) {
+    const el = (await page.waitForSelector(sel, { timeout: 60000, state: 'visible' })).asElement();
+    await sleep(300);
+    const b = await el.boundingBox();
+    const P = ([fx, fy]) => ({ x: b.x + b.width * fx, y: b.y + b.height * fy });
+    const p0 = P(from), p1 = P(to);
+    const place = (p, ms) => page.evaluate(({ from, to, ms }) => {
+      const f = document.getElementById('v-finger');
+      f.style.transition = 'none';
+      f.style.transform = `translate(${from.x}px, ${from.y}px)`;
+      void f.offsetWidth;
+      f.classList.add('v-on');
+      f.style.transition = `transform ${ms}ms cubic-bezier(.45,.05,.3,1), opacity 0.25s`;
+      f.style.transform = `translate(${to.x}px, ${to.y}px)`;
+    }, { from: finger, to: p, ms });
+    await place(p0, move);
+    finger = p0;
+    await sleep(move + 80);
+    await page.mouse.move(p0.x, p0.y);
+    await page.evaluate(() => document.getElementById('v-finger').classList.add('v-press'));
+    await page.mouse.down();
+    const n = Math.max(8, Math.round(ms / 30));
+    for (let i = 1; i <= n; i++) {
+      const p = { x: p0.x + (p1.x - p0.x) * i / n, y: p0.y + (p1.y - p0.y) * i / n };
+      await page.evaluate(({ x, y }) => { const f = document.getElementById('v-finger'); f.style.transition = 'none'; f.style.transform = `translate(${x}px, ${y}px)`; }, p);
+      await page.mouse.move(p.x, p.y);
+      await sleep(ms / n);
+    }
+    finger = p1;
+    await page.mouse.up();
+    await page.evaluate(() => document.getElementById('v-finger').classList.remove('v-press'));
+    await sleep(after);
+    await page.evaluate(() => document.getElementById('v-finger').classList.remove('v-on'));
   },
   /** Ngón tay bay tới phần tử rồi bấm thật (chuột tại toạ độ đó). */
   async tap(target, { move = 650, after = 350, arg = null } = {}) {

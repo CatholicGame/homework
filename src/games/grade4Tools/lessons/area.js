@@ -13,6 +13,8 @@ import { fmt, fmtSp } from '../num.js';
 const CM = 34;
 const DX = 560, DY = 130; // góc trái trên của hình vuông 1 dm²
 const NS = 'vector-effect="non-scaling-stroke"';
+/** Ô 1 cm² màu hồng bên trái hình vuông 1 dm² (dọc: sát hơn để hình to kín tờ giấy). */
+const cmAt = (t) => ({ x: t.portrait() ? DX - 100 : 200, y: DY + 150 });
 
 function gridSq(x, y, n, s, { fill = '#fff', line = '#93C5FD', w = 2, outer = INK, ow = 5, cls = '' } = {}) {
   let g = `<g class="${cls}"><rect x="${x}" y="${y}" width="${n * s}" height="${n * s}" fill="${fill}"/>`;
@@ -39,10 +41,12 @@ const B18 = {
     steps: [
       async (c) => {
         const t = c.t;
+        const { x, y } = cmAt(t);
+        if (t.portrait()) t.frame(DX - 150, DY - 65, 10 * CM + 180, 10 * CM + 190); // dọc: sát hình, chừa đáy cho nút chọn
         t.draw(`
-          <g class="g4ar-cm"><rect x="200" y="${DY + 150}" width="${CM}" height="${CM}" fill="#F472B6" stroke="${INK}" stroke-width="4" ${NS}/>
-            <text x="${200 + CM / 2}" y="${DY + 125}" class="g4v-t" font-size="34">1 cm²</text>
-            <text x="${200 + CM / 2}" y="${DY + 230}" class="g4v-t" font-size="24" fill="#64748B">cạnh 1 cm</text></g>
+          <g class="g4ar-cm"><rect x="${x}" y="${y}" width="${CM}" height="${CM}" fill="#F472B6" stroke="${INK}" stroke-width="4" ${NS}/>
+            <text x="${x + CM / 2}" y="${y - 25}" class="g4v-t" font-size="34">1 cm²</text>
+            <text x="${x + CM / 2}" y="${y + 80}" class="g4v-t" font-size="24" fill="#64748B">cạnh 1 cm</text></g>
           ${gridSq(DX, DY, 10, CM, { cls: 'g4ar-dm', line: '#E2E8F0' })}
           <text x="${DX + 5 * CM}" y="${DY - 22}" class="g4v-t" font-size="34">1 dm²</text>
           <text x="${DX + 5 * CM}" y="${DY + 10 * CM + 36}" class="g4v-t" font-size="24" fill="#64748B">cạnh 1 dm</text>`);
@@ -78,7 +82,8 @@ const B18 = {
           <text x="${DX - 900}" y="${DY + 10 * S + 330}" class="g4v-t" font-size="230" fill="#64748B">cao khoảng 1 m 3 dm</text>`);
         t.caption('Thu nhỏ để nhìn xa hơn…');
         await c.say('Bây giờ thu nhỏ để nhìn xa hơn.');
-        await t.view(DX - 2100, DY - 1300, 6400, 5300, 2200);
+        if (t.portrait()) await t.view(DX - 2000, DY - 700, 5600, 4600, 2200); // dọc: vừa khít bề ngang
+        else await t.view(DX - 2100, DY - 1300, 6400, 5300, 2200);
         t.caption('Mét vuông: hình vuông cạnh <b>1 m</b> · <b>1 m² = 100 dm²</b>');
         await c.say('Ô màu hồng chính là 1 đề-xi-mét vuông. Hình vuông cạnh 1 mét có 10 hàng, mỗi hàng 10 ô như vậy. 1 mét vuông bằng 100 đề-xi-mét vuông.');
         await c.say('Bạn nhỏ cao khoảng 1 mét 3 đề-xi-mét đứng cạnh. 1 mét vuông vừa đủ chỗ cho một bạn nằm co chân.');
@@ -86,7 +91,7 @@ const B18 = {
       async (c) => {
         const t = c.t;
         // mm²: phóng vào ô 1 cm² màu hồng bên trái
-        const x = 200, y = DY + 150;
+        const { x, y } = cmAt(t);
         t.add(`${gridSq(x, y, 10, CM / 10, { fill: 'none', line: '#BE185D', w: 1.2, ow: 2.5 })}${ant(x + CM * 0.55, y + CM * 0.62, CM * 0.32)}
           <text x="${x + CM / 2}" y="${y - 4}" class="g4v-t" font-size="3.6">1 cm² = 100 mm²</text>`);
         t.caption('Phóng to ô 1 cm²…');
@@ -97,7 +102,7 @@ const B18 = {
       },
       async (c) => {
         const t = c.t;
-        t.resetView();
+        if (t.portrait()) t.frame(220, 40, 560, 460); else t.resetView();
         t.draw('');
         t.caption('Chọn đơn vị đo thích hợp');
         for (const [ic, name, n, u] of [['📮', 'Con tem', 6, 'cm²'], ['🏫', 'Nền lớp học', 60, 'm²'], ['🪑', 'Mặt bàn học', 30, 'dm²']]) {
@@ -112,6 +117,7 @@ const B18 = {
         t.draw('');
         t.caption('Lát mặt bàn dài 6 dm, rộng 4 dm bằng các tấm <b>1 dm²</b>');
         const s = 90, x0 = 500 - 3 * s, y0 = 120;
+        if (t.portrait()) t.frame(120, 60, 680, 460);
         t.tiles(x0, y0, 6, 4, s, { color: '#FDBA74', label: true });
         t.add(`<text x="500" y="${y0 - 20}" class="g4v-t" font-size="34">6 dm</text><text x="${x0 - 20}" y="${y0 + 2 * s + 12}" class="g4v-t" font-size="34" style="text-anchor:end">4 dm</text>`);
         await c.say('Bấm vào các ô để lát kín mặt bàn bằng các tấm 1 đề-xi-mét vuông.', 'Bấm các ô để lát kín.');

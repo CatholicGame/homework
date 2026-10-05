@@ -467,7 +467,7 @@ function taskRead(len) {
     make: (rng) => { const n = randNum(rng, len, { zeros: 0.3 }); return { n, opts: readingOptions(rng, n) }; },
     async mount(f, { n, opts }) {
       f.q.innerHTML = `<span style="font-size:1.5em">${numHtml(n)}</span><small>Số này đọc là:</small>`;
-      f.choicesBox.classList.add('g4-choices-col');
+      f.choicesBox.classList.add('g4-choices-col', 'g4-choices-long');
       await f.choose({ options: opts.map(v => ({ html: capFirst(R(v)), value: v })), answer: n, say: 'Chọn cách đọc đúng.', hint: 'Đọc từng lớp từ trái sang phải, rồi đọc tên lớp.' });
       f.finish({ ok: `${capFirst(R(n))}.`, tip: 'Tách số thành từng lớp 3 chữ số, đọc từ trái sang phải.' });
     },

@@ -6,7 +6,7 @@ import { sleep } from '../../grade3Drills/kit.js';
 import { sfx } from '../frame.js';
 
 const O = { x: 330, y: 450 };
-const PARK = { x: 760, y: 560, rot: 350 };
+const PARK = { x: 722, y: 560, rot: 350 }; // chỗ để thước lúc đầu: trọn trong khung 1000 (màn dọc khung không giãn ngang)
 const KINDS = ['nhọn', 'vuông', 'tù', 'bẹt'];
 const kindBtn = (k) => ({ html: `<span style="color:${KIND_INK[k]}">Góc ${k}</span>`, value: k });
 
