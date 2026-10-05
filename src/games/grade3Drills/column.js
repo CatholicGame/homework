@@ -1,13 +1,14 @@
 /**
  * ✍️ Đặt tính rồi tính: cộng, trừ, nhân (số có một chữ số) theo cột dọc, như trong vở.
- * Các chữ số bay từ đề xuống đúng cột (thẳng hàng đơn vị). Em tính từ phải sang trái: mỗi hàng gõ chữ số viết
+ * Đặt tính như viết vở: số thứ nhất, dấu phép tính, số thứ hai bay từ đề xuống đúng cột (thẳng hàng đơn vị), rồi em tự
+ * kẻ vạch bằng thước (kit.js traceRule). Em tính từ phải sang trái: mỗi hàng gõ chữ số viết
  * ở dưới; hàng nào có nhớ thì gõ thêm số nhớ (cộng, nhân: số nhỏ trên đầu hàng bên trái; trừ: số nhỏ cạnh số trừ
  * của hàng bên trái, "thêm 1"). Hàng cuối cùng viết cả số (vd. 14).
  * Gõ sai: ô rung, thầy nhắc đúng câu của lớp học ("6 cộng 7 bằng 13, viết 3, nhớ 1.") và em gõ lại.
  * Lượt đúng khi không phải sửa bước nào.
  */
 
-import { mountDrill, shake, setActive, flyDigit, fmt, PLACE, MINUS, fresh, sfx, sleep, how, TEACHER } from './kit.js';
+import { mountDrill, shake, setActive, setUse, arrowLayer, traceRule, flyDigit, fmt, PLACE, MINUS, fresh, sfx, sleep, how, TEACHER } from './kit.js';
 
 const OPS = { '+': '+', '-': MINUS, '*': '×' };
 
@@ -164,13 +165,13 @@ export const COLUMN_GAME = {
     for (let i = 0; i < L; i++) {
       if (op !== '-') cell(0, col(i), 'g3c-carry');
       cell(1, col(i), 'g3c-a');
-      cell(2, col(i), 'g3c-b g3c-line');
+      cell(2, col(i), 'g3c-b');
       cell(3, col(i), 'g3c-res g3d-in');
     }
-    cell(2, 1, 'g3c-sign g3c-line', sign);
+    cell(2, 1, 'g3c-sign'); // dấu và vạch kẻ: viết trong start()
     // Cỡ ô theo khung tờ vở: vừa W cột (thêm lề) và 3,6 hàng + dòng đề.
     const board = `
-      <div class="g3c-head"><span>Đặt tính rồi tính:</span> <b class="g3c-expr">${digitSpans(a, 'a')} ${sign} ${digitSpans(b, 'b')}</b> <b class="g3c-eq">= <span class="g3c-ans">?</span></b></div>
+      <div class="g3c-head"><span>Đặt tính rồi tính:</span> <b class="g3c-expr">${digitSpans(a, 'a')} <span data-d="op">${sign}</span> ${digitSpans(b, 'b')}</b> <b class="g3c-eq">= <span class="g3c-ans">?</span></b></div>
       <div class="g3d-grid g3c-grid" style="--cell:min(calc((100cqi - 7rem) / ${W + 0.8}), calc((100cqh - 6.5rem) / 3.9), 220px);grid-template-columns:repeat(${W}, var(--cell));grid-template-rows:calc(var(--cell) * 0.55) repeat(3, var(--cell))">
         ${cells.join('')}
       </div>`;
@@ -185,6 +186,8 @@ export const COLUMN_GAME = {
       return s;
     };
     const carryEl = (i) => (op === '-' ? borrowEl(i) : at(0, i));
+    const arrows = arrowLayer(paper.querySelector('.g3c-grid'));
+    let tracing = null;
     let mistakes = 0;
     let firstWrong = null;
     let k = -1;
@@ -192,18 +195,21 @@ export const COLUMN_GAME = {
     async function start() {
       say(`Em đặt tính rồi tính ${fmt(a)} ${op === '+' ? 'cộng' : op === '-' ? 'trừ' : 'nhân'} ${fmt(b)}. Bắt đầu từ hàng đơn vị.`,
         'Viết các số <b>thẳng cột</b>…');
-      // Đặt tính: từng chữ số bay từ đề xuống đúng cột, hàng đơn vị thẳng hàng đơn vị.
-      let end = 0;
-      const put = (s, name, row, delay0) => [...s].forEach((ch, j) => {
+      // Đặt tính: số thứ nhất, dấu, số thứ hai bay từ đề xuống đúng cột (hàng đơn vị thẳng hàng đơn vị), rồi kẻ vạch.
+      const put = (s, name, row) => Math.max(...[...s].map((ch, j) => {
         const i = s.length - 1 - j;
         const target = at(row, i);
-        end = Math.max(end, flyDigit(ch, paper.querySelector(`[data-d="${name}${i}"]`), target, {
-          delay: delay0 + j * 110, onLand: () => { target.prepend(ch); sfx.pop(j); },
-        }));
-      });
-      put(A, 'a', 1, 0);
-      put(B, 'b', 2, A.length * 110 + 150);
-      await sleep(end + 150);
+        return flyDigit(ch, paper.querySelector(`[data-d="${name}${i}"]`), target, {
+          delay: j * 110, onLand: () => { target.prepend(ch); sfx.pop(j); },
+        });
+      }));
+      await sleep(put(A, 'a', 1) + 150);
+      const signEl = paper.querySelector('[data-r="2"][data-c="1"]');
+      await sleep(flyDigit(sign, paper.querySelector('[data-d="op"]'), signEl, { onLand: () => { signEl.textContent = sign; sfx.pop(3); } }) + 150);
+      await sleep(put(B, 'b', 2) + 200);
+      tracing = traceRule(paper.querySelector('.g3c-grid'), 2, { say, show, hint });
+      await tracing.done;
+      tracing = null;
       next();
     }
 
@@ -215,7 +221,17 @@ export const COLUMN_GAME = {
         const n = s.write.length;
         const els = Array.from({ length: n }, (_, j) => at(3, s.i + n - 1 - j)); // trái → phải
         setActive(paper, els);
-        show(`<b>${PLACE[s.i]}</b>: viết ${n > 1 ? 'số' : 'chữ số'} nào?`);
+        // Chữ số đang tính sáng lên (cả số nhớ cộng thêm); phép nhân: mũi tên từ thừa số thứ hai tới chữ số đang nhân.
+        const cWrite = steps[k - 1]?.kind === 'carry' ? steps[k - 1].write : ''; // chữ số nhớ có thể còn đang bay lên ô
+        const carry = cWrite ? carryEl(s.i) : null;
+        if (op === '*') {
+          setUse(paper, [at(2, 0), at(1, s.i), carry]);
+          arrows.draw([{ from: at(2, 0), to: at(1, s.i) }]);
+          show(`<b>${b} × ${A[A.length - 1 - s.i]}</b>${carry ? `, thêm nhớ <b>${cWrite}</b>` : ''}: viết ${n > 1 ? 'số' : 'chữ số'} nào?`);
+        } else {
+          setUse(paper, [s.i < A.length && at(1, s.i), s.i < B.length && at(2, s.i), carry]);
+          show(`<b>${PLACE[s.i]}</b>: viết ${n > 1 ? 'số' : 'chữ số'} nào?`);
+        }
         pad.want({
           max: n, auto: true,
           onType: (t) => els.forEach((el, j) => { el.textContent = t[j] || ''; }),
@@ -223,6 +239,7 @@ export const COLUMN_GAME = {
         });
       } else {
         const el = carryEl(s.i);
+        arrows.clear();
         setActive(paper, el);
         show(`Nhớ mấy? Viết số nhớ nhỏ ở <b>${PLACE[s.i].toLowerCase()}</b>.`);
         pad.want({ max: 1, auto: true, onType: () => {}, onSubmit: (t) => check(t, [el], true) });
@@ -263,6 +280,8 @@ export const COLUMN_GAME = {
 
     async function finish() {
       setActive(paper, null);
+      setUse(paper, null);
+      arrows.clear();
       paper.querySelector('.g3c-ans').textContent = fmt(R);
       paper.querySelector('.g3c-eq').classList.add('g3c-eq-done');
       paper.querySelectorAll('.g3c-res').forEach((el, j) => setTimeout(() => el.classList.add('g3d-ok-flash'), j * 70));
@@ -270,14 +289,14 @@ export const COLUMN_GAME = {
       done(mistakes, { ok: `${fmt(a)} ${sign} ${fmt(b)} = ${fmt(R)}.`, tip: firstWrong ? `Nhớ: ${firstWrong}` : '' });
     }
 
-    if (import.meta.env.DEV) window.__g3drill = { m, steps, step: () => pad.type(steps[k]?.write ?? ''),
+    if (import.meta.env.DEV) window.__g3drill = { m, steps, step: () => (tracing ? tracing.finish() : pad.type(steps[k]?.write ?? '')),
       wrong: () => pad.type([...(steps[k]?.write ?? '')].map(c => (Number(c) + 1) % 10).join('')) };
     start();
   },
 };
 
 let colStyles = false;
-function injectColumnStyles() {
+export function injectColumnStyles() {
   if (colStyles) return;
   colStyles = true;
   const st = document.createElement('style');

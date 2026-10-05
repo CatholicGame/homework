@@ -3820,6 +3820,16 @@ export const STAR_RATINGS = {
   'drill2:d2-cal-1': 1,
   'drill2:d2-cal-2': 2,
   'drill2:d2-cal-3': 2,
+  // drill4: Luyện Tính lớp 4 (grade4Drills.js) — một khoá cho mỗi cấp (nhận sao lần đầu làm xong lượt)
+  'drill4:d4-mul-1': 2,
+  'drill4:d4-mul-2': 3,
+  'drill4:d4-mul-3': 3,
+  'drill4:d4-mul-4': 4,
+  'drill4:d4-div-1': 2,
+  'drill4:d4-div-2': 3,
+  'drill4:d4-div-3': 3,
+  'drill4:d4-div-4': 4,
+  'drill4:d4-div-5': 4,
   // workbook1:bai-2
   'workbook1:bai-2:0': 1,
   'workbook1:bai-2:1': 1,

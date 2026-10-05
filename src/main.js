@@ -329,6 +329,7 @@ function navigate(gameId) {
     'grade3-worksheet': () => import('./games/grade3Worksheet.js'),
     'grade3-drills': () => import('./games/grade3Drills.js'),
     'grade2-drills': () => import('./games/grade2Drills.js'),
+    'grade4-drills': () => import('./games/grade4Drills.js'),
     'grade3-workbook': () => import('./games/grade3Workbook.js'),
     'grade3-workbook-2': () => import('./games/grade3Workbook2.js'),
     'grade3-practice': () => import('./games/grade3Practice.js'),

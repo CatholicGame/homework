@@ -48,6 +48,7 @@ export const GRADES = [
     num: 4, title: 'Lớp 4', icon: '4️⃣', color: '#C084FC',
     games: [
       { id: 'grade4-tools', icon: '🧰', color: '#8B5CF6', title: 'Toán 4: Học bằng công cụ', desc: 'Tập Một, Bài 1–37: bảng hàng, tia số, thước đo góc, ê ke… em tự tay khám phá rồi thực hành' },
+      { id: 'grade4-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Nhân, chia đặt tính với số có một, hai, ba chữ số: tích riêng, ước lượng thương' },
     ],
   },
   { num: 5, title: 'Lớp 5', icon: '5️⃣', color: '#FBBF24', games: [] },
