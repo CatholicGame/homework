@@ -6,6 +6,8 @@
  *   - Bước ②, cạnh: chạm một cạnh, hoặc chạm hai đỉnh liền nhau. Hai đỉnh không liền nhau (đường chéo):
  *     nét đứt đỏ hiện rồi tắt, "không phải cạnh".
  *   - Hình mẫu (sample): chạm thì máy làm mẫu một lượt, không điền gì.
+ *   - Giọng đọc: mỗi lần chạm đọc tên ("đỉnh em-mờ", "cạnh ca em-mờ"), lời nhắc, lời khen đọc cả câu,
+ *     để bé vừa nhìn, vừa nghe, vừa làm. Nút 🔊 tắt/bật (chung với giọng của sách mầm non).
  *
  * q.namePlay = { shapes: [{ col: 1, img, points: { S: [300, 85], … }, order: 'SAC', verts: [r, c], sides: [r, c], sample? }] }
  *   col: thứ tự hình trong hàng tiêu đề của bảng; points theo viewBox của img; order: các đỉnh đi vòng quanh hình
@@ -15,12 +17,20 @@
 
 import { figureBox } from './geoTools.js';
 import { flyOne, calmMotion } from '../games/grade3Games/fly.js';
+import { say as rawSay, stopSpeaking, isMuted, setMuted } from '../games/preschool/fx.js';
+import { isEnglish } from './i18n.js';
+import { speakableVi } from './letterNames.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const INK = '#1E293B';
 const VCOL = '#7C3AED'; // đỉnh
 const SCOL = '#EA580C'; // cạnh
 const MEMO = new WeakMap();
+// Giọng Việt: tên điểm đọc theo tên chữ cái (AB → a bê); bỏ thẻ HTML của lời nhắc.
+const speak = (html, opts) => {
+  const text = String(html).replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
+  if (text) rawSay(isEnglish() ? text : speakableVi(text), opts);
+};
 
 function el(tag, attrs = {}, parent) {
   const e = document.createElementNS(NS, tag);
@@ -113,6 +123,7 @@ export function openNamePlay(root, q, shape) {
           <span class="np-step" data-s="0">① Chạm các <b>đỉnh</b></span>
           <span class="np-step" data-s="1">② Chạm các <b>cạnh</b></span>
         </div>
+        <button type="button" class="np-mute" title="Tắt / bật giọng đọc"></button>
         <button type="button" class="np-close">✓ Xong</button>
       </div>
       <div class="np-stage">
@@ -134,6 +145,7 @@ export function openNamePlay(root, q, shape) {
 
   const close = () => {
     timers.forEach(clearTimeout);
+    stopSpeaking();
     overlay.remove();
     document.removeEventListener('keydown', onKey);
     filled.forEach((e) => { e.classList.remove('np-filled'); void e.offsetWidth; e.classList.add('np-filled'); });
@@ -143,16 +155,25 @@ export function openNamePlay(root, q, shape) {
   overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
   overlay.querySelector('.np-close').onclick = close;
 
-  const say = (html, cls = '') => {
+  const muteBtn = overlay.querySelector('.np-mute');
+  const paintMute = () => { muteBtn.textContent = isMuted() ? '🔇' : '🔊'; };
+  paintMute();
+  muteBtn.onclick = () => { setMuted(!isMuted()); paintMute(); if (!isMuted()) speak(sayBox.textContent); };
+  /** Lời nhắc trên hình, đọc to luôn. `voice`: câu đọc khác chữ hiện (ngắn hơn khi bé chạm nhanh); false = không đọc. */
+  const say = (html, cls = '', { voice, queue = false } = {}) => {
     sayBox.className = `np-say${html ? ' np-show' : ''} ${cls}`;
     sayBox.innerHTML = `<span>${html || '&nbsp;'}</span>`;
+    if (voice !== false) speak(voice ?? html, { queue });
   };
   const ppu = () => svg.getScreenCTM()?.a || 1;
+  // nhóm ngoài mang translate; hiệu ứng nảy chạy ở nhóm trong (.np-in) không có transform, để tâm phóng là
+  // chính điểm đó (CSS scale trên thẻ có transform="translate…" phóng quanh gốc SVG, hình bay ra xa)
   const screenAt = (at, parent, attrs = {}) => {
     const g = el('g', attrs, parent);
     g.setAttribute('transform', `translate(${at[0]} ${at[1]}) scale(${1 / ppu()})`);
-    return g;
+    return el('g', { class: 'np-in' }, g);
   };
+  const bump = (g) => { const i = g.querySelector('.np-in'); i.classList.remove('np-bump'); void i.getBBox(); i.classList.add('np-bump'); };
   const mid = (a, b) => [(P[a][0] + P[b][0]) / 2, (P[a][1] + P[b][1]) / 2];
   const cen = order.reduce((s, n) => [s[0] + P[n][0] / order.length, s[1] + P[n][1] / order.length], [0, 0]);
   const toScreen = (pt) => {
@@ -211,10 +232,11 @@ export function openNamePlay(root, q, shape) {
     });
     // đỉnh: vòng tròn chạm (cả hai bước)
     order.forEach((v) => {
-      const g = screenAt(P[v], L.hit, { class: 'np-vert', 'data-v': v });
-      el('circle', { r: 28, class: 'np-vert-hit' }, g);
-      el('circle', { r: 15, class: 'np-vert-ring' }, g);
-      el('circle', { r: 7, class: 'np-vert-dot' }, g);
+      const inner = screenAt(P[v], L.hit, { class: 'np-vert', 'data-v': v });
+      el('circle', { r: 28, class: 'np-vert-hit' }, inner);
+      el('circle', { r: 15, class: 'np-vert-ring' }, inner);
+      el('circle', { r: 7, class: 'np-vert-dot' }, inner);
+      const g = inner.parentNode;
       g.addEventListener('click', (e) => { e.stopPropagation(); tapVert(v); });
     });
     memo.verts.forEach((v) => markVert(v, false));
@@ -224,7 +246,7 @@ export function openNamePlay(root, q, shape) {
   function markVert(v, anim = true) {
     const g = L.hit.querySelector(`[data-v="${v}"]`);
     g.classList.add('np-got');
-    if (anim) { g.classList.remove('np-bump'); void g.getBBox(); g.classList.add('np-bump'); }
+    if (anim) bump(g);
   }
   function markSide(s, anim = true) {
     const g = L.sides.querySelector(`[data-s="${sideName(s)}"]`);
@@ -234,7 +256,8 @@ export function openNamePlay(root, q, shape) {
     const out = [m[0] - cen[0], m[1] - cen[1]];
     const d = Math.hypot(...out) || 1;
     const at = [m[0] + (out[0] / d) * 34 / ppu(), m[1] + (out[1] / d) * 34 / ppu()];
-    const tag = screenAt(at, L.top, { class: `np-tag${anim ? ' np-tag-in' : ''}` });
+    const tag = screenAt(at, L.top, { class: 'np-tag' });
+    if (anim) tag.classList.add('np-tag-in');
     const name = sideName(s);
     const w = 18 + name.length * 13;
     el('rect', { x: -w / 2, y: -17, width: w, height: 34, rx: 17, fill: '#fff', stroke: SCOL, 'stroke-width': 3 }, tag);
@@ -255,7 +278,7 @@ export function openNamePlay(root, q, shape) {
       flyName(v, toScreen(P[v]), 'verts', VCOL);
       fill();
       if (memo.verts.length < order.length) {
-        say(`Đỉnh <b>${v}</b>. Còn ${order.length - memo.verts.length} đỉnh nữa.`, 'np-good');
+        say(`Đỉnh <b>${v}</b>. Còn ${order.length - memo.verts.length} đỉnh nữa.`, 'np-good', { voice: `Đỉnh ${v}.` });
       } else {
         say(`Hình có <b>${order.length} đỉnh</b>: ${memo.verts.join(', ')}.`, 'np-good');
         soundStep();
@@ -269,14 +292,14 @@ export function openNamePlay(root, q, shape) {
     if (!firstV) {
       firstV = v;
       g.classList.add('np-sel');
-      say(`Đỉnh <b>${v}</b>. Chạm đỉnh thứ hai của cạnh.`, 'np-ask');
+      say(`Đỉnh <b>${v}</b>. Chạm đỉnh thứ hai của cạnh.`, 'np-ask', { voice: `Đỉnh ${v}.` });
       soundPick(0);
       return;
     }
     const a = firstV;
     L.hit.querySelector(`[data-v="${a}"]`)?.classList.remove('np-sel');
     firstV = null;
-    if (a === v) { say(''); return; }
+    if (a === v) { say('', '', { voice: false }); return; }
     const s = sides.find(([x, y]) => (x === a && y === v) || (x === v && y === a));
     if (s) { tapSide(s); return; }
     // đường chéo: nét đứt đỏ hiện rồi tắt
@@ -290,7 +313,7 @@ export function openNamePlay(root, q, shape) {
     if (step === 0) {
       soundNo();
       say('Đỉnh là <b>điểm ở góc</b> của hình. Chạm vào chấm tròn.', 'np-ask');
-      L.hit.querySelectorAll('.np-vert:not(.np-got)').forEach((g) => { g.classList.remove('np-bump'); void g.getBBox(); g.classList.add('np-bump'); });
+      L.hit.querySelectorAll('.np-vert:not(.np-got)').forEach(bump);
       return;
     }
     if (step !== 1) return;
@@ -309,7 +332,7 @@ export function openNamePlay(root, q, shape) {
     flyName(name, toScreen(mid(...s)), 'sides', SCOL);
     fill();
     if (memo.sides.length < sides.length) {
-      say(`Cạnh <b>${name}</b> nối đỉnh ${s[0]} với đỉnh ${s[1]}. Còn ${sides.length - memo.sides.length} cạnh nữa.`, 'np-good');
+      say(`Cạnh <b>${name}</b> nối đỉnh ${s[0]} với đỉnh ${s[1]}. Còn ${sides.length - memo.sides.length} cạnh nữa.`, 'np-good', { voice: `Cạnh ${name}.` });
     } else {
       soundDone();
       setStep(2);
@@ -319,7 +342,8 @@ export function openNamePlay(root, q, shape) {
 
   function toSides() {
     setStep(1);
-    say(sample ? '' : 'Giờ chạm từng <b>cạnh</b>. Cạnh là đoạn thẳng nối hai đỉnh liền nhau.', 'np-ask');
+    // đọc nối sau câu "Hình có … đỉnh", không cắt ngang
+    say(sample ? '' : 'Giờ chạm từng <b>cạnh</b>. Cạnh là đoạn thẳng nối hai đỉnh liền nhau.', 'np-ask', { queue: true });
   }
 
   overlay.querySelector('.np-reset').onclick = () => {
@@ -342,9 +366,9 @@ export function openNamePlay(root, q, shape) {
     let t = 700;
     say('Xem mẫu: chạm từng <b>đỉnh</b>…', 'np-ask');
     order.forEach((v) => { later(() => tapVert(v), t); t += 900; });
-    t += 1400;
+    t += 2400; // đọc xong "Hình có … đỉnh: …" rồi mới sang cạnh
     sides.forEach((s) => { later(() => tapSide(s), t); t += 1000; });
-    later(() => say(`Mẫu: hình có các đỉnh <b>${memo.verts.join(', ')}</b>, các cạnh <b>${memo.sides.join(', ')}</b>.`, 'np-good'), t + 300);
+    later(() => say(`Mẫu: hình có các đỉnh <b>${memo.verts.join(', ')}</b>, các cạnh <b>${memo.sides.join(', ')}</b>.`, 'np-good', { voice: false }), t + 300);
   }
 
   figureBox(shape.img).then((box) => {
@@ -400,9 +424,10 @@ function injectStyles() {
     .np-step.np-on { background: #0284C7; color: #fff; box-shadow: 0 2px 6px rgba(2,132,199,.35); }
     .np-step.np-done { background: #DCFCE7; color: #15803D; }
     .np-step.np-done::before { content: '✓ '; }
+    .np-mute { flex: none; width: 2.3rem; height: 2.3rem; border-radius: 50%; border: 2px solid #CBD5E1; background: #fff; font-size: 1.1rem; cursor: pointer; }
     .np-close { flex: none; height: 2.3rem; padding: 0 1rem; border-radius: 1.15rem; border: none; background: #10B981; color: #fff; font: 700 0.95rem Quicksand, sans-serif; cursor: pointer; }
     .np-stage { position: relative; flex: 1 1 0; min-height: 0; border-radius: 0.8rem; overflow: hidden; background: #fff; box-shadow: inset 0 0 0 1.5px #E2E8F0; }
-    .np-svg { display: block; width: 100%; height: 100%; touch-action: manipulation; user-select: none; }
+    .np-svg { display: block; width: 100%; height: 100%; touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent; }
     .np-say {
       position: absolute; left: 50%; top: 10px; transform: translateX(-50%); width: max-content; max-width: calc(100% - 20px);
       text-align: center; padding: 0.5rem 1rem; border-radius: 0.9rem; background: #fff; box-shadow: 0 4px 14px rgba(15,23,42,.18);
@@ -443,7 +468,7 @@ function injectStyles() {
     .np-vert.np-got .np-vert-ring { fill: rgba(124,58,237,0.2); }
     .np-panel[data-step="1"] .np-vert .np-vert-ring, .np-panel[data-step="2"] .np-vert .np-vert-ring { fill: transparent; stroke-opacity: 0.35; }
     .np-vert.np-sel .np-vert-ring { stroke: ${SCOL}; stroke-opacity: 1 !important; fill: rgba(234,88,12,0.25) !important; stroke-width: 4; }
-    .np-vert.np-bump { animation: npBump .45s ease-out; transform-box: fill-box; transform-origin: center; }
+    .np-bump { animation: npBump .45s ease-out; transform-box: fill-box; transform-origin: center; }
     @keyframes npBump { 40% { scale: 1.5; } }
     .np-tagtext { font: 800 21px Quicksand, sans-serif; text-anchor: middle; }
     .np-tag-in { animation: npTag .35s ease-out; transform-box: fill-box; transform-origin: center; }
@@ -455,7 +480,7 @@ function injectStyles() {
     }
     @media (prefers-reduced-motion: reduce) {
       .np-panel[data-step="0"] .np-vert:not(.np-got) .np-vert-ring { animation: none; stroke-width: 4; }
-      .np-vert.np-bump, .np-tag-in, .np-chip.np-pop { animation-duration: .6s; animation-timing-function: linear; }
+      .np-bump, .np-tag-in, .np-chip.np-pop { animation-duration: .6s; animation-timing-function: linear; }
     }
   `;
   document.head.appendChild(st);
