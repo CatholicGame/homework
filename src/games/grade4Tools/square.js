@@ -8,7 +8,7 @@
  * Toạ độ trong state theo ô (x sang phải, y xuống dưới); vẽ SVG mỗi ô CELL đơn vị.
  */
 
-import { css, emitter, INK, sfx } from './frame.js';
+import { css, emitter, INK, sfx, watchUnits } from './frame.js';
 import { calmMotion } from '../grade3Games/fly.js';
 
 const CELL = 50, COLS = 20, ROWS = 11;
@@ -53,6 +53,7 @@ export function createSquare(host, { eke = true } = {}) {
   const t = emitter({});
   host.innerHTML = `<div class="g4s"><div class="g4s-cap">&nbsp;</div><svg class="g4s-svg" viewBox="-20 -20 ${W + 40} ${H + 40}" preserveAspectRatio="xMidYMid meet"></svg></div>`;
   const svg = host.querySelector('svg');
+  watchUnits(svg);
   let grid = '';
   for (let i = 0; i <= COLS; i++) grid += `<line x1="${i * CELL}" y1="0" x2="${i * CELL}" y2="${H}"/>`;
   for (let j = 0; j <= ROWS; j++) grid += `<line x1="0" y1="${j * CELL}" x2="${W}" y2="${j * CELL}"/>`;
@@ -114,8 +115,8 @@ export function createSquare(host, { eke = true } = {}) {
       ${Array.from({ length: L1 * 2 }, (_, i) => `<line x1="${i * CELL / 2}" y1="0" x2="${i * CELL / 2}" y2="${i % 2 ? -10 : -18}" stroke="#A16207" stroke-width="2"/>`).join('')}
       <path d="M0 -26 H26 V0" fill="none" stroke="#DC2626" stroke-width="4"/>
     </g>
-    <g class="g4s-knob" transform="translate(${L1 * CELL * 0.62} ${-L2 * CELL * 0.18})"><circle r="26" fill="#FDE047" stroke="${INK}" stroke-width="4"/>
-      <path d="M-10 -7 A 12 12 0 1 1 -10 7" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/></g>`;
+    <g class="g4s-knob" transform="translate(${L1 * CELL * 0.62} ${-L2 * CELL * 0.18})"><circle r="26" fill="#FDE047" stroke="${INK}" stroke-width="2.5"/>
+      <path d="M-10 -7 A 12 12 0 1 1 -10 7" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/></g>`;
   if (!eke) gEke.style.display = 'none';
   function placeEke() {
     gEke.setAttribute('transform', `translate(${X(S.c.x)} ${X(S.c.y)}) rotate(${S.rot})`);
@@ -223,11 +224,11 @@ function injectSquareStyles() {
   styled = true;
   css('g4-square', `
     .g4s { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-    .g4s-cap { flex: none; text-align: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #1E293B; font-size: min(6.5cqh, 4cqi); line-height: 1.25; min-height: 1.3em; padding-top: 0.6cqh; }
+    .g4s-cap { flex: none; text-align: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #1E293B; font-size: max(1.05rem, min(6.5cqh, 4cqi)); line-height: 1.25; min-height: 2.5em; padding-top: 0.6cqh; }
     .g4s-cap b { color: #DC2626; }
     .g4s-svg { flex: 1; min-height: 0; width: 100%; height: 100%; font-family: 'Baloo 2', sans-serif; touch-action: none; user-select: none; }
     .g4s-grid line { stroke: #E0F2FE; stroke-width: 2; }
-    .g4s-name { font-weight: 800; font-size: 34px; text-anchor: middle; dominant-baseline: middle; paint-order: stroke; stroke: #fff; stroke-width: 6px; }
+    .g4s-name { font-weight: 800; font-size: max(34px, calc(var(--u, 0) * 19px)); text-anchor: middle; dominant-baseline: middle; paint-order: stroke; stroke: #fff; stroke-width: 6px; }
     .g4s-eke-body { cursor: grab; }
     .g4s-knob { cursor: grab; }
     .g4s-locked .g4s-eke-body, .g4s-locked .g4s-knob { cursor: default; }

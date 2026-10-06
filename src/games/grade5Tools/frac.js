@@ -240,7 +240,7 @@ function drawBar(f, fresh) {
   for (let i = 1; i < n; i++) {
     s += `<line data-div="${i}" class="${fresh(i) ? 'g5f-new' : ''}" x1="${x + i * pw}" y1="${y}" x2="${x + i * pw}" y2="${y + h}" stroke="${INK}" stroke-width="${sw}" style="transform-box:fill-box;transform-origin:center" pointer-events="none"/>`;
   }
-  s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="none" stroke="${INK}" stroke-width="5" pointer-events="none"/>`;
+  s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="none" stroke="${INK}" stroke-width="3.5" pointer-events="none"/>`;
   if (f.name) s += svgText(x - 18, y + h / 2 + (f.nameSize || Math.min(48, h * 0.4)) * 0.35, f.nameSize || Math.min(48, h * 0.4), f.name, { anchor: 'end', fill: f.nameColor || INK });
   if (f.lab) {
     const ls = f.labSize || Math.min(64, h * 0.46);
@@ -270,12 +270,12 @@ function drawJug(f, fresh) {
       <line x1="${x}" y1="${yy}" x2="${x + w}" y2="${yy}" stroke="${INK}" stroke-width="${Math.max(1.5, sw - 2)}" stroke-dasharray="10 8" opacity="0.45"/>
       <line x1="${x}" y1="${yy}" x2="${x + w * 0.3}" y2="${yy}" stroke="${INK}" stroke-width="${sw + 1}"/></g>`;
   }
-  s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22" fill="none" stroke="${INK}" stroke-width="6"/>
-    ${f.handle !== false ? `<path d="M${x - 4} ${y + 6} l -${w * 0.12} -${w * 0.1}" stroke="${INK}" stroke-width="6" stroke-linecap="round"/>` : ''}`;
+  s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22" fill="none" stroke="${INK}" stroke-width="3"/>
+    ${f.handle !== false ? `<path d="M${x - 4} ${y + 6} l -${w * 0.12} -${w * 0.1}" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>` : ''}`;
   if (f.name) s += svgText(x + w / 2, y + h + (f.nameSize || 44) * 1.05, f.nameSize || 44, f.name, { fill: f.nameColor || INK });
   if (f.lab) {
     const ls = f.labSize || 54;
-    s += `<rect x="${x + w / 2 - ls * 0.85}" y="${y - ls * 2.25}" width="${ls * 1.7}" height="${ls * 1.95}" rx="12" fill="#fff" stroke="${INK}" stroke-width="3"/>`;
+    s += `<rect x="${x + w / 2 - ls * 0.85}" y="${y - ls * 2.25}" width="${ls * 1.7}" height="${ls * 1.95}" rx="12" fill="#fff" stroke="${INK}" stroke-width="2.5"/>`;
     s += fracLabel(f, x + w / 2, y - ls * 1.22, ls);
   }
   return s;
@@ -292,7 +292,7 @@ function drawPie(f, fresh) {
   const cx = x + w / 2, cy = y + h / 2, r = Math.min(w, h) / 2 - 4;
   const cake = f.cake !== false;
   let s = '';
-  if (f.plate) s += `<ellipse cx="${cx}" cy="${cy + r * 0.12}" rx="${r * 1.28}" ry="${r * 1.18}" fill="#fff" stroke="${INK}" stroke-width="4"/><ellipse cx="${cx}" cy="${cy + r * 0.12}" rx="${r * 1.08}" ry="${r * 0.98}" fill="none" stroke="#CBD5E1" stroke-width="3"/>`;
+  if (f.plate) s += `<ellipse cx="${cx}" cy="${cy + r * 0.12}" rx="${r * 1.28}" ry="${r * 1.18}" fill="#fff" stroke="${INK}" stroke-width="3"/><ellipse cx="${cx}" cy="${cy + r * 0.12}" rx="${r * 1.08}" ry="${r * 0.98}" fill="none" stroke="#CBD5E1" stroke-width="3"/>`;
   const pa = (2 * Math.PI) / n;
   for (let i = 0; i < n; i++) {
     const on = i < k;
@@ -340,9 +340,9 @@ function drawArea(f) {
         <text x="${x + (i + 0.5) * cw}" y="${y + (j + 0.5) * rh + Math.min(cw, rh) * 0.16}" class="g4v-t" font-size="${Math.min(cw, rh) * 0.45}" style="fill:#14532D">${n}</text>`;
     }
   }
-  for (let i = 1; i < cols; i++) s += `<line x1="${x + i * cw}" y1="${y}" x2="${x + i * cw}" y2="${y + h}" stroke="${INK}" stroke-width="3"/>`;
-  if (stage >= 2) for (let j = 1; j < rows; j++) s += `<line class="g5f-rowl" x1="${x}" y1="${y + j * rh}" x2="${x + w}" y2="${y + j * rh}" stroke="${INK}" stroke-width="3" stroke-dasharray="${stage >= 2 ? '0' : '8 6'}"/>`;
-  s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="${INK}" stroke-width="6"/>`;
+  for (let i = 1; i < cols; i++) s += `<line x1="${x + i * cw}" y1="${y}" x2="${x + i * cw}" y2="${y + h}" stroke="${INK}" stroke-width="2.5"/>`;
+  if (stage >= 2) for (let j = 1; j < rows; j++) s += `<line class="g5f-rowl" x1="${x}" y1="${y + j * rh}" x2="${x + w}" y2="${y + j * rh}" stroke="${INK}" stroke-width="2.5" stroke-dasharray="${stage >= 2 ? '0' : '8 6'}"/>`;
+  s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="${INK}" stroke-width="3"/>`;
   const ls = f.labSize || 46;
   s += `<line x1="${x}" y1="${y - 14}" x2="${x + a * cw}" y2="${y - 14}" stroke="#D97706" stroke-width="6" stroke-linecap="round"/>`;
   s += svgFrac(x + (a * cw) / 2, y - 14 - ls * 1.05, a, cols, ls, '#B45309');
@@ -365,11 +365,12 @@ function injectFracStyles() {
     .g5f-btns { position: absolute; z-index: 4; left: 2cqi; right: 2cqi; bottom: 2cqh; display: flex; gap: 1.4cqi; justify-content: center; pointer-events: none; }
     .g5f-btns:empty { display: none; }
     .g5f-btn { pointer-events: auto; flex: 0 1 auto; min-width: 30%; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: min(6.4cqh, 3.8cqi); line-height: 1.15; padding: 0.35em 0.9em;
-      background: linear-gradient(180deg, #FDBA74, #FB923C); color: #fff; text-shadow: 0 2px 0 rgba(154,52,18,0.45); border: 3px solid ${INK}; border-radius: 0.8em;
+      background: linear-gradient(180deg, #FDBA74, #FB923C); color: #fff; text-shadow: 0 1px 0 rgba(154,52,18,0.35); border: 1.5px solid #EA580C; border-radius: 0.8em;
       box-shadow: 0 6px 0 #C2410C; cursor: pointer; touch-action: manipulation; }
     .g5f-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #C2410C; }
     .g5f-btn:disabled { background: #CBD5E1; box-shadow: 0 6px 0 #94A3B8; text-shadow: none; cursor: default; }
     .g5f-btn .g5-fr { font-size: 0.75em; }
+    @media (orientation: portrait) { .g5f-btn { font-size: min(6cqh, 5.4cqi); } }
     @media (orientation: portrait) { .g5f .g4v-cap { height: 3.3em; } }
     @media (orientation: portrait) { .g5f-btn { font-size: min(5.4cqh, 6.6cqi); flex: 1 1 0; } }
   `);

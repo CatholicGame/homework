@@ -7,7 +7,8 @@ import { createExpr, createExprSteps, evalTokens, exprText, LETTER_COLOR } from 
 import { createCanvas } from '../canvas.js';
 import { BOX } from '../practice.js';
 import { sleep } from '../../grade3Drills/kit.js';
-import { sfx, INK } from '../frame.js';
+import { sfx, INK, css } from '../frame.js';
+import { flyOne } from '../../grade3Games/fly.js';
 import { fmt, fmtSp } from '../num.js';
 
 const tok = (s) => s.split(' ');
@@ -69,7 +70,7 @@ function barsSvg(parts, y, scale) {
   let x = 60, g = '';
   for (const [name, v] of parts) {
     const w = v * scale;
-    g += `<rect x="${x}" y="${y}" width="${w}" height="70" rx="8" fill="${BAR[name] || '#FDE68A'}" stroke="${INK}" stroke-width="4"/>
+    g += `<rect x="${x}" y="${y}" width="${w}" height="70" rx="8" fill="${BAR[name] || '#FDE68A'}" stroke="${INK}" stroke-width="3"/>
       <text x="${x + w / 2}" y="${y + 47}" class="g4v-t" font-size="34">${name.length === 1 ? name : ''}${name.length === 1 ? ` = ${v}` : v}</text>`;
     x += w;
   }
@@ -191,18 +192,61 @@ function taskConvenient({ four = false } = {}) {
       return { ns: [x, u, y, v].sort(() => rng() - 0.5), pair: [x, y], pair2: [u, v] };
     },
     async mount(f, { ns, pair, pair2 }) {
+      injectConvStyles();
       const total = ns.reduce((s, n) => s + n, 0);
-      f.q.innerHTML = `Tính bằng cách thuận tiện: <b>${ns.join(' + ')}</b>`;
       const pairs = [];
       for (let i = 0; i < ns.length; i++) for (let j = i + 1; j < ns.length; j++) pairs.push([ns[i], ns[j]]);
       const good = pairs.find(p => (p[0] + p[1]) % 100 === 0);
       const opts = [good, ...pairs.filter(p => (p[0] + p[1]) % 100 !== 0).slice(0, 2)].sort(() => 0.5 - Math.random());
+      // Ba dòng như vở, giữ chỗ từ đầu (dòng 2, 3 ẩn): dãy cộng · ghép cặp tròn trăm trong ngoặc · tổng của các số tròn trăm.
+      const groups = [pair2 ? [pair, pair2] : [good, ns.filter(n => !good.includes(n))]].flat();
+      const chip = (n, k, cls = '') => `<span class="g4cv-n ${cls}" data-k="${k}">${n}</span>`;
+      const g2 = groups.map((g, gi) => (g.length > 1 ? `(${g.map((n, j) => chip(n, `${gi}${j}`, 'g4cv-land')).join(' + ')})` : chip(g[0], `${gi}0`, 'g4cv-land'))).join(' + ');
+      const sums = groups.map(g => g.reduce((s, n) => s + n, 0));
+      f.q.innerHTML = `<div class="g4cv-t">Tính bằng cách thuận tiện:</div>
+        <div class="g4cv-l1">${ns.map(n => `<span class="g4cv-n g4cv-src" data-n="${n}">${n}</span>`).join(' + ')}</div>
+        <div class="g4cv-l g4cv-l2">= ${g2}</div>
+        <div class="g4cv-l g4cv-l3">= ${sums.map(v => `<span class="g4cv-sum">${fmt(v)}</span>`).join(' + ')} = ${BOX}</div>`;
       await f.choose({ options: opts.map(p => ({ html: `${p[0]} + ${p[1]}`, value: `${p[0]}+${p[1]}` })), answer: `${good[0]}+${good[1]}`, say: 'Cộng cặp số nào trước thì được số tròn trăm?', hint: 'Tìm hai số có hàng đơn vị cộng lại bằng 10, hàng chục cộng thêm 1 bằng 10.' });
-      f.q.innerHTML = `${ns.join(' + ')} = ${BOX}`;
-      await f.ask({ box: f.q.querySelector('.g4-box'), answer: total, max: 5, say: 'Tính tổng.', hint: `${good[0]} + ${good[1]} = ${good[0] + good[1]}. Cộng tiếp các số còn lại.` });
+      // Cặp tròn trăm sáng lên, các số bay xuống dòng 2 vào đúng chỗ trong ngoặc; rồi dòng 3 hiện số tròn trăm.
+      // số → các ô của số đó ở dòng 1 (dãy có thể có hai số bằng nhau, vd. 50 + … + 50): mỗi lần lấy một ô
+      const srcs = [...f.q.querySelectorAll('.g4cv-src')];
+      const take = (n, used) => { const e = srcs.find(x => +x.dataset.n === n && !used.has(x)); used.add(e); return e; };
+      const picked = new Set();
+      good.forEach(n => take(n, picked).classList.add('g4cv-pick'));
+      await sleep(500);
+      const l2 = f.q.querySelector('.g4cv-l2');
+      l2.classList.add('g4cv-show');
+      const lands = [...l2.querySelectorAll('.g4cv-land')];
+      const used = new Set();
+      await Promise.all(lands.map((to, i) => new Promise((res) => {
+        const n = +to.textContent, from = take(n, used);
+        to.style.visibility = 'hidden';
+        flyOne(`<span class="g4cv-fly" style="font-size:${getComputedStyle(from).fontSize}">${n}</span>`, from.getBoundingClientRect(), to.getBoundingClientRect(), { delay: i * 120, minMs: 500, maxMs: 750, onLand: () => { to.style.visibility = ''; sfx.tap(); res(); } });
+      })));
+      const lit = new Set();
+      good.forEach(n => { const e = lands.find(x => +x.textContent === n && !lit.has(x)); if (e) { lit.add(e); e.classList.add('g4cv-pick'); } });
+      await sleep(350);
+      f.q.querySelector('.g4cv-l3').classList.add('g4cv-show');
+      sfx.pop(5);
+      await f.ask({ box: f.q.querySelector('.g4-box'), answer: total, max: 5, say: `${good[0]} cộng ${good[1]} bằng ${good[0] + good[1]}. Tính tổng.`, hint: `${sums.map(v => fmt(v)).join(' + ')}: cộng các số tròn trăm.` });
       f.finish({ ok: `${ns.join(' + ')} = ${fmt(total)}`, tip: pair2 ? `Ghép ${pair[0]} + ${pair[1]} và ${pair2[0]} + ${pair2[1]}.` : '' });
     },
   };
+}
+
+function injectConvStyles() {
+  css('g4-conv', `
+    .g4cv-t { font-size: 0.72em; color: #475569; }
+    .g4cv-l { visibility: hidden; }
+    .g4cv-l.g4cv-show { visibility: visible; animation: g4cvIn .35s ease-out; }
+    @keyframes g4cvIn { from { opacity: 0; transform: translateY(-0.3em); } }
+    .g4cv-n { display: inline-block; border-radius: 0.3em; padding: 0 0.12em; transition: background .25s, color .25s; }
+    .g4cv-pick { background: #FEF08A; color: #B45309; box-shadow: 0 0 0 0.08em #FACC15; }
+    .g4cv-sum { color: #15803D; }
+    .g4cv-fly { display: grid; place-items: center; width: 100%; height: 100%; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #B45309; background: #FEF08A; border-radius: 0.3em; }
+    @media (prefers-reduced-motion: reduce) { .g4cv-l.g4cv-show { animation: g4cvCalm .3s ease; } @keyframes g4cvCalm { from { opacity: 0; } } }
+  `);
 }
 
 export const EXPR_LESSONS = { 4: B4, 24: B24 };

@@ -18,6 +18,16 @@ import { docSo, docSoValidate } from '../../engine/numberWords.js';
 
 export { blank, listValidate, fr, fracValidate, mau, dsValidate, textValidate, docSo, docSoValidate };
 
+/**
+ * Chữ trong biểu thức chứa chữ: mỗi chữ một màu (cùng màu với Máy biểu thức của Toán 4 công cụ), nhấp nháy khi mở câu
+ * và mỗi khi bé chạm vào dòng có chữ đó (engine: .lv trong grade3Workbook.js), để bé thấy chữ nào được thay bằng số nào.
+ *   L('c')        chữ c trong biểu thức "115 − c"
+ *   LV('c', 7)    "c = 7" (giá trị bài cho), cùng màu với chữ c
+ */
+export const LV_COLOR = { a: '#2563EB', b: '#16A34A', c: '#DB2777', m: '#7C3AED', n: '#EA580C', p: '#0891B2', x: '#B45309', y: '#0D9488' };
+export const L = (l) => `<span class="lv" data-lv="${l}" style="--lv:${LV_COLOR[l] || '#DB2777'}">${l}</span>`;
+export const LV = (l, v) => `<span class="lv lv-set" data-lv="${l}" style="--lv:${LV_COLOR[l] || '#DB2777'}">${l}&nbsp;=&nbsp;${num(v)}</span>`;
+
 export const num = (n) => (Math.abs(n) >= 10000 ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : String(n));
 
 /** Ô phép tính có nút ✍️ Tính. expr: "4637 + 8245" (có thể kèm "a) "); opts thêm vào ô (validate, …). */

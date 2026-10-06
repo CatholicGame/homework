@@ -27,7 +27,7 @@ function dotsSvg(n, tall = false) {
   for (let k = 0; k < n; k++) {
     const isOdd = odd && k === n - 1;
     const [cx, cy] = at(Math.floor(k / 2), k % 2);
-    g += `<circle class="g4pa-d" cx="${cx}" cy="${cy}" r="36" fill="${isOdd ? ODD : '#60A5FA'}" stroke="${INK}" stroke-width="4" data-k="${k}"/>`;
+    g += `<circle class="g4pa-d" cx="${cx}" cy="${cy}" r="36" fill="${isOdd ? ODD : '#60A5FA'}" stroke="${INK}" stroke-width="2.5" data-k="${k}"/>`;
   }
   for (let a = 0; a < pairs; a++) {
     const [cx, cy] = at(a, 0);
@@ -40,15 +40,16 @@ function dotsSvg(n, tall = false) {
 
 /** Con phố: dãy nhà chẵn trên, dãy nhà lẻ dưới, mỗi nhà một số. */
 function streetSvg(evens, odds) {
-  const house = (x, y, n, c, flip) => `<g transform="translate(${x} ${y})"><path d="M-55 0 L0 -50 L55 0 Z" fill="${c}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
-    <rect x="-45" y="0" width="90" height="70" fill="#FFF7ED" stroke="${INK}" stroke-width="4"/><rect x="-14" y="30" width="28" height="40" fill="#92400E" stroke="${INK}" stroke-width="3"/>
-    <rect x="-34" y="${flip ? 8 : 8}" width="68" height="20" rx="5" fill="#fff" stroke="${INK}" stroke-width="2"/><text x="0" y="24" class="g4v-t" font-size="18">${fmt(n)}</text></g>`;
+  // Nhà to hơn (×1,35), biển số rộng gần hết thân nhà: số nhà phải đọc được cả khi tờ giấy dựng đứng.
+  const house = (x, y, n, c) => `<g transform="translate(${x} ${y}) scale(1.35)"><path d="M-55 0 L0 -50 L55 0 Z" fill="${c}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>
+    <rect x="-45" y="0" width="90" height="70" fill="#FFF7ED" stroke="${INK}" stroke-width="2.5"/><rect x="-12" y="40" width="24" height="30" fill="#92400E" stroke="${INK}" stroke-width="2"/>
+    <rect x="-41" y="4" width="82" height="32" rx="6" fill="#fff" stroke="#94A3B8" stroke-width="1.5"/><text x="0" y="29" class="g4v-t" font-size="${Math.min(28, 74 / (fmt(n).length * 0.56))}">${fmt(n)}</text></g>`;
   return `<rect x="0" y="0" width="1000" height="560" fill="#BBF7D0"/>
     <rect x="0" y="250" width="1000" height="110" fill="#94A3B8"/><path d="M0 305 H1000" stroke="#fff" stroke-width="6" stroke-dasharray="40 30"/>
     <text x="115" y="40" class="g4v-t" font-size="28" style="text-anchor:start" fill="${EVEN}">Bên số chẵn</text>
-    <text x="115" y="545" class="g4v-t" font-size="28" style="text-anchor:start" fill="${ODD}">Bên số lẻ</text>
+    <text x="115" y="553" class="g4v-t" font-size="28" style="text-anchor:start" fill="${ODD}">Bên số lẻ</text>
     ${evens.map((n, i) => house(170 + i * 160, 140, n, EVEN)).join('')}
-    ${odds.map((n, i) => house(170 + i * 160, 420, n, ODD)).join('')}`;
+    ${odds.map((n, i) => house(170 + i * 160, 428, n, ODD)).join('')}`;
 }
 
 const B3 = {
@@ -94,7 +95,7 @@ const B3 = {
         t.caption('Nhà số chẵn một bên, nhà số lẻ một bên');
         await c.say('Trên một con phố, người ta đánh số nhà chẵn ở một bên, số lẻ ở bên kia, để dễ tìm. Hai nhà cạnh nhau cùng bên hơn kém nhau 2 đơn vị.');
         for (const n of [152, 2049, 3786]) {
-          t.add(`<g class="g4pa-letter"><rect x="430" y="270" width="140" height="80" rx="8" fill="#fff" stroke="${INK}" stroke-width="4"/><path d="M430 270 L500 315 L570 270" fill="none" stroke="${INK}" stroke-width="3"/>
+          t.add(`<g class="g4pa-letter"><rect x="430" y="270" width="140" height="80" rx="8" fill="#fff" stroke="${INK}" stroke-width="3"/><path d="M430 270 L500 315 L570 270" fill="none" stroke="${INK}" stroke-width="2.5"/>
             <text x="500" y="345" class="g4v-t" font-size="26">Số ${fmt(n)}</text></g>`);
           t.caption(`Thư gửi nhà số <b>${fmt(n)}</b>: bên nào?`);
           await c.say(`Bác đưa thư cầm thư gửi nhà số ${readVN(n)}. Mang sang bên nào?`);

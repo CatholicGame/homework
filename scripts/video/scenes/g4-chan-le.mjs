@@ -8,7 +8,6 @@
  */
 
 const EVEN = '#2563EB', ODD = '#EA580C';
-const SITE = 'mathtieuhoc.vercel.app';
 
 export default {
   name: 'g4-chan-le',
@@ -24,14 +23,11 @@ export default {
     .v-hook .v-big { font-size: 40px; font-weight: 800; line-height: 1.05; color: #B91C1C; }
     .v-hook .v-em { font-size: 64px; line-height: 1; }
     .v-hook .v-sub { font-size: 18px; font-weight: 700; }
-    .v-site { font-size: 17px; font-weight: 800; color: #fff; background: #7C3AED; border-radius: 999px; padding: 6px 14px; }
     .v-outro { padding-top: 40px; gap: 10px; }
     .v-outro .v-t { font-size: 27px; font-weight: 800; line-height: 1.1; }
     .v-outro ul { list-style: none; margin: 0; padding: 0; text-align: left; font-size: 16.5px; font-weight: 700; display: flex; flex-direction: column; gap: 7px; width: 100%; }
     .v-outro li { background: #fff; border: 3px solid #1E293B; border-radius: 14px; padding: 5px 10px; line-height: 1.25; }
     .v-outro .v-s { font-size: 15px; font-weight: 700; color: #334155; }
-    .v-outro .v-learn { font-size: 16px; font-weight: 800; color: #334155; margin-top: 4px; }
-    .v-outro .v-site { font-size: 22px; padding: 10px 18px; box-shadow: 0 6px 0 #5B21B6; border: 3px solid #1E293B; }
     #v-label { font-size: 16px; padding: 8px 14px; white-space: nowrap; max-width: none; }
     .v-hook .v-sub { white-space: nowrap; }
   `,
@@ -43,8 +39,7 @@ export default {
       <div class="v-rule">Tận cùng <span style="color:${EVEN}">0, 2, 4, 6, 8</span> là số chẵn</div>
       <div class="v-k">Nhưng con có hiểu</div>
       <div class="v-big">VÌ SAO?</div>
-      <div class="v-sub">Xem cách thầy dạy bằng hình 👇</div>
-      <div class="v-site">🌐 ${SITE}</div>`,
+      <div class="v-sub">Xem cách thầy dạy bằng hình 👇</div>`,
     { cls: 'v-hook', say: 'Con thuộc lòng số chẵn là số tận cùng không, hai, bốn, sáu, tám. Nhưng con có hiểu vì sao không?', hold: 200 });
     await v.uncard();
 
@@ -92,7 +87,7 @@ export default {
     await v.waitFor('.g4-end');
     await v.wait(1800);
 
-    // 5. Khung kết: vì sao con hiểu bài hơn + địa chỉ trang (chưa gắn được link ở bio)
+    // 5. Khung kết: vì sao con hiểu bài hơn
     await v.card(`
       <div class="v-t">Vì sao con hiểu bài hơn?</div>
       <ul>
@@ -101,9 +96,7 @@ export default {
         <li>💡 Nhầm thì thầy nhắc cách nghĩ</li>
         <li>📖 Đúng bài, đúng trang SGK Toán 4</li>
       </ul>
-      <div class="v-learn">Học cùng con tại</div>
-      <div class="v-site">🌐 ${SITE}</div>
       <div class="v-s">Toán Tiểu Học · Toán 4: 37 bài Tập Một</div>`,
-    { cls: 'v-outro', say: 'Thấy bằng hình, con tự tay làm, nhầm thì được nhắc cách nghĩ. Con hiểu bài, không học vẹt. Địa chỉ trang học ở ngay trên màn hình.', hold: 3500 });
+    { cls: 'v-outro', say: 'Thấy bằng hình, con tự tay làm, nhầm thì được nhắc cách nghĩ. Con hiểu bài, không học vẹt.', hold: 3500 });
   },
 };

@@ -66,7 +66,7 @@ export function svgEl(tag, attrs = {}, html = '') {
 
 /** Chữ có viền trắng (đọc rõ trên giấy ô). */
 export const txt = (x, y, s, { size = 40, color = INK, anchor = 'middle', cls = '', weight = 800 } = {}) =>
-  `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="g5g-t ${cls}" font-size="${size}" fill="${color}" text-anchor="${anchor}" font-weight="${weight}">${s}</text>`;
+  `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="g5g-t ${cls}" font-size="${size}" style="font-size:max(${size}px, calc(var(--u, 0) * ${size * 0.5}px))" fill="${color}" text-anchor="${anchor}" font-weight="${weight}">${s}</text>`;
 
 /** Dấu góc vuông tại p, hai hướng đơn vị u, v (đơn vị SVG), cạnh s. */
 export const rightMark = (p, u, v, s = 20, color = GREEN) =>
@@ -230,9 +230,9 @@ export function createTri(host, o = {}) {
     // đáy kéo dài (nét đứt) khi chân đường cao nằm ngoài đáy
     if ((S.alt || S.ext) && (S.A.x < S.B.x || S.A.x > S.C.x)) {
       const e0 = S.A.x < S.B.x ? H : C, e1 = S.A.x < S.B.x ? B : H;
-      g += `<line x1="${e0.x}" y1="${e0.y}" x2="${e1.x}" y2="${e1.y}" stroke="${INK}" stroke-width="4" stroke-dasharray="12 9"/>`;
+      g += `<line x1="${e0.x}" y1="${e0.y}" x2="${e1.x}" y2="${e1.y}" stroke="${INK}" stroke-width="3" stroke-dasharray="12 9"/>`;
     }
-    g += `<polygon points="${pts([A, B, C])}" fill="${o.fill || BLUE}" fill-opacity="0.75" stroke="${INK}" stroke-width="5" stroke-linejoin="round" class="g5t-tri"/>`;
+    g += `<polygon points="${pts([A, B, C])}" fill="${o.fill || BLUE}" fill-opacity="0.75" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round" class="g5t-tri"/>`;
     const k = triKind([S.A, S.B, S.C]);
     if (S.kind && k.at >= 0) {
       const V = [A, B, C], v = V[k.at], p = V[(k.at + 1) % 3], q = V[(k.at + 2) % 3];
@@ -255,7 +255,7 @@ export function createTri(host, o = {}) {
       const hx = S.A.x === S.B.x ? A.x - 40 : A.x;
       g += txt(hx + (S.A.x === S.B.x ? -10 : 18), (A.y + H.y) / 2 + 14, `h = ${t.h()} ${S.unit}`, { size: 36, color: RED, anchor: S.A.x === S.B.x ? 'end' : 'start' });
     }
-    if (S.drag) g += `<g class="g5t-h"><circle cx="${A.x}" cy="${A.y}" r="${Math.max(24, c * 0.36)}" fill="${YEL}" stroke="${INK}" stroke-width="4"/>
+    if (S.drag) g += `<g class="g5t-h"><circle cx="${A.x}" cy="${A.y}" r="${Math.max(24, c * 0.36)}" fill="${YEL}" stroke="${INK}" stroke-width="3"/>
       <circle cx="${A.x}" cy="${A.y}" r="${Math.max(36, c * 0.55)}" fill="transparent"/></g>`;
     t.L.fig.innerHTML = g;
     if (S.kind && !S.area) t.caption(KIND_TEXT[k.kind]);
@@ -329,7 +329,7 @@ export function createTri(host, o = {}) {
   t.extendBase = async () => {
     const B = t.X(S.B), C = t.X(S.C), H = t.X(t.foot());
     const from = S.A.x < S.B.x ? B : C;
-    const l = svgEl('line', { x1: from.x, y1: from.y, x2: from.x, y2: from.y, stroke: INK, 'stroke-width': 4, 'stroke-dasharray': '12 9' });
+    const l = svgEl('line', { x1: from.x, y1: from.y, x2: from.x, y2: from.y, stroke: INK, 'stroke-width': 3, 'stroke-dasharray': '12 9' });
     t.L.top.append(l);
     sfx.swish();
     await tween(800, (e) => { l.setAttribute('x2', from.x + (H.x - from.x) * e); });
@@ -352,7 +352,7 @@ export function createTri(host, o = {}) {
   /** Tấm bìa trắng giống hệt, đặt lệch D (ô). */
   t.copyShow = async (D) => {
     const V = [S.A, S.B, S.C].map(p => t.X({ x: p.x + D.x, y: p.y + D.y }));
-    const poly = svgEl('polygon', { points: pts(V), fill: '#fff', stroke: INK, 'stroke-width': 5, 'stroke-linejoin': 'round' });
+    const poly = svgEl('polygon', { points: pts(V), fill: '#fff', stroke: INK, 'stroke-width': 3.5, 'stroke-linejoin': 'round' });
     t.L.piece.append(poly);
     cut = { D, V, poly };
     sfx.swish();
@@ -372,7 +372,7 @@ export function createTri(host, o = {}) {
     cut.poly.remove();
     const P1 = [A, t.X({ x: S.B.x + D.x, y: S.B.y + D.y }), H], P2 = [A, H, t.X({ x: S.C.x + D.x, y: S.C.y + D.y })];
     const mk = (P, n) => {
-      const el = svgEl('polygon', { points: pts(P), fill: '#fff', stroke: INK, 'stroke-width': 5, 'stroke-linejoin': 'round' });
+      const el = svgEl('polygon', { points: pts(P), fill: '#fff', stroke: INK, 'stroke-width': 3.5, 'stroke-linejoin': 'round' });
       const c = cen(P);
       const lb = svgEl('text', { x: c.x, y: c.y, 'font-size': 44, fill: RED, class: 'g5g-t', 'text-anchor': 'middle', 'dominant-baseline': 'middle', 'font-weight': 800 }, String(n));
       t.L.piece.append(el, lb);

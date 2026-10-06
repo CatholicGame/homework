@@ -106,6 +106,28 @@ export function render(app, onBack, { open } = {}) {
   if (start) showLesson(start); else showList();
 }
 
+/** Bài n có phần Khám phá không (nút "🔎 Khám phá" trên bài tập của sách khác). */
+export const hasExplore = (n) => !!exploreOf(n);
+export const exploreTitle = (n) => lessonByN(n)?.title || '';
+
+/**
+ * Chạy Khám phá của Bài n trong một khung bất kì (lớp phủ trên bài tập của sách khác, vd. SGK Toán 4 cũ).
+ * onExit(): bé bấm ✕ → đóng lớp phủ, quay lại đúng câu đang làm. Không có nút sang Thực hành.
+ */
+export function exploreIn(host, n, onExit) {
+  const l = lessonByN(n);
+  const ex = exploreOf(n);
+  if (!l || !ex) return false;
+  injectGameStyles();
+  injectHubStyles();
+  preloadNpcs();
+  runExplore(host, {
+    id: seenId(l), title: `Bài ${l.n}: ${l.title} <small class="g4h-ref">📖 SGK ${pagesText(l)}</small>`, setup: ex.setup, steps: ex.steps,
+    onExit, onPractice: null,
+  });
+  return true;
+}
+
 function injectHubStyles() {
   css('g4-hub', `
     .g4h-topic { margin: 1.1rem 0 0.4rem; }

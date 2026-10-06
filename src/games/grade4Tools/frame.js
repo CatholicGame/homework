@@ -7,13 +7,15 @@
  * - Thực hành (practice.js): vòng chơi chung grade3Games/loop.js, bàn phím số như Luyện Tính.
  */
 
-import { mountDrill, sleep as rawSleep, INK } from '../grade3Drills/kit.js';
+import { mountDrill, sleep as rawSleep, INK, EDGE } from '../grade3Drills/kit.js';
 import { injectGameStyles } from '../grade3Games/styles.js';
-import { say as fxSay, stopSpeaking, whenQuiet, isMuted, setMuted, sfx, rain } from '../preschool/fx.js';
+import { say as rawSay, stopSpeaking, whenQuiet, isMuted, setMuted, sfx, rain } from '../preschool/fx.js';
+import { isEnglish } from '../../engine/i18n.js';
+import { speakableVi } from '../../engine/letterNames.js';
 import { exitGameMode } from '../grade3Games/loop.js';
 import { scopedKey } from '../../engine/auth.js';
 
-export { INK, sfx };
+export { INK, EDGE, sfx };
 
 /** Một lần chèn CSS theo id. */
 export function css(id, text) {
@@ -22,6 +24,17 @@ export function css(id, text) {
   s.id = id;
   s.textContent = text;
   document.head.appendChild(s);
+}
+
+/**
+ * Hình SVG thu nhỏ theo khung (màn dọc hẹp còn ~1/3), chữ trong hình nhỏ theo. Đặt --u = số đơn vị SVG trên
+ * một điểm ảnh màn hình, để CSS giữ chữ đủ to: font-size: max(40px, calc(var(--u, 0) * 20px)) = ít nhất 20px thật.
+ */
+export function watchUnits(svg) {
+  const set = () => { const m = svg.getScreenCTM?.(); if (m && m.a) svg.style.setProperty('--u', (1 / m.a).toFixed(3)); };
+  const ro = new ResizeObserver(() => { if (!svg.isConnected) { ro.disconnect(); return; } set(); });
+  ro.observe(svg);
+  set();
 }
 
 /** Bộ phát sự kiện nhỏ cho công cụ: t.on('change', fn) / emit. */
@@ -44,6 +57,9 @@ export function markSeen(id) {
   try { localStorage.setItem(scopedKey(SEEN_KEY), JSON.stringify(d)); } catch { /* storage unavailable */ }
   window.dispatchEvent(new CustomEvent('tth:data-changed'));
 }
+
+// Giọng Việt: tên điểm (AB, MNPQ, O…) luôn đọc theo tên chữ cái tiếng Việt, không lúc Anh lúc Việt.
+const fxSay = (text, opts) => rawSay(isEnglish() ? text : speakableVi(text), opts);
 
 const ABORT = Symbol('abort');
 
@@ -245,7 +261,7 @@ export function injectFrameStyles() {
     .g4-choices { flex: none; display: flex; gap: 1.2cqi; min-height: 0; }
     .g4-choices:not(.g4-choices-on) { display: none; }
     .g4-choice { flex: 1 1 0; min-width: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: min(6.4cqh, 3.6cqi); line-height: 1.2; padding: 0.35em 0.4em; background: #fff; color: #1E3A8A;
-      border: 3px solid #93C5FD; box-shadow: 0 6px 0 #60A5FA; border-radius: 0.7em; cursor: pointer; touch-action: manipulation; }
+      border: 2px solid #93C5FD; box-shadow: 0 5px 0 #60A5FA; border-radius: 0.7em; cursor: pointer; touch-action: manipulation; }
     .g4-choice:active { transform: translateY(4px); box-shadow: 0 2px 0 #60A5FA; }
     .g4-choice-ok, .g4-choice-ok:disabled { background: #DCFCE7; border-color: #22C55E; box-shadow: 0 6px 0 #16A34A; color: #166534; }
     .g4-choice-bad, .g4-choice-bad:disabled { background: #FEE2E2; border-color: #FCA5A5; box-shadow: 0 6px 0 #F87171; color: #B91C1C; opacity: 0.8; }
@@ -258,16 +274,16 @@ export function injectFrameStyles() {
 
     .g4-board { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; position: relative; container-type: size; }
     .g4-nav { height: 100%; display: flex; flex-direction: column; gap: 0.6rem; justify-content: flex-end; container-type: size; }
-    .g4-nav-btn { border: 3px solid ${INK}; border-radius: 1rem; font-family: 'Baloo 2', sans-serif; font-weight: 800; cursor: pointer; touch-action: manipulation;
-      font-size: clamp(1.1rem, 2.2vh + 0.6rem, 2rem); padding: 0.35em 0.6em; background: #fff; color: #1E293B; box-shadow: 0 5px 0 rgba(63,58,64,0.35); }
-    .g4-nav-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(63,58,64,0.35); }
+    .g4-nav-btn { border: 2px solid ${EDGE}; border-radius: 1rem; font-family: 'Baloo 2', sans-serif; font-weight: 800; cursor: pointer; touch-action: manipulation;
+      font-size: clamp(1.1rem, 2.2vh + 0.6rem, 2rem); padding: 0.35em 0.6em; background: #fff; color: #1E293B; box-shadow: 0 4px 0 rgba(63,58,64,0.18); }
+    .g4-nav-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(63,58,64,0.18); }
     .g4-replay { font-size: clamp(0.95rem, 1.5vh + 0.5rem, 1.4rem); align-self: flex-start; }
     .g4-next { flex: 1 1 0; max-height: 9rem; background: #CBD5E1; color: #64748B; }
     .g4-next:disabled { cursor: default; }
     .g4-next.g4-ready { background: linear-gradient(180deg, #4ADE80, #22C55E); color: #fff; text-shadow: 0 2px 0 rgba(21,128,61,0.45); animation: g4Pulse 1.6s ease-in-out infinite; }
     @keyframes g4Pulse { 50% { transform: scale(1.04); } }
     .g4-end { display: flex; flex-direction: column; gap: 0.5rem; height: 100%; justify-content: flex-end; }
-    .g4-end-title { font-weight: 800; color: #15803D; background: #fff; border: 3px solid ${INK}; border-radius: 1rem; padding: 0.3em 0.6em; text-align: center; font-size: clamp(1rem, 1.8vh + 0.5rem, 1.6rem); }
+    .g4-end-title { font-weight: 800; color: #15803D; background: #fff; border: 2px solid ${EDGE}; border-radius: 1rem; padding: 0.3em 0.6em; text-align: center; font-size: clamp(1rem, 1.8vh + 0.5rem, 1.6rem); }
     .g4-end .g4-next { max-height: 6rem; }
     .g4-again { font-size: clamp(0.95rem, 1.6vh + 0.5rem, 1.4rem); }
     .g4-steps .g3g-dot { font-size: 1rem; color: #15803D; font-weight: 800; }
@@ -283,6 +299,10 @@ export function injectFrameStyles() {
     }
     @media (orientation: portrait) {
       .g4-ov-choices .g4-choice { font-size: min(5.2cqh, 7.4cqi); padding: 0.45em 0.3em; }
+      .g4-choice { font-size: min(5.6cqh, 5cqi); }
+      /* Bốn nút trở lên trên màn dọc: hai hàng, chữ to (một hàng bốn nút chữ chỉ còn ~13px). */
+      .g4-choices:has(> .g4-choice:nth-child(4)) { flex-wrap: wrap; row-gap: 1.6cqh; }
+      .g4-choices:has(> .g4-choice:nth-child(4)) > .g4-choice { flex: 1 1 calc(50% - 1.2cqi); font-size: min(6cqh, 6.2cqi); }
       .g3d-scene.g4-scene { grid-template-rows: auto minmax(0, 1fr) clamp(84px, 10%, 140px); }
       .g4-nav { flex-direction: row; align-items: stretch; }
       .g4-replay { align-self: stretch; }

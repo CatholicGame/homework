@@ -44,9 +44,9 @@ function compaSvg(O, P, L) {
     <line x1="${O.x}" y1="${O.y}" x2="${O.x + (H.x - O.x) * 0.12}" y2="${O.y + (H.y - O.y) * 0.12}" stroke="#1E293B" stroke-width="5"/>
     <line x1="${H.x}" y1="${H.y}" x2="${pc.x}" y2="${pc.y}" stroke="#64748B" stroke-width="12" stroke-linecap="round"/>
     <line x1="${pc.x}" y1="${pc.y}" x2="${P.x}" y2="${P.y}" stroke="${YEL}" stroke-width="14" stroke-linecap="round"/>
-    <line x1="${P.x - pu.x * 12}" y1="${P.y - pu.y * 12}" x2="${P.x}" y2="${P.y}" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
-    <rect x="${H.x - 9}" y="${H.y - 46}" width="18" height="40" rx="7" fill="#F97316" stroke="${INK}" stroke-width="3"/>
-    <circle cx="${H.x}" cy="${H.y}" r="13" fill="#CBD5E1" stroke="${INK}" stroke-width="4"/>
+    <line x1="${P.x - pu.x * 12}" y1="${P.y - pu.y * 12}" x2="${P.x}" y2="${P.y}" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/>
+    <rect x="${H.x - 9}" y="${H.y - 46}" width="18" height="40" rx="7" fill="#F97316" stroke="${INK}" stroke-width="2.5"/>
+    <circle cx="${H.x}" cy="${H.y}" r="13" fill="#CBD5E1" stroke="${INK}" stroke-width="3"/>
   </g>`;
 }
 
@@ -67,7 +67,7 @@ export function createCompass(host, { r = 3 } = {}) {
     <path class="g5c-arc" d="" fill="none" stroke="${BLUE_D}" stroke-width="7" stroke-linecap="round"/><g class="g5c-marks"></g>`;
   const arc = t.q('.g5c-arc');
   function place() {
-    t.L.eke.innerHTML = compaSvg(S.O, S.P, L) + (S.phase === 'sweep' ? `<g class="g5t-h g5c-h"><circle cx="${S.P.x}" cy="${S.P.y}" r="26" fill="${YEL}" stroke="${INK}" stroke-width="4" opacity="0.85"/><circle cx="${S.P.x}" cy="${S.P.y}" r="46" fill="transparent"/></g>` : '');
+    t.L.eke.innerHTML = compaSvg(S.O, S.P, L) + (S.phase === 'sweep' ? `<g class="g5t-h g5c-h"><circle cx="${S.P.x}" cy="${S.P.y}" r="26" fill="${YEL}" stroke="${INK}" stroke-width="3" opacity="0.85"/><circle cx="${S.P.x}" cy="${S.P.y}" r="46" fill="transparent"/></g>` : '');
     if (S.phase !== 'ruler') arc.setAttribute('d', S.drawn > 0 ? arcPath(O, r * u, S.drawn) : '');
   }
   place();
@@ -141,7 +141,7 @@ export function createWheel(host, { d = 2 } = {}) {
   t.L.fig.innerHTML = `${rulerSvg(x0, yr, u, n, { unitText: 'dm' })}
     <line class="g5w-run" x1="${x0}" y1="${yr}" x2="${x0}" y2="${yr}" stroke="${RED}" stroke-width="10" stroke-linecap="round"/>
     <polyline class="g5w-trace" points="" fill="none" stroke="${RED}" stroke-width="4" stroke-dasharray="3 9" stroke-linecap="round"/>`;
-  t.L.eke.innerHTML = `<g class="g5w-wheel g5t-h-no"><g class="g5w-rot"><circle r="${R}" fill="#E0F2FE" stroke="${INK}" stroke-width="7"/><circle r="${R - 14}" fill="none" stroke="#7DD3FC" stroke-width="5"/>${spokes}
+  t.L.eke.innerHTML = `<g class="g5w-wheel g5t-h-no"><g class="g5w-rot"><circle r="${R}" fill="#E0F2FE" stroke="${INK}" stroke-width="4.5"/><circle r="${R - 14}" fill="none" stroke="#7DD3FC" stroke-width="5"/>${spokes}
       <circle r="16" fill="${INK}"/><circle cx="0" cy="${R - 4}" r="13" fill="${RED}" stroke="#fff" stroke-width="3"/></g>
       <circle r="${R}" fill="transparent" class="g5w-grab"/></g>`;
   const wheel = t.q('.g5w-wheel'), rotG = t.q('.g5w-rot'), run = t.q('.g5w-run'), trace = t.q('.g5w-trace');

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" font-family="Nunito, 'Segoe UI', Arial, sans-serif">
+<!-- Minh hoạ: Hang Đom Đóm. Trái: hình sáng 2 giây. Phải: tối lại, bé trả lời bằng nút to. -->
+<rect width="1600" height="900" fill="#1E293B"/>
+<path d="M0 900 V200 Q400 20 800 40 Q1200 20 1600 200 V900Z" fill="#334155" stroke="#3F3A40" stroke-width="4"/>
+<circle cx="507" cy="626" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="287" cy="398" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="990" cy="660" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="154" cy="640" r="3" fill="#FDE047" opacity=".8"/>
+<circle cx="980" cy="285" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="499" cy="216" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="983" cy="573" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="995" cy="426" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="328" cy="257" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="330" cy="555" r="4" fill="#FDE047" opacity=".8"/>
+<circle cx="1538" cy="35" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="151" cy="183" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="107" cy="328" r="3" fill="#FDE047" opacity=".8"/>
+<circle cx="571" cy="504" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="1492" cy="416" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="894" cy="424" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="1201" cy="475" r="3" fill="#FDE047" opacity=".8"/>
+<circle cx="768" cy="119" r="3" fill="#FDE047" opacity=".8"/>
+<circle cx="298" cy="526" r="3" fill="#FDE047" opacity=".8"/>
+<circle cx="548" cy="708" r="4" fill="#FDE047" opacity=".8"/>
+<circle cx="1303" cy="328" r="4" fill="#FDE047" opacity=".8"/>
+<circle cx="1058" cy="873" r="4" fill="#FDE047" opacity=".8"/>
+<circle cx="1195" cy="379" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="1218" cy="437" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="495" cy="364" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="78" cy="306" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="1394" cy="732" r="3" fill="#FDE047" opacity=".8"/>
+<circle cx="1450" cy="354" r="5" fill="#FDE047" opacity=".8"/>
+<circle cx="1191" cy="602" r="3" fill="#FDE047" opacity=".8"/>
+<circle cx="1481" cy="691" r="3" fill="#FDE047" opacity=".8"/>
+<path d="M800 60 V870" stroke="#94A3B8" stroke-width="4" stroke-dasharray="14 10"/>
+<text x="400" y="130" font-size="40" text-anchor="middle" font-weight="900" fill="#FEF9C3">① Hình sáng lên 2 giây</text><text x="1200" y="130" font-size="40" text-anchor="middle" font-weight="900" fill="#FEF9C3">② Số nào vừa hiện?</text>
+<rect x="80" y="180" width="640" height="560" rx="28" fill="#FFFBEB" stroke="#3F3A40" stroke-width="4"/>
+<rect x="110" y="240" width="160" height="160" fill="#60A5FA" stroke="#3F3A40" stroke-width="3"/><path d="M126 240v160M110 256h160" stroke="#1E3A8A" stroke-width="1"/><path d="M142 240v160M110 272h160" stroke="#1E3A8A" stroke-width="1"/><path d="M158 240v160M110 288h160" stroke="#1E3A8A" stroke-width="1"/><path d="M174 240v160M110 304h160" stroke="#1E3A8A" stroke-width="1"/><path d="M190 240v160M110 320h160" stroke="#1E3A8A" stroke-width="1"/><path d="M206 240v160M110 336h160" stroke="#1E3A8A" stroke-width="1"/><path d="M222 240v160M110 352h160" stroke="#1E3A8A" stroke-width="1"/><path d="M238 240v160M110 368h160" stroke="#1E3A8A" stroke-width="1"/><path d="M254 240v160M110 384h160" stroke="#1E3A8A" stroke-width="1"/><rect x="290" y="240" width="160" height="160" fill="#60A5FA" stroke="#3F3A40" stroke-width="3"/><path d="M306 240v160M290 256h160" stroke="#1E3A8A" stroke-width="1"/><path d="M322 240v160M290 272h160" stroke="#1E3A8A" stroke-width="1"/><path d="M338 240v160M290 288h160" stroke="#1E3A8A" stroke-width="1"/><path d="M354 240v160M290 304h160" stroke="#1E3A8A" stroke-width="1"/><path d="M370 240v160M290 320h160" stroke="#1E3A8A" stroke-width="1"/><path d="M386 240v160M290 336h160" stroke="#1E3A8A" stroke-width="1"/><path d="M402 240v160M290 352h160" stroke="#1E3A8A" stroke-width="1"/><path d="M418 240v160M290 368h160" stroke="#1E3A8A" stroke-width="1"/><path d="M434 240v160M290 384h160" stroke="#1E3A8A" stroke-width="1"/>
+<rect x="480" y="240" width="16" height="160" fill="#4ADE80" stroke="#3F3A40" stroke-width="3"/><path d="M480 256h16" stroke="#166534"/><path d="M480 272h16" stroke="#166534"/><path d="M480 288h16" stroke="#166534"/><path d="M480 304h16" stroke="#166534"/><path d="M480 320h16" stroke="#166534"/><path d="M480 336h16" stroke="#166534"/><path d="M480 352h16" stroke="#166534"/><path d="M480 368h16" stroke="#166534"/><path d="M480 384h16" stroke="#166534"/>
+<rect x="512" y="240" width="16" height="160" fill="#4ADE80" stroke="#3F3A40" stroke-width="3"/><path d="M512 256h16" stroke="#166534"/><path d="M512 272h16" stroke="#166534"/><path d="M512 288h16" stroke="#166534"/><path d="M512 304h16" stroke="#166534"/><path d="M512 320h16" stroke="#166534"/><path d="M512 336h16" stroke="#166534"/><path d="M512 352h16" stroke="#166534"/><path d="M512 368h16" stroke="#166534"/><path d="M512 384h16" stroke="#166534"/>
+<rect x="544" y="240" width="16" height="160" fill="#4ADE80" stroke="#3F3A40" stroke-width="3"/><path d="M544 256h16" stroke="#166534"/><path d="M544 272h16" stroke="#166534"/><path d="M544 288h16" stroke="#166534"/><path d="M544 304h16" stroke="#166534"/><path d="M544 320h16" stroke="#166534"/><path d="M544 336h16" stroke="#166534"/><path d="M544 352h16" stroke="#166534"/><path d="M544 368h16" stroke="#166534"/><path d="M544 384h16" stroke="#166534"/>
+<rect x="590" y="300" width="20" height="20" fill="#FDE047" stroke="#3F3A40" stroke-width="3"/>
+<rect x="620" y="300" width="20" height="20" fill="#FDE047" stroke="#3F3A40" stroke-width="3"/>
+<rect x="590" y="330" width="20" height="20" fill="#FDE047" stroke="#3F3A40" stroke-width="3"/>
+<rect x="620" y="330" width="20" height="20" fill="#FDE047" stroke="#3F3A40" stroke-width="3"/>
+<text x="190" y="450" font-size="30" text-anchor="middle" font-weight="800" fill="#1E3A8A">trăm</text><text x="370" y="450" font-size="30" text-anchor="middle" font-weight="800" fill="#1E3A8A">trăm</text><text x="527" y="450" font-size="30" text-anchor="middle" font-weight="800" fill="#166534">chục</text><text x="615" y="450" font-size="26" text-anchor="middle" font-weight="800" fill="#A16207">đơn vị</text>
+<rect x="110" y="500" width="580" height="30" rx="15" fill="#fff" stroke="#3F3A40" stroke-width="3"/><rect x="113" y="503" width="280" height="24" rx="12" fill="#FDE047"/>
+<text x="400" y="640" font-size="40" text-anchor="middle" font-weight="900" fill="#3F3A40">🔦 Nhìn thật nhanh!</text>
+<rect x="880" y="180" width="640" height="250" rx="28" fill="#0F172A" stroke="#3F3A40" stroke-width="4"/><text x="1200" y="330" font-size="64" text-anchor="middle" font-weight="900" fill="#475569">? ? ?</text>
+<rect x="880" y="478" width="310" height="170" rx="24" fill="#94A3B8"/><rect x="880" y="470" width="310" height="170" rx="24" fill="#fff" stroke="#3F3A40" stroke-width="4"/><text x="1035" y="578" font-size="68" text-anchor="middle" font-weight="900" fill="#3F3A40">234</text>
+<rect x="1210" y="478" width="310" height="170" rx="24" fill="#94A3B8"/><rect x="1210" y="470" width="310" height="170" rx="24" fill="#fff" stroke="#3F3A40" stroke-width="4"/><text x="1365" y="578" font-size="68" text-anchor="middle" font-weight="900" fill="#3F3A40">243</text>
+<rect x="880" y="678" width="310" height="170" rx="24" fill="#94A3B8"/><rect x="880" y="670" width="310" height="170" rx="24" fill="#fff" stroke="#3F3A40" stroke-width="4"/><text x="1035" y="778" font-size="68" text-anchor="middle" font-weight="900" fill="#3F3A40">324</text>
+<rect x="1210" y="678" width="310" height="170" rx="24" fill="#94A3B8"/><rect x="1210" y="670" width="310" height="170" rx="24" fill="#fff" stroke="#3F3A40" stroke-width="4"/><text x="1365" y="778" font-size="68" text-anchor="middle" font-weight="900" fill="#3F3A40">2 034</text>
+</svg>

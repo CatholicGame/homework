@@ -136,7 +136,18 @@ def main(src, out):
         m = np.tile(m, int(np.ceil(len(buf) / max(len(m), 1))))[:len(buf)]
         fade = int(1.5 * SR)
         m[-fade:] *= np.linspace(1, 0, fade, dtype=np.float32)
-        buf += m * tl.get('musicVolume', 0.12)
+        # Nhạc nhỏ lại khi có lời (vào nhanh 0,15 s, ra chậm 0,6 s), lời luôn nghe rõ.
+        hop = SR // 100
+        lvl = np.abs(buf[:len(buf) // hop * hop]).reshape(-1, hop).max(axis=1)
+        talk = (lvl > 0.02).astype(np.float32)
+        duck = np.empty_like(talk)
+        g = 0.0
+        for i, x in enumerate(talk):
+            g += (x - g) * (0.07 if x > g else 0.017)
+            duck[i] = g
+        gain = 1 - tl.get('musicDuck', 0.55) * np.repeat(duck, hop)
+        gain = np.concatenate([gain, np.full(len(buf) - len(gain), gain[-1] if len(gain) else 1, dtype=np.float32)])
+        buf += m * gain * tl.get('musicVolume', 0.12)
     peak = float(np.max(np.abs(buf))) or 1.0
     buf *= min(1.0, 0.95 / peak)
     wav = os.path.join(src, 'audio.f32')

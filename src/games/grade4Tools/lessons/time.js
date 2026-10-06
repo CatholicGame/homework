@@ -25,9 +25,9 @@ function watchSvg() {
   let nums = '';
   for (let i = 5; i <= 60; i += 5) { const a = (i * 6 - 90) * Math.PI / 180; nums += `<text x="${CX + (R - 70) * Math.cos(a)}" y="${CY + (R - 70) * Math.sin(a) + 13}" class="g4v-t" font-size="36">${i}</text>`; }
   return `<circle cx="${CX}" cy="${CY}" r="${R + 14}" fill="#FDE68A" stroke="${INK}" stroke-width="8"/>
-    <rect x="${CX - 26}" y="${CY - R - 56}" width="52" height="34" rx="8" fill="#FDE68A" stroke="${INK}" stroke-width="6"/>
-    <circle cx="${CX}" cy="${CY}" r="${R}" fill="#fff" stroke="${INK}" stroke-width="5"/>${ticks}${nums}
-    <g class="g4t-min"><circle cx="${CX}" cy="${CY + 80}" r="44" fill="#F1F5F9" stroke="${INK}" stroke-width="3"/>
+    <rect x="${CX - 26}" y="${CY - R - 56}" width="52" height="34" rx="8" fill="#FDE68A" stroke="${INK}" stroke-width="4"/>
+    <circle cx="${CX}" cy="${CY}" r="${R}" fill="#fff" stroke="${INK}" stroke-width="3.5"/>${ticks}${nums}
+    <g class="g4t-min"><circle cx="${CX}" cy="${CY + 80}" r="44" fill="#F1F5F9" stroke="${INK}" stroke-width="2.5"/>
       ${Array.from({ length: 30 }, (_, i) => { const a = (i * 12 - 90) * Math.PI / 180; return `<line x1="${CX + 42 * Math.cos(a)}" y1="${CY + 80 + 42 * Math.sin(a)}" x2="${CX + 34 * Math.cos(a)}" y2="${CY + 80 + 34 * Math.sin(a)}" stroke="${INK}" stroke-width="2"/>`; }).join('')}
       <line class="g4t-mhand" x1="${CX}" y1="${CY + 80}" x2="${CX}" y2="${CY + 44}" stroke="#2563EB" stroke-width="6" stroke-linecap="round"/>
 </g>
@@ -49,13 +49,13 @@ function timelineSvg(a, b, { mark = [] } = {}) {
   let g = '';
   for (let i = 0; i < n; i++) {
     const c = a / 100 + i + 1;
-    g += `<g class="g4t-cent" data-c="${c}"><rect x="${x0 + i * w}" y="${y}" width="${w}" height="110" fill="${i % 2 ? '#DBEAFE' : '#E0E7FF'}" stroke="${INK}" stroke-width="3"/>
-      <text x="${x0 + i * w + w / 2}" y="${y + 70}" class="g4v-t" font-size="${Math.min(48, (w * 1.5) / Math.max(2, roman(c).length))}">${roman(c)}</text></g>`;
+    g += `<g class="g4t-cent" data-c="${c}"><rect x="${x0 + i * w}" y="${y}" width="${w}" height="110" fill="${i % 2 ? '#DBEAFE' : '#E0E7FF'}" stroke="${INK}" stroke-opacity="0.5" stroke-width="2"/>
+      <text x="${x0 + i * w + w / 2}" y="${y + 70}" class="g4v-t" font-size="${Math.min(56, (w * 1.6) / Math.max(2, roman(c).length))}">${roman(c)}</text></g>`;
   }
-  for (let i = 0; i <= n; i++) if (n <= 8 || i % 5 === 0 || i === n) g += `<text x="${x0 + i * w}" y="${y + 160}" class="g4v-t" font-size="${n <= 8 ? 26 : 22}">${a + i * 100}</text>`;
-  return `<text x="500" y="${y - 30}" class="g4v-t" font-size="30" fill="#64748B">thế kỉ</text>${g}${mark.map(([yr, lab]) => {
+  for (let i = 0; i <= n; i++) if (n <= 8 || i % 5 === 0 || i === n) g += `<text x="${x0 + i * w}" y="${y + 160}" class="g4v-t" font-size="${n <= 8 ? 34 : 28}">${a + i * 100}</text>`;
+  return `<text x="500" y="${y - 30}" class="g4v-t" font-size="36" fill="#64748B">thế kỉ</text>${g}${mark.map(([yr, lab]) => {
     const x = x0 + ((yr - a) / 100) * w;
-    return `<g class="g4t-mark"><line x1="${x}" y1="${y - 10}" x2="${x}" y2="${y + 120}" stroke="#DC2626" stroke-width="5"/><text x="${x}" y="${y + 200}" class="g4v-t" font-size="28" fill="#DC2626">${lab}</text></g>`;
+    return `<g class="g4t-mark"><line x1="${x}" y1="${y - 10}" x2="${x}" y2="${y + 120}" stroke="#DC2626" stroke-width="5"/><text x="${x}" y="${y + 205}" class="g4v-t" font-size="36" fill="#DC2626">${lab}</text></g>`;
   }).join('')}`;
 }
 

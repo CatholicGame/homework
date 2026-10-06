@@ -10,12 +10,15 @@
 
 import { renderWorkbook } from './grade3Workbook.js';
 import { CATALOG } from './grade4Textbook/catalog.js';
+import { relatedFor } from './grade4Textbook/related.js';
 
 const files = import.meta.glob('./grade4Textbook/b*.js', { eager: true });
 const QUESTIONS = Object.assign({}, ...Object.values(files).map(m => m.QUESTIONS || {}));
 
 // Chỉ hiện bài đã có câu hỏi (bài chỉ có phần bài học, không có bài tập, không có trong danh sách).
-export const UNITS = CATALOG.map(c => ({ ...c, questions: QUESTIONS[c.id] || [] })).filter(u => u.questions.length);
+// Đề có nhiều phần a), b), c) viết liền "a) … ; b) …" như sách: mỗi phần một dòng (điện thoại không ngắt giữa phần).
+const splitParts = (q) => (typeof q.q === 'string' ? { ...q, q: q.q.replace(/[ \t]*;\s+(?=[a-h]\)\s)/g, '\n') } : q);
+export const UNITS = CATALOG.map(c => ({ ...c, questions: (QUESTIONS[c.id] || []).map(splitParts) })).filter(u => u.questions.length);
 
 const TEXTBOOK4_CONFIG = {
   units: UNITS,
@@ -28,6 +31,10 @@ const TEXTBOOK4_CONFIG = {
   menuLabel: 'Chọn bài để luyện tập:',
   unitWord: 'bài',
   unitName: (u) => `${u.title} · trang ${u.page}`,
+  // Ô số trong dãy tính hẹp hơn (6ch): "115 − c = ... − ... = ..." nằm gọn một dòng trên điện thoại.
+  compactSlots: true,
+  // 📘 Kiến thức / 🔎 Khám phá trên bài tập (lớp phủ): grade4Textbook/related.js.
+  related: relatedFor,
 };
 
 export function render(app, onBack) {

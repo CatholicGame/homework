@@ -55,13 +55,13 @@ export function createTrap(host, o = {}) {
     const Hc = { x: S.A.x, y: S.D.y }, H = t.X(Hc);
     if (S.alt && (S.A.x < S.D.x || S.A.x > S.C.x)) {
       const e0 = S.A.x < S.D.x ? H : C, e1 = S.A.x < S.D.x ? D : H;
-      g += `<line x1="${e0.x}" y1="${e0.y}" x2="${e1.x}" y2="${e1.y}" stroke="${INK}" stroke-width="4" stroke-dasharray="12 9"/>`;
+      g += `<line x1="${e0.x}" y1="${e0.y}" x2="${e1.x}" y2="${e1.y}" stroke="${INK}" stroke-width="3" stroke-dasharray="12 9"/>`;
     }
     if (S.cut) {
       const M = mid(B, C);
-      g += `<polygon points="${pts([A, M, C, D])}" fill="${FILL}" fill-opacity="0.8" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>`;
+      g += `<polygon points="${pts([A, M, C, D])}" fill="${FILL}" fill-opacity="0.8" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>`;
     } else {
-      g += `<polygon points="${pts(b === 0 ? [A, C, D] : [A, B, C, D])}" fill="${FILL}" fill-opacity="0.8" stroke="${INK}" stroke-width="5" stroke-linejoin="round" class="g5p-poly"/>`;
+      g += `<polygon points="${pts(b === 0 ? [A, C, D] : [A, B, C, D])}" fill="${FILL}" fill-opacity="0.8" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round" class="g5p-poly"/>`;
     }
     if (S.labels && !S.cut && b > 0) {
       g += chev(A, B, a === b ? 1 : 1) + chev(D, C, 1);
@@ -94,7 +94,7 @@ export function createTrap(host, o = {}) {
       const r = Math.max(22, c * 0.32);
       for (const [n, P] of [['A', A], ['B', B], ['C', C], ['D', D]]) {
         if (n === 'B' && b === 0) continue;
-        g += `<g class="g5t-h g5p-h" data-v="${n}"><circle cx="${P.x}" cy="${P.y}" r="${r}" fill="${YEL}" stroke="${INK}" stroke-width="4"/><circle cx="${P.x}" cy="${P.y}" r="${r * 1.6}" fill="transparent"/></g>`;
+        g += `<g class="g5t-h g5p-h" data-v="${n}"><circle cx="${P.x}" cy="${P.y}" r="${r}" fill="${YEL}" stroke="${INK}" stroke-width="3"/><circle cx="${P.x}" cy="${P.y}" r="${r * 1.6}" fill="transparent"/></g>`;
       }
     }
     if (S.slider) {
@@ -103,7 +103,7 @@ export function createTrap(host, o = {}) {
         <line x1="${x0}" y1="${y}" x2="${xk}" y2="${y}" stroke="${BLUE_D}" stroke-width="16" stroke-linecap="round"/>
         ${Array.from({ length: a + 1 }, (_, i) => { const x = t.X({ x: S.A.x + i, y: 0 }).x; return `<circle cx="${x}" cy="${y}" r="4" fill="#fff"/>`; }).join('')}
         ${txt(x0 - 50, y + 12, '0', { size: 34, color: '#64748B', anchor: 'end' })}${txt(x1 + 50, y + 12, `a`, { size: 34, color: '#64748B', anchor: 'start' })}
-        <g class="g5t-h g5p-h g5p-knob"><rect x="${xk - 26}" y="${y - 30}" width="52" height="60" rx="14" fill="${YEL}" stroke="${INK}" stroke-width="4"/>
+        <g class="g5t-h g5p-h g5p-knob"><rect x="${xk - 26}" y="${y - 30}" width="52" height="60" rx="14" fill="${YEL}" stroke="${INK}" stroke-width="3"/>
           <text x="${xk}" y="${y + 12}" font-size="32" font-weight="800" text-anchor="middle" fill="${INK}">b</text><rect x="${xk - 46}" y="${y - 50}" width="92" height="100" fill="transparent"/></g>`;
     }
     t.L.fig.innerHTML = g;
@@ -177,7 +177,7 @@ export function createTrap(host, o = {}) {
     l.remove(); sc.remove();
     S.cut = true; draw();
     const P = [A, B, M];
-    const el = svgEl('polygon', { points: pts(P), fill: '#38BDF8', stroke: INK, 'stroke-width': 5, 'stroke-linejoin': 'round' });
+    const el = svgEl('polygon', { points: pts(P), fill: '#38BDF8', stroke: INK, 'stroke-width': 3.5, 'stroke-linejoin': 'round' });
     t.L.piece.append(el);
     piece = { el, P, M };
     await el.animate([{ transform: 'translate(0, 0)' }, { transform: 'translate(0, -14px)' }, { transform: 'translate(0, 0)' }], { duration: 600 }).finished;

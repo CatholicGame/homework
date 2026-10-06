@@ -135,11 +135,11 @@ function taskSide() {
       if (rh) {
         const q = ['BC', 'CD', 'DA'][ask];
         f.q.innerHTML = `Hình thoi ABCD có AB = ${a} cm. ${q} = ${BOX} cm`;
-        await f.ask({ box: f.q.querySelector('.g4-box'), answer: a, max: 2, say: `Hình thoi có cạnh AB bằng ${a} xăng-ti-mét. Cạnh ${q.split('').join(' ')} dài bao nhiêu?`, hint: 'Hình thoi có bốn cạnh bằng nhau.' });
+        await f.ask({ box: f.q.querySelector('.g4-box'), answer: a, max: 2, say: `Hình thoi có cạnh AB bằng ${a} xăng-ti-mét. Cạnh ${q} dài bao nhiêu?`, hint: 'Hình thoi có bốn cạnh bằng nhau.' });
       } else {
         const [q, ans] = ask ? ['DC', a] : ['BC', b];
         f.q.innerHTML = `Hình bình hành ABCD có AB = ${a} cm, AD = ${b} cm. ${q} = ${BOX} cm`;
-        await f.ask({ box: f.q.querySelector('.g4-box'), answer: ans, max: 2, say: `Cạnh ${q.split('').join(' ')} dài bao nhiêu xăng-ti-mét?`, hint: `Cạnh ${q} nằm đối diện với cạnh ${q === 'DC' ? 'AB' : 'AD'}, hai cạnh này bằng nhau.` });
+        await f.ask({ box: f.q.querySelector('.g4-box'), answer: ans, max: 2, say: `Cạnh ${q} dài bao nhiêu xăng-ti-mét?`, hint: `Cạnh ${q} nằm đối diện với cạnh ${q === 'DC' ? 'AB' : 'AD'}, hai cạnh này bằng nhau.` });
       }
       t.label(true);
       f.finish({ ok: rh ? 'Bốn cạnh hình thoi bằng nhau.' : 'Cạnh đối diện của hình bình hành bằng nhau.' });

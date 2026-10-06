@@ -5,7 +5,7 @@
  * t.frame(x, y, w, h) khoanh vùng có hình (khung nhìn gốc) để hình phóng kín tờ giấy; t.portrait() tờ giấy dựng đứng.
  */
 
-import { css, emitter, INK, sfx } from './frame.js';
+import { css, emitter, INK, sfx, watchUnits } from './frame.js';
 import { calmMotion } from '../grade3Games/fly.js';
 
 export const anim = (ms) => (calmMotion() ? Math.round(ms * 0.8) : ms);
@@ -16,6 +16,7 @@ export function createCanvas(host, { w = 1000, h = 560, bg = '#fff' } = {}) {
   host.innerHTML = `<div class="g4v"><div class="g4v-cap">&nbsp;</div><svg class="g4v-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet"></svg></div>`;
   const svg = host.querySelector('svg');
   svg.style.background = bg;
+  watchUnits(svg);
   t.svg = svg; t.w = w; t.h = h;
   t.caption = (html) => { host.querySelector('.g4v-cap').innerHTML = html || '&nbsp;'; };
   t.draw = (html) => { svg.innerHTML = html; };
@@ -55,7 +56,7 @@ export function createCanvas(host, { w = 1000, h = 560, bg = '#fff' } = {}) {
     for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
       g += `<rect class="g4v-tile" data-k="${j * cols + i}" x="${x + i * s}" y="${y + j * s}" width="${s}" height="${s}" fill="#F8FAFC" stroke="#94A3B8" stroke-width="2" stroke-dasharray="6 5"/>`;
     }
-    g += `<rect x="${x}" y="${y}" width="${cols * s}" height="${rows * s}" fill="none" stroke="${INK}" stroke-width="5"/></g>`;
+    g += `<rect x="${x}" y="${y}" width="${cols * s}" height="${rows * s}" fill="none" stroke="${INK}" stroke-width="3.5"/></g>`;
     t.add(g);
     let n = 0;
     svg.querySelectorAll('.g4v-tile').forEach((r) => {

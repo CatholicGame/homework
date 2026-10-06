@@ -11,6 +11,7 @@ import { createCompass, createWheel, createSectors } from '../circle.js';
 import { BOX } from '../../grade4Tools/practice.js';
 import { css } from '../../grade4Tools/frame.js';
 import { dec, decKey, clean } from '../num.js';
+import { calmMotion } from '../../grade3Games/fly.js';
 
 /** Chờ em thao tác (c.until); DEV: window.__g5solve làm thay để chạy tự động. */
 async function waitDo(c, t, pred, opts, solve) {
@@ -156,7 +157,7 @@ function drawTri(t, P, { names = ['A', 'B', 'C'], fill = BLUE, extra = '' } = {}
   const f = fitTo(P, t.box.x, t.box.y, t.box.w, t.box.h);
   const Q = P.map(f);
   const G = { x: (Q[0].x + Q[1].x + Q[2].x) / 3, y: (Q[0].y + Q[1].y + Q[2].y) / 3 };
-  t.L.fig.innerHTML = `<polygon points="${pts(Q)}" fill="${fill}" fill-opacity="0.75" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>
+  t.L.fig.innerHTML = `<polygon points="${pts(Q)}" fill="${fill}" fill-opacity="0.75" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>
     ${names.map((n, i) => (n ? vLabel(Q[i], G, n) : '')).join('')}${extra}`;
   return { Q, f };
 }
@@ -227,8 +228,8 @@ function taskTriAlt() {
       const fz = fitTo(all, t.box.x, t.box.y, t.box.w, t.box.h);
       const [qa, qb, qc] = [A, B, C].map(fz);
       const G = { x: (qa.x + qb.x + qc.x) / 3, y: (qa.y + qb.y + qc.y) / 3 };
-      let g = `<line x1="${t.box.x - 40}" y1="${qb.y}" x2="${t.box.x + t.box.w + 40}" y2="${qb.y}" stroke="${INK}" stroke-width="3" stroke-dasharray="12 9"/>
-        <polygon points="${pts([qa, qb, qc])}" fill="${BLUE}" fill-opacity="0.6" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>`;
+      let g = `<line x1="${t.box.x - 40}" y1="${qb.y}" x2="${t.box.x + t.box.w + 40}" y2="${qb.y}" stroke="${INK}" stroke-width="2.5" stroke-dasharray="12 9"/>
+        <polygon points="${pts([qa, qb, qc])}" fill="${BLUE}" fill-opacity="0.6" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>`;
       for (const cd of cand) {
         const q = fz(cd.to);
         if (!cd.side) g += `<line x1="${qa.x}" y1="${qa.y}" x2="${q.x}" y2="${q.y}" stroke="#7C3AED" stroke-width="5" stroke-dasharray="12 8"/><circle cx="${q.x}" cy="${q.y}" r="7" fill="#7C3AED"/>`;
@@ -255,8 +256,8 @@ function drawTriDims(t, a, h, x, la, lh, { fill = BLUE } = {}) {
   const [qa, qb, qc] = [A, B, C].map(fz), H = fz({ x, y: 0 });
   const right = x === 0;
   let g = '';
-  if (x < 0 || x > a) g += `<line x1="${x < 0 ? H.x : qc.x}" y1="${qb.y}" x2="${x < 0 ? qb.x : H.x}" y2="${qb.y}" stroke="${INK}" stroke-width="3" stroke-dasharray="12 9"/>`;
-  g += `<polygon points="${pts([qa, qb, qc])}" fill="${fill}" fill-opacity="0.7" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>`;
+  if (x < 0 || x > a) g += `<line x1="${x < 0 ? H.x : qc.x}" y1="${qb.y}" x2="${x < 0 ? qb.x : H.x}" y2="${qb.y}" stroke="${INK}" stroke-width="2.5" stroke-dasharray="12 9"/>`;
+  g += `<polygon points="${pts([qa, qb, qc])}" fill="${fill}" fill-opacity="0.7" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>`;
   g += `<line x1="${qa.x}" y1="${qa.y}" x2="${H.x}" y2="${H.y}" stroke="${RED}" stroke-width="${right ? 7 : 5}" ${right ? '' : 'stroke-dasharray="12 8"'}/>`;
   g += rightMark(H, { x: x < a / 2 ? 1 : -1, y: 0 }, { x: 0, y: -1 }, 22);
   g += dim(qb, qc, la, { off: 30, color: BLUE_D, size: 40 });
@@ -448,7 +449,7 @@ const PIC_W = 220, PIC_H = 150;
 function picSvg(P, { fill = '#86EFAC' } = {}) {
   const f = fitTo(P, 16, 14, PIC_W - 32, PIC_H - 28);
   const Q = P.map(f);
-  return `<svg class="g5sh-svg" viewBox="0 0 ${PIC_W} ${PIC_H}"><polygon points="${pts(Q)}" fill="${fill}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/></svg>`;
+  return `<svg class="g5sh-svg" viewBox="0 0 ${PIC_W} ${PIC_H}"><polygon points="${pts(Q)}" fill="${fill}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/></svg>`;
 }
 const rotAll = (P, a) => P.map(p => rot(p, { x: 0, y: 0 }, a));
 function trapPts(rng, right = false) {
@@ -505,7 +506,7 @@ function taskTrapHeight() {
       const Hx = right ? null : { x: s, y: 0 }, Kx = { x: Math.min(a - 1, s + Math.max(2, Math.round(b / 2) + 1)), y: 0 };
       const fz = fitTo([A, B, C, Dp, { x: -0.6, y: 0 }], t.box.x, t.box.y, t.box.w, t.box.h);
       const [qa, qb, qc, qd] = [A, B, C, Dp].map(fz);
-      let g = `<polygon points="${pts([qa, qb, qc, qd])}" fill="#86EFAC" fill-opacity="0.8" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>`;
+      let g = `<polygon points="${pts([qa, qb, qc, qd])}" fill="#86EFAC" fill-opacity="0.8" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>`;
       const seg = (q, n) => `<line x1="${qa.x}" y1="${qa.y}" x2="${q.x}" y2="${q.y}" stroke="#7C3AED" stroke-width="5" stroke-dasharray="12 8"/><circle cx="${q.x}" cy="${q.y}" r="7" fill="#7C3AED"/>${txt(q.x, q.y + 46, n, { size: 40, color: '#7C3AED' })}`;
       if (Hx) g += seg(fz(Hx), nm);
       g += seg(fz(Kx), nm2);
@@ -527,7 +528,7 @@ function drawTrapDims(t, a, b, h, la, lb, lh, { fill = '#86EFAC', s = null } = {
   const A = { x: sx, y: -h }, B = { x: sx + b, y: -h }, C = { x: a, y: 0 }, Dp = { x: 0, y: 0 };
   const fz = fitTo([A, B, C, Dp], t.box.x + 30, t.box.y + 34, t.box.w - 60, t.box.h - 34);
   const [qa, qb, qc, qd] = [A, B, C, Dp].map(fz), H = fz({ x: sx, y: 0 });
-  t.L.fig.innerHTML = `<polygon points="${pts([qa, qb, qc, qd])}" fill="${fill}" fill-opacity="0.8" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>
+  t.L.fig.innerHTML = `<polygon points="${pts([qa, qb, qc, qd])}" fill="${fill}" fill-opacity="0.8" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>
     <line x1="${qa.x}" y1="${qa.y}" x2="${H.x}" y2="${H.y}" stroke="${RED}" stroke-width="5" stroke-dasharray="12 8"/>${rightMark(H, { x: 1, y: 0 }, { x: 0, y: -1 }, 22)}
     ${dim(qd, qc, la, { off: 30, color: BLUE_D, size: 40 })}${dim(qb, qa, lb, { off: 26, color: BLUE_D, size: 40 })}
     ${txt(H.x + 14, (qa.y + H.y) / 2 + 14, lh, { size: 40, color: RED, anchor: 'start' })}`;
@@ -703,8 +704,8 @@ function drawCircle(t, { show = 'r', label = '', fill = '#BAE6FD', half = false,
   const R = half ? Math.min(t.box.h * 0.85, t.box.w / 2.4) : Math.min(t.box.h / 2, t.box.w / 3);
   const O = { x: t.box.x + t.box.w / 2, y: half ? t.box.y + t.box.h * 0.88 : t.box.y + t.box.h / 2 + 10 };
   let g = half
-    ? `<path d="M${O.x - R} ${O.y} A${R} ${R} 0 0 1 ${O.x + R} ${O.y} Z" fill="${fill}" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>`
-    : `<circle cx="${O.x}" cy="${O.y}" r="${R}" fill="${fill}" stroke="${INK}" stroke-width="6"/>`;
+    ? `<path d="M${O.x - R} ${O.y} A${R} ${R} 0 0 1 ${O.x + R} ${O.y} Z" fill="${fill}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>`
+    : `<circle cx="${O.x}" cy="${O.y}" r="${R}" fill="${fill}" stroke="${INK}" stroke-width="4"/>`;
   if (emoji) g += `<text x="${O.x}" y="${O.y - R * 0.45}" font-size="${R * 0.4}" text-anchor="middle" dominant-baseline="middle">${emoji}</text>`;
   g += `<circle cx="${O.x}" cy="${O.y}" r="7" fill="${INK}"/>`;
   if (show === 'r') g += `<line x1="${O.x}" y1="${O.y}" x2="${O.x + R}" y2="${O.y}" stroke="${RED}" stroke-width="6"/>${txt(O.x + R / 2, O.y + 46, label, { size: 42, color: RED })}`;
@@ -801,18 +802,33 @@ function taskCircWheel() {
       const one = P1(d), all = clean(one * n);
       f.q.innerHTML = `${bike ? '🚲 Bánh xe đạp' : '🛞 Bánh xe'} đường kính ${D(d)} m lăn ${n} vòng. Quãng đường ${BOX} m`;
       const t = board(f, 2);
-      const R = Math.min(t.box.h / 2.4, 130), y = t.box.y + t.box.h + 10, cx = t.box.x + R + 20;
+      const R = Math.min(t.box.h / 2.4, Math.max(130, (t.box.w - 300) / 2.2), 240), y = t.box.y + t.box.h + 10, cx = t.box.x + R + 20; // bánh to theo chỗ trống, chừa mũi tên "n vòng"
       let spokes = '';
       for (let k = 0; k < 8; k++) spokes += `<line x1="${cx}" y1="${y - R}" x2="${cx + (R - 12) * Math.cos(k * Math.PI / 4)}" y2="${y - R + (R - 12) * Math.sin(k * Math.PI / 4)}" stroke="#94A3B8" stroke-width="4"/>`;
-      t.L.fig.innerHTML = `<rect x="0" y="${y}" width="${t.W}" height="36" fill="#D6D3D1"/><line x1="0" y1="${y}" x2="${t.W}" y2="${y}" stroke="${INK}" stroke-width="5"/>
-        <circle cx="${cx}" cy="${y - R}" r="${R}" fill="#E0F2FE" stroke="${INK}" stroke-width="9"/>${spokes}
-        <circle cx="${cx}" cy="${y - R}" r="14" fill="${INK}"/><line x1="${cx - R}" y1="${y - R}" x2="${cx + R}" y2="${y - R}" stroke="${GREEN}" stroke-width="6"/>
-        ${txt(cx, y - R - 18, `d = ${D(d)} m`, { size: 40, color: GREEN })}
-        <path d="M${cx + R + 50} ${y - 40} H${t.box.x + t.box.w}" stroke="${RED}" stroke-width="6" stroke-dasharray="14 10"/><path d="M${t.box.x + t.box.w - 22} ${y - 58} L${t.box.x + t.box.w + 6} ${y - 40} L${t.box.x + t.box.w - 22} ${y - 22}" fill="none" stroke="${RED}" stroke-width="6"/>
-        ${txt((cx + R + 50 + t.box.x + t.box.w) / 2, y - 62, `${n} vòng`, { size: 42, color: RED })}`;
+      t.L.fig.innerHTML = `<rect x="0" y="${y}" width="${t.W}" height="36" fill="#D6D3D1"/><line x1="0" y1="${y}" x2="${t.W}" y2="${y}" stroke="${INK}" stroke-width="3.5"/>
+        <line class="g5w-trail" x1="${cx}" y1="${y + 3}" x2="${cx}" y2="${y + 3}" stroke="${RED}" stroke-width="10" stroke-linecap="round"/>
+        <g class="g5w-wheel" style="transform-origin:${cx}px ${y - R}px"><circle cx="${cx}" cy="${y - R}" r="${R}" fill="#E0F2FE" stroke="${INK}" stroke-width="9"/>${spokes}
+        <circle cx="${cx}" cy="${y - R}" r="14" fill="${INK}"/><line x1="${cx - R}" y1="${y - R}" x2="${cx + R}" y2="${y - R}" stroke="${GREEN}" stroke-width="6"/></g>
+        <g class="g5w-d">${txt(cx, y - R - 18, `d = ${D(d)} m`, { size: Math.max(40, R * 0.24), color: GREEN })}</g>
+        <g class="g5w-d"><path d="M${cx + R + 50} ${y - 40} H${t.box.x + t.box.w}" stroke="${RED}" stroke-width="6" stroke-dasharray="14 10"/><path d="M${t.box.x + t.box.w - 22} ${y - 58} L${t.box.x + t.box.w + 6} ${y - 40} L${t.box.x + t.box.w - 22} ${y - 22}" fill="none" stroke="${RED}" stroke-width="6"/>
+        ${txt((cx + R + 50 + t.box.x + t.box.w) / 2, y - 62, `${n} vòng`, { size: 42, color: RED })}</g>`;
       await f.ask({ box: f.q.querySelector('.g4-box'), answer: decKey(all), max: 8,
         say: `Bánh xe có đường kính ${D(d)} mét lăn ${n} vòng. Tính quãng đường bánh xe đi được.`,
         hint: (v) => (Math.abs(v - one) < 1e-9 ? `Đó là quãng đường lăn 1 vòng. Nhân với ${n}.` : 'Một vòng lăn bằng chu vi bánh xe: 3,14 × d.') });
+      // Bước kiểm chứng: bánh xe lăn thật trên đường (quay đúng theo quãng đường: góc = đường đi : bán kính), vệt đỏ là quãng đường
+      const dist = t.box.x + t.box.w - R - cx;
+      const ms = calmMotion() ? 1400 : 1800, easing = 'ease-in-out';
+      t.L.fig.querySelectorAll('.g5w-d').forEach(e => e.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' }));
+      t.L.fig.querySelector('.g5w-wheel').animate([{ transform: 'none' }, { transform: `translateX(${dist}px) rotate(${(dist / R) * 180 / Math.PI}deg)` }], { duration: ms, easing, fill: 'forwards' });
+      const trail = t.L.fig.querySelector('.g5w-trail'), t0 = performance.now();
+      await new Promise((res) => {
+        const step = (now) => {
+          const k = Math.min(1, (now - t0) / ms), e = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
+          trail.setAttribute('x2', cx + dist * e);
+          if (k < 1) requestAnimationFrame(step); else res();
+        };
+        requestAnimationFrame(step);
+      });
       await showSteps(t, [`3,14 × ${D(d)} = ${D(one)} (m)`, `${D(one)} × ${n} = ${D(all)} (m)`]);
       f.finish({ ok: `${D(one)} × ${n} = ${D(all)} m` });
     },

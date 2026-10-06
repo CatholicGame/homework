@@ -11,9 +11,14 @@
  */
 
 import { awardStars, recordWrong, hasEarned } from '../../engine/stars.js';
-import { say, stopSpeaking, sfx, rain, isMuted, setMuted } from '../preschool/fx.js';
+import { say as rawSay, stopSpeaking, sfx, rain, isMuted, setMuted } from '../preschool/fx.js';
+import { isEnglish } from '../../engine/i18n.js';
+import { speakableVi } from '../../engine/letterNames.js';
 import { menuBackdrop, fitMenu } from './styles.js';
 import { scopedKey } from '../../engine/auth.js';
+
+// Giọng Việt: tên điểm, tên hình (AB, ABCD…) luôn đọc theo tên chữ cái tiếng Việt (engine/letterNames.js).
+const say = (text, opts) => rawSay(isEnglish() ? text : speakableVi(text), opts);
 
 const BEST_KEY = 'g3games-best-v1';
 

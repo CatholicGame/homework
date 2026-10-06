@@ -257,7 +257,7 @@ function injectUnitStyles() {
     .g5u { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 1.2cqh; padding: 1cqh 1.4cqi 0; box-sizing: border-box; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #1E293B; }
     .g5u-top { flex: none; display: flex; align-items: center; justify-content: center; gap: 1.4cqi; font-size: min(10cqh, 5.6cqi); line-height: 1.15; min-height: 1.5em; }
     .g5u-chips { display: flex; gap: 1cqi; }
-    .g5u-chip { font: inherit; color: #7C2D12; background: #FED7AA; border: 3px solid ${INK}; border-radius: 0.45em; padding: 0.02em 0.4em; box-shadow: 0 5px 0 rgba(63,58,64,0.35); cursor: pointer; touch-action: manipulation; white-space: nowrap; }
+    .g5u-chip { font: inherit; color: #7C2D12; background: #FED7AA; border: 1.5px solid #FB923C; border-radius: 0.45em; padding: 0.02em 0.4em; box-shadow: 0 4px 0 rgba(63,58,64,0.2); cursor: pointer; touch-action: manipulation; white-space: nowrap; }
     .g5u-chip:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(63,58,64,0.35); }
     .g5u-chip i { font-style: normal; }
     .g5u-chip.g5u-used { background: #F1F5F9; color: #94A3B8; border-color: #CBD5E1; box-shadow: none; cursor: default; }
@@ -266,7 +266,7 @@ function injectUnitStyles() {
     .g5u-res small { font-size: 0.75em; color: #1E293B; }
     .g5u-tab { flex: 1 1 0; min-height: 0; container-type: size; display: flex; flex-direction: column; justify-content: center; gap: 1.5cqh; padding-bottom: 6cqh; box-sizing: border-box; }
     .g5u-grid { position: relative; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); grid-template-rows: auto auto; }
-    .g5u-h { font: inherit; font-size: min(14cqh, calc(34cqi / var(--n) + 1.4cqi)); line-height: 1; padding: 0.25em 0.05em; margin: 0 0.12cqi 0.8cqh; border: 3px solid ${INK}; border-radius: 0.4em; background: var(--bg); color: var(--ink);
+    .g5u-h { font: inherit; font-size: min(14cqh, calc(34cqi / var(--n) + 1.4cqi)); line-height: 1; padding: 0.25em 0.05em; margin: 0 0.12cqi 0.8cqh; border: 1.5px solid rgba(63,58,64,0.22); border-radius: 0.4em; background: var(--bg); color: var(--ink);
       box-shadow: 0 4px 0 rgba(63,58,64,0.3); cursor: pointer; touch-action: manipulation; white-space: nowrap; overflow: hidden; }
     .g5u-h:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(63,58,64,0.3); }
     .g5u-h.g5u-hid { background: #F8FAFC; border: 3px dashed #CBD5E1; box-shadow: none; cursor: default; }
@@ -277,8 +277,8 @@ function injectUnitStyles() {
     .g5u-locked .g5u-h { cursor: default; }
     .g5u-c { position: relative; height: min(60cqh, calc(220cqi / var(--n))); display: grid; place-items: center; background: var(--bg); border: 2px solid #94A3B8; border-left-width: 1px; border-right-width: 1px;
       font-size: min(42cqh, calc(105cqi / var(--n))); line-height: 1; color: #1E293B; }
-    .g5u-c1 { border-left: 4px solid ${INK}; }
-    .g5u-cz { border-right: 4px solid ${INK}; }
+    .g5u-c1 { border-left: 3px solid ${INK}; }
+    .g5u-cz { border-right: 3px solid ${INK}; }
     .g5u-c.g5u-chid { background: #F8FAFC; }
     .g5u-pz span { color: #B45309; }
     .g5u-pz { background: #FEF08A !important; box-shadow: inset 0 0 0 3px #F59E0B; }

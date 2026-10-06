@@ -9,7 +9,7 @@
  * Giá trị bên trong tính theo phần nghìn (số nguyên) để không lệch dấu phẩy động.
  */
 
-import { css, emitter, INK, sfx } from '../grade4Tools/frame.js';
+import { css, emitter, sfx } from '../grade4Tools/frame.js';
 import { SLOT_CSS } from '../grade4Tools/practice.js';
 import { flyOne } from '../grade3Games/fly.js';
 import { sleep } from '../grade3Drills/kit.js';
@@ -30,8 +30,8 @@ export const placeName = (p) => (PLACE5[p] ? PLACE5[p].name.toLowerCase() : '');
 const inkOf = (p) => PLACE5[p]?.ink || '#1E293B';
 const COMMA_INK = '#DC2626';
 
-/** Viền chữ trắng đủ dày (8 hướng). */
-const OUTLINE = [[0, 2], [0, -2], [2, 0], [-2, 0], [1.5, 1.5], [-1.5, 1.5], [1.5, -1.5], [-1.5, -1.5]].map(([x, y]) => `${x}px ${y}px 0 ${INK}`).join(', ');
+/** Chữ trên thẻ màu, không viền: mực đậm của hàng (màu thẻ là màu vừa, chữ trắng viền đen khó đọc). */
+const CHIP_TEXT = 'color-mix(in srgb, var(--t) 70%, #000)';
 
 /** Tách chuỗi số thập phân "1 000,071" → { i: '1000', d: '071' }. */
 export function splitDec(s) {
@@ -63,7 +63,7 @@ const valLabel = (p, stack = false) => {
   const den = fmt(10 ** -p);
   return stack ? `<span class="g5d-fr"><b>1</b><b>${den}</b></span>` : `<span>1/${den}</span>`;
 };
-const chipHtml = (p) => `<div class="g5d-chip" style="--c:${PLACE5[p].c};--n:${p >= 0 ? String(10 ** p).length : 2 - p + 2}">${valLabel(p)}</div>`;
+const chipHtml = (p) => `<div class="g5d-chip" style="--c:${PLACE5[p].c};--t:${PLACE5[p].ink};--n:${p >= 0 ? String(10 ** p).length : 2 - p + 2}">${valLabel(p)}</div>`;
 
 /**
  * host: phần tử chứa. int: số hàng phần nguyên (≤ 3), dec: số hàng phần thập phân (≤ 3).
@@ -90,7 +90,7 @@ export function createDPlace(host, { int = 3, dec = 3, value = 0, tray = true, r
         ${cells(p => `<div class="g5d-head" style="--ink:${inkOf(p)}">${PLACE5[p].name}</div>`, '<div class="g5d-head"></div>')}
         ${cells(p => `<button type="button" class="g5d-col" data-p="${p}" style="--bg:${PLACE5[p].bg}" aria-label="${PLACE5[p].name}"><div class="g5d-stack"></div></button>`, '<div class="g5d-ccol"></div>')}
         ${cells(p => `<div class="g5d-dig" data-p="${p}" style="--ink:${inkOf(p)}"></div>`, '<div class="g5d-dig g5d-comma">,</div>')}
-        ${tray ? cells(p => `<button type="button" class="g5d-src" data-p="${p}" style="--c:${PLACE5[p].c}" aria-label="Thêm thẻ ${PLACE5[p].name}">+${valLabel(p, true)}</button>`, '<div></div>') : ''}
+        ${tray ? cells(p => `<button type="button" class="g5d-src" data-p="${p}" style="--c:${PLACE5[p].c};--t:${PLACE5[p].ink}" aria-label="Thêm thẻ ${PLACE5[p].name}">+${valLabel(p, true)}</button>`, '<div></div>') : ''}
       </div>
     </div>`;
   const root = host.querySelector('.g5d');
@@ -352,41 +352,41 @@ function injectDPlaceStyles() {
     .g5d-read, .g5d-parts { font-weight: 700; font-size: min(4.4cqh, 3cqi); color: #475569; line-height: 1.2; text-align: center; min-height: 1.2em; }
     .g5d-parts b { font-weight: 800; }
     .g5d-grid { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; gap: 0.8cqh 0.7cqi; }
-    .g5d-head { text-align: center; font-weight: 800; color: var(--ink); font-size: min(3.3cqh, 2.3cqi); line-height: 1.05; min-height: 2.1em; display: grid; place-items: end center; }
-    .g5d-col { position: relative; background: var(--bg); border: 3px solid ${INK} !important; border-radius: 0.8rem; padding: 0.6cqh 0.5cqi; cursor: pointer; min-height: 0; box-shadow: 0 4px 0 rgba(63,58,64,0.25); transition: opacity .2s; font-family: inherit; }
+    .g5d-head { text-align: center; font-weight: 800; color: var(--ink); font-size: min(3.6cqh, 2.5cqi); line-height: 1.05; min-height: 2.1em; display: grid; place-items: end center; }
+    .g5d-col { position: relative; background: var(--bg); border: 2px solid rgba(63,58,64,0.16) !important; border-radius: 0.8rem; padding: 0.6cqh 0.5cqi; cursor: pointer; min-height: 0; box-shadow: 0 3px 0 rgba(63,58,64,0.1); transition: opacity .2s; font-family: inherit; }
     .g5d-ccol { position: relative; }
-    .g5d-ccol::before { content: ''; position: absolute; left: 50%; top: 4%; bottom: 4%; border-left: 4px dashed #FCA5A5; }
+    .g5d-ccol::before { content: ''; position: absolute; left: 50%; top: 4%; bottom: 4%; border-left: 3px dashed #FCA5A5; }
     .g5d-stack { height: 100%; display: flex; flex-direction: column-reverse; container-type: size; }
-    .g5d-chip { flex: none; height: calc(10% - 0.6cqh); margin-top: 0.6cqh; background: var(--c); border: 2px solid ${INK}; border-radius: 0.35em; display: grid; place-items: center; box-sizing: border-box; overflow: hidden; }
-    .g5d-chip span { font-weight: 800; color: #fff; text-shadow: ${OUTLINE}; font-size: min(7.5cqh, calc(150cqi / var(--n, 4))); line-height: 1; white-space: nowrap; }
+    .g5d-chip { flex: none; height: calc(10% - 0.6cqh); margin-top: 0.6cqh; background: var(--c); border: 1.5px solid rgba(63,58,64,0.22); border-radius: 0.35em; display: grid; place-items: center; box-sizing: border-box; overflow: hidden; }
+    .g5d-chip span { font-weight: 800; color: ${CHIP_TEXT}; font-size: min(8cqh, calc(165cqi / var(--n, 4))); line-height: 1; white-space: nowrap; }
     .g3-fly .g5d-chip { width: 100%; height: 100%; margin: 0; }
     .g3-fly .g5d-chip span { font-size: 1.05rem; }
-    .g5d-dig { text-align: center; font-weight: 800; color: var(--ink); font-size: min(9cqh, 5.4cqi); line-height: 1.05; min-height: 1.05em; border-bottom: 4px solid #CBD5E1; }
+    .g5d-dig { text-align: center; font-weight: 800; color: var(--ink); font-size: min(9cqh, 5.4cqi); line-height: 1.05; min-height: 1.05em; border-bottom: 3px solid #E2E8F0; }
     .g5d-comma { color: ${COMMA_INK}; border-bottom-color: transparent; }
     .g5d-cglow { animation: g5dC 0.8s ease-in-out 3; }
     @keyframes g5dC { 50% { transform: scale(1.5); } }
     .g5d-dig-big { color: #DC2626 !important; }
-    .g5d-src { border: 3px solid ${INK}; border-radius: 0.7em; background: var(--c); color: #fff; font-weight: 800; cursor: pointer; padding: 0.1em 0.1em; font-family: inherit;
-      font-size: min(3.8cqh, 2.4cqi); text-shadow: ${OUTLINE}; box-shadow: 0 5px 0 rgba(63,58,64,0.4); white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 0.15em; min-height: 2.5em; touch-action: manipulation; }
-    .g5d-src:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(63,58,64,0.4); }
+    .g5d-src { border: 1.5px solid rgba(63,58,64,0.2); border-radius: 0.7em; background: var(--c); color: ${CHIP_TEXT}; font-weight: 800; cursor: pointer; padding: 0.1em 0.1em; font-family: inherit;
+      font-size: min(4.4cqh, 2.8cqi); box-shadow: 0 4px 0 rgba(63,58,64,0.22); white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 0.15em; min-height: 2.5em; touch-action: manipulation; }
+    .g5d-src:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(63,58,64,0.22); }
     .g5d-fr { display: inline-flex; flex-direction: column; align-items: center; line-height: 1; font-size: 0.85em; }
     .g5d-fr b { display: block; padding: 0 0.1em; }
-    .g5d-fr b:first-child { border-bottom: 0.12em solid #fff; box-shadow: 0 1px 0 ${INK}; }
+    .g5d-fr b:first-child { border-bottom: 0.1em solid currentColor; }
     .g5d-off { opacity: 0.3; pointer-events: none; filter: grayscale(0.7); }
-    .g5d-glow { box-shadow: 0 0 0 5px #FACC15, 0 4px 0 rgba(63,58,64,0.25); }
+    .g5d-glow { box-shadow: 0 0 0 4px #FACC15, 0 3px 0 rgba(63,58,64,0.1); }
     .g5d-dim { opacity: 0.35; }
     .g5d-full { animation: g5dFull .38s ease-in-out 2; }
     @keyframes g5dFull { 50% { background: #FEF08A; } }
     .g5d-pop { animation: g5dPop .45s cubic-bezier(.2,1.6,.4,1); }
     @keyframes g5dPop { from { transform: scale(0.3); } }
     .g5d-locked .g5d-src, .g5d-locked .g5d-col { cursor: default; }
-    .g5d-picking .g5d-col:hover { box-shadow: 0 0 0 4px #FDE68A, 0 4px 0 rgba(63,58,64,0.25); }
+    .g5d-picking .g5d-col:hover { box-shadow: 0 0 0 4px #FDE68A, 0 3px 0 rgba(63,58,64,0.1); }
     .g5d-picking .g5d-src { opacity: 0.35; pointer-events: none; }
     @container (orientation: portrait) {
       .g5d-head { font-size: min(2.6cqh, 3.2cqi); }
       .g5d-num { font-size: min(8cqh, 11cqi); }
       .g5d-read, .g5d-parts { font-size: min(3.4cqh, 4.2cqi); }
-      .g5d-src { font-size: min(3cqh, 3.6cqi); }
+      .g5d-src { font-size: min(3.6cqh, 4.2cqi); }
       .g5d-dig { font-size: min(7cqh, 8cqi); }
       .g5d-chip span { font-size: min(7.5cqh, calc(120cqi / var(--n, 4))); }
     }
@@ -397,16 +397,16 @@ function injectDPlaceStyles() {
     .g5c-line { display: flex; align-items: center; justify-content: center; gap: 0.5em; font-weight: 800; font-size: min(13cqh, 8cqi); line-height: 1.1; }
     .g5c-grid { position: relative; display: grid; gap: 1.2cqh 0.6cqi; }
     .g5c-head { text-align: center; font-weight: 800; color: var(--ink); background: var(--bg); border-radius: 0.5em; font-size: min(3.4cqh, 2.2cqi); line-height: 1.05; padding: 0.2em 0.1em; min-height: 2.2em; display: grid; place-items: center; }
-    .g5c-d { position: relative; z-index: 1; text-align: center; font-weight: 800; color: var(--ink); font-size: min(18cqh, 11cqi); line-height: 1.1; border: 3px solid #E2E8F0; border-radius: 0.3em; background: #fff; min-height: 1.15em; transition: background .25s, border-color .25s; }
+    .g5c-d { position: relative; z-index: 1; text-align: center; font-weight: 800; color: var(--ink); font-size: min(18cqh, 11cqi); line-height: 1.1; border: 2px solid #E2E8F0; border-radius: 0.3em; background: #fff; min-height: 1.15em; transition: background .25s, border-color .25s; }
     .g5c-cm { color: ${COMMA_INK}; border-color: transparent; background: none; }
     .g5c-ghost { color: #CBD5E1; }
     .g5c-ghost-on .g5c-ghost { color: #94A3B8; }
     .g5c-same { background: #F1F5F9; }
     .g5c-hit { background: #FEF08A; border-color: #F59E0B; }
-    .g5c-scan { position: absolute; z-index: 2; left: 0; top: 0; width: 10%; height: 10%; border: 5px solid #EF4444; border-radius: 0.6em; opacity: 0; transition: transform .45s ease, width .45s ease, height .45s ease, opacity .2s; pointer-events: none; box-sizing: border-box; }
+    .g5c-scan { position: absolute; z-index: 2; left: 0; top: 0; width: 10%; height: 10%; border: 3px solid #EF4444; border-radius: 0.6em; opacity: 0; transition: transform .45s ease, width .45s ease, height .45s ease, opacity .2s; pointer-events: none; box-sizing: border-box; }
     .g5c-scan span { position: absolute; right: -0.55em; top: -0.75em; font-size: min(7cqh, 4.5cqi); }
     ${SLOT_CSS('.g5c-sign')}
-    .g5c-sign { width: 1.4em; height: 1.2em; border-width: 4px; }
+    .g5c-sign { width: 1.4em; height: 1.2em; border-width: 3px; }
     @container (orientation: portrait) {
       .g5c-line { font-size: min(8cqh, 10cqi); }
       .g5c-head { font-size: min(2.6cqh, 3.1cqi); }

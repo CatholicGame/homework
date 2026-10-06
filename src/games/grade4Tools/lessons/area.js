@@ -24,9 +24,9 @@ function gridSq(x, y, n, s, { fill = '#fff', line = '#93C5FD', w = 2, outer = IN
 /** Bạn nhỏ đứng (cao h, chân tại x, y). */
 const kid = (x, y, h) => {
   const k = h / 130;
-  return `<g transform="translate(${x} ${y}) scale(${k})"><circle cx="0" cy="-112" r="16" fill="#FCD9B6" stroke="${INK}" stroke-width="3" ${NS}/>
-    <path d="M-14 -122 Q0 -138 14 -122" fill="#7C2D12"/><rect x="-16" y="-94" width="32" height="44" rx="8" fill="#38BDF8" stroke="${INK}" stroke-width="3" ${NS}/>
-    <rect x="-14" y="-52" width="12" height="52" fill="#1E3A8A" stroke="${INK}" stroke-width="3" ${NS}/><rect x="2" y="-52" width="12" height="52" fill="#1E3A8A" stroke="${INK}" stroke-width="3" ${NS}/></g>`;
+  return `<g transform="translate(${x} ${y}) scale(${k})"><circle cx="0" cy="-112" r="16" fill="#FCD9B6" stroke="${INK}" stroke-width="2.5" ${NS}/>
+    <path d="M-14 -122 Q0 -138 14 -122" fill="#7C2D12"/><rect x="-16" y="-94" width="32" height="44" rx="8" fill="#38BDF8" stroke="${INK}" stroke-width="2.5" ${NS}/>
+    <rect x="-14" y="-52" width="12" height="52" fill="#1E3A8A" stroke="${INK}" stroke-width="2.5" ${NS}/><rect x="2" y="-52" width="12" height="52" fill="#1E3A8A" stroke="${INK}" stroke-width="2.5" ${NS}/></g>`;
 };
 /** Con kiến nhỏ (dài khoảng l). */
 const ant = (x, y, l) => {
@@ -44,7 +44,7 @@ const B18 = {
         const { x, y } = cmAt(t);
         if (t.portrait()) t.frame(DX - 150, DY - 65, 10 * CM + 180, 10 * CM + 190); // dọc: sát hình, chừa đáy cho nút chọn
         t.draw(`
-          <g class="g4ar-cm"><rect x="${x}" y="${y}" width="${CM}" height="${CM}" fill="#F472B6" stroke="${INK}" stroke-width="4" ${NS}/>
+          <g class="g4ar-cm"><rect x="${x}" y="${y}" width="${CM}" height="${CM}" fill="#F472B6" stroke="${INK}" stroke-width="3" ${NS}/>
             <text x="${x + CM / 2}" y="${y - 25}" class="g4v-t" font-size="34">1 cm²</text>
             <text x="${x + CM / 2}" y="${y + 80}" class="g4v-t" font-size="24" fill="#64748B">cạnh 1 cm</text></g>
           ${gridSq(DX, DY, 10, CM, { cls: 'g4ar-dm', line: '#E2E8F0' })}
@@ -178,7 +178,7 @@ function taskTiles() {
       const s = Math.min(800 / w, 420 / h), x0 = 500 - (w * s) / 2, y0 = 40;
       let g = '';
       for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) g += `<rect class="g4ar-t" x="${x0 + i * s}" y="${y0 + j * s}" width="${s}" height="${s}" fill="#FED7AA" stroke="${INK}" stroke-width="2"/>`;
-      t.draw(`<g>${g}</g><rect x="${x0}" y="${y0}" width="${w * s}" height="${h * s}" fill="none" stroke="${INK}" stroke-width="5"/>
+      t.draw(`<g>${g}</g><rect x="${x0}" y="${y0}" width="${w * s}" height="${h * s}" fill="none" stroke="${INK}" stroke-width="3.5"/>
         <text x="500" y="${y0 + h * s + 50}" class="g4v-t" font-size="36">mỗi ô là 1 ${u}²</text>`);
       await f.ask({ box: f.q.querySelector('.g4-box'), answer: w * h, max: 3, say: 'Tính diện tích hình chữ nhật.', hint: `Mỗi hàng có ${w} ô, có ${h} hàng.` });
       await t.anim('.g4ar-t', [{ fill: '#FDBA74' }, { fill: '#86EFAC' }], 300, { stagger: 30 });

@@ -66,7 +66,7 @@ export function createExpr(host, { machines, shape = null, rows = 4, title = '' 
     const rect = shape === 'rect', cx = rect ? 140 : 200;
     const k = (rect ? 190 : 220) / Math.max(a, b || a, 10);
     const w = a * k, h = (b || a) * k, x = cx - w / 2, y = 150 - h / 2;
-    svg.innerHTML = `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#FEF3C7" stroke="${INK}" stroke-width="5"/>
+    svg.innerHTML = `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#FEF3C7" stroke="${INK}" stroke-width="2.5"/>
       <text x="${cx}" y="${y - 14}" class="g4e-sl" fill="${LETTER_COLOR.a}">a = ${a} cm</text>
       ${shape === 'rect' ? `<text x="${x + w + 12}" y="${150 + 10}" class="g4e-sl" fill="${LETTER_COLOR.b}" style="text-anchor:start">b = ${b} cm</text>` : ''}`;
   }
@@ -209,7 +209,7 @@ function injectExprStyles() {
     .g4e-top { flex: 1 1 0; min-height: 0; display: flex; gap: 2cqi; align-items: stretch; }
     .g4e-ms { flex: 1 1 0; display: flex; gap: 2cqi; min-width: 0; }
     @media (orientation: portrait) { .g4e-ms { flex-direction: column; gap: 1.6cqh; } }
-    .g4e-machine { flex: 1 1 0; min-width: 0; position: relative; background: linear-gradient(180deg, #94A3B8, #64748B); border: 4px solid ${INK}; border-radius: 1.2rem; padding: 2cqh 1.4cqi; display: flex; flex-direction: column; justify-content: center; gap: 1.4cqh; box-shadow: 0 6px 0 rgba(63,58,64,0.35); }
+    .g4e-machine { flex: 1 1 0; min-width: 0; position: relative; background: linear-gradient(180deg, #94A3B8, #64748B); border: 2px solid #475569; border-radius: 1.2rem; padding: 2cqh 1.4cqi; display: flex; flex-direction: column; justify-content: center; gap: 1.4cqh; box-shadow: 0 6px 0 rgba(63,58,64,0.35); }
     .g4e-gears { position: absolute; top: -0.4em; right: 0.3em; font-size: min(6cqh, 4cqi); display: flex; gap: 0.05em; }
     .g4e-gears span { display: inline-block; }
     .g4e-run .g4e-gears span { animation: g4eSpin .6s linear infinite; }
@@ -218,20 +218,20 @@ function injectExprStyles() {
     .g4e-fit { flex: 1 1 0; min-height: 0; container-type: size; display: flex; align-items: center; justify-content: center; }
     .g4e-line { display: flex; align-items: center; justify-content: center; gap: 0.3em; max-width: 100%; font-size: min(42cqh, calc(150cqi / var(--w))); }
     .g4e-line .g4e-screen { font-size: inherit; flex: 0 1 auto; min-width: 0; }
-    .g4e-screen { background: #ECFEFF; border: max(2px, 0.08em) solid ${INK}; border-radius: 0.8rem; padding: 0.15em 0.3em; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.18em; font-weight: 800; color: #0F172A; font-size: min(9cqh, 5cqi); line-height: 1.2; min-height: 1.5em; }
+    .g4e-screen { background: #ECFEFF; border: max(1.5px, 0.04em) solid #334155; border-radius: 0.8rem; padding: 0.15em 0.3em; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.18em; font-weight: 800; color: #0F172A; font-size: min(9cqh, 5cqi); line-height: 1.2; min-height: 1.5em; }
     .g4e-let { display: inline-grid; place-items: center; min-width: 1.2em; padding: 0 0.15em; border-radius: 0.3em; background: var(--c); color: #fff; }
     .g4e-fed { animation: g4eFed .45s ease; background: #fff; color: var(--c); box-shadow: inset 0 0 0 3px var(--c); }
     @keyframes g4eFed { from { transform: scale(1.7) translateY(-0.4em); } }
-    .g4e-outrow { flex: none; white-space: nowrap; color: #fff; font-weight: 800; line-height: 1.2; text-shadow: 0 0.06em 0 ${INK}; }
-    .g4e-out { display: inline-block; min-width: 2.5em; text-align: center; background: #FEF08A; color: #92400E; border: max(2px, 0.08em) solid ${INK}; border-radius: 0.5em; text-shadow: none; padding: 0 0.3em; }
+    .g4e-outrow { flex: none; white-space: nowrap; color: #fff; font-weight: 800; line-height: 1.2; text-shadow: 0 0.05em 0 rgba(15,23,42,0.35); }
+    .g4e-out { display: inline-block; min-width: 2.5em; text-align: center; background: #FEF08A; color: #92400E; border: max(1.5px, 0.04em) solid #B45309; border-radius: 0.5em; text-shadow: none; padding: 0 0.3em; }
     .g4e-pop { animation: g4ePop .45s cubic-bezier(.2,1.6,.4,1); }
     @keyframes g4ePop { from { transform: scale(0.4); } }
-    .g4e-shape { flex: 0 0 34%; background: #fff; border: 3px dashed #CBD5E1; border-radius: 1rem; display: flex; }
+    .g4e-shape { flex: 0 0 34%; background: #fff; border: 2px dashed #CBD5E1; border-radius: 1rem; display: flex; }
     .g4e-shape svg { flex: 1; width: 100%; height: 100%; }
     .g4e-sl { font-weight: 800; font-size: 30px; text-anchor: middle; font-family: 'Baloo 2', sans-serif; }
     .g4e-table { flex: none; border-collapse: collapse; width: 100%; font-size: min(4.6cqh, 4.8cqi); font-weight: 800; text-align: center; table-layout: fixed; }
-    .g4e-table th { background: #E0F2FE; color: #0F172A; border: max(2px, 0.1em) solid ${INK}; padding: 0.1em 0.3em; }
-    .g4e-table td { border: max(2px, 0.1em) solid ${INK}; padding: 0.05em 0.3em; color: #1E293B; height: 1.3em; background: #fff; }
+    .g4e-table th { background: #E0F2FE; color: #0F172A; border: 1.5px solid #94A3B8; padding: 0.1em 0.3em; }
+    .g4e-table td { border: 1.5px solid #94A3B8; padding: 0.05em 0.3em; color: #1E293B; height: 1.3em; background: #fff; }
     .g4e-newrow td { animation: g4eRow .5s ease; }
     @keyframes g4eRow { from { background: #FEF08A; } }
     .g4e-title { text-align: center; font-weight: 800; color: #1E293B; font-size: min(5.5cqh, 3.4cqi); }

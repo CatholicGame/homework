@@ -3,7 +3,7 @@
  * hàng và lớp, triệu và lớp triệu, dãy số tự nhiên, so sánh và xếp thứ tự các số tự nhiên.
  * Hình vẽ lại: scripts/redraw/g4t_bai004_017.py (bộ vẽ kit_g4t.py).
  */
-import { blank, mau, placeSum, readCell, readBlank, num } from './kit.js';
+import { blank, mau, placeSum, readCell, readBlank, num, L, LV } from './kit.js';
 import { sampleCell, stripVN } from '../grade3Workbook.js';
 import imgHinhVuong from '../../assets/grade4-textbook/bai5_q4_hinhvuong.svg';
 // Bài 6 câu 1: mỗi cột của bảng hàng là một hình các thẻ xếp chồng (tên tệp: the_<giá trị>_<số thẻ>)
@@ -111,10 +111,10 @@ export const QUESTIONS = {
   'bai-4': [
     {
       type: 'fill', stars: 1,
-      q: `1. Tính giá trị của biểu thức (theo mẫu):\na) 6 − b với b = 4 ; b) 115 − c với c = 7 ; c) a + 80 với a = 15.\n${mau('a) Nếu b = 4 thì 6 − b = 6 − 4 = 2.')}`,
+      q: `1. Tính giá trị của biểu thức (theo mẫu):\na) 6 − ${L('b')} với ${LV('b', 4)} ; b) 115 − ${L('c')} với ${LV('c', 7)} ; c) ${L('a')} + 80 với ${LV('a', 15)}.\n${mau('a) Nếu b = 4 thì 6 − b = 6 − 4 = 2.')}`,
       blanks: [
-        { label: 'b) Nếu c = 7 thì 115 − c = ... − ... = ...', answer: '115,7,108' },
-        { label: 'c) Nếu a = 15 thì a + 80 = ... + ... = ...', answer: '15,80,95' },
+        { label: `b) Nếu ${LV('c', 7)} thì<br>115 − ${L('c')} = ... − ... = ...`, answer: '115,7,108' },
+        { label: `c) Nếu ${LV('a', 15)} thì<br>${L('a')} + 80 = ... + ... = ...`, answer: '15,80,95' },
       ],
       hints: ['Thay chữ bằng số đã cho rồi tính.'],
     },
@@ -129,16 +129,16 @@ export const QUESTIONS = {
     },
     {
       type: 'fill', stars: 2,
-      q: '3. a) Tính giá trị của biểu thức 250 + m với: m = 10 ; m = 0 ; m = 80 ; m = 30.\nb) Tính giá trị của biểu thức 873 − n với: n = 10 ; n = 0 ; n = 70 ; n = 300.',
+      q: `3. a) Tính giá trị của biểu thức 250 + ${L('m')} với: ${[10, 0, 80, 30].map(v => LV('m', v)).join(' ; ')}.\nb) Tính giá trị của biểu thức 873 − ${L('n')} với: ${[10, 0, 70, 300].map(v => LV('n', v)).join(' ; ')}.`,
       blanks: [
-        { label: 'a) Với m = 10 thì 250 + m = 250 + ... = ...', answer: '10,260' },
-        { label: 'Với m = 0 thì 250 + m = 250 + ... = ...', answer: '0,250' },
-        { label: 'Với m = 80 thì 250 + m = 250 + ... = ...', answer: '80,330' },
-        { label: 'Với m = 30 thì 250 + m = 250 + ... = ...', answer: '30,280' },
-        { label: 'b) Với n = 10 thì 873 − n = 873 − ... = ...', answer: '10,863' },
-        { label: 'Với n = 0 thì 873 − n = 873 − ... = ...', answer: '0,873' },
-        { label: 'Với n = 70 thì 873 − n = 873 − ... = ...', answer: '70,803' },
-        { label: 'Với n = 300 thì 873 − n = 873 − ... = ...', answer: '300,573' },
+        { label: `a) Với ${LV('m', 10)} thì<br>250 + ${L('m')} = 250 + ... = ...`, answer: '10,260' },
+        { label: `Với ${LV('m', 0)} thì<br>250 + ${L('m')} = 250 + ... = ...`, answer: '0,250' },
+        { label: `Với ${LV('m', 80)} thì<br>250 + ${L('m')} = 250 + ... = ...`, answer: '80,330' },
+        { label: `Với ${LV('m', 30)} thì<br>250 + ${L('m')} = 250 + ... = ...`, answer: '30,280' },
+        { label: `b) Với ${LV('n', 10)} thì<br>873 − ${L('n')} = 873 − ... = ...`, answer: '10,863' },
+        { label: `Với ${LV('n', 0)} thì<br>873 − ${L('n')} = 873 − ... = ...`, answer: '0,873' },
+        { label: `Với ${LV('n', 70)} thì<br>873 − ${L('n')} = 873 − ... = ...`, answer: '70,803' },
+        { label: `Với ${LV('n', 300)} thì<br>873 − ${L('n')} = 873 − ... = ...`, answer: '300,573' },
       ],
       hints: ['Mỗi lần thay chữ bằng một số, ta tính được một giá trị của biểu thức.', 'Cộng hay trừ với 0 thì số đó không đổi.'],
     },
@@ -150,28 +150,28 @@ export const QUESTIONS = {
       type: 'table', stars: 2,
       q: '1. Tính giá trị của biểu thức (theo mẫu):',
       tables: [
-        { label: 'a)', headers: ['a', '6 × a'], rows: [{ sample: true, cells: [5, '6 × 5 = 30'] }, [7, blank(42)], [10, blank(60)]] },
-        { label: 'b)', headers: ['b', '18 : b'], rows: [[2, blank(9)], [3, blank(6)], [6, blank(3)]] },
-        { label: 'c)', headers: ['a', 'a + 56'], rows: [[50, blank(106)], [26, blank(82)], [100, blank(156)]] },
-        { label: 'd)', headers: ['b', '97 − b'], rows: [[18, blank(79)], [37, blank(60)], [90, blank(7)]] },
+        { label: 'a)', headers: [L('a'), `6 × ${L('a')}`], rows: [{ sample: true, cells: [5, '6 × 5 = 30'] }, [7, blank(42)], [10, blank(60)]] },
+        { label: 'b)', headers: [L('b'), `18 : ${L('b')}`], rows: [[2, blank(9)], [3, blank(6)], [6, blank(3)]] },
+        { label: 'c)', headers: [L('a'), `${L('a')} + 56`], rows: [[50, blank(106)], [26, blank(82)], [100, blank(156)]] },
+        { label: 'd)', headers: [L('b'), `97 − ${L('b')}`], rows: [[18, blank(79)], [37, blank(60)], [90, blank(7)]] },
       ],
       hints: ['Mỗi dòng: thay chữ bằng số ở cột bên trái rồi tính.'],
     },
     {
       type: 'fill', stars: 3,
-      q: '2. Tính giá trị của biểu thức:\na) 35 + 3 × n với n = 7 ; b) 168 − m × 5 với m = 9 ;\nc) 237 − (66 + <i>x</i>) với <i>x</i> = 34 ; d) 37 × (18 : y) với y = 9.',
+      q: `2. Tính giá trị của biểu thức:\na) 35 + 3 × ${L('n')} với ${LV('n', 7)} ; b) 168 − ${L('m')} × 5 với ${LV('m', 9)} ;\nc) 237 − (66 + ${L('x')}) với ${LV('x', 34)} ; d) 37 × (18 : ${L('y')}) với ${LV('y', 9)}.`,
       blanks: [
-        { label: 'a) 35 + 3 × n = 35 + 3 × ... = 35 + ... = ...', answer: '7,21,56' },
-        { label: 'b) 168 − m × 5 = 168 − ... × 5 = 168 − ... = ...', answer: '9,45,123' },
-        { label: 'c) 237 − (66 + <i>x</i>) = 237 − (66 + ...) = 237 − ... = ...', answer: '34,100,137' },
-        { label: 'd) 37 × (18 : y) = 37 × (18 : ...) = 37 × ... = ...', answer: '9,2,74' },
+        { label: `a) Với ${LV('n', 7)} thì<br>35 + 3 × ${L('n')}<br>= 35 + 3 × ...<br>= 35 + ...<br>= ...`, answer: '7,21,56' },
+        { label: `b) Với ${LV('m', 9)} thì<br>168 − ${L('m')} × 5<br>= 168 − ... × 5<br>= 168 − ...<br>= ...`, answer: '9,45,123' },
+        { label: `c) Với ${LV('x', 34)} thì<br>237 − (66 + ${L('x')})<br>= 237 − (66 + ...)<br>= 237 − ...<br>= ...`, answer: '34,100,137' },
+        { label: `d) Với ${LV('y', 9)} thì<br>37 × (18 : ${L('y')})<br>= 37 × (18 : ...)<br>= 37 × ...<br>= ...`, answer: '9,2,74' },
       ],
       hints: ['Thay chữ bằng số trước.', 'Nhân, chia trước rồi cộng, trừ sau; có ngoặc thì tính trong ngoặc trước.'],
     },
     {
       type: 'table', stars: 2,
       q: '3. Viết vào ô trống (theo mẫu):',
-      headers: ['c', 'Biểu thức', 'Giá trị của biểu thức'],
+      headers: [L('c'), 'Biểu thức', 'Giá trị của biểu thức'],
       rows: [
         { sample: true, cells: [5, '8 × c', 40] },
         [7, '7 + 3 × c', blank(28)],
@@ -182,11 +182,11 @@ export const QUESTIONS = {
     },
     {
       type: 'fill', stars: 2, img: imgHinhVuong,
-      q: '4. Một hình vuông có độ dài cạnh là a. Gọi chu vi hình vuông là P. Ta có:\nP = a × 4\nHãy tính chu vi hình vuông với: a = 3cm ; a = 5dm ; a = 8m.',
+      q: `4. Một hình vuông có độ dài cạnh là ${L('a')}. Gọi chu vi hình vuông là P. Ta có:\nP = ${L('a')} × 4\nHãy tính chu vi hình vuông với: ${LV('a', '3cm')} ; ${LV('a', '5dm')} ; ${LV('a', '8m')}.`,
       blanks: [
-        { label: 'Với a = 3cm thì P = ... × 4 = ... (cm)', answer: '3,12' },
-        { label: 'Với a = 5dm thì P = ... × 4 = ... (dm)', answer: '5,20' },
-        { label: 'Với a = 8m thì P = ... × 4 = ... (m)', answer: '8,32' },
+        { label: `Với ${LV('a', '3cm')} thì<br>P = ${L('a')} × 4 = ... × 4 = ... (cm)`, answer: '3,12' },
+        { label: `Với ${LV('a', '5dm')} thì<br>P = ${L('a')} × 4 = ... × 4 = ... (dm)`, answer: '5,20' },
+        { label: `Với ${LV('a', '8m')} thì<br>P = ${L('a')} × 4 = ... × 4 = ... (m)`, answer: '8,32' },
       ],
       hints: ['Thay a bằng độ dài cạnh rồi nhân với 4. Đơn vị của chu vi giống đơn vị của cạnh.'],
     },

@@ -270,9 +270,9 @@ const B10 = {
         let br = `<rect x="-200" y="505" width="1400" height="80" fill="#7DD3FC"/><path d="M-200 520 q 50 -8 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0 t 100 0" fill="none" stroke="#fff" stroke-width="4"/>`;
         for (const x of [180, 340, 500, 660, 820]) {
           for (let k = 1; k <= 4; k++) br += `<line x1="${x}" y1="${398 + k * 6}" x2="${x - k * 18}" y2="478" stroke="#F59E0B" stroke-width="2.5"/><line x1="${x}" y1="${398 + k * 6}" x2="${x + k * 18}" y2="478" stroke="#F59E0B" stroke-width="2.5"/>`;
-          br += `<path d="M${x - 8} 520 L${x} 392 L${x + 8} 520 Z" fill="#FDE68A" stroke="${INK}" stroke-width="3"/>`;
+          br += `<path d="M${x - 8} 520 L${x} 392 L${x + 8} 520 Z" fill="#FDE68A" stroke="${INK}" stroke-width="2.5"/>`;
         }
-        br += `<rect x="40" y="474" width="920" height="16" rx="4" fill="#94A3B8" stroke="${INK}" stroke-width="3"/>`;
+        br += `<rect x="40" y="474" width="920" height="16" rx="4" fill="#94A3B8" stroke="${INK}" stroke-width="2.5"/>`;
         t.draw(`${br}<text x="465" y="265" class="g4v-t" font-size="180" style="fill:${PLACE5[0].ink};text-anchor:end">9</text><text x="488" y="265" class="g4v-t" font-size="180" style="fill:#DC2626">,</text>
           <text x="512" y="265" class="g4v-t" font-size="180" style="fill:${PLACE5[-1].ink};text-anchor:start">17</text>
           <text x="500" y="70" class="g4v-t" font-size="40" style="fill:#64748B">Cầu Nhật Tân dài 9,17 km</text>`);
@@ -542,12 +542,12 @@ const B11 = {
         const t = c.t;
         // ba cây cầu vẽ dài theo đúng tỉ lệ (1 km = 200)
         const K = 200, x0 = 120;
-        let g = `<line x1="${x0}" y1="470" x2="${x0 + 4 * K + 20}" y2="470" stroke="${INK}" stroke-width="5"/>`;
-        for (let k = 0; k <= 4; k++) g += `<line x1="${x0 + k * K}" y1="458" x2="${x0 + k * K}" y2="482" stroke="${INK}" stroke-width="4"/><text x="${x0 + k * K}" y="520" class="g4v-t" font-size="32">${k} km</text>`;
+        let g = `<line x1="${x0}" y1="470" x2="${x0 + 4 * K + 20}" y2="470" stroke="${INK}" stroke-width="3.5"/>`;
+        for (let k = 0; k <= 4; k++) g += `<line x1="${x0 + k * K}" y1="458" x2="${x0 + k * K}" y2="482" stroke="${INK}" stroke-width="3"/><text x="${x0 + k * K}" y="520" class="g4v-t" font-size="32">${k} km</text>`;
         BRIDGES.forEach(([name, s, col], i) => {
           const y = 90 + i * 120, w = valOf(s) * K;
-          g += `<g class="g5x-br"><rect x="${x0}" y="${y}" width="${w}" height="34" rx="6" fill="${col}" stroke="${INK}" stroke-width="4"/>`;
-          for (let k = 1; k < 8; k++) g += `<path d="M${x0 + (k * w) / 8} ${y + 34} v40" stroke="${INK}" stroke-width="4"/>`;
+          g += `<g class="g5x-br"><rect x="${x0}" y="${y}" width="${w}" height="34" rx="6" fill="${col}" stroke="${INK}" stroke-width="3"/>`;
+          for (let k = 1; k < 8; k++) g += `<path d="M${x0 + (k * w) / 8} ${y + 34} v40" stroke="${INK}" stroke-width="3"/>`;
           g += `<text x="${x0 + 8}" y="${y - 12}" class="g4v-t" font-size="36" style="text-anchor:start">Cầu ${name}: ${s} km</text></g>`;
         });
         t.draw(g);

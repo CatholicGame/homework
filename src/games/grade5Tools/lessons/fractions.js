@@ -384,7 +384,7 @@ function orangeDots(t, x, y, w, h, parts, per) {
   let s = '';
   for (let p = 0; p < parts; p++) for (let i = 0; i < per; i++) {
     const cx = x + p * pw + (pw / cols) * ((i % cols) + 0.5), cy = y + (h / rows) * (Math.floor(i / cols) + 0.5);
-    s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#F97316" stroke="${INK}" stroke-width="3"/><path d="M${cx} ${cy - r} q ${r * 0.4} ${-r * 0.5} ${r * 0.8} ${-r * 0.3}" stroke="#16A34A" stroke-width="${r * 0.3}" fill="none" stroke-linecap="round"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#F97316" stroke="${INK}" stroke-width="2.5"/><path d="M${cx} ${cy - r} q ${r * 0.4} ${-r * 0.5} ${r * 0.8} ${-r * 0.3}" stroke="#16A34A" stroke-width="${r * 0.3}" fill="none" stroke-linecap="round"/>`;
   }
   return t.add(`<g pointer-events="none">${s}</g>`);
 }
@@ -527,7 +527,7 @@ function taskOf(id = 'fof') {
       const per = N / b;
       if (what === 'quả cam' && per <= 8) orangeDots(t, 90, r.y, 780, r.h, b, per);
       else for (let i = 0; i < b; i++) t.add(svgText(90 + (i + 0.5) * (780 / b), r.y + r.h / 2 + 18, Math.min(52, 780 / b / 2.2), '?', { fill: '#94A3B8', cls: `g5o-q g5o-q${i}` }));
-      t.add(`<path d="M90 ${r.y + r.h + 14} v 14 h 780 v -14" fill="none" stroke="${INK}" stroke-width="4"/>` + svgText(480, r.y + r.h + 64, 44, `${N} ${what}`));
+      t.add(`<path d="M90 ${r.y + r.h + 14} v 14 h 780 v -14" fill="none" stroke="${INK}" stroke-width="3"/>` + svgText(480, r.y + r.h + 64, 44, `${N} ${what}`));
       await f.ask({ box: f.q.querySelector('.g4-box'), answer: ans, say: `Tìm ${frSay(a, b)} của ${N} ${what}.`, hint: `Chia ${N} thành ${b} phần bằng nhau, mỗi phần ${N / b}. Lấy ${a} phần.` });
       t.qa('.g5o-q').forEach(e => { e.textContent = per; e.style.fill = INK; });
       await t.shade('a', a);
@@ -788,7 +788,7 @@ function cakeLayout(t) {
   const top0 = cy0 + R * 1.3 + 24, rowH = (t.bot - top0) / 2;
   for (let i = 0; i < 4; i++) {
     if (tall) plates.push({ cx: 270 + (i % 2) * 460, cy: top0 + rowH * Math.floor(i / 2) + R * 1.4 + 4 });
-    else plates.push({ cx: 125 + i * 250, cy: t.bot - R * 1.7 - 30 });
+    else plates.push({ cx: 500 + (i - 1.5) * 240 - R * 0.15, cy: t.bot - R * 1.7 - 30 }); // đĩa rộng 4,1R: 4 đĩa vừa khổ 1000
   }
   return { R, cakes, plates };
 }
@@ -801,8 +801,8 @@ const B7 = {
         const t = c.t;
         t.clear();
         const L = cakeLayout(t), R = L.R;
-        t.draw(`<rect x="${L.cakes[0].cx - R * 1.6}" y="${L.cakes[0].cy - R * 1.3}" width="${L.cakes[4].cx - L.cakes[0].cx + R * 3.2}" height="${R * 2.6}" rx="${R * 0.6}" fill="#FEF3C7" stroke="${INK}" stroke-width="4"/>
-          ${L.plates.map((p, i) => `<ellipse cx="${p.cx + R * 0.15}" cy="${p.cy}" rx="${R * 2.05}" ry="${R * 1.35}" fill="#fff" stroke="${INK}" stroke-width="4"/>
+        t.draw(`<rect x="${L.cakes[0].cx - R * 1.6}" y="${L.cakes[0].cy - R * 1.3}" width="${L.cakes[4].cx - L.cakes[0].cx + R * 3.2}" height="${R * 2.6}" rx="${R * 0.6}" fill="#FEF3C7" stroke="${INK}" stroke-width="3"/>
+          ${L.plates.map((p, i) => `<ellipse cx="${p.cx + R * 0.15}" cy="${p.cy}" rx="${R * 2.05}" ry="${R * 1.35}" fill="#fff" stroke="${INK}" stroke-width="3"/>
             <ellipse cx="${p.cx + R * 0.15}" cy="${p.cy}" rx="${R * 1.8}" ry="${R * 1.12}" fill="none" stroke="#CBD5E1" stroke-width="3"/>
             ${svgText(p.cx + R * 0.15, p.cy + R * 1.35 + (t.tall ? 56 : 40), t.tall ? 48 : 34, KIDS[i])}`).join('')}`);
         L.cakes.forEach((k, i) => t.fig(`c${i}`, { kind: 'pie', x: k.cx - R, y: k.cy - R, w: 2 * R, h: 2 * R, n: 1, k: 1 }));

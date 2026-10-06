@@ -189,7 +189,7 @@ async function mulColumn(c, { intro, quick = false }) {
 }
 
 // ── Hình vẽ tình huống (SVG riêng, nét mực dày) ─────────────────────────────────────────────────────────
-const ST = `stroke="${INK}" stroke-width="3" stroke-linejoin="round"`;
+const ST = `stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"`;
 const T = (x, y, k, text, size = 26, fill = INK, anchor = 'middle') => `<text x="${x}" y="${y}" data-lab="${k}" text-anchor="${anchor}" font-size="${size}" font-weight="800" fill="${fill}" font-family="'Baloo 2', sans-serif" paint-order="stroke" stroke="#fff" stroke-width="6">${text}</text>`;
 
 const wire = (y, len) => `<g>
@@ -205,7 +205,7 @@ const SVG_WIRES = `<svg viewBox="0 0 640 250" preserveAspectRatio="xMidYMid meet
   ${T(560, 175, 'tot', '? m', 30, '#C2410C')}
 </svg>`;
 
-const foot = (x, y, c) => `<g transform="translate(${x} ${y})"><ellipse cx="-6" cy="0" rx="9" ry="5" fill="${c}" ${ST}/><path d="M-6 -2 V-46" stroke="${INK}" stroke-width="3"/><path d="M-6 -46 L22 -38 L-6 -30 Z" fill="${c}" ${ST}/></g>`;
+const foot = (x, y, c) => `<g transform="translate(${x} ${y})"><ellipse cx="-6" cy="0" rx="9" ry="5" fill="${c}" ${ST}/><path d="M-6 -2 V-46" stroke="${INK}" stroke-width="2.5"/><path d="M-6 -46 L22 -38 L-6 -30 Z" fill="${c}" ${ST}/></g>`;
 const SVG_JUMP = `<svg viewBox="0 0 640 250" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
   <rect x="6" y="6" width="628" height="238" rx="18" fill="#BBF7D0" ${ST}/>
   <rect x="6" y="40" width="80" height="170" fill="#FCA5A5" ${ST}/><rect x="78" y="40" width="12" height="170" fill="#fff" ${ST}/>
@@ -237,7 +237,7 @@ const SVG_HOUSE = `<svg viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet
 
 const SVG_ROOM = `<svg viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
   <rect x="6" y="6" width="628" height="288" rx="18" fill="#F1F5F9" ${ST}/>
-  <rect x="166" y="38" width="${4.3 * 62}" height="${3.6 * 62}" fill="#FCD34D" stroke="${INK}" stroke-width="5"/>
+  <rect x="166" y="38" width="${4.3 * 62}" height="${3.6 * 62}" fill="#FCD34D" stroke="${INK}" stroke-width="3.5"/>
   ${Array.from({ length: 7 }, (_, i) => `<path d="M166 ${38 + (i + 1) * 28} H${166 + 4.3 * 62}" stroke="#D97706" stroke-width="2"/>`).join('')}
   <rect x="200" y="70" width="70" height="44" rx="6" fill="#60A5FA" ${ST}/><rect x="330" y="150" width="54" height="54" rx="8" fill="#F472B6" ${ST}/>
   <path d="M166 ${38 + 3.6 * 62 + 18} H${166 + 4.3 * 62}" stroke="#1D4ED8" stroke-width="3"/><path d="M166 ${38 + 3.6 * 62 + 10} v16 M${166 + 4.3 * 62} ${38 + 3.6 * 62 + 10} v16" stroke="#1D4ED8" stroke-width="3"/>

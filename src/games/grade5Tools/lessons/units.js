@@ -451,7 +451,7 @@ function taskKmConv() {
 }
 /** Bậc thang km² → ha → m² (hình nhắc trong câu Thực hành). */
 function ladder(t) {
-  const step = (x, y, w, h, c, s) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="${c}" stroke="${INK}" stroke-width="4"/><text x="${x + w / 2}" y="${y + h / 2 + 22}" class="g4v-t" font-size="60">${s}</text>`;
+  const step = (x, y, w, h, c, s) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="${c}" stroke="${INK}" stroke-width="3"/><text x="${x + w / 2}" y="${y + h / 2 + 22}" class="g4v-t" font-size="60">${s}</text>`;
   const arr = (x1, x2, y, s) => `<path d="M${x1} ${y} Q${(x1 + x2) / 2} ${y - 90} ${x2} ${y}" fill="none" stroke="#DC2626" stroke-width="5" marker-end="url(#g5ar)"/><text x="${(x1 + x2) / 2}" y="${y - 80}" class="g4v-t" font-size="40" fill="#DC2626">${s}</text>`;
   t.draw(`<defs><marker id="g5ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#DC2626"/></marker></defs>
     ${step(40, 300, 250, 130, '#FECACA', 'km²')}${step(375, 300, 250, 130, '#FEF08A', 'ha')}${step(710, 300, 250, 130, '#BBF7D0', 'm²')}
@@ -504,7 +504,7 @@ function taskSquareHa() {
       const W = (a / 100) * s, H = (b / 100) * s, x0 = 500 - W / 2, y0 = 40;
       let g = '';
       for (let j = 0; j < b / 100; j++) for (let i = 0; i < a / 100; i++) g += `<rect class="g5b-hc" x="${x0 + i * s}" y="${y0 + j * s}" width="${s}" height="${s}" fill="#BBF7D0" stroke="#16A34A" stroke-width="2"/><text class="g5b-hl" x="${x0 + i * s + s / 2}" y="${y0 + j * s + s / 2 + 14}" font-size="${Math.min(40, s * 0.3)}" opacity="0" style="font-weight:800;text-anchor:middle" fill="#166534">1 ha</text>`;
-      t.draw(`<g>${g}</g><rect x="${x0}" y="${y0}" width="${W}" height="${H}" fill="none" stroke="${INK}" stroke-width="5"/>
+      t.draw(`<g>${g}</g><rect x="${x0}" y="${y0}" width="${W}" height="${H}" fill="none" stroke="${INK}" stroke-width="3.5"/>
         <text x="500" y="${y0 + H + 46}" class="g4v-t" font-size="36">${a} m</text><text x="${x0 - 14}" y="${y0 + H / 2 + 12}" class="g4v-t" font-size="36" style="text-anchor:end">${b} m</text>`);
       t.frame(80, 0, 840, Math.max(300, y0 + H + 70));
       await f.ask({ box: f.q.querySelector('.g4-box'), answer: ans, say: 'Tính diện tích khu đất theo héc-ta.', hint: 'Mỗi ô vuông cạnh 100 m là 1 ha. Đếm số ô.' });
@@ -629,9 +629,9 @@ const B16 = {
       },
       async (c) => {
         const t = c.use((b) => createCanvas(b));
-        t.draw(`<rect x="300" y="170" width="400" height="200" rx="10" fill="#FCD34D" stroke="${INK}" stroke-width="6"/>
-          <rect x="320" y="370" width="26" height="150" fill="#B45309" stroke="${INK}" stroke-width="4"/><rect x="654" y="370" width="26" height="150" fill="#B45309" stroke="${INK}" stroke-width="4"/>
-          <rect x="360" y="200" width="120" height="80" fill="#fff" stroke="${INK}" stroke-width="3"/><path d="M380 225 h80 M380 250 h60" stroke="#94A3B8" stroke-width="5"/>
+        t.draw(`<rect x="300" y="170" width="400" height="200" rx="10" fill="#FCD34D" stroke="${INK}" stroke-width="4"/>
+          <rect x="320" y="370" width="26" height="150" fill="#B45309" stroke="${INK}" stroke-width="3"/><rect x="654" y="370" width="26" height="150" fill="#B45309" stroke="${INK}" stroke-width="3"/>
+          <rect x="360" y="200" width="120" height="80" fill="#fff" stroke="${INK}" stroke-width="2.5"/><path d="M380 225 h80 M380 250 h60" stroke="#94A3B8" stroke-width="5"/>
           <text x="500" y="150" class="g4v-t" font-size="34">dài 1 m, rộng 5 dm</text>`);
         t.caption('Mặt bàn học có diện tích khoảng…');
         await c.say('Mặt bàn học của em có diện tích khoảng bao nhiêu?');

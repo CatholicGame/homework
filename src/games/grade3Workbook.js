@@ -4339,7 +4339,7 @@ export function renderWorkbook(app, onBack, cfg) {
           <div class="gw-unit-list">
             <button class="gw-unit-row gw-unit-all" data-unit="all">
               <span class="gw-unit-badge" style="background:#334155">📋</span>
-              <span class="gw-unit-info"><strong>Tất cả</strong><span class="gw-unit-sub">${totalQ} câu — ${UNITS.length} ${cfg.unitWord} hiện có</span></span>
+              <span class="gw-unit-info"><strong>Tất cả</strong><span class="gw-unit-sub">${totalQ} câu, ${UNITS.length} ${cfg.unitWord} hiện có</span></span>
               <span class="gw-unit-arrow">›</span>
             </button>
             ${UNITS.map((u, idx) => {
@@ -4417,7 +4417,7 @@ export function renderWorkbook(app, onBack, cfg) {
     if (uid === 'all') {
       const totalQ = UNITS.reduce((s, u) => s + u.questions.length, 0);
       activeQuestions = UNITS.flatMap(u => u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: i })));
-      activeTitle = `Tất cả — ${totalQ} câu`;
+      activeTitle = `Tất cả: ${totalQ} câu`;
       activeColor = '#34D399';
       activeUnitIds = UNITS.map(u => u.id);
     } else {
@@ -4443,7 +4443,7 @@ export function renderWorkbook(app, onBack, cfg) {
     const card = [...app.querySelectorAll('.gw-unit-row')].find(b => b.dataset.unit === last);
     if (!card) return;
     const unitIdx = UNITS.findIndex(u => u.id === last);
-    card.style.setProperty('--gw-flash', unitIdx >= 0 ? PALETTE[unitIdx % PALETTE.length] : '#334155');
+    card.style.setProperty('--gw-flash', unitIdx >= 0 ? PALETTE[unitIdx % PALETTE.length] : '#0EA5E9');
     requestAnimationFrame(() => {
       if (!card.isConnected) return;
       card.scrollIntoView({ block: 'center' });
@@ -4497,14 +4497,18 @@ export function renderWorkbook(app, onBack, cfg) {
     const visitedCount = solved.filter(Boolean).length + attempted.filter((a, i) => a && !solved[i]).length;
     const pct = Math.round((visitedCount / activeQuestions.length) * 100);
     // The quiz screen is split into two zones filling the viewport: the top
-    // zone (header ✕ / progress / ☰, never moves) and the scroll zone below
-    // it, which alone scrolls. Picture / essay-style questions put their
-    // question card (text + image) in the top zone too, so the child can
-    // keep looking at the figure while scrolling through the answer boxes.
-    const pinQuestion = !!(q.img || q.wordProblem);
+    // zone (header ✕ / progress / ☰ and the question card, never moves) and
+    // the scroll zone below it, which alone scrolls, so the child keeps the
+    // question (and its figure) in view while scrolling through the answer
+    // boxes. The bar under the card drags to resize the top zone.
+    const pinQuestion = true;
+    // 📘 Kiến thức / 🔎 Khám phá of this bài (cfg.related, e.g. grade4Textbook/related.js): each opens as a
+    // layer over the exercise; closing it comes back to this same question with the answers kept.
+    const related = cfg.related ? cfg.related(q.__unitId) : [];
     const questionCard = `
           <div class="e3-question-card${q.img ? ' gw-card-has-img' : ''}">
-            <div class="e3-q-num" style="color:${activeColor}">${qPlace(q)}${renderQuestionStars(starKey(q.__unitId, q.__qIdx), q)}</div>
+            ${related.length ? '<div class="gw-q-head">' : ''}<div class="e3-q-num" style="color:${activeColor}">${qPlace(q)}${renderQuestionStars(starKey(q.__unitId, q.__qIdx), q)}</div>
+            ${related.length ? `<div class="gw-related">${related.map((r, i) => `<button type="button" class="gw-related-btn" data-rel="${i}"><span aria-hidden="true">${r.icon}</span>${r.label}</button>`).join('')}</div></div>` : ''}
             ${renderStarRule(starKey(q.__unitId, q.__qIdx), q)}
             <div class="e3-q-text">${q.q.replace(/\n/g, '<br>')}</div>
             ${q.img ? `<img class="e3-q-img" src="${q.img}" alt="Hình minh họa câu ${current + 1}" loading="lazy">` : ''}
@@ -4523,9 +4527,12 @@ export function renderWorkbook(app, onBack, cfg) {
               </div>
               <span class="e3-progress-label">${current + 1} / ${activeQuestions.length}</span>
             </div>
+            <button class="e3-back-icon gw-step" id="gw-prev" title="Câu trước" aria-label="Câu trước" ${current > 0 ? '' : 'disabled'}>◀</button>
+            <button class="e3-back-icon gw-step" id="gw-next" title="Câu sau" aria-label="Câu sau" ${current < activeQuestions.length - 1 ? '' : 'disabled'}>▶</button>
             <button class="e3-back-icon" id="e3-list-toggle" title="Danh sách câu hỏi">☰</button>
           </div>
           ${pinQuestion ? questionCard : ''}
+          ${pinQuestion ? '<div class="gw-pin-grip" role="separator" aria-orientation="horizontal" aria-label="Kéo để đổi cỡ khung câu hỏi" title="Kéo lên / xuống để đổi cỡ khung câu hỏi. Chạm hai lần để về cỡ cũ."><span></span></div>' : ''}
           </div>
 
           <div class="gw-scroll-zone">
@@ -4551,6 +4558,9 @@ export function renderWorkbook(app, onBack, cfg) {
 
     app.querySelector('#e3-quit').onclick = showIntro;
     app.querySelector('#e3-list-toggle').onclick = toggleQuestionList;
+    // ◀ ▶: sang câu trước / câu sau bất cứ lúc nào, không cần mở danh sách (câu chưa làm vẫn giữ nguyên).
+    app.querySelector('#gw-prev').onclick = () => { if (current > 0) showQuestion(current - 1); };
+    app.querySelector('#gw-next').onclick = () => { if (current < activeQuestions.length - 1) showQuestion(current + 1); };
     attachQuestionListHandlers();
     if (q.wordProblem) attachSolutionHandlers(q);
     attachAnswerHandlers(q);
@@ -4562,6 +4572,8 @@ export function renderWorkbook(app, onBack, cfg) {
     // 🖍️ câu "tô màu" có hình SVG: bé tô thật lên hình (engine/colorPaint.js).
     if (q.img) attachColorPaint(app, q);
     revealPinnedImageOnKeyboard();
+    attachPinResize(app);
+    app.querySelectorAll('.gw-related-btn').forEach((b) => { b.onclick = () => openLayer(related[+b.dataset.rel]); });
   }
 
   // Phone portrait + number pad open (html.kb-tight): the question image keeps
@@ -5110,9 +5122,13 @@ export function renderWorkbook(app, onBack, cfg) {
       if (isLast) return text;
       const slotAnswer = slotAnswers[slot] ?? slotAnswers[0];
       const fillClass = isTrailingBlank ? ' gw-blank-fill' : '';
+      // cfg.compactSlots (Sách Toán 4): number slots of a row are all one narrower width (6ch floor) so a
+      // chain "115 − c = ... − ... = ..." stays on one line on a phone; same width per row gives nothing away.
       const style = isTrailingBlank
         ? 'min-width:3ch'
-        : `width:${Math.max(9, numeric ? String(slotAnswer).length + 2 : textSlotCh)}ch`;
+        : numeric && cfg.compactSlots
+          ? `width:${Math.max(6, ...slotAnswers.map(a => String(a).length + 2))}ch`
+          : `width:${Math.max(9, numeric ? String(slotAnswer).length + 2 : textSlotCh)}ch`;
       const words = !numeric && isNumberWords(slotAnswer);
       const kb = b.tiles ? tilesAttr(b, slotCount > 1 || b.tileOne) : numeric ? 'inputmode="numeric"' : words ? wordsAttr(slotAnswer)
         : isPointLetters(slotAnswer) ? UPPER_ATTR : '';
@@ -5994,6 +6010,89 @@ export function renderWorkbook(app, onBack, cfg) {
   showIntro();
 }
 
+// ── Layer over the exercise (📘 Kiến thức, 🔎 Khám phá) ───────────────────────
+// The quiz underneath stays as it is (answers typed so far, scroll position);
+// item.open(host, close) fills the layer, close() removes it. Esc presses the
+// layer's own ✕ so a Khám phá also stops its voice.
+function openLayer(item) {
+  if (!item) return;
+  document.activeElement?.blur?.();
+  const layer = document.createElement('div');
+  layer.className = 'gw-layer';
+  layer.setAttribute('role', 'dialog');
+  layer.setAttribute('aria-modal', 'true');
+  layer.setAttribute('aria-label', item.label);
+  document.body.appendChild(layer);
+  let closed = false;
+  const onKey = (e) => {
+    if (e.key !== 'Escape') return;
+    e.stopPropagation();
+    const x = layer.querySelector('[data-act="quit"], [data-act="close"]');
+    if (x) x.click(); else close();
+  };
+  function close() {
+    if (closed) return;
+    closed = true;
+    document.removeEventListener('keydown', onKey, true);
+    layer.remove();
+  }
+  document.addEventListener('keydown', onKey, true);
+  item.open(layer, close);
+}
+
+// ── Resizable question zone ──────────────────────────────────────────────────
+// The grip under the pinned question card drags the top zone taller (bigger
+// figure) or shorter (more room for the answers). The size holds only for
+// the question on screen: every new question opens at the automatic size,
+// which shows the whole card (a size kept from an earlier question hid the
+// figure of the next one). A double tap on the grip goes back to it.
+// Sizes saved by older versions under 'gw-pin-f' are dropped.
+try { localStorage.removeItem('gw-pin-f'); } catch { /* storage unavailable */ }
+function attachPinResize(app) {
+  const zone = app.querySelector('.gw-pin-zone-q');
+  const grip = zone?.querySelector('.gw-pin-grip');
+  const quiz = app.querySelector('.e3-quiz');
+  if (!grip || !quiz) return;
+  const apply = (f) => {
+    zone.classList.toggle('gw-pin-custom', f != null);
+    if (f == null) zone.style.removeProperty('--gw-pin-f'); else zone.style.setProperty('--gw-pin-f', f);
+  };
+  // Keep the header plus a strip of the card above, and a few answer rows below.
+  const clampF = (h) => {
+    const H = quiz.clientHeight;
+    const top = (zone.querySelector('.e3-topbar')?.offsetHeight || 48) + grip.offsetHeight + 56;
+    return Math.min(Math.max(h, top), H - 140) / H;
+  };
+  let start = null;
+  grip.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    grip.setPointerCapture(e.pointerId);
+    start = { y: e.clientY, h: zone.getBoundingClientRect().height };
+    grip.classList.add('gw-pin-drag');
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (!start) return;
+    const dy = e.clientY - start.y;
+    if (Math.abs(dy) < 3 && !zone.classList.contains('gw-pin-custom')) return;
+    apply(clampF(start.h + dy));
+  });
+  const end = () => {
+    if (!start) return;
+    start = null;
+    grip.classList.remove('gw-pin-drag');
+  };
+  grip.addEventListener('pointerup', end);
+  grip.addEventListener('pointercancel', end);
+  grip.addEventListener('dblclick', () => apply(null));
+  grip.tabIndex = 0;
+  grip.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+    e.preventDefault();
+    const f = clampF(zone.getBoundingClientRect().height + (e.key === 'ArrowDown' ? 40 : -40));
+    apply(f);
+  });
+}
+
 function getGrade(pct) {
   if (pct >= 90) return { emoji: '🏆', label: 'Xuất sắc!', color: '#F59E0B' };
   if (pct >= 75) return { emoji: '🌟', label: 'Giỏi!', color: '#10B981' };
@@ -6080,6 +6179,8 @@ function injectStyles() {
       .e3-quiz { max-width: 640px; width: 100%; margin: 0 auto; padding-bottom: 2rem; }
       .e3-topbar { display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 0 1rem; }
       .e3-progress-wrap { flex: 1; display: flex; align-items: center; gap: 0.6rem; }
+      .gw-app .gw-step { color: #475569; font-size: 0.95rem; }
+      .gw-app .gw-step:disabled { opacity: 0.35; cursor: default; }
       .e3-progress-track { flex: 1; height: 8px; background: rgba(0,0,0,0.08); border-radius: 999px; overflow: hidden; }
       .e3-progress-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
       .e3-progress-label { color: #475569; font-size: 0.85rem; white-space: nowrap; font-weight: 600; }
@@ -6216,15 +6317,74 @@ function injectStyles() {
        always, plus the question card for picture / essay questions) never
        moves, and only the scroll zone below it scrolls — with its own
        scrollbar, so nothing in the top zone ever scrolls with the page.
-       The top zone is capped in height so the answer zone keeps enough
-       room; the image shrinks to fit (tap it to open the full-size
-       lightbox) and a long question scrolls inside its own card. */
+       The question card shows in full by default; the image keeps its own
+       height cap (tap it to open the full-size lightbox). The grip below
+       the card lets the child pick another size. */
     .gw-app.gw-quiz-screen { height: 100%; min-height: 0; padding-bottom: 0; overflow: hidden; }
     .gw-quiz-screen .e3-quiz { display: flex; flex-direction: column; height: 100%; min-height: 0; padding-bottom: 0; }
     .gw-quiz-screen .gw-pin-zone { flex: 0 0 auto; display: flex; flex-direction: column; min-height: 0; }
-    .gw-quiz-screen .gw-pin-zone-q { max-height: 55%; padding-bottom: 0.75rem; }
+    /* The question is shown in full by default (no cap, nothing hidden
+       behind a scrollbar in the card). The answer zone keeps at least a few
+       rows; if a very long question leaves less, the whole quiz scrolls. */
+    .gw-quiz-screen .gw-pin-zone-q { max-height: none; padding-bottom: 0.2rem; }
+    .gw-quiz-screen .e3-quiz { overflow-y: auto; overscroll-behavior: contain; }
+    /* 📘 Kiến thức / 🔎 Khám phá buttons on the question card, and the layer they open (openLayer). */
+    .gw-q-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.4rem 0.8rem; margin-bottom: 0.5rem; }
+    .gw-q-head > .e3-q-num { margin-bottom: 0; }
+    .gw-related { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-left: auto; }
+    .gw-related-btn {
+      display: inline-flex; align-items: center; gap: 0.35em; min-height: 2.4rem; padding: 0 0.9rem;
+      border-radius: 999px; border: 2px solid #0EA5E9; background: #F0F9FF; color: #075985;
+      font: 700 0.98rem Quicksand, sans-serif; cursor: pointer; box-shadow: 0 3px 0 #7DD3FC;
+    }
+    .gw-related-btn:hover { background: #E0F2FE; }
+    .gw-related-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #7DD3FC; }
+    .gw-related-btn span { font-size: 1.15em; }
+    .gw-layer { position: fixed; inset: 0; z-index: 4000; display: flex; flex-direction: column; background: #F0F9FF; }
+    .gw-layer > .g3g-wrap { flex: 1; min-height: 0; height: 100%; }
+    .gw-kn { flex: 1; min-height: 0; display: flex; flex-direction: column; font-family: Quicksand, sans-serif;
+      background: linear-gradient(180deg, #E0F2FE 0%, #F0F9FF 40%, #FFFBEB 100%); }
+    .gw-kn-top { flex: none; display: flex; align-items: center; gap: 0.7rem; padding: 0.7rem 1rem; }
+    .gw-kn-title { font-size: 1.35rem; font-weight: 800; color: #0C4A6E; }
+    .gw-kn-body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 1rem 1.5rem; display: flex; flex-direction: column; gap: 1rem; align-items: center; }
+    .gw-kn-sec { width: min(760px, 100%); background: #fff; border-radius: 1.2rem; padding: 1.1rem 1.3rem; box-shadow: 0 6px 0 #BAE6FD, 0 10px 24px rgba(2,132,199,0.12); }
+    .gw-kn-h { margin: 0 0 0.6rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 1.2rem; font-weight: 800; color: #1E293B; line-height: 1.3; }
+    .gw-kn-h span { background: #0EA5E9; color: #fff; border-radius: 0.6rem; padding: 0.05rem 0.55rem; font-size: 0.95rem; }
+    .gw-kn-h small { font-size: 0.85rem; font-weight: 700; color: #9A3412; background: #FFEDD5; border-radius: 999px; padding: 0.05rem 0.6rem; }
+    .gw-kn-points { margin: 0; padding-left: 1.3rem; display: flex; flex-direction: column; gap: 0.45rem; font-size: 1.12rem; line-height: 1.55; color: #1E293B; }
+    .gw-kn-points b { color: #0369A1; }
+    .gw-kn-ex { margin-top: 0.8rem; background: #FEF9C3; border-left: 5px solid #FACC15; border-radius: 0.8rem; padding: 0.6rem 0.9rem; font-size: 1.08rem; line-height: 1.55; color: #422006; }
+    .gw-kn-ex > b { display: block; color: #A16207; margin-bottom: 0.2rem; }
+    .gw-kn-ex p { margin: 0.25rem 0; }
+    .gw-kn-back { width: min(760px, 100%); }
+    .gw-kn-loading { margin: auto; font-size: 3rem; animation: pulse 1s infinite; }
+    @media (min-width: 720px) {
+      .gw-kn-points { font-size: 1.25rem; }
+      .gw-kn-ex { font-size: 1.18rem; }
+    }
+    /* Grip under the pinned card: drag to resize the top zone (attachPinResize). */
+    .gw-pin-grip {
+      flex: none; height: 22px; margin-top: 2px; display: flex; align-items: center; justify-content: center;
+      cursor: row-resize; touch-action: none; -webkit-tap-highlight-color: transparent; outline: none;
+    }
+    .gw-pin-grip span { width: 64px; height: 6px; border-radius: 999px; background: #CBD5E1; transition: background 0.15s, width 0.15s; }
+    .gw-pin-grip:hover span, .gw-pin-grip:focus-visible span, .gw-pin-grip.gw-pin-drag span { background: #64748B; width: 88px; }
+    /* Size chosen by the child: the zone takes that share of the height and
+       the card (and its figure) fills it; a too-long card scrolls inside. */
+    .gw-quiz-screen .gw-pin-zone-q.gw-pin-custom { height: calc(var(--gw-pin-f) * 100%) !important; max-height: none !important; }
+    .gw-app .gw-pin-custom .e3-question-card { flex: 1 1 auto !important; }
+    /* No figure to grow: the card always shows the whole question text, a
+       size chosen on a picture question never cuts it, and there is no grip. */
+    .gw-quiz-screen .gw-pin-zone-q.gw-pin-custom:not(:has(.gw-card-has-img)) {
+      height: auto !important; max-height: none !important;
+    }
+    .gw-pin-zone-q:not(:has(.gw-card-has-img)) .gw-pin-grip { display: none; }
+    .gw-app .gw-pin-custom .e3-question-card:not(.gw-card-has-img) { flex: 0 1 auto !important; }
+    .gw-app .gw-pin-custom .e3-question-card > .e3-q-img {
+      flex: 1 1 0 !important; min-height: 60px !important; max-height: none !important; height: auto !important;
+    }
     .gw-quiz-screen .gw-scroll-zone {
-      flex: 1 1 auto; min-height: 0;
+      flex: 1 1 auto; min-height: 9rem;
       overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
       padding: 2px 2px 2rem; margin: 0 -2px;
@@ -6254,7 +6414,6 @@ function injectStyles() {
        in its own column to the right of the text, sized to the zone's
        height (zone 62% − header − card padding ≈ 62dvh − 9.5rem). */
     @media (min-width: 720px) and (max-height: 760px) {
-      .gw-quiz-screen .gw-pin-zone-q { max-height: 62%; }
       .gw-app .gw-pin-zone .e3-question-card.gw-card-has-img {
         display: grid; grid-template-columns: minmax(0, 1fr) auto;
         column-gap: 1.5rem; align-items: start;
@@ -6267,6 +6426,7 @@ function injectStyles() {
       }
       /* Nút "Ảnh gốc" (src/engine/lightbox.js) nằm ngay dưới hình, cùng cột với hình. */
       .gw-app .gw-pin-zone .gw-card-has-img > .e3-orig-toggle { grid-column: 2; grid-row: 13; }
+      .gw-app .gw-pin-custom .gw-card-has-img > .e3-q-img { height: calc(var(--gw-pin-f) * 100dvh - 8.5rem) !important; flex: none !important; }
     }
     /* Keyboard open and the strip left above it is short (html.kb-open.kb-tight,
        see src/engine/keyboardInset.js), so every pixel of height counts.
@@ -6278,6 +6438,15 @@ function injectStyles() {
     html.kb-open.kb-tight .gw-quiz-screen.e3-wrap { padding-top: 0.4rem; }
     html.kb-open.kb-tight .gw-quiz-screen .e3-topbar { padding: 0.2rem 0 0.4rem; }
     html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone-q { max-height: 42%; padding-bottom: 0.4rem; }
+    /* Text-only question: the child must still read the whole problem above
+       the pad, so drop what is repeated elsewhere (star rule; the a)/b)
+       sub-questions are printed again next to their answer boxes; the
+       question number is in the progress bar) and let the card take up to 65%. */
+    html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone-q:not(:has(.gw-card-has-img)) { max-height: 65% !important; }
+    html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone .e3-question-card:not(.gw-card-has-img) > .e3-q-num,
+    html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone .star-rule,
+    html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone .e3-subquestions { display: none; }
+    html.kb-open.kb-tight .gw-quiz-screen .gw-scroll-zone { min-height: 0; }
     html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone .e3-question-card { padding: 0.8rem 1rem; }
     html.kb-open.kb-tight .gw-quiz-screen .gw-pin-zone .e3-question-card > .e3-q-img { min-height: 70px; }
     /* Phone portrait: the strip above the number pad is so short that a
@@ -6306,6 +6475,36 @@ function injectStyles() {
         max-width: 100%; min-height: 90px; margin-top: 0.6rem;
       }
       html.kb-open.kb-tight .gw-quiz-pinned .gw-scroll-zone { grid-column: 2; grid-row: 2; }
+      html.kb-open.kb-tight .gw-quiz-pinned .gw-pin-grip { display: none; }
+      /* Two columns: the zone's own size doesn't apply, the picture keeps its normal fit. */
+      html.kb-open.kb-tight .gw-quiz-pinned .gw-pin-custom .e3-question-card > .e3-q-img {
+        flex: 0 1 auto !important; height: auto !important; min-height: 90px !important;
+      }
+    }
+    /* Phone held sideways (short and wide): a stacked question zone would only
+       have room for the card's header, so always use two columns: question
+       (+ figure) on the left at full height, answers scrolling on the right. */
+    @media (min-width: 600px) and (max-height: 520px) {
+      .gw-quiz-pinned .e3-quiz {
+        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+        grid-template-rows: auto minmax(0, 1fr); column-gap: 1rem;
+      }
+      .gw-quiz-pinned .gw-pin-zone { display: contents; }
+      .gw-quiz-pinned .gw-pin-zone .e3-topbar { grid-column: 1 / -1; grid-row: 1; }
+      .gw-quiz-pinned .gw-pin-zone .e3-question-card,
+      .gw-quiz-pinned .gw-pin-zone .e3-question-card.gw-card-has-img {
+        grid-column: 1; grid-row: 2; align-self: start; padding: 0.9rem 1.1rem;
+        display: flex; flex-direction: column;
+        max-height: calc(100% - 0.5rem); min-height: 0; overflow-y: auto;
+      }
+      .gw-quiz-pinned .gw-pin-zone .e3-question-card > .e3-q-img,
+      .gw-quiz-pinned .gw-pin-zone .gw-card-has-img > .e3-q-img,
+      .gw-quiz-pinned .gw-pin-zone.gw-pin-custom .e3-question-card > .e3-q-img {
+        flex: 0 1 auto !important; width: 100%; height: auto !important; max-height: none !important;
+        max-width: 100%; min-height: 90px !important; margin-top: 0.6rem;
+      }
+      .gw-quiz-pinned .gw-scroll-zone { grid-column: 2; grid-row: 2; min-height: 0; }
+      .gw-quiz-pinned .gw-pin-grip { display: none; }
     }
     .gw-intro-wide { max-width: 640px; }
     .gw-unit-list { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.2rem; max-height: 55vh; overflow-y: auto; padding-right: 2px; }
@@ -6314,7 +6513,8 @@ function injectStyles() {
     .gw-unit-row.gw-unit-all { background: #f1f5f9; }
     .gw-unit-row.gw-unit-flash { border-color: var(--gw-flash, #34D399); animation: gw-unit-flash 1.5s ease-out; }
     @keyframes gw-unit-flash {
-      0%, 25% { box-shadow: 0 0 0 4px var(--gw-flash, #34D399); background: #fff; }
+      /* Inset ring: an outer one is clipped by the scrolling .gw-unit-list. */
+      0%, 25% { box-shadow: inset 0 0 0 2px var(--gw-flash, #34D399); background: #fff; }
       100% { box-shadow: 0 0 0 0 transparent; }
     }
     .gw-unit-badge { width: 2.3rem; height: 2.3rem; border-radius: 0.7rem; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
@@ -6422,6 +6622,20 @@ function injectStyles() {
     .gw-crayon:disabled { opacity: .5; cursor: default; }
     @keyframes gw-hand-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
     .gw-line-break { flex-basis: 100%; height: 0; }
+    /* Biểu thức chứa chữ (Sách Toán 4, kit.js L / LV): chữ và "chữ = số" cùng một màu, nhấp nháy khi mở câu
+       và mỗi lần bé chạm vào dòng điền có chữ đó, để thấy chữ nào được thay bằng số nào. */
+    .lv { display: inline-block; font-weight: 800; color: var(--lv); background: color-mix(in srgb, var(--lv) 14%, #fff);
+      border-radius: 0.35em; padding: 0 0.22em; line-height: 1.3; animation: lvBlink 0.6s steps(1, end) 5; }
+    .lv-set { white-space: nowrap; box-shadow: inset 0 0 0 2px var(--lv); padding: 0 0.4em; }
+    .e3-blank-row:focus-within .lv { animation: lvBlink2 0.6s steps(1, end) 4; }
+    @keyframes lvBlink { 50% { background: var(--lv); color: #fff; } }
+    @keyframes lvBlink2 { 50% { background: var(--lv); color: #fff; } }
+    @media (prefers-reduced-motion: reduce) {
+      .lv { animation: lvCalm 1.6s ease-in-out 2; }
+      .e3-blank-row:focus-within .lv { animation: lvCalm2 1.6s ease-in-out 2; }
+      @keyframes lvCalm { 50% { background: color-mix(in srgb, var(--lv) 45%, #fff); } }
+      @keyframes lvCalm2 { 50% { background: color-mix(in srgb, var(--lv) 45%, #fff); } }
+    }
     .gw-blank-label-boxes { gap: 0.3rem; }
     .gw-frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.1; margin: 0 0.12em; font-size: 0.95em; }
     .gw-frac > span { padding: 0 0.2em; }

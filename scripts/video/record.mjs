@@ -14,6 +14,7 @@
  * Kịch bản (scenes/*.mjs): export default { grade, css?, voice?, narrator?, rate?, viewport?, warm?, async run(v) { … } }
  *   viewport: { width } khổ màn hình (mặc định 360), warm: ['grade4-tools'] trò chơi tải trước khi quay.
  *   voice: giọng của app (thầy), narrator: giọng người dẫn (v.say), tên giọng edge-tts (vi-VN-NamMinhNeural…).
+ *   pitch: độ cao giọng của app ('+25Hz': bạn Thỏ), music: tệp nhạc nền (tự lặp, nhỏ lại khi có lời), musicVolume.
  * Các hàm của v:
  *   v.page                         trang Playwright
  *   v.card(html, { say, hold })    khung chữ phủ kín màn hình (mở đầu / kết); say = câu đọc; giữ tới v.uncard()
@@ -22,10 +23,13 @@
  *   v.say(text)                    người dẫn đọc một câu (giọng scene.narrator), chờ đọc xong
  *   v.tap(selector | fn, { arg })  ngón tay bay tới phần tử rồi bấm (fn(arg) chạy trong trang, trả về phần tử)
  *   v.drag(selector, { from: [0, 0.5], to: [1, 0.5], ms })   ngón tay kéo trên phần tử (toạ độ theo tỉ lệ khung phần tử)
+ *   v.stroke([{ x, y }, …], { ms })   ngón tay kéo theo một đường gấp khúc (toạ độ trang), vd. tô theo nét số
  *   v.waitFor(selector, ms?)       chờ phần tử hiện ra
  *   v.wait(ms)
  *   v.heard('câu') / v.heard({ sfx: 'ding' })   chờ thầy bắt đầu đọc câu có chứa chữ đó / chờ tiếng động
  *   v.cut() … v.uncut()            bỏ đoạn giữa khỏi video (cắt ở đầu câu nói để không cụt lời)
+ *   v.appVoice(false / true)       tắt / bật tiếng giọng đọc của app trong video (app vẫn chờ đúng nhịp câu nói);
+ *                                  scene.appVoice: false để tắt từ đầu (video chỉ có người dẫn)
  * Cần Playwright trong npx cache (như scripts/i18n-crawl.mjs) và gói Python ở scripts/video/.pylib (xem tts.py).
  */
 
@@ -73,12 +77,12 @@ for (let i = 0; i < 120; i++) {
 const ttsMemo = new Map();
 let ttsNew = 0; // câu phải tạo mới trong lúc quay (làm lời trễ so với hình) → quay lại lần nữa
 /** voice: giọng của app (thầy, scene.voice) hoặc của người dẫn video (scene.narrator). */
-function tts(text, voice = scene.voice) {
+function tts(text, voice = scene.voice, pitch = null) {
   text = String(text).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-  const key = `${voice}|${text}`;
+  const key = `${voice}|${pitch}|${text}`;
   if (!ttsMemo.has(key)) {
     ttsMemo.set(key, new Promise((ok) => {
-      const p = spawn('python', [join(HERE, 'tts.py'), text, ...(voice ? ['--voice', voice] : []), ...(scene.rate ? ['--rate', scene.rate] : [])],
+      const p = spawn('python', [join(HERE, 'tts.py'), text, ...(voice ? ['--voice', voice] : []), ...(scene.rate ? ['--rate', scene.rate] : []), ...(pitch ? ['--pitch', pitch] : [])],
         { env: { ...process.env, PYTHONIOENCODING: 'utf-8' } });
       let out = '', err = '';
       p.stdout.on('data', d => { out += d; });
@@ -108,9 +112,10 @@ const VW = scene.viewport?.width || 360, VH = scene.viewport?.height || Math.rou
 const browser = await chromium.launch({ headless: !args.show, args: [`--force-device-scale-factor=${DPR}`] });
 const context = await browser.newContext({ viewport: { width: VW, height: VH }, deviceScaleFactor: DPR, isMobile: true, hasTouch: true, locale: 'vi-VN' });
 await context.route(/(firestore|identitytoolkit|securetoken|firebaseinstallations)\.googleapis\.com/, r => r.abort());
+let appVoice = scene.appVoice !== false;
 await context.exposeFunction('__vtts', async (text, id) => {
-  const r = await tts(text);
-  log({ t: Date.now(), kind: 'say', id, text, file: r.file, dur: r.dur });
+  const r = await tts(text, scene.voice, scene.pitch);
+  log({ t: Date.now(), kind: 'say', id, text, file: appVoice ? r.file : null, dur: r.dur });
   return r.dur;
 });
 await context.exposeFunction('__vcancel', (id) => { log({ t: Date.now(), kind: 'cancel', id }); });
@@ -237,6 +242,7 @@ const v = {
    */
   cut(at = Date.now()) { log({ t: at, kind: 'cut' }); },
   uncut(at = Date.now()) { log({ t: at, kind: 'uncut' }); },
+  appVoice(on) { appVoice = !!on; },
   async say(text) {
     const r = await tts(text, scene.narrator || scene.voice);
     log({ t: Date.now(), kind: 'say', id: `v${events.length}`, text, file: r.file, dur: r.dur });
@@ -301,13 +307,47 @@ const v = {
     await sleep(after);
     await page.evaluate(() => document.getElementById('v-finger').classList.remove('v-on'));
   },
+  /** Ngón tay bay tới điểm đầu rồi kéo theo cả đường `pts` (toạ độ trang) trong `ms`, chuột thật bấm giữ suốt nét. */
+  async stroke(pts, { ms = 1500, move = 650, after = 350 } = {}) {
+    const p0 = pts[0];
+    await page.evaluate(({ from, to, move }) => {
+      const f = document.getElementById('v-finger');
+      f.style.transition = 'none';
+      f.style.transform = `translate(${from.x}px, ${from.y}px)`;
+      void f.offsetWidth;
+      f.classList.add('v-on');
+      f.style.transition = `transform ${move}ms cubic-bezier(.45,.05,.3,1), opacity 0.25s`;
+      f.style.transform = `translate(${to.x}px, ${to.y}px)`;
+    }, { from: finger, to: p0, move });
+    await sleep(move + 80);
+    await page.mouse.move(p0.x, p0.y);
+    await page.evaluate(() => document.getElementById('v-finger').classList.add('v-press'));
+    await page.mouse.down();
+    for (const p of pts.slice(1)) {
+      await page.evaluate(({ x, y }) => { const f = document.getElementById('v-finger'); f.style.transition = 'none'; f.style.transform = `translate(${x}px, ${y}px)`; }, p);
+      await page.mouse.move(p.x, p.y);
+      await sleep(ms / pts.length);
+    }
+    finger = pts[pts.length - 1];
+    await page.mouse.up();
+    await page.evaluate(() => document.getElementById('v-finger').classList.remove('v-press'));
+    await sleep(after);
+    await page.evaluate(() => document.getElementById('v-finger').classList.remove('v-on'));
+  },
   /** Ngón tay bay tới phần tử rồi bấm thật (chuột tại toạ độ đó). */
   async tap(target, { move = 650, after = 350, arg = null } = {}) {
     const handle = typeof target === 'function' ? await page.waitForFunction(target, arg, { timeout: 60000 }) : await page.waitForSelector(target, { timeout: 60000, state: 'visible' });
     const el = handle.asElement();
     await el.evaluate(e => e.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
     // Chờ phần tử đứng yên (thẻ còn đang trượt vào / cuộn) rồi mới đo chỗ bấm.
-    const center = async () => { const b = await el.boundingBox(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; };
+    // App vẽ lại phần tử (mất khỏi trang) → tìm lại theo selector, không được thì giữ chỗ đo lần trước.
+    let last = null;
+    const center = async () => {
+      let b = await el.boundingBox().catch(() => null);
+      if (!b && typeof target === 'string') b = await (await page.$(target))?.boundingBox();
+      if (b) last = { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+      return last;
+    };
     let { x, y } = await center();
     for (let i = 0; i < 30; i++) {
       await sleep(120);
@@ -364,7 +404,7 @@ await sleep(300);
 await browser.close();
 killVite();
 
-const timeline = { t0, tEnd, frames, events, music: scene.music || null, musicVolume: scene.musicVolume ?? 0.12 };
+const timeline = { t0, tEnd, frames, events, music: scene.music ? resolve(HERE, scene.music) : null, musicVolume: scene.musicVolume ?? 0.12, musicDuck: scene.musicDuck ?? 0.55 };
 writeFileSync(join(outDir, 'timeline.json'), JSON.stringify(timeline, null, 1));
 const secs = (tEnd - t0) / 1000;
 if (ttsNew && !args.pass2) {

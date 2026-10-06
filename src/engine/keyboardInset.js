@@ -44,8 +44,13 @@ export function initKeyboardInset() {
     // Number pad: only screens that opted in (.kb-inset-pad) reflow for it —
     // the older games are laid out around it overlaying the bottom edge.
     const padScreen = !!document.querySelector('#app .kb-inset-pad');
-    const pad = padScreen && document.body.classList.contains('vk-active') ? document.getElementById('virtual-keyboard') : null;
+    // Digits (#virtual-keyboard), word chips (-words) and letter tiles (-tiles)
+    // are separate panels: measure the one that is showing.
+    const pad = padScreen && document.body.classList.contains('vk-active')
+      ? (document.querySelector('.vk-panel.vk-visible') || document.getElementById('virtual-keyboard')) : null;
     const padH = pad ? pad.offsetHeight : 0;
+    // The pad changes height with its keys (digits ↔ word chips): follow it.
+    if (pad && !padObserved.has(pad)) { padObserved.add(pad); padResize?.observe(pad); }
 
     const open = nativeOpen || padH > 0;
     const focus = document.activeElement;
@@ -94,6 +99,8 @@ export function initKeyboardInset() {
 
   let raf = 0;
   const schedule = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(update); };
+  const padObserved = new WeakSet();
+  const padResize = typeof ResizeObserver === 'function' ? new ResizeObserver(schedule) : null;
 
   if (vv) {
     vv.addEventListener('resize', schedule);

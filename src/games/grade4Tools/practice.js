@@ -142,7 +142,7 @@ export const BOX = '<span class="g4-box"></span>';
  * Ô rỗng hiện dấu ? mờ; .g3d-on (đang gõ) vàng; -ok xanh lá.
  */
 export const SLOT_CSS = (sel) => `
-    ${sel} { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; border: 3px solid #BFDBFE; border-radius: 0.3em; background: #F0F7FF; color: #1D4ED8;
+    ${sel} { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; border: 2px solid #BFDBFE; border-radius: 0.3em; background: #F0F7FF; color: #1D4ED8;
       box-shadow: inset 0 0.08em 0 rgba(30,64,175,0.12); line-height: 1; }
     ${sel}:empty::before { content: '?'; color: #93C5FD; font-size: 0.8em; }
     ${sel}.g3d-on { background: #FEF9C3; border-color: #F59E0B; box-shadow: inset 0 0.08em 0 rgba(180,83,9,0.15), 0 0 0 0.12em #FDE68A; }
@@ -161,7 +161,10 @@ function injectPracticeStyles() {
     .g4-tool { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; container-type: size; }
     .g4-tool:empty { display: none; }
     /* Câu chỉ có nút chọn (không có công cụ): đề ở giữa, nút to chiếm phần dưới */
-    .g4-pboard:has(.g4-tool:empty) .g4-q { flex: 1 1 0; display: flex; flex-direction: column; justify-content: center; font-size: min(8.5cqh, 5.4cqi); }
+    /* khối thường + align-content (không dùng flex: flex tách "Số nào <b>bé nhất</b>?" thành ba dòng) */
+    .g4-pboard:has(.g4-tool:empty) .g4-q { flex: 1 1 0; display: block; align-content: center; font-size: min(8.5cqh, 5.4cqi); }
+    /* chỉ có đề + bàn phím (tính nhẩm): chữ to kín tờ giấy */
+    .g4-pboard:has(.g4-tool:empty):has(.g4-choices:empty) .g4-q { font-size: min(10.5cqh, 5.2cqi); text-wrap: balance; }
     .g4-pboard:has(.g4-tool:empty) .g4-choices { flex: 0 0 34%; }
     .g4-pboard:has(.g4-tool:empty) .g4-choices-col { flex: 0 0 52%; }
     .g4-pboard:has(.g4-tool:empty) .g4-choice { font-size: min(8cqh, 4.6cqi); }
@@ -174,7 +177,11 @@ function injectPracticeStyles() {
     /* Màn dọc (tờ giấy hẹp): câu hỏi to hơn theo bề ngang; dòng SGK gọn còn "📖 SGK · Bài 1 · trang 6–8" */
     @container (orientation: portrait) {
       .g4-q { font-size: min(7cqh, 6.2cqi); text-wrap: balance; }
+      .g4-q small { font-size: 0.74em; }
       .g4-pboard:has(.g4-tool:empty) .g4-q { font-size: min(8.5cqh, 7.6cqi); }
+      .g4-pboard:has(.g4-tool:empty):has(.g4-choices:empty) .g4-q { font-size: min(10cqh, 9cqi); }
+      /* nút chọn (chỉ có đề): chữ theo bề ngang tờ giấy, như đề */
+      .g4-pboard:has(.g4-tool:empty) .g4-choice { font-size: min(6.4cqh, 7cqi); }
       .g4-pboard:has(.g4-tool:empty) .g4-choices-long .g4-choice { font-size: min(3.8cqh, 5.2cqi); }
       .g4-ref { font-size: min(3.6cqh, 4.4cqi); }
       .g4-ref-x, .g4-ref .g4-ref-t { display: none; }
@@ -184,7 +191,7 @@ function injectPracticeStyles() {
     ${SLOT_CSS('.g4-box')}
     .g4-box { min-width: 2.4em; height: 1.25em; padding: 0 0.25em; vertical-align: middle; }
     .g4-u { text-decoration: underline; text-decoration-thickness: 0.12em; text-underline-offset: 0.12em; color: #DC2626; }
-    .g4-done { position: absolute; right: 1cqi; top: 1cqh; z-index: 3; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: min(5.5cqh, 3.2cqi); border: 3px solid ${INK}; border-radius: 0.7em;
+    .g4-done { position: absolute; right: 1cqi; top: 1cqh; z-index: 3; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: min(5.5cqh, 5.4cqi); border: 1.5px solid #15803D; border-radius: 0.7em;
       padding: 0.15em 0.7em; background: linear-gradient(180deg, #4ADE80, #22C55E); color: #fff; box-shadow: 0 5px 0 #15803D; cursor: pointer; }
     .g4-done:active { transform: translateY(4px); box-shadow: 0 1px 0 #15803D; }
     .g4-done:disabled { background: #CBD5E1; box-shadow: 0 5px 0 #94A3B8; cursor: default; }

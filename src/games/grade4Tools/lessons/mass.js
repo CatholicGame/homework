@@ -3,13 +3,14 @@
 import { createPlace } from '../place.js';
 import { BOX } from '../practice.js';
 import { sleep } from '../../grade3Drills/kit.js';
-import { sfx, INK } from '../frame.js';
+import { sfx, INK, css } from '../frame.js';
+import { calmMotion } from '../../grade3Games/fly.js';
 import { fmt, fmtSp } from '../num.js';
 
-const ST = `stroke="${INK}" stroke-width="5" stroke-linejoin="round"`;
+const ST = `stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"`;
 const ART = {
   kg: `<svg viewBox="0 0 120 60"><path d="M40 14 H80 L88 52 H32 Z" fill="#FEF3C7" ${ST}/><path d="M48 14 Q60 2 72 14" fill="none" ${ST}/><text x="60" y="44" text-anchor="middle" font-size="20" font-weight="800" fill="${INK}">1 kg</text></svg>`,
-  yen: `<svg viewBox="0 0 120 60"><path d="M34 10 Q60 0 86 10 L92 52 Q60 60 28 52 Z" fill="#FDE68A" ${ST}/><path d="M40 14 H80" stroke="${INK}" stroke-width="3"/><text x="60" y="42" text-anchor="middle" font-size="19" font-weight="800" fill="${INK}">10 kg</text></svg>`,
+  yen: `<svg viewBox="0 0 120 60"><path d="M34 10 Q60 0 86 10 L92 52 Q60 60 28 52 Z" fill="#FDE68A" ${ST}/><path d="M40 14 H80" stroke="${INK}" stroke-width="2.5"/><text x="60" y="42" text-anchor="middle" font-size="19" font-weight="800" fill="${INK}">10 kg</text></svg>`,
   ta: `<svg viewBox="0 0 120 60"><rect x="18" y="12" width="74" height="30" rx="4" fill="#FB923C" ${ST}/><path d="M92 22 H112" ${ST}/><circle cx="34" cy="48" r="9" fill="#fff" ${ST}/><circle cx="76" cy="48" r="9" fill="#fff" ${ST}/><text x="55" y="34" text-anchor="middle" font-size="17" font-weight="800" fill="${INK}">100 kg</text></svg>`,
   tan: `<svg viewBox="0 0 120 60"><rect x="6" y="8" width="72" height="36" rx="4" fill="#60A5FA" ${ST}/><path d="M78 18 H100 L112 32 V44 H78 Z" fill="#93C5FD" ${ST}/><circle cx="26" cy="49" r="8" fill="#fff" ${ST}/><circle cx="94" cy="49" r="8" fill="#fff" ${ST}/><text x="42" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="${INK}">1 tấn</text></svg>`,
 };
@@ -190,7 +191,20 @@ function taskCalc() {
   };
 }
 
-/** Voi qua cầu: cầu nào chịu được con voi nặng X kg? */
+/** Một cây cầu (nút chọn): bờ trái có voi chờ, sông, mặt cầu, biển tải trọng. */
+const bridgeSvg = () => `<svg class="g4b-svg" viewBox="0 0 300 200" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+  <rect x="-600" y="-800" width="1500" height="1000" fill="#E0F2FE"/>
+  <circle cx="262" cy="34" r="16" fill="#FDE047" stroke="${INK}" stroke-width="2.5"/>
+  <g fill="#fff" stroke="${INK}" stroke-width="2.5"><ellipse cx="96" cy="40" rx="30" ry="12"/><ellipse cx="190" cy="66" rx="24" ry="10"/></g>
+  <path d="M-600 150 Q75 140 150 150 T900 148 V400 H-600 Z" fill="#38BDF8"/><path d="M20 172 h30 M120 182 h40 M220 170 h34" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <path d="M-600 112 H58 L66 400 H-600 Z" fill="#86EFAC" ${ST}/><path d="M900 112 H242 L234 400 H900 Z" fill="#86EFAC" ${ST}/>
+  <g class="g4b-deck"><rect x="54" y="104" width="192" height="16" rx="3" fill="#D97706" ${ST}/>
+    <path d="M70 120 Q150 178 230 120" fill="none" ${ST}/><path d="M100 120 V140 M150 120 V149 M200 120 V140" stroke="${INK}" stroke-width="3"/>
+    <path class="g4b-crack" d="M146 104 L154 112 L146 120" fill="none" stroke="#DC2626" stroke-width="5" stroke-linecap="round" opacity="0"/></g>
+  <g class="g4b-ele"><text x="0" y="0" font-size="70" text-anchor="middle" transform="translate(30 106) scale(-1 1)">🐘</text></g>
+</svg>`;
+
+/** Voi qua cầu: cầu nào chịu được con voi nặng X kg? Chọn đúng: voi đi qua cầu. Chọn sai: cầu võng, nứt, voi lùi lại. */
 function taskBridge() {
   return {
     id: 'mbridge',
@@ -199,18 +213,55 @@ function taskBridge() {
       return { w, s: rng.int(0, 1e6) };
     },
     async mount(f, { w, s }) {
+      injectBridgeStyles();
       // Ba biển cầu: một biển chịu được (≥ w), hai biển không (< w), ghi bằng đơn vị khác nhau.
       const ok = w + [10, 20, 60][s % 3];
       const bad = [w - [10, 30, 50][s % 3], w - [60, 40, 20][(s >> 2) % 3]];
       const label = (kg) => (kg >= 100 && kg % 100 === 0 ? `${kg / 100} tạ` : kg >= 100 ? `${Math.floor(kg / 100)} tạ ${kg % 100} kg` : `${kg / 10} yến`);
       const signs = [ok, ...bad].sort((x, y) => ((x * 7 + s) % 5) - ((y * 7 + s) % 5));
       f.q.innerHTML = `🐘 Voi con nặng <b>${w} kg</b>. Voi đi qua được cầu nào?`;
-      await f.choose({ options: signs.map(kg => ({ html: `🌉 Cầu<br>tối đa ${label(kg)}`, value: kg })), answer: ok, say: `Voi con nặng ${w} ki-lô-gam. Voi đi qua được cầu nào?`,
-        hint: (kg) => `${label(kg)} là ${kg} ki-lô-gam, bé hơn ${w} ki-lô-gam. Cầu sẽ gãy!` });
+      // Ba cây cầu là ba nút to nằm trong vùng công cụ (kín tờ giấy); biển tải trọng ghi ngay trên cầu.
+      f.tool.innerHTML = '<div class="g4-choices g4b-row"></div>';
+      const host = f.tool.firstElementChild;
+      const btnOf = (kg) => host.querySelector(`[data-i="${signs.indexOf(kg)}"]`);
+      const walk = (b, frames, ms) => b.querySelector('.g4b-ele').animate(frames, { duration: calmMotion() ? ms * 0.8 : ms, easing: 'ease-in-out', fill: 'forwards' }).finished;
+      await f.choose({
+        host,
+        options: signs.map(kg => ({ html: `${bridgeSvg()}<span class="g4b-sign">tối đa <b>${label(kg)}</b></span>`, value: kg })),
+        answer: ok, say: `Voi con nặng ${w} ki-lô-gam. Voi đi qua được cầu nào?`,
+        hint: (kg) => {
+          // voi bước lên cầu yếu: cầu võng xuống, nứt; voi lùi về bờ
+          const b = btnOf(kg);
+          walk(b, [{ transform: 'none' }, { transform: 'translate(80px, 0)', offset: 0.45 }, { transform: 'translate(80px, 8px)', offset: 0.6 }, { transform: 'none' }], 1300);
+          b.querySelector('.g4b-deck').animate([{ transform: 'none' }, { transform: 'none', offset: 0.4 }, { transform: 'translateY(10px) rotate(2deg)', offset: 0.6 }, { transform: 'translateY(6px)' }], { duration: 1300, fill: 'forwards' });
+          b.querySelector('.g4b-crack').animate([{ opacity: 0 }, { opacity: 0, offset: 0.5 }, { opacity: 1 }], { duration: 1300, fill: 'forwards' });
+          return `${label(kg)} là ${kg} ki-lô-gam, bé hơn ${w} ki-lô-gam. Cầu sẽ gãy!`;
+        },
+      });
+      // voi đi qua cầu chịu được, nhún nhảy từng bước
+      const steps = [...Array(9)].map((_, i) => ({ transform: `translate(${i * 30}px, ${i % 2 ? -6 : 0}px)` }));
+      await walk(btnOf(ok), steps, 1800);
       sfx.ding();
       f.finish({ ok: `Cầu chịu được ${label(ok)} = ${ok} kg, nặng hơn voi con.` });
     },
   };
+}
+
+function injectBridgeStyles() {
+  css('g4-bridge', `
+    .g4b-row { flex: 1 1 0; min-height: 0; display: flex; gap: 1.6cqi; }
+    .g4b-row .g4-choice { min-height: 0; display: flex; flex-direction: column; align-items: stretch; gap: 0.2em; padding: 0.3em; font-size: min(7cqh, 3.6cqi); overflow: hidden; }
+    /* trời, bờ, sông vẽ tràn ra ngoài khung nhìn: nút cao hay dẹt thì hình vẫn kín nút (cầu bám đáy) */
+    .g4b-svg { flex: 1 1 0; min-height: 0; width: 100%; overflow: visible; border-radius: 0.4em; }
+    .g4b-ele { transform-box: view-box; }
+    .g4b-deck { transform-box: view-box; transform-origin: 150px 112px; }
+    .g4b-sign { flex: none; line-height: 1.15; position: relative; background: #fff; border-radius: 0.3em; }
+    .g4b-sign b { color: #B45309; white-space: nowrap; }
+    @container (orientation: portrait) {
+      .g4b-row { flex-direction: column; gap: 1.2cqh; }
+      .g4b-row .g4-choice { font-size: min(4.6cqh, 6.4cqi); }
+    }
+  `);
 }
 
 export const MASS_LESSONS = { 17: B17 };

@@ -7,7 +7,6 @@
  * Một lần viết nhầm ở tích riêng thứ hai để thấy thầy nhắc cách lùi cột.
  */
 
-const SITE = 'mathtieuhoc.vercel.app';
 const A = 254, B = 132;
 
 export default {
@@ -24,14 +23,11 @@ export default {
     .v-hook .v-steps { font-size: 17px; font-weight: 700; color: #334155; }
     .v-hook .v-pitch { font-size: 19px; font-weight: 800; line-height: 1.3; background: #fff; border: 3px solid #1E293B; border-radius: 16px; padding: 8px 12px; }
     .v-hook .v-pitch b { color: #B91C1C; }
-    .v-site { font-size: 17px; font-weight: 800; color: #fff; background: #7C3AED; border-radius: 999px; padding: 6px 14px; }
     .v-outro { padding-top: 40px; gap: 10px; }
     .v-outro .v-t { font-size: 25px; font-weight: 800; line-height: 1.15; }
     .v-outro ul { list-style: none; margin: 0; padding: 0; text-align: left; font-size: 16px; font-weight: 700; display: flex; flex-direction: column; gap: 7px; width: 100%; }
     .v-outro li { background: #fff; border: 3px solid #1E293B; border-radius: 14px; padding: 5px 10px; line-height: 1.25; }
     .v-outro .v-s { font-size: 15px; font-weight: 700; color: #334155; }
-    .v-outro .v-learn { font-size: 16px; font-weight: 800; color: #334155; margin-top: 4px; }
-    .v-outro .v-site { font-size: 22px; padding: 10px 18px; box-shadow: 0 6px 0 #5B21B6; border: 3px solid #1E293B; }
     .g3g-result-fail { visibility: hidden; } /* lượt có một lần nhầm cố ý: không kết video bằng thẻ "phải sửa" */
     #v-label { font-size: 16px; padding: 8px 14px; white-space: nowrap; max-width: none; }
   `,
@@ -48,8 +44,7 @@ export default {
       <div class="v-k">Bé nào lên lớp 4 cũng phải học:</div>
       <div class="v-big">${A} × ${B} = ?</div>
       <div class="v-steps">Đặt tính, tích riêng, lùi cột, cộng lại…</div>
-      <div class="v-pitch">Luyện ở đây, con vừa <b>nắm cách làm</b>, vừa <b>trình bày chuẩn</b> như trong vở ✍️</div>
-      <div class="v-site">🌐 ${SITE}</div>`,
+      <div class="v-pitch">Luyện ở đây, con vừa <b>nắm cách làm</b>, vừa <b>trình bày chuẩn</b> như trong vở ✍️</div>`,
     { cls: 'v-hook', say: 'Bé nào lên lớp 4 cũng phải học nhân nhiều chữ số. Luyện ở đây, con vừa nắm cách làm, vừa trình bày chuẩn như trong vở.', hold: 300 });
     await v.uncard();
 
@@ -120,9 +115,7 @@ export default {
         <li>💡 Nhầm chỗ nào, thầy nhắc đúng chỗ đó</li>
         <li>🔢 Mỗi lượt là một phép tính mới</li>
       </ul>
-      <div class="v-learn">Học cùng con tại</div>
-      <div class="v-site">🌐 ${SITE}</div>
       <div class="v-s">Toán Tiểu Học · Luyện Tính lớp 4: nhân, chia nhiều chữ số</div>`,
-    { cls: 'v-outro', say: 'Con nắm chắc cách làm, trình bày chuẩn như trong vở, mỗi lượt là một phép tính mới. Địa chỉ trang học ở ngay trên màn hình.', hold: 3500 });
+    { cls: 'v-outro', say: 'Con nắm chắc cách làm, trình bày chuẩn như trong vở, mỗi lượt là một phép tính mới.', hold: 3500 });
   },
 };

@@ -7,7 +7,7 @@
  *   - tên hình: tứ giác / hình bình hành / hình thoi / hình chữ nhật / hình vuông.
  */
 
-import { css, emitter, INK, sfx } from './frame.js';
+import { css, emitter, INK, sfx, watchUnits } from './frame.js';
 
 const CELL = 50, COLS = 20, ROWS = 11, W = COLS * CELL, H = ROWS * CELL;
 const NS = 'http://www.w3.org/2000/svg';
@@ -43,9 +43,10 @@ export function createQuad(host, pts, { movable = [0, 1, 2, 3], marks = true, la
   const t = emitter({});
   host.innerHTML = `<div class="g4q"><div class="g4q-cap">&nbsp;</div><svg class="g4q-svg" viewBox="-30 -30 ${W + 60} ${H + 60}" preserveAspectRatio="xMidYMid meet"></svg></div>`;
   const svg = host.querySelector('svg');
+  watchUnits(svg);
   let pins = '';
   for (let i = 0; i <= COLS; i++) for (let j = 0; j <= ROWS; j++) pins += `<circle cx="${i * CELL}" cy="${j * CELL}" r="4.5"/>`;
-  svg.append(el('rect', { x: -22, y: -22, width: W + 44, height: H + 44, rx: 26, fill: '#D6A15B', stroke: INK, 'stroke-width': 5 }));
+  svg.append(el('rect', { x: -22, y: -22, width: W + 44, height: H + 44, rx: 26, fill: '#D6A15B', stroke: '#B07A3B', 'stroke-width': 3 }));
   svg.append(el('rect', { x: -6, y: -6, width: W + 12, height: H + 12, rx: 12, fill: '#FDE7C4' }));
   svg.append(el('g', { class: 'g4q-pins' }, pins));
   const gShape = el('g'), gMarks = el('g'), gPts = el('g');
@@ -165,14 +166,14 @@ function injectQuadStyles() {
   styled = true;
   css('g4-quad', `
     .g4q { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-    .g4q-cap { flex: none; text-align: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #1E293B; font-size: min(6.5cqh, 4cqi); line-height: 1.25; min-height: 1.3em; padding-top: 0.6cqh; }
+    .g4q-cap { flex: none; text-align: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #1E293B; font-size: max(1.05rem, min(6.5cqh, 4cqi)); line-height: 1.25; min-height: 2.5em; padding-top: 0.6cqh; }
     .g4q-cap b { color: #7C3AED; }
     .g4q-svg { flex: 1; min-height: 0; width: 100%; height: 100%; font-family: 'Baloo 2', sans-serif; touch-action: none; user-select: none; }
     .g4q-pins circle { fill: #92400E; }
-    .g4q-poly { fill: rgba(196, 181, 253, 0.35); stroke: #7C3AED; stroke-width: 7; stroke-linejoin: round; transition: fill .2s; }
+    .g4q-poly { fill: rgba(196, 181, 253, 0.35); stroke: #7C3AED; stroke-width: 5; stroke-linejoin: round; transition: fill .2s; }
     .g4q-good { fill: rgba(167, 243, 208, 0.5); }
-    .g4q-dot { fill: #fff; stroke: ${INK}; stroke-width: 4; }
+    .g4q-dot { fill: #fff; stroke: ${INK}; stroke-width: 2.5; }
     .g4q-move .g4q-dot { fill: #F472B6; cursor: grab; }
-    .g4q-name { font-weight: 800; font-size: 40px; text-anchor: middle; dominant-baseline: middle; fill: ${INK}; paint-order: stroke; stroke: #FDE7C4; stroke-width: 7px; }
+    .g4q-name { font-weight: 800; font-size: max(40px, calc(var(--u, 0) * 20px)); text-anchor: middle; dominant-baseline: middle; fill: ${INK}; paint-order: stroke; stroke: #FDE7C4; stroke-width: 7px; }
   `);
 }

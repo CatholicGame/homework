@@ -75,6 +75,9 @@ export function createDLine(host, { lo = 0, hi = 1, step = 1, minor = 0.1, label
   const shown = (tk) => (R.labels === 'all' ? true : R.labels === 'majors' ? tk.major : R.labels === 'ends' ? (tk.v === clean(R.lo) || tk.v === clean(R.hi)) : Array.isArray(R.labels) ? R.labels.some(x => Math.abs(x - tk.v) < 1e-9) : false);
 
   /** Vẽ nhãn (chuỗi hoặc phân số chồng) dưới vạch. */
+  /** Cỡ chữ (đơn vị SVG) để chữ hiện ra ít nhất px điểm ảnh trên màn hẹp. */
+  const minFs = (px) => { const w = svg.getBoundingClientRect().width; return w ? (px * W) / w : 0; };
+
   function labelEl(v, fs, cls = 'g5l-lab', fill = null) {
     const L = R.label(v), x = t.x(v);
     const g = el('g', { class: 'g5l-l', 'data-x': x.toFixed(2) });
@@ -92,12 +95,12 @@ export function createDLine(host, { lo = 0, hi = 1, step = 1, minor = 0.1, label
 
   function drawAxis() {
     axis.innerHTML = '';
-    axis.append(el('line', { x1: X0 - 40, y1: Y, x2: X1 + 50, y2: Y, stroke: INK, 'stroke-width': 6, 'stroke-linecap': 'round' }));
-    axis.append(el('path', { d: `M${X1 + 36} ${Y - 14} L${X1 + 58} ${Y} L${X1 + 36} ${Y + 14}`, fill: 'none', stroke: INK, 'stroke-width': 6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+    axis.append(el('line', { x1: X0 - 40, y1: Y, x2: X1 + 50, y2: Y, stroke: INK, 'stroke-width': 3, 'stroke-linecap': 'round' }));
+    axis.append(el('path', { d: `M${X1 + 36} ${Y - 14} L${X1 + 58} ${Y} L${X1 + 36} ${Y + 14}`, fill: 'none', stroke: INK, 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
     const tk = ticks();
     for (const k of tk) {
       const x = t.x(k.v), h = k.major ? 24 : 14;
-      axis.append(el('line', { x1: x, y1: Y - h, x2: x, y2: Y + h, stroke: INK, 'stroke-width': k.major ? 5 : 3, 'stroke-linecap': 'round' }));
+      axis.append(el('line', { x1: x, y1: Y - h, x2: x, y2: Y + h, stroke: INK, 'stroke-width': k.major ? 3.5 : 2, 'stroke-linecap': 'round' }));
     }
     const lab = tk.filter(shown);
     if (!lab.length) { t.fs = 32; return; }
@@ -139,7 +142,7 @@ export function createDLine(host, { lo = 0, hi = 1, step = 1, minor = 0.1, label
     ctx.append(oldWrap);
     const funnel = el('path', { d: `M${xa} ${YM + 6} L${X0 - 30} ${Y - 40} L${X1 + 30} ${Y - 40} L${xb} ${YM + 6} Z`, fill: '#FEF9C3', opacity: 0, stroke: '#EAB308', 'stroke-width': 3, 'stroke-dasharray': '10 8' });
     const lr = Math.max(34, (xb - xa) / 2 + 14), lc = (xa + xb) / 2;
-    const lens = el('g', { opacity: 0 }, `<circle cx="${lc}" cy="${YM}" r="${lr}" fill="none" stroke="${INK}" stroke-width="5"/>
+    const lens = el('g', { opacity: 0 }, `<circle cx="${lc}" cy="${YM}" r="${lr}" fill="none" stroke="${INK}" stroke-width="3.5"/>
       <circle cx="${lc}" cy="${YM}" r="${lr - 5}" fill="none" stroke="#7DD3FC" stroke-width="4"/>
       <line x1="${lc + lr * 0.72}" y1="${YM + lr * 0.72}" x2="${lc + lr * 0.72 + 30}" y2="${YM + lr * 0.72 + 30}" stroke="${INK}" stroke-width="11" stroke-linecap="round"/>
       <line x1="${lc + lr * 0.72}" y1="${YM + lr * 0.72}" x2="${lc + lr * 0.72 + 30}" y2="${YM + lr * 0.72 + 30}" stroke="#A16207" stroke-width="6" stroke-linecap="round"/>`);
@@ -175,11 +178,13 @@ export function createDLine(host, { lo = 0, hi = 1, step = 1, minor = 0.1, label
   t.flag = (v, { text = dec(v), color = '#60A5FA', h = 120, fs = 40 } = {}) => {
     const x = t.x(v);
     dropLabel(x);
+    fs = Math.max(fs, minFs(19));
     const w = Math.max(64, text.length * fs * 0.56 + 26);
+    const dx = x - w / 2 < 6 ? 6 - (x - w / 2) : x + w / 2 > W - 6 ? W - 6 - (x + w / 2) : 0;
     const g = el('g', { class: 'g5l-flag', transform: `translate(${x} ${Y})` }, `
-      <line x1="0" y1="0" x2="0" y2="${-h}" stroke="${INK}" stroke-width="4"/>
-      <rect x="${-w / 2}" y="${-h - fs - 18}" width="${w}" height="${fs + 18}" rx="10" fill="${color}" stroke="${INK}" stroke-width="3.5"/>
-      <text x="0" y="${-h - 12}" text-anchor="middle" class="g5l-flagtxt" font-size="${fs}">${text}</text>`);
+      <line x1="0" y1="0" x2="0" y2="${-h}" stroke="${INK}" stroke-width="2.5"/>
+      <rect x="${dx - w / 2}" y="${-h - fs - 18}" width="${w}" height="${fs + 18}" rx="10" fill="${color}"/>
+      <text x="${dx}" y="${-h - 12}" text-anchor="middle" class="g5l-flagtxt" font-size="${fs}">${text}</text>`);
     marks.append(g);
     g.animate([{ transform: `translate(${x}px, ${Y + 30}px) scale(0.2)`, opacity: 0 }, { transform: `translate(${x}px, ${Y}px)`, opacity: 1 }], { duration: anim(350), easing: 'ease-out' });
     return g;
@@ -188,8 +193,9 @@ export function createDLine(host, { lo = 0, hi = 1, step = 1, minor = 0.1, label
   /** Mũi tên chỉ một số, nhãn phía trên (html: SVG tspan được, vd. tô một chữ số). */
   t.pin = (v, { text = dec(v), html = null, color = '#DC2626', fs = 46, up = 0 } = {}) => {
     const x = t.x(v);
+    fs = Math.max(fs, minFs(21));
     const g = el('g', { class: 'g5l-pin', transform: `translate(${x} ${Y})` }, `
-      <path d="M0 -14 L-18 -46 H18 Z" fill="${color}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M0 -14 L-18 -46 H18 Z" fill="${color}" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
       <text x="0" y="${-58 - up}" text-anchor="middle" class="g5l-pintxt" font-size="${fs}" fill="${color}">${html || text}</text>`);
     top.append(g);
     g.animate([{ transform: `translate(${x}px, ${Y - 80}px)`, opacity: 0 }, { transform: `translate(${x}px, ${Y}px)`, opacity: 1 }], { duration: anim(380), easing: 'ease-out' });
@@ -213,7 +219,7 @@ export function createDLine(host, { lo = 0, hi = 1, step = 1, minor = 0.1, label
   t.ball = (v) => {
     ball?.remove();
     ball = el('g', { class: 'g5l-ball', transform: `translate(${t.x(v)} ${Y - 24})` }, `
-      <circle r="21" fill="#F43F5E" stroke="${INK}" stroke-width="4"/><circle cx="-7" cy="-7" r="6" fill="#fff" opacity="0.8"/>`);
+      <circle r="21" fill="#F43F5E" stroke="${INK}" stroke-width="2.5"/><circle cx="-7" cy="-7" r="6" fill="#fff" opacity="0.8"/>`);
     ball.dataset.v = v;
     top.append(ball);
     ball.animate([{ transform: `translate(${t.x(v)}px, ${Y - 140}px)` }, { transform: `translate(${t.x(v)}px, ${Y - 24}px)` }], { duration: anim(420), easing: 'cubic-bezier(.5,0,.8,.4)' });
@@ -293,8 +299,8 @@ function injectDLineStyles() {
     .g5l-lab { font-weight: 800; fill: #1E293B; }
     .g5l-minor { fill: #475569; }
     .g5l-q { font-weight: 800; fill: #F59E0B; }
-    .g5l-flagtxt { font-weight: 800; fill: #fff; stroke: ${INK}; stroke-width: 6px; stroke-linejoin: round; paint-order: stroke; }
-    .g5l-pintxt { font-weight: 800; stroke: #fff; stroke-width: 8px; paint-order: stroke; }
+    .g5l-flagtxt { font-weight: 800; fill: #fff; stroke: rgba(15,23,42,0.35); stroke-width: 2.5px; stroke-linejoin: round; paint-order: stroke; }
+    .g5l-pintxt { font-weight: 800; stroke: #fff; stroke-width: 6px; stroke-linejoin: round; paint-order: stroke; }
     @container (orientation: portrait) { .g5l-cap { font-size: min(4.6cqh, 6.2cqi); } }
   `);
 }

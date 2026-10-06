@@ -10,7 +10,7 @@
  * Góc tính theo độ, ngược chiều kim đồng hồ từ hướng sang phải (toán học); SVG trục y hướng xuống.
  */
 
-import { css, emitter, INK, sfx } from './frame.js';
+import { css, emitter, INK, sfx, watchUnits } from './frame.js';
 import { sleep } from '../grade3Drills/kit.js';
 import { calmMotion } from '../grade3Games/fly.js';
 
@@ -58,8 +58,8 @@ function protractorSvg() {
     <g class="g4a-ring g4a-ring-out">${outer}</g>
     <line x1="${-PR - 24}" y1="0" x2="${PR + 24}" y2="0" stroke="${INK}" stroke-width="2.5"/>
     <circle r="7" fill="#fff" stroke="#DC2626" stroke-width="3"/><line x1="0" y1="-14" x2="0" y2="14" stroke="#DC2626" stroke-width="2.5"/>
-    <g class="g4a-knob" transform="translate(${PR + 58} 0)"><circle r="30" fill="#FDE047" stroke="${INK}" stroke-width="4"/>
-      <path d="M-12 -8 A 14 14 0 1 1 -12 8" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><path d="M-20 4 L-12 10 L-6 2" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+    <g class="g4a-knob" transform="translate(${PR + 58} 0)"><circle r="30" fill="#FDE047" stroke="${INK}" stroke-width="2.5"/>
+      <path d="M-12 -8 A 14 14 0 1 1 -12 8" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/><path d="M-20 4 L-12 10 L-6 2" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>`;
 }
 
 /**
@@ -71,6 +71,7 @@ export function createAngle(host, { o = { x: 500, y: 430 }, a = 0, b = 60, names
   const t = emitter({});
   host.innerHTML = `<div class="g4a"><div class="g4a-cap">&nbsp;</div><svg class="g4a-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"></svg></div>`;
   const svg = host.querySelector('svg');
+  watchUnits(svg);
   // Nền: tờ giấy kẻ ô nhạt
   svg.append(el('g', { 'aria-hidden': 'true' }, `
     <defs><pattern id="g4a-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0 H0 V40" fill="none" stroke="#E0F2FE" stroke-width="2"/></pattern></defs>
@@ -121,7 +122,7 @@ export function createAngle(host, { o = { x: 500, y: 430 }, a = 0, b = 60, names
       <circle cx="${S.o.x}" cy="${S.o.y}" r="7" fill="${INK}"/>
       ${lab(A, S.a, S.names[0])}${lab(B, S.b, S.names[2])}
       <text x="${S.o.x - 30}" y="${S.o.y + 44}" class="g4a-name">${S.names[1]}</text>
-      ${S.fan ? `<g class="g4a-handle" transform="translate(${B.x} ${B.y})"><circle r="30" fill="#60A5FA" stroke="${INK}" stroke-width="4"/><circle r="9" fill="#fff"/></g>` : ''}`;
+      ${S.fan ? `<g class="g4a-handle" transform="translate(${B.x} ${B.y})"><circle r="30" fill="#60A5FA" stroke="${INK}" stroke-width="2.5"/><circle r="9" fill="#fff"/></g>` : ''}`;
   }
 
   function placeProt() {
@@ -142,20 +143,27 @@ export function createAngle(host, { o = { x: 500, y: 430 }, a = 0, b = 60, names
       gProt.classList.add(right ? 'g4a-use-in' : 'g4a-use-out');
       const val = Math.round(t.measure());
       const p = pt(S.o, other, PR + 70);
-      gRead.innerHTML = `<g class="g4a-readout" transform="translate(${p.x} ${p.y})"><rect x="-62" y="-30" width="124" height="60" rx="14" fill="#fff" stroke="#DC2626" stroke-width="4"/>
+      gRead.innerHTML = `<g class="g4a-readout" transform="translate(${p.x} ${p.y})"><rect x="-62" y="-30" width="124" height="60" rx="14" fill="#fff" stroke="#DC2626" stroke-width="3"/>
         <text x="0" y="16" class="g4a-readtxt">${val}°</text></g>
         <line x1="${pt(S.o, other, PR - 4).x}" y1="${pt(S.o, other, PR - 4).y}" x2="${pt(S.o, other, PR + 40).x}" y2="${pt(S.o, other, PR + 40).y}" stroke="#DC2626" stroke-width="5" stroke-linecap="round"/>`;
       break;
     }
   }
 
-  t.set = (o) => { Object.assign(S, o); drawRays(); placeProt(); };
+  /** Chỗ đỗ thước ở màn dọc: ngay dưới góc (khung dọc hẹp chỉ ôm quanh O). */
+  const portraitPark = () => { S.px = S.o.x + 30; S.py = S.o.y + PR + 75; };
+  t.set = (o) => {
+    Object.assign(S, o);
+    if (S.portrait && 'px' in o && !(S.px === S.o.x && S.py === S.o.y)) portraitPark();
+    drawRays(); placeProt();
+  };
   t.showReadout = (on) => { gRead.style.visibility = on ? '' : 'hidden'; };
   t.isAligned = () => !!S.onRay;
-  t.protVisible = (on) => { gProt.style.display = on ? '' : 'none'; };
+  t.protVisible = (on) => { gProt.style.display = on ? '' : 'none'; fit(); };
 
   /** Thầy làm mẫu: thước bay tới (x, y, rot). */
   t.moveProt = async (x, y, rot, ms = 900) => {
+    S.moved = true;
     const x0 = S.px, y0 = S.py, r0 = S.rot, dr = diff(rot, r0);
     const dur = anim(ms), t0 = performance.now();
     await new Promise((res) => {
@@ -203,6 +211,7 @@ export function createAngle(host, { o = { x: 500, y: 430 }, a = 0, b = 60, names
   svg.addEventListener('pointermove', (e) => {
     if (!drag) return;
     const p = toSvg(e);
+    S.moved = true;
     if (drag.kind === 'move') {
       S.px = p.x + drag.dx; S.py = p.y + drag.dy;
       if (Math.hypot(S.px - S.o.x, S.py - S.o.y) < 34) { S.px = S.o.x; S.py = S.o.y; }
@@ -233,8 +242,22 @@ export function createAngle(host, { o = { x: 500, y: 430 }, a = 0, b = 60, names
     if (!r.width || !r.height) return;
     const asp = r.width / r.height;
     if (asp > W / H) { const w = H * asp; svg.setAttribute('viewBox', `${(W - w) / 2} 0 ${w} ${H}`); }
-    // màn dọc: chừa thêm 100 mỗi bên, thước xoay nghiêng quanh O (gần mép trái) không bị cắt
-    else { const ww = W + 200, h = ww / asp; svg.setAttribute('viewBox', `-100 ${(H - h) * 0.7} ${ww} ${h}`); }
+    // màn dọc, không có thước: khung ôm sát góc (quạt góc: cả nửa vòng cạnh OB quét qua) để góc to kín bề ngang
+    else if (gProt.style.display === 'none') {
+      const R = rayLen + (S.fan ? 72 : 52);
+      const ps = (S.fan ? [S.a, S.a + 90, S.a + 180] : [S.a, S.b]).map(d => pt(S.o, d, R));
+      const xs = [S.o.x - 60, S.o.x + 60, ...ps.map(q => q.x)], ys = [S.o.y + 70, S.o.y - 40, ...ps.map(q => q.y)];
+      const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+      const w = Math.max(x1 - x0, (y1 - y0) * asp), h = w / asp;
+      svg.setAttribute('viewBox', `${(x0 + x1 - w) / 2} ${(y0 + y1 - h) / 2} ${w} ${h}`);
+    }
+    // màn dọc có thước: khung quanh đỉnh O vừa đủ thước xoay quanh O (bán kính thước + núm xoay), góc ở nửa trên;
+    // thước chưa ai kéo thì chờ ngay dưới góc (chỗ cũ ở góc trái dưới nằm ngoài khung hẹp)
+    else {
+      const ww = 2 * (PR + 110), h = ww / asp;
+      svg.setAttribute('viewBox', `${S.o.x - ww / 2} ${S.o.y - 30 - h / 2} ${ww} ${h}`);
+      if (!S.portrait) { S.portrait = true; if (!S.moved && !(S.px === S.o.x && S.py === S.o.y)) { portraitPark(); placeProt(); } }
+    }
     drawRays();
   };
   const ro = new ResizeObserver(() => { if (!svg.isConnected) { ro.disconnect(); return; } fit(); });
@@ -251,6 +274,7 @@ export function createClockAngle(host, h) {
   const t = emitter({});
   host.innerHTML = `<div class="g4a"><div class="g4a-cap">&nbsp;</div><svg class="g4a-svg" viewBox="-262 -262 524 640" preserveAspectRatio="xMidYMid meet"></svg></div>`;
   const svg = host.querySelector('svg');
+  watchUnits(svg);
   t.caption = (html) => { host.querySelector('.g4a-cap').innerHTML = html || '&nbsp;'; };
   t.set = (hh, { shade = true } = {}) => {
     const hourDeg = 90 - (hh % 12) * 30, minDeg = 90;
@@ -283,7 +307,7 @@ function injectAngleStyles() {
   styled = true;
   css('g4-angle', `
     .g4a { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 0.8rem; }
-    .g4a-cap { flex: none; text-align: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #1E293B; font-size: min(6.5cqh, 4cqi); line-height: 1.25; min-height: 1.3em; padding-top: 0.6cqh; }
+    .g4a-cap { flex: none; text-align: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #1E293B; font-size: max(1.05rem, min(6.5cqh, 4cqi)); line-height: 1.25; min-height: 2.5em; padding-top: 0.6cqh; }
     .g4a-cap b { color: #DC2626; }
     .g4a-svg { flex: 1; min-height: 0; width: 100%; height: 100%; font-family: 'Baloo 2', sans-serif; touch-action: none; user-select: none; }
     .g4a-body { fill: rgba(186, 230, 253, 0.55); stroke: #0369A1; stroke-width: 3; }
@@ -295,11 +319,11 @@ function injectAngleStyles() {
     .g4a-out { fill: #B45309; font-size: 19px; }
     .g4a-use-in .g4a-ring-out, .g4a-use-out .g4a-ring-in { opacity: 0.18; }
     .g4a-use-in .g4a-in, .g4a-use-out .g4a-out { fill: #DC2626; font-size: 22px; }
-    .g4a-ray { stroke: ${INK}; stroke-width: 6; stroke-linecap: round; }
-    .g4a-name { font-weight: 800; font-size: 40px; fill: ${INK}; text-anchor: middle; }
+    .g4a-ray { stroke: ${INK}; stroke-width: 3; stroke-linecap: round; }
+    .g4a-name { font-weight: 800; font-size: max(40px, calc(var(--u, 0) * 20px)); fill: ${INK}; text-anchor: middle; }
     .g4a-handle { cursor: grab; }
-    .g4a-readtxt { font-weight: 800; font-size: 40px; fill: #DC2626; text-anchor: middle; }
-    .g4a-cnum { font-weight: 800; font-size: 44px; fill: ${INK}; text-anchor: middle; }
+    .g4a-readtxt { font-weight: 800; font-size: max(40px, calc(var(--u, 0) * 20px)); fill: #DC2626; text-anchor: middle; }
+    .g4a-cnum { font-weight: 800; font-size: max(44px, calc(var(--u, 0) * 18px)); fill: ${INK}; text-anchor: middle; }
   `);
 }
 

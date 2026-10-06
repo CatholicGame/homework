@@ -202,7 +202,7 @@ function injectShiftStyles() {
     .g5s-cm { position: absolute; left: 0; bottom: -0.3em; transform: translateX(-50%); color: #DC2626; font-size: min(34cqh, 12cqi); line-height: 1; text-shadow: 0 0 0.08em #fff, 0 0 0.08em #fff; }
     .g5s-cl-end .g5s-cm { opacity: 0.2; }
     .g5s-hops { position: absolute; left: 0; right: 0; bottom: 100%; height: 7cqh; pointer-events: none; }
-    .g5s-hop { position: absolute; bottom: 0; transform: translateX(-50%); min-width: 1.4em; text-align: center; font-size: min(5.4cqh, 2.8cqi); line-height: 1.4; color: #fff; background: #F97316; border: 2px solid ${INK}; border-radius: 999px; }
+    .g5s-hop { position: absolute; bottom: 0; transform: translateX(-50%); min-width: 1.4em; text-align: center; font-size: min(5.4cqh, 2.8cqi); line-height: 1.4; color: #fff; background: #F97316; border: 1.5px solid #C2410C; border-radius: 999px; }
     .g5s-dir { text-align: center; font-size: min(9cqh, 4cqi); color: #475569; min-height: 1.3em; line-height: 1.3; margin-top: min(9cqh, 3.4cqi); }
     .g5s-dir b { color: #DC2626; }
     .g5s-two .g5s-eq { font-size: min(11cqh, 6cqi); }

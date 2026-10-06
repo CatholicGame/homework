@@ -194,8 +194,8 @@ export default {
     'chơi để luyện bài đã học': 'play to practice what you learned',
     'Chọn bài để luyện tập:': 'Choose a lesson to practice:',
     'Tất cả': 'All',
-    '{0} câu — {1} bài hiện có': '{0} questions, {1} lessons',
-    'Tất cả — {0} câu': 'All: {0} questions',
+    '{0} câu, {1} bài hiện có': '{0} questions, {1} lessons',
+    'Tất cả: {0} câu': 'All: {0} questions',
     'Có trò chơi luyện bài này': 'This lesson has a practice game',
     'bài': 'lesson',
     'Bài…': 'Lesson…',
@@ -206,6 +206,8 @@ export default {
 
     // ── Vở bài tập: câu hỏi ──
     'Danh sách câu hỏi': 'Question list',
+    'Câu trước': 'Previous question',
+    'Câu sau': 'Next question',
     'Kiểm tra': 'Check',
     'Câu tiếp theo →': 'Next question →',
     'Xem kết quả 🏅': 'See results 🏅',

@@ -49,9 +49,9 @@ export function createGrid(host, { grids = 1, bar = false, value = 0, show = 'bo
     for (let c = 0; c < 10; c++) for (let r = 0; r < rows; r++) {
       html += `<rect class="g5g-c" data-i="${g * per + c * rows + r}" x="${c * cw}" y="${r * ch}" width="${cw}" height="${ch}" fill="#fff"/>`;
     }
-    for (let i = 1; i < 10; i++) html += `<line x1="${i * cw}" y1="0" x2="${i * cw}" y2="${gh}" stroke="${bar ? INK : '#94A3B8'}" stroke-width="${bar ? 0.8 : 0.5}"/>`;
+    for (let i = 1; i < 10; i++) html += `<line x1="${i * cw}" y1="0" x2="${i * cw}" y2="${gh}" stroke="${bar ? INK : '#94A3B8'}" stroke-width="${bar ? 0.55 : 0.4}"/>`;
     for (let i = 1; i < rows; i++) html += `<line x1="0" y1="${i * ch}" x2="${gw}" y2="${i * ch}" stroke="#CBD5E1" stroke-width="0.4"/>`;
-    html += `<rect x="0" y="0" width="${gw}" height="${gh}" fill="none" stroke="${INK}" stroke-width="1.6" rx="0.6"/>`;
+    html += `<rect x="0" y="0" width="${gw}" height="${gh}" fill="none" stroke="${INK}" stroke-width="1" rx="0.6"/>`;
     grp.innerHTML = html;
     svg.append(grp);
     gs.push(grp);
@@ -231,23 +231,23 @@ function injectGridStyles() {
       .g5g-one .g5g-btns { grid-area: btns; display: grid; grid-template-columns: 1fr 1fr; gap: 1.6cqh 1.2cqi; }
       .g5g-one .g5g-read { font-size: min(13cqh, 8cqi); }
       .g5g-one .g5g-parts { font-size: min(5cqh, 2.8cqi); }
-      .g5g-one .g5g-btn { font-size: min(5.4cqh, 3cqi); padding: 0.35em 0.3em; }
+      .g5g-one .g5g-btn { font-size: min(5.4cqh, 3.6cqi); padding: 0.35em 0.3em; }
     }
     .g5g-c { cursor: pointer; }
     .g5g-locked .g5g-c { cursor: default; }
     .g5g-btns { flex: none; display: flex; gap: 1.2cqi; justify-content: center; }
-    .g5g-btn { flex: 0 1 22%; font-family: inherit; font-weight: 800; font-size: min(5cqh, 3.2cqi); padding: 0.2em 0.4em; border: 3px solid ${INK}; border-radius: 0.7em; cursor: pointer; touch-action: manipulation;
-      background: ${PLACE5[-1].c}; color: #fff; text-shadow: 0 2px 0 rgba(63,58,64,0.5); box-shadow: 0 5px 0 rgba(63,58,64,0.4); white-space: nowrap; }
+    .g5g-btn { flex: 0 1 22%; font-family: inherit; font-weight: 800; font-size: min(5cqh, 4.4cqi); padding: 0.2em 0.4em; border: 1.5px solid rgba(63,58,64,0.25); border-radius: 0.7em; cursor: pointer; touch-action: manipulation;
+      background: ${PLACE5[-1].c}; color: #fff; text-shadow: 0 1px 0 rgba(63,58,64,0.35); box-shadow: 0 4px 0 rgba(63,58,64,0.22); white-space: nowrap; }
     .g5g-btn[data-d="1"] { background: ${PLACE5[-2].c}; }
     .g5g-btn[data-d="-1"] { background: #fff; color: #334155; text-shadow: none; }
     .g5g-bar .g5g-btn[data-d="1"] { background: ${PLACE5[-1].c}; }
     .g5g-clr { background: #E2E8F0 !important; color: #334155 !important; text-shadow: none !important; }
-    .g5g-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(63,58,64,0.4); }
+    .g5g-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(63,58,64,0.22); }
     .g5g-locked .g5g-btn { opacity: 0.4; cursor: default; }
     @container (orientation: portrait) {
       .g5g-read { font-size: min(7cqh, 9cqi); }
       .g5g-parts { font-size: min(3.6cqh, 4.4cqi); }
-      .g5g-btn { font-size: min(4cqh, 4.6cqi); flex-basis: 24%; }
+      .g5g-btn { font-size: min(5cqh, 6.2cqi); flex-basis: 30%; }
     }
   `);
 }

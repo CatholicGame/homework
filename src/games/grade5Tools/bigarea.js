@@ -21,10 +21,10 @@ const NS = 'vector-effect="non-scaling-stroke"';
 /** Bạn nhỏ đứng (cao h, chân tại x, y). */
 export const kid = (x, y, h) => {
   const k = h / 130;
-  return `<g transform="translate(${x} ${y}) scale(${k})"><circle cx="0" cy="-112" r="16" fill="#FCD9B6" stroke="${INK}" stroke-width="3" ${NS}/>
-    <path d="M-15 -118 Q0 -140 15 -118 L15 -122 Q0 -134 -15 -122 Z" fill="#7C2D12"/><rect x="-16" y="-94" width="32" height="44" rx="8" fill="#F97316" stroke="${INK}" stroke-width="3" ${NS}/>
-    <rect x="-14" y="-52" width="12" height="52" fill="#1E3A8A" stroke="${INK}" stroke-width="3" ${NS}/><rect x="2" y="-52" width="12" height="52" fill="#1E3A8A" stroke="${INK}" stroke-width="3" ${NS}/>
-    <path d="M-16 -88 L-28 -60 M16 -88 L28 -60" stroke="${INK}" stroke-width="6" stroke-linecap="round" ${NS}/></g>`;
+  return `<g transform="translate(${x} ${y}) scale(${k})"><circle cx="0" cy="-112" r="16" fill="#FCD9B6" stroke="${INK}" stroke-width="2.5" ${NS}/>
+    <path d="M-15 -118 Q0 -140 15 -118 L15 -122 Q0 -134 -15 -122 Z" fill="#7C2D12"/><rect x="-16" y="-94" width="32" height="44" rx="8" fill="#F97316" stroke="${INK}" stroke-width="2.5" ${NS}/>
+    <rect x="-14" y="-52" width="12" height="52" fill="#1E3A8A" stroke="${INK}" stroke-width="2.5" ${NS}/><rect x="2" y="-52" width="12" height="52" fill="#1E3A8A" stroke="${INK}" stroke-width="2.5" ${NS}/>
+    <path d="M-16 -88 L-28 -60 M16 -88 L28 -60" stroke="${INK}" stroke-width="4" stroke-linecap="round" ${NS}/></g>`;
 };
 
 // Số ngẫu nhiên cố định (bản vẽ giống nhau mọi lần)
@@ -115,7 +115,7 @@ function hectare() {
 
 /** Ô 1 m² có lưới 10 × 10 ô dm² mờ, bạn nhỏ đứng cạnh. */
 function meter() {
-  let g = `<rect x="${SQX}" y="${SQY}" width="${M}" height="${M}" fill="#FDE047" stroke="${INK}" stroke-width="4" ${NS}/>`;
+  let g = `<rect x="${SQX}" y="${SQY}" width="${M}" height="${M}" fill="#FDE047" stroke="${INK}" stroke-width="3" ${NS}/>`;
   for (let k = 1; k < 10; k++) g += `<line x1="${SQX + k}" y1="${SQY}" x2="${SQX + k}" y2="${SQY + M}" stroke="#CA8A04" stroke-width="0.6" ${NS}/><line x1="${SQX}" y1="${SQY + k}" x2="${SQX + M}" y2="${SQY + k}" stroke="#CA8A04" stroke-width="0.6" ${NS}/>`;
   return `<g class="g5b-m">${g}${kid(SQX - 6, SQY + M, 13)}</g>`;
 }
@@ -174,7 +174,7 @@ export function fieldsSvg(list, { s = 60, gap = 60, y0: top = 60, vertical = fal
   const COL = ['#FDE68A', '#BBF7D0', '#BFDBFE', '#FBCFE8'];
   let x = 40, y0 = top, g = '', maxX = 0;
   list.forEach(([a, b], i) => {
-    g += `<g class="g5b-f g5b-f${i}"><rect x="${x}" y="${y0}" width="${a * s}" height="${b * s}" fill="${COL[i % 4]}" stroke="${INK}" stroke-width="5"/>`;
+    g += `<g class="g5b-f g5b-f${i}"><rect x="${x}" y="${y0}" width="${a * s}" height="${b * s}" fill="${COL[i % 4]}" stroke="${INK}" stroke-width="3.5"/>`;
     for (let k = 1; k < a; k++) g += `<line x1="${x + k * s}" y1="${y0}" x2="${x + k * s}" y2="${y0 + b * s}" stroke="${INK}" stroke-opacity="0.25" stroke-width="2"/>`;
     for (let k = 1; k < b; k++) g += `<line x1="${x}" y1="${y0 + k * s}" x2="${x + a * s}" y2="${y0 + k * s}" stroke="${INK}" stroke-opacity="0.25" stroke-width="2"/>`;
     g += `<text x="${x + (a * s) / 2}" y="${y0 - 14}" class="g4v-t" font-size="30">${a} km</text>

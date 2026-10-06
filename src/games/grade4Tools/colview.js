@@ -59,10 +59,10 @@ function injectColStyles() {
   css('g4-col', `
     .g4k { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; font-family: 'Baloo 2', sans-serif; }
     .g4k-grid { display: grid; grid-template-columns: repeat(var(--n), min(15cqh, calc(84cqi / var(--n)))); grid-auto-rows: auto; gap: 0.6cqh 0.4cqi; }
-    .g4k-h { font-weight: 800; color: var(--ink); background: var(--bg); border-radius: 0.5em; text-align: center; font-size: min(3.4cqh, calc(15cqi / var(--n))); line-height: 1.05; padding: 0.25em 0.1em; display: grid; place-items: center; min-height: 2.4em; }
+    .g4k-h { font-weight: 800; color: var(--ink); background: var(--bg); border-radius: 0.5em; text-align: center; font-size: min(3.8cqh, calc(24cqi / var(--n))); line-height: 1.05; padding: 0.25em 0.1em; display: grid; place-items: center; min-height: 2.4em; }
     .g4k-c { font-weight: 800; color: #1E293B; text-align: center; font-size: min(14cqh, calc(76cqi / var(--n))); line-height: 1.15; border-radius: 0.2em; position: relative; transition: background .2s; min-height: 1.15em; }
     .g4k-carry { color: #DC2626; font-size: min(7cqh, calc(42cqi / var(--n))); min-height: 1.1em; }
-    .g4k-b { border-bottom: 5px solid ${INK}; }
+    .g4k-b { border-bottom: 3px solid ${INK}; }
     .g4k-sign { font-weight: 800; font-size: min(13cqh, calc(66cqi / var(--n))); color: #1E293B; display: grid; place-items: center; }
     .g4k-res { color: #1D4ED8; }
     .g4k-on { background: #FEF08A; }

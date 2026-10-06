@@ -2,7 +2,7 @@
 export default {
   entries: {
     'Chọn tuần để luyện tập:': 'Choose a week to practice:',
-    '{0} câu — {1} tuần hiện có': '{0} questions, {1} weeks',
+    '{0} câu, {1} tuần hiện có': '{0} questions, {1} weeks',
     'Có trò chơi luyện tuần này': 'This week has a practice game',
     'tuần': 'week',
     'Tuần…': 'Week…',

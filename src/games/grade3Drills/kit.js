@@ -17,6 +17,8 @@ import { scopedKey } from '../../engine/auth.js';
 export { cap, flyOne, calmMotion, sfx };
 
 export const INK = '#3F3A40';
+// Viền mảnh, nhạt cho khung (tờ vở, bong bóng lời, nút): nét đậm màu mực làm màn hình nặng nề.
+export const EDGE = '#D8CBB1';
 export const MINUS = '−';
 export const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
@@ -413,10 +415,10 @@ export function injectDrillStyles() {
     .g3d-teach { grid-area: teach; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); align-items: end; gap: 0.4rem; }
     .g3d-npc { height: clamp(110px, 24vh, 250px); display: flex; justify-content: center; align-items: flex-end; }
     .g3d-npc .g3-npc-img { height: 100%; width: auto; max-width: 100%; object-fit: contain; filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff); }
-    .g3d-bubble { align-self: center; position: relative; background: #fff; border: 3px solid ${INK}; border-radius: 1rem; padding: 0.45rem 0.65rem; font-weight: 700; color: #1E293B; line-height: 1.35;
-      font-size: clamp(0.95rem, 1.3vh + 0.55rem, 1.35rem); min-height: 4.2em; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 4px 0 rgba(63,58,64,0.25); }
-    .g3d-bubble::before { content: ''; position: absolute; left: -14px; bottom: 1.2rem; border: 8px solid transparent; border-right: 12px solid ${INK}; border-left: 0; }
-    .g3d-bubble::after { content: ''; position: absolute; left: -9px; bottom: calc(1.2rem + 2px); border: 6px solid transparent; border-right: 9px solid #fff; border-left: 0; }
+    .g3d-bubble { align-self: center; position: relative; background: #fff; border: 2px solid ${EDGE}; border-radius: 1rem; padding: 0.45rem 0.65rem; font-weight: 700; color: #1E293B; line-height: 1.35;
+      font-size: clamp(0.95rem, 1.3vh + 0.55rem, 1.35rem); min-height: 4.2em; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 3px 0 rgba(63,58,64,0.1), 0 6px 14px rgba(63,58,64,0.08); }
+    .g3d-bubble::before { content: ''; position: absolute; left: -13px; bottom: 1.2rem; border: 8px solid transparent; border-right: 12px solid ${EDGE}; border-left: 0; }
+    .g3d-bubble::after { content: ''; position: absolute; left: -10px; bottom: calc(1.2rem + 2px); border: 6px solid transparent; border-right: 9px solid #fff; border-left: 0; }
     .g3d-bubble-hint { background: #FFFBEB; border-color: #D97706; }
     .g3d-bubble-hint::after { border-right-color: #FFFBEB; }
     .g3d-name { font-size: 0.72em; color: #BE185D; font-weight: 800; }
@@ -424,7 +426,7 @@ export function injectDrillStyles() {
 
     .g3d-padzone { grid-area: pad; container-type: size; }
     .g3d-keys { height: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: min(2.4cqh, 3cqi);
-      background: #334155; border-radius: 1.1rem; padding: min(2.4cqh, 3cqi); box-sizing: border-box; border: 3px solid ${INK}; transition: opacity .25s, filter .25s; }
+      background: #334155; border-radius: 1.1rem; padding: min(2.4cqh, 3cqi); box-sizing: border-box; transition: opacity .25s, filter .25s; }
     @container (aspect-ratio > 1.7) {
       .g3d-keys { grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
     }
@@ -452,7 +454,7 @@ export function injectDrillStyles() {
     .g3g-has-result .g3d-keys { visibility: hidden; }
 
     .g3d-board { grid-area: board; display: flex; }
-    .g3d-paper { flex: 1; min-width: 0; min-height: 0; position: relative; background: #fff; border: 3px solid ${INK}; border-radius: 1rem; box-shadow: 0 6px 0 rgba(63,58,64,0.2);
+    .g3d-paper { flex: 1; min-width: 0; min-height: 0; position: relative; background: #fff; border: 2px solid ${EDGE}; border-radius: 1rem; box-shadow: 0 4px 0 rgba(63,58,64,0.1), 0 8px 18px rgba(63,58,64,0.08);
       container-type: size; display: flex; flex-direction: column; overflow: hidden; }
     .g3d-paper::before { content: ''; position: absolute; top: 0; bottom: 0; left: clamp(1.4rem, 4cqi, 3rem); border-left: 2px solid #FCA5A5; pointer-events: none; }
 
@@ -505,7 +507,7 @@ export function injectDrillStyles() {
     @keyframes g3dRulerIn { from { transform: translateX(-25%); opacity: 0; } }
     .g3d-trace-out { animation: g3dRulerOut .45s ease forwards; pointer-events: none; }
     @keyframes g3dRulerOut { to { transform: translateY(40%); opacity: 0; } }
-    .g3d-ruler { position: absolute; left: 0; right: 0; top: calc(var(--cell) * 0.6 + 5px); height: calc(var(--cell) * 0.6); box-sizing: border-box; border: 3px solid ${INK}; border-radius: 0.3rem;
+    .g3d-ruler { position: absolute; left: 0; right: 0; top: calc(var(--cell) * 0.6 + 5px); height: calc(var(--cell) * 0.6); box-sizing: border-box; border: 2px solid ${INK}; border-radius: 0.3rem;
       background-color: #FDE68A; box-shadow: 0 4px 0 rgba(63,58,64,0.25);
       background-image: repeating-linear-gradient(90deg, ${INK} 0 2px, transparent 2px calc(var(--cell) / 2)), repeating-linear-gradient(90deg, #A16207 0 1.5px, transparent 1.5px calc(var(--cell) / 10));
       background-size: 100% 42%, 100% 22%; background-repeat: no-repeat; background-position: calc(var(--off) - 4px) 0, calc(var(--off) - 4px) 0; }
@@ -550,7 +552,7 @@ export function injectDrillStyles() {
 
     /* Thẻ kết quả: đè lên cột thầy giáo + bàn phím (ngang) / vùng bàn phím (dọc) */
     .g3d-scene > .g3g-result { position: absolute; z-index: 5; left: 0.7rem; top: 0.7rem; bottom: 0.7rem; width: clamp(240px, 29%, 420px); overflow-y: auto; justify-content: center; text-align: center;
-      border-width: 3px; border-radius: 1.3rem; box-shadow: 0 6px 0 rgba(0,0,0,0.1), 0 16px 36px rgba(0,0,0,0.25);
+      border-width: 2px; border-radius: 1.3rem; box-shadow: 0 6px 0 rgba(0,0,0,0.1), 0 16px 36px rgba(0,0,0,0.25);
       transform-origin: 50% 100%; animation: g3dCard .35s cubic-bezier(.2,1.4,.4,1); }
     /* Hiệu ứng riêng: g3fPop của Chợ phiên có translateX(-50%) cho thẻ căn giữa bằng left: 50% — thẻ ở đây đặt theo
        left / right nên dùng g3fPop sẽ lệch nửa thẻ rồi giật về chỗ. */
@@ -574,7 +576,7 @@ export function injectDrillStyles() {
     }
 
     /* Nút chọn to trên tờ vở (tên thành phần, dấu phép tính, phép tính của bài toán) */
-    .g3d-choice { flex: 1 1 0; min-width: 0; padding: 0.2em 0.4em; background: #fff; color: #1E3A8A; border: 3px solid #93C5FD; box-shadow: 0 6px 0 #60A5FA; border-radius: 0.6em; font-family: 'Baloo 2', sans-serif; }
+    .g3d-choice { flex: 1 1 0; min-width: 0; padding: 0.2em 0.4em; background: #fff; color: #1E3A8A; border: 2px solid #93C5FD; box-shadow: 0 5px 0 #60A5FA; border-radius: 0.6em; font-family: 'Baloo 2', sans-serif; }
     .g3d-choice:active { box-shadow: 0 2px 0 #60A5FA; }
     .g3d-choice:disabled { opacity: 1; color: #94A3B8; border-color: #E2E8F0; box-shadow: 0 6px 0 #CBD5E1; cursor: default; }
     .g3d-choice-ok, .g3d-choice-ok:disabled { background: #DCFCE7; border-color: #22C55E; box-shadow: 0 6px 0 #16A34A; color: #166534; }
@@ -584,10 +586,10 @@ export function injectDrillStyles() {
     .g3d-row { flex: 1 1 0; min-height: 0; display: flex; align-items: center; gap: 0.25em; border-bottom: 2px dashed #BFDBFE; font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B;
       font-size: min(var(--rowfs, 15cqh), 9cqi); line-height: 1; white-space: nowrap; position: relative; }
     .g3d-row:last-child { border-bottom: none; }
-    .g3d-box { display: inline-flex; align-items: center; justify-content: center; min-width: var(--boxw, 2.2em); height: 1.2em; padding: 0 0.15em; border: 3px dashed #93C5FD; border-radius: 0.2em; color: #1D4ED8; box-sizing: border-box; }
+    .g3d-box { display: inline-flex; align-items: center; justify-content: center; min-width: var(--boxw, 2.2em); height: 1.2em; padding: 0 0.15em; border: 2px dashed #93C5FD; border-radius: 0.2em; color: #1D4ED8; box-sizing: border-box; }
     .g3d-box.g3d-on { border-style: solid; border-color: #F59E0B; }
-    .g3d-box-ok { border: 3px solid #86EFAC; background: #F0FDF4; }
-    .g3d-box-fix { border: 3px solid #FCA5A5; background: #FEF2F2; color: #B91C1C; }
+    .g3d-box-ok { border: 2px solid #86EFAC; background: #F0FDF4; }
+    .g3d-box-fix { border: 2px solid #FCA5A5; background: #FEF2F2; color: #B91C1C; }
     .g3d-mark { font-size: 0.7em; margin-left: 0.2em; min-width: 1.2em; }
     .g3d-row-hint { position: absolute; right: 0; bottom: 0.1em; font-size: 0.36em; color: #B45309; font-weight: 700; background: #FFFBEB; border-radius: 0.4em; padding: 0.1em 0.4em; }
   `;

@@ -172,7 +172,7 @@ export const COLUMN_GAME = {
     // Cỡ ô theo khung tờ vở: vừa W cột (thêm lề) và 3,6 hàng + dòng đề.
     const board = `
       <div class="g3c-head"><span>Đặt tính rồi tính:</span> <b class="g3c-expr">${digitSpans(a, 'a')} <span data-d="op">${sign}</span> ${digitSpans(b, 'b')}</b> <b class="g3c-eq">= <span class="g3c-ans">?</span></b></div>
-      <div class="g3d-grid g3c-grid" style="--cell:min(calc((100cqi - 7rem) / ${W + 0.8}), calc((100cqh - 6.5rem) / 3.9), 220px);grid-template-columns:repeat(${W}, var(--cell));grid-template-rows:calc(var(--cell) * 0.55) repeat(3, var(--cell))">
+      <div class="g3d-grid g3c-grid" style="--cell:min(calc((100cqi - min(7rem, 14cqi)) / ${W + 0.8}), calc((100cqh - 6.5rem) / 3.9), 220px);grid-template-columns:repeat(${W}, var(--cell));grid-template-rows:calc(var(--cell) * 0.55) repeat(3, var(--cell))">
         ${cells.join('')}
       </div>`;
     const { paper, say, show, hint, pad, done } = mountDrill(stage, { api, board, cls: 'g3c-scene' });

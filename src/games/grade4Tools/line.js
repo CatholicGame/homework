@@ -23,9 +23,9 @@ const anim = (ms) => (calmMotion() ? Math.round(ms * 0.8) : ms);
 
 /** Châu chấu xanh (vẽ quanh gốc 0,0 = chân). */
 const HOPPER = `<g class="g4l-hopper-body">
-  <path d="M-30 -8 Q-6 -34 26 -16 Q34 -10 28 -4 Z" fill="#4ADE80" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-  <circle cx="24" cy="-18" r="9" fill="#86EFAC" stroke="${INK}" stroke-width="3"/><circle cx="27" cy="-20" r="2.6" fill="${INK}"/>
-  <path d="M-14 -14 L-26 -34 L-6 -4 M6 -8 L0 0 M16 -8 L22 0" stroke="${INK}" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M-30 -8 Q-6 -34 26 -16 Q34 -10 28 -4 Z" fill="#4ADE80" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="24" cy="-18" r="9" fill="#86EFAC" stroke="${INK}" stroke-width="2.5"/><circle cx="27" cy="-20" r="2.6" fill="${INK}"/>
+  <path d="M-14 -14 L-26 -34 L-6 -4 M6 -8 L0 0 M16 -8 L22 0" stroke="${INK}" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M28 -26 Q36 -46 48 -44" stroke="${INK}" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`;
 
 /**
@@ -61,6 +61,9 @@ export function createLine(host, { lo = 0, hi = 10, step = 1, minor = 0, labels 
   t.v = (x) => R.lo + ((x - X0) / (X1 - X0)) * (R.hi - R.lo);
   t.range = () => ({ ...R });
 
+  /** Cỡ chữ (đơn vị SVG) để chữ hiện ra ít nhất px điểm ảnh: màn dọc hẹp thu cả hình nhỏ lại, số phải to lên theo. */
+  const minFs = (px) => { const w = svg.getBoundingClientRect().width; return w ? (px * W) / w : 0; };
+
   function labelSize(texts) {
     const longest = Math.max(...texts.map(s => s.length), 1);
     const gap = ((X1 - X0) * R.step) / (R.hi - R.lo);
@@ -70,14 +73,14 @@ export function createLine(host, { lo = 0, hi = 10, step = 1, minor = 0, labels 
   function drawAxis() {
     axis.innerHTML = '';
     blanks.clear();
-    axis.append(el('line', { x1: X0 - 40, y1: Y, x2: X1 + (arrow ? 50 : 40), y2: Y, stroke: INK, 'stroke-width': 6, 'stroke-linecap': 'round' }));
-    if (arrow) axis.append(el('path', { d: `M${X1 + 36} ${Y - 14} L${X1 + 58} ${Y} L${X1 + 36} ${Y + 14}`, fill: 'none', stroke: INK, 'stroke-width': 6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+    axis.append(el('line', { x1: X0 - 40, y1: Y, x2: X1 + (arrow ? 50 : 40), y2: Y, stroke: INK, 'stroke-width': 3, 'stroke-linecap': 'round' }));
+    if (arrow) axis.append(el('path', { d: `M${X1 + 36} ${Y - 14} L${X1 + 58} ${Y} L${X1 + 36} ${Y + 14}`, fill: 'none', stroke: INK, 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
     const eps = R.step * 1e-6;
     if (R.minor) {
       for (let v = R.lo; v <= R.hi + eps; v += R.minor) {
         const k = Math.round((v - R.lo) / R.step * 1e6) / 1e6;
         if (Number.isInteger(k)) continue;
-        axis.append(el('line', { x1: t.x(v), y1: Y - 12, x2: t.x(v), y2: Y + 12, stroke: INK, 'stroke-width': 3 }));
+        axis.append(el('line', { x1: t.x(v), y1: Y - 12, x2: t.x(v), y2: Y + 12, stroke: INK, 'stroke-width': 2 }));
       }
     }
     const majors = [];
@@ -85,7 +88,7 @@ export function createLine(host, { lo = 0, hi = 10, step = 1, minor = 0, labels 
     const show = (v) => (R.labels === 'all' ? true : R.labels === 'ends' ? v === R.lo || v === R.hi : R.labels === 'none' ? false : R.labels.includes(v));
     const fs = labelSize(majors.map(v => fmt(v)));
     for (const v of majors) {
-      axis.append(el('line', { x1: t.x(v), y1: Y - 22, x2: t.x(v), y2: Y + 22, stroke: INK, 'stroke-width': 5, 'stroke-linecap': 'round' }));
+      axis.append(el('line', { x1: t.x(v), y1: Y - 22, x2: t.x(v), y2: Y + 22, stroke: INK, 'stroke-width': 2.5, 'stroke-linecap': 'round' }));
       if (show(v)) axis.append(el('text', { x: t.x(v), y: Y + 30 + fs, 'text-anchor': 'middle', class: 'g4l-lab', 'font-size': fs }, fmt(v)));
     }
     t.fs = fs;
@@ -113,11 +116,14 @@ export function createLine(host, { lo = 0, hi = 10, step = 1, minor = 0, labels 
     const x = t.x(v);
     // lá cờ thay cho nhãn số ở vạch đó
     for (const tx of axis.querySelectorAll('text')) if (Math.abs(+tx.getAttribute('x') - x) < 0.5) tx.remove();
+    fs = Math.max(fs, minFs(19));
     const w = Math.max(60, text.length * fs * 0.56 + 24);
+    // lá cờ ở sát mép tia số: dịch tấm biển vào trong khung, cán cờ vẫn ở vạch
+    const dx = x - w / 2 < 6 ? 6 - (x - w / 2) : x + w / 2 > W - 6 ? W - 6 - (x + w / 2) : 0;
     const g = el('g', { class: 'g4l-flag', transform: `translate(${x} ${Y})` }, `
-      <line x1="0" y1="0" x2="0" y2="${-h}" stroke="${INK}" stroke-width="4"/>
-      <rect x="${-w / 2}" y="${-h - fs - 18}" width="${w}" height="${fs + 18}" rx="10" fill="${color}" stroke="${INK}" stroke-width="3.5"/>
-      <text x="0" y="${-h - 12}" text-anchor="middle" class="g4l-flagtxt" font-size="${fs}">${text}</text>`);
+      <line x1="0" y1="0" x2="0" y2="${-h}" stroke="${INK}" stroke-width="2.5"/>
+      <rect x="${dx - w / 2}" y="${-h - fs - 18}" width="${w}" height="${fs + 18}" rx="10" fill="${color}"/>
+      <text x="${dx}" y="${-h - 12}" text-anchor="middle" class="g4l-flagtxt" font-size="${fs}">${text}</text>`);
     marks.append(g);
     return g;
   };
@@ -125,8 +131,9 @@ export function createLine(host, { lo = 0, hi = 10, step = 1, minor = 0, labels 
   /** Mũi tên chỉ một số (vd. 2 712 615) có nhãn phía trên. */
   t.pin = (v, { text = fmt(v), color = '#2563EB', fs = 46 } = {}) => {
     const x = t.x(v);
+    fs = Math.max(fs, minFs(21));
     const g = el('g', { class: 'g4l-pin', transform: `translate(${x} ${Y})` }, `
- <path d="M0 -14 L-20 -48 H20 Z" fill="${color}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+ <path d="M0 -14 L-20 -48 H20 Z" fill="${color}" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
       <text x="0" y="-64" text-anchor="middle" class="g4l-pintxt" font-size="${fs}" fill="${color}">${text}</text>`);
     top.append(g);
     return g;
@@ -175,7 +182,7 @@ export function createLine(host, { lo = 0, hi = 10, step = 1, minor = 0, labels 
   t.ball = (v) => {
     ball?.remove();
     ball = el('g', { class: 'g4l-ball', transform: `translate(${t.x(v)} ${Y - 24})` }, `
-      <circle r="21" fill="#F43F5E" stroke="${INK}" stroke-width="4"/><circle cx="-7" cy="-7" r="6" fill="#fff" opacity="0.8"/>`);
+      <circle r="21" fill="#F43F5E" stroke="${INK}" stroke-width="2.5"/><circle cx="-7" cy="-7" r="6" fill="#fff" opacity="0.8"/>`);
     ball.dataset.v = v;
     top.append(ball);
     return ball;
@@ -229,7 +236,7 @@ export function createLine(host, { lo = 0, hi = 10, step = 1, minor = 0, labels 
     hopper.dataset.v = v;
     if (label) {
       const fs = t.fs || 32;
-      marks.append(el('circle', { cx: x1, cy: Y, r: 10, fill: '#22C55E', stroke: INK, 'stroke-width': 3 }));
+      marks.append(el('circle', { cx: x1, cy: Y, r: 10, fill: '#22C55E', stroke: INK, 'stroke-width': 2 }));
       if (!axis.querySelector(`text[x="${x1}"]`)) marks.append(el('text', { x: x1, y: Y + 30 + fs, 'text-anchor': 'middle', class: 'g4l-lab g4l-hoplab', 'font-size': fs }, fmt(v)));
     }
   };
@@ -273,9 +280,9 @@ function injectLineStyles() {
     .g4l-svg { flex: 1; min-height: 0; width: 100%; height: 100%; font-family: 'Baloo 2', sans-serif; overflow: visible; }
     .g4l-lab { font-weight: 800; fill: #1E293B; }
     .g4l-q { font-weight: 800; fill: #93C5FD; }
-    .g4l-flagtxt { font-weight: 800; fill: #fff; stroke: ${INK}; stroke-width: 6px; stroke-linejoin: round; paint-order: stroke; }
-    .g4l-pintxt { font-weight: 800; stroke: #fff; stroke-width: 8px; paint-order: stroke; }
-    .g4l-brtxt { font-weight: 800; stroke: #fff; stroke-width: 7px; paint-order: stroke; }
+    .g4l-flagtxt { font-weight: 800; fill: #fff; stroke: rgba(15,23,42,0.35); stroke-width: 2.5px; stroke-linejoin: round; paint-order: stroke; }
+    .g4l-pintxt { font-weight: 800; stroke: #fff; stroke-width: 6px; stroke-linejoin: round; paint-order: stroke; }
+    .g4l-brtxt { font-weight: 800; stroke: #fff; stroke-width: 6px; stroke-linejoin: round; paint-order: stroke; }
     .g4l-hoplab { fill: #15803D; }
     .g4l-blank { cursor: pointer; }
   `);

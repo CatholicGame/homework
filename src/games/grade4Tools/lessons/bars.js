@@ -10,25 +10,48 @@ import { sfx, INK } from '../frame.js';
 import { fmt } from '../num.js';
 
 const C1 = '#60A5FA', C2 = '#F472B6', CX = '#FDE047';
-const X0 = 230;
 
-/** Một đoạn có nhãn tên bên trái, số ở giữa. */
-const bar = (cls, x, y, w, fill, text = '', { dash = false } = {}) => `<g class="${cls}"><rect x="${x}" y="${y}" width="${w}" height="56" rx="6" fill="${fill}" stroke="${INK}" stroke-width="4" ${dash ? 'stroke-dasharray="12 8" fill-opacity="0.35"' : ''}/>
-  ${text ? `<text x="${x + w / 2}" y="${y + 39}" class="g4v-t" font-size="30">${text}</text>` : ''}</g>`;
-const name = (y, s) => `<text x="${X0 - 20}" y="${y + 39}" class="g4v-t" font-size="32" style="text-anchor:end">${s}</text>`;
+/**
+ * Khung vẽ theo đúng tỉ lệ chỗ trống của tờ giấy (như frac.js): n hàng thanh giãn kín chiều cao.
+ * Ngang: tên bên trái thanh. Dọc (tờ giấy dựng đứng): tên nằm trên thanh, thanh dài gần hết bề ngang.
+ * Trả về { x0, span (bề dài thanh dài nhất), h (bề dày thanh), fs (cỡ chữ), bf (cỡ chữ ngoặc), ys (đỉnh từng thanh), tall }.
+ */
+function geo(t, n) {
+  const r = t.svg.getBoundingClientRect();
+  const H = r.width > 10 && r.height > 10 ? Math.round(Math.min(1800, Math.max(380, (1000 * r.height) / r.width))) : 560;
+  t.frame(0, 0, 1000, H);
+  const tall = H > 860;
+  const top = 16, slot = (H - top - 16) / n;
+  const h = Math.min(tall ? 220 : 160, slot * (tall ? 0.46 : 0.55));
+  const fs = Math.round(Math.min(tall ? 66 : 52, h * 0.5));
+  const lead = tall ? fs * 1.15 : 0; // chỗ dòng tên phía trên thanh (dọc)
+  const ys = [...Array(n)].map((_, i) => top + slot * i + (slot - h - lead) / 2 + lead);
+  return { tall, x0: tall ? 30 : 270, span: tall ? 650 : 480, h, fs, nf: tall ? fs : Math.min(fs, 40), bf: tall ? fs : Math.min(fs, 40), ys };
+}
+
+/** Một đoạn có số ở giữa. */
+const bar = (G, cls, x, y, w, fill, text = '', { dash = false } = {}) => `<g class="${cls}"><rect x="${x}" y="${y}" width="${w}" height="${G.h}" rx="${G.h * 0.12}" fill="${fill}" stroke="${INK}" stroke-opacity="0.55" stroke-width="2.5" ${dash ? 'stroke-dasharray="12 8" fill-opacity="0.35"' : ''}/>
+  ${text ? `<text x="${x + w / 2}" y="${y + G.h / 2 + G.h * 0.21}" class="g4v-t" font-size="${Math.max(G.fs * 0.9, G.h * 0.6)}">${text}</text>` : ''}</g>`;
+/** Tên thanh: ngang thì bên trái, dọc thì phía trên. */
+const name = (G, y, s) => (G.tall
+  ? `<text x="${G.x0}" y="${y - G.fs * 0.3}" class="g4v-t" font-size="${G.fs}" style="text-anchor:start">${s}</text>`
+  : `<text x="${G.x0 - 22}" y="${y + G.h / 2 + G.fs * 0.33}" class="g4v-t" font-size="${G.nf}" style="text-anchor:end">${s}</text>`);
+/** Số ghi ngay trên một thanh (kết quả vừa tính), màu xanh lá. */
+const over = (G, x, y, s) => `<text x="${x}" y="${y - G.fs * 0.25}" class="g4v-t" font-size="${G.fs * 0.85}" fill="#16A34A" style="paint-order:stroke;stroke:#fff;stroke-width:8px">${s}</text>`;
 /** Ngoặc nhọn bên phải từ y1 tới y2, nhãn. */
-const brace = (cls, x, y1, y2, s) => { const m = (y1 + y2) / 2; return `<g class="${cls}"><path d="M${x} ${y1} Q${x + 24} ${y1} ${x + 24} ${y1 + 20} V${m - 14} Q${x + 24} ${m} ${x + 40} ${m} Q${x + 24} ${m} ${x + 24} ${m + 14} V${y2 - 20} Q${x + 24} ${y2} ${x} ${y2}" fill="none" stroke="${INK}" stroke-width="4"/>
-  <text x="${x + 50}" y="${m + 11}" class="g4v-t" font-size="32" style="text-anchor:start">${s}</text></g>`; };
+const brace = (G, cls, x, y1, y2, s) => { const m = (y1 + y2) / 2; return `<g class="${cls}"><path d="M${x} ${y1} Q${x + 24} ${y1} ${x + 24} ${y1 + 20} V${m - 14} Q${x + 24} ${m} ${x + 40} ${m} Q${x + 24} ${m} ${x + 24} ${m + 14} V${y2 - 20} Q${x + 24} ${y2} ${x} ${y2}" fill="none" stroke="${INK}" stroke-width="2.5"/>
+  <text x="${x + 48}" y="${m + G.bf * 0.34}" class="g4v-t" font-size="${G.bf}" style="text-anchor:start">${s}</text></g>`; };
 
 // ── Bài 5 ─────────────────────────────────────────────────────────────────────────────────────────────
 function threeBars(t, A, d1, d2, { show = { b: false, c: false, total: false } } = {}) {
-  const B = A + d1, C = B - d2, k = 520 / Math.max(A, B, C);
-  t.draw(`${name(60, '4A')}${bar('b-a', X0, 60, A * k, C1, String(A))}
-    ${name(170, '4B')}${bar('b-b', X0, 170, A * k, C1)}${bar('b-b2', X0 + A * k, 170, d1 * k, CX, `${d1}`)}
-    ${show.b ? `<text x="${X0 + (B * k) / 2}" y="${160}" class="g4v-t" font-size="28" fill="#16A34A">${B}</text>` : ''}
-    ${name(280, '4C')}${bar('b-c', X0, 280, C * k, C1)}${bar('b-c2', X0 + C * k, 280, d2 * k, '#fff', `${d2}`, { dash: true })}
-    ${show.c ? `<text x="${X0 + (C * k) / 2}" y="${270}" class="g4v-t" font-size="28" fill="#16A34A">${C}</text>` : ''}
-    ${brace('b-br', X0 + Math.max(B, C + d2) * k + 30, 60, 336, show.total ? `${A + B + C} con` : '? con')}`);
+  const G = geo(t, 3), [ya, yb, yc] = G.ys, X0 = G.x0;
+  const B = A + d1, C = B - d2, k = G.span / Math.max(A, B, C + d2);
+  t.draw(`${name(G, ya, '4A')}${bar(G, 'b-a', X0, ya, A * k, C1, String(A))}
+    ${name(G, yb, '4B')}${bar(G, 'b-b', X0, yb, A * k, C1)}${bar(G, 'b-b2', X0 + A * k, yb, d1 * k, CX, `${d1}`)}
+    ${show.b ? over(G, X0 + (B * k) / 2, yb, B) : ''}
+    ${name(G, yc, '4C')}${bar(G, 'b-c', X0, yc, C * k, C1)}${bar(G, 'b-c2', X0 + C * k, yc, d2 * k, '#fff', `${d2}`, { dash: true })}
+    ${show.c ? over(G, X0 + (C * k) / 2, yc, C) : ''}
+    ${brace(G, 'b-br', X0 + G.span + 26, ya, yc + G.h, show.total ? `${A + B + C} con` : '? con')}`);
 }
 
 const B5 = {
@@ -72,11 +95,12 @@ const B5 = {
 
 // ── Bài 25 ────────────────────────────────────────────────────────────────────────────────────────────
 function twoBars(t, S, D, { cut = false, glue = false, small = null, big = null, nameA = 'Nam', nameB = 'Việt' } = {}) {
-  const s = (S - D) / 2, k = 560 / (s + D);
+  const G = geo(t, 2), [ya, yb] = G.ys, X0 = G.x0;
+  const s = (S - D) / 2, k = G.span / (s + D);
   const total = cut ? S - D : glue ? S + D : S;
-  t.draw(`${name(110, nameA)}${bar('t-a', X0, 110, s * k, C1, big != null ? String(big) : '')}${cut ? '' : bar('t-a2', X0 + s * k, 110, D * k, CX, String(D))}
-    ${name(230, nameB)}${bar('t-b', X0, 230, s * k, C2, small != null ? String(small) : '')}${glue ? bar('t-b2', X0 + s * k, 230, D * k, CX, String(D), { dash: true }) : ''}
-    ${brace('t-br', X0 + (s + D) * k + 26, 110, 286, `${total}`)}`);
+  t.draw(`${name(G, ya, nameA)}${bar(G, 't-a', X0, ya, s * k, C1, big != null ? String(big) : '')}${cut ? '' : bar(G, 't-a2', X0 + s * k, ya, D * k, CX, String(D))}
+    ${name(G, yb, nameB)}${bar(G, 't-b', X0, yb, s * k, C2, small != null ? String(small) : '')}${glue ? bar(G, 't-b2', X0 + s * k, yb, D * k, CX, String(D), { dash: true }) : ''}
+    ${brace(G, 't-br', X0 + G.span + 26, ya, yb + G.h, `${total}`)}`);
   return { s, k };
 }
 
@@ -138,9 +162,10 @@ function taskThree({ less = false } = {}) {
       const B = less ? A - d1 : A + d1, C = B - d2;
       f.q.innerHTML = `<small>Đội Một ${verb} ${A} ${thing}, đội Hai ${less ? 'ít' : 'nhiều'} hơn đội Một ${d1} ${thing}, đội Ba ít hơn đội Hai ${d2} ${thing}.</small>Đội Hai: ${BOX} · Cả ba đội: ${BOX}`;
       const t = createCanvas(f.tool);
-      const k = 520 / Math.max(A, B, C);
-      t.draw(`${name(40, 'Đội Một')}${bar('', X0, 40, A * k, C1, String(A))}${name(150, 'Đội Hai')}${bar('', X0, 150, B * k, C1, '?')}${name(260, 'Đội Ba')}${bar('', X0, 260, C * k, C1, '?')}
-        ${brace('', X0 + Math.max(A, B, C) * k + 30, 40, 316, '?')}`);
+      const G = geo(t, 3), [y1, y2, y3] = G.ys;
+      const k = G.span / Math.max(A, B, C);
+      t.draw(`${name(G, y1, 'Đội Một')}${bar(G, '', G.x0, y1, A * k, C1, String(A))}${name(G, y2, 'Đội Hai')}${bar(G, '', G.x0, y2, B * k, C1, '?')}${name(G, y3, 'Đội Ba')}${bar(G, '', G.x0, y3, C * k, C1, '?')}
+        ${brace(G, '', G.x0 + G.span + 26, y1, y3 + G.h, '?')}`);
       const [b1, b2] = f.q.querySelectorAll('.g4-box');
       await f.ask({ box: b1, answer: B, max: 3, say: `Đội Hai ${verb} bao nhiêu ${thing}?`, hint: less ? `Đội Hai ít hơn: lấy ${A} trừ ${d1}.` : `Đội Hai nhiều hơn: lấy ${A} cộng ${d1}.` });
       await f.ask({ box: b2, answer: A + B + C, max: 4, say: `Cả ba đội ${verb} bao nhiêu ${thing}?`, hint: `Đội Ba có ${B} trừ ${d2}. Rồi cộng số của cả ba đội.` });

@@ -85,18 +85,18 @@ function gardenTool(board) {
   t.draw(`
     <rect x="-1000" y="-900" width="3000" height="1100" fill="#BAE6FD"/>
     <rect x="-1000" y="150" width="3000" height="1200" fill="#86EFAC"/>
-    <circle cx="890" cy="70" r="40" fill="#FDE047" stroke="${INK}" stroke-width="4"/>
-    <g fill="#fff" stroke="${INK}" stroke-width="3"><ellipse cx="160" cy="70" rx="58" ry="22"/><ellipse cx="560" cy="52" rx="48" ry="18"/></g>
-    <path d="M-1000 150 Q-750 110 -500 150 T0 150 Q250 110 500 150 T1000 140 Q1250 110 1500 150 T2000 150 V1400 H-1000 Z" fill="#86EFAC" stroke="${INK}" stroke-width="4"/>
-    ${Array.from({ length: 61 }, (_, i) => `<rect x="${i * 50 - 994}" y="96" width="22" height="70" rx="4" fill="#FCD34D" stroke="${INK}" stroke-width="3"/>`).join('')}
-    <path d="M-1000 116 H2000 M-1000 146 H2000" stroke="${INK}" stroke-width="3"/>
+    <circle cx="890" cy="70" r="40" fill="#FDE047" stroke="${INK}" stroke-width="3"/>
+    <g fill="#fff" stroke="${INK}" stroke-width="2.5"><ellipse cx="160" cy="70" rx="58" ry="22"/><ellipse cx="560" cy="52" rx="48" ry="18"/></g>
+    <path d="M-1000 150 Q-750 110 -500 150 T0 150 Q250 110 500 150 T1000 140 Q1250 110 1500 150 T2000 150 V1400 H-1000 Z" fill="#86EFAC" stroke="${INK}" stroke-width="3"/>
+    ${Array.from({ length: 61 }, (_, i) => `<rect x="${i * 50 - 994}" y="96" width="22" height="70" rx="4" fill="#FCD34D" stroke="${INK}" stroke-width="2.5"/>`).join('')}
+    <path d="M-1000 116 H2000 M-1000 146 H2000" stroke="${INK}" stroke-width="2.5"/>
     ${[[60, 600], [900, 640], [120, 760], [820, 820]].map(([x, y]) => `<g transform="translate(${x} ${y})"><path d="M0 0 Q-14 -40 -30 -46 M0 0 Q4 -44 0 -58 M0 0 Q16 -38 32 -44" stroke="#15803D" stroke-width="6" fill="none" stroke-linecap="round"/></g>`).join('')}
-    <rect x="${X}" y="${Y}" width="${W}" height="${H}" rx="12" fill="#A16207" stroke="${INK}" stroke-width="5"/>
+    <rect x="${X}" y="${Y}" width="${W}" height="${H}" rx="12" fill="#A16207" stroke="${INK}" stroke-width="3.5"/>
     ${[1, 2, 3].map(i => `<line class="dd-gline" x1="${X + i * W / 4}" y1="${Y + 6}" x2="${X + i * W / 4}" y2="${Y + H - 6}" stroke="#FEF3C7" stroke-width="7" stroke-dasharray="16 12" pathLength="1" opacity="0"/>`).join('')}
     <g class="dd-plants" opacity="0">${COL.map((cc, i) => plot(i, cc)).join('')}</g>
-    <g class="dd-gtag"><rect x="${X + W / 2 - 110}" y="${Y - 30}" width="220" height="60" rx="30" fill="#fff" stroke="${INK}" stroke-width="4"/>
+    <g class="dd-gtag"><rect x="${X + W / 2 - 110}" y="${Y - 30}" width="220" height="60" rx="30" fill="#fff" stroke="${INK}" stroke-width="3"/>
       <text x="${X + W / 2}" y="${Y + 12}" class="g4v-t" font-size="38">92,8 m²</text></g>
-    ${[0, 1, 2, 3].map(i => `<g class="dd-ptag" opacity="0"><rect x="${X + i * W / 4 + 22}" y="${Y + H - 62}" width="${W / 4 - 44}" height="46" rx="23" fill="#fff" stroke="${INK}" stroke-width="3"/>
+    ${[0, 1, 2, 3].map(i => `<g class="dd-ptag" opacity="0"><rect x="${X + i * W / 4 + 22}" y="${Y + H - 62}" width="${W / 4 - 44}" height="46" rx="23" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
       <text x="${X + i * W / 4 + W / 8}" y="${Y + H - 28}" class="g4v-t" font-size="28">? m²</text></g>`).join('')}
     <text x="500" y="525" class="g4v-t" font-size="44">92,8 : 4 = ? (m²)</text>`);
   t.caption('🌱 Mảnh vườn <b>92,8 m²</b> chia đều thành <b>4 phần</b>');
@@ -312,7 +312,7 @@ function ribbonPic(L, p, n) {
   return `<svg class="dd-rb" viewBox="0 0 ${W} 262" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
     <defs><pattern id="ddrb" width="34" height="34" patternUnits="userSpaceOnUse"><rect width="34" height="34" fill="#F472B6"/><path d="M0 34 L34 0" stroke="#FDE047" stroke-width="9"/></pattern></defs>
     ${brace(0, L, 44, `${Ls} m`, INK)}
-    <rect x="${x0}" y="104" width="${L * k}" height="80" rx="10" fill="url(#ddrb)" stroke="${INK}" stroke-width="4"/>
+    <rect x="${x0}" y="104" width="${L * k}" height="80" rx="10" fill="url(#ddrb)" stroke="${INK}" stroke-width="3"/>
     <rect x="${x(n * p)}" y="106" width="${(L - n * p) * k - 2}" height="76" fill="#fff" opacity="0.5"/>
     ${cuts}${nums}
     <path d="M${x(0)} 196 V212 H${x(p)} V196" fill="none" stroke="#0369A1" stroke-width="4"/>
@@ -330,8 +330,8 @@ const SHARE = [
 /** Một đống lớn (tổng) chia ra n thùng nhỏ có nhãn "?" (đúng thì hiện số). */
 function sharePic(S, Ts, n) {
   const W = 1000, bw = Math.min(150, (W - 40) / n - 16), gap = (W - n * bw) / (n + 1);
-  const box = (x, y, w, h, lbl, cls) => `<g><rect x="${x}" y="${y + h * 0.28}" width="${w}" height="${h * 0.72}" rx="${w * 0.08}" fill="${S.box}" stroke="${INK}" stroke-width="4"/>
-    <path d="M${x + w * 0.1} ${y + h * 0.3} Q${x + w * 0.5} ${y - h * 0.08} ${x + w * 0.9} ${y + h * 0.3} Z" fill="${S.fill}" stroke="${INK}" stroke-width="3"/>
+  const box = (x, y, w, h, lbl, cls) => `<g><rect x="${x}" y="${y + h * 0.28}" width="${w}" height="${h * 0.72}" rx="${w * 0.08}" fill="${S.box}" stroke="${INK}" stroke-width="3"/>
+    <path d="M${x + w * 0.1} ${y + h * 0.3} Q${x + w * 0.5} ${y - h * 0.08} ${x + w * 0.9} ${y + h * 0.3} Z" fill="${S.fill}" stroke="${INK}" stroke-width="2.5"/>
     <rect x="${x + w * 0.12}" y="${y + h * 0.48}" width="${w * 0.76}" height="${h * 0.36}" rx="${h * 0.1}" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
     <text x="${x + w / 2}" y="${y + h * 0.75}" text-anchor="middle" font-weight="800" fill="${INK}" class="${cls}" font-size="${Math.min(h * 0.24, w * 0.24)}">${lbl}</text></g>`;
   const cx = W / 2, top = box(cx - 150, 10, 300, 150, `${Ts} ${S.unit}`, '');
