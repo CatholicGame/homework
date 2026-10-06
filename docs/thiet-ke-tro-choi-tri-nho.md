@@ -1,6 +1,6 @@
 # Thiết kế trò chơi trí nhớ ôn tập Toán: 🏝️ Đảo Trí Nhớ (Lớp 1 → Lớp 5)
 
-> Trạng thái (2026-10-06): **bản thiết kế, chưa code.** Cần chốt các câu ở [§17](#17-câu-hỏi-cần-chốt).
+> Trạng thái (2026-10-06): **đã code trạm đầu tiên 🃏 Bãi Lật Thẻ, lớp 3, chỉ bật ở bản dev** (cờ `MEMORY_ISLAND`), chờ duyệt rồi mới làm trạm khác. Xem [§14.6](#146-đã-làm-giai-đoạn-1). Các câu khác ở [§17](#17-câu-hỏi-cần-chốt) vẫn cần chốt.
 >
 > Phạm vi: **lớp 1 trở lên** (không làm cho Tiền tiểu học). Nội dung lấy từ các sách đang có trong app: Vở BT Toán 1 Tập 1, Vở BT Toán 2 Tập 1 + 2, Vở BT Toán 3 Tập 1 + 2, Toán 4 công cụ Tập 1, Toán 5 công cụ Tập 1.
 >
@@ -963,6 +963,22 @@ export const topics = [
 | 5b | 🗺️ Đường phiêu lưu: bảng vùng + khuôn 8 level, sinh level, màn đường đi, Level Trùm, Rương vùng (làm sớm ngay sau giai đoạn 3 nếu chốt level là lối chơi chính) | Chơi theo level |
 | 6 | Chơi hai người, cấp Bộ ba / Thẻ bẫy, tiếng Anh | Hoàn thiện |
 | Phát hành | `MEMORY_ISLAND = true` | Lên production |
+
+### 14.6 Đã làm (giai đoạn 1)
+
+| Phần | Tệp | Ghi chú |
+|---|---|---|
+| Kho thẻ lớp 3 | `memoryIsland/facts/g3.js`, `kit.js` | 13 chủ đề: bảng 2, 3, 4, 5, 6, 7, 8, 9 (nhân + chia, mỗi bảng 18 thẻ), Một phần mấy (hình tô ↔ phân số đứng), mm/cm/dm/m, g/kg, ml/l, số La Mã I–XX. Mỗi thẻ có `confusers()` cho nút sai và thẻ bẫy |
+| Bốc thẻ | `memoryIsland/pick.js` | Rổ hay quên → chưa gặp → đã gặp, xoay vòng chủ đề, không trùng khoá giá trị / mặt thẻ |
+| Lưu | `memoryIsland/store.js` | `memory-v1` (đồng bộ Drive): mỗi thẻ đã gặp, lật nhầm, Ôn nhanh đúng/sai; kỷ lục ít lần lật theo túi thẻ + cấp. Hạng Rương làm ở giai đoạn 2 trên số liệu này |
+| Túi thẻ, thẻ giới thiệu | `memoryIsland.js` | 3 lối tắt (Trộn bài đã học, Chỗ em hay quên (≥ 3 thẻ), Bài vừa học), 13 nút chủ đề chọn nhiều; màn tự phóng to theo màn hình |
+| 🃏 Bãi Lật Thẻ | `memoryIsland/stations/flip.js` | 3 cấp: 👀 Nhìn trước (4 cặp, ngửa 3 giây), 🃏 Úp từ đầu (6 cặp), 🪤 Thẻ bẫy (5 cặp + 2 thẻ lẻ). Lật 3D (máy tắt hiệu ứng: mờ dần), cặp đúng bay lên dây phơi thành dải, sai rung rồi úp sau 1,2 giây, chạm thẻ cùng màu thì vẹt nhắc "Thẻ xanh đi với thẻ cam!", ngồi yên 8 giây vẹt nhắc + thẻ xanh nhún, nhầm 3 lần một thẻ vẹt chỉ hàng của thẻ bạn. Ôn nhanh 3 câu và tổng kết phủ lên bàn đã trống |
+| Cảnh, nhân vật | `memoryIsland/art.js` | Bãi biển (trời, mây, thuyền, biển, đảo xa, cát, dừa, sao biển, vỏ sò), vẹt 3 dáng (chờ, vui, nghĩ), kẹp phơi, lưng thẻ vỏ sò |
+| Sao | `starRatings.js` (`memory3:flip-<chủ đề>`, 2 sao), `BOOK_GRADE.memory3 = 3` | Mỗi ván tối đa một khoá: chủ đề đầu tiên chưa nhận sao |
+| Chỗ vào | `grades.js` (thẻ 🏝️ đầu danh sách lớp 3, chỉ bản dev), `main.js` (`memory-island`) | Thẻ rộng gấp đôi + 👦 / 🏫 làm cùng giai đoạn 1b |
+| Trang thử | `scripts/memory-dev.html?open=play:g3-t7,g3-g:1&solve=3` | Mở thẳng một ván, tự giải để chụp giữa / cuối ván |
+
+Chưa làm: chơi cả lớp (1b), Rương (2), các trạm khác, chơi hai người, tiếng Anh.
 
 ---
 

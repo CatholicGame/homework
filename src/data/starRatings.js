@@ -4084,4 +4084,18 @@ export const STAR_RATINGS = {
   'drill5:d5-frac-1': 3,
   'drill5:d5-frac-2': 3,
   'drill5:d5-frac-3': 3,
+  // memory3: 🏝️ Đảo Trí Nhớ lớp 3 (memoryIsland.js), 🃏 Bãi Lật Thẻ: một khoá mỗi chủ đề (nhận sao lần đầu chơi xong ván có chủ đề đó)
+  'memory3:flip-g3-t2': 2,
+  'memory3:flip-g3-t5': 2,
+  'memory3:flip-g3-t3': 2,
+  'memory3:flip-g3-t4': 2,
+  'memory3:flip-g3-t6': 2,
+  'memory3:flip-g3-t7': 2,
+  'memory3:flip-g3-t8': 2,
+  'memory3:flip-g3-t9': 2,
+  'memory3:flip-g3-part': 2,
+  'memory3:flip-g3-mm': 2,
+  'memory3:flip-g3-g': 2,
+  'memory3:flip-g3-ml': 2,
+  'memory3:flip-g3-roman': 2,
 };

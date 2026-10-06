@@ -346,6 +346,7 @@ function navigate(gameId) {
     'grade4-textbook': () => import('./games/grade4Textbook.js'),
     'grade5-tools': () => import('./games/grade5Tools.js'),
     'grade5-drills': () => import('./games/grade5Drills.js'),
+    'memory-island': () => import('./games/memoryIsland.js'),
   };
 
   const loader = gameModules[gameId];

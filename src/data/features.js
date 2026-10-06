@@ -10,3 +10,7 @@ export const GRADE3_GAMES = true;
 // Trò chơi tăng cường Toán 2 (docs/lop_2/thiet-ke-tro-choi.md).
 // Đã phát hành 2026-09-29 (🐸 Ếch nhảy tia số, Chợ phiên 2 quầy). Muốn tạm ẩn lại trên production: đổi thành import.meta.env.DEV.
 export const GRADE2_GAMES = true;
+
+// 🏝️ Đảo Trí Nhớ (docs/thiet-ke-tro-choi-tri-nho.md): trò trí nhớ ôn kiến thức, đang làm (giai đoạn 1: Bãi Lật Thẻ lớp 3).
+// Chỉ hiện ở bản dev; bật production khi chốt: đổi thành true.
+export const MEMORY_ISLAND = import.meta.env.DEV;

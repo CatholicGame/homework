@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Đảo Trí Nhớ dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" /><link rel="stylesheet" href="/src/styles/game.css" /></head>
+<body><div id="app"></div>
+<script type="module">
+// Trang thử 🏝️ Đảo Trí Nhớ: mở thẳng một ván rồi tự chơi để chụp giữa / cuối ván (skill game-screen-layout).
+//   /scripts/memory-dev.html?open=play:g3-t7,g3-g:1&solve=3            giải 3 cặp
+//   &miss=1                                                             lật nhầm một lượt (chụp lúc hai thẻ đang ngửa)
+//   &solve=all&quiz=2                                                   giải hết, trả lời 2 câu Ôn nhanh (câu 2 chọn sai)
+//   &fast=4                                                             chia mọi setTimeout cho 4
+//   open=bag | intro:g3-t7:0 | play:<chủ đề,…>:<cấp>
+const p = new URLSearchParams(location.search);
+localStorage.setItem('pre1-mute', '1');
+const fast = +(p.get('fast') || 1);
+if (fast > 1) { const st0 = window.setTimeout; window.setTimeout = (f, ms, ...a) => st0(f, (ms || 0) / fast, ...a); }
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const m = await import('/src/games/memoryIsland.js');
+const open = p.get('open') || 'bag';
+m.render(document.getElementById('app'), () => {}, { open: open === 'bag' ? '' : open });
+if (open.startsWith('play:')) {
+  await sleep(+(p.get('wait') || 600));
+  const mi = window.__mi;
+  const n = p.get('solve') === 'all' ? mi.facts.length : +(p.get('solve') || 0);
+  if (n) await mi.solve(n, 1300);
+  if (p.get('miss')) { await sleep(400); mi.miss(); }
+  const q = +(p.get('quiz') || 0);
+  for (let k = 0; k < q; k++) {
+    await sleep(k ? 3200 : 3600);
+    const btns = [...document.querySelectorAll('.mi-choice')];
+    const right = btns.find((b) => !b.disabled && b.onclick && b.dataset.k !== undefined && b.textContent === document.querySelector('.mi-strip-now .mi-strip-ans .mi-fbox')?.textContent);
+    const wrong = btns.find((b) => b !== right && b.style.visibility !== 'hidden');
+    ((k === 1 ? wrong : right) || btns[0]).click();
+  }
+}
+</script></body></html>
