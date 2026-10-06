@@ -212,12 +212,19 @@ export const BAI_79_81 = [
           'Chu vi một hình bằng tổng độ dài các cạnh của hình đó.',
           'Cạnh AB dài 2 cm + 6 cm, cạnh CB dài 4 cm + 4 cm.',
         ],
+        // toạ độ theo bai79_t1_q2_triangle.svg
+        perimPlay: [
+          { label: 'MBN', path: 'MBN', lens: [6, 4, 5], points: { M: [232.5, 95], B: [360, 290], N: [200, 290] }, fill: 0 },
+          { label: 'AMNC', path: 'AMNC', lens: [2, 5, 4, 7], points: { A: [190, 30], M: [232.5, 95], N: [200, 290], C: [40, 290] }, fill: 1 },
+          { label: 'ABC', path: 'ABC', lens: [8, 8, 7], texts: ['2 + 6 = 8 cm', '4 + 4 = 8 cm', '7 cm'], points: { A: [190, 30], B: [360, 290], C: [40, 290] } },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 1', wordProblem: true,
         q: '3. Một mảnh đất hình chữ nhật có chiều dài 12 m, chiều dài hơn chiều rộng 4 m. Tính chu vi mảnh đất đó.',
         blanks: [{ label: 'Chu vi mảnh đất (m)', answer: '40' }],
         hints: ['Tìm chiều rộng trước: 12 − 4. Chu vi hình chữ nhật = (dài + rộng) × 2.'],
+        perimPlay: { rect: [12, 8], unit: 'm', name: 'mảnh đất', look: 'garden', texts: ['12 m', '12 − 4 = 8 m', '12 m', '12 − 4 = 8 m'], fill: 0 },
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB79Shape,
@@ -230,6 +237,13 @@ export const BAI_79_81 = [
           'Mỗi ô vuông nhỏ có diện tích 1 cm². Đếm số ô vuông, hoặc cộng diện tích hai hình chữ nhật.',
           'Đi một vòng quanh hình và cộng độ dài tất cả các cạnh.',
         ],
+        // toạ độ theo bai79_t1_q4_shape.svg (vẽ đúng tỉ lệ: 30 = 1 cm)
+        perimPlay: {
+          name: 'miếng bìa hình A', toScale: true, lens: [4, 4, 4, 4, 4, 2, 12, 2],
+          path: ['_a', '_b', '_c', '_d', '_e', '_f', '_g', '_h'],
+          points: { _a: [66, 160], _b: [186, 160], _c: [186, 40], _d: [306, 40], _e: [306, 160], _f: [426, 160], _g: [426, 220], _h: [66, 220] },
+          fill: 1,
+        },
       },
       {
         type: 'fill', section: 'Tiết 2',
@@ -503,6 +517,7 @@ export const BAI_79_81 = [
           { label: 'b) Chu vi hình chữ nhật (cm)', answer: '42' },
         ],
         hints: ['Cạnh hình vuông = chu vi : 4.', 'Chiều dài = chiều rộng + 3 cm; chu vi = (dài + rộng) × 2.'],
+        perimPlay: { rect: [12, 9], texts: ['9 + 3 = 12 cm', '36 : 4 = 9 cm', '9 + 3 = 12 cm', '36 : 4 = 9 cm'], fill: 1 },
       },
       {
         type: 'fill', section: 'Tiết 2', wordProblem: true,

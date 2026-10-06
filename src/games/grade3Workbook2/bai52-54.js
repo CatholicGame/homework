@@ -119,6 +119,11 @@ export const BAI_52_54 = [
           ['Diện tích hình vuông', '6 × 6 = 36 (cm²)', calcCell(7, 7, 49, 'cm²'), calcCell(4, 4, 16, 'cm²')],
         ],
         hints: ['Chu vi hình vuông = cạnh × 4. Diện tích hình vuông = cạnh × cạnh.'],
+        perimPlay: [
+          { label: 'Cạnh 6 cm', square: 6 },
+          { label: 'Cạnh 7 cm', square: 7 },
+          { label: 'Cạnh 4 cm', square: 4 },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 2', wordProblem: true,
@@ -163,6 +168,12 @@ export const BAI_52_54 = [
           { label: 'b) Viết vào chỗ chấm cho thích hợp.<br>Căn phòng có diện tích lớn nhất là căn phòng ...', answer: 'B', validate: setValidate(['B']), tiles: ['A', 'B', 'C'], tileOne: true },
         ],
         hints: ['A: dài 8 cm, rộng 4 cm. B: hình vuông cạnh 6 cm. C: dài 7 cm, rộng 5 cm.'],
+        // toạ độ theo bai52_t3_q2_rooms.svg
+        perimPlay: [
+          { label: 'Phòng A', name: 'căn phòng A', rect: [4, 8], path: ['_a', '_b', '_c', '_d'], points: { _a: [18, 64], _b: [154, 64], _c: [154, 336], _d: [18, 336] } },
+          { label: 'Phòng B', name: 'căn phòng B', square: 6, path: ['_a', '_b', '_c', '_d'], points: { _a: [275.3, 81.8], _b: [476.2, 117.3], _c: [440.7, 318.2], _d: [239.8, 282.7] } },
+          { label: 'Phòng C', name: 'căn phòng C', rect: [5, 7], path: ['_a', '_b', '_c', '_d'], points: { _a: [562, 98], _b: [732, 98], _c: [732, 336], _d: [562, 336] } },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 3', wordProblem: true, img: imgB52Square,
@@ -194,6 +205,11 @@ export const BAI_52_54 = [
           ['Chu vi hình vuông', '60 cm', blank('36', { suffix: 'cm', validate: numV(36) }), '36 cm', blank('40', { suffix: 'dm', validate: numV(40) })],
         ],
         hints: ['Chu vi hình vuông = cạnh × 4. Biết chu vi, tìm cạnh: lấy chu vi chia cho 4.'],
+        perimPlay: [
+          { label: 'Cạnh 15 cm', square: 15 },
+          { label: 'Cạnh 9 cm', square: 9 },
+          { label: 'Cạnh 10 dm', square: 10, unit: 'dm' },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 1', wordProblem: true,
@@ -203,12 +219,24 @@ export const BAI_52_54 = [
           { label: 'b) Chu vi hình chữ nhật (cm)', answer: '120', validate: measureV(120, 'cm') },
         ],
         hints: ['Đổi về cùng đơn vị trước: 3 dm = 30 cm, 4 dm = 40 cm.', 'Chu vi hình chữ nhật = (chiều dài + chiều rộng) × 2.'],
+        // đổi về xăng-ti-mét rồi mới cộng
+        perimPlay: [
+          { label: 'a)', rect: [30, 5], texts: ['3 dm = 30 cm', '5 cm', '3 dm = 30 cm', '5 cm'], fill: 0 },
+          { label: 'b)', rect: [40, 20], texts: ['4 dm = 40 cm', '20 cm', '4 dm = 40 cm', '20 cm'], fill: 1 },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 1', wordProblem: true, img: imgB53Carpet,
         q: '3. Một tấm thảm trải nhà có dạng hình vuông cạnh 50 cm. Tính chu vi hình vuông ghép bởi 4 tấm thảm như thế.',
         blanks: [{ label: 'Chu vi hình vuông ghép (cm)', answer: '400', validate: measureV(400, 'cm') }],
         hints: ['Hình vuông ghép có cạnh dài bằng 2 cạnh tấm thảm: 50 cm + 50 cm.'],
+        // toạ độ theo bai53_t1_q3_carpet.svg: đi quanh hình ghép, mỗi đoạn là một cạnh tấm thảm
+        perimPlay: {
+          name: 'hình vuông ghép', lens: [50, 50, 50, 50, 50, 50, 50, 50],
+          path: ['_a', '_b', '_c', '_d', '_e', '_f', '_g', '_h'],
+          points: { _a: [12, 12], _b: [102, 12], _c: [192, 12], _d: [192, 102], _e: [192, 192], _f: [102, 192], _g: [12, 192], _h: [12, 102] },
+          fill: 0,
+        },
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB53Plots,
@@ -218,6 +246,12 @@ export const BAI_52_54 = [
           { label: 'b) Khoanh vào chữ đặt trước câu trả lời đúng.<br>Mảnh đất trồng hoa mẫu đơn là:<br>A. Mảnh đất A &nbsp;&nbsp; B. Mảnh đất B &nbsp;&nbsp; C. Mảnh đất C<br>Chữ đặt trước câu trả lời đúng:', answer: 'C', validate: setValidate(['C']), tiles: ['A', 'B', 'C'], tileOne: true },
         ],
         hints: ['Đếm số khoảng giữa hai cọc trên mỗi cạnh: mỗi khoảng dài 1 m.', 'Mảnh A: 4 m và 3 m; hàng rào dài (4 + 3) × 2.'],
+        // toạ độ theo bai53_t1_q4_plots.svg (mảnh đất, hàng rào vẽ phía trên)
+        perimPlay: [
+          { label: 'Mảnh A', name: 'mảnh đất A', rect: [4, 3], unit: 'm', eqLabel: 'Hàng rào mảnh A dài', path: ['_a', '_b', '_c', '_d'], points: { _a: [40, 175], _b: [224, 175], _c: [314, 115], _d: [130, 115] }, fill: { blank: 0, input: 0 } },
+          { label: 'Mảnh B', name: 'mảnh đất B', rect: [5, 4], unit: 'm', eqLabel: 'Hàng rào mảnh B dài', path: ['_a', '_b', '_c', '_d'], points: { _a: [460, 150], _b: [690, 150], _c: [810, 70], _d: [580, 70] }, fill: { blank: 0, input: 1 } },
+          { label: 'Mảnh C', name: 'mảnh đất C', rect: [4, 4], unit: 'm', kind: 'para', eqLabel: 'Hàng rào mảnh C dài', path: ['_a', '_b', '_c', '_d'], points: { _a: [250, 305], _b: [434, 305], _c: [554, 225], _d: [370, 225] }, fill: { blank: 0, input: 2 } },
+        ],
       },
       {
         type: 'compare', section: 'Tiết 2',
@@ -276,6 +310,12 @@ export const BAI_52_54 = [
           { left: 'Mảnh giấy 9 cm và 9 cm tô màu:', options: ['Vàng', 'Xanh', 'Đỏ'], answer: 'Xanh' },
         ],
         hints: ['Tính chu vi và diện tích của cả ba mảnh giấy.', 'Hai mảnh có chu vi bằng nhau (36 cm): mảnh có diện tích bé hơn là của Việt.'],
+        // toạ độ theo bai53_t3_q3_papers.svg
+        perimPlay: [
+          { label: '10 cm và 8 cm', name: 'mảnh giấy 10 cm và 8 cm', rect: [10, 8], path: ['_a', '_b', '_c', '_d'], points: { _a: [70, 36], _b: [270, 36], _c: [270, 196], _d: [70, 196] } },
+          { label: '9 cm và 8 cm', name: 'mảnh giấy 9 cm và 8 cm', rect: [9, 8], path: ['_a', '_b', '_c', '_d'], points: { _a: [340, 36], _b: [520, 36], _c: [520, 196], _d: [340, 196] } },
+          { label: '9 cm và 9 cm', name: 'mảnh giấy 9 cm và 9 cm', square: 9, path: ['_a', '_b', '_c', '_d'], points: { _a: [590, 36], _b: [770, 36], _c: [770, 216], _d: [590, 216] } },
+        ],
       },
     ],
   },

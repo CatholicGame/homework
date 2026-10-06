@@ -189,6 +189,12 @@ export const QUESTIONS = {
         { label: `Với ${LV('a', '8m')} thì<br>P = ${L('a')} × 4 = ... × 4 = ... (m)`, answer: '8,32' },
       ],
       hints: ['Thay a bằng độ dài cạnh rồi nhân với 4. Đơn vị của chu vi giống đơn vị của cạnh.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: [
+        { label: 'a = 3cm', square: 3, fill: [{ blank: 0, input: 0, side: 0 }, { blank: 0, input: 1 }] },
+        { label: 'a = 5dm', square: 5, unit: 'dm', fill: [{ blank: 1, input: 0, side: 0 }, { blank: 1, input: 1 }] },
+        { label: 'a = 8m', square: 8, unit: 'm', fill: [{ blank: 2, input: 0, side: 0 }, { blank: 2, input: 1 }] },
+      ],
     },
   ],
 

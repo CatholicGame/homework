@@ -563,6 +563,11 @@ export const QUESTIONS = {
         { label: 'b) P = ... dm', answer: '30' },
       ],
       hints: ['Cộng a với b trước, rồi nhân với 2.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: [
+        { label: 'a)', path: 'ABCD', rect: [8, 3], kind: 'para', fill: 0 },
+        { label: 'b)', path: 'ABCD', rect: [10, 5], kind: 'para', unit: 'dm', fill: 1 },
+      ],
     },
     {
       type: 'fill', stars: 2, wordProblem: true, calcFree: true,

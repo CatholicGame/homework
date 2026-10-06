@@ -239,12 +239,19 @@ export const BAI_49_51 = [
           { label: 'c) Chu vi hình tam giác: ... dm', answer: '27' },
         ],
         hints: ['Chu vi hình tam giác bằng tổng độ dài ba cạnh.'],
+        // 🐜 Đo chu vi (engine/perimPlay.js): kiến bò quanh hình, các cạnh nối thành sợi dây.
+        perimPlay: [
+          { label: 'a)', lens: [4, 7, 10], fill: 0 },
+          { label: 'b)', lens: [15, 20, 30], unit: 'dm', fill: 1 },
+          { label: 'c)', lens: [9, 9, 9], unit: 'dm', fill: 2 },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 1', wordProblem: true,
         q: '2. Tính chu vi hình tứ giác có độ dài các cạnh là 20 dm, 30 dm, 20 dm và 30 dm.',
         blanks: [{ label: 'Chu vi hình tứ giác: ... dm', answer: '100' }],
         hints: ['Chu vi hình tứ giác bằng tổng độ dài bốn cạnh.'],
+        perimPlay: { lens: [20, 30, 20, 30], unit: 'dm', fill: 0 },
       },
       {
         type: 'compare', section: 'Tiết 1', img: imgB50Cards,
@@ -254,6 +261,11 @@ export const BAI_49_51 = [
           { left: 'b) Chu vi của miếng bìa hình tứ giác là:', options: ['A. 80 cm', 'B. 85 cm', 'C. 90 cm'], answer: 'B' },
         ],
         hints: ['Tam giác: 15 + 15 + 12. Tứ giác: 15 + 20 + 30 + 20.'],
+        // toạ độ theo bai50_t1_q3_cards.svg
+        perimPlay: [
+          { label: 'a) Tam giác', name: 'miếng bìa tam giác', lens: [15, 15, 12], path: ['_a', '_b', '_c'], points: { _a: [30, 205], _b: [84, 81.3], _c: [138, 205] } },
+          { label: 'b) Tứ giác', name: 'miếng bìa tứ giác', lens: [20, 15, 20, 30], path: ['_a', '_b', '_c', '_d'], points: { _a: [210, 205], _b: [277.5, 38.1], _c: [412.5, 38.1], _d: [480, 205] } },
+        ],
       },
       {
         type: 'compare', section: 'Tiết 1', img: imgB50Shapes,
@@ -263,6 +275,12 @@ export const BAI_49_51 = [
           { left: 'Hình tô màu xanh là:', options: ['A. Hình tam giác', 'B. Hình tứ giác bên phải', 'C. Hình tứ giác ở dưới'], answer: 'B' },
         ],
         hints: ['Tính chu vi từng hình: cộng độ dài tất cả các cạnh.', 'Hình tam giác: 21 cm, hình tứ giác bên phải: 18 cm, hình tứ giác ở dưới: 19 cm.'],
+        // toạ độ theo bai50_t1_q4_shapes.svg
+        perimPlay: [
+          { label: 'Tam giác', name: 'hình tam giác', lens: [7, 7, 7], path: ['_a', '_b', '_c'], points: { _a: [40, 155], _b: [117, 21.6], _c: [194, 155] } },
+          { label: 'Tứ giác bên phải', name: 'hình tứ giác bên phải', lens: [3, 4, 5, 6], path: ['_a', '_b', '_c', '_d'], points: { _a: [440, 155], _b: [464.7, 93.8], _c: [540.8, 49.5], _d: [572, 155] } },
+          { label: 'Tứ giác ở dưới', name: 'hình tứ giác ở dưới', lens: [4, 4, 4, 7], path: ['_a', '_b', '_c', '_d'], points: { _a: [240, 322], _b: [273, 240.4], _c: [361, 240.4], _d: [394, 322] } },
+        ],
       },
       {
         type: 'table', section: 'Tiết 2',
@@ -272,6 +290,12 @@ export const BAI_49_51 = [
           ['Chu vi hình vuông', sampleCell('36 cm'), blank('20 dm', { validate: unitValidate(20, 'dm') }), blank('32 m', { validate: unitValidate(32, 'm') }), blank('40 dm', { validate: unitValidate(40, 'dm') })],
         ],
         hints: ['Chu vi hình vuông bằng độ dài một cạnh nhân với 4. Nhớ viết cả đơn vị đo.'],
+        perimPlay: [
+          { label: '9 cm', square: 9 },
+          { label: '5 dm', square: 5, unit: 'dm' },
+          { label: '8 m', square: 8, unit: 'm' },
+          { label: '10 dm', square: 10, unit: 'dm' },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 2', wordProblem: true,
@@ -281,6 +305,10 @@ export const BAI_49_51 = [
           { label: 'b) Chu vi hình chữ nhật: ... m', answer: '18' },
         ],
         hints: ['Chu vi hình chữ nhật bằng (chiều dài + chiều rộng) × 2.'],
+        perimPlay: [
+          { label: 'a)', rect: [7, 3], fill: 0 },
+          { label: 'b)', rect: [6, 3], unit: 'm', fill: 1 },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 2', wordProblem: true,
@@ -291,6 +319,7 @@ export const BAI_49_51 = [
           { label: 'Mỗi cạnh hình vuông: ... que tính', answer: '4' },
         ],
         hints: ['Hình chữ nhật có 2 chiều dài và 2 chiều rộng: (5 + 3) × 2.', 'Hình vuông có 4 cạnh bằng nhau: lấy số que tính chia cho 4.'],
+        perimPlay: { rect: [5, 3], unit: 'que', texts: ['5 que', '3 que', '5 que', '3 que'], eqLabel: 'Số que tính', fill: 0 },
       },
       {
         type: 'match', section: 'Tiết 3',
@@ -300,18 +329,31 @@ export const BAI_49_51 = [
         pairs: [['f1', 'p18'], ['f2', 'p32'], ['f3', 'p19']],
         bigImg: true,
         hints: ['Hình chữ nhật: (6 + 3) × 2. Hình vuông: 8 × 4. Hình tứ giác: 3 + 4 + 5 + 7.'],
+        perimPlay: [
+          { label: 'Hình chữ nhật', rect: [6, 3] },
+          { label: 'Hình vuông', square: 8 },
+          { label: 'Hình tứ giác', lens: [3, 4, 5, 7] },
+        ],
       },
       {
         type: 'fill', section: 'Tiết 3',
         q: '2. Viết câu trả lời thích hợp vào chỗ chấm.\nRô-bốt sử dụng một đoạn dây vừa đủ để trang trí viền của bức tranh hình chữ nhật có chiều dài 12 dm và chiều rộng 80 cm. Tính độ dài của đoạn dây mà Rô-bốt đã dùng.\nNam đã giải như sau:\n<span style="display:block;text-align:center"><i>Bài giải</i><br>Độ dài đoạn dây Rô-bốt đã dùng là:<br>(12 + 80) × 2 = 184 (cm)<br><i>Đáp số:</i> 184 cm.</span>Theo em, Nam tính đúng hay sai?',
         blanks: [{ label: 'Trả lời: ...', answer: 'Nam tính sai', validate: namWrongOk }],
         hints: ['Chiều dài và chiều rộng có cùng đơn vị đo chưa?', '12 dm = 120 cm. Độ dài đúng là (120 + 80) × 2 = 400 (cm).'],
+        // đổi 12 dm = 120 cm rồi mới cộng
+        perimPlay: { rect: [120, 80], name: 'bức tranh', texts: ['12 dm = 120 cm', '80 cm', '12 dm = 120 cm', '80 cm'], eqLabel: 'Độ dài đoạn dây' },
       },
       {
         type: 'fill', section: 'Tiết 3', wordProblem: true, img: imgB50Fence,
         q: '3. Cô Hương làm một hàng rào quanh vườn hoa có dạng hình chữ nhật với chiều dài 8 m và chiều rộng 4 m. Cô có để lối vào 1 m (như hình vẽ). Hỏi hàng rào đó dài bao nhiêu mét?',
         blanks: [{ label: 'Hàng rào dài: ... m', answer: '23' }],
         hints: ['Tính chu vi vườn hoa: (8 + 4) × 2.', 'Lối vào 1 m không làm hàng rào: lấy chu vi trừ đi 1 m.'],
+        // toạ độ theo bai50_t3_q3_fence.svg; lối vào 1 m ở cạnh dưới
+        perimPlay: {
+          rect: [8, 4], unit: 'm', name: 'vườn hoa', toScale: true,
+          points: { _a: [80, 36], _b: [440, 36], _c: [440, 216], _d: [80, 216] }, path: ['_a', '_b', '_c', '_d'],
+          minus: { v: 1, text: 'lối vào 1 m' }, eqLabel: 'Hàng rào dài', fill: 0,
+        },
       },
     ],
   },

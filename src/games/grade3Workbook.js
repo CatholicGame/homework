@@ -126,6 +126,7 @@ import { attachPourPlay, revealPourPlay } from '../engine/pourPlay.js';
 import { attachCalcPlay, hasCalc } from '../engine/calcPlay.js';
 import { attachGeoPlay } from '../engine/geoPlay.js';
 import { attachGeoTools } from '../engine/geoTools.js';
+import { attachPerimPlay } from '../engine/perimPlay.js';
 import { searchBox, matcher, pickTest, prep, snippet, textOf, resultNote } from '../engine/listSearch.js';
 import { GRADE3_GAMES } from '../data/features.js';
 import { levelsForUnit } from './grade3Games/catalog.js';
@@ -1333,6 +1334,8 @@ const UNITS = [
           { label: 'a) Hỏi mỗi đoạn tre dài bao nhiêu xăng-ti-mét?', answer: '7' },
           { label: 'b) Nếu lấy 4 đoạn tre đó xếp thành một hình vuông thì tổng độ dài các cạnh của hình vuông đó là bao nhiêu xăng-ti-mét?', answer: '28' },
         ],
+        // 🐜 Đo chu vi (engine/perimPlay.js): 4 đoạn tre 7 cm xếp thành hình vuông
+        perimPlay: { square: 7, name: 'hình vuông xếp bằng 4 đoạn tre', eqLabel: 'Tổng độ dài các cạnh', texts: ['49 : 7 = 7 cm', '7 cm', '7 cm', '7 cm'], fill: 1 },
       },
       {
         type: 'compare', section: 'Tiết 2',
@@ -4639,7 +4642,7 @@ export function renderWorkbook(app, onBack, cfg) {
     const pinQuestion = true;
     // 📘 Kiến thức / 🔎 Khám phá of this bài (cfg.related, e.g. grade4Textbook/related.js): each opens as a
     // layer over the exercise; closing it comes back to this same question with the answers kept.
-    const related = cfg.related ? cfg.related(q.__unitId) : [];
+    const related = cfg.related ? cfg.related(q.__unitId, q) : [];
     const questionCard = `
           <div class="e3-question-card${q.img ? ' gw-card-has-img' : ''}">
             ${related.length ? '<div class="gw-q-head">' : ''}<div class="e3-q-num" style="color:${activeColor}">${qPlace(q)}${renderQuestionStars(starKey(q.__unitId, q.__qIdx), q)}</div>
@@ -4711,6 +4714,8 @@ export function renderWorkbook(app, onBack, cfg) {
     if (q.geoPlay) attachGeoPlay(app, q);
     // 📐 Ê ke, 📏 Thước, 🔢 Đếm hình, 🟦 Ô vuông: đồ dùng đặt lên hình của bài (engine/geoTools.js).
     attachGeoTools(app, q);
+    // 🐜 Đo chu vi: kiến bò quanh hình, các cạnh nối thành sợi dây, phép cộng hiện dần (engine/perimPlay.js).
+    attachPerimPlay(app, q);
     revealPinnedImageOnKeyboard();
     attachPinResize(app);
     app.querySelectorAll('.gw-related-btn').forEach((b) => { b.onclick = () => openLayer(related[+b.dataset.rel]); });
@@ -6935,6 +6940,8 @@ const ACTIONS = [
   { icon: '📏', label: 'Thước', has: q => !!q.rulerPlay },
   { icon: '🔢', label: 'Đếm hình', has: q => !!q.countPlay },
   { icon: '🟦', label: 'Ô vuông', has: q => !!q.areaPlay },
+  { icon: '🐜', label: 'Đo chu vi', has: q => !!q.perimPlay },
+  { icon: '∥', label: 'Chọn cặp', has: q => !!q.pairPlay },
 ];
 const actionsOf = q => ACTIONS.filter(a => a.has(q));
 

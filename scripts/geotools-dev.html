@@ -25,7 +25,7 @@ const units = book === 'g3' ? (await import('/src/games/grade3Workbook.js')).WOR
   : [...(await import('/src/games/grade3Workbook2/bai49-51.js')).BAI_49_51, ...(await import('/src/games/grade3Workbook2/bai52-54.js')).BAI_52_54];
 const unitId = p.get('unit') || 'bai-18';
 const unit = units.find((u) => u.id === unitId);
-const has = (q) => q.ekePlay || q.rulerPlay || q.countPlay || q.areaPlay || (p.get('gp') && q.geoPlay);
+const has = (q) => q.ekePlay || q.rulerPlay || q.countPlay || q.areaPlay || q.pairPlay || (p.get('gp') && q.geoPlay);
 if (p.get('app')) {
   const { renderWorkbook } = await import('/src/games/grade3Workbook.js');
   (await import('/src/engine/lightbox.js')).initLightbox();
@@ -37,7 +37,7 @@ if (p.get('app')) {
   const target = unit.questions.indexOf(unit.questions.filter(has)[+(p.get('qi') || 0)]);
   for (let k = 0; k < target; k++) { document.querySelector('#gw-next')?.click(); await sleep(250); }
   await sleep(300);
-  if (p.get('open')) [...document.querySelectorAll('.gt-open')].find((b) => b.textContent.includes({ eke: 'Ê ke', ruler: 'Thước', count: 'Đếm', area: 'Ô vuông' }[p.get('open')]))?.click();
+  if (p.get('open')) [...document.querySelectorAll('.gt-open')].find((b) => b.textContent.includes({ eke: 'Ê ke', ruler: 'Thước', count: 'Đếm', area: 'Ô vuông', pairs: 'Chọn cặp' }[p.get('open')]))?.click();
   if (p.get('tapimg')) document.querySelector('.e3-question-card > .e3-q-img')?.click();
   // &open=eke&do=snap:A;snap:I;measure:A,B;tap:A,B,I;kind:1;fill:A&xong=1: thao tác trong công cụ rồi bấm ✓ Xong
   // &gp=BE,CD,AG: mở ↔️ Kéo dài, chọn các cạnh, bấm Kéo dài, chờ xong rồi đóng
@@ -52,6 +52,7 @@ if (p.get('app')) {
       if (k === 'snap') ov.__gt.snap(v);
       if (k === 'measure') ov.__gt.measure(...v.split(','));
       if (k === 'fill') ov.__gt.fill(v);
+      if (k === 'pick') ov.__gt.pick(...v.split(','));
       await sleep(150);
       ov.__flush?.();
     }
@@ -78,6 +79,8 @@ if (p.get('app')) {
   for (const m of (p.get('measure') || '').split(';').filter(Boolean)) { gt.measure(...m.split(',')); await sleep(1100); }
   if (p.get('kind')) { gt.kind(+p.get('kind')); await sleep(100); }
   for (const g of (p.get('tap') || '').split('|').filter(Boolean)) { gt.tap(...g.split(',')); await sleep(250); }
+  // &pp=AB,BC|AD,BC: chọn cặp (lần lượt từng cặp)
+  for (const g of (p.get('pp') || '').split('|').filter(Boolean)) { gt.pick(...g.split(',')); await sleep(250); }
   for (const f of (p.get('fill') || '').split(',').filter(Boolean)) { const [id, n] = f.split(':'); gt.fill(id, n ? +n : Infinity); }
   document.body.dataset.ready = '1';
 }

@@ -134,7 +134,7 @@ export function snippet(raw, q, max = 90) {
 }
 
 // Không đưa vào chỗ tìm: đáp án (lộ bài), hình, hàm chấm…
-const SKIP_KEYS = new Set(['answer', 'answers', 'accept', 'validate', 'img', 'image', 'src', 'svg', 'id', 'key', 'color', 'pourPlay', 'balancePlay', 'geoPlay', 'ekePlay', 'rulerPlay', 'countPlay', 'areaPlay', 'tiles', 'solution', 'stars', 'type', 'section', 'mode', 'kind', 'layout']);
+const SKIP_KEYS = new Set(['answer', 'answers', 'accept', 'validate', 'img', 'image', 'src', 'svg', 'id', 'key', 'color', 'pourPlay', 'balancePlay', 'geoPlay', 'ekePlay', 'rulerPlay', 'countPlay', 'areaPlay', 'pairPlay', 'tiles', 'solution', 'stars', 'type', 'section', 'mode', 'kind', 'layout']);
 const IS_ASSET = /^(data:|https?:|\/|\.\.?\/)|\.(svg|png|jpe?g|webp|mp3)(\?|$)/i;
 
 /** Mọi chữ trong một câu hỏi (đề, các dòng điền, lựa chọn, gợi ý, ô bảng…), nối bằng " · ". */

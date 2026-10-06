@@ -399,6 +399,8 @@ export const QUESTIONS = {
         { label: 'b) Diện tích mảnh đất là: ... m²', answer: '21210' },
       ],
       hints: ['Hai cạnh liên tiếp là chiều dài và chiều rộng: biết tổng 307 và hiệu 97, tìm hai số.', 'Chu vi = (dài + rộng) × 2. Diện tích = dài × rộng.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: { rect: [202, 105], unit: 'm', name: 'mảnh đất', look: 'garden', fill: 2 },
     },
   ],
 
@@ -520,6 +522,8 @@ export const QUESTIONS = {
         { label: 'b) Chu vi sân bóng đá là: ... m', answer: '346' },
       ],
       hints: ['Chiều rộng = diện tích : chiều dài. Chu vi = (dài + rộng) × 2.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: { rect: [105, 68], unit: 'm', name: 'sân bóng đá', look: 'field', texts: ['105 m', '7140 : 105 = 68 m', '105 m', '7140 : 105 = 68 m'], fill: 1 },
     },
   ],
 

@@ -841,6 +841,8 @@ export const QUESTIONS = {
       hints: ['Hai cạnh tạo thành góc vuông (có kí hiệu góc vuông) thì vuông góc với nhau.'],
       // 📐 Kéo dài: toạ độ theo bai167_q1_abcd.svg.
       geoPlay: { points: { A: [50, 50], B: [330, 50], C: [220, 170], D: [50, 170] }, segs: ['AB', 'BC', 'DC', 'AD'], fill: 'ABCD', pick: 'AB', answer: [{ blank: 0, list: 'par' }] },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['song song', 'vuông góc'], fill: [{ blanks: [0], kind: 'song song' }, { blanks: [1, 2], kind: 'vuông góc' }] },
       ekePlay: { fill: { blanks: [1, 2], list: 'right', as: 'sides' } },
     },
     {
@@ -851,6 +853,8 @@ export const QUESTIONS = {
         { label: 'Diện tích hình vuông: ... cm²', answer: '9' },
       ],
       hints: ['Chu vi hình vuông = cạnh × 4; diện tích = cạnh × cạnh.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: { square: 3, fill: 0 },
     },
     {
       type: 'fill', stars: 3, img: imgHaiHinh,
@@ -862,6 +866,11 @@ export const QUESTIONS = {
         { label: 'd) Chu vi hình 1 lớn hơn chu vi hình 2. ...', answer: 'Đ', validate: dsValidate(true) },
       ],
       hints: ['Tính chu vi, diện tích của từng hình rồi so sánh: hình 1 là hình chữ nhật 4cm × 3cm, hình 2 là hình vuông cạnh 3cm.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: [
+        { label: 'Hình 1', name: 'hình 1', rect: [4, 3] },
+        { label: 'Hình 2', name: 'hình 2', square: 3 },
+      ],
     },
     {
       type: 'fill', stars: 4, wordProblem: true, calcFree: true,
@@ -888,6 +897,8 @@ export const QUESTIONS = {
       hints: ['Hai đường thẳng song song không bao giờ cắt nhau. Hai đoạn thẳng vuông góc tạo thành góc vuông.'],
       // 📐 Kéo dài: toạ độ theo bai168_q1_duong.svg.
       geoPlay: { points: { A: [40, 50], B: [260, 50], C: [320, 153.9], D: [164.1, 243.9], E: [394.1, 243.9] }, segs: ['AB', 'BC', 'CD', 'DE'], pick: 'AB', answer: [{ blank: 0, list: 'par', with: 'AB' }] },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['song song', 'vuông góc'], fill: [{ blank: 0, kind: 'song song', with: 'AB' }, { blank: 1, kind: 'vuông góc', with: 'BC' }] },
       ekePlay: { fill: { blank: 1, list: 'right', line: 'BC' } },
     },
     {
@@ -905,6 +916,8 @@ export const QUESTIONS = {
         { label: 'Diện tích hình chữ nhật: ... cm²', answer: '20' },
       ],
       hints: ['Chu vi = (dài + rộng) × 2; diện tích = dài × rộng.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: { rect: [5, 4], fill: 0 },
     },
     {
       type: 'fill', stars: 4, img: imgHinhH,

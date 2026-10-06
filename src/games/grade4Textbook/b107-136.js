@@ -756,6 +756,8 @@ export const QUESTIONS = {
         { label: 'Diện tích mảnh vườn là: ... m²', answer: '2160' },
       ],
       hints: [`Chiều rộng = 60 × ${fr(3, 5)}.`, 'Chu vi = (dài + rộng) × 2; diện tích = dài × rộng.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: { rect: [60, 36], unit: 'm', name: 'mảnh vườn', look: 'garden', texts: ['60 m', '60 × 3/5 = 36 m', '60 m', '60 × 3/5 = 36 m'], fill: 1 },
     },
   ],
 
@@ -898,6 +900,8 @@ export const QUESTIONS = {
       hints: ['Đặt góc vuông của ê ke vào điểm O. Đo OA, OC rồi đo OB, OD.'],
       // 📐 Kéo dài: toạ độ theo bai133_q2_thoi.svg.
       geoPlay: { points: { A: [60, 125], B: [230, 35], C: [400, 125], D: [230, 215], O: [230, 125] }, segs: ['AB', 'BC', 'CD', 'DA', 'AC', 'BD'], fill: 'ABCD', pick: 'AC' },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['vuông góc'], fill: { blank: 0, kind: 'vuông góc', pair: ['AC', 'BD'], yes: 'Có', no: 'Không' } },
       ekePlay: { fill: { blank: 0, angle: 'OAB' } },
       // 📏 Thước: AC = 10 cm (1 cm = 34)
       rulerPlay: { unit: 'cm', per: 34, fill: { blank: 1, allMid: [['A', 'O', 'C'], ['B', 'O', 'D']], yes: 'Có', no: 'Không' } },
@@ -965,6 +969,8 @@ export const QUESTIONS = {
       hints: ['Hình chữ nhật có bốn góc vuông, hai cặp cạnh đối diện song song và bằng nhau.'],
       // 📐 Kéo dài: toạ độ theo bai136_q1_hcn.svg.
       geoPlay: { points: { A: [50, 50], B: [330, 50], C: [330, 200], D: [50, 200] }, segs: ['AB', 'BC', 'DC', 'AD'], fill: 'ABCD', pick: 'AB', answer: [{ blank: 1, pair: ['AB', 'AD'], rel: 'perp' }] },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['song song', 'vuông góc'], fill: { blank: 1, kind: 'vuông góc', pair: ['AB', 'AD'] } },
     },
     {
       type: 'fill', stars: 2, img: imgPqrs,
@@ -978,6 +984,8 @@ export const QUESTIONS = {
       hints: ['Hình thoi có hai cặp cạnh đối diện song song và bốn cạnh bằng nhau. PQ và PS là hai cạnh kề nhau.'],
       // 📐 Kéo dài: toạ độ theo bai136_q2_thoi.svg.
       geoPlay: { points: { P: [40, 130], Q: [200, 30], R: [360, 130], S: [200, 230] }, segs: ['PQ', 'QR', 'SR', 'PS'], fill: 'PQRS', pick: 'PQ', answer: [{ blank: 1, pair: ['PQ', 'PS'], rel: 'notpar' }, { blank: 2, allPar: [['PQ', 'SR'], ['PS', 'QR']] }] },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['song song'], fill: [{ blank: 1, kind: 'song song', pair: ['PQ', 'PS'], neg: true }, { blank: 2, kind: 'song song', all: [['PQ', 'SR'], ['PS', 'QR']] }] },
     },
     {
       type: 'choice', stars: 3, img: imgDienTich,

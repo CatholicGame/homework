@@ -4,6 +4,7 @@
  *   📏 Thước    q.rulerPlay chạm một cạnh (hoặc chạm hai điểm): thước nằm lên cạnh, đọc số đo.
  *   🔢 Đếm hình q.countPlay chạm lần lượt các đỉnh: hình được tô màu, đếm +1; đếm trùng thì tên cũ nhấp nháy.
  *   🟦 Ô vuông  q.areaPlay  phủ hình bằng ô vuông 1 cm², mỗi ô tự đánh số để đếm.
+ *   ∥ Chọn cặp  q.pairPlay  chạm hai cạnh: máy kéo dài cho thấy song song / cắt nhau / vuông góc; ghi các cặp tìm được.
  *
  * Mở được ngay từ đầu, không chấm điểm. Bé thao tác tới đâu, kết quả điền ngay vào ô trả lời của câu
  * tới đó (cfg.fill, xem FILL bên dưới); bé vẫn sửa được, vẫn bấm Kiểm tra như thường. Câu chọn đáp án
@@ -19,6 +20,7 @@
  *                 free: chạm hai điểm bất kì cũng đo được (mặc định: hai điểm phải cùng nằm trên một cạnh)
  *   q.countPlay = { points, kinds: { 'tam giác': ['ABI', …], 'tứ giác': ['ABCI', …] } }
  *                 mọi hình cần đếm, tên theo thứ tự đi vòng quanh hình (để tô màu)
+ *   q.pairPlay  = { kinds: ['song song', 'vuông góc', 'cắt nhau'], fill } (points, segs lấy của q.geoPlay)
  *   q.areaPlay  = { cell: 30, origin: [14, 14], map: ['AA..B', …] (mỗi chữ là một ô của hình đó),
  *                   names: { A: 'Hình A' }, unit: 'cm²' | 'ô vuông' }
  */
@@ -30,6 +32,7 @@ const TOOLS = [
   { id: 'ruler', key: 'rulerPlay', icon: '📏', label: 'Thước' },
   { id: 'count', key: 'countPlay', icon: '🔢', label: 'Đếm hình' },
   { id: 'area', key: 'areaPlay', icon: '🟦', label: 'Ô vuông' },
+  { id: 'pairs', key: 'pairPlay', icon: '∥', label: 'Chọn cặp' },
 ];
 const PALETTE = ['#2563EB', '#F97316', '#16A34A', '#A855F7', '#DB2777', '#0891B2', '#CA8A04', '#DC2626'];
 
@@ -183,12 +186,22 @@ const sameSet = (a, b) => a.length === b.length && [...a].sort().join() === [...
  *   ô vuông { blank, shape: 'A', input? }                     số ô vuông khi hình A đã phủ kín
  *         { blank, compare: ['A', 'B'], values: [lớn hơn, bé hơn, bằng] }
  *         { choice: 'V', options: [10, 12, 11] }              nháy đáp án có số ô của hình V
+ *   chọn cặp { blank, kind: 'song song', within?, exclude?: [['AB', 'DC']] }  mọi cặp vào một ô: AD, BC, …
+ *         { blanks: [1, 2], kind }                           mỗi cặp một ô
+ *         { blank, kind, with: 'BE' }                         các cạnh cùng cặp với BE
+ *         { blank, kind, pair: ['AB', 'AD'], yes: 'Đ', no: 'S', neg? }  cặp này có đúng loại không (neg: hỏi "không …")
+ *         { blank, kind, all: [['PQ', 'SR'], ['PS', 'QR']], yes, no }
  */
 function fillsOf(q) {
   const vals = {};
   const put = (blank, v, input) => {
     if (v == null || v === '' || (Array.isArray(v) && !v.length)) return;
-    if (input == null) { vals[blank] = v; return; }
+    if (input == null) {
+      // hai công cụ cùng điền một ô danh sách (vd. ê ke và chọn cặp): giữ danh sách dài hơn
+      if (Array.isArray(v) && Array.isArray(vals[blank]) && vals[blank].length >= v.length) return;
+      vals[blank] = v;
+      return;
+    }
     const a = Array.isArray(vals[blank]) ? vals[blank] : [];
     a[input] = v;
     vals[blank] = a;
@@ -296,6 +309,32 @@ const FILL = {
     if (names.length) put(r.blank, names.join(', '));
   },
 
+  pairs(r, m, cfg, put) {
+    const kinds = cfg.kinds || ['song song'];
+    const k = kinds.indexOf(r.kind ?? kinds[0]);
+    let ps = (m.found?.[k] || []).map((x) => [x.a, x.b]);
+    const not = m.not?.[k] || [];
+    const has = (a, b) => ps.some(([x, y]) => pairKey(x, y) === pairKey(a, b));
+    const yes = r.yes ?? 'Đ', no = r.no ?? 'S';
+    if (r.pair) {
+      const t = has(...r.pair) ? true : not.includes(pairKey(...r.pair)) ? false : null;
+      if (t != null) put(r.blank, t !== !!r.neg ? yes : no);
+      return;
+    }
+    if (r.all) {
+      if (r.all.some(([a, b]) => not.includes(pairKey(a, b)))) put(r.blank, no);
+      else if (r.all.every(([a, b]) => has(a, b))) put(r.blank, yes);
+      return;
+    }
+    if (r.within) ps = ps.filter((p) => [...p.join('')].every((c) => r.within.includes(c)));
+    if (r.exclude) ps = ps.filter(([a, b]) => !r.exclude.some(([x, y]) => pairKey(x, y) === pairKey(a, b)));
+    if (r.with) {
+      const w = segKey(r.with);
+      put(r.blank, ps.filter((p) => p.map(segKey).includes(w)).map((p) => p.find((x) => segKey(x) !== w)));
+    } else if (r.blanks) ps.slice(0, r.blanks.length).forEach((p, i) => put(r.blanks[i], p));
+    else put(r.blank, ps.flat());
+  },
+
   area(r, m, cfg, put) {
     const full = (id) => (m.order?.[id] && m.order[id].length === m.total?.[id] ? m.total[id] : null);
     if (r.shape) {
@@ -316,10 +355,13 @@ const FILL = {
 // true: dùng điểm, cạnh của q.geoPlay; { unit, per } không có points: q.geoPlay + các khoá đó.
 const cfgOf = (q, t) => {
   const v = q[t.key];
-  return v === true ? q.geoPlay : v.points ? v : { ...q.geoPlay, ...v };
+  if (v.points) return v;
+  // chỉ lấy hình (điểm, cạnh) của Kéo dài: "fill" bên đó là đa giác tô nền, không phải quy tắc điền
+  const { points, segs } = q.geoPlay;
+  return v === true ? { points, segs } : { points, segs, ...v };
 };
 
-async function figureBox(src) {
+export async function figureBox(src) {
   try {
     const txt = await (await fetch(src)).text();
     const vb = txt.match(/viewBox="([^"]+)"/)?.[1]?.trim().split(/[\s,]+/).map(Number);
@@ -377,7 +419,7 @@ export function openGeoTools(q, first, onApply) {
 
   const say = (html, cls = '') => {
     verdict.className = `gt-verdict${html ? ' gt-show' : ''} ${cls}`;
-    verdict.innerHTML = html || '&nbsp;';
+    verdict.innerHTML = `<span>${html || '&nbsp;'}</span>`; // một khối chữ: căn giữa được trong bảng đếm
   };
   const ppu = () => svg.getScreenCTM()?.a || 1;
   const toSvg = (e) => {
@@ -429,7 +471,7 @@ export function openGeoTools(q, first, onApply) {
     bar.className = `gt-bar gt-bar-${t.id}`;
     say('');
     const ctx = { svg, L, cfg: cfgOf(q, t), box, bar, how, say, ppu, toSvg, view, animate, flush, quiet: calm(), overlay, memo: memoOf(q, t.id), changed };
-    mounted = { eke: mountEke, ruler: mountRuler, count: mountCount, area: mountArea }[t.id](ctx);
+    mounted = { eke: mountEke, ruler: mountRuler, count: mountCount, area: mountArea, pairs: mountPairs }[t.id](ctx);
   }
 
   figureBox(q.img).then((b) => {
@@ -962,21 +1004,8 @@ function mountCount(ctx) {
   bar.innerHTML = `
     ${kinds.length > 1 ? `<div class="gt-kinds">${kinds.map((k, i) => `<button type="button" class="gt-kind" data-i="${i}">Hình ${k.kind}</button>`).join('')}</div>` : ''}
     <button type="button" class="gt-reset" title="Làm lại">↺</button>`;
-  // Bảng đếm nằm trong khoảng trống của sân: trên hình (màn dọc) hoặc bên cạnh hình (màn ngang).
-  // Dựng trước các chấm đỉnh để hình co lại đúng chỗ rồi mới đo px.
-  const stage = ctx.svg.parentElement;
-  const sr = stage.getBoundingClientRect();
-  const side = sr.width / sr.height > (ctx.box.w / ctx.box.h) * 1.35;
-  stage.classList.add('gt-has-board', side ? 'gt-board-side' : 'gt-board-top');
-  const board = document.createElement('div');
-  board.className = 'gt-board';
-  board.innerHTML = `
-    <div class="gt-counter"><span class="gt-count-num">0</span><span class="gt-count-lbl"></span></div>
-    <div class="gt-chips gt-board-chips"></div>`;
-  stage.insertBefore(board, ctx.svg);
-  const chips = board.querySelector('.gt-chips');
-  const num = board.querySelector('.gt-count-num');
-  const lbl = board.querySelector('.gt-count-lbl');
+  const B = makeBoard(ctx); // dựng trước các chấm đỉnh
+  const { chips, num, lbl } = B;
 
   const fill = el('g', {}, L.under);
   const path = el('g', {}, L.marks);
@@ -1062,7 +1091,176 @@ function mountCount(ctx) {
   paint();
   paintSel();
   ctx.overlay.__gt = { tap: (...names) => names.forEach((n) => tap(n)), kind: (i) => bar.querySelector(`.gt-kind[data-i="${i}"]`)?.click() };
-  return { destroy: () => { board.remove(); stage.classList.remove('gt-has-board', 'gt-board-side', 'gt-board-top'); } };
+  return { destroy: B.remove };
+}
+
+// Bảng đếm nằm trong khoảng trống của sân: trên hình (màn dọc) hoặc bên cạnh hình (màn ngang).
+// Gọi trước khi vẽ chấm / chữ theo px: hình co lại đúng chỗ rồi mới đo.
+function makeBoard(ctx) {
+  const stage = ctx.svg.parentElement;
+  const sr = stage.getBoundingClientRect();
+  const side = sr.width / sr.height > (ctx.box.w / ctx.box.h) * 1.35;
+  stage.classList.add('gt-has-board', side ? 'gt-board-side' : 'gt-board-top');
+  const board = document.createElement('div');
+  board.className = 'gt-board';
+  board.innerHTML = `
+    <div class="gt-counter"><span class="gt-count-num">0</span><span class="gt-count-lbl"></span></div>
+    <div class="gt-chips gt-board-chips"></div>`;
+  stage.insertBefore(board, ctx.svg);
+  // bảng ở trên: lời máy nói nằm đầu bảng, chừa sẵn chỗ hai dòng (không đè lên số đếm, hình không xê dịch)
+  const verdict = stage.querySelector('.gt-verdict');
+  if (!side) board.prepend(verdict);
+  return {
+    chips: board.querySelector('.gt-chips'),
+    num: board.querySelector('.gt-count-num'),
+    lbl: board.querySelector('.gt-count-lbl'),
+    remove: () => { stage.append(verdict); board.remove(); stage.classList.remove('gt-has-board', 'gt-board-side', 'gt-board-top'); },
+  };
+}
+
+// ═══ ∥ Chọn cặp ════════════════════════════════════════════════════════════
+// Bé chạm hai cạnh. Máy kéo dài hai cạnh cho thấy ngay: song song (không gặp nhau), cắt nhau ở
+// chấm đỏ, vuông góc (dấu ∟). Cặp đúng loại đang tìm thì ghi lại (+1); chọn trùng thì cặp cũ nháy.
+const PAIR_KINDS = {
+  'song song': { tab: 'Song song', sym: '∥', lbl: 'cặp song song' },
+  'vuông góc': { tab: 'Vuông góc', sym: '⊥', lbl: 'cặp vuông góc' },
+  'cắt nhau': { tab: 'Cắt, không vuông góc', sym: '✕', lbl: 'cặp cắt nhau, không vuông góc' },
+};
+const segKey = (s) => [...s].sort().join('');
+const pairKey = (a, b) => [segKey(a), segKey(b)].sort().join('|');
+
+function mountPairs(ctx) {
+  const { cfg, L, say, bar } = ctx;
+  const P = cfg.points;
+  const kinds = cfg.kinds || ['song song'];
+  const segName = (s) => (Array.isArray(s) ? s.join('') : s);
+  const segs = cfg.segs.map((s) => ({ name: segName(s), ab: ends(s) }));
+  const found = (ctx.memo.found ||= kinds.map(() => []));
+  const nots = (ctx.memo.not ||= kinds.map(() => []));
+  let cur = 0;
+  let sel = [];
+  howStrip(ctx, ['👆 Chạm hai cạnh.', '↔ Máy kéo dài hai cạnh: gặp nhau ở chấm đỏ là <b>cắt nhau</b>, không bao giờ gặp là <b>song song</b>.', '🔁 Chọn trùng thì cặp cũ nhấp nháy.']);
+  bar.innerHTML = `
+    ${kinds.length > 1 ? `<div class="gt-kinds">${kinds.map((k, i) => `<button type="button" class="gt-kind" data-i="${i}">${PAIR_KINDS[k].tab}</button>`).join('')}</div>` : ''}
+    <button type="button" class="gt-reset" title="Làm lại">↺</button>`;
+  const B = makeBoard(ctx);
+
+  const res = el('g', {}, L.marks);
+  const hits = el('g', {}, L.tool);
+  const lines = {};
+  segs.forEach((s) => {
+    const [a, b] = s.ab;
+    const g = el('g', { class: 'gt-seg gt-pseg' }, hits);
+    el('line', { x1: P[a][0], y1: P[a][1], x2: P[b][0], y2: P[b][1], class: 'gt-seg-hit', 'vector-effect': 'non-scaling-stroke' }, g);
+    lines[s.name] = el('line', { x1: P[a][0], y1: P[a][1], x2: P[b][0], y2: P[b][1], class: 'gt-seg-line', 'vector-effect': 'non-scaling-stroke' }, g);
+    g.addEventListener('click', () => tap(s));
+  });
+  const COL = ['#2563EB', '#F97316'];
+  const paintSel = () => segs.forEach((s) => {
+    const i = sel.indexOf(s);
+    lines[s.name].classList.toggle('gt-pick', i >= 0);
+    lines[s.name].style.stroke = i >= 0 ? COL[i] : '';
+  });
+  const chipText = (x) => `${shown(x.a)} ${PAIR_KINDS[kinds[cur]].sym} ${shown(x.b)}`;
+  const paint = () => {
+    bar.querySelectorAll('.gt-kind').forEach((b) => b.classList.toggle('gt-on', +b.dataset.i === cur));
+    B.num.textContent = found[cur].length;
+    B.lbl.textContent = PAIR_KINDS[kinds[cur]].lbl;
+    B.chips.innerHTML = found[cur].map((x, j) => `<button type="button" class="gt-chip gt-chip-btn" data-j="${j}" style="background:${PALETTE[j % PALETTE.length]}">${chipText(x)}</button>`).join('');
+    B.chips.querySelectorAll('.gt-chip-btn').forEach((b) => { b.onclick = () => { const x = found[cur][+b.dataset.j]; show(byName(x.a), byName(x.b)); blink(+b.dataset.j); }; });
+  };
+  const byName = (n) => segs.find((s) => s.name === n);
+  const blink = (j) => {
+    const c = B.chips.querySelector(`[data-j="${j}"]`);
+    if (!c) return;
+    c.classList.remove('gt-blink');
+    void c.offsetWidth;
+    c.classList.add('gt-blink');
+  };
+
+  // hình học của một cặp: song song / cùng đường thẳng / cắt nhau tại X (vuông góc hay không)
+  const relOf = (s1, s2) => {
+    const [a1, b1] = s1.ab.map((n) => P[n]), [a2, b2] = s2.ab.map((n) => P[n]);
+    const d1 = sub(b1, a1), d2 = sub(b2, a2);
+    const sin = cross(d1, d2) / (len(d1) * len(d2));
+    if (Math.abs(sin) < 0.02) return Math.abs(cross(sub(a2, a1), d1)) / len(d1) < 1.5 ? { same: true } : { par: true };
+    const X = add(a1, mul(d1, cross(sub(a2, a1), d2) / cross(d1, d2)));
+    return { X, perp: Math.abs(dot(d1, d2)) / (len(d1) * len(d2)) < 0.035 };
+  };
+  // vẽ: hai cạnh đậm, phần kéo dài vạch đứt; cắt nhau thì chấm đỏ (và ∟ nếu vuông góc)
+  function show(s1, s2) {
+    res.replaceChildren();
+    const r = relOf(s1, s2);
+    const v = ctx.view();
+    const far = Math.hypot(v.w, v.h) * 2;
+    [s1, s2].forEach((s, i) => {
+      const [a, b] = s.ab.map((n) => P[n]);
+      const u = mul(sub(b, a), 1 / len(sub(b, a)));
+      let p0 = a, p1 = b;
+      if (r.X) {
+        // kéo dài tới chỗ gặp (về phía chỗ gặp), không quá xa
+        const t = dot(sub(r.X, a), u);
+        if (t < 0) p0 = add(a, mul(u, Math.max(t, -far)));
+        if (t > len(sub(b, a))) p1 = add(a, mul(u, Math.min(t, far)));
+      } else if (r.par) { p0 = add(a, mul(u, -far)); p1 = add(b, mul(u, far)); }
+      el('line', { x1: p0[0], y1: p0[1], x2: p1[0], y2: p1[1], stroke: COL[i], class: 'gt-pext', 'vector-effect': 'non-scaling-stroke' }, res);
+      el('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: COL[i], class: 'gt-pline', 'vector-effect': 'non-scaling-stroke' }, res);
+      if (r.par) {
+        const m = screenAt(ctx, mul(add(a, b), 0.5), res);
+        el('text', { y: -10, class: 'gt-parmark', fill: COL[i] }, m).textContent = '∥';
+      }
+    });
+    if (r.X) {
+      const g = screenAt(ctx, r.X, res);
+      if (r.perp) {
+        const toward = (s) => { const [a, b] = s.ab.map((n) => P[n]); const far2 = len(sub(a, r.X)) > len(sub(b, r.X)) ? a : b; return mul(sub(far2, r.X), 20 / len(sub(far2, r.X))); };
+        const u = toward(s1), w = toward(s2);
+        el('path', { d: `M${u[0]} ${u[1]} L${u[0] + w[0]} ${u[1] + w[1]} L${w[0]} ${w[1]}`, class: 'gt-right-mark' }, g);
+      }
+      el('circle', { r: 8, fill: '#DC2626', stroke: '#fff', 'stroke-width': 3 }, g);
+    }
+    return r;
+  }
+
+  function tap(s) {
+    const i = sel.indexOf(s);
+    if (i >= 0) { sel.splice(i, 1); paintSel(); return; }
+    if (sel.length === 2) sel = [];
+    if (!sel.length) res.replaceChildren();
+    sel.push(s);
+    paintSel();
+    say('');
+    if (sel.length < 2) return;
+    const [s1, s2] = sel;
+    const r = show(s1, s2);
+    const kind = kinds[cur];
+    const tag = `<b>${shown(s1.name)}</b> và <b>${shown(s2.name)}</b>`;
+    const ok = kind === 'song song' ? r.par : kind === 'vuông góc' ? r.X && r.perp : r.X && !r.perp;
+    const key = pairKey(s1.name, s2.name);
+    if (!ok) {
+      if (!nots[cur].includes(key)) { nots[cur].push(key); ctx.changed(); }
+      soundGap();
+      say(r.same ? `${tag} nằm trên cùng một đường thẳng.`
+        : r.par ? `↔ Kéo dài mãi ${tag} vẫn không gặp nhau: <b>song song</b>, không cắt nhau.`
+          : r.perp ? `${tag} cắt nhau ở chấm đỏ và <b>vuông góc</b> (∟).`
+            : `${tag} cắt nhau ở chấm đỏ, ${kind === 'vuông góc' ? '<b>không vuông góc</b>' : '<b>không song song</b>'}.`, 'gt-bad');
+      return;
+    }
+    const j = found[cur].findIndex((x) => pairKey(x.a, x.b) === key);
+    if (j >= 0) { soundGap(); blink(j); say('🔁 Cặp này chọn rồi! Tìm cặp khác.', 'gt-ask'); return; }
+    found[cur].push({ a: s1.name, b: s2.name });
+    ctx.changed();
+    paint();
+    blink(found[cur].length - 1);
+    soundTick(found[cur].length);
+    say(`✔️ ${tag} ${kind === 'song song' ? '<b>song song</b>: kéo dài mãi không gặp nhau' : kind === 'vuông góc' ? 'cắt nhau và <b>vuông góc</b>' : 'cắt nhau, <b>không vuông góc</b>'}.`, 'gt-good');
+  }
+
+  bar.querySelectorAll('.gt-kind').forEach((b) => { b.onclick = () => { cur = +b.dataset.i; sel = []; paintSel(); res.replaceChildren(); say(''); paint(); }; });
+  bar.querySelector('.gt-reset').onclick = () => { found.forEach((f) => { f.length = 0; }); nots.forEach((f) => { f.length = 0; }); sel = []; paintSel(); res.replaceChildren(); say(''); paint(); };
+  paint();
+  ctx.overlay.__gt = { pick: (a, b) => { sel = []; tap(byName(a)); tap(byName(b)); }, kind: (i) => bar.querySelector(`.gt-kind[data-i="${i}"]`)?.click() };
+  return { destroy: B.remove };
 }
 
 // ═══ 🟦 Phủ ô vuông ════════════════════════════════════════════════════════
@@ -1280,6 +1478,12 @@ function injectStyles() {
     .gt-gap { fill: rgba(220, 38, 38, .32); stroke: #DC2626; stroke-width: 0; animation: gt-blink 1s ease-in-out 2; }
     .gt-gap-text { font: 900 18px Quicksand, sans-serif; fill: #B91C1C; text-anchor: middle; stroke: #fff; stroke-width: 5; paint-order: stroke; }
 
+    /* ∥ chọn cặp */
+    .gt-pseg .gt-seg-line.gt-pick { stroke-width: 9; }
+    .gt-pext { stroke-width: 3.5; stroke-dasharray: 9 7; stroke-linecap: round; opacity: .85; }
+    .gt-pline { stroke-width: 8; stroke-linecap: round; }
+    .gt-parmark { font: 900 22px Quicksand, sans-serif; text-anchor: middle; stroke: #fff; stroke-width: 5; paint-order: stroke; }
+
     /* 📏 thước */
     .gt-seg { cursor: pointer; }
     .gt-seg-hit { stroke: transparent; stroke-width: 28; stroke-linecap: round; }
@@ -1305,6 +1509,12 @@ function injectStyles() {
       flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem;
       padding: 4.2rem 1rem 0.8rem; background: #FAF5FF; border-bottom: 2px dashed #DDD6FE;
     }
+    .gt-board-top .gt-board { padding-top: 0.6rem; }
+    .gt-board .gt-verdict {
+      position: static; transform: none; width: auto; max-width: 100%; visibility: visible;
+      min-height: calc(2 * 1.35em + 1rem); box-sizing: border-box; display: flex; align-items: center; justify-content: center;
+    }
+    .gt-board .gt-verdict:not(.gt-show) { box-shadow: none; background: transparent; }
     .gt-board-side .gt-board { width: min(15rem, 32%); border-bottom: none; border-left: 2px dashed #DDD6FE; padding-top: 4.6rem; justify-content: flex-start; }
     .gt-board .gt-counter { font-size: 1.15rem; }
     .gt-board .gt-count-num { font-size: 3rem; line-height: 1; }

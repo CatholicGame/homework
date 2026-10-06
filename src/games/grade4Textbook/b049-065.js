@@ -436,6 +436,8 @@ export const QUESTIONS = {
         { label: `Diện tích sân vận động là: ... ${M2}`, answer: '16200' },
       ],
       hints: ['Chiều rộng = 180 : 2. Chu vi = (dài + rộng) × 2. Diện tích = dài × rộng.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: { rect: [180, 90], unit: 'm', name: 'sân vận động', look: 'field', texts: ['180 m', '180 : 2 = 90 m', '180 m', '180 : 2 = 90 m'], fill: 1 },
     },
   ],
 

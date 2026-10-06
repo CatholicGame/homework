@@ -40,9 +40,15 @@ function knowledgeUnits(n) {
   return out.reverse();
 }
 
-function exploreRefs(n) {
+// Khám phá về số (hàng, tia số, chẵn lẻ): không hợp với câu hình học trong cùng bài
+// (vd. Bài 1 câu 4 "Tính chu vi các hình sau" không mở bảng hàng).
+const NUMBER_EXPLORES = new Set(['g4:1', 'g4:3', 'g4:10', 'g4:11', 'g4:12', 'g4:14', 'g4:15']);
+const GEOMETRY_Q = /chu vi|diện tích/i;
+
+function exploreRefs(n, q) {
   const row = EXPLORE.find(([a, b]) => n >= a && n <= b);
-  return row ? row[2] : [];
+  const refs = row ? row[2] : [];
+  return q && GEOMETRY_Q.test(q.q || '') ? refs.filter(r => !NUMBER_EXPLORES.has(r)) : refs;
 }
 
 const loaders = { g4: () => import('../grade4Tools.js'), g5: () => import('../grade5Tools.js') };
@@ -62,9 +68,9 @@ function knowledgeHtml(units) {
 
 /**
  * Nút liên quan của một bài cho renderWorkbook (cfg.related):
- * [{ icon, label, open(host, close) }] — host là lớp phủ toàn màn hình, close() đóng nó.
+ * [{ icon, label, open(host, close) }] — q là câu đang làm (Khám phá lọc theo nội dung câu); host là lớp phủ toàn màn hình, close() đóng nó.
  */
-export function relatedFor(unitId) {
+export function relatedFor(unitId, q) {
   const n = numberOf(unitId);
   const items = [];
   const kn = knowledgeUnits(n);
@@ -86,7 +92,7 @@ export function relatedFor(unitId) {
       },
     });
   }
-  exploreRefs(n).forEach((ref, i, all) => {
+  exploreRefs(n, q).forEach((ref, i, all) => {
     const [book, k] = ref.split(':');
     items.push({
       icon: '🔎', label: all.length > 1 ? `Khám phá ${i + 1}` : 'Khám phá',

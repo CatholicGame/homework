@@ -690,6 +690,11 @@ export const BAI_52_58 = [
           { label: 'b) Bác Nam muốn rào xung quanh miếng đất của mình nhưng không rào ở mặt cạnh sông. Vậy bác Nam cần dùng ... m hàng rào.', answer: '80' },
         ],
         hints: ['Hình tứ giác có 4 cạnh. Miếng đất A có 5 cạnh.', 'Cộng ba cạnh không giáp sông: 30 m, 20 m và 30 m.'],
+        // 🐜 Đo chu vi (engine/perimPlay.js): toạ độ theo bai58_t2_q5_plots.svg, miếng đất B; cạnh trên giáp sông
+        perimPlay: {
+          name: 'miếng đất B', rect: [30, 20], unit: 'm', eqLabel: 'Hàng rào dài', crop: false, skip: [3], skipText: 'giáp sông',
+          path: ['_b', '_c', '_d', '_a'], points: { _a: [413, 205], _b: [652, 205], _c: [652, 555], _d: [413, 555] },
+        },
       },
     ],
   },

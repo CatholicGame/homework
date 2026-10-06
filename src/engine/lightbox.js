@@ -139,7 +139,7 @@ export function initLightbox() {
 }
 
 // Nút hành động ngay dưới hình câu hỏi (đã mở khoá). Đang xem "📷 Ảnh gốc" thì vẫn phóng to như cũ.
-const ACTION_BUTTONS = '.gp-open, .cp-open, .gt-open, .bal-open:not(.bal-locked), .pour-open:not(.pour-locked)';
+const ACTION_BUTTONS = '.gp-open, .cp-open, .gt-open, .pm-open, .bal-open:not(.bal-locked), .pour-open:not(.pour-locked)';
 function actionButtonFor(img) {
   if (img.dataset.showingOrig === '1' || !img.parentElement?.classList.contains('e3-question-card')) return null;
   // .gt-open (geoTools.js) nằm trong hàng .gt-row

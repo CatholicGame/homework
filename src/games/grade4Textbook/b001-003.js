@@ -54,6 +54,12 @@ export const QUESTIONS = {
         { label: 'Chu vi hình vuông GHIK là: ... cm', answer: '20' },
       ],
       hints: ['Chu vi = tổng độ dài các cạnh. Hình chữ nhật: (dài + rộng) × 2. Hình vuông: cạnh × 4.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js): toạ độ theo bai1_q4_chuvi.svg.
+      perimPlay: [
+        { label: 'ABCD', path: 'ABCD', lens: [6, 4, 3, 4], points: { A: [30, 190], B: [130, 40], C: [200, 140], D: [150, 215] }, fill: 0 },
+        { label: 'MNPQ', path: 'MNPQ', rect: [8, 4], points: { M: [310, 80], N: [510, 80], P: [510, 200], Q: [310, 200] }, fill: 1 },
+        { label: 'GHIK', path: 'GHIK', square: 5, points: { G: [610, 60], H: [750, 60], I: [750, 200], K: [610, 200] }, fill: 2 },
+      ],
     },
   ],
 

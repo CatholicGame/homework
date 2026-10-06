@@ -333,6 +333,12 @@ export const QUESTIONS = {
         { label: 'a = 6dm, b = 6dm và c = 6dm: P = ... dm', answer: '18' },
       ],
       hints: ['Chu vi hình tam giác bằng tổng độ dài ba cạnh.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: [
+        { label: '5, 4, 3 cm', lens: [5, 4, 3], fill: 1 },
+        { label: '10, 10, 5 cm', lens: [10, 10, 5], fill: 2 },
+        { label: '6, 6, 6 dm', lens: [6, 6, 6], unit: 'dm', fill: 3 },
+      ],
     },
   ],
 
@@ -417,6 +423,11 @@ export const QUESTIONS = {
         { label: 'b) a = 45m, b = 15m: P = ... m', answer: '120' },
       ],
       hints: ['Cộng chiều dài với chiều rộng trước, rồi nhân với 2.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: [
+        { label: 'a)', rect: [16, 12], fill: 0 },
+        { label: 'b)', rect: [45, 15], unit: 'm', fill: 1 },
+      ],
     },
   ],
 
@@ -603,6 +614,8 @@ export const QUESTIONS = {
       hints: ['Hai đường thẳng vuông góc tạo thành bốn góc vuông. Đặt góc vuông của ê ke vào chỗ hai đường cắt nhau.'],
       // 📐 Kéo dài: toạ độ theo bai41_q1_vuonggoc.svg.
       geoPlay: { points: { H: [140, 20], I: [140, 120], K: [270, 120], P: [577.1, 28.1], M: [500, 120], Q: [620, 120] }, segs: ['HI', 'IK', 'PM', 'MQ'], pick: 'HI' },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['vuông góc'], fill: [{ blank: 0, kind: 'vuông góc', pair: ['HI', 'IK'], yes: 'Có', no: 'Không' }, { blank: 1, kind: 'vuông góc', pair: ['PM', 'MQ'], yes: 'Có', no: 'Không' }] },
       ekePlay: { fill: [{ blank: 0, angle: 'IHK' }, { blank: 1, angle: 'MPQ' }] },
     },
     {
@@ -614,6 +627,8 @@ export const QUESTIONS = {
       hints: ['Hình chữ nhật có bốn góc vuông; mỗi góc vuông cho một cặp cạnh vuông góc.'],
       // 📐 Kéo dài: toạ độ theo bai41_q2_hcn.svg.
       geoPlay: { points: { A: [40, 40], B: [260, 40], C: [260, 160], D: [40, 160] }, segs: ['AB', 'BC', 'CD', 'DA'], fill: 'ABCD', pick: 'AB' },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['vuông góc'], fill: { blank: 0, kind: 'vuông góc', exclude: [['AB', 'BC']] } },
       ekePlay: { fill: { blank: 0, list: 'right', as: 'pairs', exclude: ['B'] } },
     },
     {
@@ -626,6 +641,8 @@ export const QUESTIONS = {
       hints: ['Tìm các góc vuông trước, mỗi góc vuông có hai cạnh là một cặp đoạn thẳng vuông góc.'],
       // 📐 Kéo dài: toạ độ theo bai41_q3_vuonggoc.svg.
       geoPlay: { points: { A: [40, 90], B: [130, 30], C: [220, 90], D: [220, 170], E: [40, 170], M: [310, 170], N: [420, 170], P: [420, 60], Q: [540, 60], R: [610, 170] }, segs: ['AB', 'BC', 'CD', 'DE', 'AE', 'MN', 'NP', 'PQ', 'QR'], fill: 'ABCDE' },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['vuông góc'], fill: [{ blank: 0, kind: 'vuông góc', within: 'ABCDE' }, { blank: 1, kind: 'vuông góc', within: 'MNPQR' }] },
       ekePlay: { fill: [{ blank: 0, list: 'right', as: 'pairs', within: 'ABCDE' }, { blank: 1, list: 'right', as: 'pairs', within: 'MNPQR' }] },
     },
     {
@@ -638,6 +655,8 @@ export const QUESTIONS = {
       hints: ['a) Hai cạnh của góc vuông đỉnh A, hai cạnh của góc vuông đỉnh D.', 'b) Xem các góc còn lại ở đỉnh B và đỉnh C.'],
       // 📐 Kéo dài: toạ độ theo bai41_q4_tugiac.svg.
       geoPlay: { points: { A: [40, 40], B: [150, 40], C: [260, 220], D: [40, 220] }, segs: ['AB', 'BC', 'CD', 'AD'], fill: 'ABCD', pick: 'AB' },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['vuông góc', 'cắt nhau'], fill: [{ blank: 0, kind: 'vuông góc' }, { blank: 1, kind: 'cắt nhau' }] },
       ekePlay: { fill: [{ blank: 0, list: 'right', as: 'pairs' }, { blank: 1, list: 'notRight', as: 'pairs' }] },
     },
   ],
@@ -654,6 +673,8 @@ export const QUESTIONS = {
       hints: ['Hai cạnh đối diện của hình chữ nhật, hình vuông thì song song với nhau.'],
       // 📐 Kéo dài: toạ độ theo bai42_q1_songsong.svg.
       geoPlay: { points: { A: [40, 40], B: [300, 40], C: [300, 190], D: [40, 190], M: [400, 40], N: [550, 40], P: [550, 190], Q: [400, 190] }, segs: ['AB', 'BC', 'DC', 'AD', 'MN', 'NP', 'QP', 'MQ'], fill: ['ABCD', 'MNPQ'], pick: 'AB', answer: [{ blank: 0, list: 'par', within: 'ABCD', exclude: [['AB', 'DC']] }, { blank: 1, list: 'par', within: 'MNPQ' }] },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['song song'], fill: [{ blank: 0, kind: 'song song', within: 'ABCD', exclude: [['AB', 'DC']] }, { blank: 1, kind: 'song song', within: 'MNPQ' }] },
     },
     {
       type: 'fill', stars: 2, img: imgSongSong2,
@@ -667,6 +688,8 @@ export const QUESTIONS = {
         segs: ['AB', 'BC', 'CD', 'DE', 'EG', 'AG', 'BE'], fill: 'ACDG', pick: 'BE',
         more: [{ name: 'Thử thêm', points: { M: [40, 60], N: [300, 60], P: [40, 170], Q: [300, 155] }, segs: ['MN', 'PQ'] }],
       },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['song song'], fill: { blank: 0, kind: 'song song', with: 'BE' } },
     },
     {
       type: 'fill', stars: 3, img: imgLuoi,
@@ -680,6 +703,11 @@ export const QUESTIONS = {
       hints: ['Đếm ô vuông: cạnh nằm trên đường kẻ ngang song song với nhau, cạnh trên đường kẻ dọc vuông góc với cạnh trên đường kẻ ngang.', 'Kiểm tra cả góc ở đỉnh E: mỗi cạnh DE, EG đi chéo qua hai ô.'],
       // 📐 Kéo dài: toạ độ theo bai42_q3_luoi.svg.
       geoPlay: { points: { M: [100, 140], N: [220, 140], P: [340, 260], Q: [100, 260], D: [500, 140], E: [580, 60], G: [660, 140], H: [660, 260], I: [500, 260] }, segs: ['MN', 'NP', 'QP', 'MQ', 'DE', 'EG', 'GH', 'IH', 'DI'], fill: ['MNPQ', 'DEGHI'], cell: 40, origin: [20, 20], pick: 'MN', answer: [{ blank: 0, list: 'par', within: 'MNPQ' }, { blank: 2, list: 'par', within: 'DEGHI' }] },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: {
+        kinds: ['song song', 'vuông góc'],
+        fill: [{ blank: 0, kind: 'song song', within: 'MNPQ' }, { blank: 1, kind: 'vuông góc', within: 'MNPQ' }, { blank: 2, kind: 'song song', within: 'DEGHI' }, { blank: 3, kind: 'vuông góc', within: 'DEGHI' }],
+      },
       ekePlay: { fill: [{ blank: 1, list: 'right', as: 'pairs', within: 'MNPQ' }, { blank: 3, list: 'right', as: 'pairs', within: 'DEGHI' }] },
     },
   ],
@@ -705,6 +733,8 @@ export const QUESTIONS = {
       hints: ['AD nằm trên đường AX, DC nằm trên đường CY.'],
       // 📐 Kéo dài: toạ độ theo bai44_q2_songsong.svg.
       geoPlay: { points: { A: [257.5, 84.4], B: [40, 210], C: [330, 210], D: [547.5, 84.4] }, segs: ['AB', 'BC', 'AC', 'AD', 'DC'], fill: 'ABC', pick: 'AD', answer: [{ blank: 0, list: 'par' }] },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['song song'], fill: { blank: 0, kind: 'song song' } },
     },
     {
       type: 'fill', stars: 1, img: imgTuGiac44,
@@ -713,6 +743,8 @@ export const QUESTIONS = {
       hints: ['BE song song với AD, mà AD vuông góc với DC.'],
       // 📐 Kéo dài: toạ độ theo bai44_q3_tugiac.svg.
       geoPlay: { points: { A: [60, 220], B: [60, 130], C: [280, 40], D: [280, 220], E: [280, 130] }, segs: ['AB', 'BC', 'CE', 'ED', 'DA', 'BE'], fill: 'ABCD', pick: 'BE' },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['vuông góc'], fill: { blank: 0, kind: 'vuông góc', pair: ['BE', 'ED'], yes: 'Có', no: 'Không' } },
       ekePlay: { fill: { blank: 0, angle: 'EBD' } },
     },
   ],
@@ -724,6 +756,8 @@ export const QUESTIONS = {
       q: '1. a) Hãy vẽ hình chữ nhật có chiều dài 5cm, chiều rộng 3cm.\nb) Tính chu vi hình chữ nhật đó.',
       blanks: [{ label: 'b) Chu vi hình chữ nhật là: ... cm', answer: '16' }],
       hints: ['Chu vi hình chữ nhật = (chiều dài + chiều rộng) × 2.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: { rect: [5, 3], fill: 0 },
     },
     {
       type: 'fill', stars: 1, img: imgDuongCheo,
@@ -744,6 +778,8 @@ export const QUESTIONS = {
         { label: 'Diện tích hình vuông là: ... cm²', answer: '16' },
       ],
       hints: ['Chu vi hình vuông = cạnh × 4. Diện tích hình vuông = cạnh × cạnh.'],
+      // 🐜 Đo chu vi (engine/perimPlay.js)
+      perimPlay: { square: 4, fill: 0 },
     },
     {
       type: 'fill', stars: 1,
@@ -792,6 +828,8 @@ export const QUESTIONS = {
       hints: ['Đường cao kẻ từ A phải vuông góc với cạnh BC. AH có vuông góc với BC không?'],
       // 📐 Kéo dài: toạ độ theo bai47_q2_duongcao.svg.
       geoPlay: { points: { A: [60, 30], B: [60, 200], C: [380, 200], H: [240, 200] }, segs: ['AB', 'BC', 'AC', 'AH'], fill: 'ABC', pick: 'BC' },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['vuông góc'], fill: [{ blank: 0, kind: 'vuông góc', pair: ['AH', 'BC'] }, { blank: 1, kind: 'vuông góc', pair: ['AB', 'BC'] }] },
       ekePlay: { fill: [{ blank: 0, angle: ['HAB', 'HAC'], yes: 'Đ', no: 'S' }, { blank: 1, angle: 'BAC', yes: 'Đ', no: 'S' }] },
     },
     {
@@ -804,6 +842,8 @@ export const QUESTIONS = {
       hints: ['MN chia hình ABCD thành hai hình chữ nhật nhỏ; hình lớn ABCD cũng là hình chữ nhật.'],
       // 📐 Kéo dài: toạ độ theo bai47_q4_hcn.svg.
       geoPlay: { points: { A: [80, 40], B: [380, 40], C: [380, 240], D: [80, 240], M: [80, 140], N: [380, 140] }, segs: ['AB', 'BN', 'NC', 'DC', 'MD', 'AM', 'MN'], fill: 'ABCD', pick: 'AB', answer: [{ blank: 1, list: 'par', with: 'AB' }] },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['song song'], fill: { blank: 1, kind: 'song song', with: 'AB' } },
       ekePlay: true,
       rulerPlay: { unit: 'cm', per: 50 },
     },
@@ -840,8 +880,15 @@ export const QUESTIONS = {
       hints: ['BIHC có chung cạnh BC với hình vuông ABCD.', 'Chiều dài AI = 3 + 3; chu vi = (dài + rộng) × 2.'],
       // 📐 Kéo dài: toạ độ theo bai48_q3_hinhvuong.svg.
       geoPlay: { points: { A: [40, 40], B: [200, 40], I: [360, 40], D: [40, 200], C: [200, 200], H: [360, 200] }, segs: ['AB', 'BI', 'IH', 'DH', 'AD', 'BC'], fill: 'AIHD', pick: 'DH' },
+      // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
+      pairPlay: { kinds: ['vuông góc'], fill: { blank: 1, kind: 'vuông góc', with: 'DH' } },
       ekePlay: { fill: { blank: 1, list: 'right', line: 'DH' } },
       rulerPlay: { unit: 'cm', per: 160 / 3, fill: { blank: 0, len: [['B', 'I'], ['I', 'H'], ['B', 'C']] } },
+      // 🐜 Đo chu vi: toạ độ như geoPlay (bai48_q3_hinhvuong.svg, đúng tỉ lệ)
+      perimPlay: {
+        path: 'AIHD', rect: [6, 3], toScale: true, texts: ['3 + 3 = 6 cm', '3 cm', '3 + 3 = 6 cm', '3 cm'],
+        points: { A: [40, 40], I: [360, 40], H: [360, 200], D: [40, 200] }, fill: 2,
+      },
     },
     {
       type: 'fill', stars: 4, wordProblem: true,

@@ -208,6 +208,7 @@ export const BAI_55_58 = keepNumbers([
         q: '4. Một khu đất hình vuông có độ dài cạnh là 2 409 m. Hỏi chu vi của khu đất đó là bao nhiêu mét?',
         blanks: [B('Chu vi khu đất (m)', 9636)],
         hints: ['Chu vi hình vuông bằng độ dài một cạnh nhân với 4.'],
+        perimPlay: { square: 2409, unit: 'm', name: 'khu đất', look: 'field', fill: 0 },
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB56Elephants,
@@ -440,6 +441,11 @@ export const BAI_55_58 = keepNumbers([
           B('b) Tổng độ dài các dây đèn đó là ... xăng-ti-mét.', 1920),
         ],
         hints: ['Nóc nhà là mặt trên của khối lập phương, đó là một hình vuông (các cạnh tô đậm trong hình).', 'b) 480 cm được lấy số lần bằng số dây đèn.'],
+        // toạ độ theo bai58_t2_q2_house.svg: nóc nhà (hình vuông vẽ nghiêng)
+        perimPlay: {
+          square: 480, name: 'nóc nhà', eqLabel: 'Tổng độ dài các dây đèn', path: ['_a', '_b', '_c', '_d'],
+          points: { _a: [90, 100], _b: [160, 50], _c: [330, 50], _d: [260, 100] }, fill: 1,
+        },
       },
       {
         type: 'compare', section: 'Tiết 2', img: imgB58Maze,

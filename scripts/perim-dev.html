@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Đo chu vi dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" /></head>
+<body><div id="app"></div>
+<script type="module">
+// Trang thử 🐜 Đo chu vi (engine/perimPlay.js): mở câu thật trong sách rồi bấm nút, kiến đi, chụp.
+//   ?book=g3b&unit=bai-50&qi=0     Lớp 3 Tập 2 (g3b), Lớp 3 Tập 1 (g3), SGK Toán 4 (g4), Lớp 2 (g2)
+//                                  qi: câu có 🐜 thứ qi (từ 0) của bài
+//   &k=1                           hình thứ k (nút a, b, c)
+//   &walk=all | 0,1                kiến đi cả vòng / đi các cạnh 0, 1
+//   &xong=1                        bấm ✓ Xong (xem ô trả lời được điền)
+//   &motion=1                      bỏ qua "tắt hiệu ứng" của máy
+// Xong: body[data-done] = 1, body[data-blanks] = giá trị các ô trả lời.
+const p = new URLSearchParams(location.search);
+window.addEventListener('error', (e) => { document.body.dataset.err = (document.body.dataset.err || '') + e.message + ' @' + e.lineno + ' '; });
+window.addEventListener('unhandledrejection', (e) => { document.body.dataset.err = (document.body.dataset.err || '') + String(e.reason) + ' '; });
+if (p.get('motion')) { const mm = window.matchMedia.bind(window); window.matchMedia = (q) => (/reduced-motion/.test(q) ? { matches: false } : mm(q)); }
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const book = p.get('book') || 'g3b';
+const mods = {
+  g3: async () => (await import('/src/games/grade3Workbook.js')).WORKBOOK3_UNITS,
+  g4: async () => (await import('/src/games/grade4Textbook.js')).UNITS,
+  g3b: async () => Object.values(import.meta.glob('/src/games/grade3Workbook2/bai*.js', { eager: true })).flatMap((m) => Object.values(m).filter(Array.isArray).flat()),
+  g2: async () => Object.values(import.meta.glob('/src/games/grade2Workbook/bai*.js', { eager: true })).flatMap((m) => Object.values(m).filter(Array.isArray).flat()),
+};
+const units = await mods[book]();
+const unitId = p.get('unit') || 'bai-50';
+const unit = units.find((u) => u?.id === unitId && u.questions);
+const { renderWorkbook } = await import('/src/games/grade3Workbook.js');
+(await import('/src/engine/lightbox.js')).initLightbox();
+try { localStorage.removeItem('pm-dev'); } catch { /* */ }
+renderWorkbook(document.getElementById('app'), () => {}, { units: [unit], storageKey: 'pm-dev', starBook: 'pmdev', lastUnitKey: 'pm-dev-last', title: 'dev', subtitle: '', menuLabel: '', unitWord: 'bài', unitName: (u) => u.title });
+await sleep(300);
+document.querySelector(`[data-unit="${unitId}"]`).click();
+await sleep(300);
+const target = unit.questions.indexOf(unit.questions.filter((q) => q.perimPlay)[+(p.get('qi') || 0)]);
+for (let k = 0; k < target; k++) { document.querySelector('#gw-next')?.click(); await sleep(120); }
+await sleep(200);
+if (!p.get('noopen')) {
+  document.querySelector('.pm-open').click();
+  let ov;
+  while (!(ov = document.querySelector('.pm-overlay'))?.__pm) await sleep(50);
+  if (p.get('k')) { ov.querySelector(`.pm-tab[data-k="${p.get('k')}"]`).click(); await sleep(150); while (!ov.__pm) await sleep(50); }
+  const w = p.get('walk');
+  if (w === 'all') ov.__pm.all();
+  else if (w) w.split(',').forEach((i) => ov.__pm.walk(+i));
+  await sleep(100);
+  while (ov.__pm.busy()) await sleep(100);
+  await sleep(+(p.get('wait') || 600));
+  if (p.get('xong')) ov.querySelector('.pm-close').click();
+}
+await sleep(200);
+document.body.dataset.blanks = [...document.querySelectorAll('.e3-blank-input')].map((i) => `${i.dataset.idx}=${i.value}`).join(' ');
+document.body.dataset.done = '1';
+</script></body></html>
