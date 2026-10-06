@@ -6,6 +6,8 @@
  *   🟦 Ô vuông  q.areaPlay  phủ hình bằng ô vuông 1 cm², mỗi ô tự đánh số để đếm.
  *   ∥ Chọn cặp  q.pairPlay  chạm hai cạnh: máy kéo dài cho thấy song song / cắt nhau / vuông góc; ghi các cặp tìm được.
  *
+ * Hình có nhiều hình rời nhau xếp một hàng (nhìn nhỏ): lớp phủ mở với cả hàng hình, bé chạm hình nào thì
+ * phóng to hình đó để đo; dải nút trên hình đổi hình / về "Tất cả" (shapesOf, ZOOM_GAIN).
  * Mở được ngay từ đầu, không chấm điểm. Bé thao tác tới đâu, kết quả điền ngay vào ô trả lời của câu
  * tới đó (cfg.fill, xem FILL bên dưới); bé vẫn sửa được, vẫn bấm Kiểm tra như thường. Câu chọn đáp án
  * thì chỉ nháy sáng đáp án hợp với kết quả, bé tự chạm. Kết quả giữ theo câu (MEMO) nên đóng rồi mở
@@ -386,6 +388,7 @@ export function openGeoTools(q, first, onApply) {
         <button type="button" class="gt-close">✓ Xong</button>
       </div>
       <div class="gt-how" aria-hidden="true"></div>
+      <div class="gt-shapes" hidden></div>
       <div class="gt-stage">
         <svg class="gt-svg" preserveAspectRatio="xMidYMid meet"></svg>
         <div class="gt-verdict">&nbsp;</div>
@@ -397,8 +400,12 @@ export function openGeoTools(q, first, onApply) {
   const verdict = overlay.querySelector('.gt-verdict');
   const how = overlay.querySelector('.gt-how');
   const bar = overlay.querySelector('.gt-bar');
+  const strip = overlay.querySelector('.gt-shapes');
   let mounted = null;
   let box = null;
+  let shapes = null; // các hình rời nhau (khi phóng to từng hình có ích), null: xem cả hình
+  let focus = null;  // hình đang phóng to (chỉ số trong shapes), null: cả hàng hình
+  let cur = first;   // công cụ đang mở
   const filled = new Set(); // ô vừa được điền trong lần mở này: nháy khi đóng
   let raf = 0;
 
@@ -441,6 +448,7 @@ export function openGeoTools(q, first, onApply) {
     if (pending) { const p = pending; pending = null; p.f(1); p.done?.(); }
   };
   overlay.__flush = flush; // trang thử: cho hoạt ảnh đang chạy tới đích ngay
+  overlay.__pickShape = (k) => pick(k); // trang thử: phóng to hình k (null: cả hàng)
   const animate = (ms, f, done) => {
     flush();
     const t0 = performance.now();
@@ -455,32 +463,166 @@ export function openGeoTools(q, first, onApply) {
     raf = requestAnimationFrame(step);
   };
 
-  function show(id) {
+  const vbOf = (R, k) => {
+    const pad = Math.max(R.w, R.h) * k;
+    return [R.x - pad, R.y - pad, R.w + 2 * pad, R.h + 2 * pad];
+  };
+  function paintStrip() {
+    if (!shapes) return;
+    strip.innerHTML = `<button type="button" class="gt-shape-btn${focus == null ? ' gt-on' : ''}" data-k="all">🔍 Tất cả</button>`
+      + shapes.map((sh, k) => `<button type="button" class="gt-shape-btn${focus === k ? ' gt-on' : ''}" data-k="${k}">${sh.label}</button>`).join('');
+    strip.querySelectorAll('.gt-shape-btn').forEach((b) => { b.onclick = () => pick(b.dataset.k === 'all' ? null : +b.dataset.k); });
+  }
+  function pick(k) {
+    if (k === focus) return;
+    focus = k;
+    paintStrip();
+    show(cur, { zoom: true });
+  }
+
+  function show(id, { zoom = false } = {}) {
     cancelAnimationFrame(raf);
     pending = null;
     mounted?.destroy?.();
+    mounted = null;
+    cur = id;
     overlay.querySelectorAll('.gt-tab').forEach((b) => b.classList.toggle('gt-on', b.dataset.t === id));
     overlay.querySelector('.gt-tabs').classList.toggle('gt-single', tools.length < 2);
     const t = tools.find((x) => x.id === id) || tools[0];
+    const sh = shapes && t.id !== 'area' ? shapes : null;
+    const R = sh && focus != null ? sh[focus].r : box;
+    const prevVB = svg.getAttribute('viewBox')?.split(/\s+/).map(Number);
+    const target = vbOf(R, sh && focus != null ? 0.1 : 0.07);
     svg.replaceChildren();
-    const pad = Math.max(box.w, box.h) * 0.07;
-    svg.setAttribute('viewBox', `${box.x - pad} ${box.y - pad} ${box.w + 2 * pad} ${box.h + 2 * pad}`);
-    el('image', { href: q.img, x: box.x, y: box.y, width: box.w, height: box.h, preserveAspectRatio: 'none' }, svg);
+    svg.setAttribute('viewBox', target.join(' '));
+    const image = el('image', { href: q.img, x: box.x, y: box.y, width: box.w, height: box.h, preserveAspectRatio: 'none' }, svg);
+    if (R !== box) {
+      // chỉ hiện hình đang đo (hình bên cạnh không lấn vào khung)
+      const clip = el('clipPath', { id: 'gt-clip' }, el('defs', {}, svg));
+      el('rect', { x: R.x, y: R.y, width: R.w, height: R.h }, clip);
+      image.setAttribute('clip-path', 'url(#gt-clip)');
+    }
     const L = { under: el('g', {}, svg), marks: el('g', {}, svg), tool: el('g', {}, svg), top: el('g', {}, svg) };
     bar.replaceChildren();
     bar.className = `gt-bar gt-bar-${t.id}`;
     say('');
-    const ctx = { svg, L, cfg: cfgOf(q, t), box, bar, how, say, ppu, toSvg, view, animate, flush, quiet: calm(), overlay, memo: memoOf(q, t.id), changed };
-    mounted = { eke: mountEke, ruler: mountRuler, count: mountCount, area: mountArea, pairs: mountPairs }[t.id](ctx);
+    const mount = () => {
+      if (sh && focus == null) { mountPicker(); return; }
+      const ctx = { svg, L, cfg: sh ? onlyShape(cfgOf(q, t), sh[focus]) : cfgOf(q, t), box: R, bar, how, say, ppu, toSvg, view, animate, flush, quiet: calm(), overlay, memo: memoOf(q, t.id), changed };
+      mounted = { eke: mountEke, ruler: mountRuler, count: mountCount, area: mountArea, pairs: mountPairs }[t.id](ctx);
+    };
+    // phóng to / thu nhỏ: khung nhìn bay êm tới hình mới rồi mới dựng công cụ (công cụ vẽ theo px màn hình)
+    if (zoom && prevVB?.length === 4) {
+      svg.setAttribute('viewBox', prevVB.join(' '));
+      animate(calm() ? 420 : 380, (u) => {
+        const e = easeInOut(u);
+        svg.setAttribute('viewBox', prevVB.map((v, i) => v + (target[i] - v) * e).join(' '));
+      }, mount);
+    } else mount();
+
+    // cả hàng hình: mỗi hình là một vùng chạm có khung nét đứt và kính lúp
+    function mountPicker() {
+      how.innerHTML = '<span>👆 Chạm vào hình muốn đo, hình sẽ <b>phóng to</b>.</span>';
+      bar.innerHTML = '<span class="gt-found-lbl">Chọn một hình để bắt đầu</span>';
+      const k = 1 / ppu();
+      sh.forEach((x, i) => {
+        const g = el('g', { class: 'gt-shape-hit', 'data-k': i }, L.top);
+        el('rect', { x: x.r.x, y: x.r.y, width: x.r.w, height: x.r.h, rx: 14 * k }, g);
+        const tag = screenAt({ ppu }, [x.r.x + x.r.w / 2, x.r.y + x.r.h], g);
+        el('circle', { r: 17, cy: 0, class: 'gt-shape-tag' }, tag);
+        el('text', { y: 7, class: 'gt-shape-tagtext' }, tag).textContent = '🔍';
+        g.addEventListener('click', () => pick(i));
+      });
+    }
   }
 
   figureBox(q.img).then((b) => {
     box = b;
     // đợi lớp phủ có kích thước rồi mới dựng (ê ke, chữ vẽ theo px màn hình)
-    requestAnimationFrame(() => show(first));
+    requestAnimationFrame(() => {
+      shapes = shapesOf(q, tools, box, svg.parentElement.getBoundingClientRect());
+      if (shapes) { strip.hidden = false; paintStrip(); }
+      // dải nút vừa hiện làm khung hình thấp đi: đợi thêm một khung rồi mới dựng
+      requestAnimationFrame(() => show(first));
+    });
   });
   return overlay;
 }
+
+// ── hình rời nhau: phóng to từng hình ──────────────────────────────────────
+// Phóng to từng hình chỉ khi mỗi hình to lên ít nhất ZOOM_GAIN lần so với khi xem cả hàng.
+const ZOOM_GAIN = 1.5;
+
+/**
+ * Các hình rời nhau của câu (nhóm điểm nối với nhau bằng cạnh), xếp trái → phải, trên → dưới:
+ * [{ names, label: 'ABCD', r: { x, y, w, h } (khung hình + lề cho chữ tên đỉnh) }]. null nếu chỉ có một hình
+ * hoặc hình đã đủ to (xem cả hàng là được).
+ */
+function shapesOf(q, tools, box, stage) {
+  const t = tools.find((x) => x.id !== 'area' && cfgOf(q, x).points);
+  if (!t || !stage.width) return null;
+  const cfg = cfgOf(q, t);
+  const P = cfg.points;
+  const names = Object.keys(P);
+  const up = Object.fromEntries(names.map((n) => [n, n]));
+  const root = (n) => (up[n] === n ? n : (up[n] = root(up[n])));
+  const join = (a, b) => { if (P[a] && P[b]) up[root(a)] = root(b); };
+  (cfg.segs || q.geoPlay?.segs || []).forEach((sg) => join(...ends(sg)));
+  Object.values(cfg.kinds || {}).flat().forEach((poly) => {
+    const v = Array.isArray(poly) ? poly : [...poly];
+    v.forEach((n, i) => join(n, v[(i + 1) % v.length]));
+  });
+  const groups = {};
+  names.forEach((n) => { (groups[root(n)] ||= []).push(n); });
+  const bb = (ns) => {
+    const xs = ns.map((n) => P[n][0]), ys = ns.map((n) => P[n][1]);
+    return { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+  };
+  // điểm lẻ (không nối cạnh nào) hoặc hai nhóm chồng lên nhau: gộp vào nhóm có khung chứa nó
+  let list = Object.values(groups).map((ns) => ({ names: ns, b: bb(ns) }));
+  const overlap = (a, b) => a.x <= b.x + b.w && b.x <= a.x + a.w && a.y <= b.y + b.h && b.y <= a.y + a.h;
+  for (let merged = true; merged;) {
+    merged = false;
+    outer: for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        if (overlap(list[i].b, list[j].b)) {
+          const ns = [...list[i].names, ...list[j].names];
+          list.splice(j, 1);
+          list[i] = { names: ns, b: bb(ns) };
+          merged = true;
+          break outer;
+        }
+      }
+    }
+  }
+  list = list.filter((x) => x.names.length >= 2);
+  if (list.length < 2) return null;
+  const S = Math.max(box.w, box.h);
+  list.forEach((x) => {
+    const m = Math.max(S * 0.025, Math.max(x.b.w, x.b.h) * 0.16);
+    x.r = { x: x.b.x - m, y: x.b.y - m, w: x.b.w + 2 * m, h: x.b.h + 2 * m };
+    x.label = x.names.filter((n) => !hidden(n)).map(shown).sort((a, b) => P_ORDER(P, a, b, x.names)).join('') || '•';
+  });
+  list.sort((a, b) => (Math.abs(a.b.y - b.b.y) > S * 0.15 ? a.b.y - b.b.y : a.b.x - b.b.x));
+  // có đáng phóng to không: cỡ hình khi xem cả hàng so với khi phóng to
+  const fit = (w, h, k) => Math.min(stage.width / (w * (1 + 2 * k)), stage.height / (h * (1 + 2 * k)));
+  const s0 = fit(box.w, box.h, 0.07);
+  const gain = Math.min(...list.map((x) => fit(x.r.w, x.r.h, 0.1) / s0));
+  return gain >= ZOOM_GAIN ? list : null;
+}
+/** Cấu hình công cụ chỉ còn điểm, cạnh, hình của một hình (hình bên cạnh không có chấm chạm, không bắt dính). */
+function onlyShape(cfg, shape) {
+  const keep = new Set(shape.names);
+  const out = { ...cfg, points: Object.fromEntries(Object.entries(cfg.points).filter(([n]) => keep.has(n))) };
+  if (cfg.segs) out.segs = cfg.segs.filter((sg) => ends(sg).every((n) => keep.has(n)));
+  // đếm hình: chỉ các hình nằm trong hình đang phóng to (chọn cặp: kinds là danh sách loại, giữ nguyên)
+  if (cfg.kinds && !Array.isArray(cfg.kinds)) {
+    out.kinds = Object.fromEntries(Object.entries(cfg.kinds).map(([k, list]) => [k, list.filter((poly) => [...(Array.isArray(poly) ? poly : poly)].every((n) => keep.has(n)))]));
+  }
+  return out;
+}
+// tên hình theo thứ tự trong sách: thứ tự xuất hiện trong points (ABCD, MNPQ)
+const P_ORDER = (P, a, b) => Object.keys(P).findIndex((n) => shown(n) === a) - Object.keys(P).findIndex((n) => shown(n) === b);
 
 // Nhóm vẽ theo px màn hình, đặt tại một điểm của hình (chữ, chấm, nhãn…).
 function screenAt(ctx, at, parent, attrs = {}) {
@@ -1424,6 +1566,19 @@ function injectStyles() {
       font: 600 0.88rem/1.4 Quicksand, sans-serif; color: #64748B; text-align: center; cursor: default; user-select: none;
     }
     .gt-how b { color: #334155; }
+    .gt-shapes { flex: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; }
+    .gt-shapes[hidden] { display: none; }
+    .gt-shape-btn {
+      min-width: 3.4rem; padding: 0.4rem 0.9rem; border-radius: 0.8rem; border: 2px solid #CBD5E1; background: #fff;
+      font: 800 1.05rem Quicksand, sans-serif; color: #334155; cursor: pointer; box-shadow: 0 3px 0 #CBD5E1;
+    }
+    .gt-shape-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #CBD5E1; }
+    .gt-shape-btn.gt-on { background: #0284C7; border-color: #0369A1; color: #fff; box-shadow: 0 3px 0 #075985; }
+    .gt-shape-hit { cursor: pointer; }
+    .gt-shape-hit rect { fill: rgba(2,132,199,0.04); stroke: #0284C7; stroke-width: 2.5; stroke-dasharray: 8 6; vector-effect: non-scaling-stroke; }
+    .gt-shape-hit:hover rect { fill: rgba(2,132,199,0.12); }
+    .gt-shape-tag { fill: #fff; stroke: #0284C7; stroke-width: 2.5; }
+    .gt-shape-tagtext { font-size: 17px; text-anchor: middle; }
     .gt-stage {
       position: relative; flex: 1 1 0; min-height: 0; border-radius: 0.8rem; overflow: hidden;
       background: #fff; box-shadow: inset 0 0 0 1.5px #E2E8F0;

@@ -126,6 +126,7 @@ import { attachPourPlay, revealPourPlay } from '../engine/pourPlay.js';
 import { attachCalcPlay, hasCalc } from '../engine/calcPlay.js';
 import { attachGeoPlay } from '../engine/geoPlay.js';
 import { attachGeoTools } from '../engine/geoTools.js';
+import { attachNamePlay } from '../engine/namePlay.js';
 import { attachPerimPlay } from '../engine/perimPlay.js';
 import { searchBox, matcher, pickTest, prep, snippet, textOf, resultNote } from '../engine/listSearch.js';
 import { GRADE3_GAMES } from '../data/features.js';
@@ -2000,6 +2001,14 @@ const UNITS = [
       {
         type: 'table', section: 'Tiết 1',
         q: '1. Viết tên các đỉnh và các cạnh của mỗi hình (theo mẫu).',
+        // 🔤 Đỉnh, cạnh: toạ độ theo bai19_q1_shape*.svg; ô điền: hàng 0 các đỉnh, hàng 1 các cạnh.
+        namePlay: {
+          shapes: [
+            { col: 0, img: imgBai19Shape1, sample: true, points: { D: [181, 83], E: [87, 301.5], H: [346, 301.5] }, order: 'DEH' },
+            { col: 1, img: imgBai19Shape2, points: { S: [300, 85], A: [90, 305], C: [333, 267] }, order: 'SAC', verts: [0, 1], sides: [1, 1] },
+            { col: 2, img: imgBai19Shape3, points: { I: [148, 94], K: [279, 101], M: [279, 283], N: [112, 259] }, order: 'IKMN', verts: [0, 2], sides: [1, 2] },
+          ],
+        },
         headers: [
           `<img class="e3-q-img" style="max-width:120px;margin-top:0" src="${imgBai19Shape1}" alt="Hình tam giác DEH (mẫu)">`,
           `<img class="e3-q-img" style="max-width:120px;margin-top:0" src="${imgBai19Shape2}" alt="Hình tam giác SAC">`,
@@ -4714,6 +4723,8 @@ export function renderWorkbook(app, onBack, cfg) {
     if (q.geoPlay) attachGeoPlay(app, q);
     // 📐 Ê ke, 📏 Thước, 🔢 Đếm hình, 🟦 Ô vuông: đồ dùng đặt lên hình của bài (engine/geoTools.js).
     attachGeoTools(app, q);
+    // 🔤 Đỉnh, cạnh: chạm hình trong bảng, chạm các đỉnh rồi các cạnh (engine/namePlay.js).
+    attachNamePlay(app, q);
     // 🐜 Đo chu vi: kiến bò quanh hình, các cạnh nối thành sợi dây, phép cộng hiện dần (engine/perimPlay.js).
     attachPerimPlay(app, q);
     revealPinnedImageOnKeyboard();

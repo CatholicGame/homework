@@ -71,6 +71,13 @@ if (p.get('app')) {
   const q = unit.questions.filter(has)[+(p.get('qi') || 0)];
   const { openGeoTools } = await import('/src/engine/geoTools.js');
   const ov = openGeoTools(q, p.get('tool') || 'eke');
+  // &shape=1: hình rời nhau, phóng to hình thứ 1 (từ 0); &shape=all: để nguyên cả hàng hình
+  if (p.get('shape') != null) {
+    await sleep(400);
+    if (p.get('shape') === 'all') { document.body.dataset.ready = '1'; throw new Error('stop'); }
+    ov.__pickShape(+p.get('shape'));
+    await sleep(700);
+  }
   while (!ov.__gt) await sleep(50);
   await sleep(200);
   const gt = ov.__gt;
