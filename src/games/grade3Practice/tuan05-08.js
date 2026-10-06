@@ -524,6 +524,16 @@ export const WEEKS_5_8 = [
     questions: [
       {
         type: 'fill', section: 'Tiết 1', img: imgT8T1Angles,
+        // 📐 Ê ke: toạ độ theo tuan8_t1_q1_angles.svg (6 góc rời nhau, góc mẫu GIH; H2 là điểm H của góc đỉnh E).
+        ekePlay: {
+          points: {
+            G: [160, 89], I: [251.7, 259.4], H: [476, 260.6], S: [343.5, 434.3], Q: [190.2, 434.2], R: [189, 605.5],
+            H2: [790.5, 392], E: [895.4, 530.8], K: [1049, 591], B: [837.5, 59], A: [838, 256.5], C: [1081.5, 257.5],
+            X: [1648.5, 455], U: [1412.9, 584.1], Y: [1717.5, 585.9], N: [1494.5, 84], M: [1686.6, 221.7], P: [1476, 283.7],
+          },
+          segs: ['IG', 'IH', 'QS', 'QR', 'EH2', 'EK', 'AB', 'AC', 'UX', 'UY', 'MN', 'MP'],
+          fill: [{ blank: 0, at: 'A', as: 'row' }, { blank: 1, at: 'M', as: 'row' }, { blank: 2, at: 'Q', as: 'row' }, { blank: 3, at: 'E', as: 'row' }, { blank: 4, at: 'U', as: 'row' }],
+        },
         q: `1. Dùng ê ke để kiểm tra góc vuông rồi viết tiếp vào chỗ chấm cho thích hợp (theo mẫu).\n${mau('Góc không vuông đỉnh I; cạnh IG, IH')}`,
         subQuestions: false,
         blanks: [
@@ -537,6 +547,15 @@ export const WEEKS_5_8 = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgT8T1Shapes,
+        // 📐 Ê ke: toạ độ theo tuan8_t1_q3_shapes.svg.
+        ekePlay: {
+          points: { A: [71.5, 80.5], B: [305, 80.5], C: [71.5, 433], M: [484, 80.5], N: [660.5, 80.5], P: [660.5, 433.5], Q: [425.5, 257] },
+          segs: ['AB', 'BC', 'CA', 'MN', 'NP', 'PQ', 'QM'],
+          fill: [
+            { blank: 0, angle: 'ABC', yes: 'Đ', no: 'S' }, { blank: 1, angle: 'MNQ', yes: 'Đ', no: 'S' }, { blank: 2, angle: 'NMP', yes: 'Đ', no: 'S' },
+            { blank: 3, poly: 'ABC', right: 2 }, { blank: 4, poly: 'MNPQ', notRight: 3 },
+          ],
+        },
         q: '3. Đ, S?',
         blanks: [
           { label: 'a) Hình tam giác ABC có góc vuông đỉnh A. ...', boxes: true, answer: 'Đ', validate: dsValidate(true) },
@@ -549,6 +568,12 @@ export const WEEKS_5_8 = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgT8T1Figure,
+        // 🔢 Đếm hình: toạ độ theo tuan8_t1_q4_figure.svg; G là giao điểm của AC và DM.
+        countPlay: {
+          points: { A: [156.5, 65], B: [291, 65], M: [338.6, 160], C: [435.5, 353.5], D: [38.5, 355.5], G: [283.4, 196.2] },
+          kinds: { 'tam giác': ['ABC', 'ACD', 'ADG', 'CDG', 'CDM', 'CGM'], 'tứ giác': ['ABCD', 'ABMD', 'ABMG'] },
+          fill: [{ blank: 0, kind: 'tam giác', num: true }, { blank: 1, kind: 'tứ giác', num: true }],
+        },
         q: '4. Viết tiếp vào chỗ chấm cho thích hợp.\nTrong hình bên:',
         subQuestions: false,
         blanks: [

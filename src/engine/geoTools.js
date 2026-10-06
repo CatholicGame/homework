@@ -177,6 +177,9 @@ const sameSet = (a, b) => a.length === b.length && [...a].sort().join() === [...
  *         { blank, list: 'right', line: 'DH' }                các cạnh vuông góc với đường DH
  *         { blank, angle: 'IHK' | ['HAB', 'HAC'], yes: 'Có', no: 'Không' }  góc đỉnh I, hai cạnh hướng về H, K
  *         { rects: ['ABCD', …], options: [1, 2, 3, 4] }      nháy đáp án số hình chữ nhật (khi hình nào cũng đã rõ)
+ *         { blank, at: 'A', as: 'row' }                       cả dòng "Góc vuông / không vuông đỉnh A; cạnh AB, AC"
+ *         { blank, poly: 'ABC', right?: n, notRight?: n, yes, no }  Đ/S "hình ABC có n góc (không) vuông" (khi đã thử đủ góc)
+ *         { blank, count, input }                             số góc vào chỗ trống thứ input của ô
  *         số n: { blank: n, count: 'right' }
  *   thước { blank, mid: 'B', of: 'AC', yes: 'Đ', no: 'S' }    B có là trung điểm AC
  *         { blank, midOf: 'DC' }                              tên trung điểm của DC
@@ -184,7 +187,11 @@ const sameSet = (a, b) => a.length === b.length && [...a].sort().join() === [...
  *         { blank, allMid: [['A','O','C'], …], yes, no }      O là trung điểm của mọi đoạn
  *         { blank, len: [['B','I'], …], equals?: 5, yes, no } độ dài một cạnh (hoặc Đ/S so với equals)
  *         { choice: [[i, [['A','M','B'], …]], …] }            nháy đáp án i khi mọi M là trung điểm
+ *         { blank, longest | shortest: ['AB', 'CD', …] }       tên đoạn dài nhất / ngắn nhất (khi đã đo hết)
+ *         { blank, equalTo: 'AB', among: ['BC', 'CD', …] }     các đoạn dài bằng AB (khi đã đo hết)
  *   đếm   { 'tam giác': 0, 'tứ giác': 1 }                     tên các hình đã đếm, theo thứ tự bé đếm
+ *         [{ blank, kind, num: true }]                        ô hai chỗ trống "Có ... hình, đó là: ..." (số, danh sách)
+ *         [{ kind, choice: [2, 3, 4, 5] }]                     nháy đáp án số hình khi đã đếm đủ
  *   ô vuông { blank, shape: 'A', input? }                     số ô vuông khi hình A đã phủ kín
  *         { blank, compare: ['A', 'B'], values: [lớn hơn, bé hơn, bằng] }
  *         { choice: 'V', options: [10, 12, 11] }              nháy đáp án có số ô của hình V
@@ -230,7 +237,12 @@ const FILL = {
     if (r.within) xs = xs.filter((x) => [x.v, x.a, x.b].every((n) => r.within.includes(shown(n))));
     if (r.exclude) xs = xs.filter((x) => !r.exclude.includes(x.v));
     const side = (x, e) => `${shown(x.v)}${shown(e)}`;
-    if (r.count) { if (xs.length) put(r.blank, String(xs.length)); return; }
+    if (r.count) { if (xs.length) put(r.blank, String(xs.length), r.input); return; }
+    if (r.as === 'row') {
+      const x = items('right').find((y) => y.v === r.at) || items('notRight').find((y) => y.v === r.at);
+      if (x) put(r.blank, [items('right').includes(x) ? 'vuông' : 'không vuông', shown(x.v), side(x, x.a), side(x, x.b)]);
+      return;
+    }
     // góc 'IHK': đỉnh I, hai cạnh hướng về H, K (so theo hướng: đầu tia có thể là điểm khác trên cạnh đó)
     const isAngle = (name) => {
       const [v, e1, e2] = [...name];
@@ -252,6 +264,17 @@ const FILL = {
       if (state.includes(null)) return;
       const i = r.options.indexOf(state.reduce((a, b) => a + b, 0));
       if (i >= 0) put('#choice', i);
+      return;
+    }
+    if (r.poly) {
+      // Đ/S "hình ABC có n góc vuông": đủ mọi góc của hình đã thử thì so số góc
+      const sh = [...r.poly];
+      const corners = sh.map((v, i) => `${v}${sh[(i + sh.length - 1) % sh.length]}${sh[(i + 1) % sh.length]}`);
+      const st = corners.map((c) => (items('right').some(isAngle(c)) ? 1 : items('notRight').some(isAngle(c)) ? 0 : null));
+      if (st.includes(null)) return;
+      const nRight = st.reduce((a, b) => a + b, 0);
+      const ok = r.right != null ? nRight === r.right : sh.length - nRight === r.notRight;
+      put(r.blank, ok ? (r.yes ?? 'Đ') : (r.no ?? 'S'));
       return;
     }
     if (r.line) {
@@ -302,13 +325,32 @@ const FILL = {
     } else if (r.choice) {
       const hit = r.choice.find(([, triples]) => triples.every(([a, o, c]) => midOk(a, o, c)));
       if (hit) put('#choice', hit[0]);
+    } else if (r.longest || r.shortest || r.equalTo) {
+      // so các đoạn: chỉ khi đã đo hết (đo theo mm, làm tròn để hai đoạn bằng nhau trên sách là bằng nhau)
+      const list = r.longest || r.shortest || [r.equalTo, ...r.among];
+      const vs = list.map((sg) => { const [a, b] = ends(sg); const v = get(a, b); return v == null ? null : Math.round(v * 10); });
+      if (vs.includes(null)) return;
+      const nameOf = (sg) => ends(sg).map(shown).join('');
+      if (r.equalTo) put(r.blank, list.slice(1).filter((_, i) => vs[i + 1] === vs[0]).map(nameOf).join(', '));
+      else {
+        const best = r.longest ? Math.max(...vs) : Math.min(...vs);
+        put(r.blank, list.filter((_, i) => vs[i] === best).map(nameOf).join(', '));
+      }
     }
   },
 
   count(r, m, cfg, put) {
     const i = Object.keys(cfg.kinds).indexOf(r.kind);
     const names = (m.found?.[i] || []).map((x) => shown(x.name));
-    if (names.length) put(r.blank, names.join(', '));
+    if (r.choice) {
+      // đã đếm đủ mọi hình loại đó: nháy đáp án có số hình
+      const k = names.length === cfg.kinds[r.kind].length ? r.choice.indexOf(names.length) : -1;
+      if (k >= 0) put('#choice', k);
+      return;
+    }
+    if (!names.length) return;
+    if (r.num) put(r.blank, [String(names.length), names.join('; ')]);
+    else put(r.blank, names.join(', '));
   },
 
   pairs(r, m, cfg, put) {
@@ -610,10 +652,13 @@ function shapesOf(q, tools, box, stage) {
   const gain = Math.min(...list.map((x) => fit(x.r.w, x.r.h, 0.1) / s0));
   return gain >= ZOOM_GAIN ? list : null;
 }
-/** Cấu hình công cụ chỉ còn điểm, cạnh, hình của một hình (hình bên cạnh không có chấm chạm, không bắt dính). */
+/**
+ * Cấu hình công cụ chỉ còn cạnh, hình của một hình (hình bên cạnh không có chấm chạm, không bắt dính).
+ * Giữ đủ mọi điểm: dấu đã làm ở hình khác (góc vuông, số đo) vẫn vẽ được, chỉ nằm ngoài khung nhìn.
+ */
 function onlyShape(cfg, shape) {
   const keep = new Set(shape.names);
-  const out = { ...cfg, points: Object.fromEntries(Object.entries(cfg.points).filter(([n]) => keep.has(n))) };
+  const out = { ...cfg };
   if (cfg.segs) out.segs = cfg.segs.filter((sg) => ends(sg).every((n) => keep.has(n)));
   // đếm hình: chỉ các hình nằm trong hình đang phóng to (chọn cặp: kinds là danh sách loại, giữ nguyên)
   if (cfg.kinds && !Array.isArray(cfg.kinds)) {

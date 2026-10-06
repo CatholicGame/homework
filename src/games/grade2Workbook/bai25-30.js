@@ -149,6 +149,11 @@ export const BAI_25_30 = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB25T1Q3,
+        // 📏 Thước: toạ độ theo bai25_t1_q3_parallelogram.svg; 1 cm = 117,4 (MN = 5 cm như sách).
+        rulerPlay: {
+          points: { M: [215, 82], N: [802, 82], P: [627, 387], Q: [38, 387] }, segs: ['MN', 'NP', 'PQ', 'QM'], unit: 'cm', per: 117.4,
+          fill: [{ blank: 0, len: [['M', 'N']] }, { blank: 1, len: [['N', 'P']] }],
+        },
         q: '3. Đo độ dài các đoạn thẳng rồi viết số thích hợp vào chỗ chấm.',
         blanks: [
           { label: 'Đoạn thẳng MN dài ... cm.', answer: '5' },
@@ -158,6 +163,15 @@ export const BAI_25_30 = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB25T1Q4,
+        // 📏 Thước: toạ độ theo bai25_t1_q4_polyline.svg; 1 cm = 117,5 (AB = 2 cm như sách).
+        rulerPlay: {
+          points: { A: [48, 298], B: [168, 96], C: [638, 96], D: [790, 272], E: [910, 274] }, segs: ['AB', 'BC', 'CD', 'DE'], unit: 'cm', per: 117.5,
+          fill: [
+            { blank: 0, len: [['A', 'B']] }, { blank: 1, len: [['B', 'C']] }, { blank: 2, len: [['C', 'D']] }, { blank: 3, len: [['D', 'E']] },
+            { blank: 4, longest: ['AB', 'BC', 'CD', 'DE'] }, { blank: 5, shortest: ['AB', 'BC', 'CD', 'DE'] },
+            { blank: 6, equalTo: 'AB', among: ['BC', 'CD', 'DE'] },
+          ],
+        },
         q: '4. Cho hình vẽ:',
         blanks: [
           { label: 'a) Đo độ dài các đoạn thẳng rồi viết số thích hợp vào chỗ chấm.<br>Đoạn thẳng AB dài ... cm.', answer: '2' },

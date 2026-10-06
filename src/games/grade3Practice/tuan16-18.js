@@ -331,6 +331,15 @@ export const WEEKS_16_18 = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgT18T2Q2Angles,
+        // 📐 Ê ke: toạ độ theo tuan18_t2_q2_angles.svg (6 góc rời nhau).
+        ekePlay: {
+          points: {
+            A: [82.5, 74], B: [82.5, 311], C: [375, 311], D: [670, 99], E: [518, 311], F: [822, 311], M: [944, 161], O: [1147, 311], N: [1439, 311],
+            R: [72, 707], S: [253, 546.5], T: [505, 695.5], P: [649, 519], I: [689, 688], Q: [948, 628], K: [1147, 527], H: [1407, 653], G: [1096, 653],
+          },
+          segs: ['AB', 'BC', 'DE', 'EF', 'MO', 'ON', 'RS', 'ST', 'PI', 'IQ', 'KH', 'HG'],
+          fill: [{ blank: 0, count: 'right', input: 0 }, { blank: 0, count: 'notRight', input: 1 }],
+        },
         q: '2. Dùng ê ke kiểm tra góc vuông và góc không vuông rồi viết số thích hợp vào chỗ chấm.',
         blanks: [
           { label: 'Trong các hình trên có ... góc vuông và ... góc không vuông.', answer: '2,4', validate: (v) => String(v).replace(/\s+/g, '') === '2,4' },

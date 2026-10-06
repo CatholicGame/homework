@@ -328,6 +328,11 @@ export const BAI_71_75 = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgB72Segments,
+        // 📏 Thước: toạ độ theo bai72_t2_q1_segments.svg; 1 cm = 117,2 (AB = 5 cm).
+        rulerPlay: {
+          points: { A: [100, 135], B: [686, 135], C: [110, 492], D: [795, 318], E: [660, 517], G: [1378, 104] }, segs: ['AB', 'CD', 'EG'], unit: 'cm', per: 117.2,
+          fill: [{ blank: 0, longest: ['AB', 'CD', 'EG'] }, { blank: 1, shortest: ['AB', 'CD', 'EG'] }],
+        },
         q: '1. Viết tiếp vào chỗ chấm cho thích hợp.\nĐo độ dài các đoạn thẳng rồi cho biết đoạn thẳng nào dài nhất, đoạn thẳng nào ngắn nhất.',
         blanks: [
           { label: '• Đoạn thẳng dài nhất là ...', answer: 'EG', validate: letterGroupsValidate(['EG']) },

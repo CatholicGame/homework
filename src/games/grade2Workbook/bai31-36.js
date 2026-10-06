@@ -492,6 +492,13 @@ export const BAI_31_36 = [
       },
       {
         type: 'choice', section: 'Tiết 2', img: imgB34T2Q5,
+        // 🔢 Đếm hình: toạ độ theo bai34_t2_q5_rect.svg; đếm đủ 4 hình thì đáp án 4 nháy sáng.
+        countPlay: {
+          points: { A: [57, 69], M: [198, 69], B: [510, 69], D: [57, 324], N: [366, 324], C: [510, 324], P: [510, 240] },
+          segs: ['AB', 'BC', 'CD', 'DA', 'MN', 'NP'],
+          kinds: { 'tứ giác': ['AMND', 'MBPN', 'MBCN', 'ABCD'] },
+          fill: [{ kind: 'tứ giác', choice: [2, 3, 4, 5] }],
+        },
         q: '5. Khoanh vào chữ đặt trước câu trả lời đúng.\nSố hình tứ giác có trong hình bên là:',
         options: ['2', '3', '4', '5'],
         answer: 2,
