@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Kéo dài dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" /></head>
+<body><div id="app"></div>
+<script type="module">
+// Trang thử 📐 Kéo dài (engine/geoPlay.js): mở thẳng lớp phủ của SGK Toán 4 Bài 42 câu 2 rồi chụp.
+//   /scripts/geo-dev.html?a=BE&b=CD&go=1&at=2500     chọn BE, CD, bấm Kéo dài, dừng hình ở 2,5 giây
+//   &scene=1                                          hình "Thử thêm" (MN, PQ)
+//   &bai=bai-41&qi=1                                  câu có 📐 thứ qi của bài khác
+//   &more=CD,AB                                       thêm cạnh đem so với cạnh a
+//   &app=1 (&open=1 | &tapimg=1)                      câu thật trong sách, nút 📐 dưới hình (bấm nút / chạm hình)
+//   &x=4 &motion=1 &ct=400 &dump=1                    xem chú thích bên dưới
+const p = new URLSearchParams(location.search);
+// &x=4: đồng hồ hoạt ảnh chạy nhanh gấp 4 (chờ lâu thì Vite tải lại trang khi chụp headless)
+const x = +(p.get('x') || 1);
+// &motion=1: bỏ qua "tắt hiệu ứng" của máy, xem bản đủ hiệu ứng (rung, tia lửa)
+if (p.get('motion')) { const mm = window.matchMedia.bind(window); window.matchMedia = (q) => (/reduced-motion/.test(q) ? { matches: false } : mm(q)); }
+if (x > 1) { const pn = performance.now.bind(performance); performance.now = () => pn() * x; }
+const sleep0 = (ms) => new Promise((r) => setTimeout(r, ms));
+if (p.get('app')) {
+  // &app=1: câu thật trong sách (nút 📐 Kéo dài dưới hình)
+  const { renderWorkbook } = await import('/src/games/grade3Workbook.js');
+  (await import('/src/engine/lightbox.js')).initLightbox();
+  const { UNITS } = await import('/src/games/grade4Textbook.js');
+  // &unit=bai-136&qn=0: câu thứ qn (từ 0) của bài; &ds=ĐĐS: bấm nút Đ/S lần lượt; &check=1: bấm Kiểm tra
+  const unitId = p.get('unit') || 'bai-42';
+  try { localStorage.removeItem('geo-dev'); } catch { /* */ }
+  renderWorkbook(document.getElementById('app'), () => {}, { units: UNITS.filter((u) => u.id === unitId), storageKey: 'geo-dev', starBook: 'geodev', lastUnitKey: 'geo-dev-last', title: 'dev', subtitle: '', menuLabel: '', unitWord: 'bài', unitName: (u) => u.title });
+  await sleep0(400);
+  document.querySelector(`[data-unit="${unitId}"]`).click();
+  await sleep0(400);
+  for (let k = 0; k < +(p.get('qn') ?? (p.get('unit') ? 0 : 1)); k++) { document.querySelector('#gw-next')?.click(); await sleep0(300); }
+  [...(p.get('ds') || '')].forEach((v, k) => document.querySelectorAll('.gw-ds')[k]?.querySelector(`[data-v="${v}"]`)?.click());
+  if (p.get('check')) { await sleep0(200); document.querySelector('#e3-submit-fill')?.click(); }
+  await sleep0(300);
+  if (p.get('open')) document.querySelector('.gp-open')?.click();
+  if (p.get('tapimg')) document.querySelector('.e3-question-card > .e3-q-img')?.click(); // chạm hình = vào thực hành
+} else {
+const { UNITS } = await import('/src/games/grade4Textbook.js');
+const { openGeoPlay } = await import('/src/engine/geoPlay.js');
+// &bai=bai-41&qi=1: câu có 📐 thứ qi (đếm từ 0) của bài đó; mặc định Bài 42 câu 2
+const bai = p.get('bai') || 'bai-42';
+const q = UNITS.find((u) => u.id === bai).questions.filter((x) => x.geoPlay)[+(p.get('qi') ?? (bai === 'bai-42' ? 1 : 0))];
+openGeoPlay(q.geoPlay);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+while (!window.__gp?.ready()) await sleep(50);
+const gp = window.__gp;
+if (p.get('scene')) { gp.load(+p.get('scene')); await sleep(100); }
+if (p.get('a')) gp.pick(p.get('a'), p.get('b'), ...(p.get('more') || '').split(','));
+if (p.get('go')) {
+  await sleep(200);
+  gp.go();
+  if (p.get('at')) {
+    await sleep(+p.get('at'));
+    window.requestAnimationFrame = () => 0;
+    // &ct=300: tua hoạt ảnh CSS tới 300 ms (headless không tự chạy đồng hồ hoạt ảnh)
+    document.getAnimations().forEach((a) => { a.pause(); if (p.get('ct')) a.currentTime = +p.get('ct'); });
+    // &probe=PS: phần tử nằm trên trung điểm cạnh PS (chạm vào đó có tới được cạnh không)
+    if (p.get('probe')) {
+      const seg = document.querySelector(`.gp-seg[data-seg="${p.get('probe')}"] .gp-line`);
+      const r = seg.getBoundingClientRect();
+      const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+      document.body.dataset.probe = `${top?.tagName}.${top?.getAttribute('class')} in ${top?.parentNode?.getAttribute?.('class')}`;
+    }
+    if (p.get('dump')) document.body.dataset.dump = JSON.stringify(document.getAnimations().map((a) => [a.animationName, a.currentTime, a.effect?.target?.getAttribute?.('class'), getComputedStyle(a.effect.target).opacity]));
+  }
+}
+}
+</script></body></html>

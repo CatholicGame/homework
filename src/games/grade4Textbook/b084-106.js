@@ -494,6 +494,8 @@ export const QUESTIONS = {
       q: '2. Cho biết trong hình tứ giác ABCD: AB và DC là hai cạnh đối diện. AD và BC là hai cạnh đối diện.\nHình tứ giác ABCD và hình bình hành MNPQ, trong hai hình đó hình nào có cặp cạnh đối diện song song và bằng nhau?',
       options: ['Hình tứ giác ABCD', 'Hình bình hành MNPQ'], answer: 1,
       hints: ['So sánh độ dài cạnh MN với QP, cạnh AB với DC.'],
+      // 📐 Kéo dài: toạ độ theo bai93_q2_tugiac.svg.
+      geoPlay: { points: { A: [90, 70], B: [240, 40], C: [290, 200], D: [40, 185], M: [440, 50], N: [640, 50], P: [580, 190], Q: [380, 190] }, segs: ['AB', 'BC', 'DC', 'AD', 'MN', 'NP', 'QP', 'MQ'], fill: ['ABCD', 'MNPQ'], pick: 'AB' },
     },
   ],
 

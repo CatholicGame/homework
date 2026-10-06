@@ -601,6 +601,9 @@ export const QUESTIONS = {
         coKhong('b) Hai đường thẳng PM và MQ có vuông góc với nhau không?', false),
       ],
       hints: ['Hai đường thẳng vuông góc tạo thành bốn góc vuông. Đặt góc vuông của ê ke vào chỗ hai đường cắt nhau.'],
+      // 📐 Kéo dài: toạ độ theo bai41_q1_vuonggoc.svg.
+      geoPlay: { points: { H: [140, 20], I: [140, 120], K: [270, 120], P: [577.1, 28.1], M: [500, 120], Q: [620, 120] }, segs: ['HI', 'IK', 'PM', 'MQ'], pick: 'HI' },
+      ekePlay: { fill: [{ blank: 0, angle: 'IHK' }, { blank: 1, angle: 'MPQ' }] },
     },
     {
       type: 'fill', stars: 2, img: imgHcn41,
@@ -609,6 +612,9 @@ export const QUESTIONS = {
         pairs('Ngoài AB và BC, các cặp cạnh vuông góc còn lại: ... và ... ; ... và ... ; ... và ...', [['BC', 'CD'], ['CD', 'DA'], ['DA', 'AB']]),
       ],
       hints: ['Hình chữ nhật có bốn góc vuông; mỗi góc vuông cho một cặp cạnh vuông góc.'],
+      // 📐 Kéo dài: toạ độ theo bai41_q2_hcn.svg.
+      geoPlay: { points: { A: [40, 40], B: [260, 40], C: [260, 160], D: [40, 160] }, segs: ['AB', 'BC', 'CD', 'DA'], fill: 'ABCD', pick: 'AB' },
+      ekePlay: { fill: { blank: 0, list: 'right', as: 'pairs', exclude: ['B'] } },
     },
     {
       type: 'fill', stars: 2, img: imgVuongGoc3,
@@ -618,6 +624,9 @@ export const QUESTIONS = {
         pairs('b) ... và ... ; ... và ...', [['MN', 'NP'], ['NP', 'PQ']]),
       ],
       hints: ['Tìm các góc vuông trước, mỗi góc vuông có hai cạnh là một cặp đoạn thẳng vuông góc.'],
+      // 📐 Kéo dài: toạ độ theo bai41_q3_vuonggoc.svg.
+      geoPlay: { points: { A: [40, 90], B: [130, 30], C: [220, 90], D: [220, 170], E: [40, 170], M: [310, 170], N: [420, 170], P: [420, 60], Q: [540, 60], R: [610, 170] }, segs: ['AB', 'BC', 'CD', 'DE', 'AE', 'MN', 'NP', 'PQ', 'QR'], fill: 'ABCDE' },
+      ekePlay: { fill: [{ blank: 0, list: 'right', as: 'pairs', within: 'ABCDE' }, { blank: 1, list: 'right', as: 'pairs', within: 'MNPQR' }] },
     },
     {
       type: 'fill', stars: 2, img: imgTuGiac41,
@@ -627,6 +636,9 @@ export const QUESTIONS = {
         pairs('b) ... và ... ; ... và ...', [['AB', 'BC'], ['BC', 'CD']]),
       ],
       hints: ['a) Hai cạnh của góc vuông đỉnh A, hai cạnh của góc vuông đỉnh D.', 'b) Xem các góc còn lại ở đỉnh B và đỉnh C.'],
+      // 📐 Kéo dài: toạ độ theo bai41_q4_tugiac.svg.
+      geoPlay: { points: { A: [40, 40], B: [150, 40], C: [260, 220], D: [40, 220] }, segs: ['AB', 'BC', 'CD', 'AD'], fill: 'ABCD', pick: 'AB' },
+      ekePlay: { fill: [{ blank: 0, list: 'right', as: 'pairs' }, { blank: 1, list: 'notRight', as: 'pairs' }] },
     },
   ],
 
@@ -640,12 +652,21 @@ export const QUESTIONS = {
         pairs('b) ... và ... ; ... và ...', [['MN', 'QP'], ['MQ', 'NP']]),
       ],
       hints: ['Hai cạnh đối diện của hình chữ nhật, hình vuông thì song song với nhau.'],
+      // 📐 Kéo dài: toạ độ theo bai42_q1_songsong.svg.
+      geoPlay: { points: { A: [40, 40], B: [300, 40], C: [300, 190], D: [40, 190], M: [400, 40], N: [550, 40], P: [550, 190], Q: [400, 190] }, segs: ['AB', 'BC', 'DC', 'AD', 'MN', 'NP', 'QP', 'MQ'], fill: ['ABCD', 'MNPQ'], pick: 'AB', answer: [{ blank: 0, list: 'par', within: 'ABCD', exclude: [['AB', 'DC']] }, { blank: 1, list: 'par', within: 'MNPQ' }] },
     },
     {
       type: 'fill', stars: 2, img: imgSongSong2,
       q: '2. Trong hình bên, cho biết các hình tứ giác ABEG, ACDG, BCDE đều là hình chữ nhật. Cạnh BE song song với những cạnh nào?',
       blanks: [names('Cạnh BE song song với cạnh ... và cạnh ...', ['AG', 'CD'])],
       hints: ['Trong mỗi hình chữ nhật có cạnh BE, tìm cạnh đối diện với BE.'],
+      // 📐 Kéo dài: toạ độ theo bai42_q2_songsong.svg; "Thử thêm": MN, PQ nhìn tưởng song song nhưng gặp nhau ở xa.
+      geoPlay: {
+        answer: [{ blank: 0, list: 'par', with: 'BE' }],
+        points: { A: [40, 40], B: [210, 40], C: [300, 40], D: [300, 190], E: [210, 190], G: [40, 190] },
+        segs: ['AB', 'BC', 'CD', 'DE', 'EG', 'AG', 'BE'], fill: 'ACDG', pick: 'BE',
+        more: [{ name: 'Thử thêm', points: { M: [40, 60], N: [300, 60], P: [40, 170], Q: [300, 155] }, segs: ['MN', 'PQ'] }],
+      },
     },
     {
       type: 'fill', stars: 3, img: imgLuoi,
@@ -657,6 +678,9 @@ export const QUESTIONS = {
         pairs('b) ... và ... ; ... và ... ; ... và ...', [['DE', 'EG'], ['DI', 'IH'], ['GH', 'IH']]),
       ],
       hints: ['Đếm ô vuông: cạnh nằm trên đường kẻ ngang song song với nhau, cạnh trên đường kẻ dọc vuông góc với cạnh trên đường kẻ ngang.', 'Kiểm tra cả góc ở đỉnh E: mỗi cạnh DE, EG đi chéo qua hai ô.'],
+      // 📐 Kéo dài: toạ độ theo bai42_q3_luoi.svg.
+      geoPlay: { points: { M: [100, 140], N: [220, 140], P: [340, 260], Q: [100, 260], D: [500, 140], E: [580, 60], G: [660, 140], H: [660, 260], I: [500, 260] }, segs: ['MN', 'NP', 'QP', 'MQ', 'DE', 'EG', 'GH', 'IH', 'DI'], fill: ['MNPQ', 'DEGHI'], cell: 40, origin: [20, 20], pick: 'MN', answer: [{ blank: 0, list: 'par', within: 'MNPQ' }, { blank: 2, list: 'par', within: 'DEGHI' }] },
+      ekePlay: { fill: [{ blank: 1, list: 'right', as: 'pairs', within: 'MNPQ' }, { blank: 3, list: 'right', as: 'pairs', within: 'DEGHI' }] },
     },
   ],
 
@@ -679,12 +703,17 @@ export const QUESTIONS = {
       q: '2. Cho hình tam giác ABC có góc đỉnh A là góc vuông. Qua đỉnh A, hãy vẽ đường thẳng AX song song với cạnh BC; qua đỉnh C, hãy vẽ đường thẳng CY song song với cạnh AB. Hai đường thẳng AX và CY cắt nhau tại điểm D, nêu tên các cặp cạnh song song với nhau có trong hình tứ giác ADCB.',
       blanks: [pairs('... và ... ; ... và ...', [['AD', 'BC'], ['DC', 'AB']])],
       hints: ['AD nằm trên đường AX, DC nằm trên đường CY.'],
+      // 📐 Kéo dài: toạ độ theo bai44_q2_songsong.svg.
+      geoPlay: { points: { A: [257.5, 84.4], B: [40, 210], C: [330, 210], D: [547.5, 84.4] }, segs: ['AB', 'BC', 'AC', 'AD', 'DC'], fill: 'ABC', pick: 'AD', answer: [{ blank: 0, list: 'par' }] },
     },
     {
       type: 'fill', stars: 1, img: imgTuGiac44,
       q: '3. Cho hình tứ giác ABCD có góc đỉnh A và góc đỉnh D là các góc vuông (xem hình vẽ).\na) Hãy vẽ đường thẳng đi qua B và song song với cạnh AD, cắt cạnh DC tại điểm E.\nb) Dùng ê ke kiểm tra xem góc đỉnh E của hình tứ giác BEDA có là góc vuông hay không.',
       blanks: [coKhong('b) Góc đỉnh E của hình tứ giác BEDA có là góc vuông không?', true)],
       hints: ['BE song song với AD, mà AD vuông góc với DC.'],
+      // 📐 Kéo dài: toạ độ theo bai44_q3_tugiac.svg.
+      geoPlay: { points: { A: [60, 220], B: [60, 130], C: [280, 40], D: [280, 220], E: [280, 130] }, segs: ['AB', 'BC', 'CE', 'ED', 'DA', 'BE'], fill: 'ABCD', pick: 'BE' },
+      ekePlay: { fill: { blank: 0, angle: 'EBD' } },
     },
   ],
 
@@ -761,6 +790,9 @@ export const QUESTIONS = {
         { label: '– AB là đường cao của hình tam giác ABC ...', answer: 'Đ', validate: dsValidate(true) },
       ],
       hints: ['Đường cao kẻ từ A phải vuông góc với cạnh BC. AH có vuông góc với BC không?'],
+      // 📐 Kéo dài: toạ độ theo bai47_q2_duongcao.svg.
+      geoPlay: { points: { A: [60, 30], B: [60, 200], C: [380, 200], H: [240, 200] }, segs: ['AB', 'BC', 'AC', 'AH'], fill: 'ABC', pick: 'BC' },
+      ekePlay: { fill: [{ blank: 0, angle: ['HAB', 'HAC'], yes: 'Đ', no: 'S' }, { blank: 1, angle: 'BAC', yes: 'Đ', no: 'S' }] },
     },
     {
       type: 'fill', stars: 2, img: imgHcn47,
@@ -770,6 +802,10 @@ export const QUESTIONS = {
         names('Các cạnh song song với cạnh AB: ... và ...', ['MN', 'DC']),
       ],
       hints: ['MN chia hình ABCD thành hai hình chữ nhật nhỏ; hình lớn ABCD cũng là hình chữ nhật.'],
+      // 📐 Kéo dài: toạ độ theo bai47_q4_hcn.svg.
+      geoPlay: { points: { A: [80, 40], B: [380, 40], C: [380, 240], D: [80, 240], M: [80, 140], N: [380, 140] }, segs: ['AB', 'BN', 'NC', 'DC', 'MD', 'AM', 'MN'], fill: 'ABCD', pick: 'AB', answer: [{ blank: 1, list: 'par', with: 'AB' }] },
+      ekePlay: true,
+      rulerPlay: { unit: 'cm', per: 50 },
     },
   ],
 
@@ -802,6 +838,10 @@ export const QUESTIONS = {
         { label: 'c) Chu vi hình chữ nhật AIHD là: ... cm', answer: '18' },
       ],
       hints: ['BIHC có chung cạnh BC với hình vuông ABCD.', 'Chiều dài AI = 3 + 3; chu vi = (dài + rộng) × 2.'],
+      // 📐 Kéo dài: toạ độ theo bai48_q3_hinhvuong.svg.
+      geoPlay: { points: { A: [40, 40], B: [200, 40], I: [360, 40], D: [40, 200], C: [200, 200], H: [360, 200] }, segs: ['AB', 'BI', 'IH', 'DH', 'AD', 'BC'], fill: 'AIHD', pick: 'DH' },
+      ekePlay: { fill: { blank: 1, list: 'right', line: 'DH' } },
+      rulerPlay: { unit: 'cm', per: 160 / 3, fill: { blank: 0, len: [['B', 'I'], ['I', 'H'], ['B', 'C']] } },
     },
     {
       type: 'fill', stars: 4, wordProblem: true,

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Tìm bài dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" /><link rel="stylesheet" href="/src/styles/game.css" /></head>
+<body><div id="app"></div>
+<script type="module">
+// Trang thử 🔎 tìm bài (engine/listSearch.js): mở một danh sách rồi gõ chữ tìm.
+//   /scripts/search-dev.html?view=tools4&q=goc tu        Học bằng công cụ Toán 4 (tools5: Toán 5)
+//   ?view=grade4Textbook&q=song song                      menu bài của một sách (tên file trong src/games)
+//   ?view=drills5&q=doi don vi                            Luyện Tính (drills2..drills5)
+//   &hit=1                                                chạm kết quả câu / cấp đầu tiên
+const p = new URLSearchParams(location.search);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const app = document.getElementById('app');
+const view = p.get('view') || 'tools4';
+const mod = {
+  tools4: '/src/games/grade4Tools.js', tools5: '/src/games/grade5Tools.js',
+  drills2: '/src/games/grade2Drills.js', drills3: '/src/games/grade3Drills.js', drills4: '/src/games/grade4Drills.js', drills5: '/src/games/grade5Drills.js',
+}[view] || `/src/games/${view}.js`;
+const m = await import(mod);
+m.render(app, () => {});
+await sleep(500);
+const input = document.querySelector('.ls-input');
+if (input && p.get('q')) {
+  input.value = p.get('q');
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  await sleep(400);
+}
+if (p.get('hit')) { document.querySelector('.gw-hit, .g3g-hub-hit, .g4h-tile:not(.ls-hide)')?.click(); await sleep(500); }
+</script></body></html>

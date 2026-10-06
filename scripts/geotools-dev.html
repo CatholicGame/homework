@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Đồ dùng hình học dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" /></head>
+<body><div id="app"></div>
+<script type="module">
+// Trang thử đồ dùng hình học (engine/geoTools.js): mở thẳng lớp phủ của một câu rồi chụp.
+//   ?book=g3&unit=bai-18&tool=eke&snap=A          Lớp 3 Tập 1 (g3), Tập 2 (g3b), SGK Toán 4 (g4)
+//   &qi=1                                          câu có đồ dùng thứ qi (từ 0) của bài
+//   &snap=A&next=1                                 ê ke đặt vào đỉnh A, xoay sang hướng tiếp theo 1 lần
+//   &measure=A,C                                   thước đo AC (nhiều lần: A,M;M,B)
+//   &tap=A,B,I|A,B,C,I&kind=1                      đếm hình: chạm lần lượt các đỉnh (nhiều hình cách nhau |)
+//   &fill=A:10,B                                   ô vuông: phủ 10 ô hình A, phủ hết hình B
+//   &app=1 (&open=eke | &tapimg=1)                 câu thật trong sách, hàng nút dưới hình
+//   &motion=1                                      bỏ qua "tắt hiệu ứng" của máy
+const p = new URLSearchParams(location.search);
+// headless + virtual-time-budget: requestAnimationFrame có khi không chạy, thay bằng hẹn giờ cho chắc
+if (!p.get('realraf')) { window.requestAnimationFrame = (f) => setTimeout(() => f(performance.now()), 16); window.cancelAnimationFrame = (id) => clearTimeout(id); }
+window.addEventListener('error', (e) => { document.body.dataset.err = (document.body.dataset.err || '') + e.message + ' @' + e.lineno + ' '; });
+window.addEventListener('unhandledrejection', (e) => { document.body.dataset.err = (document.body.dataset.err || '') + String(e.reason) + ' '; });
+if (p.get('motion')) { const mm = window.matchMedia.bind(window); window.matchMedia = (q) => (/reduced-motion/.test(q) ? { matches: false } : mm(q)); }
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const book = p.get('book') || 'g3';
+const units = book === 'g3' ? (await import('/src/games/grade3Workbook.js')).WORKBOOK3_UNITS
+  : book === 'g4' ? (await import('/src/games/grade4Textbook.js')).UNITS
+  : [...(await import('/src/games/grade3Workbook2/bai49-51.js')).BAI_49_51, ...(await import('/src/games/grade3Workbook2/bai52-54.js')).BAI_52_54];
+const unitId = p.get('unit') || 'bai-18';
+const unit = units.find((u) => u.id === unitId);
+const has = (q) => q.ekePlay || q.rulerPlay || q.countPlay || q.areaPlay || (p.get('gp') && q.geoPlay);
+if (p.get('app')) {
+  const { renderWorkbook } = await import('/src/games/grade3Workbook.js');
+  (await import('/src/engine/lightbox.js')).initLightbox();
+  try { localStorage.removeItem('gt-dev'); } catch { /* */ }
+  renderWorkbook(document.getElementById('app'), () => {}, { units: [unit], storageKey: 'gt-dev', starBook: 'gtdev', lastUnitKey: 'gt-dev-last', title: 'dev', subtitle: '', menuLabel: '', unitWord: 'bài', unitName: (u) => u.title });
+  await sleep(400);
+  document.querySelector(`[data-unit="${unitId}"]`).click();
+  await sleep(400);
+  const target = unit.questions.indexOf(unit.questions.filter(has)[+(p.get('qi') || 0)]);
+  for (let k = 0; k < target; k++) { document.querySelector('#gw-next')?.click(); await sleep(250); }
+  await sleep(300);
+  if (p.get('open')) [...document.querySelectorAll('.gt-open')].find((b) => b.textContent.includes({ eke: 'Ê ke', ruler: 'Thước', count: 'Đếm', area: 'Ô vuông' }[p.get('open')]))?.click();
+  if (p.get('tapimg')) document.querySelector('.e3-question-card > .e3-q-img')?.click();
+  // &open=eke&do=snap:A;snap:I;measure:A,B;tap:A,B,I;kind:1;fill:A&xong=1: thao tác trong công cụ rồi bấm ✓ Xong
+  // &gp=BE,CD,AG: mở ↔️ Kéo dài, chọn các cạnh, bấm Kéo dài, chờ xong rồi đóng
+  // sau cùng: body[data-blanks] = giá trị các ô trả lời, body[data-suggest] = đáp án đang nháy
+  const ov = document.querySelector('.gt-overlay');
+  if (ov) {
+    while (!ov.__gt) await sleep(50);
+    for (const a of (p.get('do') || '').split(';').filter(Boolean)) {
+      const [k, v = ''] = a.split(':');
+      if (k === 'tap') ov.__gt.tap(...v.split(','));
+      if (k === 'kind') ov.__gt.kind(+v);
+      if (k === 'snap') ov.__gt.snap(v);
+      if (k === 'measure') ov.__gt.measure(...v.split(','));
+      if (k === 'fill') ov.__gt.fill(v);
+      await sleep(150);
+      ov.__flush?.();
+    }
+    if (p.get('xong')) ov.querySelector('.gt-close').click();
+  }
+  if (p.get('gp')) {
+    document.querySelector('.gp-open').click();
+    while (!window.__gp?.ready()) await sleep(50);
+    for (const g of p.get('gp').split('|')) { window.__gp.pick(...g.split(',')); window.__gp.go(); await sleep(15000); }
+    document.querySelector('.gp-close').click();
+  }
+  await sleep(300);
+  document.body.dataset.blanks = [...document.querySelectorAll('.e3-blank-input')].map((i) => `${i.dataset.idx}=${i.value}`).join(' ');
+  document.body.dataset.suggest = [...document.querySelectorAll('.e3-option')].findIndex((o) => o.classList.contains('gt-suggest'));
+} else {
+  const q = unit.questions.filter(has)[+(p.get('qi') || 0)];
+  const { openGeoTools } = await import('/src/engine/geoTools.js');
+  const ov = openGeoTools(q, p.get('tool') || 'eke');
+  while (!ov.__gt) await sleep(50);
+  await sleep(200);
+  const gt = ov.__gt;
+  if (p.get('place')) { const [x, y, th] = p.get('place').split(',').map(Number); gt.place(x, y, th); }
+  if (p.get('snap')) gt.snap(p.get('snap'), +(p.get('next') || 0));
+  for (const m of (p.get('measure') || '').split(';').filter(Boolean)) { gt.measure(...m.split(',')); await sleep(1100); }
+  if (p.get('kind')) { gt.kind(+p.get('kind')); await sleep(100); }
+  for (const g of (p.get('tap') || '').split('|').filter(Boolean)) { gt.tap(...g.split(',')); await sleep(250); }
+  for (const f of (p.get('fill') || '').split(',').filter(Boolean)) { const [id, n] = f.split(':'); gt.fill(id, n ? +n : Infinity); }
+  document.body.dataset.ready = '1';
+}
+</script></body></html>

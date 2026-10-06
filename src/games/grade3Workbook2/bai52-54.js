@@ -90,6 +90,13 @@ export const BAI_52_54 = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB52Grid,
+        // 🟦 Ô vuông 1 cm²: phần kẹo của từng bạn theo bai52_t1_q3_grid.svg.
+        areaPlay: {
+          cell: 50, origin: [16, 14], names: { B: 'Bu-ra-ti-nô', R: 'Rô-bốt', D: 'Dế Mèn', G: 'Gà' },
+          map: ['BBBBBBRR', 'BBBBBBRR', 'BBBBBBRR', 'DDDDRRRR', 'DDDDRRRR', 'DDGGGGGG', 'DDGGGGGG', 'DDGGGGGG'],
+          // a) Dế Mèn, rô-bốt, gà, Bu-ra-ti-nô: bốn chỗ trống của ô đầu
+          fill: [{ blank: 0, shape: 'D', input: 0 }, { blank: 0, shape: 'R', input: 1 }, { blank: 0, shape: 'G', input: 2 }, { blank: 0, shape: 'B', input: 3 }],
+        },
         q: '3. Viết số thích hợp vào chỗ chấm.\nBu-ra-ti-nô bẻ miếng kẹo sô-cô-la thành bốn phần rồi chia cho bốn bạn như hình vẽ.',
         blanks: [
           { label: 'a) Phần kẹo mỗi bạn nhận được là:<br>Dế mèn: ... cm², rô-bốt: ... cm², gà: ... cm², Bu-ra-ti-nô: ... cm².', answer: '14,14,18,18', validate: numListV(14, 14, 18, 18) },

@@ -839,6 +839,9 @@ export const QUESTIONS = {
         seg2('Cạnh ... vuông góc với cạnh ...', 'AD', 'DC'),
       ],
       hints: ['Hai cạnh tạo thành góc vuông (có kí hiệu góc vuông) thì vuông góc với nhau.'],
+      // 📐 Kéo dài: toạ độ theo bai167_q1_abcd.svg.
+      geoPlay: { points: { A: [50, 50], B: [330, 50], C: [220, 170], D: [50, 170] }, segs: ['AB', 'BC', 'DC', 'AD'], fill: 'ABCD', pick: 'AB', answer: [{ blank: 0, list: 'par' }] },
+      ekePlay: { fill: { blanks: [1, 2], list: 'right', as: 'sides' } },
     },
     {
       type: 'fill', stars: 2,
@@ -883,6 +886,9 @@ export const QUESTIONS = {
         seg1('b) Đoạn thẳng ... vuông góc với BC.', 'CD'),
       ],
       hints: ['Hai đường thẳng song song không bao giờ cắt nhau. Hai đoạn thẳng vuông góc tạo thành góc vuông.'],
+      // 📐 Kéo dài: toạ độ theo bai168_q1_duong.svg.
+      geoPlay: { points: { A: [40, 50], B: [260, 50], C: [320, 153.9], D: [164.1, 243.9], E: [394.1, 243.9] }, segs: ['AB', 'BC', 'CD', 'DE'], pick: 'AB', answer: [{ blank: 0, list: 'par', with: 'AB' }] },
+      ekePlay: { fill: { blank: 1, list: 'right', line: 'BC' } },
     },
     {
       type: 'choice', stars: 3, img: imgVuongNhat,

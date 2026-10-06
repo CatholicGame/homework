@@ -82,7 +82,7 @@ function lockOrientation(o) {
   return go.then(() => true, () => false);
 }
 
-function enterGameMode() {
+export function enterGameMode() {
   document.body.classList.add('g3g-playing');
   const el = document.documentElement;
   const saved = phoneSized() && savedOrient();
@@ -109,7 +109,7 @@ const phoneIcon = (land) => `<svg viewBox="0 0 24 24" width="22" height="22" ari
  * nằm ngang). Bấm: khoá hướng đó và nhớ cho lần sau; máy không cho khoá (iPhone) → lớp phủ nhắc bé xoay máy,
  * tự tắt khi đã xoay đúng (hoặc bấm "Để sau").
  */
-function mountOrientation(play, btn) {
+export function mountOrientation(play, btn) {
   if (!btn) return;
   const ov = document.createElement('div');
   ov.className = 'g3g-rotate';

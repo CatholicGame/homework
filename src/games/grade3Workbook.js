@@ -124,6 +124,9 @@ import { attachBalancePlay, revealBalancePlay } from '../engine/balancePlay.js';
 import { attachColorPaint, isPaintQuestion } from '../engine/colorPaint.js';
 import { attachPourPlay, revealPourPlay } from '../engine/pourPlay.js';
 import { attachCalcPlay, hasCalc } from '../engine/calcPlay.js';
+import { attachGeoPlay } from '../engine/geoPlay.js';
+import { attachGeoTools } from '../engine/geoTools.js';
+import { searchBox, matcher, pickTest, prep, snippet, textOf, resultNote } from '../engine/listSearch.js';
 import { GRADE3_GAMES } from '../data/features.js';
 import { levelsForUnit } from './grade3Games/catalog.js';
 import { toVietnameseAnswer, isEnglish, tr } from '../engine/i18n.js';
@@ -479,6 +482,14 @@ const bai44OtherAngles = (value) => bai44AnglesAtO('O,' + value);
 
 // Bài 23 Tiết 2 Q2 cipher: tiles (tap-to-write keypad) of the code letters, as the book lists them.
 const CIPHER = ['A', 'C', 'Đ', 'H', 'I', 'O', 'U'];
+
+// Hình dùng chung cho nhiều đồ dùng (📐 Ê ke, 📏 Thước, 🔢 Đếm hình, engine/geoTools.js), toạ độ theo viewBox của hình.
+const FIG_BAI22 = { points: { C: [263.5, 58.5], D: [75, 58.5], A: [263.5, 245.5], E: [582, 114], B: [451.5, 245.5], G: [451.5, 434.5] }, segs: ['DC', 'CA', 'AD', 'CE', 'EB', 'BC', 'AB', 'BG', 'AG'] };
+const FIG_BAI43 = {
+  points: { B: [327, 80.5], A: [81.5, 328.5], C: [573, 328.5], K: [327, 328.5], E: [143.5, 451.5], I: [327, 451.5], D: [510.5, 451.5], M: [81.5, 574.5], H: [327, 574.5], N: [573, 574.5] },
+  segs: ['AB', 'BC', 'AC', 'BH', 'AE', 'EM', 'CD', 'DN', 'ED', 'MN'],
+};
+const FIG_BAI44 = { points: { A: [62.5, 125.5], B: [400, 125.5], C: [400, 316.5], D: [62.5, 316.5], O: [231.25, 221] }, segs: ['AB', 'BC', 'CD', 'DA', 'AC', 'BD'] };
 
 const UNITS = [
   {
@@ -1838,6 +1849,9 @@ const UNITS = [
     questions: [
       {
         type: 'fill', section: 'Tiết 1', img: imgBai16Segment,
+        // 📏 Thước: toạ độ theo bai16_ex1_segment.svg (1 cm = 45,6).
+        rulerPlay: { points: { A: [113.5, 122.5], B: [235.5, 184.5], C: [359, 245.5], D: [542.5, 245.5], E: [604.5, 245.5] }, segs: ['AB', 'BC', 'CD', 'DE'], unit: 'cm', per: 45.6, free: true,
+          fill: [{ blank: 0, mid: 'B', of: 'AC' }, { blank: 1, mid: 'D', of: 'CE' }] },
         q: '1. Đ, S?\nQuan sát hình vẽ (các điểm A, B, C, D, E) rồi cho biết mỗi nhận định sau đúng hay sai (viết Đ hoặc S).',
         blanks: [
           { label: 'a) B là trung điểm của đoạn thẳng AC.', answer: 'Đ', validate: dsValidate(true) },
@@ -1875,6 +1889,9 @@ const UNITS = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgBai16Trapezoid,
+        // 📏 Thước (đo bằng ô): toạ độ theo bai16_ex3_trapezoid.svg.
+        rulerPlay: { points: { A: [232, 109], M: [355, 109], B: [478, 109], N: [355, 191.3], P: [355, 232], D: [109, 356], Q: [355, 356], C: [600.5, 356] }, segs: ['AM', 'MB', 'BC', 'CQ', 'QD', 'DA', 'MN', 'NP', 'PQ', 'DN', 'NB'], unit: 'ô', per: 61.5, free: true,
+          fill: [{ blank: 0, midOf: 'DC' }, { blank: 1, midOf: 'MQ' }] },
         q: '3. Viết tiếp vào chỗ chấm cho thích hợp.',
         blanks: [
           { label: 'a) Trung điểm của đoạn thẳng CD là điểm ...', answer: 'Q', validate: setValidate(['Q']) },
@@ -1942,6 +1959,12 @@ const UNITS = [
     questions: [
       {
         type: 'fill', img: imgBai18Angles,
+        // 📐 Ê ke: toạ độ theo bai18_q1_angles.svg (P2 là điểm P thứ hai).
+        ekePlay: {
+          points: { B: [77, 97.5], A: [430.5, 97.5], C: [430.5, 302], Q: [1167, 184], R: [1283, 296], P: [1477, 103], N: [717, 107], M: [928, 256], P2: [697, 322], H: [675, 423], G: [913, 410], K: [1085, 333], L: [126, 338], I: [265, 531], T: [614, 531], X: [1411, 410], E: [1090, 518], Y: [1531, 518] },
+          segs: ['BA', 'AC', 'QR', 'RP', 'NM', ['M', 'P2'], 'HG', 'GK', 'LI', 'IT', 'XE', 'EY'],
+          fill: [{ blanks: [0, 1], list: 'right', as: 'angle' }, { blanks: [2, 3, 4, 5], list: 'notRight', as: 'angle' }],
+        },
         q: '1. Dùng ê ke để kiểm tra góc vuông rồi viết tiếp vào chỗ chấm cho thích hợp.\nTrong hình vẽ có:',
         blanks: [
           { label: 'a) Các góc vuông là: Góc đỉnh ...; cạnh ..., ...', answer: 'A, AB, AC', validate: bai18RightAngles },
@@ -1987,6 +2010,12 @@ const UNITS = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgBai19Trapezoid,
+        // 🔢 Đếm hình: toạ độ theo bai19_q2_trapezoid.svg.
+        countPlay: {
+          points: { A: [100, 224.5], D: [452, 224.5], C: [617.5, 507.5], B: [10.5, 507.5], I: [286, 224.5] },
+          kinds: { 'tam giác': ['ABI', 'ICD', 'IBC'], 'tứ giác': ['ABCI', 'IBCD', 'ABCD'] },
+          fill: { 'tam giác': 0, 'tứ giác': 1 },
+        },
         q: '2. Viết tiếp vào chỗ chấm cho thích hợp.\nTrong hình vẽ bên có:',
         blanks: [
           { label: 'a) Các hình tam giác là: ...', answer: 'ABI, ICD, IBC', validate: letterGroupsValidate(['ABI', 'ICD', 'IBC']) },
@@ -2008,6 +2037,12 @@ const UNITS = [
       },
       {
         type: 'choice', section: 'Tiết 2', img: imgBai19T2Q1bShapes,
+        // 📐 Ê ke: toạ độ theo bai19_t2_q1b_shapes.svg.
+        ekePlay: {
+          points: { A: [101.5, 129.5], B: [409.5, 129.5], C: [409.5, 314.5], D: [101.5, 314.5], M: [532.5, 66.5], N: [841.5, 66.5], P: [901.5, 314.5], Q: [593.5, 314.5], R: [964.5, 129.5], T: [1210.5, 129.5], X: [1147.5, 374.5], Y: [1024.5, 374.5], E: [1393.5, 66.5], G: [1516.5, 66.5], I: [1516.5, 374.5], H: [1393.5, 374.5] },
+          segs: ['AB', 'BC', 'CD', 'DA', 'MN', 'NP', 'PQ', 'QM', 'RT', 'TX', 'XY', 'YR', 'EG', 'GI', 'IH', 'HE'],
+          fill: { rects: ['ABCD', 'MNPQ', 'RTXY', 'EGIH'], options: [1, 2, 3, 4] },
+        },
         q: '1b. Khoanh vào chữ đặt trước câu trả lời đúng.\nTrong hình vẽ có mấy hình chữ nhật?',
         options: ['1 hình', '2 hình', '3 hình', '4 hình'],
         answer: 1,
@@ -2018,6 +2053,16 @@ const UNITS = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgBai19T2Colored,
+        // 📏 Thước: toạ độ theo bai19_t2_q2_colored.svg (1 cm = 108).
+        rulerPlay: {
+          points: { _1: [21.25, 21.25], _2: [560.75, 21.25], _3: [560.75, 564.75], _4: [21.25, 564.75], _5: [858.75, 298.25], _6: [1394.25, 298.25], _7: [1394.25, 564.75], _8: [858.75, 564.75] },
+          segs: [['_1', '_2'], ['_2', '_3'], ['_3', '_4'], ['_4', '_1'], ['_5', '_6'], ['_6', '_7'], ['_7', '_8'], ['_8', '_5']], unit: 'cm', per: 108,
+          fill: [
+            { blank: 0, len: [['_1', '_2'], ['_2', '_3'], ['_3', '_4'], ['_4', '_1']], equals: 5 },
+            { blank: 1, len: [['_6', '_7'], ['_8', '_5']], equals: 4 },
+            { blank: 2, len: [['_5', '_6'], ['_7', '_8']], equals: 2 },
+          ],
+        },
         q: '2. Đ, S?\nDùng thước có vạch chia xăng-ti-mét để đo độ dài các đoạn thẳng trong hình đã cho, ta có:',
         blanks: [
           { label: 'a) Hình vuông có cạnh 5cm.', answer: 'Đ', validate: dsValidate(true) },
@@ -2085,6 +2130,12 @@ const UNITS = [
     questions: [
       {
         type: 'fill', section: 'Tiết 1', img: imgBai20Envelope,
+        // 📐 Ê ke: toạ độ theo bai20_q2_envelope.svg (hình không có tên điểm).
+        ekePlay: {
+          points: { _1: [10, 8.5], _2: [441, 8.5], _3: [441, 283], _4: [10, 283], _5: [226, 215] },
+          segs: [['_1', '_2'], ['_2', '_3'], ['_3', '_4'], ['_4', '_1'], ['_1', '_5'], ['_5', '_2']],
+          fill: 0,
+        },
         q: '2. Viết tiếp vào chỗ chấm cho thích hợp.',
         blanks: [
           { label: 'a) Dùng ê ke để kiểm tra góc vuông, em tìm được trong hình bên có ... góc vuông.', answer: '5' },
@@ -2158,6 +2209,13 @@ const UNITS = [
     questions: [
       {
         type: 'choice', section: 'Tiết 1', img: imgBai22T1Rects,
+        // 📏 Thước (đo bằng ô): góc và chấm của ba hình chữ nhật trong bai22_t1_q1_rects.svg.
+        rulerPlay: {
+          points: { _a1: [69.5, 16.5], _a2: [440.5, 16.5], _a3: [440.5, 262.5], _a4: [69.5, 262.5], _at: [255.5, 16.5], _ar: [440.5, 139.5], _al: [69.5, 201], _ab: [378.5, 262.5], _b1: [624.5, 16.5], _b2: [993, 16.5], _b3: [993, 262.5], _b4: [624.5, 262.5], _bt: [686.5, 16.5], _br: [993, 139.5], _bl: [624.5, 139.5], _bb: [809.5, 262.5], _c1: [1178.5, 16.5], _c2: [1547.5, 16.5], _c3: [1547.5, 262.5], _c4: [1178.5, 262.5], _ct: [1362, 16.5], _cr: [1547.5, 139.5], _cl: [1178.5, 139.5], _cb: [1362, 262.5] },
+          segs: [['_a1', '_at'], ['_at', '_a2'], ['_a2', '_ar'], ['_ar', '_a3'], ['_a3', '_ab'], ['_ab', '_a4'], ['_a4', '_al'], ['_al', '_a1'], ['_b1', '_bt'], ['_bt', '_b2'], ['_b2', '_br'], ['_br', '_b3'], ['_b3', '_bb'], ['_bb', '_b4'], ['_b4', '_bl'], ['_bl', '_b1'], ['_c1', '_ct'], ['_ct', '_c2'], ['_c2', '_cr'], ['_cr', '_c3'], ['_c3', '_cb'], ['_cb', '_c4'], ['_c4', '_cl'], ['_cl', '_c1']],
+          unit: 'ô', per: 61.5,
+          fill: { choice: [[2, [['_c1', '_ct', '_c2'], ['_c2', '_cr', '_c3'], ['_c3', '_cb', '_c4'], ['_c4', '_cl', '_c1']]]] },
+        },
         q: '1. Bạn Việt vẽ một hình chữ nhật trên giấy ô vuông rồi vẽ trung điểm mỗi cạnh của hình chữ nhật đó. Em hãy khoanh vào chữ đặt dưới hình mà bạn Việt đã vẽ.',
         options: ['Hình A', 'Hình B', 'Hình C'],
         answer: 2,
@@ -2191,6 +2249,9 @@ const UNITS = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgBai22T2Figure,
+        // 📐 Ê ke, 🔢 Đếm hình: toạ độ theo bai22_t2_q1_figure.svg.
+        ekePlay: { ...FIG_BAI22, fill: 2 },
+        countPlay: { ...FIG_BAI22, kinds: { 'tam giác': ['ACD', 'ABC', 'BCE', 'ABG'], 'tứ giác': ['ABCD', 'ACEB', 'ACBG', 'DCBG'] }, fill: { 'tam giác': 0, 'tứ giác': 1 } },
         q: '1. Quan sát hình vẽ dưới đây rồi viết tiếp vào chỗ chấm cho thích hợp.',
         blanks: [
           {
@@ -3994,6 +4055,9 @@ const UNITS = [
     questions: [
       {
         type: 'fill', section: 'Tiết 1', img: imgBai43T1Figure,
+        // 📐 Ê ke, 📏 Thước (đo bằng ô): toạ độ theo bai43_t1_q1_figure.svg.
+        ekePlay: { ...FIG_BAI43, fill: [{ blank: 0, count: 'notRight', at: 'B' }, { blank: 1, count: 'notRight', at: 'A' }, { blank: 2, count: 'right' }] },
+        rulerPlay: { ...FIG_BAI43, unit: 'ô', per: 61.5, fill: [{ blank: 3, midOf: 'AC' }, { blank: 4, midOf: 'ED' }, { blank: 5, midOf: 'KH' }, { blank: 6, midOf: 'BH' }, { blank: 7, midOf: 'MN' }] },
         q: '1. a) Số?\nTrong hình bên có:',
         blanks: [
           { label: '... góc không vuông đỉnh B;', answer: '2' },
@@ -4121,6 +4185,9 @@ const UNITS = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgBai44T1Rect,
+        // 📐 Ê ke, 📏 Thước: toạ độ theo bai44_t1_q3_rect.svg.
+        ekePlay: { ...FIG_BAI44, fill: [{ blanks: [1, 2, 3, 4], list: 'right', as: 'angle' }, { blanks: [5, 6, 7, 8], list: 'notRight', at: 'O', as: 'sides' }] },
+        rulerPlay: { ...FIG_BAI44, unit: 'cm', per: 38.8, fill: { blank: 0, midsAt: 'O', of: ['AC', 'BD'] } },
         q: '3. Viết vào chỗ chấm cho thích hợp.\nCho hình chữ nhật ABCD và hình tròn tâm O như hình vẽ.',
         blanks: [
           { label: 'a) O là trung điểm của đoạn thẳng ... và đoạn thẳng ....', answer: 'AC,BD', validate: letterGroupsValidate(['AC', 'BD']) },
@@ -4275,6 +4342,9 @@ const WORKBOOK_CONFIG = {
   gamesBook: 'workbook', // nút "Trò chơi tăng cường" (grade3Games.js)
 };
 
+// cho trang thử scripts/geotools-dev.html
+export { UNITS as WORKBOOK3_UNITS };
+
 export function render(app, onBack) {
   renderWorkbook(app, onBack, WORKBOOK_CONFIG);
 }
@@ -4317,6 +4387,9 @@ export function renderWorkbook(app, onBack, cfg) {
   let matchLocked = new Set(); // leftIds confirmed correct after checking
   let matchPairs = new Map(); // leftId -> rightId, tentative pairs not yet checked
   let selectedMatchItem = null; // { side: 'left'|'right', id } — the item awaiting its pair
+  let unitQuery = ''; // 🔎 chữ đang tìm ở menu bài (giữ khi vào bài rồi quay lại)
+  let unitIndex = null; // chữ của từng bài / từng câu đã fold, dựng lần đầu tìm
+  const unitHitsOpen = new Set(); // bài đã bấm "+ n câu nữa"
 
   injectStyles();
 
@@ -4398,7 +4471,68 @@ export function renderWorkbook(app, onBack, cfg) {
     if (gamesOn) app.querySelector('#gw-games-btn').onclick = () => openGames();
 
     app.querySelector('#e3-back-btn').onclick = onBack;
-    jumpToLastUnit();
+    mountUnitSearch();
+    if (!matcher(unitQuery)) jumpToLastUnit();
+  }
+
+  // 🔎 Tìm theo chữ (engine/listSearch.js): tên bài, chương và chữ trong đề của mọi câu (không tìm trong
+  // đáp án). Bài khớp còn lại trong danh sách; dưới mỗi bài là các câu khớp, chạm để mở thẳng câu đó.
+  function mountUnitSearch() {
+    const list = app.querySelector('.gw-unit-list');
+    if (!list) return;
+    const note = document.createElement('div');
+    note.className = 'ls-note';
+    note.hidden = true;
+    const box = searchBox({
+      value: unitQuery,
+      placeholder: 'Tìm bài, chữ trong đề (vd. song song, chu vi)…',
+      onQuery: (q) => { unitQuery = q; unitHitsOpen.clear(); apply(); },
+    });
+    list.before(box, note);
+    const index = () => (unitIndex ||= UNITS.map(u => ({
+      u,
+      head: prep([cfg.unitName(u), u.title, u.chapter, `${cfg.unitWord} ${u.number}`].filter(Boolean).join(' · ')),
+      qs: u.questions.map((q, i) => { const raw = textOf(q); return { i, q, raw, f: prep(raw) }; }),
+    })));
+    function apply() {
+      list.querySelectorAll('.gw-hits').forEach(e => e.remove());
+      const m0 = matcher(unitQuery);
+      list.classList.toggle('gw-searching', !!m0);
+      if (!m0) {
+        list.querySelectorAll('.ls-hide').forEach(e => e.classList.remove('ls-hide'));
+        note.hidden = true;
+        return;
+      }
+      // cả cụm liền nhau trước; không bài nào có cả cụm thì nhận các từ rải rác
+      const m = pickTest(m0, index().flatMap(({ head, qs }) => [head, ...qs.map(x => x.f)]));
+      let units = 0, qn = 0;
+      index().forEach(({ u, head, qs }) => {
+        const row = list.querySelector(`.gw-unit-row[data-unit="${u.id}"]`);
+        if (!row) return;
+        const hits = qs.filter(x => m(x.f));
+        const ok = m(head) || hits.length > 0;
+        row.classList.toggle('ls-hide', !ok);
+        if (!ok) return;
+        units++;
+        qn += hits.length;
+        if (!hits.length) return;
+        const shown = unitHitsOpen.has(u.id) ? hits : hits.slice(0, 3);
+        const wrap = document.createElement('div');
+        wrap.className = 'gw-hits';
+        wrap.innerHTML = shown.map(x => `
+          <button type="button" class="ls-hit gw-hit" data-unit="${u.id}" data-q="${x.i}">
+            <b>${[x.q.section, `Câu ${bookNum(x.q) || x.i + 1}`].filter(Boolean).join(' · ')}</b>
+            <span>${snippet(x.raw, unitQuery)}</span>
+          </button>`).join('')
+          + (hits.length > shown.length ? `<button type="button" class="gw-hit-more" data-unit="${u.id}">+ ${hits.length - shown.length} câu nữa</button>` : '');
+        row.after(wrap);
+      });
+      list.querySelectorAll('.gw-unit-all, .gw-unit-chapter').forEach(e => e.classList.add('ls-hide'));
+      resultNote(note, unitQuery, units, qn ? `${cfg.unitWord}, ${qn} câu` : cfg.unitWord);
+      list.querySelectorAll('.gw-hit').forEach(b => { b.onclick = () => openUnit(b.dataset.unit, +b.dataset.q); });
+      list.querySelectorAll('.gw-hit-more').forEach(b => { b.onclick = () => { unitHitsOpen.add(b.dataset.unit); apply(); }; });
+    }
+    apply();
   }
 
   // Trò chơi tăng cường (tải động). start = { stall, level, unit } → mở thẳng cấp đó, chỉ phép tính của bài unit.
@@ -4412,7 +4546,8 @@ export function renderWorkbook(app, onBack, cfg) {
   }
 
   // Mở một bài (hoặc 'all') — từ menu bài, hoặc nút "Xem lại bài" của trò chơi tăng cường.
-  function openUnit(uid) {
+  // at: mở thẳng câu thứ at của bài (từ kết quả tìm kiếm)
+  function openUnit(uid, at = 0) {
     setLastUnit(uid);
     if (uid === 'all') {
       const totalQ = UNITS.reduce((s, u) => s + u.questions.length, 0);
@@ -4429,7 +4564,7 @@ export function renderWorkbook(app, onBack, cfg) {
       activeUnitIds = [u.id];
     }
     resetProgress();
-    current = 0;
+    current = uid === 'all' ? 0 : Math.max(0, Math.min(at, activeQuestions.length - 1));
     qlistFilter = { unit: '', sec: '' };
     showQuestion();
   }
@@ -4564,6 +4699,7 @@ export function renderWorkbook(app, onBack, cfg) {
     attachQuestionListHandlers();
     if (q.wordProblem) attachSolutionHandlers(q);
     attachAnswerHandlers(q);
+    wireDsButtons(app);
     if (q.balancePlay) attachBalancePlay(app, q, solved[current]);
     // 🫗 Thử rót: bé rót nước để tự kiểm chứng (engine/pourPlay.js). q.pourAfter: chỉ mở khi đã làm đúng.
     if (q.pourPlay) attachPourPlay(app, q, solved[current]);
@@ -4571,6 +4707,10 @@ export function renderWorkbook(app, onBack, cfg) {
     attachCalcPlay(app, q);
     // 🖍️ câu "tô màu" có hình SVG: bé tô thật lên hình (engine/colorPaint.js).
     if (q.img) attachColorPaint(app, q);
+    // ↔️ Kéo dài: bé kéo dài hai cạnh xem song song hay cắt nhau (engine/geoPlay.js).
+    if (q.geoPlay) attachGeoPlay(app, q);
+    // 📐 Ê ke, 📏 Thước, 🔢 Đếm hình, 🟦 Ô vuông: đồ dùng đặt lên hình của bài (engine/geoTools.js).
+    attachGeoTools(app, q);
     revealPinnedImageOnKeyboard();
     attachPinResize(app);
     app.querySelectorAll('.gw-related-btn').forEach((b) => { b.onclick = () => openLayer(related[+b.dataset.rel]); });
@@ -5049,6 +5189,24 @@ export function renderWorkbook(app, onBack, cfg) {
   // straight into the blank wherever it falls in the sentence/equation (start,
   // middle, or after "="), and lets a row with several "..." (e.g. "35, ..., ...")
   // get one box per blank instead of forcing multiple answers into a single field.
+  // Ô Đ/S (dsValidate) không có tiles riêng: hai nút "Đ" "S" ngay tại chỗ trống, chạm là chọn,
+  // không phải gõ. Ô nhập thật vẫn còn (ẩn) nên chấm, lưu, tô đúng/sai đi chung đường với ô thường;
+  // nút chọn mang màu đúng/sai theo ô (CSS .gw-ds-input + .gw-ds), wireDsButtons() nối hai bên.
+  function isDsBlank(b) {
+    return !!b.validate?.ds && !b.tiles;
+  }
+  function renderDsRow(label, i) {
+    const btn = (v) => `<button type="button" class="gw-ds-btn" data-v="${v}">${isEnglish() ? (v === 'Đ' ? 'T' : 'F') : v}</button>`;
+    const widget = `<span class="gw-ds-wrap"><input type="text" readonly tabindex="-1" aria-hidden="true" class="game-input e3-blank-input gw-ds-input" data-idx="${i}" autocomplete="off"><span class="gw-ds" role="group">${btn('Đ')}${btn('S')}</span></span>`;
+    // chỗ trống đầu tiên của dòng là chỗ đặt nút; dòng không có "..." thì nút ở cuối dòng
+    const html = label.includes('...') ? label.replace('...', widget).split('...').join('') : `${label} ${widget}`;
+    return `
+      <div class="e3-blank-row e3-blank-row-inline">
+        <div class="e3-blank-label e3-blank-label-inline gw-ds-row">${html}</div>
+      </div>
+    `;
+  }
+
   function renderBlankRow(b, i) {
     // A "<br>" in a label (Bài 40, 43, 44: a b) instruction line printed just
     // above its first answer line) must really start a new line, but a plain
@@ -5057,6 +5215,7 @@ export function renderWorkbook(app, onBack, cfg) {
     // "{/}": một phân số bé viết (tử, mẫu) — hai chỗ trống chồng lên nhau, gói lại sau khi dựng ô.
     const label = b.label.replace(/<br\s*\/?>/g, '<span class="gw-line-break"></span>')
       .split('{/}').join('[[fa]]...[[fb]]...[[fc]]');
+    if (isDsBlank(b)) return renderDsRow(label, i);
     const parts = label.split('...');
     if (parts.length === 1) {
       const input = `<input type="text" ${b.tiles ? tilesAttr(b, b.tileOne) : kbAttr(b.answer)} class="game-input e3-blank-input gw-blank-inline gw-blank-dashed gw-blank-fill" style="min-width:3ch" data-idx="${i}" autocomplete="off">`;
@@ -5577,6 +5736,32 @@ export function renderWorkbook(app, onBack, cfg) {
   function attachTrainActions(q, groups) {
     if (q.trainSwap) attachTrainSwap(app, q, groups);
     if (q.trainPaint) attachTrainPaint(app, q, groups);
+  }
+
+  // Nút Đ/S ↔ ô nhập ẩn: chạm nút ghi "Đ"/"S" vào ô (báo 'input' như gõ), ô đã khoá thì nút khoá theo.
+  function wireDsButtons(root) {
+    root.querySelectorAll('.gw-ds-input').forEach((inp) => {
+      const btns = [...inp.nextElementSibling.querySelectorAll('.gw-ds-btn')];
+      const isTrue = (v) => ['đ', 'd', 'đúng', 't', 'true'].includes(String(v).trim().toLowerCase());
+      const isFalse = (v) => ['s', 'sai', 'f', 'false'].includes(String(v).trim().toLowerCase());
+      const sync = () => {
+        btns.forEach((b) => {
+          b.classList.toggle('gw-ds-on', b.dataset.v === 'Đ' ? isTrue(inp.value) : isFalse(inp.value));
+          b.disabled = inp.disabled;
+        });
+      };
+      btns.forEach((b) => {
+        b.onclick = () => {
+          if (inp.disabled) return;
+          inp.value = b.dataset.v;
+          inp.dispatchEvent(new Event('input', { bubbles: true }));
+          sync();
+        };
+      });
+      // khoá / mở khoá do phần chấm điểm làm trên ô nhập
+      new MutationObserver(sync).observe(inp, { attributes: true, attributeFilter: ['disabled', 'class'] });
+      sync();
+    });
   }
 
   function attachFillHandlers(q) {
@@ -6205,6 +6390,29 @@ function injectStyles() {
       .e3-blank-input { width: 90px; height: 42px; text-align: center; font-size: 1.2rem; font-weight: 700; border: 2px solid #e2e8f0; border-radius: 0.6rem; }
       .e3-blank-input:disabled.e3-correct-input { border-color: #22c55e; background: #dcfce7; color: #166534; }
       .e3-blank-input:disabled.e3-wrong-input { border-color: #ef4444; background: #fee2e2; color: #991b1b; }
+      .gw-hits { display: flex; flex-direction: column; gap: 0.35rem; margin: -0.2rem 0 0.4rem 2.2rem; }
+      .gw-hit {
+        display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; text-align: left;
+        padding: 0.5rem 0.8rem; border-radius: 0.8rem; border: 1.5px solid #E2E8F0; background: #fff; cursor: pointer;
+        font: 500 0.92rem/1.4 Quicksand, sans-serif; color: #334155;
+      }
+      .gw-hit:hover { border-color: #6366F1; background: #EEF2FF; }
+      .gw-hit b { font-weight: 800; color: #4338CA; font-size: 0.85rem; }
+      .gw-hit-more { align-self: flex-start; border: none; background: none; color: #4338CA; font: 700 0.9rem Quicksand, sans-serif; cursor: pointer; padding: 0.2rem 0.8rem; }
+      .gw-ds-wrap { display: inline-flex; align-items: center; margin: 0 0.3rem; vertical-align: middle; }
+      .gw-ds-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+      .gw-ds { display: inline-flex; gap: 0.4rem; }
+      .gw-ds-btn {
+        width: 2.8rem; height: 2.5rem; border-radius: 0.7rem; border: 2px solid #cbd5e1; background: #fff;
+        font: 800 1.25rem Quicksand, sans-serif; color: #475569; cursor: pointer;
+        box-shadow: 0 3px 0 #cbd5e1; transition: transform .08s;
+      }
+      .gw-ds-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #cbd5e1; }
+      .gw-ds-btn.gw-ds-on { border-color: #6366f1; background: #eef2ff; color: #3730a3; box-shadow: 0 3px 0 #6366f1; }
+      .gw-ds-btn:disabled { cursor: default; }
+      .gw-ds-btn:disabled:not(.gw-ds-on) { opacity: 0.35; box-shadow: none; }
+      .gw-ds-input.e3-correct-input + .gw-ds .gw-ds-on { border-color: #22c55e; background: #dcfce7; color: #166534; box-shadow: 0 3px 0 #22c55e; }
+      .gw-ds-input.e3-wrong-input + .gw-ds .gw-ds-on { border-color: #ef4444; background: #fee2e2; color: #991b1b; box-shadow: 0 3px 0 #ef4444; }
       .e3-blank-row-inline { justify-content: flex-start; }
       .e3-blank-label-inline { flex: 1; width: 100%; display: inline-flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; line-height: 2.2; }
       .gw-blank-inline { width: 3.4rem; height: 36px; text-align: center; font-size: 1.2rem; font-weight: 700; vertical-align: middle; }
@@ -6722,6 +6930,11 @@ const ACTIONS = [
   { icon: '🚂', label: 'Đổi toa', has: q => !!q.trainSwap },
   { icon: '🧩', label: 'Ghép hình', has: q => !!q.pairDrop },
   { icon: '✍️', label: 'Đặt tính', has: q => hasCalc(q) },
+  { icon: '↔️', label: 'Kéo dài', has: q => !!q.geoPlay },
+  { icon: '📐', label: 'Ê ke', has: q => !!q.ekePlay },
+  { icon: '📏', label: 'Thước', has: q => !!q.rulerPlay },
+  { icon: '🔢', label: 'Đếm hình', has: q => !!q.countPlay },
+  { icon: '🟦', label: 'Ô vuông', has: q => !!q.areaPlay },
 ];
 const actionsOf = q => ACTIONS.filter(a => a.has(q));
 

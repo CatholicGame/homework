@@ -28,6 +28,7 @@ export function initLightbox() {
   style.id = 'lightbox-styles';
   style.textContent = `
     .e3-q-img { cursor: zoom-in; }
+    .e3-question-card:has(> .gp-open, > .cp-open, > .gt-row, > .bal-open:not(.bal-locked), > .pour-open:not(.pour-locked)) > .e3-q-img:not([data-showing-orig="1"]) { cursor: pointer; }
     .lightbox-overlay {
       position: fixed; inset: 0; z-index: 5000;
       background: rgba(15, 23, 42, 0.85);
@@ -115,6 +116,9 @@ export function initLightbox() {
     const toggle = e.target.closest('.e3-orig-toggle');
     if (toggle) { toggleInline(toggle); return; }
     const img = e.target.closest('.e3-q-img');
+    // Hình có hành động thực hành (↔️ Kéo dài, 📐 Ê ke, 📏 Thước, 🔢 Đếm hình, 🟦 Ô vuông, 🖍️ Tô màu, ⚖️ Thử cân, 🫗 Thử rót): chạm hình là vào thực hành luôn.
+    const action = img && actionButtonFor(img);
+    if (action) { action.click(); return; }
     if (img) open(img.dataset.paintedSrc || img.dataset.svgSrc || img.getAttribute('src'), img.alt, img.dataset.showingOrig === '1');
   });
 
@@ -132,6 +136,14 @@ export function initLightbox() {
   };
   new MutationObserver(addToggles).observe(document.body, { childList: true, subtree: true });
   addToggles();
+}
+
+// Nút hành động ngay dưới hình câu hỏi (đã mở khoá). Đang xem "📷 Ảnh gốc" thì vẫn phóng to như cũ.
+const ACTION_BUTTONS = '.gp-open, .cp-open, .gt-open, .bal-open:not(.bal-locked), .pour-open:not(.pour-locked)';
+function actionButtonFor(img) {
+  if (img.dataset.showingOrig === '1' || !img.parentElement?.classList.contains('e3-question-card')) return null;
+  // .gt-open (geoTools.js) nằm trong hàng .gt-row
+  return [...img.parentElement.querySelectorAll(':scope > *, :scope > .gt-row > *')].find(el => el.matches(ACTION_BUTTONS)) || null;
 }
 
 async function toggleInline(btn) {

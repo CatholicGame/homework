@@ -7,6 +7,7 @@
 
 import { TOPICS, TOOLS, lessonByN, pagesText } from './grade5Tools/catalog.js';
 import { exploreOf, tasksOf } from './grade5Tools/lessons/index.js';
+import { mountToolSearch } from './grade4Tools/search.js';
 import { runExplore, loadSeen } from './grade4Tools/frame.js';
 import { practiceGame } from './grade4Tools/practice.js';
 import { playRound } from './grade3Games/loop.js';
@@ -27,6 +28,7 @@ export function render(app, onBack, { open } = {}) {
   injectHubStyles();
   preloadNpcs();
   let lastN = null;
+  const search = { q: '' }; // 🔎 chữ đang tìm, giữ khi vào bài rồi quay lại
 
   function shell(inner) {
     app.innerHTML = `<div class="g3g-wrap g3g-menu g4h g5h" data-zmax="1.4">${menuBackdrop()}<div class="g3g-screen animate-fadeIn">${inner}</div></div>`;
@@ -62,6 +64,7 @@ export function render(app, onBack, { open } = {}) {
         </section>`).join('')}`);
     app.querySelector('[data-act="back"]').onclick = onBack;
     app.querySelectorAll('.g4h-tile[data-n]').forEach(b => { b.onclick = () => showLesson(lessonByN(+b.dataset.n)); });
+    mountToolSearch(app, { TOPICS, TOOLS, lessonByN, exploreOf, tasksOf }, search);
     if (lastN) app.querySelector(`.g4h-tile[data-n="${lastN}"]`)?.scrollIntoView({ block: 'center' });
   }
 

@@ -896,6 +896,11 @@ export const QUESTIONS = {
         yesNo('b) Dùng thước có vạch chia xăng-ti-mét để kiểm tra: hai đường chéo có cắt nhau tại trung điểm của mỗi đường không?', true),
       ],
       hints: ['Đặt góc vuông của ê ke vào điểm O. Đo OA, OC rồi đo OB, OD.'],
+      // 📐 Kéo dài: toạ độ theo bai133_q2_thoi.svg.
+      geoPlay: { points: { A: [60, 125], B: [230, 35], C: [400, 125], D: [230, 215], O: [230, 125] }, segs: ['AB', 'BC', 'CD', 'DA', 'AC', 'BD'], fill: 'ABCD', pick: 'AC' },
+      ekePlay: { fill: { blank: 0, angle: 'OAB' } },
+      // 📏 Thước: AC = 10 cm (1 cm = 34)
+      rulerPlay: { unit: 'cm', per: 34, fill: { blank: 1, allMid: [['A', 'O', 'C'], ['B', 'O', 'D']], yes: 'Có', no: 'Không' } },
     },
   ],
 
@@ -958,6 +963,8 @@ export const QUESTIONS = {
         ds('d) Hình tứ giác ABCD có 4 cạnh bằng nhau.', false),
       ],
       hints: ['Hình chữ nhật có bốn góc vuông, hai cặp cạnh đối diện song song và bằng nhau.'],
+      // 📐 Kéo dài: toạ độ theo bai136_q1_hcn.svg.
+      geoPlay: { points: { A: [50, 50], B: [330, 50], C: [330, 200], D: [50, 200] }, segs: ['AB', 'BC', 'DC', 'AD'], fill: 'ABCD', pick: 'AB', answer: [{ blank: 1, pair: ['AB', 'AD'], rel: 'perp' }] },
     },
     {
       type: 'fill', stars: 2, img: imgPqrs,
@@ -969,6 +976,8 @@ export const QUESTIONS = {
         ds('d) Bốn cạnh đều bằng nhau.', true),
       ],
       hints: ['Hình thoi có hai cặp cạnh đối diện song song và bốn cạnh bằng nhau. PQ và PS là hai cạnh kề nhau.'],
+      // 📐 Kéo dài: toạ độ theo bai136_q2_thoi.svg.
+      geoPlay: { points: { P: [40, 130], Q: [200, 30], R: [360, 130], S: [200, 230] }, segs: ['PQ', 'QR', 'SR', 'PS'], fill: 'PQRS', pick: 'PQ', answer: [{ blank: 1, pair: ['PQ', 'PS'], rel: 'notpar' }, { blank: 2, allPar: [['PQ', 'SR'], ['PS', 'QR']] }] },
     },
     {
       type: 'choice', stars: 3, img: imgDienTich,

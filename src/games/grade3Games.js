@@ -9,6 +9,7 @@
  * xem grade2Games.js.
  */
 
+import { searchBox, matcher, pickTest, prep, snippet, plain, resultNote } from '../engine/listSearch.js';
 import { FRUIT_GAME } from './grade3Games/market/fruit.js';
 import { EGG_GAME } from './grade3Games/market/eggs.js';
 import { LEMON_GAME } from './grade3Games/market/lemonade.js';
@@ -121,6 +122,7 @@ export function renderGamesHub(app, ctx, start = null, {
   // Chỉ các cấp luyện đúng bài đó (lessons / also) — "Cấp tiếp theo" sang bảng khác thì chơi như thường.
   const linked = (l) => l.lessons?.[ctx.book]?.includes(unit) || l.also?.[ctx.book]?.includes(unit);
   const focused = (game, l) => (fromLesson && unitFocused && game.focus && linked(l) ? game.focus(l, unitFocused) : l);
+  let hubQuery = ''; // 🔎 chữ đang tìm ở danh sách công cụ / trò chơi (giữ khi vào rồi quay lại)
   if (lv) showIntro(found.g, found.s.game, lv);
   else showGames();
 
@@ -166,6 +168,60 @@ export function renderGamesHub(app, ctx, start = null, {
       const g = GAMES.find(x => x.id === b.dataset.game);
       b.onclick = () => (g.single ? showLevels(g, g.stalls[0].game) : showStalls(g));
     });
+    mountHubSearch();
+  }
+
+  // 🔎 Tìm theo chữ (engine/listSearch.js): tên, mô tả, nhãn của từng công cụ / trò chơi và tên, mô tả,
+  // kiến thức của từng cấp. Cấp khớp hiện thành nút nhỏ dưới thẻ, chạm là vào thẳng cấp đó.
+  function mountHubSearch() {
+    const lead = app.querySelector('.g3g-lead');
+    if (!lead) return;
+    const note = document.createElement('div');
+    note.className = 'ls-note';
+    note.hidden = true;
+    lead.after(searchBox({ value: hubQuery, placeholder: 'Tìm dạng bài (vd. chia, đổi đơn vị, phân số)…', onQuery: (q) => { hubQuery = q; apply(); } }), note);
+    const index = GAMES.map(g => {
+      const head = plain([g.title, g.desc, ...(g.tags || []), g.purpose].filter(Boolean).join(' · '));
+      const levels = g.stalls.filter(st => st.game).flatMap(st => st.game.levels.map(l => {
+        const raw = plain([st.game.title, l.title, l.desc, l.knowledge, l.sgk].filter(Boolean).join(' · '));
+        return { st, l, raw, f: prep(raw) };
+      }));
+      return { g, fh: prep(head), levels };
+    });
+    function apply() {
+      app.querySelectorAll('.g3g-hub-hits').forEach(e => e.remove());
+      const m0 = matcher(hubQuery);
+      if (!m0) {
+        app.querySelectorAll('.ls-hide').forEach(e => e.classList.remove('ls-hide'));
+        note.hidden = true;
+        return;
+      }
+      const m = pickTest(m0, index.flatMap(({ fh, levels }) => [fh, ...levels.map(x => x.f)]));
+      let count = 0;
+      index.forEach(({ g, fh, levels }) => {
+        const tile = app.querySelector(`.g3g-tile[data-game="${g.id}"]`);
+        if (!tile) return;
+        const hits = levels.filter(x => m(x.f));
+        const ok = m(fh) || hits.length > 0;
+        tile.classList.toggle('ls-hide', !ok);
+        if (!ok) return;
+        count++;
+        if (!hits.length) return;
+        const wrap = document.createElement('div');
+        wrap.className = 'g3g-hub-hits';
+        wrap.innerHTML = hits.slice(0, 6).map((x, i) => `
+          <button type="button" class="ls-hit g3g-hub-hit" data-i="${i}">
+            <b>${g.single ? '' : `${x.st.game.icon} `}Cấp ${x.l.n}</b> ${snippet(x.raw, hubQuery, 70)}
+          </button>`).join('');
+        tile.after(wrap);
+        wrap.querySelectorAll('.g3g-hub-hit').forEach(b => {
+          const x = hits[+b.dataset.i];
+          b.onclick = () => showIntro(g, x.st.game, x.l);
+        });
+      });
+      resultNote(note, hubQuery, count, 'mục');
+    }
+    apply();
   }
 
   function showStalls(g) {

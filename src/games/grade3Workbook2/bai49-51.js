@@ -329,6 +329,9 @@ export const BAI_49_51 = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB51Grid1,
+        // 🟦 Ô vuông: ô của từng hình theo bai51_t1_q2_grid.svg.
+        areaPlay: { cell: 30, origin: [14, 14], unit: 'ô vuông', map: ['AAA.........B..', 'AAA....A...BBB.', 'AAAAAAAA..BBBBB', '.AAAAAAA...BBB.', '.AAAAAAA...BBB.', '..A...A...BBBBB', '...........BBB.'],
+          fill: [{ blank: 0, shape: 'A' }, { blank: 1, shape: 'B' }, { blank: 2, compare: ['A', 'B'], values: ['A', 'B', 'C'] }] },
         q: '2. a) Viết số thích hợp vào chỗ chấm.',
         blanks: [
           N('Hình A gồm ... ô vuông.', 31),
@@ -349,6 +352,8 @@ export const BAI_49_51 = [
       },
       {
         type: 'choice', section: 'Tiết 1', img: imgB51Duck,
+        // 🟦 Ô vuông: ô của chú vịt theo bai51_t1_q4_duck.svg.
+        areaPlay: { cell: 48, origin: [16, 16], unit: 'ô vuông', names: { V: 'Chú vịt' }, map: ['...VV', '...V.', 'VVVV.', 'VVVV.'], fill: { choice: 'V', options: [10, 12, 11] } },
         q: '4. Khoanh vào chữ đặt trước câu trả lời đúng.\nHình chú vịt gồm bao nhiêu ô vuông?',
         options: ['10 ô vuông', '12 ô vuông', '11 ô vuông'],
         answer: 2,
@@ -369,6 +374,9 @@ export const BAI_49_51 = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgB51Grid2,
+        // 🟦 Ô vuông 1 cm²: ô của từng hình theo bai51_t2_q2_grid.svg.
+        areaPlay: { cell: 46, origin: [14, 14], map: ['A.A........B..', 'AAA....A..BBB.', 'AAAAAAAA.BBBBB', '.AAAAAAA..BBB.', '.AAAAAAA..BBB.', '..A...A..BBBBB', '..........BBB.'],
+          fill: [{ blank: 0, shape: 'A' }, { blank: 1, shape: 'A' }, { blank: 2, shape: 'B' }, { blank: 3, shape: 'B' }] },
         q: '2. Viết số thích hợp vào chỗ chấm.',
         blanks: [
           N('a) Hình A gồm ... ô vuông 1 cm².', 30),

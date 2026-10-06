@@ -45,6 +45,13 @@ export function injectGameStyles() {
     .g3g-tags i { font-style: normal; font-size: 0.8rem; font-weight: 700; background: #E0F2FE; color: #075985; border-radius: 999px; padding: 0.08rem 0.6rem; }
     .g3g-tags i.g3g-tag-done { background: #DCFCE7; color: #166534; }
     .g3g-tags i.g3g-tag-best { background: #FEF3C7; color: #92400E; }
+    .g3g-hub-hits { display: flex; flex-direction: column; gap: 0.3rem; margin: -0.3rem 0 0.5rem 2.6rem; }
+    .g3g-hub-hit {
+      text-align: left; padding: 0.45rem 0.8rem; border-radius: 0.8rem; border: 1.5px solid #E2E8F0; background: #fff;
+      font: 600 0.92rem/1.35 'Baloo 2', Quicksand, sans-serif; color: #334155; cursor: pointer;
+    }
+    .g3g-hub-hit:hover { border-color: #6366F1; background: #EEF2FF; }
+    .g3g-hub-hit b { color: #4338CA; margin-right: 0.3rem; }
 
     /* Nút kiểu game: khối nổi có "đế" bóng bên dưới, bấm thì lún xuống (giống game Tiền tiểu học) */
     .g3g-btn { border: none; border-radius: 1rem; padding: 0.85rem 1.3rem; font-size: 1.05rem; font-weight: 800; cursor: pointer; font-family: inherit; transition: transform .1s, box-shadow .1s; touch-action: manipulation; }
