@@ -490,6 +490,8 @@ Số cột / hàng chọn **một lần** lúc bắt đầu ván theo hướng m
 
 ## 7. Trạm 2: 🙈 Khỉ Giấu Thẻ
 
+> **Đã bỏ (2026-10-06).** Đã làm thử rồi bỏ: bản đầu chỉ là nhớ hình, bản sửa (bàn hiện phép tính, nút là kết quả và số hay nhầm) vẫn không phù hợp. Không làm trạm này; các phần nhắc tới Khỉ Giấu Thẻ trong tài liệu (bản đồ, khuôn level, chơi cả lớp) cần thay bằng trạm khác khi làm tới.
+
 **Luyện:** nhớ một nhóm thẻ trong ít giây, rồi nhớ lại **bằng kiến thức**. **Cảnh:** rừng dừa, khỉ con tinh nghịch.
 
 ![Khỉ Giấu Thẻ](tro-choi-tri-nho/khi-giau-the.svg)

@@ -143,6 +143,17 @@ export function injectMemoryStyles() {
     .mi-stat b { font-size: clamp(1.1rem, 4cqh, 2rem); }
   }
 
+  /* điện thoại dọc hẹp: ô đếm xếp chữ trên số cho khỏi tràn mép phải */
+  @container mistage (orientation: portrait) and (max-width: 560px) {
+    .mi-side { gap: 1.6cqw; }
+    .mi-stats { width: 17cqw; min-width: 0; }
+    .mi-stat { flex-direction: column; justify-content: center; align-items: center; padding: 0.1rem; min-width: 0; }
+    .mi-stat-label { font-size: 0.7rem; line-height: 1; }
+    .mi-stat b { font-size: clamp(0.95rem, 2.8cqh, 1.5rem); }
+    .mi-talk { padding: 0.3rem 0.4rem; }
+    .mi-talk-text { font-size: clamp(0.9rem, 5cqw, 1.25rem); }
+  }
+
   /* ── lớp phủ trên bàn: Ôn nhanh, tổng kết (bàn đã trống hết) ── */
   .mi-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; visibility: hidden; padding: 2cqh 2cqw; box-sizing: border-box; overflow: auto; }
   .mi-ov-on .mi-overlay { visibility: visible; animation: miFade 0.35s ease-out; }

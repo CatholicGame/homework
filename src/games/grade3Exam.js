@@ -766,6 +766,7 @@ function injectStyles() {
 
     /* ── INTRO ── */
     .e3-intro {
+      --e3-px: 2rem;
       background: #fff;
       border-radius: 1.5rem;
       padding: 2.5rem 2rem;
@@ -803,7 +804,8 @@ function injectStyles() {
     .e3-btn-ghost { background: #f1f5f9; color: #475569; }
     .e3-btn-ghost:hover { background: #e2e8f0; }
     .e3-intro .e3-btn { width: auto; }
-    .e3-intro-head { display: flex; justify-content: flex-start; margin: -1rem 0 0.6rem; }
+    /* nút Quay lại dính ở mép trên khi cuộn: hàng đầu thẻ thành thanh trắng hết bề ngang thẻ, nội dung cuộn xuống dưới nó */
+    .e3-intro-head { display: flex; justify-content: flex-start; position: sticky; top: 0; z-index: 20; margin: -1.6rem calc(-1 * var(--e3-px, 2rem)) 0.6rem; padding: 0.6rem var(--e3-px, 2rem); background: #fff; border-radius: 1.5rem 1.5rem 0 0; box-shadow: 0 6px 8px -6px rgba(15,23,42,0.14); }
     .e3-head-back { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: none; background: var(--purple-light, #EDE9FE); color: var(--purple, #7C3AED); font-family: inherit; font-weight: 700; font-size: 0.9rem; border-radius: 999px; cursor: pointer; transition: background 0.2s, color 0.2s; }
     .e3-head-back:hover { background: var(--purple, #7C3AED); color: #fff; }
     .e3-back-icon {
@@ -944,7 +946,7 @@ function injectStyles() {
     .e3-result-actions { display: flex; flex-direction: column; gap: 0.6rem; }
 
     @media (min-width: 768px) {
-      .e3-intro { padding: 3rem 2.5rem; }
+      .e3-intro { padding: 3rem 2.5rem; --e3-px: 2.5rem; }
       .e3-result-actions { flex-direction: row; flex-wrap: wrap; }
       .e3-result-actions .e3-btn { flex: 1; }
     }
@@ -981,7 +983,7 @@ function injectStyles() {
     }
     @media (max-width: 400px) {
       .e3-wrap { padding: 0.5rem; }
-      .e3-intro { padding: 1.8rem 1.2rem; }
+      .e3-intro { padding: 1.8rem 1.2rem; --e3-px: 1.2rem; }
     }
   `;
   document.head.appendChild(style);

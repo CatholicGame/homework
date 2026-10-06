@@ -286,7 +286,9 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
         ? `<img class="user-avatar" src="${escapeHtml(user.picture)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML=this.dataset.fallback" data-fallback="${escapeHtml(initial)}">`
         : initial;
     const guest = !!user.guest;
+    // Thanh nút điều hướng: dải dính ở mép trên khi cuộn (home.css .user-bar-dock).
     return `
+      <div class="user-bar-dock">
       <div class="user-bar animate-fadeIn">
         ${guest
           ? '<button type="button" class="user-cloud-btn is-warn" id="user-login-btn" title="Đăng nhập Google để lưu bài làm lên Google Drive">🔐<span>Đăng nhập</span></button>'
@@ -314,6 +316,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
             <button type="button" class="user-menu-item" id="user-signout" role="menuitem">🚪 Đăng xuất</button>`}
           </div>
         </div>
+      </div>
       </div>
     `;
   }

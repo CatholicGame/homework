@@ -6302,7 +6302,7 @@ function injectStyles() {
     style.id = 'e3-styles';
     style.textContent = `
       .e3-wrap { min-height: 100vh; background: linear-gradient(160deg, #ECFDF5 0%, #EFF6FF 50%, #F5F3FF 100%); display: flex; justify-content: center; align-items: flex-start; padding: 1rem; box-sizing: border-box; }
-      .e3-intro { background: #fff; border-radius: 1.5rem; padding: 2.5rem 2rem; max-width: 560px; width: 100%; margin: auto; text-align: center; box-shadow: var(--shadow-lg, 0 8px 30px rgba(0,0,0,0.12)); }
+      .e3-intro { --e3-px: 2rem; background: #fff; border-radius: 1.5rem; padding: 2.5rem 2rem; max-width: 560px; width: 100%; margin: auto; text-align: center; box-shadow: var(--shadow-lg, 0 8px 30px rgba(0,0,0,0.12)); }
       .e3-badge { font-size: 3rem; margin-bottom: 0.5rem; }
       .e3-title { font-size: clamp(1.4rem, 5vw, 1.9rem); font-weight: 800; color: #1E293B; margin: 0 0 0.3rem; }
       .e3-sub { color: #64748B; font-size: 1rem; margin: 0 0 1.5rem; }
@@ -6337,7 +6337,8 @@ function injectStyles() {
       .e3-btn-ghost { background: #f1f5f9; color: #475569; }
       .e3-btn-ghost:hover { background: #e2e8f0; }
       .e3-intro .e3-btn { width: auto; }
-      .e3-intro-head { display: flex; justify-content: flex-start; margin: -1rem 0 0.6rem; }
+      /* nút Quay lại dính ở mép trên khi cuộn: hàng đầu thẻ thành thanh trắng hết bề ngang thẻ, nội dung cuộn xuống dưới nó */
+      .e3-intro-head { display: flex; justify-content: flex-start; position: sticky; top: 0; z-index: 20; margin: -1.6rem calc(-1 * var(--e3-px, 2rem)) 0.6rem; padding: 0.6rem var(--e3-px, 2rem); background: #fff; border-radius: 1.5rem 1.5rem 0 0; box-shadow: 0 6px 8px -6px rgba(15,23,42,0.14); }
       .e3-head-back { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: none; background: var(--purple-light, #EDE9FE); color: var(--purple, #7C3AED); font-family: inherit; font-weight: 700; font-size: 0.9rem; border-radius: 999px; cursor: pointer; transition: background 0.2s, color 0.2s; }
       .e3-head-back:hover { background: var(--purple, #7C3AED); color: #fff; }
       .e3-back-icon { background: rgba(0,0,0,0.08); border: none; color: #1E293B; font-size: 1rem; width: 2.2rem; height: 2.2rem; border-radius: 0.6rem; cursor: pointer; font-weight: 700; flex-shrink: 0; }
@@ -6485,13 +6486,13 @@ function injectStyles() {
       .e3-row-mark { flex-shrink: 0; }
       .e3-result-actions { display: flex; flex-direction: column; gap: 0.6rem; }
       @media (min-width: 768px) {
-        .e3-intro { padding: 3rem 2.5rem; }
+        .e3-intro { padding: 3rem 2.5rem; --e3-px: 2.5rem; }
         .e3-result-actions { flex-direction: row; flex-wrap: wrap; }
         .e3-result-actions .e3-btn { flex: 1; }
       }
       @media (max-width: 400px) {
         .e3-wrap { padding: 0.5rem; }
-        .e3-intro { padding: 1.8rem 1.2rem; }
+        .e3-intro { padding: 1.8rem 1.2rem; --e3-px: 1.2rem; }
       }
     `;
     document.head.appendChild(style);

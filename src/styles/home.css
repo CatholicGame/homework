@@ -1,10 +1,12 @@
 /* ====== HOME PAGE — Dashboard + Categories ====== */
 
 .home {
+  --home-pt: 40px;
+  --home-px: 60px;
   min-height: 100vh;
-  padding: 40px 60px;
+  padding: var(--home-pt) var(--home-px);
   background: linear-gradient(180deg, #FFF7ED 0%, #FCEEF2 40%, #EDE9FE 100%);
-  overflow-y: auto;
+  /* Không đặt overflow ở đây: #app là khung cuộn, overflow trên .home làm thanh nút (sticky) hết dính. */
 }
 
 /* ====== DASHBOARD ====== */
@@ -354,7 +356,7 @@
 
 /* ====== RESPONSIVE ====== */
 @media (max-width: 1100px) {
-  .home { padding: 30px 30px; }
+  .home { --home-pt: 30px; --home-px: 30px; }
   .dashboard-header h1 { font-size: 1.8rem; }
   .dashboard-stats { grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .stat-card { padding: 14px 14px; }
@@ -368,7 +370,7 @@
 }
 
 @media (max-width: 600px) {
-  .home { padding: 20px 16px; }
+  .home { --home-pt: 20px; --home-px: 16px; }
   .dashboard-header { margin-bottom: 16px; }
   .dashboard-header h1 { font-size: 1.6rem; }
   .game-grid { grid-template-columns: 1fr; gap: 12px; }
@@ -564,6 +566,19 @@
 }
 
 /* ====== USER BAR (home) ====== */
+/* Dải chứa thanh nút: dính ở mép trên khi cuộn, phủ hết bề ngang trang (kéo ra lấp phần đệm của .home). */
+.user-bar-dock {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  margin: calc(-1 * var(--home-pt)) calc(-1 * var(--home-px)) 12px;
+  padding: 10px var(--home-px);
+  background: rgba(255, 247, 237, 0.92);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 0 rgba(124, 58, 237, 0.08), 0 6px 14px -10px rgba(15, 23, 42, 0.25);
+}
+.user-bar-dock .user-bar { margin-bottom: 0; }
 .user-bar {
   max-width: 1100px;
   margin: 0 auto 12px;
