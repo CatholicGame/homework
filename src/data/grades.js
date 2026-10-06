@@ -45,6 +45,7 @@ export const GRADES = [
       { id: 'grade3-exam', icon: '📝', color: '#F97316', title: 'Ôn Luyện Đề', desc: 'Đề 1 — Ôn luyện tổng hợp khối 3' },
       { id: 'grade3-worksheet', icon: '✏️', color: '#8B5CF6', title: 'Luyện Đề', desc: 'Phiếu bài tập theo bài học, 65 đề ôn tập giữa học kì I' },
       { id: 'grade3-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Đặt tính cộng trừ nhân chia, bảng nhân chia, tìm thành phần, tính nhẩm, sơ đồ đoạn thẳng' },
+      { id: 'writing', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
     ],
   },
   {
@@ -53,6 +54,7 @@ export const GRADES = [
       { id: 'grade4-textbook', icon: '📖', color: '#6366F1', title: 'Sách Toán 4', desc: 'Sách giáo khoa Toán 4, bài 1–175: làm bài tập ngay trong sách, phép tính lớn có nút ✍️ Tính để đặt tính' },
       { id: 'grade4-tools', icon: '🧰', color: '#8B5CF6', title: 'Toán 4: Học bằng công cụ', desc: 'Tập Một, Bài 1–37: bảng hàng, tia số, thước đo góc, ê ke… em tự tay khám phá rồi thực hành' },
       { id: 'grade4-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Nhân, chia đặt tính với số có một, hai, ba chữ số: tích riêng, ước lượng thương' },
+      { id: 'writing', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
     ],
   },
   {
@@ -60,6 +62,7 @@ export const GRADES = [
     games: [
       { id: 'grade5-tools', icon: '🧰', color: '#F59E0B', title: 'Toán 5: Học bằng công cụ', desc: 'Tập Một, Bài 1–35: băng phân số, số thập phân, bảng đơn vị đo, cắt ghép hình… em tự tay khám phá rồi thực hành' },
       { id: 'grade5-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Cộng, trừ, nhân, chia số thập phân đặt tính; nhân chia nhẩm với 10, 100, 0,1; phân số' },
+      { id: 'writing', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
     ],
   },
 ];

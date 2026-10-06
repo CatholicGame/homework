@@ -228,6 +228,12 @@ const ensureBoardSession = () => (getCurrentUser() ? ensureSignedInSilently() : 
 /** Phiên Firebase dùng chung cho các module khác (đăng ký học sinh, trang admin). */
 export const firebaseSession = ensureSignedInSilently;
 
+/** Firebase ID token của phiên đang dùng (Google hoặc khách), để gọi /api/* cần biết là người dùng app; null nếu cần kết nối. */
+export async function getIdToken() {
+  const fb = await ensureBoardSession();
+  return fb?.auth.currentUser ? fb.auth.currentUser.getIdToken() : null;
+}
+
 /** Có cần bé bấm nút kết nối (có thể mở popup Google) trước khi xem bảng không. */
 export async function needsConnect() {
   return !(await ensureBoardSession());
