@@ -535,6 +535,17 @@ export const QUESTIONS = {
   'bai-95': [
     {
       type: 'fill', stars: 2, img: imgCanh,
+      // 🔤 Gọi tên: toạ độ theo bai95_q1_canh.svg; mỗi hình một việc, ô điền 4 chỗ "... và ... ; ... và ...".
+      namePlay: { shapes: [{
+        button: '🔤 Cặp cạnh đối diện',
+        points: { A: [40, 80], B: [260, 80], C: [260, 230], D: [40, 230], E: [320, 30], G: [440, 30], H: [540, 230], K: [420, 230], M: [640, 85], N: [750, 50], P: [880, 230], Q: [610, 230] },
+        segs: ['AB', 'BC', 'CD', 'DA', 'EG', 'GH', 'HK', 'KE', 'MN', 'NP', 'PQ', 'QM'],
+        tasks: [
+          { kind: 'opposite', title: 'Hình chữ nhật <b>ABCD</b>', row: 'ABCD:', poly: 'ABCD', of: ['AB DC', 'AD BC'], fill: 0 },
+          { kind: 'opposite', title: 'Hình bình hành <b>EGHK</b>', row: 'EGHK:', poly: 'EGHK', of: ['EG KH', 'EK GH'], fill: 1 },
+          { kind: 'opposite', title: 'Hình tứ giác <b>MNPQ</b>', row: 'MNPQ:', poly: 'MNPQ', of: ['MN QP', 'MQ NP'], fill: 2 },
+        ],
+      }] },
       q: '1. Hãy nêu tên các cặp cạnh đối diện trong: hình chữ nhật ABCD, hình bình hành EGHK, hình tứ giác MNPQ.',
       blanks: [
         { label: 'Hình chữ nhật ABCD: ... và ... ; ... và ...', answer: 'AB,DC,AD,BC', validate: pairsV(['AB', 'DC'], ['AD', 'BC']) },

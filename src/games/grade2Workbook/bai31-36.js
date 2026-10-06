@@ -459,6 +459,12 @@ export const BAI_31_36 = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgB34T1Q4,
+        // 🔤 Gọi tên: toạ độ theo bai34_t1_q4_rect.svg; A, M, B là mẫu.
+        namePlay: { shapes: [{
+          points: { A: [51, 78], M: [339, 78], B: [510, 78], D: [51, 330], N: [165, 330], C: [510, 330], P: [259.8, 192.7] },
+          segs: ['AB', 'BC', 'DC', 'AD', 'MN', 'AC'],
+          tasks: [{ kind: 'collinear', of: ['DNC', 'MPN', 'APC'], given: ['AMB'], fill: 0 }],
+        }] },
         q: '4. Viết tên ba điểm thẳng hàng có trong hình sau.\nMẫu: A, M, B là ba điểm thẳng hàng.',
         blanks: [
           { label: '...<br>...<br>...', answer: 'D N C, M P N, A P C', validate: collinearValidate(['DNC', 'MPN', 'APC'], 'ABCDMNP') },

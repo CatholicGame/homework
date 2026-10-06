@@ -112,6 +112,11 @@ export const BAI_25_30 = [
     questions: [
       {
         type: 'fill', section: 'Tiết 1', img: imgB25T1Q1,
+        // 🔤 Gọi tên: toạ độ theo bai25_t1_q1_points.svg.
+        namePlay: { shapes: [{
+          points: { A: [245, 72], B: [785, 215], C: [500, 200], M: [38, 252], N: [847, 403] }, segs: ['AB', 'MN'],
+          tasks: [{ kind: 'points', fill: 0 }, { kind: 'segs', of: ['AB', 'MN'], fill: 1 }],
+        }] },
         q: '1. Viết tiếp vào chỗ chấm cho thích hợp.',
         blanks: [
           { label: 'a) Trong hình vẽ bên có các điểm là: ...', answer: 'A, B, C, M, N', validate: letterSetValidate(['A', 'B', 'C', 'M', 'N']) },
@@ -121,6 +126,15 @@ export const BAI_25_30 = [
       },
       {
         type: 'table', section: 'Tiết 1', img: imgB25T1Q2,
+        // 🔤 Gọi tên: toạ độ theo bai25_t1_q2_figures.svg; ô điền hàng 0, cột 1 (Hình 1) và cột 2 (Hình 2).
+        namePlay: { shapes: [{
+          points: { M: [253, 133], N: [420, 300], P: [255, 468], Q: [88, 300], A: [953, 155], B: [1188, 155], C: [955, 466], D: [1195, 466] },
+          segs: ['MN', 'NP', 'PQ', 'QM', 'AB', 'BC', 'CD'],
+          tasks: [
+            { kind: 'segs', title: 'Hình 1: chạm các <b>đoạn thẳng</b>', row: 'Hình 1:', of: ['MN', 'NP', 'PQ', 'QM'], given: ['MN'], fill: [0, 1] },
+            { kind: 'segs', title: 'Hình 2: chạm các <b>đoạn thẳng</b>', row: 'Hình 2:', of: ['AB', 'BC', 'CD'], fill: [0, 2] },
+          ],
+        }] },
         q: '2. Viết vào chỗ chấm (theo mẫu).',
         headers: ['', 'Hình 1', 'Hình 2'],
         rows: [[
@@ -177,6 +191,12 @@ export const BAI_25_30 = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgB25T2Q3,
+        // 🔤 Gọi tên: toạ độ theo bai25_t2_q3_rect.svg; A, N, C đã in sẵn trong câu.
+        namePlay: { shapes: [{
+          points: { M: [345, 82], A: [67, 225], B: [625, 225], N: [347, 365], D: [67, 508], C: [625, 508] },
+          segs: ['AM', 'MB', 'AB', 'AD', 'BC', 'DC', 'AC', 'BD'],
+          tasks: [{ kind: 'collinear', of: ['BND'], given: ['ANC'], fill: 0 }],
+        }] },
         q: '3. Viết tiếp vào chỗ chấm cho thích hợp.',
         blanks: [
           { label: 'Ba điểm thẳng hàng trong hình vẽ bên là: A, N, C và ...', answer: 'B, N, D', validate: letterSetValidate(['B', 'N', 'D']) },
@@ -207,6 +227,15 @@ export const BAI_25_30 = [
     questions: [
       {
         type: 'fill', section: 'Tiết 1', img: imgB26T1Q1,
+        // 🔤 Gọi tên: toạ độ theo bai26_t1_q1_polylines.svg.
+        namePlay: { shapes: [{
+          points: { M: [165, 122], N: [298, 270], P: [725, 185], Q: [398, 142], A: [945, 266], B: [1120, 266], C: [1132, 74], D: [1536, 238], E: [1546, 60] },
+          segs: ['MN', 'NP', 'PQ', 'AB', 'BC', 'CD', 'DE'],
+          tasks: [
+            { kind: 'path', title: 'a) Đi theo <b>đường gấp khúc</b>', row: 'a)', of: ['MNPQ'], fill: 0 },
+            { kind: 'path', title: 'b) Đi theo <b>đường gấp khúc</b>', row: 'b)', of: ['ABCDE'], fill: 1 },
+          ],
+        }] },
         q: '1. Viết tên đường gấp khúc vào chỗ chấm.',
         blanks: [
           { label: 'a) Đường gấp khúc ...', answer: 'MNPQ', validate: polyValidate(['MNPQ']) },
@@ -245,6 +274,15 @@ export const BAI_25_30 = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgB26T2Q3,
+        // 🔤 Gọi tên: toạ độ theo bai26_t2_q3_polyline.svg.
+        namePlay: { shapes: [{
+          points: { A: [65, 362], B: [285, 85], C: [820, 340], D: [1352, 85], E: [1572, 362] },
+          segs: ['AB', 'BC', 'CD', 'DE'],
+          tasks: [
+            { kind: 'path', title: 'Đường gấp khúc gồm <b>3 đoạn thẳng</b>', row: '3 đoạn:', of: ['ABCD', 'BCDE'], fill: 0 },
+            { kind: 'path', title: 'Đường gấp khúc gồm <b>4 đoạn thẳng</b>', row: '4 đoạn:', of: ['ABCDE'], fill: 1 },
+          ],
+        }] },
         q: '3. Cho hình vẽ:\na) Viết tên đường gấp khúc thích hợp vào chỗ chấm.\nb) Tính độ dài đường gấp khúc BCDE.',
         wordProblem: true,
         blanks: [
@@ -328,6 +366,15 @@ export const BAI_25_30 = [
       },
       {
         type: 'fill', img: imgB28Q2,
+        // 🔤 Gọi tên: toạ độ theo bai28_q2_segments.svg; hình b) cũng tên M, N, P (M2, N2, P2).
+        namePlay: { shapes: [{
+          points: { M: [93, 362], N: [518, 88], P: [612, 358], M2: [805, 268], N2: [1030, 268], P2: [1472, 268] },
+          segs: ['MN', 'NP', 'M2P2'],
+          tasks: [
+            { kind: 'segs', title: 'a) Chạm các <b>đoạn thẳng</b>', row: 'a)', of: ['MN', 'NP'], fill: 0 },
+            { kind: 'segs', title: 'b) Chạm các <b>đoạn thẳng</b>', row: 'b)', of: ['M2N2', 'N2P2', 'M2P2'], fill: 1 },
+          ],
+        }] },
         q: '2. Viết tên các đoạn thẳng vào chỗ chấm.',
         blanks: [
           { label: 'a) Cho ba điểm M, N, P không thẳng hàng.<br>Trong hình có các đoạn thẳng: ...', answer: 'MN, NP', validate: segsValidate(['MN', 'NP']) },
