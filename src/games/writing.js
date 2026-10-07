@@ -445,8 +445,8 @@ export function render(app, onBack) {
         <div class="wr-paper wr-criteria">
           ${CRITERIA.map(([k, label, max]) => `
             <div class="wr-crit">
-              <span class="wr-crit-label">${label}</span>
-              <span class="wr-crit-val">${rv.scores[k]}/${max}</span>
+              <span class="wr-crit-label">${label} <small>(tối đa ${max})</small></span>
+              <span class="wr-crit-val">${rv.scores[k]} điểm</span>
             </div>`).join('')}
         </div>
       </div>
