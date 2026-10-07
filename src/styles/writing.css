@@ -47,6 +47,18 @@
 
 /* ── Danh sách ───────────────────────────────────────────────── */
 .wr-list { display: flex; flex-direction: column; gap: 10px; }
+.wr-other-h { margin: 22px 0 10px; font-size: 1rem; font-weight: 800; color: var(--text-light); }
+.wr-cloud {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+  margin-bottom: 12px; font-size: 0.85rem; font-weight: 600; color: var(--text-light);
+}
+.wr-cloud:empty { display: none; }
+.wr-cloud.is-warn { color: #B45309; }
+.wr-cloud-btn {
+  padding: 4px 12px; border: 1px solid var(--wr-edge); border-radius: var(--radius-full);
+  background: #fff; color: var(--text); font: inherit; cursor: pointer;
+}
+.wr-cloud.is-warn .wr-cloud-btn { border-color: #F59E0B; background: #FFFBEB; color: #92400E; }
 .wr-item {
   display: flex;
   align-items: stretch;
@@ -295,11 +307,46 @@
 .wr-mark-dau_cau sup { color: var(--wr-blue); }
 .wr-mark.is-on { outline: 2px solid currentColor; outline-offset: 1px; background: #FEF9C3; }
 
-.wr-detail { margin-top: 10px; padding: 10px 12px; border-radius: var(--radius-md); border-left: 5px solid; background: #F8FAFC; line-height: 1.6; }
-.wr-detail-chinh_ta { border-color: var(--wr-red); }
-.wr-detail-dung_tu { border-color: var(--wr-orange); }
-.wr-detail-cau { border-color: var(--wr-purple); }
-.wr-detail-dau_cau { border-color: var(--wr-blue); }
+/* Bong bóng giải thích lỗi: nổi ngay trên (hoặc dưới) chỗ lỗi, mũi nhọn chỉ vào chữ sai. */
+.wr-essay-wrap { position: relative; }
+.wr-bubble {
+  position: absolute;
+  z-index: 5;
+  width: min(440px, 100%);
+  padding: 10px 34px 10px 12px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--wr-edge);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+  line-height: 1.6;
+  --arrow-x: 50%;
+}
+.wr-bubble::after {
+  content: '';
+  position: absolute;
+  left: var(--arrow-x);
+  bottom: -9px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  background: #fff;
+  border: inherit;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+.wr-bubble.is-below::after { bottom: auto; top: -9px; border: inherit; border-right: none; border-bottom: none; }
+.wr-bubble p { margin: 4px 0 0; }
+.wr-bubble-x {
+  position: absolute; top: 4px; right: 4px;
+  width: 28px; height: 28px; border: none; border-radius: 50%;
+  background: none; color: var(--text-light); font-size: 0.9rem; cursor: pointer;
+}
+.wr-bubble-x:hover { background: #F1F5F9; }
+.wr-bubble-chinh_ta { border-color: var(--wr-red); }
+.wr-bubble-dung_tu { border-color: var(--wr-orange); }
+.wr-bubble-cau { border-color: var(--wr-purple); }
+.wr-bubble-dau_cau { border-color: var(--wr-blue); }
 .wr-detail-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-bottom: 4px; }
 .wr-sugg-chip { padding: 1px 10px; border-radius: var(--radius-full); background: #DCFCE7; color: #166534; }
 

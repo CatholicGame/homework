@@ -42,6 +42,11 @@ export function listEssays(grade) {
   return Object.values(data.essays).filter(e => e.grade === grade).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 }
 
+/** Bài viết khi bé học lớp khác (hồ sơ đổi lớp, hoặc máy khác đặt lớp khác), mới nhất lên đầu. */
+export function listOtherGradeEssays(grade) {
+  return Object.values(load().essays).filter(e => e.grade && e.grade !== grade).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+}
+
 export function getEssay(id) {
   return load().essays[id] || null;
 }

@@ -6,13 +6,13 @@
  */
 
 import {
-  MAX_WORDS, MAX_PROMPT, countWords, listEssays, getEssay, createEssay, updateEssay, deleteEssay,
+  MAX_WORDS, MAX_PROMPT, countWords, listEssays, listOtherGradeEssays, getEssay, createEssay, updateEssay, deleteEssay,
   isStale, requestReview, requestVocab, markRanges,
 } from '../engine/writing.js';
 import { getProfileGrade } from '../engine/profile.js';
 import { connectLeaderboard } from '../engine/leaderboard.js';
 import { getCurrentUser } from '../engine/auth.js';
-import { pullIfStale } from '../engine/cloudSync.js';
+import { getCloudStatus, syncNow } from '../engine/cloudSync.js';
 import '../styles/writing.css';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -86,7 +86,33 @@ export function render(app, onBack) {
     else if (view?.startsWith('review:')) showReview(view.slice(7));
   };
   window.addEventListener('tth:cloud-pulled', onPulled);
-  pullIfStale();
+  // Trạng thái lưu lên Google Drive ở danh sách bài (bố mẹ xem bài đã sang máy khác chưa).
+  const onCloud = () => {
+    const el = app.querySelector('.wr-cloud');
+    if (!el) return window.removeEventListener('tth:cloud-status', onCloud);
+    paintCloud(el);
+  };
+  window.addEventListener('tth:cloud-status', onCloud);
+  syncNow(); // vào trang: lấy ngay bài viết ở máy khác
+
+  function paintCloud(el) {
+    const { state, lastSync } = getCloudStatus();
+    const time = lastSync ? new Date(lastSync).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
+    const [text, action] = {
+      guest: ['Đăng nhập Google để mở bài viết trên máy khác.', ''],
+      syncing: ['☁️ Đang đồng bộ với Google Drive…', ''],
+      ok: [`☁️ Đã đồng bộ với Google Drive lúc ${time}.`, 'Đồng bộ lại'],
+      idle: ['☁️ Bài viết được lưu vào Google Drive của bạn.', 'Đồng bộ ngay'],
+      'needs-auth': ['⚠️ Bài mới chưa lưu lên Google Drive.', 'Lưu lên Drive'],
+      'needs-permission': ['⚠️ Cần cho phép app lưu vào Google Drive.', 'Cho phép'],
+      offline: ['⚠️ Mất mạng: bài vẫn lưu trên máy, có mạng sẽ lưu lên Drive.', ''],
+      error: ['⚠️ Chưa lưu được lên Google Drive.', 'Thử lại'],
+    }[state] || ['', ''];
+    el.classList.toggle('is-warn', text.startsWith('⚠️'));
+    el.innerHTML = `<span>${text}</span>${action ? `<button type="button" class="wr-cloud-btn">${action}</button>` : ''}`;
+    const btn = el.querySelector('.wr-cloud-btn');
+    if (btn) btn.onclick = () => syncNow({ interactive: true }); // trong click: được mở popup Google
+  }
 
   // ── Khung trang: thanh trên cùng đứng yên khi cuộn ─────────────────────────
   function frame({ back, backLabel, title, right = '', wide = false }, bodyHtml) {
@@ -109,11 +135,15 @@ export function render(app, onBack) {
   // ── 1. Danh sách bài ──────────────────────────────────────────────────────
   function showList() {
     const essays = listEssays(grade);
+    const others = listOtherGradeEssays(grade);
     const body = frame({
       back: onBack, backLabel: '← Trang chủ', title: '✍️ Luyện Viết Văn',
       right: '<button type="button" class="btn btn-primary wr-new">＋ Bài mới</button>',
-    }, essays.length ? `<div class="wr-list">${essays.map(itemHtml).join('')}</div>` : emptyHtml());
+    }, `<div class="wr-cloud" aria-live="polite"></div>`
+      + (essays.length ? `<div class="wr-list">${essays.map(itemHtml).join('')}</div>` : emptyHtml())
+      + (others.length ? `<h2 class="wr-other-h">Bài viết ở lớp khác</h2><div class="wr-list">${others.map(itemHtml).join('')}</div>` : ''));
     view = 'list';
+    paintCloud(body.querySelector('.wr-cloud'));
 
     app.querySelector('.wr-new').onclick = () => openEditor(createEssay(grade).id);
     body.querySelectorAll('.wr-item').forEach(item => {
@@ -140,7 +170,7 @@ export function render(app, onBack) {
         <button type="button" class="wr-item-main">
           <span class="wr-item-prompt">${esc(e.prompt) || '<i>Chưa có đề bài</i>'}</span>
           <span class="wr-item-text">${esc(e.text.slice(0, 140)) || '<i>Chưa viết bài</i>'}</span>
-          <span class="wr-item-meta">${chip}<span>${words} từ</span><span>${fmtDate(e.updatedAt)}</span></span>
+          <span class="wr-item-meta">${chip}${e.grade && e.grade !== grade ? `<span>Lớp ${e.grade}</span>` : ''}<span>${words} từ</span><span>${fmtDate(e.updatedAt)}</span></span>
         </button>
         <div class="wr-item-actions">
           <button type="button" class="wr-icon-btn" data-edit>✏️ Sửa</button>
@@ -176,6 +206,7 @@ export function render(app, onBack) {
       const e = getEssay(id);
       if (e && !e.prompt.trim() && !e.text.trim() && !e.review) deleteEssay(id); // bài mới bỏ trống
       showList();
+      syncNow(); // rời bài: đưa lên Drive ngay, không chờ
     };
     const body = frame({
       back: leave, backLabel: '← Danh sách', title: '✏️ Bài viết',
@@ -466,8 +497,10 @@ export function render(app, onBack) {
         ${stale ? '<p class="wr-note">Em đã sửa bài sau lần chấm này. Đây là bài lúc cô chấm, nộp lại để cô chấm bài mới.</p>' : ''}
         <div class="wr-prompt-view">📋 ${esc(essay.prompt)}</div>
         ${usedTypes.length ? `<div class="wr-legend">${usedTypes.map(t => `<span class="wr-legend-item"><span class="wr-mark wr-mark-${t}">abc</span> ${TYPES[t].label}</span>`).join('')}</div>` : ''}
-        <div class="wr-essay">${markedHtml(rv.text, ranges)}</div>
-        <div class="wr-detail" hidden></div>
+        <div class="wr-essay-wrap">
+          <div class="wr-essay">${markedHtml(rv.text, ranges)}</div>
+          <div class="wr-bubble" role="dialog" hidden></div>
+        </div>
         ${!ranges.length ? '<p class="wr-note is-good">🎉 Cô không thấy lỗi chính tả hay dùng từ nào. Giỏi lắm!</p>' : ''}
       </div>
 
@@ -508,20 +541,52 @@ export function render(app, onBack) {
       </div>`);
     view = `review:${id}`;
 
-    const detail = body.querySelector('.wr-detail');
+    // Bấm vào một lỗi: bong bóng giải thích hiện ngay trên chỗ lỗi (không phải cuộn xuống tìm).
+    const bubble = body.querySelector('.wr-bubble');
+    let openMark = null;
+    function closeBubble() {
+      bubble.hidden = true;
+      openMark?.classList.remove('is-on');
+      openMark = null;
+    }
+    function placeBubble() {
+      if (!openMark || !openMark.isConnected) return;
+      const wrap = bubble.parentElement.getBoundingClientRect();
+      const lines = openMark.getClientRects();
+      const first = lines[0];
+      const last = lines[lines.length - 1];
+      const bw = bubble.offsetWidth;
+      const bh = bubble.offsetHeight;
+      const GAP = 12;
+      // Thanh trên cùng đứng yên che mất phần trên: không đủ chỗ thì hiện bên dưới chỗ lỗi.
+      const topLimit = app.querySelector('.wr-top')?.getBoundingClientRect().bottom || 0;
+      const below = first.top - bh - GAP < topLimit + 4;
+      const line = below ? last : first;
+      const cx = line.left + line.width / 2 - wrap.left;
+      const left = Math.max(0, Math.min(cx - bw / 2, wrap.width - bw));
+      bubble.style.left = `${left}px`;
+      bubble.style.top = `${below ? line.bottom - wrap.top + GAP : line.top - wrap.top - bh - GAP}px`;
+      bubble.style.setProperty('--arrow-x', `${Math.max(18, Math.min(cx - left, bw - 18))}px`);
+      bubble.classList.toggle('is-below', below);
+    }
     function select(n) {
       const r = ranges.find(x => x.n === Number(n));
-      body.querySelectorAll('.wr-mark.is-on').forEach(m => m.classList.remove('is-on'));
       const mark = body.querySelector(`.wr-essay .wr-mark[data-n="${n}"]`);
       if (!r || !mark) return;
+      if (openMark === mark && !bubble.hidden) { closeBubble(); return; } // bấm lại thì đóng
+      closeBubble();
+      openMark = mark;
       mark.classList.add('is-on');
-      detail.hidden = false;
-      detail.className = `wr-detail wr-detail-${r.issue.type}`;
-      detail.innerHTML = `
+      bubble.className = `wr-bubble wr-bubble-${r.issue.type}`;
+      bubble.innerHTML = `
+        <button type="button" class="wr-bubble-x" aria-label="Đóng">✕</button>
         <div class="wr-detail-head"><span class="wr-fix-type wr-type-${r.issue.type}">${TYPES[r.issue.type].icon} ${TYPES[r.issue.type].label}</span>
           <s class="wr-wrong wr-wrong-${r.issue.type}">${esc(r.issue.text)}</s>
           ${r.issue.suggestions.length ? `→ ${r.issue.suggestions.map(s => `<b class="wr-sugg-chip">${esc(s)}</b>`).join(' ')}` : ''}</div>
         ${r.issue.explain ? `<p>${esc(r.issue.explain)}</p>` : ''}`;
+      bubble.querySelector('.wr-bubble-x').onclick = closeBubble;
+      bubble.hidden = false;
+      placeBubble();
       return mark;
     }
     body.querySelectorAll('.wr-essay .wr-mark').forEach(m => {
@@ -529,8 +594,20 @@ export function render(app, onBack) {
       m.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(m.dataset.n); } };
     });
     body.querySelectorAll('.wr-issue').forEach(b => {
-      b.onclick = () => select(b.dataset.n)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      b.onclick = () => {
+        if (openMark?.dataset.n === b.dataset.n) closeBubble(); // luôn mở lại, không đóng
+        const mark = select(b.dataset.n);
+        if (!mark) return;
+        mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(placeBubble, 450); // cuộn xong mới biết còn chỗ phía trên không
+      };
     });
+    // Chạm chỗ khác thì đóng bong bóng; đổi cỡ màn hình thì đặt lại cho đúng chỗ lỗi.
+    body.addEventListener('click', (e) => {
+      if (!bubble.hidden && !e.target.closest('.wr-mark, .wr-bubble, .wr-issue')) closeBubble();
+    });
+    body.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeBubble(); });
+    new ResizeObserver(placeBubble).observe(bubble.parentElement);
     body.querySelector('.wr-edit').onclick = () => openEditor(id);
     body.querySelector('.wr-resubmit')?.addEventListener('click', () => submitEssay(id));
   }

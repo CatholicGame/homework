@@ -249,6 +249,7 @@ async function run(token) {
     writeJSON(baseKey(scope), merged);
     saveMeta(scope, { fileId, lastSync: Date.now(), ...(changeSeq === seq ? { dirty: false } : {}) });
     setState('ok');
+    if (changeSeq !== seq) syncSoon(1000); // bé làm thêm trong lúc đang tải lên → lưu nốt
     if (pulled) window.dispatchEvent(new CustomEvent('tth:cloud-pulled'));
   } catch (e) {
     console.warn('[cloud] Đồng bộ Google Drive lỗi:', e?.status || e);
@@ -265,6 +266,7 @@ async function run(token) {
 export function syncNow({ interactive = false } = {}) {
   if (!getCurrentUser()) return Promise.resolve();
   clearTimeout(timer);
+  timer = null;
   if (running) return running;
   let tokenP;
   if (hasDriveToken()) tokenP = Promise.resolve(getStoredAccessToken());
@@ -280,9 +282,12 @@ export function syncNow({ interactive = false } = {}) {
   return running;
 }
 
-function syncSoon(ms = 5000) {
+let dueAt = 0; // muộn nhất phải đồng bộ: bé gõ liên tục (bài văn tự lưu) thì không hoãn mãi
+function syncSoon(ms = 5000, maxWait = 20_000) {
+  const now = Date.now();
+  if (!timer) dueAt = now + maxWait;
   clearTimeout(timer);
-  timer = setTimeout(() => syncNow(), ms);
+  timer = setTimeout(() => syncNow(), Math.max(0, Math.min(ms, dueAt - now)));
 }
 
 /** Trước khi đăng xuất: đẩy nốt phần chưa lưu (tối đa vài giây). */
