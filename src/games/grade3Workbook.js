@@ -17,6 +17,8 @@ import imgClock4 from '../assets/grade3-workbook/bai7_clock4.svg';
 import imgBai7Pattern from '../assets/grade3-workbook/bai7_ex1b_pattern.svg';
 import imgBai7Triangle from '../assets/grade3-workbook/bai7_ex2_triangle.svg';
 import imgBai7Trapezoid from '../assets/grade3-workbook/bai7_ex5_trapezoid.svg';
+import imgBai7Ant from '../assets/grade3-workbook/bai7_ex3_ant.svg';
+import imgBai8Polyline from '../assets/grade3-workbook/bai8_ex4_polyline.svg';
 import imgObjBall from '../assets/grade3-workbook/bai7_obj_ball.svg';
 import imgObjBowl from '../assets/grade3-workbook/bai7_obj_bowl.svg';
 import imgObjBox from '../assets/grade3-workbook/bai7_obj_box.svg';
@@ -121,7 +123,7 @@ import { recordAttempt } from '../engine/activity.js';
 import { scopedKey } from '../engine/auth.js';
 import { attachPairDrop } from '../engine/pairDrop.js';
 import { attachBalancePlay, revealBalancePlay } from '../engine/balancePlay.js';
-import { attachColorPaint, isPaintQuestion } from '../engine/colorPaint.js';
+import { attachColorPaint, isPaintQuestion, clearPaint } from '../engine/colorPaint.js';
 import { attachPourPlay, revealPourPlay } from '../engine/pourPlay.js';
 import { tapCountMarkup, attachTapCount } from '../engine/tapCount.js';
 import { attachCalcPlay, hasCalc } from '../engine/calcPlay.js';
@@ -1017,8 +1019,8 @@ const UNITS = [
         hints: ['Nhìn theo từng đường thẳng được vẽ trong hình: có 4 đường thẳng, mỗi đường đi qua đúng 3 điểm đã đánh dấu.'],
       },
       {
-        type: 'fill', section: 'Tiết 1',
-        q: '3. Con kiến bò đến miếng bánh theo đường gấp khúc ABCD với AB = 252 cm, BC = 138 cm, CD = 210 cm. Tính độ dài quãng đường con kiến phải bò.',
+        type: 'fill', section: 'Tiết 1', img: imgBai7Ant,
+        q: '3. Con kiến bò đến miếng bánh theo đường gấp khúc ABCD. Tính độ dài quãng đường con kiến phải bò.',
         wordProblem: true,
         blanks: [{ label: 'Độ dài quãng đường (cm)', answer: '600' }],
       },
@@ -1204,9 +1206,10 @@ const UNITS = [
         blanks: [{ label: 'Số quyển vở', answer: '36' }],
       },
       {
-        type: 'fill', section: 'Tiết 3',
-        q: '4. Đường gấp khúc ABCDE có AB = BC = CD = DE = 4 cm. Viết tiếp vào chỗ chấm cho thích hợp: Độ dài đường gấp khúc ABCDE là ...',
-        blanks: [{ label: 'Độ dài (cm)', answer: '16' }],
+        type: 'fill', section: 'Tiết 3', img: imgBai8Polyline,
+        q: '4. Viết tiếp vào chỗ chấm cho thích hợp.',
+        blanks: [{ label: 'Độ dài đường gấp khúc ABCDE là: ... = ...', answer: '4 + 4 + 4 + 4,16 cm', validate: polylineValidate([4, 4, 4, 4], 'cm') }],
+        hints: ['Độ dài đường gấp khúc bằng tổng độ dài các đoạn thẳng: 4 cm + 4 cm + 4 cm + 4 cm (hoặc 4 cm × 4).'],
       },
       {
         type: 'fill', section: 'Tiết 3', img: imgBai8Flowchart,
@@ -4679,6 +4682,14 @@ export function renderWorkbook(app, onBack, cfg) {
     });
   }
 
+  // Làm lại bài: xoá luôn những gì bé đã làm trên hình. Màu đã tô lưu theo hình (colorPaint);
+  // kiến bò, chạm đếm, ê ke, kéo thả… nhớ theo đối tượng câu (WeakMap trong từng engine), nên
+  // thay bằng bản sao mới là các đồ dùng đều về trạng thái ban đầu.
+  function resetTools() {
+    clearPaint(activeQuestions.map(q => q.img).filter(Boolean));
+    activeQuestions = activeQuestions.map(q => ({ ...q }));
+  }
+
   function persistAttempt(idx, isSolve) {
     const q = activeQuestions[idx];
     const rec = getRecord(q.__unitId, q.__qIdx) || { solved: false, attempts: 0 };
@@ -5273,6 +5284,7 @@ export function renderWorkbook(app, onBack, cfg) {
       }
       clearTimeout(restartArm);
       activeUnitIds.forEach(id => clearUnitStorage(id));
+      resetTools();
       resetProgress();
       current = 0;
       showQuestion();
@@ -6394,6 +6406,7 @@ export function renderWorkbook(app, onBack, cfg) {
 
     app.querySelector('#e3-retry').onclick = () => {
       activeUnitIds.forEach(id => clearUnitStorage(id));
+      resetTools();
       resetProgress();
       current = 0;
       showQuestion();

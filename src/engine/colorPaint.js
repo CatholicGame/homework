@@ -93,6 +93,19 @@ function saveState(url, s) {
   window.dispatchEvent(new CustomEvent('tth:data-changed'));
 }
 
+// Làm lại bài: xoá màu đã tô trên các hình của bài.
+export function clearPaint(urls) {
+  let changed = false;
+  new Set(urls.filter(isSvgUrl)).forEach((url) => {
+    try {
+      if (localStorage.getItem(keyOf(url)) != null) { localStorage.removeItem(keyOf(url)); changed = true; }
+    } catch { /* storage blocked */ }
+    const old = PAINTED_URLS.get(url);
+    if (old) { URL.revokeObjectURL(old); PAINTED_URLS.delete(url); }
+  });
+  if (changed) window.dispatchEvent(new CustomEvent('tth:data-changed'));
+}
+
 // ── vẽ trạng thái lên một <svg> ─────────────────────────────────────────────
 const NS = 'http://www.w3.org/2000/svg';
 function paintInto(svg, state, shapes) {

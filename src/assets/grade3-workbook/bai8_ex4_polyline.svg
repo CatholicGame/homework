@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 200" width="880" height="200"><!--embedded-font--><style>@font-face{font-family:'Quicksand';font-weight:500;src:url(data:font/woff2;base64,d09GMgABAAAAAAVEABAAAAAACgQAAATqAAMBiQAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbgUAcKgZgP1NUQVQqAEwRCAqHfIYzATYCJAMkCxQABCAFhDoHIAwHGw8IIJ4Htq1iPZgPPIswjB5pCSU7nv//+9g+9/2GacAIshGkFUh5WDxSNopORIEEGj74+nZ/ZnfvThEFQfJE6YIsa8nF3DbMIkf8I4lKMssTsYTmwE94+u+attvqqwcyI9KJ/jbSfgETh0trY2ncFgvTzObUOSZplu2FXRb92EBP748Pxq86LUHpN6DmRKhjTAfmexGBaYAi0olg0qnBdxhJpULqqqi1HlISLBlJl2XN9RDBg5JMLIN9P8M5WUgB+u/KsOpxVwXyvBYejXipYmRVk4JVJWSHGhrEMKdAecnBM1m2fShH9EUQdcfIBMRRs59cQCNOYORB/xPKu+EPHqT24j8bwwdyBlhS/ms/gH2BNxgEy1DY5ruuqGxFABUQ2tAXCNOgg4X+oAsFPBCTBrNpjSBNgepC5gP/X++H+7L/cwXKQsD7CyEWYBFiGjkDJK8AYAAoQUw/D7XF1OfyHMUCS/tQ45rc6cs5Y9eimYqaWatk41bIqmbA4GrO2JXy/MwMflrNOBoGr18P1xtHX3B0569zeAGnsIas46Zx9CE9Ne4aGnI1k6NgeADNkqNnO1YskE5fLt+r5oy9bkgYpGkvh5CzVshmzJcuP3394qoNiYZoqElK11Q+zUwtUA43Dy7ToCGoeA5HwZQX8MetUWTm6UPaQygYzDBjzTj6gGzdTPnMnSPTCr3YdylWreOCBecTvdDQdlOO/rxrw8tpYMT5rEXEkK0X9yYPd9GZ4gAOXo5dOscftkeWqcI+RFExaxWIy6z/dEzKK5IM4EokArY1o01FHearSNRgrS1uFfICqLfk0jmmKluBCn77MvOzUxysYyj7Jn3zGMlrqyhPX0vqHSWx1sIVuAaX4x/xmi0/199weOHjNtPO9lY5q/MeGUsGubY+hoRH7bCD47eoiTi5HVlkExVjXRYYalsRHV1o6WsbJ5Oqt807lPz96Uc43zx6wLUoz2d4SrznkMKCQc84j2J98H5i6r1iiiz6IwtDFg7JL/k16D3e16kKYxx6Yr2UxR5xyfZ+Fzrcs+D5U4rbMG7FoYN/58q9GEklkR6EO4S3sDT8w0N1wT1J9lWZVAgFOu9P7NQovJPdnTN8fBwzkty9zOdpdM1F2FIkVqTqe1FNkYHdFBXc1RIFs+nw1PB7wqJ90+JMbUPjfEzySYwrsDgDC63rLRxswyz6rYU4Q9wdb0VJHWxCLHqtMu1etR2XY3E6pjJ8CfInOPsy86/vumS7KE0kTBVtEI5qfa25gXMq5To4HdfgCkBwcwsIWsZ4khVlBUL/r9oE8QKAX8eCiwD8vVFGQLJ/88cyjgMYZSBYCb6jPQPf1mIBZadMVDTkajjIawJk1ghwrItNnt8j04I7EB1b5pBET3j589IIAIC/VEPTRdYBcbFyRIm1NV7YMBNenTBs2dPJa68gU0MQMJ3NGUh8mP0QRqHy6DgMlgk01NT1gSsWBZxYOASBASMjgSOdgkchBPLm2/UmlkJnADksk0llGKiqYnDHbAuugqCQVCkv1VEcZSoMQ8SRYRxAo6oE3ibxpM0l8lTIQ/NKgDNQLDijGKiqt1FkOzYUsmDBnoI+vQbZs3C3Bmw/E538rzEsIoyuqaKmpmNo72BvbUhCWgbe6Z9KwImqAppSQgEPTgLufhWJY5H4AX0+uDH/T/R/xGbmBA==) format('woff2')}</style><!--/embedded-font-->
+  <!-- Bài 8 Tiết 3 câu 4: đường gấp khúc ABCDE, mỗi đoạn 4 cm (VBT Toán 3 Tập một, trang 25) -->
+  <polyline points="42,172 242,32 445,172 645,32 845,172" fill="none" stroke="#231F20" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#231F20">
+    <circle cx="42" cy="172" r="4.5"/>
+    <circle cx="242" cy="32" r="4.5"/>
+    <circle cx="445" cy="172" r="4.5"/>
+    <circle cx="645" cy="32" r="4.5"/>
+    <circle cx="845" cy="172" r="4.5"/>
+  </g>
+  <g font-family="Quicksand" font-weight="500" font-size="24" fill="#231F20" text-anchor="middle">
+    <text x="28" y="166">A</text>
+    <text x="250" y="22">B</text>
+    <text x="462" y="194">C</text>
+    <text x="652" y="22">D</text>
+    <text x="858" y="166">E</text>
+    <text transform="translate(132 94) rotate(-35)">4 cm</text>
+    <text transform="translate(356 94) rotate(35)">4 cm</text>
+    <text transform="translate(534 94) rotate(-35)">4 cm</text>
+    <text transform="translate(758 94) rotate(35)">4 cm</text>
+  </g>
+</svg>
