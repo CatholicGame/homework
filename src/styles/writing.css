@@ -276,7 +276,7 @@
   border: 1px solid #F1E7CF;
 }
 
-/* Chỗ lỗi trong bài: chính tả đỏ gạch chân, dùng từ cam lượn sóng, câu tím gạch đứt, dấu câu xanh chấm */
+/* Chỗ lỗi trong bài: gạch chân liền một nét như bút cô giáo, màu theo loại lỗi (chính tả đỏ, dùng từ cam, câu tím, dấu câu xanh) */
 .wr-mark {
   display: inline;
   border: none;
@@ -298,9 +298,9 @@
 .wr-mark:focus-visible { outline: 2px solid var(--purple); outline-offset: 1px; }
 .wr-mark sup { font-size: 0.62em; font-weight: 700; margin-left: 1px; }
 .wr-mark-chinh_ta { color: var(--wr-red); text-decoration-color: var(--wr-red); font-weight: 700; }
-.wr-mark-dung_tu { color: #9A3412; text-decoration-color: var(--wr-orange); text-decoration-style: wavy; background: #FFF7ED; }
-.wr-mark-cau { color: inherit; text-decoration-color: var(--wr-purple); text-decoration-style: dashed; background: #F5F3FF; }
-.wr-mark-dau_cau { color: inherit; text-decoration-color: var(--wr-blue); text-decoration-style: dotted; text-decoration-thickness: 3px; background: #EFF6FF; }
+.wr-mark-dung_tu { color: #9A3412; text-decoration-color: var(--wr-orange); background: #FFF7ED; }
+.wr-mark-cau { color: inherit; text-decoration-color: var(--wr-purple); background: #F5F3FF; }
+.wr-mark-dau_cau { color: inherit; text-decoration-color: var(--wr-blue); background: #EFF6FF; }
 .wr-mark-chinh_ta sup { color: var(--wr-red); }
 .wr-mark-dung_tu sup { color: var(--wr-orange); }
 .wr-mark-cau sup { color: var(--wr-purple); }
