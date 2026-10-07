@@ -398,6 +398,13 @@ export const WEEKS_16_18 = [
     questions: [
       {
         type: 'fill', section: 'Kiểm tra', img: imgKtQ1Figures,
+        // 📐 Ê ke (a): toạ độ theo kthk1_q1_figures.svg, đường viền các ngôi nhà (_p…, _q…: không có tên điểm).
+        // 11 góc vuông: chân tường, góc nhà, chỗ hở và đỉnh mái nhà bên trái.
+        ekePlay: {
+          points: { _p0: [128, 324], _p1: [318.5, 324], _p2: [318.5, 176], _p3: [434, 48.5], _p4: [562, 163], _p5: [562, 322.5], _p6: [859, 322.5], _p7: [859, 177], _p8: [978, 130.5], _p9: [1105, 176], _p10: [1105, 316.5], _p11: [1455, 316.5], _p12: [1455, 151], _p13: [1585.5, 151], _p14: [1585.5, 122], _q0: [1640.5, 122], _q1: [1640.5, 151], _q2: [1705, 151], _q3: [1705, 315.5], _q4: [1889, 315.5] },
+          segs: [['_p0', '_p1'], ['_p1', '_p2'], ['_p2', '_p3'], ['_p3', '_p4'], ['_p4', '_p5'], ['_p5', '_p6'], ['_p6', '_p7'], ['_p7', '_p8'], ['_p8', '_p9'], ['_p9', '_p10'], ['_p10', '_p11'], ['_p11', '_p12'], ['_p12', '_p13'], ['_p13', '_p14'], ['_q0', '_q1'], ['_q1', '_q2'], ['_q2', '_q3'], ['_q3', '_q4']],
+          fill: { blank: 0, count: 'right' },
+        },
         q: '1. a) Đánh dấu vào các góc vuông trong hình dưới đây.\nb) Quan sát hình vẽ bên rồi viết số đo thích hợp vào chỗ chấm.',
         blanks: [
           { label: 'a) Số góc vuông em đánh dấu được trong hình là ...', answer: '11' },
@@ -422,6 +429,21 @@ export const WEEKS_16_18 = [
       },
       {
         type: 'fill', section: 'Kiểm tra', img: imgKtQ3Square,
+        // 📏 Thước (đo bằng ô, 1 ô = 88) cho hai trung điểm; 🔤 chạm các điểm ở giữa: toạ độ theo kthk1_q3_square.svg.
+        rulerPlay: {
+          points: { A: [40.5, 69.5], E: [216, 69.5], B: [393.5, 69.5], C: [393.5, 425], D: [40.5, 425], H: [304, 159], O: [216, 247], G: [173, 292] },
+          segs: ['AB', 'BC', 'CD', 'DA', 'DB'], unit: 'ô', per: 88, free: true,
+          fill: [{ blank: 0, midOf: 'AB' }, { blank: 1, midOf: 'OB' }],
+        },
+        namePlay: { shapes: [{
+          button: '👆 Điểm ở giữa',
+          points: { A: [40.5, 69.5], E: [216, 69.5], B: [393.5, 69.5], C: [393.5, 425], D: [40.5, 425], H: [304, 159], O: [216, 247], G: [173, 292] },
+          segs: ['AB', 'BC', 'CD', 'DA', 'DB'],
+          tasks: [
+            { kind: 'points', title: 'Ở giữa <b>O và D</b>', row: 'O và D:', of: ['G'], fill: 2, tip: 'Điểm ở giữa O và D nằm <b>trên đoạn OD</b>, giữa hai đầu O và D.' },
+            { kind: 'points', title: 'Ở giữa <b>B và D</b>', row: 'B và D:', of: ['H', 'O', 'G'], fill: 3, tip: 'Các điểm ở giữa B và D nằm <b>trên đoạn BD</b>, giữa hai đầu B và D.' },
+          ],
+        }] },
         q: '3. Quan sát hình dưới đây rồi viết tiếp vào chỗ chấm cho thích hợp.',
         blanks: [
           { label: '• Trung điểm của đoạn thẳng AB là ...', answer: 'E', validate: letterValidate('E') },

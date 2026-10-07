@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Thực hành vẽ dev</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/src/styles/global.css" /></head>
+<body><div id="app"></div>
+<script type="module">
+// Trang thử ✏️ Thực hành vẽ (engine/drawPlay.js) trên câu thật của SGK Toán 4.
+//   ?unit=bai-46&qi=1          câu có drawPlay thứ qi (từ 0) của bài
+//   &tab=2                     thẻ hình c) khi câu có nhiều hình
+//   &solve=3                   làm đúng 3 bước đầu (all = hết)
+//   &eke=x,y,rot               đặt ê ke (cm, độ) để chụp lúc đang kéo
+//   &xong=1                    bấm ✓ Xong, chụp câu với ô đã điền; &nodraw=1: chỉ mở câu
+// Sau cùng: body[data-blanks] = giá trị các ô trả lời, body[data-step] = bước đang làm.
+const p = new URLSearchParams(location.search);
+if (!p.get('realraf')) { window.requestAnimationFrame = (f) => setTimeout(() => f(performance.now()), 16); window.cancelAnimationFrame = (id) => clearTimeout(id); }
+window.addEventListener('error', (e) => { document.body.dataset.err = (document.body.dataset.err || '') + e.message + ' @' + e.lineno + ' '; });
+window.addEventListener('unhandledrejection', (e) => { document.body.dataset.err = (document.body.dataset.err || '') + String(e.reason) + ' '; });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const units = (await import('/src/games/grade4Textbook.js')).UNITS;
+const unitId = p.get('unit') || 'bai-46';
+const unit = units.find((u) => u.id === unitId);
+const { renderWorkbook } = await import('/src/games/grade3Workbook.js');
+(await import('/src/engine/lightbox.js')).initLightbox();
+try { localStorage.removeItem('dp-dev'); } catch { /* */ }
+renderWorkbook(document.getElementById('app'), () => {}, { units: [unit], storageKey: 'dp-dev', starBook: 'dpdev', lastUnitKey: 'dp-dev-last', title: 'dev', subtitle: '', menuLabel: '', unitWord: 'bài', unitName: (u) => u.title });
+await sleep(400);
+document.querySelector(`[data-unit="${unitId}"]`).click();
+await sleep(400);
+const target = unit.questions.indexOf(unit.questions.filter((q) => q.drawPlay)[+(p.get('qi') || 0)]);
+for (let k = 0; k < target; k++) { document.querySelector('#gw-next')?.click(); await sleep(250); }
+await sleep(300);
+if (!p.get('nodraw')) {
+  document.querySelector('.dp-open').click();
+  await sleep(200);
+  const ov = document.querySelector('.dp-overlay');
+  if (+p.get('tab')) { ov.querySelectorAll('.dp-tab')[+p.get('tab')].click(); await sleep(200); }
+  const n = p.get('solve') === 'all' ? 99 : +(p.get('solve') || 0);
+  for (let i = 0; i < n && ov.__dp.step() < ov.__dp.steps; i++) {
+    const before = ov.__dp.step();
+    ov.__dp.solve();
+    for (let t = 0; t < 400 && (ov.__dp.step() === before || ov.__dp.busy()); t++) await sleep(25);
+  }
+  // &drag=1.4,6.5>6.4,6.5;7,7>4.6,6.5  kéo thật bằng sự kiện chạm (toạ độ cm trên giấy), &tap=x,y;x,y
+  const svg = ov.querySelector('.dp-svg');
+  const fire = (type, x, y) => {
+    const m = svg.getScreenCTM(); const pt = svg.createSVGPoint(); pt.x = x * 60; pt.y = y * 60;
+    const c = pt.matrixTransform(m);
+    svg.dispatchEvent(new PointerEvent(type, { clientX: c.x, clientY: c.y, pointerId: 1, bubbles: true, isPrimary: true }));
+  };
+  // &act=t:1.4,1.5;d:12,7>3.5,3.6;go  thao tác theo đúng thứ tự (t = chạm, d = kéo, go = bấm ✏️ Kẻ)
+  for (const g of (p.get('act') || '').split(';').filter(Boolean)) {
+    if (g === 'go') { ov.querySelector('.dp-go').click(); await sleep(2500); continue; }
+    const [kind, v] = g.split(':');
+    const pts = v.split('>').map((w) => w.split(',').map(Number));
+    const [ax, ay] = pts[0], [bx, by] = pts[1] || pts[0];
+    fire('pointerdown', ax, ay);
+    if (kind === 'd') for (let i = 1; i <= 10; i++) { fire('pointermove', ax + (bx - ax) * i / 10, ay + (by - ay) * i / 10); await sleep(20); }
+    fire('pointerup', bx, by);
+    await sleep(kind === 'd' ? 1600 : 500);
+    while (ov.__dp.busy()) await sleep(50);
+  }
+  for (const g of (p.get('drag') || '').split(';').filter(Boolean)) {
+    const [[ax, ay], [bx, by]] = g.split('>').map((v) => v.split(',').map(Number));
+    fire('pointerdown', ax, ay);
+    for (let i = 1; i <= 10; i++) { fire('pointermove', ax + (bx - ax) * i / 10, ay + (by - ay) * i / 10); await sleep(20); }
+    fire('pointerup', bx, by);
+    await sleep(1600);
+    while (ov.__dp.busy()) await sleep(50);
+  }
+  for (const g of (p.get('tap') || '').split(';').filter(Boolean)) {
+    const [x, y] = g.split(',').map(Number);
+    fire('pointerdown', x, y); fire('pointerup', x, y);
+    await sleep(500);
+    while (ov.__dp.busy()) await sleep(50);
+  }
+  if (p.get('go')) { ov.querySelector('.dp-go').click(); await sleep(2500); }
+  document.body.dataset.how = ov.querySelector('.dp-how').textContent;
+  if (p.get('eke')) {
+    const [x, y, r] = p.get('eke').split(',').map(Number);
+    const g = ov.querySelector('.dp-eke');
+    g?.setAttribute('transform', `translate(${x * 60} ${y * 60}) rotate(${r})`);
+  }
+  document.body.dataset.step = ov.__dp.step();
+  if (p.get('xong')) { ov.querySelector('.dp-close').click(); await sleep(300); }
+  // &check=1: bấm Kiểm tra sau khi đóng, body[data-fb] = lời khen / báo sai
+  if (p.get('check')) { document.querySelector('#e3-submit-fill')?.click(); await sleep(400); document.body.dataset.fb = document.querySelector('.e3-feedback')?.textContent || ''; }
+}
+// cửa sổ headless đổi cỡ lúc chụp: dựng lại theo cỡ cuối
+window.dispatchEvent(new Event('resize'));
+await sleep(700);
+document.body.dataset.blanks = [...document.querySelectorAll('.e3-blank-input')].map((i) => `${i.dataset.idx}=${i.value}`).join(' ');
+{ const sv = document.querySelector('.dp-svg'); if (sv) { const r = sv.getBoundingClientRect(); document.body.dataset.vb = sv.getAttribute('viewBox') + ' | ' + Math.round(r.width) + 'x' + Math.round(r.height); } }
+document.body.dataset.ready = '1';
+</script></body></html>

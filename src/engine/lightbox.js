@@ -116,8 +116,8 @@ export function initLightbox() {
     const toggle = e.target.closest('.e3-orig-toggle');
     if (toggle) { toggleInline(toggle); return; }
     const img = e.target.closest('.e3-q-img');
-    // 👆 Chạm để đếm (engine/tapCount.js), 🖍️ tô thẳng lên hình (engine/colorPaint.js): không phóng to.
-    if (img?.classList.contains('tc-wrap') || img?.classList.contains('cp-inline')) return;
+    // 👆 Chạm để đếm (engine/tapCount.js), 🖍️ tô thẳng lên hình (engine/colorPaint.js), 🔤 chạm điểm trên hình (engine/namePlay.js): không phóng to.
+    if (img?.classList.contains('tc-wrap') || img?.classList.contains('cp-inline') || img?.classList.contains('np-inline-svg')) return;
     // Hình có hành động thực hành (↔️ Kéo dài, 📐 Ê ke, 📏 Thước, 🔢 Đếm hình, 🟦 Ô vuông, 🖍️ Tô màu, ⚖️ Thử cân, 🫗 Thử rót): chạm hình là vào thực hành luôn.
     const action = img && actionButtonFor(img);
     if (action) { action.click(); return; }
@@ -141,11 +141,11 @@ export function initLightbox() {
 }
 
 // Nút hành động ngay dưới hình câu hỏi (đã mở khoá). Đang xem "📷 Ảnh gốc" thì vẫn phóng to như cũ.
-const ACTION_BUTTONS = '.gp-open, .cp-open, .gt-open, .pm-open, .bal-open:not(.bal-locked), .pour-open:not(.pour-locked)';
+const ACTION_BUTTONS = '.gp-open, .cp-open, .gt-open, .np-open-img, .pm-open, .dp-open:not(.dp-locked), .bal-open:not(.bal-locked), .pour-open:not(.pour-locked)';
 function actionButtonFor(img) {
   if (img.dataset.showingOrig === '1' || !img.parentElement?.classList.contains('e3-question-card')) return null;
-  // .gt-open (geoTools.js) nằm trong hàng .gt-row
-  return [...img.parentElement.querySelectorAll(':scope > *, :scope > .gt-row > *')].find(el => el.matches(ACTION_BUTTONS)) || null;
+  // .gt-open (geoTools.js) nằm trong hàng .gt-row, .np-open-img (namePlay.js) trong .gt-row hoặc .np-btnrow
+  return [...img.parentElement.querySelectorAll(':scope > *, :scope > .gt-row > *, :scope > .np-btnrow > *')].find(el => el.matches(ACTION_BUTTONS)) || null;
 }
 
 async function toggleInline(btn) {

@@ -7,6 +7,7 @@
  */
 
 import { renderWorkbook } from './grade3Workbook.js';
+import { relatedForGrade3 } from './grade3Knowledge.js';
 import { BAI_45_48 } from './grade3Workbook2/bai45-48.js';
 import { BAI_49_51 } from './grade3Workbook2/bai49-51.js';
 import { BAI_52_54 } from './grade3Workbook2/bai52-54.js';
@@ -32,6 +33,8 @@ const WORKBOOK_TAP2_CONFIG = {
   menuLabel: 'Chọn bài để luyện tập:',
   unitWord: 'bài',
   unitName: (u) => `Bài ${u.number}. ${u.title}`,
+  // 📘 Kiến thức trên câu hình học (lớp phủ): grade3Knowledge.js.
+  related: relatedForGrade3,
 };
 
 export function render(app, onBack) {

@@ -3,6 +3,8 @@
  * góc, hai đường thẳng vuông góc, song song, vẽ hình chữ nhật, hình vuông (sách trang 38–56).
  * Hình vẽ lại: scripts/redraw/g4t_bai029_048.py (bộ vẽ kit_g4t.py).
  * Bài vẽ hình (dùng ê ke, thước) chuyển thành điều có thể chấm: tên cặp cạnh, tên hình, chu vi, Có/Không.
+ * ✏️ Thực hành vẽ (q.drawPlay, engine/drawPlay.js): bé vẽ theo các bước của sách bằng thước, ê ke trên máy
+ * (toạ độ theo cm trên giấy vẽ). Câu chỉ có vẽ: ô "Đã vẽ" (daVe), slot giữ chỗ lưu kết quả của các câu cũ.
  */
 import { blank, listValidate, textValidate, dsValidate, calc, nham } from './kit.js';
 import imgQuangDuong from '../../assets/grade4-textbook/bai30_q3_quangduong.svg';
@@ -70,6 +72,10 @@ const coKhong = (label, yes) => {
   const a = yes ? 'Có' : 'Không';
   return { label: `${label} ...`, answer: a, tiles: ['Có', 'Không'], tileOne: true, validate: textValidate(a) };
 };
+
+/** Câu chỉ có vẽ: ô "Đã vẽ" điền khi bé vẽ xong trên giấy ✏️ Thực hành vẽ (engine/drawPlay.js). */
+const daVe = (label) => ({ label: `${label ? `${label} ` : ''}Vẽ trên máy: ...`, answer: 'Đã vẽ', validate: textValidate('Đã vẽ'), drawDone: true });
+const VE_VO = 'Vẽ trên máy xong, em vẽ lại vào vở bằng thước và ê ke.';
 
 /** "P = a + b + c": các chữ a, b, c theo thứ tự nào cũng được, có hay không viết "P =". */
 const formulaValidate = (want) => (v) => {
@@ -713,19 +719,79 @@ export const QUESTIONS = {
   ],
 
   // ── Bài 43. Vẽ hai đường thẳng vuông góc (trang 52–53) ───────────────────────────────────────────
-  // Câu 1 (vẽ AB qua E vuông góc CD), câu 2 (vẽ đường cao AH): bài vẽ bằng ê ke, không có điều để chấm.
   'bai-43': [
+    {
+      type: 'fill', stars: 2, slot: 101,
+      q: '1. Hãy vẽ đường thẳng AB đi qua điểm E và vuông góc với đường thẳng CD trong mỗi trường hợp sau:',
+      blanks: [daVe('a)'), daVe('b)'), daVe('c)')],
+      hints: ['Đặt một cạnh góc vuông của ê ke trùng với đường thẳng CD, cạnh kia đi qua E, rồi kẻ theo cạnh đó.', VE_VO],
+      drawPlay: [
+        {
+          label: 'a)', done: 0, title: 'đường thẳng AB vuông góc với CD',
+          given: { points: { C: [1.5, 3.4, 0, 0.5], E: [5, 3.4, 0.4, 0.5], D: [8.5, 3.4, 0, 0.5] }, lines: { CD: ['C', 'D'] } },
+          steps: [{ perp: 'CD', through: 'E', id: 'AB', ends: ['A', 'B'] }],
+        },
+        {
+          label: 'b)', done: 1, title: 'đường thẳng AB vuông góc với CD',
+          given: { points: { C: [4, 0.9, 0.45, 0], E: [4, 3.2, -0.45, -0.4], D: [4, 5.5, 0.45, 0] }, lines: { CD: ['C', 'D'] } },
+          steps: [{ perp: 'CD', through: 'E', id: 'AB', ends: ['A', 'B'] }],
+        },
+        {
+          label: 'c)', done: 2, title: 'đường thẳng AB vuông góc với CD',
+          given: { points: { C: [1.5, 5.2, -0.1, 0.5], E: [5.5, 3.2, 0.2, 0.55], D: [8.5, 1.7, 0.1, 0.5] }, lines: { CD: ['C', 'D'] } },
+          steps: [{ perp: 'CD', through: 'E', id: 'AB', ends: ['A', 'B'] }],
+        },
+      ],
+    },
+    {
+      type: 'fill', stars: 3, slot: 102,
+      q: '2. Hãy vẽ đường cao AH của hình tam giác ABC trong mỗi trường hợp sau:',
+      blanks: [daVe('a)'), daVe('b)'), daVe('c)')],
+      hints: ['Qua đỉnh A vẽ đường thẳng vuông góc với cạnh BC, cắt BC tại H. Đoạn AH là đường cao.', VE_VO],
+      drawPlay: [
+        {
+          label: 'a)', done: 0, title: 'đường cao AH',
+          given: { points: { A: [3.2, 1], B: [1, 4.6], C: [7.2, 4.6] }, segs: ['AB', 'BC', 'CA'] },
+          steps: [{ perp: 'BC', through: 'A', id: 'pA', name: 'H', helper: true }, { join: 'AH' }],
+        },
+        {
+          label: 'b)', done: 1, title: 'đường cao AH',
+          given: { points: { A: [6.5, 4.6], B: [6.5, 0.9], C: [1, 4.6] }, segs: ['AB', 'BC', 'CA'] },
+          steps: [{ perp: 'BC', through: 'A', id: 'pA', name: 'H', helper: true }, { join: 'AH' }],
+        },
+        {
+          label: 'c)', done: 2, title: 'đường cao AH',
+          given: { points: { A: [3.6, 4.4], B: [8, 4.4], C: [1, 1] }, segs: ['AB', 'BC', 'CA'] },
+          steps: [{ perp: 'BC', through: 'A', id: 'pA', name: 'H', helper: true }, { join: 'AH' }],
+        },
+      ],
+    },
     {
       type: 'fill', stars: 2, img: imgHcn43,
       q: '3. Cho hình chữ nhật ABCD và điểm E trên cạnh AB. Hãy vẽ đường thẳng đi qua điểm E và vuông góc với cạnh DC, cắt cạnh DC tại điểm G. Ta được các hình tứ giác đều là hình chữ nhật, nêu tên các hình chữ nhật đó.',
       blanks: [names('Các hình chữ nhật: ... ; ... ; ...', ['AEGD', 'EBCG', 'ABCD'])],
       hints: ['Đường EG chia hình chữ nhật ABCD thành hai hình chữ nhật nhỏ. Đừng quên hình lớn ABCD.'],
+      drawPlay: {
+        title: 'đường thẳng EG vuông góc với DC',
+        given: { points: { A: [1.2, 1.2], B: [7.2, 1.2], C: [7.2, 4.8], D: [1.2, 4.8], E: [4.6, 1.2] }, segs: ['AB', 'BC', 'CD', 'DA'] },
+        steps: [{ perp: 'DC', through: 'E', id: 'pE', name: 'G', helper: true }, { join: 'EG' }],
+      },
     },
   ],
 
   // ── Bài 44. Vẽ hai đường thẳng song song (trang 53–54) ───────────────────────────────────────────
-  // Câu 1 (vẽ AB qua M song song CD): bài vẽ, không có điều để chấm.
   'bai-44': [
+    {
+      type: 'fill', stars: 3, slot: 101,
+      q: '1. Hãy vẽ đường thẳng AB đi qua điểm M và song song với đường thẳng CD.',
+      blanks: [daVe('')],
+      hints: ['Vẽ đường thẳng đi qua M vuông góc với CD, rồi vẽ đường thẳng AB đi qua M vuông góc với đường vừa vẽ.', VE_VO],
+      drawPlay: {
+        done: 0, title: 'đường thẳng AB song song với CD',
+        given: { points: { C: [1.2, 1.6, 0, -0.5], D: [9.2, 1.6, 0, -0.5], M: [7.2, 4.2, 0.45, 0.4] }, lines: { CD: ['C', 'D'] } },
+        steps: [{ par: 'CD', through: 'M', id: 'AB', ends: ['A', 'B'] }],
+      },
+    },
     {
       type: 'fill', stars: 2, img: imgSongSong44,
       q: '2. Cho hình tam giác ABC có góc đỉnh A là góc vuông. Qua đỉnh A, hãy vẽ đường thẳng AX song song với cạnh BC; qua đỉnh C, hãy vẽ đường thẳng CY song song với cạnh AB. Hai đường thẳng AX và CY cắt nhau tại điểm D, nêu tên các cặp cạnh song song với nhau có trong hình tứ giác ADCB.',
@@ -735,6 +801,16 @@ export const QUESTIONS = {
       geoPlay: { points: { A: [257.5, 84.4], B: [40, 210], C: [330, 210], D: [547.5, 84.4] }, segs: ['AB', 'BC', 'AC', 'AD', 'DC'], fill: 'ABC', pick: 'AD', answer: [{ blank: 0, list: 'par' }] },
       // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
       pairPlay: { kinds: ['song song'], fill: { blank: 0, kind: 'song song' } },
+      drawPlay: {
+        title: 'hình tứ giác ADCB',
+        given: { points: { B: [0.8, 5], C: [5.8, 5], A: [4.55, 2.835] }, segs: ['AB', 'BC', 'CA'] },
+        steps: [
+          { par: 'BC', through: 'A', id: 'AX', label: 'X' },
+          { par: 'AB', through: 'C', id: 'CY', label: 'Y' },
+          { meet: ['AX', 'CY'], name: 'D' },
+        ],
+        paper: [12, 7],
+      },
     },
     {
       type: 'fill', stars: 1, img: imgTuGiac44,
@@ -746,6 +822,14 @@ export const QUESTIONS = {
       // ∥ Chọn cặp: bé chạm hai cạnh, ghi các cặp tìm được (engine/geoTools.js).
       pairPlay: { kinds: ['vuông góc'], fill: { blank: 0, kind: 'vuông góc', pair: ['BE', 'ED'], yes: 'Có', no: 'Không' } },
       ekePlay: { fill: { blank: 0, angle: 'EBD' } },
+      drawPlay: {
+        title: 'đường thẳng BE song song với AD',
+        given: { points: { A: [1.4, 5.2], B: [1.4, 3.4], C: [5.8, 1.6], D: [5.8, 5.2] }, segs: ['AB', 'BC', 'CD', 'DA'] },
+        steps: [
+          { perp: 'DC', through: 'B', id: 'BE', name: 'E', say: 'a) AD vuông góc với DC, nên đường thẳng qua <b>B</b> vuông góc với <b>DC</b> sẽ song song với AD. Vẽ đường đó, cắt DC tại <b>E</b>.' },
+          { check: ['BE', 'DC'], fill: { blank: 0 }, say: 'b) Đặt ê ke vào góc đỉnh <b>E</b>: góc đó có là góc vuông không?' },
+        ],
+      },
     },
   ],
 
@@ -758,17 +842,22 @@ export const QUESTIONS = {
       hints: ['Chu vi hình chữ nhật = (chiều dài + chiều rộng) × 2.'],
       // 🐜 Đo chu vi (engine/perimPlay.js)
       perimPlay: { rect: [5, 3], fill: 0 },
+      drawPlay: { rect: [5, 3], title: 'hình chữ nhật dài 5 cm, rộng 3 cm' },
     },
     {
       type: 'fill', stars: 1, img: imgDuongCheo,
       q: '2. a) Hãy vẽ hình chữ nhật ABCD có chiều dài AB = 4cm, chiều rộng BC = 3cm.\nb) Trong hình chữ nhật ABCD, hai đoạn thẳng AC và BD được gọi là hai đường chéo của hình chữ nhật. Hãy dùng thước có vạch chia xăng-ti-mét kiểm tra xem độ dài hai đường chéo AC và BD có bằng nhau hay không.',
       blanks: [coKhong('b) Hai đường chéo AC và BD có bằng nhau không?', true)],
       hints: ['Vẽ hình chữ nhật 4cm, 3cm vào vở rồi đo hai đường chéo bằng thước.'],
+      drawPlay: {
+        rect: [4, 3],
+        steps: [{ join: 'AC' }, { join: 'BD' }, { measure: ['AC', 'BD'], fill: { blank: 0 } }],
+      },
     },
   ],
 
   // ── Bài 46. Thực hành vẽ hình vuông (trang 55) ───────────────────────────────────────────────────
-  // Câu 2 (vẽ theo mẫu trên giấy kẻ ô): bài vẽ, không có điều để chấm.
+  // Câu 2 (vẽ theo mẫu trên giấy kẻ ô): bài chép hình, chưa làm trên máy.
   'bai-46': [
     {
       type: 'fill', stars: 2,
@@ -780,6 +869,7 @@ export const QUESTIONS = {
       hints: ['Chu vi hình vuông = cạnh × 4. Diện tích hình vuông = cạnh × cạnh.'],
       // 🐜 Đo chu vi (engine/perimPlay.js)
       perimPlay: { square: 4, fill: 0 },
+      drawPlay: { square: 4, title: 'hình vuông cạnh 4 cm' },
     },
     {
       type: 'fill', stars: 1,
@@ -789,11 +879,18 @@ export const QUESTIONS = {
         coKhong('b) Hai đường chéo AC và BD có bằng nhau không?', true),
       ],
       hints: ['Vẽ hình vuông vào vở, dùng ê ke kiểm tra góc ở chỗ hai đường chéo cắt nhau, dùng thước đo độ dài.'],
+      drawPlay: {
+        square: 5,
+        steps: [
+          { join: 'AC' }, { join: 'BD' },
+          { check: ['AC', 'BD'], fill: { blank: 0 } },
+          { measure: ['AC', 'BD'], fill: { blank: 1 } },
+        ],
+      },
     },
   ],
 
   // ── Bài 47. Luyện tập (trang 55–56) ──────────────────────────────────────────────────────────────
-  // Câu 3 (vẽ hình vuông ABCD có cạnh AB = 3cm): bài vẽ, không có điều để chấm.
   'bai-47': [
     {
       type: 'fill', stars: 3, img: imgGoc47,
@@ -833,6 +930,23 @@ export const QUESTIONS = {
       ekePlay: { fill: [{ blank: 0, angle: ['HAB', 'HAC'], yes: 'Đ', no: 'S' }, { blank: 1, angle: 'BAC', yes: 'Đ', no: 'S' }] },
     },
     {
+      type: 'fill', stars: 2, slot: 101,
+      q: '3. Cho đoạn thẳng AB = 3cm (như hình vẽ). Hãy vẽ hình vuông ABCD (có cạnh là AB).',
+      blanks: [daVe('')],
+      hints: ['Vẽ đường vuông góc với AB tại A và tại B, trên mỗi đường lấy đoạn 3cm, rồi nối hai điểm đó.', VE_VO],
+      drawPlay: {
+        done: 0, title: 'hình vuông ABCD',
+        given: { points: { A: [1.4, 1.4], B: [4.4, 1.4] }, segs: ['AB'] },
+        steps: [
+          { perp: 'AB', through: 'A', id: 'pA', helper: true },
+          { seg: 'AD', dir: 90, len: 3, onLine: true },
+          { perp: 'AB', through: 'B', id: 'pB', helper: true },
+          { seg: 'BC', dir: 90, len: 3, onLine: true },
+          { join: 'DC' },
+        ],
+      },
+    },
+    {
       type: 'fill', stars: 2, img: imgHcn47,
       q: '4. a) Hãy vẽ hình chữ nhật ABCD có chiều dài AB = 6cm, chiều rộng AD = 4cm.\nb) Xác định trung điểm M của cạnh AD, trung điểm N của cạnh BC. Nối điểm M và điểm N ta được các hình tứ giác đều là hình chữ nhật.\n– Nêu tên các hình chữ nhật đó.\n– Nêu tên các cạnh song song với cạnh AB.',
       blanks: [
@@ -846,6 +960,14 @@ export const QUESTIONS = {
       pairPlay: { kinds: ['song song'], fill: { blank: 1, kind: 'song song', with: 'AB' } },
       ekePlay: true,
       rulerPlay: { unit: 'cm', per: 50 },
+      drawPlay: {
+        rect: [6, 4],
+        steps: [
+          { mark: 'M', from: 'A', toward: 'D', len: 2, say: 'b) Trung điểm <b>M</b> của AD: AD = 4 cm, nên M cách A <b>2 cm</b>.' },
+          { mark: 'N', from: 'B', toward: 'C', len: 2, say: 'Trung điểm <b>N</b> của BC: BC = 4 cm, nên N cách B <b>2 cm</b>.' },
+          { join: 'MN' },
+        ],
+      },
     },
   ],
 
@@ -888,6 +1010,16 @@ export const QUESTIONS = {
       perimPlay: {
         path: 'AIHD', rect: [6, 3], toScale: true, texts: ['3 + 3 = 6 cm', '3 cm', '3 + 3 = 6 cm', '3 cm'],
         points: { A: [40, 40], I: [360, 40], H: [360, 200], D: [40, 200] }, fill: 2,
+      },
+      drawPlay: {
+        title: 'hình chữ nhật AIHD',
+        given: { points: { A: [1.2, 1.2], B: [4.2, 1.2], C: [4.2, 4.2], D: [1.2, 4.2] }, segs: ['AB', 'BC', 'CD', 'DA'] },
+        steps: [
+          { seg: 'BI', dir: 0, len: 3, onLine: true, say: 'Kéo dài cạnh AB, lấy đoạn thẳng <b>BI = 3 cm</b>.' },
+          { perp: 'AB', through: 'I', id: 'pI', helper: true },
+          { seg: 'IH', dir: 90, len: 3, onLine: true },
+          { join: 'CH' },
+        ],
       },
     },
     {

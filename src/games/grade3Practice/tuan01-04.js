@@ -307,6 +307,13 @@ export const WEEKS_1_4 = [
       },
       {
         type: 'choice', section: 'Tiết 2', img: imgT3T2Q1b,
+        // 🔤 Thẳng hàng: toạ độ theo tuan3_t2_q1b_points.svg; N nằm trên đường cong. Tìm được thì nháy đáp án D.
+        namePlay: { shapes: [{
+          button: '👆 Tìm thẳng hàng',
+          points: { M: [49, 108], P: [457, 107.5], N: [665, 71], Q: [864, 106.5] },
+          segs: ['MQ'],
+          tasks: [{ kind: 'collinear', of: ['MPQ'], fill: '#choice', choice: 3, tip: 'Chạm <b>3 điểm</b> cùng nằm trên <b>đường thẳng</b>. Đường cong không phải đường thẳng.' }],
+        }] },
         q: '1. Khoanh vào chữ đặt trước câu trả lời đúng.\nb) Cho hình vẽ sau:\nBa điểm thẳng hàng có trong hình trên là:',
         options: ['M, P, N', 'M, N, Q', 'P, N, Q', 'M, P, Q'],
         answer: 3,
@@ -329,6 +336,17 @@ export const WEEKS_1_4 = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgT3T2Q3,
+        // 🔢 Đếm hình: toạ độ theo tuan3_t2_q3a_figure.svg (hình không có tên điểm): _A đỉnh, _B _C hai góc đáy,
+        // _D _E hai góc trên của hình chữ nhật (trên hai cạnh bên), _F _G hai chân hình chữ nhật trên đáy.
+        countPlay: {
+          points: { _A: [196.5, 23.5], _B: [21.5, 326.5], _C: [373, 326.5], _D: [108.5, 175.5], _E: [284.5, 175.5], _F: [108.5, 326.5], _G: [284.5, 326.5] },
+          segs: [['_A', '_B'], ['_A', '_C'], ['_B', '_C'], ['_D', '_E'], ['_D', '_F'], ['_E', '_G']],
+          kinds: {
+            'tứ giác': [['_D', '_E', '_G', '_F'], ['_D', '_B', '_G', '_E'], ['_D', '_F', '_C', '_E'], ['_D', '_B', '_C', '_E'], ['_A', '_B', '_G', '_E'], ['_A', '_D', '_F', '_C']],
+            'tam giác': [['_A', '_D', '_E'], ['_D', '_B', '_F'], ['_E', '_G', '_C'], ['_A', '_B', '_C']],
+          },
+          fill: [{ blank: 0, kind: 'tứ giác', count: true, input: 0 }, { blank: 0, kind: 'tam giác', count: true, input: 1 }],
+        },
         q: '3. Viết số thích hợp vào chỗ chấm.',
         blanks: [
           { label: 'a) Trong hình bên có ... hình tứ giác và ... hình tam giác.', answer: '6,4', validate: listValidate(['6', '4']) },
@@ -462,6 +480,21 @@ export const WEEKS_1_4 = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgT4T2Q4,
+        // 🔢 Đếm hình: toạ độ theo tuan4_t2_q4_triangle.svg (không có tên điểm): _A đỉnh; hàng 1 _D _E _F,
+        // hàng 2 _G _H _I, đáy _B _M _C (trái, giữa, phải).
+        countPlay: {
+          points: { _A: [235.5, 15], _D: [136, 183.5], _E: [235.5, 183.5], _F: [338, 183.5], _G: [71, 293.5], _H: [235.5, 293.5], _I: [405, 293.5], _B: [13, 391], _M: [235.5, 391], _C: [464, 391] },
+          segs: [['_A', '_B'], ['_A', '_C'], ['_B', '_C'], ['_A', '_M'], ['_D', '_F'], ['_G', '_I']],
+          kinds: {
+            'tam giác': [['_A', '_D', '_E'], ['_A', '_G', '_H'], ['_A', '_B', '_M'], ['_A', '_E', '_F'], ['_A', '_H', '_I'], ['_A', '_M', '_C'], ['_A', '_D', '_F'], ['_A', '_G', '_I'], ['_A', '_B', '_C']],
+            'tứ giác': [
+              ['_D', '_E', '_H', '_G'], ['_D', '_E', '_M', '_B'], ['_G', '_H', '_M', '_B'],
+              ['_E', '_F', '_I', '_H'], ['_E', '_F', '_C', '_M'], ['_H', '_I', '_C', '_M'],
+              ['_D', '_F', '_I', '_G'], ['_D', '_F', '_C', '_B'], ['_G', '_I', '_C', '_B'],
+            ],
+          },
+          fill: [{ blank: 0, kind: 'tam giác', count: true }, { blank: 1, kind: 'tứ giác', count: true }],
+        },
         q: '4. Viết số thích hợp vào chỗ chấm.\nTrong hình bên:',
         blanks: [
           { label: '• Có ... hình tam giác;', answer: '9' },

@@ -855,6 +855,7 @@ export const QUESTIONS = {
       hints: ['Chu vi hình vuông = cạnh × 4; diện tích = cạnh × cạnh.'],
       // 🐜 Đo chu vi (engine/perimPlay.js)
       perimPlay: { square: 3, fill: 0 },
+      drawPlay: { square: 3, title: 'hình vuông cạnh 3 cm' },
     },
     {
       type: 'fill', stars: 3, img: imgHaiHinh,
@@ -918,6 +919,7 @@ export const QUESTIONS = {
       hints: ['Chu vi = (dài + rộng) × 2; diện tích = dài × rộng.'],
       // 🐜 Đo chu vi (engine/perimPlay.js)
       perimPlay: { rect: [5, 4], fill: 0 },
+      drawPlay: { rect: [5, 4], title: 'hình chữ nhật dài 5 cm, rộng 4 cm' },
     },
     {
       type: 'fill', stars: 4, img: imgHinhH,

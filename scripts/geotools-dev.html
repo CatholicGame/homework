@@ -12,6 +12,8 @@
 //   &fill=A:10,B                                   ô vuông: phủ 10 ô hình A, phủ hết hình B
 //   &app=1 (&open=eke | &tapimg=1)                 câu thật trong sách, hàng nút dưới hình
 //   &motion=1                                      bỏ qua "tắt hiệu ứng" của máy
+//   ?book=g3p (Luyện tập Toán 3) &app=1&np=1&npt=B,M,C;A,H,M  🔤 Gọi tên: mở nút dưới hình, chạm các điểm (mỗi lượt một nhóm;
+//      npt=@1 sang việc thứ 1, seg:AB chạm đoạn AB); &kn=1 mở 📘 Kiến thức của câu
 const p = new URLSearchParams(location.search);
 // headless + virtual-time-budget: requestAnimationFrame có khi không chạy, thay bằng hẹn giờ cho chắc
 if (!p.get('realraf')) { window.requestAnimationFrame = (f) => setTimeout(() => f(performance.now()), 16); window.cancelAnimationFrame = (id) => clearTimeout(id); }
@@ -22,15 +24,17 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const book = p.get('book') || 'g3';
 const units = book === 'g3' ? (await import('/src/games/grade3Workbook.js')).WORKBOOK3_UNITS
   : book === 'g4' ? (await import('/src/games/grade4Textbook.js')).UNITS
-  : [...(await import('/src/games/grade3Workbook2/bai49-51.js')).BAI_49_51, ...(await import('/src/games/grade3Workbook2/bai52-54.js')).BAI_52_54];
+  : book === 'g3p' ? (await Promise.all(['tuan01-04', 'tuan05-08', 'tuan09-12', 'tuan13-15', 'tuan16-18'].map((f) => import(`/src/games/grade3Practice/${f}.js`)))).flatMap((m) => Object.values(m).flat())
+  : [...(await import('/src/games/grade3Workbook2/bai79-81.js')).BAI_79_81, ...(await import('/src/games/grade3Workbook2/bai49-51.js')).BAI_49_51, ...(await import('/src/games/grade3Workbook2/bai52-54.js')).BAI_52_54];
 const unitId = p.get('unit') || 'bai-18';
 const unit = units.find((u) => u.id === unitId);
-const has = (q) => q.ekePlay || q.rulerPlay || q.countPlay || q.areaPlay || q.pairPlay || (p.get('gp') && q.geoPlay);
+const has = (q) => q.namePlay || q.ekePlay || q.rulerPlay || q.countPlay || q.areaPlay || q.pairPlay || (p.get('gp') && q.geoPlay);
 if (p.get('app')) {
   const { renderWorkbook } = await import('/src/games/grade3Workbook.js');
   (await import('/src/engine/lightbox.js')).initLightbox();
   try { localStorage.removeItem('gt-dev'); } catch { /* */ }
-  renderWorkbook(document.getElementById('app'), () => {}, { units: [unit], storageKey: 'gt-dev', starBook: 'gtdev', lastUnitKey: 'gt-dev-last', title: 'dev', subtitle: '', menuLabel: '', unitWord: 'bài', unitName: (u) => u.title });
+  const { relatedForGrade3 } = await import('/src/games/grade3Knowledge.js');
+  renderWorkbook(document.getElementById('app'), () => {}, { units: [unit], storageKey: 'gt-dev', starBook: 'gtdev', lastUnitKey: 'gt-dev-last', title: 'dev', subtitle: '', menuLabel: '', unitWord: 'bài', unitName: (u) => u.title, related: book === 'g4' ? undefined : relatedForGrade3 });
   await sleep(400);
   document.querySelector(`[data-unit="${unitId}"]`).click();
   await sleep(400);
@@ -38,6 +42,31 @@ if (p.get('app')) {
   for (let k = 0; k < target; k++) { document.querySelector('#gw-next')?.click(); await sleep(250); }
   await sleep(300);
   if (p.get('open')) [...document.querySelectorAll('.gt-open')].find((b) => b.textContent.includes({ eke: 'Ê ke', ruler: 'Thước', count: 'Đếm', area: 'Ô vuông', pairs: 'Chọn cặp' }[p.get('open')]))?.click();
+  if (p.get('kn')) document.querySelector('.gw-related-btn')?.click();
+  if (p.get('np')) {
+    // hình chỉ có gọi tên: làm thẳng trên hình của câu (.np-inline), không có nút mở
+    document.querySelector('.np-open-img')?.click();
+    let nov;
+    while (!(nov = document.querySelector('.np-overlay, .np-inline'))?.__np) await sleep(50);
+    await sleep(600);
+    for (const g of (p.get('npt') || '').split(';').filter(Boolean)) {
+      if (g.startsWith('@')) nov.__np.setTask(+g.slice(1));
+      else if (g.startsWith('seg:')) nov.__np.tapSeg(g.slice(4));
+      else if (g.startsWith('at:')) {
+        // at:A,B,0.25 bấm thật (có toạ độ) lên đoạn vẽ chứa A, B, ở 1/4 đường từ A tới B
+        const [a, b, u] = g.slice(3).split(',');
+        const P = unit.questions.filter(has)[+(p.get('qi') || 0)].namePlay.shapes[0].points;
+        const svgEl = nov.querySelector('.np-svg') || document.querySelector('.np-inline-svg'), m = svgEl.getScreenCTM();
+        const x = P[a][0] + (P[b][0] - P[a][0]) * +u, y = P[a][1] + (P[b][1] - P[a][1]) * +u;
+        const sx = m.a * x + m.c * y + m.e, sy = m.b * x + m.d * y + m.f;
+        const hit = [...svgEl.querySelectorAll('.np-seg-hit')].find((l) => document.elementsFromPoint(sx, sy).includes(l));
+        hit?.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: sx, clientY: sy }));
+      }
+      else for (const v of g.split(',')) { nov.__np.tapPoint(v); await sleep(120); }
+      await sleep(900);
+    }
+    if (p.get('xong')) nov.querySelector('.np-close')?.click();
+  }
   if (p.get('tapimg')) document.querySelector('.e3-question-card > .e3-q-img')?.click();
   // &open=eke&do=snap:A;snap:I;measure:A,B;tap:A,B,I;kind:1;fill:A&xong=1: thao tác trong công cụ rồi bấm ✓ Xong
   // &gp=BE,CD,AG: mở ↔️ Kéo dài, chọn các cạnh, bấm Kéo dài, chờ xong rồi đóng

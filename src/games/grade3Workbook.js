@@ -128,7 +128,9 @@ import { attachCalcPlay, hasCalc } from '../engine/calcPlay.js';
 import { attachGeoPlay } from '../engine/geoPlay.js';
 import { attachGeoTools } from '../engine/geoTools.js';
 import { attachNamePlay } from '../engine/namePlay.js';
+import { relatedForGrade3 } from './grade3Knowledge.js';
 import { attachPerimPlay } from '../engine/perimPlay.js';
+import { attachDrawPlay, revealDrawPlay } from '../engine/drawPlay.js';
 import { searchBox, matcher, pickTest, prep, snippet, textOf, resultNote } from '../engine/listSearch.js';
 import { GRADE3_GAMES } from '../data/features.js';
 import { levelsForUnit } from './grade3Games/catalog.js';
@@ -998,6 +1000,13 @@ const UNITS = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgBai7Triangle,
+        // 🔤 Thẳng hàng: toạ độ theo bai7_ex2_triangle.svg; mỗi bộ ba tìm được vào một ô.
+        namePlay: { shapes: [{
+          button: '👆 Tìm thẳng hàng',
+          points: { A: [340, 115], N: [214, 325], H: [340, 394], B: [90, 536], M: [340, 536], C: [585, 536] },
+          segs: ['AB', 'AC', 'BC', 'AM', 'NC'],
+          tasks: [{ kind: 'collinear', of: ['BMC', 'AHM', 'CHN'], given: ['ANB'], fills: [0, 1, 2] }],
+        }] },
         q: '2. Viết tiếp vào chỗ chấm (theo mẫu).\nBa điểm thẳng hàng có trong hình bên là: A, N, B; hãy tìm 3 bộ ba điểm thẳng hàng còn lại.',
         blanksAnyOrder: true,
         blanks: [
@@ -1015,9 +1024,23 @@ const UNITS = [
       },
       {
         type: 'choice', section: 'Tiết 1', img: imgBai7Trapezoid,
+        // 🔢 Đếm hình: toạ độ theo bai7_ex5_trapezoid.svg (hình không có tên điểm). Hình có 7 tứ giác: 3 hình
+        // nhỏ, 3 hình ghép từ hai hình, cả hình lớn (hình nhỏ góc trên bên phải là tam giác). Trước đây chấm D (6) là sai.
+        countPlay: {
+          points: { _A: [216, 43], _B: [463, 43], _C: [627, 379], _D: [52, 379], _E: [133, 211], _F: [544, 211], _G: [402, 211], _H: [341, 379] },
+          segs: [['_A', '_B'], ['_B', '_C'], ['_C', '_D'], ['_D', '_A'], ['_E', '_F'], ['_B', '_H']],
+          kinds: { 'tứ giác': [
+            ['_A', '_B', '_G', '_E'], ['_E', '_G', '_H', '_D'], ['_G', '_F', '_C', '_H'],
+            ['_A', '_B', '_F', '_E'], ['_E', '_F', '_C', '_D'], ['_A', '_B', '_H', '_D'], ['_A', '_B', '_C', '_D'],
+          ] },
+          fill: [{ kind: 'tứ giác', choice: [8, 7, 5, 6] }],
+        },
         q: '5. Khoanh vào chữ đặt trước câu trả lời đúng.\nSố hình tứ giác có trong hình bên là:',
-        options: ['A. 8', 'B. 7', 'C. 5', 'D. 6'], answer: 3,
-        hints: ['Đừng chỉ đếm các hình nhỏ nhất — hãy đếm cả những hình tứ giác được ghép từ 2 hình nhỏ trở lên.'],
+        options: ['A. 8', 'B. 7', 'C. 5', 'D. 6'], answer: 1,
+        hints: [
+          'Đừng chỉ đếm các hình nhỏ nhất, hãy đếm cả những hình tứ giác được ghép từ 2 hình nhỏ trở lên.',
+          'Hình nhỏ ở góc trên bên phải chỉ có 3 cạnh (tam giác). Có 3 tứ giác nhỏ, 3 tứ giác ghép từ hai hình và cả hình lớn: 7 hình.',
+        ],
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgScales,
@@ -1868,6 +1891,13 @@ const UNITS = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgBai16Segments2,
+        // 🔤 Thẳng hàng: toạ độ theo bai16_ex2_segments.svg; O ở ngoài, không thẳng hàng với C, N, D.
+        namePlay: { shapes: [{
+          button: '👆 Tìm thẳng hàng',
+          points: { A: [437, 215.5], M: [812, 215.5], B: [1176, 215.5], C: [437, 401], N: [813, 401], D: [1052, 401], O: [714.5, 439.5] },
+          segs: ['AB', 'CD'],
+          tasks: [{ kind: 'collinear', of: ['AMB', 'CND'], join: ' và ', fill: 0 }],
+        }] },
         q: '2. Quan sát hình vẽ rồi viết tiếp vào chỗ chấm cho thích hợp.',
         blanks: [
           {
@@ -1935,6 +1965,17 @@ const UNITS = [
     questions: [
       {
         type: 'fill', img: imgBai17Circles,
+        // 🔤 Tâm, bán kính, đường kính: toạ độ theo bai17_q1_circles.svg (tâm I chưa có chấm tên trong hình).
+        namePlay: { shapes: [{
+          button: '👆 Chạm tâm, bán kính',
+          points: { A: [198, 220], I: [402, 312], B: [454, 94.5], C: [257, 478.5], D: [613, 389], M: [1203, 146.5], O: [1203, 315.5], N: [1203, 484.5] },
+          segs: ['AI', 'IB', 'CD', 'MN'],
+          tasks: [
+            { kind: 'points', title: 'Chạm <b>tâm</b>', row: 'Tâm:', of: ['I', 'O'], fills: { I: 0, O: 2 }, tip: 'Tâm là điểm ở <b>chính giữa</b> hình tròn. Mỗi hình tròn có một tâm.' },
+            { kind: 'segs', title: 'Chạm các <b>bán kính</b>', row: 'Bán kính:', of: ['IA', 'IB', 'OM', 'ON'], fills: { IA: 1, IB: 1, OM: 3, ON: 3 }, tip: 'Bán kính nối <b>tâm</b> với một điểm trên đường tròn. Ở hình b): chạm khúc từ O lên M, từ O xuống N.' },
+            { kind: 'segs', title: 'Chạm <b>đường kính</b>', row: 'Đường kính:', of: ['MN'], fill: 4, tip: 'Đường kính đi <b>qua tâm</b>, nối hai điểm trên đường tròn.' },
+          ],
+        }] },
         q: '1. Viết tiếp vào chỗ chấm cho thích hợp.',
         blanks: [
           { label: 'a) Hình tròn tâm ...', answer: 'I' },
@@ -2041,6 +2082,15 @@ const UNITS = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgBai19T2Q1aShapes,
+        // 🔢 Chọn hình: chạm 4 đỉnh của hình vuông, của hình chữ nhật (toạ độ theo bai19_t2_q1a_shapes.svg).
+        // Hình AGEB nghiêng, không có góc vuông: không phải hình vuông, không phải hình chữ nhật.
+        countPlay: {
+          points: { M: [163.5, 69.5], N: [470.5, 69.5], P: [470.5, 376], Q: [163.5, 376], A: [841.5, 69.5], B: [1087.5, 192.5], E: [841.5, 315.5], G: [593.5, 192.5], C: [1331, 69.5], D: [1516.5, 69.5], I: [1516.5, 376], H: [1331, 376] },
+          segs: ['MN', 'NP', 'PQ', 'QM', 'AB', 'BE', 'EG', 'GA', 'CD', 'DI', 'IH', 'HC'],
+          kinds: { 'vuông': ['MNPQ'], 'chữ nhật': ['CDIH'] },
+          whole: true, // chọn trong cả hàng, không tách từng hình
+          fill: { 'vuông': 0, 'chữ nhật': 1 },
+        },
         q: '1a. Tô màu vàng vào hình vuông, màu xanh vào hình chữ nhật.',
         blanks: [
           { label: 'Hình vuông (tô màu vàng) là hình ...', answer: 'MNPQ', validate: letterGroupsValidate(['MNPQ']) },
@@ -4089,6 +4139,16 @@ const UNITS = [
       },
       {
         type: 'fill', section: 'Tiết 1', img: imgBai43T1Circle,
+        // 🔤 Đường kính, bán kính: toạ độ theo bai43_t1_q3_circle.svg (C, O, D trên một nét vẽ).
+        namePlay: { shapes: [{
+          button: '👆 Chạm đường kính, bán kính',
+          points: { A: [74, 226], O: [265, 226], B: [461, 226], C: [375, 64], D: [160, 383], E: [371, 389] },
+          segs: ['AB', 'AC', 'CD', 'OE'],
+          tasks: [
+            { kind: 'segs', title: 'a) Chạm các <b>đường kính</b>', row: 'a) Đường kính:', of: ['AB', 'CD'], fill: 0, tip: 'Đường kính đi <b>qua tâm O</b>, nối hai điểm trên đường tròn.' },
+            { kind: 'segs', title: 'b) Chạm các <b>bán kính</b>', row: 'b) Bán kính:', of: ['OA', 'OB', 'OC', 'OD', 'OE'], fill: 1, tip: 'Bán kính nối <b>tâm O</b> với một điểm trên đường tròn: chạm khúc từ O ra tới đường tròn.' },
+          ],
+        }] },
         q: '3. Viết tiếp vào chỗ chấm cho thích hợp.',
         blanks: [
           { label: 'a) Các đường kính của hình tròn có trong hình bên là: ...', answer: 'AB, CD', validate: letterGroupsValidate(['AB', 'CD']) },
@@ -4328,7 +4388,7 @@ function makeStore(storageKey, lastUnitKey) {
 
   function getUnitSummary(unit) {
     let solvedCount = 0, attemptsSum = 0;
-    unit.questions.forEach((_, i) => {
+    storeSlots(unit.questions).forEach((i) => {
       const rec = getRecord(unit.id, i);
       if (rec) { if (rec.solved) solvedCount++; attemptsSum += rec.attempts || 0; }
     });
@@ -4353,6 +4413,8 @@ const WORKBOOK_CONFIG = {
   unitWord: 'bài',
   unitName: (u) => `Bài ${u.number}. ${u.title}`,
   gamesBook: 'workbook', // nút "Trò chơi tăng cường" (grade3Games.js)
+  // 📘 Kiến thức trên câu hình học (lớp phủ): grade3Knowledge.js.
+  related: relatedForGrade3,
 };
 
 // cho trang thử scripts/geotools-dev.html
@@ -4564,14 +4626,15 @@ export function renderWorkbook(app, onBack, cfg) {
     setLastUnit(uid);
     if (uid === 'all') {
       const totalQ = UNITS.reduce((s, u) => s + u.questions.length, 0);
-      activeQuestions = UNITS.flatMap(u => u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: i })));
+      activeQuestions = UNITS.flatMap(u => { const slots = storeSlots(u.questions); return u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: slots[i] })); });
       activeTitle = `Tất cả: ${totalQ} câu`;
       activeColor = '#34D399';
       activeUnitIds = UNITS.map(u => u.id);
     } else {
       const unitIdx = UNITS.findIndex(u => u.id === uid);
       const u = UNITS[unitIdx];
-      activeQuestions = u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: i }));
+      const slots = storeSlots(u.questions);
+      activeQuestions = u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: slots[i] }));
       activeTitle = cfg.unitName(u);
       activeColor = PALETTE[unitIdx % PALETTE.length];
       activeUnitIds = [u.id];
@@ -4730,7 +4793,10 @@ export function renderWorkbook(app, onBack, cfg) {
     attachNamePlay(app, q);
     // 🐜 Đo chu vi: kiến bò quanh hình, các cạnh nối thành sợi dây, phép cộng hiện dần (engine/perimPlay.js).
     attachPerimPlay(app, q);
+    // ✏️ Thực hành vẽ: bài "Hãy vẽ …" làm trên giấy vẽ với thước, ê ke theo các bước của sách (engine/drawPlay.js).
+    attachDrawPlay(app, q, solved[current]);
     revealPinnedImageOnKeyboard();
+    if (cfg.autoColumns) autoColumns();
     attachPinResize(app);
     app.querySelectorAll('.gw-related-btn').forEach((b) => { b.onclick = () => openLayer(related[+b.dataset.rel]); });
   }
@@ -4750,6 +4816,116 @@ export function renderWorkbook(app, onBack, cfg) {
       if (below > 0) card.scrollTop += below + 8;
     }, 80);
     app.querySelector('.gw-scroll-zone')?.addEventListener('focusin', reveal);
+  }
+
+  // cfg.autoColumns (Lớp 1): các dòng trả lời ngắn (hình + ô số, "2 + 3 = ...", "4 > < = 5", lựa chọn
+  // "Hình vuông") không xếp một cột dài phải cuộn nữa: đo bề rộng thật của dòng dài nhất rồi chia đều
+  // thành nhiều cột vừa màn (ngang 3–4 cột, máy tính bảng dọc 2 cột, điện thoại dọc vẫn một cột).
+  // Đo một lần khi hình trong dòng đã tải xong (danh sách ẩn trong lúc chờ, nên không nhảy chỗ
+  // trước mắt bé); xoay máy thì đo lại.
+  function autoColumns() {
+    const lists = [...app.querySelectorAll('#e3-blanks, #e3-options, #gw-compare')]
+      .filter(l => l.children.length >= 2);
+    // Nối hai cột: màn đủ rộng thì xoay thành hai hàng (hình ở trên, số ở dưới), cả bài nằm gọn một màn
+    const match = app.querySelector('#gw-match:not(.gw-match-trains)');
+    if (!lists.length && !match) return;
+    const hint = match?.parentElement.querySelector('.gw-match-hint');
+    const hintV = hint?.textContent;
+    const layoutMatch = () => {
+      if (!match?.isConnected) return;
+      const n = Math.max(...['left', 'middle', 'right'].map(s => match.querySelectorAll(`.gw-match-item[data-side="${s}"]`).length));
+      const avail = match.parentElement.clientWidth;
+      const h = avail >= 560 && (avail - (n - 1) * 13) / n >= 130;
+      match.classList.toggle('gw-match-h', h);
+      // nối ba cột: ô đặt sẵn vị trí cột/hàng trên lưới, đổi chỗ hai giá trị đó
+      if (match.classList.contains('gw-match-3')) match.querySelectorAll('.gw-match-item').forEach((el) => {
+        el.dataset.gc ??= el.style.gridColumn;
+        el.dataset.gr ??= el.style.gridRow;
+        el.style.gridColumn = h ? el.dataset.gr : el.dataset.gc;
+        el.style.gridRow = h ? el.dataset.gc : el.dataset.gr;
+      });
+      if (hint) hint.textContent = h ? hint.dataset.h : hintV;
+    };
+    layoutMatch();
+    const layout = () => lists.forEach((list) => {
+      if (!list.isConnected) return;
+      const items = [...list.children];
+      list.style.display = list.style.gridTemplateColumns = '';
+      const avail = list.clientWidth;
+      const widths = items.map((el) => {
+        // dòng xuống hàng giữa chừng (hình ở trên, ô số ở dưới): bề rộng là đoạn dài nhất, không phải
+        // tổng cả dòng như khi đo max-content
+        const label = el.querySelector(':scope > .e3-blank-label');
+        if (label?.querySelector(':scope > .gw-line-break')) {
+          let widest = 0, seg = [];
+          const close = () => {
+            if (seg.length) widest = Math.max(widest, Math.max(...seg.map(r => r.right)) - Math.min(...seg.map(r => r.left)));
+            seg = [];
+          };
+          label.childNodes.forEach((n) => {
+            if (n.nodeType === 1 && n.classList.contains('gw-line-break')) return close();
+            if (n.nodeType === 3 && !n.textContent.trim()) return;
+            const range = document.createRange();
+            range.selectNode(n);
+            const r = range.getBoundingClientRect();
+            if (r.width) seg.push(r);
+          });
+          close();
+          return widest + (el.offsetWidth - label.offsetWidth) + 8;
+        }
+        const keep = el.style.width;
+        el.style.width = 'max-content';
+        // dòng có đường kẻ chỗ viết kéo dài ("2 + 3 = ____") cần chỗ để viết, không chỉ 3 ký tự
+        const w = el.offsetWidth + (el.querySelector('.gw-blank-fill') ? 140 : 0);
+        el.style.width = keep;
+        return w;
+      });
+      const gap = 12;
+      const fit = (w) => Math.floor((avail + gap) / (w + gap));
+      const maxW = Math.max(...widths);
+      const minW = Math.min(...widths);
+      let cols;
+      if (maxW <= minW * 1.6) {
+        // các dòng cỡ như nhau: chia đều, không để một ô lẻ loi ở hàng cuối (5 ô: 3 + 2 chứ không 4 + 1)
+        cols = Math.max(1, Math.min(items.length, fit(maxW), 4));
+        cols = Math.ceil(items.length / Math.ceil(items.length / cols));
+        items.forEach(el => { el.style.gridColumn = ''; });
+      } else {
+        // dòng dài lẫn dòng ngắn (Bài 29: "a) 2 + 3 = ..." rồi "b)" tính dọc): lưới ô nhỏ theo dòng ngắn nhất,
+        // dòng dài chiếm nhiều ô liền nhau
+        cols = Math.max(1, Math.min(fit(minW), 6));
+        const colW = (avail - (cols - 1) * gap) / cols;
+        items.forEach((el, k) => {
+          const span = Math.ceil((widths[k] + gap) / (colW + gap));
+          // dòng không đứng chung hàng với dòng nào khác thì trải hết chiều ngang, không chừa ô trống bên phải
+          el.style.gridColumn = `span ${span > cols / 2 ? cols : span}`;
+        });
+      }
+      if (cols < 2) return;
+      list.style.display = 'grid';
+      list.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+      list.style.gap = `${gap}px`;
+    });
+    const imgs = lists.flatMap(l => [...l.querySelectorAll('img')]).filter(img => !img.complete);
+    lists.forEach(l => { l.style.visibility = 'hidden'; });
+    const done = () => { layout(); lists.forEach(l => { l.style.visibility = ''; }); };
+    if (!imgs.length) done();
+    else Promise.race([
+      Promise.all(imgs.map(img => img.decode().catch(() => {}))),
+      new Promise(r => setTimeout(r, 600)),
+    ]).then(done);
+    // Bề rộng vùng trả lời đổi (xoay máy, bàn phím số mở ra chiếm nửa màn ngang): đo lại.
+    const zone = app.querySelector('.gw-scroll-zone');
+    if (!zone || typeof ResizeObserver === 'undefined') return;
+    let t = 0, lastW = zone.clientWidth;
+    const ro = new ResizeObserver(() => {
+      if (!zone.isConnected) { ro.disconnect(); return; }
+      if (Math.abs(zone.clientWidth - lastW) < 8) return;
+      lastW = zone.clientWidth;
+      clearTimeout(t);
+      t = setTimeout(() => { layout(); layoutMatch(); }, 120);
+    });
+    ro.observe(zone);
   }
 
   // ── SOLUTION EDITOR (write the working before answering) ────────────────────
@@ -5587,7 +5763,7 @@ export function renderWorkbook(app, onBack, cfg) {
           ${grid}
         </div>
       </div>
-      <p class="gw-match-hint">${q.middle ? 'Bấm 1 ô rồi bấm ô tương ứng ở cột bên cạnh để nối (cột trái → cột giữa → cột phải), sau đó bấm Kiểm tra.' : 'Bấm 1 ô bên trái rồi bấm ô tương ứng bên phải để nối, sau đó bấm Kiểm tra.'}</p>
+      <p class="gw-match-hint" data-h="${q.middle ? 'Bấm 1 ô rồi bấm ô tương ứng ở hàng bên cạnh để nối (hàng trên → hàng giữa → hàng dưới), sau đó bấm Kiểm tra.' : 'Bấm 1 ô ở hàng trên rồi bấm ô tương ứng ở hàng dưới để nối, sau đó bấm Kiểm tra.'}">${q.middle ? 'Bấm 1 ô rồi bấm ô tương ứng ở cột bên cạnh để nối (cột trái → cột giữa → cột phải), sau đó bấm Kiểm tra.' : 'Bấm 1 ô bên trái rồi bấm ô tương ứng bên phải để nối, sau đó bấm Kiểm tra.'}</p>
       <button class="e3-btn e3-btn-primary" id="gw-match-check" style="margin-top:12px" disabled>Kiểm tra</button>
     `;
   }
@@ -5625,8 +5801,8 @@ export function renderWorkbook(app, onBack, cfg) {
     const box = container.getBoundingClientRect();
     const lr = leftBtn.getBoundingClientRect();
     const rr = rightBtn.getBoundingClientRect();
-    if (container.classList.contains('gw-match-trains')) {
-      // train A above train B: from under a car of A to the top of a car of B
+    if (container.classList.contains('gw-match-trains') || container.classList.contains('gw-match-h')) {
+      // train A above train B (or a nối laid out as two rows): from under an item of the top row to the top of one below
       const x1 = lr.left + lr.width / 2 - box.left, y1 = lr.bottom - lr.height * 0.12 - box.top;
       const x2 = rr.left + rr.width / 2 - box.left, y2 = rr.top + rr.height * 0.1 - box.top;
       const midY = (y1 + y2) / 2;
@@ -6150,6 +6326,7 @@ export function renderWorkbook(app, onBack, cfg) {
       // Câu tính toán có 🫗 Thử rót: làm đúng rồi mới mở bước kiểm chứng.
       revealPourPlay(app, activeQuestions[current], banner);
       revealBalancePlay(app, activeQuestions[current], banner);
+      revealDrawPlay(app, activeQuestions[current], banner);
       app.querySelector('#e3-nav').style.display = 'flex';
       app.querySelector('#e3-next').onclick = () => {
         current++;
@@ -6603,6 +6780,7 @@ function injectStyles() {
     .gw-kn-ex > b { display: block; color: #A16207; margin-bottom: 0.2rem; }
     .gw-kn-ex p { margin: 0.25rem 0; }
     .gw-kn-back { width: min(760px, 100%); }
+    .gw-kn-fig { display: block; width: min(100%, 420px); max-height: 220px; margin: 0.2rem auto 0.8rem; }
     .gw-kn-loading { margin: auto; font-size: 3rem; animation: pulse 1s infinite; }
     @media (min-width: 720px) {
       .gw-kn-points { font-size: 1.25rem; }
@@ -6956,8 +7134,24 @@ function injectStyles() {
     .gw-match-item:has(.gw-match-cap) { flex-direction: column; gap: 0.3rem; }
     .gw-match-cap { display: inline-block; background: #bae6fd; color: #1e293b; padding: 0.1rem 0.6rem; font-weight: 600; }
     .gw-match-hint { font-size: 0.8rem; color: #94a3b8; text-align: center; margin-top: 0.6rem; font-style: italic; }
+    /* Nối ngang (cfg.autoColumns, màn rộng): cột trái thành hàng trên, cột phải thành hàng dưới, đường nối đi từ trên xuống */
+    .gw-match.gw-match-h { max-width: none; }
+    .gw-match-h .gw-match-grid { grid-template-columns: none; grid-template-rows: auto auto; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); column-gap: 0.8rem; row-gap: clamp(3rem, 12vh, 6rem); }
+    .gw-match-h.gw-match-3 .gw-match-grid { grid-template-rows: auto auto auto; grid-auto-flow: row; }
+    .gw-match-h .gw-match-grid.gw-match-cols { display: flex; flex-direction: column; }
+    .gw-match-h .gw-match-col { flex-direction: row; }
+    .gw-match-h .gw-match-col > .gw-match-item { flex: 1 1 0; min-width: 0; }
   `;
   document.head.appendChild(gwStyle);
+}
+
+/**
+ * Chỗ lưu kết quả / sao của từng câu: số thứ tự câu trong bài. Câu chèn thêm về sau (q.slot, vd. 100)
+ * giữ chỗ riêng, các câu cũ vẫn giữ số cũ (không lệch kết quả bé đã làm).
+ */
+function storeSlots(questions) {
+  let n = 0;
+  return questions.map(q => (q.slot != null ? q.slot : n++));
 }
 
 /** Hành động trên hình (nút mở trong câu) — hiện icon trong danh sách câu hỏi thay cho 🖼️. */
@@ -6976,6 +7170,7 @@ const ACTIONS = [
   { icon: '🟦', label: 'Ô vuông', has: q => !!q.areaPlay },
   { icon: '🐜', label: 'Đo chu vi', has: q => !!q.perimPlay },
   { icon: '∥', label: 'Chọn cặp', has: q => !!q.pairPlay },
+  { icon: '✏️', label: 'Thực hành vẽ', has: q => !!q.drawPlay },
 ];
 const actionsOf = q => ACTIONS.filter(a => a.has(q));
 

@@ -429,12 +429,17 @@ export const QUESTIONS = {
       q: '1. Chiều dài bảng của lớp học là 3m. Em hãy vẽ đoạn thẳng biểu thị chiều dài bảng đó trên bản đồ có tỉ lệ 1 : 50.',
       blanks: [{ label: 'Đoạn thẳng trên bản đồ dài: ... cm', answer: '6' }],
       hints: ['Đổi 3m = 300cm, rồi chia cho 50.'],
+      // ✏️ làm đúng rồi mới vẽ (độ dài trên bản đồ là đáp số)
+      drawAfter: true,
+      drawPlay: { title: 'đoạn thẳng AB biểu thị chiều dài bảng', steps: [{ seg: 'AB', at: [1.2, 2.4], dir: 0, len: 6, say: 'Vẽ đoạn thẳng <b>AB = 6 cm</b> biểu thị chiều dài bảng trên bản đồ.' }] },
     },
     {
       type: 'fill', stars: 3, wordProblem: true,
       q: '2. Nền của một phòng học là hình chữ nhật có chiều dài 8m, chiều rộng 6m. Em hãy vẽ hình chữ nhật biểu thị nền phòng học đó trên bản đồ có tỉ lệ 1 : 200.',
       blanks: [{ label: 'Chiều dài hình chữ nhật trên bản đồ: ... cm', answer: '4' }, { label: 'Chiều rộng hình chữ nhật trên bản đồ: ... cm', answer: '3' }],
       hints: ['Đổi ra xăng-ti-mét: 8m = 800cm, 6m = 600cm, rồi chia cho 200.'],
+      drawAfter: true,
+      drawPlay: { rect: [4, 3], title: 'hình chữ nhật biểu thị nền phòng học' },
     },
   ],
 };

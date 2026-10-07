@@ -21,6 +21,11 @@
  *     { kind: 'collinear', of: ['BND'], given?: ['ANC'], fill }  chạm ba điểm thẳng hàng
  *     { kind: 'opposite', poly: 'ABCD', of: ['AB DC', 'AD BC'], fill }  chạm hai cạnh không chung đỉnh
  *     fill: số thứ tự ô trống của câu, hoặc [hàng, cột] ô của bảng. given: tên đã in sẵn (mẫu), không điền.
+ *     input: n  chỗ trống thứ n của ô (ô "tâm là ...; đường kính là ..."); inputs: [2, 3, 4] mỗi tên một chỗ trống.
+ *     value: 'Đ'  tìm được of[0] thì điền chữ này (câu Đ, S); các tên khác trong of chỉ để không báo sai.
+ *     tip: lời nhắc riêng của việc (đầu việc và khi chạm sai), vd. bán kính nối tâm với một điểm trên đường tròn.
+ *     fills: [0, 1, 2] mỗi kết quả một ô, theo thứ tự tìm được; hoặc { I: 0, O: 2 } mỗi tên vào ô của nó. join: ' và ' nối mọi kết quả thẳng hàng vào một ô.
+ *     fill: '#choice' + choice: n  câu khoanh: tìm được thì nháy đáp án thứ n (như đồ dùng hình học).
  *     title / row: chữ trên tab / đầu dòng kết quả (mặc định theo kind).
  *     Việc chỉ dùng một phần ảnh (hình a), hình b) cạnh nhau) thì khung nhìn phóng to phần đó.
  * shape.verts / shape.sides (Bài 19 Lớp 3): ô điền của hai việc mặc định.
@@ -131,6 +136,9 @@ const sameItem = (kind, a, b) => (kind === 'path'
   : itemKey(kind, a) === itemKey(kind, b));
 const sameSide = (a, b) => keyOf(a) === keyOf(b);
 
+// đồ dùng khác trên cùng hình: khi đó gọi tên vẫn là nút + lớp phủ
+const OTHER_TOOLS = ['geoPlay', 'ekePlay', 'rulerPlay', 'countPlay', 'areaPlay', 'pairPlay', 'perimPlay', 'drawPlay', 'balancePlay', 'pourPlay', 'tapCount', 'paint'];
+
 // ── nút ──
 export function attachNamePlay(root, q) {
   const cfg = q.namePlay;
@@ -157,9 +165,14 @@ export function attachNamePlay(root, q) {
     } else own.push(shape);
   });
   if (!own.length) return;
-  // hình của câu: nút dưới hình (cùng hàng với đồ dùng hình học nếu có)
-  const img = root.querySelector('.e3-question-card > .e3-q-img');
+  const img = root.querySelector('.e3-question-card > img.e3-q-img');
   if (!img) return;
+  // hình chỉ có việc gọi tên: bé chạm thẳng lên hình của câu, không phải mở lớp phủ
+  if (own.length === 1 && !OTHER_TOOLS.some((k) => q[k]) && !/tô\s+màu/i.test(q.q || '') && !img.parentElement.querySelector(':scope > .gt-row')) {
+    openNamePlay(root, q, own[0], img);
+    return;
+  }
+  // hình có đồ dùng khác: nút dưới hình (cùng hàng với đồ dùng hình học nếu có), mở lớp phủ
   let row = img.parentElement.querySelector(':scope > .gt-row');
   if (!row) {
     row = document.createElement('div');
@@ -194,6 +207,7 @@ function fillCell(root, [r, c], text) {
   return inp;
 }
 function clearFill(root, fill) {
+  if (fill === '#choice') { root.querySelectorAll('.e3-option.gt-suggest').forEach((o) => o.classList.remove('gt-suggest')); return; }
   const inputs = Array.isArray(fill)
     ? [root.querySelector(`.gw-table-input[data-r="${fill[0]}"][data-c="${fill[1]}"]`)]
     : fill == null ? [] : [...root.querySelectorAll(`.e3-blank-input[data-idx="${fill}"]`)];
@@ -202,20 +216,49 @@ function clearFill(root, fill) {
   });
 }
 
-export function openNamePlay(root, q, shape) {
+/**
+ * Mở việc gọi tên của một hình. inlineImg: hình của câu (<img>) → làm thẳng trên hình đó: hình được thay bằng SVG
+ * cùng cỡ (ảnh cũ ẩn đi, vẫn dùng cho "📷 Ảnh gốc"), dải việc + lời nhắc nằm ngay dưới hình, không có lớp phủ.
+ */
+export function openNamePlay(root, q, shape, inlineImg = null) {
   injectStyles();
+  const inline = !!inlineImg;
   const S = prep(shape, q);
   const { P, tasks } = S;
   const sample = !!shape.sample;
   const memo = sample ? tasks.map(() => []) : memoOf(q, shape, tasks.length);
   const filled = new Set();
 
+  const steps = tasks.map((t, i) => `<button type="button" class="np-step" data-s="${i}">${tasks.length > 1 ? `${NUM[i]} ` : ''}${t.title || KIND[t.kind].title}</button>`).join('');
+  const rows = tasks.map((t, i) => `<div class="np-row" data-s="${i}"><span class="np-lbl" style="--c:${COL[t.kind]}">${t.row || KIND[t.kind].row}</span><span class="np-chips"></span></div>`).join('');
   const overlay = document.createElement('div');
-  overlay.className = 'np-overlay';
-  overlay.innerHTML = `
+  if (inline) {
+    // kết quả điền thẳng vào ô trả lời ngay dưới, nên không cần dải tên (np-rows ẩn)
+    overlay.className = 'np-inline';
+    overlay.innerHTML = `
+      <div class="np-ihead">
+        <div class="np-steps">${steps}</div>
+        <button type="button" class="np-mute" title="Tắt / bật giọng đọc"></button>
+        <button type="button" class="np-reset" title="Làm lại">↺</button>
+      </div>
+      <div class="np-say np-show"><span>&nbsp;</span></div>
+      <div class="np-rows" hidden>${rows}</div>`;
+    const svgEl = el('svg', { class: `${inlineImg.className} np-inline-svg`, preserveAspectRatio: 'xMidYMid meet', role: 'img', 'aria-label': inlineImg.alt || 'Hình' });
+    inlineImg.before(svgEl);
+    inlineImg.classList.add('np-hide');
+    (inlineImg.nextElementSibling?.classList.contains('e3-orig-toggle') ? inlineImg.nextElementSibling : inlineImg).after(overlay);
+    // "📷 Ảnh gốc" (lightbox.js) đổi ảnh <img>: đang xem ảnh gốc thì hiện ảnh, ẩn hình chạm
+    new MutationObserver(() => {
+      const orig = inlineImg.dataset.showingOrig === '1';
+      inlineImg.classList.toggle('np-hide', !orig);
+      svgEl.classList.toggle('np-hide', orig);
+      overlay.classList.toggle('np-hide', orig);
+    }).observe(inlineImg, { attributes: true, attributeFilter: ['data-showing-orig'] });
+  } else overlay.className = 'np-overlay';
+  if (!inline) overlay.innerHTML = `
     <div class="np-panel" role="dialog" aria-label="Gọi tên trên hình">
       <div class="np-head">
-        <div class="np-steps">${tasks.map((t, i) => `<button type="button" class="np-step" data-s="${i}">${tasks.length > 1 ? `${NUM[i]} ` : ''}${t.title || KIND[t.kind].title}</button>`).join('')}</div>
+        <div class="np-steps">${steps}</div>
         <button type="button" class="np-mute" title="Tắt / bật giọng đọc"></button>
         <button type="button" class="np-close">✓ Xong</button>
       </div>
@@ -224,12 +267,12 @@ export function openNamePlay(root, q, shape) {
         <div class="np-say"><span>&nbsp;</span></div>
       </div>
       <div class="np-bar">
-        <div class="np-rows">${tasks.map((t, i) => `<div class="np-row" data-s="${i}"><span class="np-lbl" style="--c:${COL[t.kind]}">${t.row || KIND[t.kind].row}</span><span class="np-chips"></span></div>`).join('')}</div>
+        <div class="np-rows">${rows}</div>
         <button type="button" class="np-reset" title="Làm lại" ${sample ? 'hidden' : ''}>↺</button>
       </div>
     </div>`;
-  document.body.appendChild(overlay);
-  const svg = overlay.querySelector('.np-svg');
+  if (!inline) document.body.appendChild(overlay);
+  const svg = inline ? inlineImg.previousElementSibling : overlay.querySelector('.np-svg');
   const sayBox = overlay.querySelector('.np-say');
   const chipsOf = (i) => overlay.querySelector(`.np-row[data-s="${i}"] .np-chips`);
   const timers = new Set();
@@ -245,9 +288,11 @@ export function openNamePlay(root, q, shape) {
     filled.forEach((e) => { e.classList.remove('np-filled'); void e.offsetWidth; e.classList.add('np-filled'); });
   };
   const onKey = (e) => { if (e.key === 'Escape') close(); };
-  document.addEventListener('keydown', onKey);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-  overlay.querySelector('.np-close').onclick = close;
+  if (!inline) {
+    document.addEventListener('keydown', onKey);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    overlay.querySelector('.np-close').onclick = close;
+  }
   overlay.querySelectorAll('.np-step').forEach((b) => { b.onclick = () => { if (!sample) setTask(+b.dataset.s); }; });
 
   const muteBtn = overlay.querySelector('.np-mute');
@@ -260,7 +305,8 @@ export function openNamePlay(root, q, shape) {
     sayBox.innerHTML = `<span>${html || '&nbsp;'}</span>`;
     if (voice !== false && (voice ?? html)) speak(voice ?? html, { queue });
   };
-  const ppu = () => svg.getScreenCTM()?.a || 1;
+  // trên hình của câu (nhỏ hơn lớp phủ): chấm, nét, nhãn nhỏ lại một chút
+  const ppu = () => (svg.getScreenCTM()?.a || 1) / (inline ? 0.72 : 1);
   // nhóm ngoài mang translate; hiệu ứng nảy chạy ở nhóm trong (.np-in) không có transform, để tâm phóng là
   // chính điểm đó (CSS scale trên thẻ có transform="translate…" phóng quanh gốc SVG, hình bay ra xa)
   const screenAt = (at, parent, attrs = {}) => {
@@ -304,6 +350,7 @@ export function openNamePlay(root, q, shape) {
 
   // ── khung nhìn theo việc: việc chỉ ở một phần ảnh (hình a), hình b)) thì phóng to phần đó ──
   function areaOf(t) {
+    if (inline) return null; // hình của câu giữ nguyên khung, không phóng to
     const names = [...new Set([...t.of.flat(2), ...t.given.flat()])].filter((n) => P[n]);
     if (names.length < 2 || names.length === ptOrder.length) return null;
     const xs = names.map((n) => P[n][0]), ys = names.map((n) => P[n][1]);
@@ -316,7 +363,7 @@ export function openNamePlay(root, q, shape) {
     const fit = (w, h) => Math.min(st.width / w, st.height / h);
     return fit(R.w, R.h) / fit(box.w, box.h) >= 1.3 ? R : null;
   }
-  const vbOf = (R) => { const pad = Math.max(R.w, R.h) * 0.05; return [R.x - pad, R.y - pad, R.w + 2 * pad, R.h + 2 * pad]; };
+  const vbOf = (R) => { if (inline) return [R.x, R.y, R.w, R.h]; const pad = Math.max(R.w, R.h) * 0.05; return [R.x - pad, R.y - pad, R.w + 2 * pad, R.h + 2 * pad]; };
   function zoomTo(R, then) {
     const target = vbOf(R);
     const from = svg.getAttribute('viewBox')?.split(/\s+/).map(Number);
@@ -352,7 +399,7 @@ export function openNamePlay(root, q, shape) {
       const g = el('g', { class: 'np-seg', 'data-s': keyOf(s) }, L.segs);
       el('line', { x1: P[a][0], y1: P[a][1], x2: P[b][0], y2: P[b][1], class: 'np-seg-hit', 'stroke-width': 34 * k }, g);
       el('line', { x1: P[a][0], y1: P[a][1], x2: P[b][0], y2: P[b][1], class: 'np-seg-line', 'stroke-width': 9 * k }, g);
-      g.addEventListener('click', () => tapSeg(s));
+      g.addEventListener('click', (e) => tapSeg(s, e));
     });
     ptOrder.filter((n) => !hidden(n) && inArea(n)).forEach((v) => {
       const inner = screenAt(P[v], L.pts, { class: 'np-vert', 'data-v': v });
@@ -435,7 +482,7 @@ export function openNamePlay(root, q, shape) {
     if (t.kind === 'verts' || t.kind === 'points') return list.map(([v]) => shown(v)).join(', ');
     if (t.kind === 'collinear') {
       const xs = list.map((it) => it.map(shown).join(', '));
-      return cell ? xs.join('; ') : xs;
+      return cell ? xs.join('; ') : t.join ? xs.join(t.join) : xs;
     }
     if (t.kind === 'opposite') {
       const xs = list.flatMap((it) => it.map(nm));
@@ -445,12 +492,37 @@ export function openNamePlay(root, q, shape) {
   }
   function fill(i) {
     const t = tasks[i];
-    if (sample || t.fill == null || !memo[i].length) return;
+    if (sample || !memo[i].length) return;
+    // mỗi kết quả một ô (bộ ba thứ nhất vào ô fills[0], …)
+    // hoặc theo tên: { I: 0, O: 2, IA: 1, IB: 1 } (các tên cùng ô nối bằng dấu phẩy, theo thứ tự của of)
+    if (t.fills) {
+      const xs = memo[i].map((it) => chipText(t, it));
+      const vals = {};
+      if (Array.isArray(t.fills)) t.fills.slice(0, xs.length).forEach((b, k) => { vals[b] = xs[k]; });
+      else t.of.map((it) => chipText(t, it)).filter((x) => xs.includes(x) && t.fills[x] != null).forEach((x) => { const b = t.fills[x]; vals[b] = vals[b] ? `${vals[b]}, ${x}` : x; });
+      fillBlanks(root, vals).forEach((e) => filled.add(e));
+      return;
+    }
+    if (t.fill == null) return;
+    // ô có nhiều chỗ trống: input = chỗ trống thứ mấy (cả danh sách vào đó); inputs = mỗi tên một chỗ trống
+    if (t.input != null || t.inputs) {
+      const v = t.value ?? valueOf(t, memo[i], true);
+      const slots = [];
+      if (t.inputs) (Array.isArray(v) ? v : String(v).split(/\s*[,;]\s*/)).forEach((x, k) => { if (k < t.inputs.length) slots[t.inputs[k]] = x; });
+      else slots[t.input] = Array.isArray(v) ? v.join(', ') : v;
+      fillBlanks(root, { [t.fill]: slots }).forEach((e) => filled.add(e));
+      return;
+    }
+    // value: chữ cố định khi làm xong việc (vd. 'Đ' cho "Ba điểm C, D, E thẳng hàng")
+    if (t.value != null) { if (memo[i].some((it) => sameItem(t.kind, it, t.of[0]))) fillBlanks(root, { [t.fill]: t.value }).forEach((e) => filled.add(e)); return; }
+    // câu khoanh: tìm được thì nháy đáp án t.choice
+    if (t.fill === '#choice') { fillBlanks(root, { '#choice': t.choice }).forEach((e) => filled.add(e)); return; }
     if (Array.isArray(t.fill)) { const e = fillCell(root, t.fill, valueOf(t, memo[i], true)); if (e) filled.add(e); return; }
     fillBlanks(root, { [t.fill]: valueOf(t, memo[i], false) }).forEach((e) => filled.add(e));
   }
   /** Tên bay từ hình xuống dải dưới; chip hiện khi tên tới nơi. */
   function flyName(i, text, from, c) {
+    if (inline) { paintChips(i); return; }
     const host = chipsOf(i);
     host.querySelector('.np-empty')?.remove();
     const chip = document.createElement('span');
@@ -485,7 +557,7 @@ export function openNamePlay(root, q, shape) {
     const ref = t.of.find((x) => sameItem(t.kind, x, it));
     if (!ref) {
       soundNo();
-      say(`<b>${txt}</b> chưa đúng yêu cầu của câu này.`, 'np-bad');
+      say(`<b>${txt}</b> chưa đúng yêu cầu của câu này.${t.tip ? ` ${t.tip}` : ''}`, 'np-bad');
       return;
     }
     // ghi theo cách viết của sách (BCDE chứ không EDCB, QM chứ không MQ)
@@ -523,7 +595,7 @@ export function openNamePlay(root, q, shape) {
   function tapPoint(v) {
     const t = tasks[cur];
     if (t.kind === 'verts' || t.kind === 'points') {
-      if (!t.of.some(([x]) => x === v)) { soundNo(); say(`<b>${shown(v)}</b> không thuộc hình này.`, 'np-bad'); return; }
+      if (!t.of.some(([x]) => x === v)) { soundNo(); say(t.tip ? `<b>${shown(v)}</b> chưa đúng. ${t.tip}` : `<b>${shown(v)}</b> không thuộc hình này.`, 'np-bad'); return; }
       record([v], P[v]);
       return;
     }
@@ -574,7 +646,7 @@ export function openNamePlay(root, q, shape) {
       if (lineWith(...trio)) { record(trio, P[trio[1]]); return; }
       soundNo();
       flashDiag(trio[0], trio[2]);
-      say(`<b>${trio.map(shown).join(', ')}</b> không cùng nằm trên một đường thẳng.`, 'np-bad');
+      say(`<b>${trio.map(shown).join(', ')}</b> không cùng nằm trên một đường thẳng nên không thẳng hàng.`, 'np-bad');
       return;
     }
     // đường gấp khúc: đi tới đâu nét cam hiện tới đó; khớp một đường cần tìm thì ghi
@@ -605,7 +677,29 @@ export function openNamePlay(root, q, shape) {
   }
 
   // ── chạm đoạn vẽ ──
-  function tapSeg(s) {
+  /**
+   * Đoạn vẽ có điểm có tên ở giữa (đường kính MN qua tâm O): cả đoạn không phải đoạn cần tìm mà khúc giữa hai
+   * điểm liền nhau chỗ bé chạm là đoạn cần tìm (bán kính OM) thì ghi khúc đó.
+   */
+  function pieceOf(t, s, e) {
+    const whole = canon(s);
+    if (!e || t.of.some((x) => sameItem(t.kind, x, whole))) return whole;
+    const m = svg.getScreenCTM();
+    if (!m) return whole;
+    const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    const [a, b] = s;
+    const on = ptOrder.map((n) => [n, onSeg(P[n], P[a], P[b], tol)]).filter(([, u]) => u != null).sort((x, y) => x[1] - y[1]);
+    const u = onSeg([pt.x, pt.y], P[a], P[b], Infinity);
+    if (u == null) return whole;
+    for (let i = 0; i + 1 < on.length; i++) {
+      if (u >= on[i][1] && u <= on[i + 1][1]) {
+        const piece = canon([on[i][0], on[i + 1][0]]);
+        return t.of.some((x) => sameItem(t.kind, x, piece)) ? piece : whole;
+      }
+    }
+    return whole;
+  }
+  function tapSeg(s, e) {
     const t = tasks[cur];
     if (t.kind === 'verts' || t.kind === 'points') {
       soundNo();
@@ -614,7 +708,7 @@ export function openNamePlay(root, q, shape) {
       return;
     }
     if (t.kind === 'sides') { clearSel(); record(s, mid(...s)); return; }
-    if (t.kind === 'segs') { clearSel(); const c = canon(s); record(c, mid(...c)); return; }
+    if (t.kind === 'segs') { clearSel(); const c = pieceOf(t, s, e); record(c, mid(...c)); return; }
     if (t.kind === 'opposite') { tapOpposite(s); return; }
     soundNo();
     say('Chạm vào <b>các điểm</b> (chấm tròn).', 'np-ask');
@@ -651,9 +745,10 @@ export function openNamePlay(root, q, shape) {
       x.classList.toggle('np-done', doneTask(i));
     });
     overlay.querySelectorAll('.np-row').forEach((x) => x.classList.toggle('np-row-on', +x.dataset.s === cur));
-    overlay.querySelector('.np-panel').dataset.kind = tasks[cur].kind;
+    (overlay.querySelector('.np-panel') || svg).dataset.kind = tasks[cur].kind;
   }
   function startLine(t) {
+    if (t.tip) return t.tip;
     if (t.kind === 'verts') return 'Chạm từng <b>đỉnh</b> của hình.';
     if (t.kind === 'sides') return 'Chạm từng <b>cạnh</b>. Cạnh là đoạn thẳng nối hai đỉnh liền nhau.';
     if (t.kind === 'points') return 'Chạm từng <b>điểm</b> có tên.';
@@ -662,8 +757,8 @@ export function openNamePlay(root, q, shape) {
     if (t.kind === 'opposite') return `Hình <b>${nm(parse(t.poly))}</b>: chạm một cạnh, rồi chạm cạnh <b>đối diện</b> với nó.`;
     return `Chạm <b>3 điểm</b> cùng nằm trên một đường thẳng${t.given.length ? ` (khác ${t.given.map((g) => g.map(shown).join(', ')).join('; ')})` : ''}.`;
   }
-  // queue: đọc nối sau câu khen vừa đọc, không cắt ngang
-  function setTask(i, { queue = false } = {}) {
+  // queue: đọc nối sau câu khen vừa đọc, không cắt ngang; silent: chỉ hiện chữ (vừa mở câu, bé chưa chạm gì)
+  function setTask(i, { queue = false, silent = false } = {}) {
     cur = i;
     sel = [];
     selSide = null;
@@ -671,13 +766,13 @@ export function openNamePlay(root, q, shape) {
     area = areaOf(tasks[i]);
     zoomTo(area || box, () => {
       build();
-      if (!sample) say(doneTask(i) ? doneLine(i) : startLine(tasks[i]), doneTask(i) ? 'np-good' : 'np-ask', { queue });
+      if (!sample) say(doneTask(i) ? doneLine(i) : startLine(tasks[i]), doneTask(i) ? 'np-good' : 'np-ask', { queue, voice: silent ? false : undefined });
     });
   }
 
   overlay.querySelector('.np-reset').onclick = () => {
     memo.forEach((m) => { m.length = 0; });
-    tasks.forEach((t) => clearFill(root, t.fill));
+    tasks.forEach((t) => (t.fills ? [...new Set(Object.values(t.fills))] : [t.fill]).forEach((f) => clearFill(root, f)));
     tasks.forEach((_, i) => paintChips(i));
     setTask(0);
   };
@@ -704,9 +799,21 @@ export function openNamePlay(root, q, shape) {
     box = b;
     tol = Math.max(b.w, b.h) * 0.008;
     svg.setAttribute('viewBox', vbOf(box).join(' '));
+    // cùng cỡ gốc như ảnh <img> (max-width: 100% thu nhỏ theo khung)
+    if (inline) { svg.setAttribute('width', box.w); svg.setAttribute('height', box.h); }
     requestAnimationFrame(() => {
       tasks.forEach((_, i) => paintChips(i));
-      setTask(sample ? 0 : Math.max(0, tasks.findIndex((_, i) => !doneTask(i))));
+      setTask(sample ? 0 : Math.max(0, tasks.findIndex((_, i) => !doneTask(i))), { silent: inline });
+      // hình của câu đổi cỡ (xoay máy, kéo thanh chia vùng): vẽ lại chấm, nét theo cỡ mới
+      if (inline) {
+        let w = svg.getBoundingClientRect().width;
+        const ro = new ResizeObserver(() => {
+          if (!svg.isConnected) { ro.disconnect(); return; }
+          const nw = svg.getBoundingClientRect().width;
+          if (Math.abs(nw - w) > 2) { w = nw; build(); }
+        });
+        ro.observe(svg);
+      }
       if (sample) demo();
       overlay.__np = { tapPoint, tapSeg: (s) => tapSeg(parse(s)), setTask }; // trang thử
     });
@@ -732,6 +839,8 @@ function injectStyles() {
     .np-btnrow { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin: 0.4rem 0 0.2rem; }
     .np-open-img { display: inline-block; margin: 0; padding: 0.45rem 1rem; font-size: 0.95rem; }
     .np-filled { animation: npFilled 1.2s ease-out; }
+    .e3-option.gt-suggest:not(:disabled) { animation: np-suggest 1s ease-in-out 3; box-shadow: 0 0 0 3px #FACC15; }
+    @keyframes np-suggest { 50% { box-shadow: 0 0 0 7px #FDE047; } }
     @keyframes npFilled { 0%, 40% { box-shadow: 0 0 0 4px #A78BFA; background: #F5F3FF; } }
 
     .np-overlay {
@@ -780,8 +889,8 @@ function injectStyles() {
     .np-seg { cursor: pointer; }
     .np-seg-hit { stroke: transparent; stroke-linecap: round; }
     .np-seg-line { stroke: transparent; stroke-linecap: round; transition: stroke .2s; }
-    .np-panel[data-kind="sides"] .np-seg-line, .np-panel[data-kind="segs"] .np-seg-line, .np-panel[data-kind="opposite"] .np-seg-line { stroke: rgba(234,88,12,0.14); }
-    .np-panel[data-kind="sides"] .np-seg:hover .np-seg-line, .np-panel[data-kind="segs"] .np-seg:hover .np-seg-line, .np-panel[data-kind="opposite"] .np-seg:hover .np-seg-line { stroke: rgba(234,88,12,0.35); }
+    :is(.np-panel, .np-inline-svg)[data-kind="sides"] .np-seg-line, :is(.np-panel, .np-inline-svg)[data-kind="segs"] .np-seg-line, :is(.np-panel, .np-inline-svg)[data-kind="opposite"] .np-seg-line { stroke: rgba(234,88,12,0.14); }
+    :is(.np-panel, .np-inline-svg)[data-kind="sides"] .np-seg:hover .np-seg-line, :is(.np-panel, .np-inline-svg)[data-kind="segs"] .np-seg:hover .np-seg-line, :is(.np-panel, .np-inline-svg)[data-kind="opposite"] .np-seg:hover .np-seg-line { stroke: rgba(234,88,12,0.35); }
     .np-seg.np-seg-sel .np-seg-line { stroke: #F59E0B !important; }
     .np-path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
     .np-path-in { animation: npIn .5s ease-out; }
@@ -792,19 +901,41 @@ function injectStyles() {
     .np-vert-hit { fill: transparent; }
     .np-vert-ring { fill: rgba(124,58,237,0.12); stroke: #7C3AED; stroke-width: 3; }
     .np-vert-dot { fill: #fff; stroke: #7C3AED; stroke-width: 3; }
-    .np-panel[data-kind="verts"] .np-vert:not(.np-got) .np-vert-ring, .np-panel[data-kind="points"] .np-vert:not(.np-got) .np-vert-ring { animation: npRing 1.4s ease-in-out infinite; }
+    :is(.np-panel, .np-inline-svg)[data-kind="verts"] .np-vert:not(.np-got) .np-vert-ring, :is(.np-panel, .np-inline-svg)[data-kind="points"] .np-vert:not(.np-got) .np-vert-ring { animation: npRing 1.4s ease-in-out infinite; }
     @keyframes npRing { 50% { r: 21px; fill: rgba(124,58,237,0.22); } }
     .np-vert.np-got .np-vert-dot { fill: #7C3AED; }
     .np-vert.np-got .np-vert-ring { fill: rgba(124,58,237,0.2); }
     .np-vert.np-got-g .np-vert-dot { fill: #16A34A; stroke: #16A34A; }
-    .np-panel:not([data-kind="verts"]):not([data-kind="points"]) .np-vert .np-vert-ring { fill: transparent; stroke-opacity: 0.45; }
-    .np-panel[data-kind="opposite"] .np-vert { pointer-events: none; opacity: 0.5; }
+    :is(.np-panel, .np-inline-svg):not([data-kind="verts"]):not([data-kind="points"]) .np-vert .np-vert-ring { fill: transparent; stroke-opacity: 0.45; }
+    :is(.np-panel, .np-inline-svg)[data-kind="opposite"] .np-vert { pointer-events: none; opacity: 0.5; }
     .np-vert.np-sel .np-vert-ring { stroke: #F59E0B; stroke-opacity: 1 !important; fill: rgba(245,158,11,0.3) !important; stroke-width: 4; }
     .np-bump { animation: npBump .45s ease-out; transform-box: fill-box; transform-origin: center; }
     @keyframes npBump { 40% { scale: 1.5; } }
     .np-tagtext { font: 800 21px Quicksand, sans-serif; text-anchor: middle; }
     .np-tag-in { animation: npTag .35s ease-out; transform-box: fill-box; transform-origin: center; }
     @keyframes npTag { from { opacity: 0; scale: 0.4; } }
+    /* chạm thẳng trên hình của câu */
+    .np-hide { display: none !important; }
+    .np-rows[hidden] { display: none; }
+    .np-inline-svg { touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+    .np-inline { width: 100%; max-width: 680px; margin: 0.45rem auto 0; display: flex; flex-direction: column; gap: 0.35rem; font-family: Quicksand, sans-serif; }
+    .np-ihead { display: flex; align-items: center; gap: 0.4rem; }
+    .np-ihead .np-steps { justify-content: flex-start; }
+    .np-ihead .np-step { font-size: 0.92rem; padding: 0.3rem 0.75rem; }
+    .np-ihead .np-mute, .np-ihead .np-reset { width: 2.2rem; height: 2.2rem; font-size: 1.05rem; }
+    /* lời nhắc giữ sẵn chỗ hai dòng: đổi lời không đẩy ô trả lời lên xuống */
+    .np-inline .np-say {
+      position: static; transform: none; width: auto; max-width: none; visibility: visible; text-align: left;
+      min-height: calc(2 * 1.35em + 0.7rem); display: flex; align-items: center;
+      padding: 0.35rem 0.8rem; font-size: 1rem; box-shadow: 0 0 0 2px #E2E8F0; border-radius: 0.8rem;
+    }
+    .np-inline .np-say.np-good { box-shadow: 0 0 0 2.5px #10B981; background: #F0FDF4; }
+    .np-inline .np-say.np-bad { box-shadow: 0 0 0 2.5px #DC2626; background: #FEF2F2; }
+    .np-inline .np-say.np-ask { box-shadow: 0 0 0 2.5px #F59E0B; background: #FFFBEB; }
+    /* màn ngang thấp: hình ở cột phải (grade3Workbook.js), dải việc nằm dưới hình cùng cột */
+    @media (min-width: 720px) and (max-height: 760px) {
+      .gw-app .gw-pin-zone .gw-card-has-img > .np-inline { grid-column: 2; grid-row: 14; max-width: 48vw; }
+    }
     @media (max-width: 600px) {
       .np-step { font-size: 0.86rem; padding: 0.35rem 0.6rem; }
       .np-say { font-size: 0.98rem; }
@@ -812,7 +943,7 @@ function injectStyles() {
       .np-chip { font-size: 1.05rem; padding: 0.25rem 0.55rem; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .np-panel .np-vert .np-vert-ring { animation: none !important; }
+      :is(.np-panel, .np-inline-svg) .np-vert .np-vert-ring { animation: none !important; }
       .np-bump, .np-tag-in, .np-chip.np-pop, .np-path-in { animation-duration: .6s; animation-timing-function: linear; }
     }
   `;

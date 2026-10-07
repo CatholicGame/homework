@@ -26,6 +26,8 @@ const WORKBOOK1_CONFIG = {
   subtitle: 'Tập Một, Bài 1–34',
   menuLabel: 'Chọn bài để luyện tập:',
   unitWord: 'bài',
+  // Các dòng trả lời ngắn chia thành nhiều cột trên màn rộng, bé không phải cuộn (renderWorkbook autoColumns).
+  autoColumns: true,
   // Bài "Tự kiểm tra" không có số bài.
   unitName: (u) => (typeof u.number === 'number' ? `Bài ${u.number}. ${u.title}` : u.title),
 };

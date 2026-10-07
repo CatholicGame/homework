@@ -369,6 +369,21 @@ export const WEEKS_5_8 = [
       },
       {
         type: 'fill', section: 'Tiết 3', img: imgT6T3Grid,
+        // 🔢 Đếm hình (b): toạ độ theo tuan6_t3_q4_grid.svg, điểm _hàngcột của lưới 4 × 4 đường kẻ.
+        // 9 hình vuông 1 ô, 4 hình vuông 2 × 2 ô, 1 hình vuông lớn: 14.
+        countPlay: {
+          points: { _00: [9, 15], _01: [175, 15], _02: [345, 15], _03: [506, 15], _10: [9, 180.5], _11: [175, 180.5], _12: [345, 180.5], _13: [506, 180.5], _20: [9, 346], _21: [175, 346], _22: [345, 346], _23: [506, 346], _30: [9, 511], _31: [175, 511], _32: [345, 511], _33: [506, 511] },
+          segs: [['_00', '_03'], ['_10', '_13'], ['_20', '_23'], ['_30', '_33'], ['_00', '_30'], ['_01', '_31'], ['_02', '_32'], ['_03', '_33']],
+          kinds: {
+            'vuông': [
+              ['_00', '_01', '_11', '_10'], ['_01', '_02', '_12', '_11'], ['_02', '_03', '_13', '_12'], ['_10', '_11', '_21', '_20'],
+              ['_11', '_12', '_22', '_21'], ['_12', '_13', '_23', '_22'], ['_20', '_21', '_31', '_30'], ['_21', '_22', '_32', '_31'],
+              ['_22', '_23', '_33', '_32'], ['_00', '_02', '_22', '_20'], ['_01', '_03', '_23', '_21'], ['_10', '_12', '_32', '_30'],
+              ['_11', '_13', '_33', '_31'], ['_00', '_03', '_33', '_30'],
+            ],
+          },
+          fill: [{ blank: 1, kind: 'vuông', count: true }],
+        },
         q: '4. Viết số thích hợp vào chỗ chấm.',
         blanks: [
           { label: 'a) Hình bên có tất cả 9 ô vuông.<br>1/3 số ô vuông đó là ... ô vuông.', answer: '3' },
@@ -426,6 +441,18 @@ export const WEEKS_5_8 = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgT7T2Points,
+        // 📏 Thước (đo bằng ô, 1 ô = 58,5) cho a), d); 🔤 thẳng hàng cho b): toạ độ theo tuan7_t2_q1_points.svg.
+        rulerPlay: {
+          points: { A: [73.5, 73], B: [129.5, 73], C: [308.5, 73], D: [423.5, 132], E: [540, 190.5] },
+          segs: ['AC', 'CE'], unit: 'ô', per: 58.5, free: true,
+          fill: [{ blank: 0, mid: 'B', of: 'AC' }, { blank: 3, mid: 'D', of: 'CE' }],
+        },
+        namePlay: { shapes: [{
+          button: '👆 Tìm thẳng hàng',
+          points: { A: [73.5, 73], B: [129.5, 73], C: [308.5, 73], D: [423.5, 132], E: [540, 190.5] },
+          segs: ['AC', 'CE'],
+          tasks: [{ kind: 'collinear', of: ['CDE', 'ABC'], fill: 1, value: 'Đ', tip: 'Chạm <b>3 điểm</b> cùng nằm trên một đường thẳng. B, C, D có thẳng hàng không?' }],
+        }] },
         q: '1. Đ, S?\nTrong hình vẽ trên:',
         blanks: [
           { label: 'a) Điểm B là trung điểm của đoạn thẳng AC. ...', boxes: true, answer: 'S', validate: dsValidate(false) },
@@ -440,6 +467,17 @@ export const WEEKS_5_8 = [
       },
       {
         type: 'fill', section: 'Tiết 2', img: imgT7T2Circle,
+        // 🔤 Chạm trên hình: toạ độ theo tuan7_t2_q2_circle.svg; ô thứ hai có 5 chỗ trống (tâm; đường kính; 3 bán kính).
+        namePlay: { shapes: [{
+          points: { A: [66, 290.5], O: [296.5, 290.5], B: [533, 290.5], C: [239.3, 65] },
+          segs: ['AB', 'OC'],
+          tasks: [
+            { kind: 'points', title: 'Chạm <b>trung điểm</b> của AB', row: 'Trung điểm:', of: ['O'], fill: 0, tip: 'Trung điểm của AB nằm trên AB và <b>cách đều</b> A và B.' },
+            { kind: 'points', title: 'Chạm <b>tâm</b>', row: 'Tâm:', of: ['O'], fill: 1, input: 0, tip: 'Tâm là điểm ở <b>chính giữa</b> hình tròn.' },
+            { kind: 'segs', title: 'Chạm <b>đường kính</b>', row: 'Đường kính:', of: ['AB'], fill: 1, input: 1, tip: 'Đường kính đi <b>qua tâm</b>, nối hai điểm trên đường tròn.' },
+            { kind: 'segs', title: 'Chạm các <b>bán kính</b>', row: 'Bán kính:', of: ['OA', 'OB', 'OC'], fill: 1, inputs: [2, 3, 4], tip: 'Bán kính nối <b>tâm O</b> với một điểm trên đường tròn. Chạm khúc từ O ra tới đường tròn.' },
+          ],
+        }] },
         q: '2. Cho hình vẽ dưới đây.\na) Viết tiếp vào chỗ chấm cho thích hợp.',
         subQuestions: false,
         blanks: [
@@ -488,6 +526,18 @@ export const WEEKS_5_8 = [
       },
       {
         type: 'fill', section: 'Tiết 3', img: imgT7T3Circles,
+        // 🔤 Chạm trên hình: toạ độ theo tuan7_t3_q3_circles.svg; A, P, Q, B trên một nét vẽ. Mỗi ô hai chỗ trống
+        // (đường kính; các bán kính).
+        namePlay: { shapes: [{
+          points: { A: [47.5, 189.5], P: [224.9, 189.5], Q: [403, 189.5], B: [580.5, 189.5] },
+          segs: ['AB'],
+          tasks: [
+            { kind: 'segs', title: 'a) Đường kính, <b>tâm P</b>', row: 'a)', of: ['AQ'], fill: 0, input: 0, tip: 'Đường kính hình tròn tâm P đi <b>qua P</b>, nối hai điểm trên đường tròn tâm P: chạm hai điểm ở hai đầu.' },
+            { kind: 'segs', title: 'a) Bán kính, <b>tâm P</b>', row: 'a)', of: ['PA', 'PQ'], fill: 0, input: 1, tip: 'Bán kính nối <b>tâm P</b> với một điểm trên đường tròn tâm P.' },
+            { kind: 'segs', title: 'b) Đường kính, <b>tâm Q</b>', row: 'b)', of: ['PB'], fill: 1, input: 0, tip: 'Đường kính hình tròn tâm Q đi <b>qua Q</b>, nối hai điểm trên đường tròn tâm Q: chạm hai điểm ở hai đầu.' },
+            { kind: 'segs', title: 'b) Bán kính, <b>tâm Q</b>', row: 'b)', of: ['QP', 'QB'], fill: 1, input: 1, tip: 'Bán kính nối <b>tâm Q</b> với một điểm trên đường tròn tâm Q.' },
+          ],
+        }] },
         q: '3. Viết tiếp vào chỗ chấm cho thích hợp.\nTrong hình vẽ bên:',
         blanks: [
           {
@@ -605,6 +655,12 @@ export const WEEKS_5_8 = [
       },
       {
         type: 'fill', section: 'Tiết 3', img: imgT8T3Rect,
+        // 📐 Ê ke: toạ độ theo tuan8_t3_q1_rect.svg (hình chữ nhật ABCD, đường chéo AC).
+        ekePlay: {
+          points: { A: [45.8, 62.4], B: [409.6, 64.6], C: [408.3, 339.8], D: [44.5, 336.3] },
+          segs: ['AB', 'BC', 'CD', 'DA', 'AC'],
+          fill: [{ blank: 0, count: 'right', input: 0 }, { blank: 0, count: 'notRight', input: 1 }, { blanks: [1, 2, 3, 4], list: 'notRight', as: 'angle' }],
+        },
         q: '1. Viết tiếp vào chỗ chấm cho thích hợp.\nTrong hình bên:',
         subQuestions: false,
         blanks: [
@@ -629,6 +685,24 @@ export const WEEKS_5_8 = [
       },
       {
         type: 'fill', section: 'Tiết 3', img: imgT8T3Squares,
+        // 🔢 Đếm hình: toạ độ theo tuan8_t3_q4_squares.svg (không có tên điểm): _1–_4 góc hình vuông ngoài, _t _r _b _l
+        // trung điểm các cạnh ngoài (đỉnh hình vuông xoay), _5–_8 góc hình vuông trong, _u _v _w _x đỉnh hình vuông xoay trong.
+        countPlay: {
+          points: {
+            _1: [9.5, 16.5], _2: [454.5, 16.5], _3: [454.5, 458], _4: [9.5, 458], _t: [234, 16.5], _r: [454.5, 237], _b: [234, 458], _l: [9.5, 237],
+            _5: [121, 127], _6: [344, 127], _7: [344, 348], _8: [121, 348], _u: [234, 127], _v: [344, 237], _w: [234, 348], _x: [121, 237],
+          },
+          segs: [['_1', '_2'], ['_2', '_3'], ['_3', '_4'], ['_4', '_1'], ['_t', '_r'], ['_r', '_b'], ['_b', '_l'], ['_l', '_t'], ['_5', '_6'], ['_6', '_7'], ['_7', '_8'], ['_8', '_5'], ['_u', '_v'], ['_v', '_w'], ['_w', '_x'], ['_x', '_u']],
+          kinds: {
+            'tam giác': [
+              ['_1', '_t', '_l'], ['_t', '_2', '_r'], ['_r', '_3', '_b'], ['_b', '_4', '_l'],
+              ['_t', '_6', '_5'], ['_r', '_7', '_6'], ['_b', '_8', '_7'], ['_l', '_5', '_8'],
+              ['_5', '_u', '_x'], ['_u', '_6', '_v'], ['_v', '_7', '_w'], ['_w', '_8', '_x'],
+            ],
+            'vuông': [['_1', '_2', '_3', '_4'], ['_t', '_r', '_b', '_l'], ['_5', '_6', '_7', '_8'], ['_u', '_v', '_w', '_x']],
+          },
+          fill: [{ blank: 0, kind: 'tam giác', count: true }, { blank: 1, kind: 'vuông', count: true }],
+        },
         q: '4. a) Viết số thích hợp vào chỗ chấm.\nTrong hình bên:',
         subQuestions: false,
         blanks: [

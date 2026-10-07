@@ -172,6 +172,16 @@ export const BAI_79_81 = [
     questions: [
       {
         type: 'fill', section: 'Tiết 1', img: imgB79Square,
+        // 🔤 Thẳng hàng, trung điểm: toạ độ theo bai79_t1_q1_square.svg.
+        namePlay: { shapes: [{
+          button: '👆 Tìm thẳng hàng',
+          points: { A: [60, 40], M: [190, 40], B: [320, 40], N: [320, 170], C: [320, 300], P: [190, 300], D: [60, 300], Q: [60, 170], O: [190, 170] },
+          segs: ['AB', 'BC', 'DC', 'AD', 'MP', 'QN'],
+          tasks: [
+            { kind: 'collinear', title: 'a) Chạm <b>3 điểm thẳng hàng</b> trên mỗi cạnh', row: 'a)', of: ['AMB', 'BNC', 'DPC', 'AQD'], join: '; ', fill: 0, tip: 'Câu này hỏi ba điểm thẳng hàng <b>trên mỗi cạnh</b> của hình vuông: hai đỉnh và điểm ở giữa.' },
+            { kind: 'segs', title: 'b) O là <b>trung điểm</b> của đoạn nào?', row: 'b)', of: ['MP', 'QN'], fill: 1, tip: 'Chạm đoạn thẳng có điểm O nằm <b>chính giữa</b>.' },
+          ],
+        }] },
         q: '1. Viết tiếp vào chỗ chấm cho thích hợp.\nCho hình vuông ABCD, hình tròn tâm O (như hình bên).',
         blanks: [
           {

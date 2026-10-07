@@ -191,6 +191,7 @@ const sameSet = (a, b) => a.length === b.length && [...a].sort().join() === [...
  *         { blank, equalTo: 'AB', among: ['BC', 'CD', …] }     các đoạn dài bằng AB (khi đã đo hết)
  *   đếm   { 'tam giác': 0, 'tứ giác': 1 }                     tên các hình đã đếm, theo thứ tự bé đếm
  *         [{ blank, kind, num: true }]                        ô hai chỗ trống "Có ... hình, đó là: ..." (số, danh sách)
+ *         [{ blank, kind, count: true, input? }]              chỉ số hình đã đếm (input: chỗ trống thứ mấy của ô)
  *         [{ kind, choice: [2, 3, 4, 5] }]                     nháy đáp án số hình khi đã đếm đủ
  *   ô vuông { blank, shape: 'A', input? }                     số ô vuông khi hình A đã phủ kín
  *         { blank, compare: ['A', 'B'], values: [lớn hơn, bé hơn, bằng] }
@@ -341,7 +342,8 @@ const FILL = {
 
   count(r, m, cfg, put) {
     const i = Object.keys(cfg.kinds).indexOf(r.kind);
-    const names = (m.found?.[i] || []).map((x) => shown(x.name));
+    // hình không có tên điểm: tên hình là mảng ['_A', '_B', …]
+    const names = (m.found?.[i] || []).map((x) => (Array.isArray(x.name) ? x.name.join('') : shown(x.name)));
     if (r.choice) {
       // đã đếm đủ mọi hình loại đó: nháy đáp án có số hình
       const k = names.length === cfg.kinds[r.kind].length ? r.choice.indexOf(names.length) : -1;
@@ -349,6 +351,8 @@ const FILL = {
       return;
     }
     if (!names.length) return;
+    // chỉ số hình (đếm tới đâu điền tới đó), vào chỗ trống thứ input của ô nếu ô có nhiều chỗ trống
+    if (r.count) { put(r.blank, String(names.length), r.input); return; }
     if (r.num) put(r.blank, [String(names.length), names.join('; ')]);
     else put(r.blank, names.join(', '));
   },
@@ -602,7 +606,8 @@ const ZOOM_GAIN = 1.5;
  */
 function shapesOf(q, tools, box, stage) {
   const t = tools.find((x) => x.id !== 'area' && cfgOf(q, x).points);
-  if (!t || !stage.width) return null;
+  // whole: việc là chọn trong cả hàng hình (hình nào là hình vuông…), không tách từng hình
+  if (!t || !stage.width || cfgOf(q, t).whole) return null;
   const cfg = cfgOf(q, t);
   const P = cfg.points;
   const names = Object.keys(P);
@@ -1183,7 +1188,8 @@ function mountCount(ctx) {
     shapes: list.map((s) => ({ name: s, poly: polyPts(s, P), key: setKey(s) })),
   }));
   const allNamed = Object.keys(P).every((n) => !hidden(n));
-  const verts = [...new Set(kinds.flatMap((k) => k.shapes.flatMap((s) => [...s.name])))];
+  // whole (chọn hình nào là hình vuông…): mọi điểm đều chạm được, để chấm không lộ đáp án
+  const verts = cfg.whole ? Object.keys(P) : [...new Set(kinds.flatMap((k) => k.shapes.flatMap((s) => [...s.name])))];
   let cur = 0;
   const found = (ctx.memo.found ||= kinds.map(() => [])); // giữ theo câu
   let sel = [];
