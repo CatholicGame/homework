@@ -1,5 +1,5 @@
 /**
- * ✍️ Luyện Viết Văn (lớp 3–5): bé tạo bài, nhập yêu cầu (đề) và viết đoạn văn ≤ 300 từ, nộp để cô giáo
+ * ✍️ Luyện Viết Văn (lớp 2–5): bé tạo bài, nhập yêu cầu (đề) và viết đoạn văn ≤ 300 từ, nộp để cô giáo
  * DeepSeek chấm (api/writing/review.js): điểm theo 4 tiêu chí, lỗi chính tả gạch chân đỏ, từ dùng chưa hay,
  * câu, dấu câu kèm gợi ý sửa, từ ngữ hay nên dùng, gợi ý viết hay hơn. Bé tự sửa bài rồi nộp lại.
  * Ba màn: danh sách bài · viết / sửa bài · cô nhận xét. Dữ liệu: engine/writing.js.
@@ -31,7 +31,17 @@ const CRITERIA = [
   ['chinh_ta', 'Chính tả, dấu câu', 2],
 ];
 
-const SAMPLE_PROMPTS = [
+/** Đề gợi ý lớp 2: 3 đến 4 câu, theo kiểu bài sách Tiếng Việt 2. */
+const SAMPLE_PROMPTS_G2 = [
+  'Viết 3 đến 4 câu kể về một việc em đã làm giúp bố mẹ.',
+  'Viết 3 đến 4 câu tả một đồ chơi mà em thích.',
+  'Viết 3 đến 4 câu giới thiệu về bản thân em.',
+  'Viết 3 đến 4 câu kể về một con vật mà em yêu thích.',
+  'Viết 3 đến 4 câu kể về một người bạn của em.',
+  'Viết 3 đến 4 câu kể về một giờ ra chơi ở trường em.',
+];
+
+const SAMPLE_PROMPTS_G3 = [
   'Viết đoạn văn (4 đến 5 câu) kể về một buổi đi chơi cùng gia đình em.',
   'Viết đoạn văn ngắn tả một đồ dùng học tập mà em yêu thích.',
   'Viết đoạn văn nêu tình cảm, cảm xúc của em đối với một người thân trong gia đình.',
@@ -74,7 +84,8 @@ function loadHandFont() {
 export function render(app, onBack) {
   app.setAttribute('data-no-i18n', ''); // văn tiếng Việt, không dịch
   loadHandFont();
-  const grade = Math.min(5, Math.max(3, getProfileGrade() || 3));
+  const grade = Math.min(5, Math.max(2, getProfileGrade() || 3));
+  const SAMPLE_PROMPTS = grade <= 2 ? SAMPLE_PROMPTS_G2 : SAMPLE_PROMPTS_G3;
   let saveTimer = null;
   let busy = false; // đang chờ cô chấm
 
@@ -180,7 +191,7 @@ export function render(app, onBack) {
       <div class="wr-card">
         <label class="wr-label" for="wr-prompt">📋 Yêu cầu (đề bài)</label>
         <textarea id="wr-prompt" class="wr-prompt" rows="2" maxlength="${MAX_PROMPT}"
-          placeholder="Ví dụ: Viết đoạn văn 4 đến 5 câu kể về một buổi đi chơi cùng gia đình em.">${esc(essay.prompt)}</textarea>
+          placeholder="Ví dụ: ${esc(SAMPLE_PROMPTS[0])}">${esc(essay.prompt)}</textarea>
         <div class="wr-samples wr-samples-inline" ${essay.prompt.trim() ? 'hidden' : ''}>
           ${SAMPLE_PROMPTS.map((p, i) => `<button type="button" class="wr-sample" data-sample="${i}">${esc(p)}</button>`).join('')}
         </div>

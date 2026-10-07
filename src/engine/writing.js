@@ -97,9 +97,16 @@ export function markRanges(text, issues) {
   const taken = [];
   const free = (s, e) => taken.every(r => e <= r.start || s >= r.end);
   for (const issue of issues || []) {
-    let at = text.indexOf(issue.text);
-    while (at >= 0 && !free(at, at + issue.text.length)) at = text.indexOf(issue.text, at + 1);
-    if (at >= 0) taken.push({ start: at, end: at + issue.text.length, issue });
+    const hits = [];
+    for (let at = text.indexOf(issue.text); at >= 0; at = text.indexOf(issue.text, at + 1)) {
+      if (free(at, at + issue.text.length)) hits.push(at);
+    }
+    // Lỗi viết hoa ("con mèo" → "Con mèo"): đoạn trích hay lặp lại giữa câu, chọn chỗ đứng đầu câu.
+    const fix = issue.suggestions?.[0] || '';
+    const capital = /^\p{Ll}/u.test(issue.text) && /^\p{Lu}/u.test(fix);
+    const atStart = (a) => /(^|[.!?]["”)]?\s+|\n\s*)$/.test(text.slice(0, a));
+    const at = (capital ? hits.find(atStart) : undefined) ?? hits[0];
+    if (at !== undefined) taken.push({ start: at, end: at + issue.text.length, issue });
   }
   return taken.sort((a, b) => a.start - b.start).map((r, i) => ({ ...r, n: i + 1 }));
 }
