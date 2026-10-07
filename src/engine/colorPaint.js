@@ -2,9 +2,10 @@
  * 🖍️ Tô màu — câu hỏi bảo "tô màu" thì bé được tô thật lên hình.
  *
  * Chỉ là đồ dùng học tập: không ghi vào ô trả lời, không chấm điểm (đáp án
- * vẫn do các ô / lựa chọn của câu hỏi). Hình trong câu hỏi giữ nguyên như
- * sách; nút "🖍️ Tô màu" dưới hình mở một lớp phủ lớn với chính hình SVG đó
- * (tải lại dạng inline), có hộp bút màu:
+ * vẫn do các ô / lựa chọn của câu hỏi). Hình của câu được thay bằng chính SVG đó
+ * (tải lại dạng inline, cùng cỡ) và hộp bút màu nằm ngay dưới hình, bé tô thẳng
+ * lên hình. Hình đã có đồ dùng khác (Kéo dài, Ê ke, Thử cân…) thì giữ ảnh, nút
+ * "🖍️ Tô màu" mở một lớp phủ lớn như trước. Cách tô:
  *   • chạm vào một hình kín còn trắng (hình tròn, ô vuông, bông hoa…) → tô kín;
  *   • kéo ngón tay / chuột → tô bằng nét bút sáp (dùng được cho mọi hình:
  *     con đường, quả táo, một phần của hình…);
@@ -151,9 +152,12 @@ async function showOnCard(img, url) {
   if (img.dataset.showingOrig !== '1') img.src = painted;
 }
 
+// Hình đã có đồ dùng khác (Kéo dài, Ê ke, Đếm chu vi, Thử cân…) gắn vào <img>: giữ ảnh, tô màu mở lớp phủ.
+const OTHER_TOOLS = '.gp-open, .gt-row, .gt-open, .pm-open, .np-open, .bal-open, .pour-open';
+
 /**
- * Gọi cho mọi câu có q.img: câu tô màu có nút "🖍️ Tô màu"; câu nào dùng hình
- * đã được tô (ở câu khác) thì hiện hình đã tô.
+ * Gọi cho mọi câu có q.img: câu tô màu được tô ngay trên hình của câu (hộp bút
+ * màu dưới hình); câu nào dùng hình đã được tô (ở câu khác) thì hiện hình đã tô.
  */
 export function attachColorPaint(root, q) {
   const img = root.querySelector('.e3-question-card > .e3-q-img');
@@ -162,6 +166,46 @@ export function attachColorPaint(root, q) {
   if (!isEmpty(loadState(url))) showOnCard(img, url);
   if (!isPaintQuestion(q)) return;
   injectStyles();
+  // Chờ các đồ dùng khác của câu gắn xong (cùng lượt vẽ, trước khi màn hình hiện ra).
+  queueMicrotask(() => {
+    if (!img.isConnected) return;
+    if (img.parentElement.querySelector(`:scope > :is(${OTHER_TOOLS})`)) attachPopupButton(img, q);
+    else attachInline(img, q);
+  });
+}
+
+// 🖍️ Tô thẳng lên hình của câu: <img> được thay bằng chính SVG đó (cùng lớp e3-q-img, cùng
+// width/height nên cùng cỡ, không xê dịch), hộp bút màu nằm ngay dưới hình.
+async function attachInline(img, q) {
+  const url = q.img;
+  const colorKeys = crayonsFor(q.q);
+  const orig = img.nextElementSibling?.classList.contains('e3-orig-toggle') ? img.nextElementSibling : null;
+  orig?.remove(); // "📷 Ảnh gốc" đổi src của <img>, không dùng được cho hình tô
+  const bar = document.createElement('div');
+  bar.className = 'cp-bar';
+  bar.innerHTML = crayonButtons(colorKeys)
+    + '<button type="button" class="cp-btn cp-undo" title="Hoàn tác" aria-label="Hoàn tác">↩</button>'
+    + '<button type="button" class="cp-btn cp-clear">Xoá hết</button>';
+  img.after(bar);
+
+  const text = await loadSvg(url);
+  if (!img.isConnected) return;
+  const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+  const svg = document.importNode(doc.documentElement, true);
+  if (svg.tagName.toLowerCase() !== 'svg') return;
+  svg.setAttribute('class', `${img.className} cp-inline`);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', img.alt || 'Hình');
+  img.replaceWith(svg);
+  mountPainter(svg, bar, url, colorKeys);
+}
+
+const crayonButtons = (keys) => [...keys.map(k => [k, ...COLORS[k]]), ['', '🧽 Tẩy', '#fff']]
+  .map(([key, label, fill]) => `<button type="button" class="cp-crayon" data-cp="${key}"><span class="cp-dot" style="background:${fill}"></span>${label}</button>`)
+  .join('');
+
+function attachPopupButton(img, q) {
+  const url = q.img;
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'cp-open';
@@ -207,7 +251,6 @@ async function openPainter(url, colorKeys, rule, onClose) {
   injectStyles();
   const overlay = document.createElement('div');
   overlay.className = 'cp-overlay';
-  const crayon = (key, label, fill) => `<button type="button" class="cp-crayon" data-cp="${key}"><span class="cp-dot" style="background:${fill}"></span>${label}</button>`;
   overlay.innerHTML = `
     <div class="cp-panel" role="dialog" aria-label="Tô màu">
       <div class="cp-head">
@@ -217,7 +260,7 @@ async function openPainter(url, colorKeys, rule, onClose) {
         <button type="button" class="cp-btn cp-close" aria-label="Xong">✓ Xong</button>
       </div>
       ${rule ? `<div class="cp-rule">${markColors(esc(rule)).replace(/\n/g, '<br>')}</div>` : ''}
-      <div class="cp-crayons">${colorKeys.map(k => crayon(k, ...COLORS[k])).join('')}${crayon('', '🧽 Tẩy', '#fff')}</div>
+      <div class="cp-crayons">${crayonButtons(colorKeys)}</div>
       <div class="cp-figure"></div>
     </div>`;
   document.body.appendChild(overlay);
@@ -237,7 +280,12 @@ async function openPainter(url, colorKeys, rule, onClose) {
   if (!svg) return;
   svg.removeAttribute('width');
   svg.removeAttribute('height');
+  mountPainter(svg, overlay, url, colorKeys);
+}
 
+// Bút màu, chạm tô kín / kéo tô nét, tẩy, hoàn tác trên một <svg> đã nằm trong trang.
+// ctl chứa các nút .cp-crayon, .cp-undo, .cp-clear.
+function mountPainter(svg, ctl, url, colorKeys) {
   const shapes = shapesOf(svg);
   const vb = svg.viewBox.baseVal;
   const svgArea = (vb && vb.width ? vb.width * vb.height : 1);
@@ -267,15 +315,15 @@ async function openPainter(url, colorKeys, rule, onClose) {
   const commit = () => { saveState(url, state); draw(); };
   function draw() {
     paintInto(svg, state, shapes);
-    overlay.querySelectorAll('.cp-crayon').forEach(b => b.classList.toggle('cp-on', b.dataset.cp === pick));
-    overlay.querySelector('.cp-undo').disabled = !undo.length;
-    overlay.querySelector('.cp-clear').disabled = isEmpty(state);
+    ctl.querySelectorAll('.cp-crayon').forEach(b => b.classList.toggle('cp-on', b.dataset.cp === pick));
+    ctl.querySelector('.cp-undo').disabled = !undo.length;
+    ctl.querySelector('.cp-clear').disabled = isEmpty(state);
     svg.classList.toggle('cp-erasing', !pick);
   }
 
-  overlay.querySelectorAll('.cp-crayon').forEach(b => b.addEventListener('click', () => { pick = b.dataset.cp; draw(); }));
-  overlay.querySelector('.cp-undo').onclick = () => { if (undo.length) { state = JSON.parse(undo.pop()); commit(); } };
-  overlay.querySelector('.cp-clear').onclick = () => { if (!isEmpty(state)) { snapshot(); state = empty(); commit(); } };
+  ctl.querySelectorAll('.cp-crayon').forEach(b => b.addEventListener('click', () => { pick = b.dataset.cp; draw(); }));
+  ctl.querySelector('.cp-undo').onclick = () => { if (undo.length) { state = JSON.parse(undo.pop()); commit(); } };
+  ctl.querySelector('.cp-clear').onclick = () => { if (!isEmpty(state)) { snapshot(); state = empty(); commit(); } };
 
   // chạm = tô kín / tẩy hình; kéo = nét bút / tẩy nét
   const toSvg = (e) => {
@@ -372,6 +420,15 @@ function injectStyles() {
     .cp-open.cp-open-hint { animation: cp-bob 1.4s ease-in-out infinite; }
     @keyframes cp-bob { 50% { transform: translateY(-3px); } }
     .gw-app .gw-pin-zone .gw-card-has-img > .cp-open { grid-column: 2; }
+    svg.cp-inline { touch-action: none; cursor: crosshair; user-select: none; -webkit-user-select: none; }
+    .cp-bar {
+      display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+    .cp-bar .cp-crayon { padding: 0.35rem 0.75rem; font-size: 0.95rem; }
+    .cp-bar .cp-undo { font-size: 1.1rem; padding: 0 0.8rem; }
+    /* Màn ngang (hình ở cột phải): hộp bút xuống dòng theo bề rộng hình, không kéo rộng cột. */
+    .gw-app .gw-pin-zone .gw-card-has-img > .cp-bar { grid-column: 2; width: 0; min-width: 100%; }
     .cp-overlay {
       position: fixed; inset: 0; z-index: 5000;
       background: rgba(15, 23, 42, 0.8);

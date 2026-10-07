@@ -116,8 +116,8 @@ export function initLightbox() {
     const toggle = e.target.closest('.e3-orig-toggle');
     if (toggle) { toggleInline(toggle); return; }
     const img = e.target.closest('.e3-q-img');
-    // 👆 Chạm để đếm (engine/tapCount.js): cảnh để bé chạm đếm, không phóng to.
-    if (img?.classList.contains('tc-wrap')) return;
+    // 👆 Chạm để đếm (engine/tapCount.js), 🖍️ tô thẳng lên hình (engine/colorPaint.js): không phóng to.
+    if (img?.classList.contains('tc-wrap') || img?.classList.contains('cp-inline')) return;
     // Hình có hành động thực hành (↔️ Kéo dài, 📐 Ê ke, 📏 Thước, 🔢 Đếm hình, 🟦 Ô vuông, 🖍️ Tô màu, ⚖️ Thử cân, 🫗 Thử rót): chạm hình là vào thực hành luôn.
     const action = img && actionButtonFor(img);
     if (action) { action.click(); return; }
