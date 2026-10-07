@@ -9,6 +9,12 @@ import imgB2Caps from '../../assets/grade1-workbook/bai2_caps_girls.svg';
 import imgB2Cranes from '../../assets/grade1-workbook/bai2_cranes_boats.svg';
 import imgB2Stars from '../../assets/grade1-workbook/bai2_stars_balloons.svg';
 import imgB2Dots from '../../assets/grade1-workbook/bai2_dots.svg';
+import svgB2Trees from '../../assets/grade1-workbook/bai2_trees.svg?raw';
+import svgB2Flowers from '../../assets/grade1-workbook/bai2_flowers_oranges.svg?raw';
+import svgB2Caps from '../../assets/grade1-workbook/bai2_caps_girls.svg?raw';
+import svgB2Cranes from '../../assets/grade1-workbook/bai2_cranes_boats.svg?raw';
+import svgB2Stars from '../../assets/grade1-workbook/bai2_stars_balloons.svg?raw';
+import svgB2Dots from '../../assets/grade1-workbook/bai2_dots.svg?raw';
 import imgB3Squares from '../../assets/grade1-workbook/bai3_q1_squares.svg';
 import imgB3Circles from '../../assets/grade1-workbook/bai3_q2_circles.svg';
 import imgB3Nested from '../../assets/grade1-workbook/bai3_q3_nested.svg';
@@ -44,6 +50,7 @@ export const BAI_1_6 = [
     questions: [
       {
         type: 'choice', img: imgB2Trees,
+        tapCount: { svg: svgB2Trees, groups: { a: 'cây có quả', b: 'cây không có quả' } },
         q: 'Số cây có quả nhiều hơn hay số cây không có quả nhiều hơn?',
         options: ['Số cây có quả nhiều hơn', 'Số cây không có quả nhiều hơn'],
         answer: 0,
@@ -51,6 +58,7 @@ export const BAI_1_6 = [
       },
       {
         type: 'choice', img: imgB2Flowers,
+        tapCount: { svg: svgB2Flowers, groups: { a: 'bông hoa', b: 'quả cam' } },
         q: 'Số bông hoa ít hơn hay số quả cam ít hơn?',
         options: ['Số bông hoa ít hơn', 'Số quả cam ít hơn'],
         answer: 1,
@@ -58,6 +66,7 @@ export const BAI_1_6 = [
       },
       {
         type: 'choice', img: imgB2Caps,
+        tapCount: { svg: svgB2Caps, groups: { a: 'cái mũ', b: 'bạn gái' } },
         q: 'Số mũ ít hơn hay số bạn gái ít hơn?',
         options: ['Số mũ ít hơn', 'Số bạn gái ít hơn'],
         answer: 0,
@@ -65,6 +74,7 @@ export const BAI_1_6 = [
       },
       {
         type: 'choice', img: imgB2Cranes,
+        tapCount: { svg: svgB2Cranes, groups: { a: 'hạc giấy', b: 'thuyền giấy' } },
         q: 'Số thuyền giấy nhiều hơn hay số hạc giấy nhiều hơn?',
         options: ['Số thuyền giấy nhiều hơn', 'Số hạc giấy nhiều hơn'],
         answer: 1,
@@ -72,6 +82,7 @@ export const BAI_1_6 = [
       },
       {
         type: 'choice', img: imgB2Stars,
+        tapCount: { svg: svgB2Stars, groups: { a: 'ngôi sao', b: 'quả bóng bay' } },
         q: 'Số ngôi sao nhiều hơn hay số quả bóng bay nhiều hơn?',
         options: ['Số ngôi sao nhiều hơn', 'Số quả bóng bay nhiều hơn'],
         answer: 0,
@@ -79,6 +90,7 @@ export const BAI_1_6 = [
       },
       {
         type: 'choice', img: imgB2Dots,
+        tapCount: { svg: svgB2Dots, groups: { a: 'chấm tròn trắng', b: 'chấm tròn xanh' } },
         q: 'Số chấm tròn xanh ít hơn hay số chấm tròn trắng ít hơn?',
         options: ['Số chấm tròn xanh ít hơn', 'Số chấm tròn trắng ít hơn'],
         answer: 1,

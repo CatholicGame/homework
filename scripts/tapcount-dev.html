@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chạm đếm dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" /></head>
+<body><div id="app"></div>
+<script type="module">
+// Trang thử 👆 Chạm để đếm (engine/tapCount.js) trên câu thật của Vở BT Toán 1.
+//   ?unit=bai-2&qi=0     câu có 👆 thứ qi (từ 0) của bài
+//   &tap=3               chạm lần lượt 3 vật đầu (all = tất cả)
+const p = new URLSearchParams(location.search);
+window.addEventListener('error', (e) => { document.body.dataset.err = (document.body.dataset.err || '') + e.message + ' @' + e.lineno + ' '; });
+(await import('/src/games/preschool/fx.js')).setMuted(true);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const units = Object.values(import.meta.glob('/src/games/grade1Workbook/bai*.js', { eager: true })).flatMap((m) => Object.values(m).filter(Array.isArray).flat());
+const unitId = p.get('unit') || 'bai-2';
+const unit = units.find((u) => u?.id === unitId && u.questions);
+const { renderWorkbook } = await import('/src/games/grade3Workbook.js');
+(await import('/src/engine/lightbox.js')).initLightbox();
+try { localStorage.removeItem('tc-dev'); } catch { /* */ }
+renderWorkbook(document.getElementById('app'), () => {}, { units: [unit], storageKey: 'tc-dev', starBook: 'tcdev', lastUnitKey: 'tc-dev-last', title: 'dev', subtitle: '', menuLabel: '', unitWord: 'bài', unitName: (u) => u.title });
+await sleep(300);
+document.querySelector(`[data-unit="${unitId}"]`).click();
+await sleep(300);
+const target = unit.questions.indexOf(unit.questions.filter((q) => q.tapCount)[+(p.get('qi') || 0)]);
+for (let k = 0; k < target; k++) { document.querySelector('#gw-next')?.click(); await sleep(120); }
+await sleep(200);
+const items = [...document.querySelectorAll('.tc-item')];
+const n = p.get('tap') === 'all' ? items.length : +(p.get('tap') || 0);
+for (const it of items.slice(0, n)) { it.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); it.dispatchEvent(new MouseEvent('click', { bubbles: true })); await sleep(150); }
+await sleep(600);
+document.body.dataset.overlays = document.querySelectorAll('body > div:not(#app)').length;
+document.body.dataset.sw = document.documentElement.scrollWidth + ' ' + [...document.querySelectorAll('.tc-wrap, .tc-wrap *, .e3-question-card, .e3-quiz, .gw-pin-zone')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 8).map(e => (e.className.baseVal ?? e.className) + ':' + Math.round(e.getBoundingClientRect().width)).join(', ');
+document.body.dataset.done = '1';
+</script></body></html>

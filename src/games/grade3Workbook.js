@@ -123,6 +123,7 @@ import { attachPairDrop } from '../engine/pairDrop.js';
 import { attachBalancePlay, revealBalancePlay } from '../engine/balancePlay.js';
 import { attachColorPaint, isPaintQuestion } from '../engine/colorPaint.js';
 import { attachPourPlay, revealPourPlay } from '../engine/pourPlay.js';
+import { tapCountMarkup, attachTapCount } from '../engine/tapCount.js';
 import { attachCalcPlay, hasCalc } from '../engine/calcPlay.js';
 import { attachGeoPlay } from '../engine/geoPlay.js';
 import { attachGeoTools } from '../engine/geoTools.js';
@@ -4658,7 +4659,7 @@ export function renderWorkbook(app, onBack, cfg) {
             ${related.length ? `<div class="gw-related">${related.map((r, i) => `<button type="button" class="gw-related-btn" data-rel="${i}"><span aria-hidden="true">${r.icon}</span>${r.label}</button>`).join('')}</div></div>` : ''}
             ${renderStarRule(starKey(q.__unitId, q.__qIdx), q)}
             <div class="e3-q-text">${q.q.replace(/\n/g, '<br>')}</div>
-            ${q.img ? `<img class="e3-q-img" src="${q.img}" alt="Hình minh họa câu ${current + 1}" loading="lazy">` : ''}
+            ${q.tapCount ? tapCountMarkup(q) : q.img ? `<img class="e3-q-img" src="${q.img}" alt="Hình minh họa câu ${current + 1}" loading="lazy">` : ''}
             ${q.wordProblem ? renderSubQuestions(q) : ''}
           </div>`;
 
@@ -4719,6 +4720,8 @@ export function renderWorkbook(app, onBack, cfg) {
     attachCalcPlay(app, q);
     // 🖍️ câu "tô màu" có hình SVG: bé tô thật lên hình (engine/colorPaint.js).
     if (q.img) attachColorPaint(app, q);
+    // 👆 Chạm để đếm (Lớp 1): hình là cảnh vẽ thật, bé chạm từng vật, bảng dưới hình tổng hợp số đếm (engine/tapCount.js).
+    if (q.tapCount) attachTapCount(app, q);
     // ↔️ Kéo dài: bé kéo dài hai cạnh xem song song hay cắt nhau (engine/geoPlay.js).
     if (q.geoPlay) attachGeoPlay(app, q);
     // 📐 Ê ke, 📏 Thước, 🔢 Đếm hình, 🟦 Ô vuông: đồ dùng đặt lên hình của bài (engine/geoTools.js).
@@ -6969,6 +6972,7 @@ const ACTIONS = [
   { icon: '📐', label: 'Ê ke', has: q => !!q.ekePlay },
   { icon: '📏', label: 'Thước', has: q => !!q.rulerPlay },
   { icon: '🔢', label: 'Đếm hình', has: q => !!q.countPlay },
+  { icon: '👆', label: 'Chạm đếm', has: q => !!q.tapCount },
   { icon: '🟦', label: 'Ô vuông', has: q => !!q.areaPlay },
   { icon: '🐜', label: 'Đo chu vi', has: q => !!q.perimPlay },
   { icon: '∥', label: 'Chọn cặp', has: q => !!q.pairPlay },
