@@ -402,6 +402,12 @@ Giá ghi thành câu rõ nghĩa: bảng giá "1 kg giá 30 nghìn đồng", câu
 
 - **Đồ hoạ:** mảnh vườn dạng lưới, cây con, cây lớn, bình tưới.
 
+**Đã làm (2026-10-06): 🌱 Vườn trồng theo hàng** (`src/games/grade3Games/garden.js`, hình `art/garden.js`, cấp `garden-1..3`). Mỗi luống là một nút to: chạm vào là trồng / tưới / gom cả hàng, vòng số cuối luống hiện kết quả. Bé gõ số trước, rồi tự làm để kiểm chứng.
+- Cấp 1 (Bài 4, bảng 2, 5): xen kẽ **trồng** (r hàng × c cây, cây con bay từ khay xuống từng hố) và **đếm vườn đã lớn** (bé tự đếm số hàng, số cây; chạm luống để tưới, vòng số đếm thêm 5, 10, 15…).
+- Cấp 2 (Bài 5–12, bảng 3–9): **xoay vườn** (tính cả vườn, bấm 🔄 Xoay vườn, vườn quay 90°, hỏi mỗi hàng mấy cây: c × r = r × c, chia ngược lại), xen với **chia theo hàng** (có N cây, mỗi hàng c cây → mấy hàng) và **chia đều** (chạm khay: mỗi lượt mỗi hàng 1 cây).
+- Cấp 3 (Bài 13): ba kiểu tìm thành phần, mỗi kiểu hai lần: thừa số (? × r = N, chia đều), số chia (N : ? = c), số bị chia (? : r = c, gom từng hàng về khay đếm lên).
+- Mở từ một bài bảng nhân thì chỉ dùng bảng của bài đó (`focus`). Màn ngang: thẻ kết quả đè cột người làm vườn, vườn luôn thấy trọn.
+
 ### 4.9 🌡️ Bác sĩ thú y & Trạm thời tiết
 
 | Cấp | Phù hợp khi đã học | Nội dung |

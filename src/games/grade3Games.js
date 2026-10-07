@@ -21,6 +21,7 @@ import { DETECTIVE_GAME } from './grade3Games/detective.js';
 import { ROBOT_GAME } from './grade3Games/robot.js';
 import { PIN_GAME } from './grade3Games/pinboard.js';
 import { TRAIN_GAME } from './grade3Games/train.js';
+import { GARDEN_GAME } from './grade3Games/garden.js';
 import { BIRD_GAMES_G3 } from './grade3Games/birds.js';
 import { playRound, bestFor } from './grade3Games/loop.js';
 import { lessonText, stallLessonText, hasDoneAny, lessonUnits, bookName } from './grade3Games/lessons.js';
@@ -79,6 +80,12 @@ export const GRADE3_LIST = [
     desc: 'Làm phụ tàu: đếm khách lên, xuống theo nhóm trăm, chục, tìm số người lên, xuống, lúc đầu!',
     tags: ['Cộng, trừ đến 1 000', 'Tìm thành phần'],
     stalls: [{ game: TRAIN_GAME }],
+  },
+  {
+    id: 'garden', icon: '🌱', title: 'Vườn trồng theo hàng', single: true,
+    desc: 'Làm vườn cùng ông bà: trồng cây thành hàng, tưới cây đếm thêm, xoay vườn, chia đều cây con!',
+    tags: ['Bảng nhân', 'Bảng chia', 'Tìm thành phần'],
+    stalls: [{ game: GARDEN_GAME }],
   },
   {
     id: 'birds', icon: '🐦', title: 'Săn chim',

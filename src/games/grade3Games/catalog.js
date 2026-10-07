@@ -119,6 +119,15 @@ export const STALLS = [
       { id: 'train-3', n: 3, title: 'Qua nhiều ga', lessons: { workbook: ['bai-2', 'bai-3'], practice: ['tuan-1', 'tuan-2'] } },
     ],
   },
+  {
+    id: 'garden', title: 'Vườn trồng theo hàng', icon: '🌱',
+    purpose: 'Giúp em thực hành kiến thức về bảng nhân, bảng chia và tìm thành phần trong phép nhân, phép chia đã học trong bài. Em trồng cây thành hàng, tưới cây đếm thêm, xoay vườn và chia đều cây con vào các hàng.',
+    levels: [
+      { id: 'garden-1', n: 1, title: 'Đếm cây theo hàng', lessons: { workbook: ['bai-4'], practice: ['tuan-2'] } },
+      { id: 'garden-2', n: 2, title: 'Xoay vườn, chia cây', lessons: { workbook: ['bai-5', 'bai-6', 'bai-9', 'bai-10', 'bai-11', 'bai-12'], practice: ['tuan-2', 'tuan-3', 'tuan-4', 'tuan-5', 'tuan-6'] } },
+      { id: 'garden-3', n: 3, title: 'Tìm thừa số, số chia', lessons: { workbook: ['bai-13'], practice: ['tuan-6'] } },
+    ],
+  },
   // 🐦 Săn chim: hai quầy (lưới, ná) — thiết kế docs/tro-choi-san-chim.md. Lớp 2 có quầy riêng (grade2Games/catalog.js).
   {
     id: 'bird-net', title: 'Lưới và lồng', icon: '🥅',
