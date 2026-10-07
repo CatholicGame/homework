@@ -7,11 +7,12 @@
 
 import {
   MAX_WORDS, MAX_PROMPT, countWords, listEssays, getEssay, createEssay, updateEssay, deleteEssay,
-  isStale, requestReview, markRanges,
+  isStale, requestReview, requestVocab, markRanges,
 } from '../engine/writing.js';
 import { getProfileGrade } from '../engine/profile.js';
 import { connectLeaderboard } from '../engine/leaderboard.js';
 import { getCurrentUser } from '../engine/auth.js';
+import { pullIfStale } from '../engine/cloudSync.js';
 import '../styles/writing.css';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -31,24 +32,11 @@ const CRITERIA = [
   ['chinh_ta', 'Chính tả, dấu câu', 2],
 ];
 
-/** Đề gợi ý lớp 2: 3 đến 4 câu, theo kiểu bài sách Tiếng Việt 2. */
-const SAMPLE_PROMPTS_G2 = [
-  'Viết 3 đến 4 câu kể về một việc em đã làm giúp bố mẹ.',
-  'Viết 3 đến 4 câu tả một đồ chơi mà em thích.',
-  'Viết 3 đến 4 câu giới thiệu về bản thân em.',
-  'Viết 3 đến 4 câu kể về một con vật mà em yêu thích.',
-  'Viết 3 đến 4 câu kể về một người bạn của em.',
-  'Viết 3 đến 4 câu kể về một giờ ra chơi ở trường em.',
-];
-
-const SAMPLE_PROMPTS_G3 = [
-  'Viết đoạn văn (4 đến 5 câu) kể về một buổi đi chơi cùng gia đình em.',
-  'Viết đoạn văn ngắn tả một đồ dùng học tập mà em yêu thích.',
-  'Viết đoạn văn nêu tình cảm, cảm xúc của em đối với một người thân trong gia đình.',
-  'Viết đoạn văn ngắn tả con vật nuôi trong nhà mà em yêu thích.',
-  'Viết đoạn văn kể lại một việc tốt em đã làm ở trường hoặc ở nhà.',
-  'Viết đoạn văn ngắn tả cảnh sân trường em vào giờ ra chơi.',
-];
+/** Đề mẫu hiện mờ trong ô yêu cầu: lớp 2 viết 3 đến 4 câu, theo kiểu bài sách Tiếng Việt 2. */
+const PROMPT_EXAMPLE = {
+  2: 'Viết 3 đến 4 câu tả một đồ chơi mà em thích.',
+  3: 'Viết đoạn văn (4 đến 5 câu) kể về một buổi đi chơi cùng gia đình em.',
+};
 
 const ERRORS = {
   net: 'Không gửi được bài. Em kiểm tra kết nối mạng rồi thử lại.',
@@ -85,17 +73,27 @@ export function render(app, onBack) {
   app.setAttribute('data-no-i18n', ''); // văn tiếng Việt, không dịch
   loadHandFont();
   const grade = Math.min(5, Math.max(2, getProfileGrade() || 3));
-  const SAMPLE_PROMPTS = grade <= 2 ? SAMPLE_PROMPTS_G2 : SAMPLE_PROMPTS_G3;
   let saveTimer = null;
   let busy = false; // đang chờ cô chấm
+  let view = null; // màn đang mở, để vẽ lại khi bài từ máy khác vừa tải về
 
   showList();
 
+  // Bài viết ở máy khác vừa tải về từ Drive → vẽ lại danh sách / lời nhận xét (không đụng màn bé đang gõ).
+  const onPulled = () => {
+    if (!app.querySelector('.wr-page')) return window.removeEventListener('tth:cloud-pulled', onPulled); // đã rời trang
+    if (view === 'list') showList();
+    else if (view?.startsWith('review:')) showReview(view.slice(7));
+  };
+  window.addEventListener('tth:cloud-pulled', onPulled);
+  pullIfStale();
+
   // ── Khung trang: thanh trên cùng đứng yên khi cuộn ─────────────────────────
-  function frame({ back, backLabel, title, right = '' }, bodyHtml) {
+  function frame({ back, backLabel, title, right = '', wide = false }, bodyHtml) {
     clearTimeout(saveTimer);
+    view = null;
     app.innerHTML = `
-      <div class="wr-page">
+      <div class="wr-page${wide ? ' wr-page-wide' : ''}">
         <div class="wr-top">
           <button type="button" class="btn btn-ghost wr-back">${backLabel}</button>
           <h1 class="wr-title">${title}</h1>
@@ -110,16 +108,14 @@ export function render(app, onBack) {
 
   // ── 1. Danh sách bài ──────────────────────────────────────────────────────
   function showList() {
-    const essays = listEssays();
+    const essays = listEssays(grade);
     const body = frame({
       back: onBack, backLabel: '← Trang chủ', title: '✍️ Luyện Viết Văn',
       right: '<button type="button" class="btn btn-primary wr-new">＋ Bài mới</button>',
     }, essays.length ? `<div class="wr-list">${essays.map(itemHtml).join('')}</div>` : emptyHtml());
+    view = 'list';
 
-    app.querySelector('.wr-new').onclick = () => openEditor(createEssay().id);
-    body.querySelectorAll('[data-sample]').forEach(b => {
-      b.onclick = () => openEditor(createEssay(SAMPLE_PROMPTS[b.dataset.sample]).id, { focusText: true });
-    });
+    app.querySelector('.wr-new').onclick = () => openEditor(createEssay(grade).id);
     body.querySelectorAll('.wr-item').forEach(item => {
       const id = item.dataset.id;
       item.querySelector('.wr-item-main').onclick = () => {
@@ -157,10 +153,7 @@ export function render(app, onBack) {
     return `
       <div class="wr-card wr-empty">
         <div class="wr-empty-icon">📝</div>
-        <p>Em chưa có bài viết nào. Bấm <b>＋ Bài mới</b> rồi nhập đề bài cô giao, hoặc chọn một đề dưới đây.</p>
-        <div class="wr-samples">
-          ${SAMPLE_PROMPTS.map((p, i) => `<button type="button" class="wr-sample" data-sample="${i}">${esc(p)}</button>`).join('')}
-        </div>
+        <p>Em chưa có bài viết nào. Bấm <b>＋ Bài mới</b> rồi nhập đề bài cô giao.</p>
       </div>`;
   }
 
@@ -186,15 +179,14 @@ export function render(app, onBack) {
     };
     const body = frame({
       back: leave, backLabel: '← Danh sách', title: '✏️ Bài viết',
-      right: '<span class="wr-saved" aria-live="polite"></span>',
+      right: '<span class="wr-saved" aria-live="polite"></span>', wide: true,
     }, `
+      <div class="wr-edit-grid">
+      <div class="wr-edit-main">
       <div class="wr-card">
         <label class="wr-label" for="wr-prompt">📋 Yêu cầu (đề bài)</label>
         <textarea id="wr-prompt" class="wr-prompt" rows="2" maxlength="${MAX_PROMPT}"
-          placeholder="Ví dụ: ${esc(SAMPLE_PROMPTS[0])}">${esc(essay.prompt)}</textarea>
-        <div class="wr-samples wr-samples-inline" ${essay.prompt.trim() ? 'hidden' : ''}>
-          ${SAMPLE_PROMPTS.map((p, i) => `<button type="button" class="wr-sample" data-sample="${i}">${esc(p)}</button>`).join('')}
-        </div>
+          placeholder="Ví dụ: ${esc(PROMPT_EXAMPLE[grade] || PROMPT_EXAMPLE[3])}">${esc(essay.prompt)}</textarea>
 
         <label class="wr-label" for="wr-text">✍️ Bài làm</label>
         <textarea id="wr-text" class="wr-text" spellcheck="false" placeholder="Em viết bài ở đây…">${esc(essay.text)}</textarea>
@@ -208,7 +200,10 @@ export function render(app, onBack) {
           <button type="button" class="btn btn-primary wr-submit">📨 Nộp bài cho cô chấm</button>
         </div>
       </div>
-      ${essay.review ? '<div class="wr-card wr-fixes"></div>' : ''}`);
+      ${essay.review ? '<div class="wr-card wr-fixes"></div>' : ''}
+      </div>
+      <aside class="wr-card wr-bank" aria-label="Bộ từ ngữ gợi ý"></aside>
+      </div>`);
 
     const promptEl = body.querySelector('#wr-prompt');
     const textEl = body.querySelector('#wr-text');
@@ -217,7 +212,9 @@ export function render(app, onBack) {
     const countEl = body.querySelector('.wr-count');
     const limitMsg = body.querySelector('.wr-limit-msg');
     const submit = body.querySelector('.wr-submit');
-    const samples = body.querySelector('.wr-samples-inline');
+    const bank = body.querySelector('.wr-bank');
+    let bankBusy = false;
+    let bankError = '';
     const fixes = body.querySelector('.wr-fixes');
     let lastText = textEl.value;
 
@@ -229,6 +226,83 @@ export function render(app, onBack) {
       submit.disabled = !promptEl.value.trim() || n < 5 || n > MAX_WORDS;
       submit.title = !promptEl.value.trim() ? 'Em nhập yêu cầu (đề bài) trước' : n < 5 ? 'Em viết thêm rồi nộp' : '';
       if (fixes) drawFixes(fixes, getEssay(id), textEl.value);
+      markUsedWords();
+    }
+
+    // ── Bộ từ ngữ gợi ý: bé bấm khi chưa biết dùng từ gì; chạm từ → chèn vào bài ở chỗ con trỏ ──
+    function drawBank() {
+      const wb = getEssay(id)?.wordBank;
+      const hasPrompt = !!promptEl.value.trim();
+      const changed = wb && wb.prompt.trim() !== promptEl.value.trim();
+      const ask = (label) => `<button type="button" class="btn btn-primary wr-bank-ask" ${hasPrompt ? '' : 'disabled'}>${label}</button>`;
+      let inner;
+      if (bankBusy) {
+        inner = '<div class="wr-bank-wait" role="status"><div class="page-loading-spinner"></div><p>Cô đang tìm từ ngữ hay cho đề này…</p></div>';
+      } else if (wb?.groups?.length) {
+        inner = `
+          <p class="wr-bank-hint">Chạm vào từ để thêm vào bài.</p>
+          ${wb.groups.map(g => `
+            <div class="wr-bank-group">
+              <h3>${esc(g.title)}</h3>
+              <div class="wr-bank-words">${g.words.map(w => `<button type="button" class="wr-chip-word" data-word="${esc(w)}">${esc(w)}</button>`).join('')}</div>
+            </div>`).join('')}
+          ${changed ? `<p class="wr-bank-note">Em đã đổi đề bài.</p>${ask('🔄 Gợi ý lại theo đề mới')}` : ''}`;
+      } else {
+        inner = `
+          <p class="wr-bank-hint">${hasPrompt ? 'Em chưa biết dùng từ gì? Cô gợi ý từ ngữ hay hợp với đề bài.' : 'Em nhập yêu cầu (đề bài) trước, cô sẽ gợi ý từ ngữ hay hợp với đề.'}</p>
+          ${ask('📚 Gợi ý từ ngữ')}`;
+      }
+      bank.innerHTML = `<h2 class="wr-h2">📚 Bộ từ ngữ gợi ý</h2>${inner}${bankError ? `<p class="wr-error">${esc(bankError)}</p>` : ''}`;
+      bank.querySelector('.wr-bank-ask')?.addEventListener('click', askWords);
+      bank.querySelectorAll('[data-word]').forEach(b => {
+        // pointerdown giữ con trỏ trong ô bài làm (không để nút lấy focus)
+        b.onpointerdown = (e) => e.preventDefault();
+        b.onclick = () => insertWord(b.dataset.word);
+      });
+      markUsedWords();
+    }
+
+    async function askWords() {
+      const prompt = promptEl.value.trim();
+      if (!prompt || bankBusy) return;
+      flush();
+      bankBusy = true;
+      bankError = '';
+      drawBank();
+      try {
+        const vocab = await requestVocab({ prompt, grade: essay.grade || grade });
+        if (!bank.isConnected) return;
+        updateEssay(id, { wordBank: { prompt, groups: vocab.groups, at: Date.now() } });
+      } catch (e) {
+        if (!bank.isConnected) return;
+        if (e.code === 'auth') { bankBusy = false; return showConnect(id); }
+        bankError = ERRORS[e.code] === ERRORS.ai || !ERRORS[e.code] ? 'Cô chưa gợi ý được lúc này. Em bấm lại sau một chút.' : ERRORS[e.code];
+      }
+      bankBusy = false;
+      drawBank();
+    }
+
+    /** Chèn từ vào chỗ con trỏ, tự thêm dấu cách hai bên. */
+    function insertWord(word) {
+      const v = textEl.value;
+      // Bé chưa đặt con trỏ vào bài (đang 0) → thêm vào cuối bài.
+      const placed = document.activeElement === textEl || textEl.selectionEnd > 0;
+      const at = placed ? textEl.selectionStart : v.length;
+      const end = placed ? textEl.selectionEnd : v.length;
+      const before = v.slice(0, at);
+      const after = v.slice(end);
+      const piece = `${before && !/\s$/.test(before) ? ' ' : ''}${word}${after && !/^[\s.,!?;:]/.test(after) ? ' ' : ''}`;
+      textEl.value = before + piece + after;
+      const caret = (before + piece).length;
+      textEl.focus({ preventScroll: true });
+      textEl.setSelectionRange(caret, caret);
+      textEl.oninput();
+    }
+
+    /** Từ đã có trong bài: chip xanh có dấu ✓. */
+    function markUsedWords() {
+      const t = textEl.value.toLowerCase();
+      bank.querySelectorAll('[data-word]').forEach(b => b.classList.toggle('is-used', t.includes(b.dataset.word.toLowerCase())));
     }
 
     function scheduleSave() {
@@ -245,7 +319,7 @@ export function render(app, onBack) {
     }
 
     promptEl.oninput = () => {
-      samples.hidden = !!promptEl.value.trim();
+      drawBankSoon(); // nút gợi ý bật / tắt, báo đề đã đổi
       refresh();
       scheduleSave();
     };
@@ -266,12 +340,12 @@ export function render(app, onBack) {
       refresh();
       scheduleSave();
     };
-    samples.querySelectorAll('[data-sample]').forEach(b => {
-      b.onclick = () => { promptEl.value = SAMPLE_PROMPTS[b.dataset.sample]; promptEl.oninput(); textEl.focus(); };
-    });
+    let bankTimer = null;
+    function drawBankSoon() { clearTimeout(bankTimer); bankTimer = setTimeout(() => { if (bank.isConnected && !bankBusy) drawBank(); }, 400); }
     body.querySelector('.wr-see-review')?.addEventListener('click', () => { flush(); showReview(id); });
     submit.onclick = () => { flush(); submitEssay(id); };
 
+    drawBank();
     refresh();
     limitMsg.hidden = countWords(textEl.value) < MAX_WORDS;
     if (focusText || essay.prompt.trim()) textEl.focus({ preventScroll: true });
@@ -311,7 +385,7 @@ export function render(app, onBack) {
         <p>Cô đang đọc bài của em…</p>
       </div>`);
     try {
-      const review = await requestReview({ prompt: essay.prompt.trim(), text: essay.text, grade });
+      const review = await requestReview({ prompt: essay.prompt.trim(), text: essay.text, grade: essay.grade || grade });
       if (!busy) return; // bé đã quay lại
       const history = [...(essay.history || []), { at: Date.now(), total: review.total }].slice(-10);
       updateEssay(id, { review: { ...review, at: Date.now(), text: essay.text }, history });
@@ -432,6 +506,7 @@ export function render(app, onBack) {
         <button type="button" class="btn btn-primary wr-edit">✏️ Sửa bài</button>
         ${stale ? '<button type="button" class="btn btn-green wr-resubmit">📨 Nộp lại</button>' : ''}
       </div>`);
+    view = `review:${id}`;
 
     const detail = body.querySelector('.wr-detail');
     function select(n) {

@@ -107,24 +107,39 @@
 .wr-empty-icon { font-size: 3rem; margin-bottom: 6px; }
 .wr-empty p { margin-bottom: 14px; }
 
-.wr-samples { display: flex; flex-direction: column; gap: 8px; }
-.wr-sample {
-  border: 1px dashed #CBD5E1;
-  background: #F8FAFC;
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
-  font: inherit;
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: #334155;
-  text-align: left;
-  cursor: pointer;
-}
-.wr-sample:hover { border-color: var(--purple); background: #FAF5FF; }
-.wr-samples-inline { margin: 8px 0 4px; }
-.wr-samples-inline::before { content: 'Gợi ý đề:'; font-size: 0.85rem; font-weight: 700; color: var(--text-light); }
-
 /* ── Viết bài ────────────────────────────────────────────────── */
+/* Màn ngang rộng: bài viết ở giữa, bộ từ ngữ gợi ý cột phải (đứng yên khi cuộn). Dọc: bộ từ nằm dưới bài. */
+.wr-page-wide { max-width: 1240px; }
+.wr-edit-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-items: start; }
+.wr-edit-main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+@media (min-width: 900px) and (orientation: landscape) {
+  .wr-edit-grid { grid-template-columns: minmax(0, 1fr) clamp(280px, 30%, 380px); }
+  .wr-bank { position: sticky; top: 72px; max-height: calc(100dvh - 92px); overflow-y: auto; }
+}
+.wr-bank-hint { font-size: 0.9rem; color: var(--text-light); margin-bottom: 10px; }
+.wr-bank-note { font-size: 0.85rem; font-weight: 600; color: var(--wr-orange); margin: 12px 0 6px; }
+.wr-bank .btn { width: 100%; }
+.wr-bank-wait { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 12px 0; text-align: center; color: var(--text-light); }
+.wr-bank-group + .wr-bank-group { margin-top: 12px; }
+.wr-bank-group h3 { font-size: 0.9rem; font-weight: 700; color: var(--wr-purple); margin-bottom: 6px; }
+.wr-bank-words { display: flex; flex-wrap: wrap; gap: 6px; }
+.wr-chip-word {
+  border: 1px solid #DDD6FE;
+  background: #F5F3FF;
+  color: #4C1D95;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.wr-chip-word:hover { background: #EDE9FE; }
+.wr-chip-word:active { transform: scale(0.96); }
+.wr-chip-word.is-used { background: #DCFCE7; border-color: #86EFAC; color: #166534; }
+.wr-chip-word.is-used::after { content: ' ✓'; }
+
 .wr-label { display: block; font-weight: 700; margin: 4px 0 6px; }
 .wr-label + textarea { margin-bottom: 4px; }
 .wr-prompt, .wr-text {
@@ -162,7 +177,7 @@
 
 .wr-error { margin-top: 10px; padding: 10px 12px; border-radius: var(--radius-sm); background: #FEF2F2; color: #991B1B; font-weight: 600; }
 .wr-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 14px; }
-.wr-actions .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.wr-actions .btn:disabled, .wr-bank .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 .wr-fix-list, .wr-issue-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .wr-fix { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; border-radius: var(--radius-sm); background: #F8FAFC; }

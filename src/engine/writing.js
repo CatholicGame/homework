@@ -2,9 +2,10 @@
  * ✍️ Luyện Viết Văn: lưu bài viết của bé (theo tài khoản, đồng bộ Drive qua cloudSync — khoá `writing-v1`)
  * và gọi cô giáo DeepSeek chấm bài (api/writing/review.js).
  *
- * Dữ liệu: { essays: { [id]: { id, prompt, text, createdAt, updatedAt,
+ * Dữ liệu: { essays: { [id]: { id, grade, prompt, text, createdAt, updatedAt,
  *   review?: { scores, total, summary, strengths, issues, vocab, tips, at, text: bài lúc chấm },
- *   history?: [{ at, total }] } } }
+ *   history?: [{ at, total }],
+ *   wordBank?: { prompt: đề lúc gợi ý, groups: [{ title, words[] }], at } } } }
  */
 
 import { scopedKey } from './auth.js';
@@ -30,18 +31,24 @@ function save(data) {
   window.dispatchEvent(new CustomEvent('tth:data-changed')); // → cloudSync.js
 }
 
-/** Bài mới nhất lên đầu. */
-export function listEssays() {
-  return Object.values(load().essays).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+/** Bài của lớp `grade`, mới nhất lên đầu. Bài cũ chưa ghi lớp thì gán lớp đang học (một lần). */
+export function listEssays(grade) {
+  const data = load();
+  const old = Object.values(data.essays).filter(e => !e.grade);
+  if (old.length) {
+    old.forEach(e => { e.grade = grade; });
+    save(data);
+  }
+  return Object.values(data.essays).filter(e => e.grade === grade).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 }
 
 export function getEssay(id) {
   return load().essays[id] || null;
 }
 
-export function createEssay(prompt = '') {
+export function createEssay(grade, prompt = '') {
   const now = Date.now();
-  const essay = { id: `w${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`, prompt, text: '', createdAt: now, updatedAt: now };
+  const essay = { id: `w${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`, grade, prompt, text: '', createdAt: now, updatedAt: now };
   const data = load();
   data.essays[essay.id] = essay;
   save(data);
@@ -72,6 +79,15 @@ export const isStale = (essay) => !!essay.review && essay.review.text !== essay.
  * Gửi bài cho cô chấm. Lỗi: Error với .code = 'auth' | 'limit' | 'too-long' | 'ai' | 'net' | …
  */
 export async function requestReview({ prompt, text, grade }) {
+  return askTeacher({ prompt, text, grade }, 'review');
+}
+
+/** Bộ từ ngữ gợi ý cho đề: { groups: [{ title, words[] }] }. Lỗi như requestReview. */
+export async function requestVocab({ prompt, grade }) {
+  return askTeacher({ mode: 'vocab', prompt, grade }, 'vocab');
+}
+
+async function askTeacher(payload, field) {
   let token = null;
   try { token = await getIdToken(); } catch { /* không mở được phiên: máy chủ trả 401 */ }
   let res;
@@ -79,14 +95,14 @@ export async function requestReview({ prompt, text, grade }) {
     res = await fetch('/api/writing/review', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ prompt, text, grade }),
+      body: JSON.stringify(payload),
     });
   } catch {
     throw Object.assign(new Error('net'), { code: 'net' });
   }
   const body = await res.json().catch(() => ({}));
-  if (!res.ok || !body.review) throw Object.assign(new Error(body.error || 'ai'), { code: body.error || 'ai' });
-  return body.review;
+  if (!res.ok || !body[field]) throw Object.assign(new Error(body.error || 'ai'), { code: body.error || 'ai' });
+  return body[field];
 }
 
 /**
