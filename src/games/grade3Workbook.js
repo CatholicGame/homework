@@ -5051,6 +5051,7 @@ export function renderWorkbook(app, onBack, cfg) {
             ${ACTIONS.filter(a => activeQuestions.some(q => a.has(q))).map(a => `<span><i class="e3-legend-pic">${a.icon}</i>${a.label}</span>`).join('')}
           </div>
           <button class="e3-btn e3-btn-primary" id="e3-qlist-finish">🏁 Nộp bài / Xem kết quả</button>
+          <button class="e3-btn e3-btn-ghost" id="e3-qlist-restart">🔄 Làm lại từ đầu</button>
         </div>
       </div>
     `;
@@ -5081,6 +5082,22 @@ export function renderWorkbook(app, onBack, cfg) {
     bindSearch();
     bindItems();
     app.querySelector('#e3-qlist-finish').onclick = showResult;
+    // Làm lại từ đầu: chạm hai lần (xoá mọi câu đã làm của bài, sao đã nhận vẫn giữ).
+    const restart = app.querySelector('#e3-qlist-restart');
+    let restartArm = null;
+    restart.onclick = () => {
+      if (!restartArm) {
+        restart.textContent = '🔄 Chạm lần nữa để xoá bài cũ';
+        restart.classList.add('e3-armed');
+        restartArm = setTimeout(() => { restartArm = null; restart.textContent = '🔄 Làm lại từ đầu'; restart.classList.remove('e3-armed'); }, 4000);
+        return;
+      }
+      clearTimeout(restartArm);
+      activeUnitIds.forEach(id => clearUnitStorage(id));
+      resetProgress();
+      current = 0;
+      showQuestion();
+    };
   }
 
   function toggleQuestionList() {
@@ -6347,6 +6364,7 @@ function injectStyles() {
       .e3-btn-primary { background: linear-gradient(135deg, #34D399, #22D3EE); color: #fff; box-shadow: 0 4px 16px rgba(52,211,153,0.35); width: 100%; }
       .e3-btn-ghost { background: #f1f5f9; color: #475569; }
       .e3-btn-ghost:hover { background: #e2e8f0; }
+      .e3-btn-ghost.e3-armed { background: #fee2e2; color: #b91c1c; }
       .e3-intro .e3-btn { width: auto; }
       /* nút Quay lại dính ở mép trên khi cuộn: hàng đầu thẻ thành thanh trắng hết bề ngang thẻ, nội dung cuộn xuống dưới nó */
       .e3-intro-head { display: flex; justify-content: flex-start; position: sticky; top: 0; z-index: 20; margin: -1.6rem calc(-1 * var(--e3-px, 2rem)) 0.6rem; padding: 0.6rem var(--e3-px, 2rem); background: #fff; border-radius: 1.5rem 1.5rem 0 0; box-shadow: 0 6px 8px -6px rgba(15,23,42,0.14); }

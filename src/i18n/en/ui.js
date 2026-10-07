@@ -224,6 +224,8 @@ export default {
     'Thử rót': 'Try pouring',
     'Thử cân, Thử rót': 'Try the scale, try pouring',
     '🏁 Nộp bài / Xem kết quả': '🏁 Finish / See results',
+    '🔄 Làm lại từ đầu': '🔄 Start over',
+    '🔄 Chạm lần nữa để xoá bài cũ': '🔄 Tap again to erase your answers',
     '✅ Đúng rồi! Giỏi lắm!': '✅ Correct! Well done!',
     '❌ Chưa đúng! Thử lại nhé.': '❌ Not quite! Try again.',
     'Làm đúng sẽ nhận {0} ⭐.': 'Get it right to earn {0} ⭐.',
