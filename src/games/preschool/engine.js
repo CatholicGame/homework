@@ -578,10 +578,13 @@ export function renderPreschool(app, onBack, book) {
   }
 
   /** Nét nối đứt, cong mềm (hai đầu nằm ngang), các gạch chạy từ (x1,y1) sang (x2,y2). */
-  function dashLink(svg, x1, y1, x2, y2, color) {
-    const mx = (x1 + x2) / 2;
+  function dashLink(svg, x1, y1, x2, y2, color, { vertical = false } = {}) {
+    // Toạ độ đo trên màn hình; vùng chơi đang phóng to (fit.js, transform) thì quy về toạ độ trong SVG.
+    const k = svg.getBoundingClientRect().width / (svg.clientWidth || 1) || 1;
+    [x1, y1, x2, y2] = [x1, y1, x2, y2].map(v => v / k);
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', `M${x1} ${y1}C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}`);
+    path.setAttribute('d', vertical ? `M${x1} ${y1}C${x1} ${my} ${x2} ${my} ${x2} ${y2}` : `M${x1} ${y1}C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}`);
     path.setAttribute('class', 'pk-dash');
     path.style.stroke = color;
     svg.appendChild(path);
@@ -924,7 +927,11 @@ export function renderPreschool(app, onBack, book) {
     const rel = relation(a, b);
     const rows = round.layout === 'rows';
     const single = !!round.img;
-    const sideName = single ? ['nhóm bên trái', 'nhóm bên phải'] : rows ? ['hàng trên', 'hàng dưới'] : ['bên trái', 'bên phải'];
+    // Màn hình dọc, hai hình đứng cạnh nhau thì mỗi hình chưa được nửa bề ngang: xếp hai hình trên dưới,
+    // mỗi hình rộng hết màn hình, hàng số và dấu nằm ngang bên dưới như sách.
+    const stack = !single && !rows && innerHeight > innerWidth;
+    const sideName = single ? ['nhóm bên trái', 'nhóm bên phải'] : rows ? ['hàng trên', 'hàng dưới']
+      : stack ? ['hình trên', 'hình dưới'] : ['bên trái', 'bên phải'];
     const sentence = round.say || cap(`${numberWord(a)} ${SIGN_WORD[rel]} ${numberWord(b)}.`);
     const numBox = (i) => (mode === 'sign' ? '' : `<div class="pk-numbox" data-i="${i}"><b>?</b></div>`);
 
@@ -932,6 +939,13 @@ export function renderPreschool(app, onBack, book) {
       ? `<div class="pk-cmp is-single"><div class="pk-cmp-side" data-side="0"><div class="pk-cmp-pic"></div></div></div>
          <div class="pk-cmp-eq">${numBox(0)}<div class="pk-sign-slot">?</div>${numBox(1)}</div>
          <div class="pk-cmp-pad"></div>`
+      : stack
+        ? `<div class="pk-cmp is-stack">
+             <div class="pk-cmp-side" data-side="0"><div class="pk-cmp-pic"></div></div>
+             <div class="pk-cmp-side" data-side="1"><div class="pk-cmp-pic"></div></div>
+           </div>
+           <div class="pk-cmp-eq">${numBox(0)}<div class="pk-sign-slot">?</div>${numBox(1)}</div>
+           <div class="pk-cmp-pad"></div>`
       : `<div class="pk-cmp${rows ? ' is-rows' : ''}">
            <div class="pk-cmp-side" data-side="0"><div class="pk-cmp-pic"></div>${numBox(0)}</div>
            <div class="pk-cmp-mid"><div class="pk-sign-slot">?</div></div>
@@ -942,10 +956,10 @@ export function renderPreschool(app, onBack, book) {
     const sides = [...stage.querySelectorAll('.pk-cmp-side')];
     // Hai hàng so sánh: gập cả hai theo hàng nhiều đồ vật hơn, cùng chỗ cắt, cùng bề ngang, để đồ vật
     // to bằng nhau và thẳng cột như sách (so sánh từng cái một).
-    const rowItems = round.imgs.map(src => COUNT_ITEMS[COUNT_NAME[src]] || []);
+    const rowItems = (round.imgs || []).map(src => COUNT_ITEMS[COUNT_NAME[src]] || []);
     const plan = rows ? splitRow(rowItems[a >= b ? 0 : 1], rowItems[a >= b ? 1 : 0]) : null;
     const pics = single ? [countingPicture(round.img, null)]
-      : round.imgs.map(src => countingPicture(src, null, { split: rows ? plan : true }));
+      : round.imgs.map(src => countingPicture(src, null, { split: rows ? plan : !stack }));
     if (plan) sameRowWidth(pics.map(p => p.el));
     pics.forEach((pic, i) => sides[i].querySelector('.pk-cmp-pic').append(pic.el));
     const slot = stage.querySelector('.pk-sign-slot');
@@ -1027,34 +1041,86 @@ export function renderPreschool(app, onBack, book) {
             finish();
           };
         });
-        talk(rows ? 'Hàng nào nhiều hơn? Bé chạm vào hàng đó!' : 'Bên nào nhiều hơn? Bé chạm vào bên đó!');
+        talk(rows ? 'Hàng nào nhiều hơn? Bé chạm vào hàng đó!' : stack ? 'Hình nào nhiều hơn? Bé chạm vào hình đó!' : 'Bên nào nhiều hơn? Bé chạm vào bên đó!');
       }
     };
     next();
+    // Hình xếp trên dưới lấy phần cao còn lại: giữ chỗ bàn phím bằng hàng số (cao nhất) để lúc đổi
+    // sang hàng dấu hình không phình ra giữa lượt.
+    if (stack) pad.style.minHeight = `${pad.offsetHeight}px`;
   }
 
   // ── Gạch bớt cho hai hàng bằng nhau ────────────────────────────────────
-  function playCrossout({ round, stage, talk, wrong, solve }) {
+  function playCrossout({ round, stage, talk, wrong, solve, addCleanup }) {
     const n = [0, 1].map(r => round.items.filter(it => it[4] === r).length);
     const long = n[0] > n[1] ? 0 : 1;
     const target = n[1 - long];
     let left = n[long];
+    // Màn hình dọc: dải hình của sách rất dài, co theo bề ngang thì đồ vật bé xíu. Chia vùng chơi thành
+    // hai khung trên / dưới (nền vàng hàng trên, xanh hàng dưới, như ô số), mỗi khung chứa đồ vật của hàng
+    // đó (cắt riêng từng cái từ hình sách), xếp nhiều dòng nếu cần để đồ vật to hết cỡ khung. Hai khung
+    // dùng chung một cỡ đồ vật để so sánh công bằng.
+    const tiles = innerHeight > innerWidth;
+    const picHtml = tiles
+      ? `<div class="pk-xrows">${[0, 1].map(r => `<div class="pk-xrow" data-r="${r}"><small class="pk-xrow-tag">${r ? 'Hàng dưới' : 'Hàng trên'}</small><div class="pk-xrow-items"></div></div>`).join('')}</div>`
+      : `<div class="pk-pic pk-crossout"><img src="${round.img}" alt="" draggable="false"><div class="pk-pic-layer"></div></div>`;
     stage.innerHTML = `
-      <div class="pk-pic pk-cross"><img src="${round.img}" alt="" draggable="false"><div class="pk-pic-layer"></div></div>
+      ${picHtml}
       <div class="pk-cmp-eq">
-        <div class="pk-numbox is-done" data-i="0"><small>Hàng trên</small><b>${n[0]}</b></div>
+        <div class="pk-numbox is-done${tiles ? ' is-band' : ''}" data-i="0"><small>Hàng trên</small><b>${n[0]}</b></div>
         <div class="pk-sign-slot">${relation(n[0], n[1])}</div>
-        <div class="pk-numbox is-done" data-i="1"><small>Hàng dưới</small><b>${n[1]}</b></div>
+        <div class="pk-numbox is-done${tiles ? ' is-band' : ''}" data-i="1"><small>Hàng dưới</small><b>${n[1]}</b></div>
       </div>`;
     const layer = stage.querySelector('.pk-pic-layer');
+    const rowsEl = [...stage.querySelectorAll('.pk-xrow-items')];
+    if (tiles) {
+      // Cỡ đồ vật: thử mọi số cột, lấy cỡ lớn nhất mà cả hai khung đều chứa vừa (đo lại khi xoay / đổi cỡ).
+      const GAP = 8;
+      let ar = 1; // rộng / cao của một đồ vật (trung bình), biết khi hình tải xong
+      const fitTiles = () => {
+        let size = Infinity;
+        rowsEl.forEach((box, r) => {
+          const cnt = n[r];
+          // Chừa vài px: số lẻ khi làm tròn có thể đẩy đồ vật cuối xuống dòng.
+          const W = box.clientWidth - 4, H = box.clientHeight - 4;
+          if (!cnt || !W || !H) return;
+          let best = 0;
+          for (let c = 1; c <= cnt; c++) {
+            const lines = Math.ceil(cnt / c);
+            const tw = Math.min((W - GAP * (c - 1)) / c, ((H - GAP * (lines - 1)) / lines) * ar);
+            best = Math.max(best, tw);
+          }
+          size = Math.min(size, best);
+        });
+        if (!Number.isFinite(size)) return;
+        stage.querySelector('.pk-xrows').style.setProperty('--tw', `${Math.floor(size)}px`);
+        stage.querySelector('.pk-xrows').style.setProperty('--th', `${Math.floor(size / ar)}px`);
+      };
+      const im = new Image();
+      im.onload = () => {
+        const ars = round.items.map(([, , w, h]) => (im.naturalWidth * w) / (im.naturalHeight * h));
+        ar = ars.reduce((p, q) => p + q, 0) / ars.length;
+        fitTiles();
+      };
+      im.src = round.img;
+      const ro = new ResizeObserver(fitTiles);
+      rowsEl.forEach(el => ro.observe(el));
+      addCleanup(() => ro.disconnect());
+    }
     const slot = stage.querySelector('.pk-sign-slot');
     const countEl = stage.querySelector(`.pk-numbox[data-i="${long}"] b`);
     let done = false;
-    round.items.forEach(([x, y, w, h, r]) => {
+    [...round.items].sort((p, q) => p[0] - q[0]).forEach((item) => {
+      const [x, y, w, h, r] = item;
       const hit = document.createElement('button');
       hit.type = 'button';
-      hit.className = 'pk-item';
-      hit.style.cssText = `left:${x}%;top:${y}%;width:${w}%;height:${h}%`;
+      if (tiles) {
+        hit.className = 'pk-item pk-xtile';
+        hit.innerHTML = `<i style="background-image:url('${round.img}');background-size:${10000 / w}% ${10000 / h}%;background-position:${(x / (100 - w)) * 100}% ${(y / (100 - h)) * 100}%"></i>`;
+      } else {
+        hit.className = 'pk-item';
+        hit.style.cssText = `left:${x}%;top:${y}%;width:${w}%;height:${h}%`;
+      }
       hit.onclick = () => {
         if (done) return;
         if (r !== long) { wrong(hit, 'Hàng này ít hơn rồi. Bé gạch ở hàng nhiều hơn!'); return; }
@@ -1069,17 +1135,19 @@ export function renderPreschool(app, onBack, book) {
           solve(`Giỏi quá! Bây giờ hai hàng bằng nhau, đều có ${numberWord(target)}!`);
         }
       };
-      layer.appendChild(hit);
+      (tiles ? rowsEl[r] : layer).appendChild(hit);
     });
     talk('Hàng nào nhiều hơn? Bé chạm để gạch bớt đồ vật ở hàng đó, cho đến khi hai hàng bằng nhau!');
   }
 
   // ── Nối các nhóm bằng nhau ─────────────────────────────────────────────
   const PAIR_COLORS = ['#EF4444', '#2563EB', '#16A34A', '#F59E0B'];
-  function playPairs({ round, stage, talk, wrong, right, solve }) {
-    const card = (src, side, i) => `<button type="button" class="pk-card pk-pair" data-side="${side}" data-i="${i}" style="grid-column:${side ? 3 : 1};grid-row:${i + 1}"><img src="${src}" alt="" draggable="false"></button>`;
+  function playPairs({ round, stage, talk, wrong, right, solve, addCleanup }) {
+    // Màn hình ngang: nhóm trái thành hàng trên, nhóm phải thành hàng dưới (thẻ to gấp đôi, không phải cuộn).
+    const across = innerWidth > innerHeight;
+    const card = (src, side, i) => `<button type="button" class="pk-card pk-pair" data-side="${side}" data-i="${i}" style="${across ? `grid-row:${side ? 3 : 1};grid-column:${i + 1}` : `grid-column:${side ? 3 : 1};grid-row:${i + 1}`}"><img src="${src}" alt="" draggable="false"></button>`;
     stage.innerHTML = `
-      <div class="pk-pairs">
+      <div class="pk-pairs${across ? ' is-across' : ''}" style="--n:${round.left.length}">
         <svg class="pk-match-lines" aria-hidden="true"></svg>
         ${round.left.map((src, i) => card(src, 0, i)).join('')}
         ${round.right.map((src, i) => card(src, 1, i)).join('')}
@@ -1089,8 +1157,22 @@ export function renderPreschool(app, onBack, book) {
     const counts = [round.leftCounts, round.rightCounts];
     let sel = null;
     let made = 0;
+    // Các cặp đã nối: vẽ lại khi khung đổi cỡ (xoay máy, chữ tải xong) để nét vẫn chạm đúng mép thẻ.
+    const links = [];
+    const ro = new ResizeObserver(() => {
+      lines.querySelectorAll('.pk-dash').forEach(el => el.remove());
+      links.forEach(lk => drawLine(...lk));
+      lines.querySelectorAll('.pk-dash').forEach(el => { el.style.animation = 'pk-dash-run 0.7s linear infinite'; });
+    });
+    ro.observe(box);
+    addCleanup(() => ro.disconnect());
     const drawLine = (c1, c2, color) => {
       const bb = box.getBoundingClientRect();
+      if (across) {
+        const [t, d] = [c1.getBoundingClientRect(), c2.getBoundingClientRect()].sort((p, q) => p.top - q.top);
+        dashLink(lines, t.left + t.width / 2 - bb.left, t.bottom - bb.top, d.left + d.width / 2 - bb.left, d.top - bb.top, color, { vertical: true });
+        return;
+      }
       const [l, r] = [c1.getBoundingClientRect(), c2.getBoundingClientRect()].sort((p, q) => p.left - q.left);
       dashLink(lines, l.right - bb.left, l.top + l.height / 2 - bb.top, r.left - bb.left, r.top + r.height / 2 - bb.top, color);
     };
@@ -1116,6 +1198,7 @@ export function renderPreschool(app, onBack, book) {
         const color = PAIR_COLORS[made % PAIR_COLORS.length];
         [c, other].forEach(x => { x.classList.add('is-paired'); x.style.setProperty('--pair', color); });
         drawLine(c, other, color);
+        links.push([c, other, color]);
         made++;
         if (made === round.left.length) solve('Giỏi quá! Bé đã nối đúng hết các nhóm bằng nhau!');
         else right(c, `Đúng rồi! Hai nhóm đều có ${numberWord(counts[side][i])}!`);

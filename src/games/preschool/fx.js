@@ -344,7 +344,7 @@ export function crossMark(el, ms = 3000) {
   const r = el.getBoundingClientRect();
   const size = Math.max(36, Math.min(r.width, r.height) * 0.8);
   const mark = document.createElement('div');
-  mark.className = 'pk-cross';
+  mark.className = 'pk-xmark';
   mark.setAttribute('aria-hidden', 'true');
   Object.assign(mark.style, {
     left: `${r.left + r.width / 2 - size / 2}px`,
@@ -365,7 +365,7 @@ export function crossMark(el, ms = 3000) {
 
 /** Bỏ mọi dấu X còn hiện (bé đã làm đúng / sang lượt khác). */
 export function clearCrossMarks() {
-  document.querySelectorAll('.pk-cross').forEach((m) => m.remove());
+  document.querySelectorAll('.pk-xmark').forEach((m) => m.remove());
 }
 
 /**

@@ -652,9 +652,9 @@
   0%, 100% { translate: 0 0; }
   20% { translate: -9px 0; } 40% { translate: 8px 0; } 60% { translate: -6px 0; } 80% { translate: 4px 0; }
 }
-.pk-cross { position: fixed; z-index: 60; pointer-events: none; animation: pk-cross-in 0.25s ease-out; }
-.pk-cross svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.25)); }
-@keyframes pk-cross-in { from { scale: 0.4; opacity: 0; } to { scale: 1; opacity: 1; } }
+.pk-xmark { position: fixed; z-index: 60; pointer-events: none; animation: pk-xmark-in 0.25s ease-out; }
+.pk-xmark svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.25)); }
+@keyframes pk-xmark-in { from { scale: 0.4; opacity: 0; } to { scale: 1; opacity: 1; } }
 .pk-zone.pk-shake { animation: pk-shake-zone 0.5s ease !important; }
 @keyframes pk-shake-zone {
   0%, 100% { translate: -50% -50%; box-shadow: 0 0 0 5px #EF4444; }
@@ -736,8 +736,8 @@
 .pk-sign-btn.is-right { transform: scale(1.15); outline: 5px solid #FDE047; }
 
 /* Gạch bỏ */
-.pk-cross { display: block; width: fit-content; margin: 0 auto; }
-.pk-cross img { max-height: 40vh; }
+.pk-crossout { display: block; width: fit-content; margin: 0 auto; }
+.pk-crossout img { max-height: 40vh; }
 .pk-item.is-crossed::before, .pk-item.is-crossed::after {
   content: ''; position: absolute; left: 50%; top: 50%; width: 110%; height: 6px; border-radius: 3px;
   background: #DC2626; box-shadow: 0 0 0 2px #fff; translate: -50% -50%;
@@ -1061,7 +1061,7 @@
   .pk-numbox { min-width: 86px; min-height: 78px; }
   .pk-numbox b { font-size: 2.8rem; }
   .pk-sign-btn { width: 100px; height: 100px; font-size: 4rem; }
-  .pk-cross img { max-height: max(180px, calc(var(--pk-free) - 60px)); }
+  .pk-crossout img { max-height: max(180px, calc(var(--pk-free) - 60px)); }
   .pk-pairs { max-width: 820px; }
   .pk-pairs .pk-card img { max-height: min(17vh, max(70px, calc((var(--pk-free) - 80px) / 4))); }
   .pk-pick { max-width: 1100px; }
@@ -1502,6 +1502,18 @@ body.pk-hand-on:not(.pk-ar) .pk-hand-status {
   .pk-stage > .pk-cmp.is-rows:has(.pk-pic.is-split) { flex: 1 1 0; min-height: 0; container-type: size; }
   .pk-cmp.is-rows .pk-pic.is-split { --pk-row-h: max(28px, calc((100cqh - 140px) / 4)); }
   .pk-stage > .pk-cmp.is-rows:has(.pk-pic.is-split) { justify-content: safe center; }
+  /* So sánh hai hình (engine.js stack): hai hình trên dưới chia đôi phần cao còn lại, rộng hết màn hình. */
+  .pk-stage > .pk-cmp.is-stack {
+    flex: 1 1 0; min-height: 0; width: 100%; flex-direction: column; gap: 0.6rem; container-type: size;
+  }
+  .pk-cmp.is-stack .pk-cmp-side { flex: 1 1 0; min-height: 0; width: 100%; justify-content: center; }
+  .pk-cmp.is-stack .pk-cmp-pic { max-width: 100%; }
+  .pk-cmp.is-stack .pk-pic img { max-height: calc(50cqh - 0.3rem - 30px); }
+  .pk-cmp.is-stack + .pk-cmp-eq { margin-top: 0.5rem; }
+  /* So sánh một hình chứa hai nhóm (trang 54): hình rộng hết màn hình, cao tới 40% màn hình. */
+  .pk-cmp.is-single .pk-pic img { max-height: 40svh; max-width: calc(100vw - 3rem); }
+  /* Làm quen dấu bé, dấu lớn: hai thẻ trên dưới vừa một màn hình, không phải cuộn. */
+  .pk-lesson-card img { max-height: max(140px, calc((100svh - 420px) / 2)); }
   /* Nhiều nhất / ít nhất: ba thẻ chia đều phần cao còn lại, hình lấp đầy thẻ. */
   .pk-play-page .pk-stage > .pk-pick {
     flex: 1 1 0; min-height: 0; max-width: 520px;
@@ -1511,4 +1523,42 @@ body.pk-hand-on:not(.pk-ar) .pk-hand-status {
   .pk-pick .pk-card img { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); max-height: none; }
   /* Chân trang dọc chỉ cần chỗ cho nút ⤢ (nút ➜ chỉ hiện khi xong lượt, lúc đó không cần bàn phím). */
   .pk.pk-play-page { padding-bottom: 3rem; }
+}
+
+/* Gạch bỏ, màn hình dọc (engine.js playCrossout): hai khung trên / dưới chia đều phần cao còn lại,
+   mỗi khung chứa đồ vật của một hàng, xếp nhiều dòng; cỡ đồ vật (--tw × --th) do engine tính cho vừa khung. */
+.pk-play-page .pk-stage > .pk-xrows { flex: 1 1 0; min-height: 360px; }
+.pk-xrows { display: flex; flex-direction: column; gap: 10px; }
+.pk-xrow {
+  flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 4px;
+  padding: 8px; border-radius: 22px; border: 4px solid #F59E0B;
+  box-shadow: 0 5px 0 rgba(14, 165, 233, 0.2);
+}
+.pk-xrow[data-r='1'] { border-color: #3B82F6; }
+.pk-xrow-tag { flex: none; font-size: 1rem; font-weight: 800; color: #475569; line-height: 1.2; }
+.pk-xrow-items {
+  flex: 1 1 0; min-height: 0; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 8px;
+}
+.pk-xtile {
+  position: relative; flex: none; width: var(--tw, 56px); height: var(--th, 56px);
+  border-radius: 14px; background: #fff; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
+}
+.pk-xtile > i { position: absolute; inset: 0; border-radius: inherit; background-repeat: no-repeat; }
+.pk-xtile.is-crossed > i { opacity: 0.45; }
+.pk-xrow[data-r='0'], .pk-numbox.is-band[data-i='0'] { background: #FEF3C7; }
+.pk-xrow[data-r='1'], .pk-numbox.is-band[data-i='1'] { background: #DBEAFE; }
+.pk-numbox.is-band[data-i='0'] { border-color: #F59E0B; }
+.pk-numbox.is-band[data-i='1'] { border-color: #3B82F6; }
+
+/* Nối bằng nhau (engine.js playPairs): thẻ chia đều phần cao còn lại của vùng chơi, hình lấp đầy thẻ.
+   Màn hình ngang (is-across): nhóm trái là hàng trên, nhóm phải là hàng dưới, nét nối chạy dọc ở giữa. */
+.pk-play-page .pk-stage > .pk-pairs {
+  flex: 1 1 0; min-height: 420px; max-width: 640px;
+  grid-template-rows: repeat(var(--n, 4), minmax(0, 1fr));
+}
+.pk-pairs .pk-card { min-height: 0; }
+.pk-pairs .pk-card img { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); max-height: none; }
+.pk-play-page .pk-stage > .pk-pairs.is-across {
+  min-height: 300px; max-width: min(1500px, 96vw); gap: 0 1rem;
+  grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr) clamp(3rem, 8cqh, 5rem) minmax(0, 1fr);
 }
