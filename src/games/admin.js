@@ -33,10 +33,13 @@ const fmtDateTime = (ms) => (ms
 const gradeLabel = (g) => gradeTitle(g, 'Chưa chọn');
 
 const SORTS = [
-  { id: 'created', label: 'Mới đăng ký', key: (r) => r.createdAt },
   { id: 'seen', label: 'Hoạt động gần đây', key: (r) => r.lastSeenAt },
+  { id: 'created', label: 'Mới đăng ký', key: (r) => r.createdAt },
   { id: 'stars', label: 'Nhiều sao nhất', key: (r) => r.stars },
 ];
+
+/** Tài khoản có email (đăng nhập Google thật) luôn đứng trên cùng, rồi mới xếp theo tiêu chí đã chọn. */
+const hasEmail = (r) => (r.email && !r.fake ? 1 : 0);
 
 const KINDS = [
   { id: 'all', label: 'Tất cả', test: () => true },
@@ -46,7 +49,7 @@ const KINDS = [
 ];
 
 export function render(app, onBack) {
-  const state = { tab: 'students', rows: null, search: '', grade: 'all', sort: 'created', kind: 'all', page: 1, selected: new Set(),
+  const state = { tab: 'students', rows: null, search: '', grade: 'all', sort: 'seen', kind: 'all', page: 1, selected: new Set(),
     reviews: null, rvFilter: 'all', replying: null, voice: null, vcFilter: 'open' };
 
   preloadAuth();
@@ -321,7 +324,7 @@ export function render(app, onBack) {
       .filter(kind)
       .filter(r => state.grade === 'all' || String(r.grade || 0) === state.grade)
       .filter(r => !q || [r.email, r.name, r.nickname, r.device || ''].some(v => v.toLowerCase().includes(q)))
-      .sort((a, b) => sortKey(b) - sortKey(a));
+      .sort((a, b) => hasEmail(b) - hasEmail(a) || sortKey(b) - sortKey(a));
   }
 
   /** Chip lớp: đếm theo loại (thật/ảo) đang chọn. */
