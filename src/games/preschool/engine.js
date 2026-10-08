@@ -27,6 +27,7 @@ import { awardStars, recordWrong, hasEarned, earnedFor, getQuestionStars, availa
 import { recordAttempt } from '../../engine/activity.js';
 import { handButton, bindHandButton, resumeHand, stopHand } from './hand/handInput.js';
 import { fitStage } from './fit.js';
+import { bunnyFace, bunnyPose, bunnyWin } from './bunny.js';
 
 // Khung đồ vật của hình đếm Tập 1–2 (scripts/count-detect.py), tra theo đường dẫn hình.
 const COUNT_NAME = Object.fromEntries(Object.entries(
@@ -53,10 +54,58 @@ export function renderPreschool(app, onBack, book) {
 
   let cleanup = [];
   const addCleanup = (fn) => cleanup.push(fn);
-  const runCleanup = () => { cleanup.forEach(fn => fn()); cleanup = []; clearCrossMarks(); };
+  const runCleanup = () => { cleanup.forEach(fn => fn()); cleanup = []; clearCrossMarks(); stopTalking?.(); };
+
+  // Thỏ mấp máy miệng (class is-talking, bunny.js) cho tới khi đọc xong.
+  let stopTalking = null;
+  const talkWithMouth = (mascot) => {
+    stopTalking?.();
+    mascot.classList.add('is-talking');
+    stopTalking = whenQuiet(() => mascot.classList.remove('is-talking'), { min: 500, gap: 250, max: 20000 });
+  };
+
+  // Thỏ cả người ló lên ở góc màn hình (đè lên, không đẩy gì) khi đúng / sai / xong lượt, đứng
+  // khoảng 4 giây rồi lặn xuống. Nằm ngoài `app` để không mất khi lượt sau vẽ lại màn hình; đang
+  // đứng mà bé chạm tiếp thì chỉ đổi tư thế tại chỗ (is-stay), không lặn rồi ló lại.
+  const POP_MS = 4600;
+  const pop = document.createElement('div');
+  pop.className = 'pk-bunny-pop';
+  pop.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(pop);
+  let popAt = -Infinity;
+  const popTurn = { right: 0, wrong: 0, cheer: 0 }; // tư thế lần lượt thay nhau
+  const popBunny = (kind) => {
+    const again = performance.now() - popAt < POP_MS;
+    popAt = performance.now();
+    pop.innerHTML = bunnyPose(kind, popTurn[kind]++);
+    pop.className = `pk-bunny-pop${again ? ' is-stay' : ''}`;
+    if (!again) placePop();
+    void pop.offsetWidth;
+    pop.classList.add('is-on');
+  };
+  // Đứng giữa mép dưới; nếu ở đó che nút bé còn phải bấm (hàng số, thẻ hình, nút ➜) thì sang góc
+  // trái hoặc phải, chỗ nào che ít nhất.
+  const placePop = () => {
+    const w = pop.offsetWidth, h = pop.offsetHeight;
+    const top = innerHeight - parseFloat(getComputedStyle(pop).bottom) - h;
+    const side = Math.max(8, innerWidth * 0.02);
+    const targets = [...document.querySelectorAll('.pk-stage button, .pk-next-btn')]
+      .map(e => e.getBoundingClientRect()).filter(r => r.width && r.bottom > top);
+    // Tính theo phần bị che của từng nút: che nửa nút số nặng hơn che một góc của tranh to.
+    const cover = (x) => targets.reduce((sum, r) => sum
+      + Math.max(0, Math.min(x + w, r.right) - Math.max(x, r.left)) * Math.max(0, Math.min(top + h, r.bottom) - Math.max(top, r.top))
+      / (r.width * r.height), 0);
+    let best = (innerWidth - w) / 2, least = cover(best);
+    for (const x of [side, innerWidth - w - side]) {
+      const c = cover(x);
+      if (c < least - 0.05) { least = c; best = x; }
+    }
+    pop.style.left = `${best}px`;
+  };
+  const hidePop = () => { pop.className = 'pk-bunny-pop'; popAt = -Infinity; };
 
   // Rời trang (về trang chủ) thì dừng đọc.
-  const leave = () => { runCleanup(); stopSpeaking(); stopHand(); clearTimeout(voiceTimer); stopVoiceWatch?.(); onBack(); };
+  const leave = () => { pop.remove(); runCleanup(); stopSpeaking(); stopHand(); clearTimeout(voiceTimer); stopVoiceWatch?.(); onBack(); };
 
   showMap();
   resumeHand();
@@ -73,6 +122,7 @@ export function renderPreschool(app, onBack, book) {
   // Bản đồ
   // ════════════════════════════════════════════════════════════════════════
   function showMap() {
+    hidePop();
     runCleanup();
     stopSpeaking();
     const current = STATIONS.find(s => solvedCount(s) < s.rounds.length) || null;
@@ -91,7 +141,7 @@ export function renderPreschool(app, onBack, book) {
           ${muteButton()}
         </header>
         <div class="pk-hello">
-          <button type="button" class="pk-mascot" id="pk-mascot" aria-label="Nghe lại">🐰</button>
+          <button type="button" class="pk-mascot" id="pk-mascot" aria-label="Nghe lại">${bunnyFace()}</button>
           <div class="pk-bubble" id="pk-bubble">Chào bé! Chạm vào một trạm để cùng chơi!</div>
         </div>
         ${PARTS.map(part => mapPart(part, current)).join('')}
@@ -101,7 +151,7 @@ export function renderPreschool(app, onBack, book) {
     app.querySelector('#pk-home').onclick = leave;
     const hello = current ? 'Chào bé! Chạm vào trạm có bạn Thỏ để chơi tiếp!' : 'Bé đã hoàn thành tất cả các trạm. Giỏi quá!';
     app.querySelector('#pk-bubble').textContent = hello;
-    app.querySelector('#pk-mascot').onclick = () => { sfx.tap(); say(hello); };
+    app.querySelector('#pk-mascot').onclick = (e) => { sfx.tap(); say(hello); talkWithMouth(e.currentTarget); };
     app.querySelectorAll('.pk-node').forEach(btn => {
       btn.onclick = () => {
         sfx.pop(3);
@@ -148,7 +198,7 @@ export function renderPreschool(app, onBack, book) {
         style="left:${x}%; top:${y}px; --node-color:${color}; --pct:${pct}%" aria-label="${s.name} — đã xong ${done}/${total}">
         <span class="pk-node-ring"><span class="pk-node-face">${face}</span></span>
         ${complete ? '<span class="pk-node-crown">👑</span>' : ''}
-        ${isCurrent ? '<span class="pk-node-here" aria-hidden="true">🐰</span>' : ''}
+        ${isCurrent ? `<span class="pk-node-here" aria-hidden="true">${bunnyFace()}</span>` : ''}
         <span class="pk-node-label">${s.title}<small>⭐ ${stationStars(s)}</small></span>
       </button>`;
   }
@@ -202,7 +252,7 @@ export function renderPreschool(app, onBack, book) {
           ${station.rounds.map((r, i) => `<button type="button" class="pk-step${i === idx ? ' is-on' : ''}${isSolved(station, i) ? ' is-done' : ''}" data-i="${i}" aria-label="Lượt ${i + 1}">${isSolved(station, i) ? '★' : i + 1}</button>`).join('')}
         </nav>
         <div class="pk-guide">
-          <button type="button" class="pk-mascot" id="pk-mascot" aria-label="Nghe lại lời dặn">🐰</button>
+          <button type="button" class="pk-mascot" id="pk-mascot" aria-label="Nghe lại lời dặn">${bunnyFace()}</button>
           <div class="pk-bubble" id="pk-bubble"></div>
           ${replay ? '' : `<span class="pk-reward" title="Sao nhận được khi làm xong">+${getQuestionStars(key, round)}⭐</span>`}
         </div>
@@ -231,9 +281,10 @@ export function renderPreschool(app, onBack, book) {
       bubbleH = Math.max(bubbleH, bubble.offsetHeight);
       bubble.style.minHeight = `${bubbleH}px`;
       if (!keep) instruction = text;
-      mascot.classList.remove('is-happy', 'is-sad');
+      mascot.classList.remove('is-happy', 'is-sad', 'is-cheer');
       if (mood) { void mascot.offsetWidth; mascot.classList.add(mood); }
       say(text);
+      talkWithMouth(mascot);
     };
     mascot.onclick = () => { sfx.tap(); talk(instruction); };
 
@@ -247,12 +298,14 @@ export function renderPreschool(app, onBack, book) {
         recordAttempt(false);
         recordWrong(key, round);
         talk(text, { keep: true, mood: 'is-sad' });
+        popBunny('wrong');
         refreshReward();
       },
       right(el, text) {
         sfx.ding();
         if (el) { const [x, y] = centerOf(el); burst(x, y, { count: 12 }); }
         if (text) talk(text, { keep: true, mood: 'is-happy' });
+        popBunny('right');
       },
       solve(text = 'Giỏi quá! Bé làm đúng rồi!') {
         if (finished) return;
@@ -262,7 +315,8 @@ export function renderPreschool(app, onBack, book) {
         awardStars(key, round);
         sfx.fanfare();
         rain(1800);
-        talk(text, { keep: true, mood: 'is-happy' });
+        talk(text, { keep: true, mood: 'is-cheer' });
+        popBunny('cheer');
         app.querySelector(`.pk-step[data-i="${idx}"]`)?.classList.add('is-done');
         app.querySelector('.pk-reward')?.remove();
         showNext();
@@ -301,6 +355,7 @@ export function renderPreschool(app, onBack, book) {
   }
 
   function stationComplete(station) {
+    hidePop();
     runCleanup();
     const i = STATIONS.indexOf(station);
     const next = STATIONS[i + 1];
@@ -309,7 +364,7 @@ export function renderPreschool(app, onBack, book) {
       <div class="pk pk-win-page">
         <div class="pk-sky" aria-hidden="true"><span class="pk-cloud c1"></span><span class="pk-cloud c2"></span><span class="pk-cloud c3"></span></div>
         <div class="pk-win">
-          <div class="pk-win-trophy">🏆</div>
+          <div class="pk-win-bunny">${bunnyWin()}</div>
           <h1>${done ? 'Hoàn thành!' : 'Bé chơi giỏi lắm!'}</h1>
           <p>${station.n ? `Bài ${station.n}: Số ${station.n}` : station.title}</p>
           <div class="pk-win-stars">⭐ ${stationStars(station)} / ${stationMaxStars(station)}</div>
@@ -467,6 +522,16 @@ export function renderPreschool(app, onBack, book) {
     talk(`Đây là số ${w}. ${round.caption}. Bé chạm vào hình để đếm, rồi tô màu các số ${w}!`);
   }
 
+  /** Nét nối đứt, cong mềm (hai đầu nằm ngang), các gạch chạy từ (x1,y1) sang (x2,y2). */
+  function dashLink(svg, x1, y1, x2, y2, color) {
+    const mx = (x1 + x2) / 2;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M${x1} ${y1}C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}`);
+    path.setAttribute('class', 'pk-dash');
+    path.style.stroke = color;
+    svg.appendChild(path);
+  }
+
   // ── Nối số với hình ────────────────────────────────────────────────────
   function playMatch({ round, stage, talk, wrong, right, solve }) {
     const { n, answers } = round;
@@ -482,6 +547,26 @@ export function renderPreschool(app, onBack, book) {
     const num = stage.querySelector('.pk-match-num');
     const found = new Set();
 
+    // Thẻ số ở góc ngoài của tranh (cùng kiểu ô số giữa): tranh đúng thì ô số giữa bay sang, tranh
+    // sai thì hiện số đồ vật thật của tranh, để bé so "3" với "3" ngay trên hình.
+    const tag = (card, v, fromNum) => {
+      if (!round.counts || card.querySelector('.pk-num-tag')) return;
+      const t = document.createElement('span');
+      t.className = 'pk-num-tag';
+      t.textContent = v;
+      t.style.setProperty('--c', colorOf(v));
+      card.appendChild(t);
+      card.classList.add('has-tag');
+      if (!fromNum) { t.classList.add('is-pop'); return; }
+      const a = num.getBoundingClientRect();
+      const b = t.getBoundingClientRect();
+      const k = b.width / t.offsetWidth || 1; // vùng chơi có thể đang phóng to (fit.js)
+      const dx = (a.left + a.width / 2 - b.left - b.width / 2) / k;
+      const dy = (a.top + a.height / 2 - b.top - b.height / 2) / k;
+      t.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${a.height / b.height})` }, { transform: 'none' }],
+        { duration: 650, easing: 'cubic-bezier(.3, 1.25, .5, 1)' });
+    };
+
     // Nét nối từ mép ô số đến mép thẻ hình (phía đối diện nhau), để cả nét nằm trong khoảng trống.
     const drawLine = (card) => {
       const b = box.getBoundingClientRect();
@@ -490,20 +575,22 @@ export function renderPreschool(app, onBack, book) {
       const left = c.right <= n.left;
       const [x1, y1] = [left ? n.left : n.right, n.top + n.height / 2];
       const [x2, y2] = [left ? c.right : c.left, c.top + c.height / 2];
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', x1 - b.left); line.setAttribute('y1', y1 - b.top);
-      line.setAttribute('x2', x2 - b.left); line.setAttribute('y2', y2 - b.top);
-      line.style.stroke = colorOf(n);
-      lines.appendChild(line);
+      dashLink(lines, x1 - b.left, y1 - b.top, x2 - b.left, y2 - b.top, colorOf(n));
     };
 
     stage.querySelectorAll('.pk-match-card').forEach(card => {
       card.onclick = () => {
         const k = Number(card.dataset.k);
         if (found.has(k)) return;
-        if (!answers.includes(k)) { wrong(card, `Hình này chưa đúng. Bé đếm lại xem có đủ ${w} không.`); return; }
+        if (!answers.includes(k)) {
+          const c = round.counts?.[k];
+          tag(card, c, false);
+          wrong(card, c ? `Hình này có ${numberWord(c)}, chưa phải ${w}. Bé tìm hình có ${w}!` : `Hình này chưa đúng. Bé đếm lại xem có đủ ${w} không.`);
+          return;
+        }
         found.add(k);
         card.classList.add('is-right');
+        tag(card, n, true);
         drawLine(card);
         if (found.size === answers.length) solve(`Đúng rồi! Hình này có ${w}!`);
         else right(card, 'Đúng rồi! Còn một hình nữa đấy!');
@@ -930,11 +1017,7 @@ export function renderPreschool(app, onBack, book) {
     const drawLine = (c1, c2, color) => {
       const bb = box.getBoundingClientRect();
       const [l, r] = [c1.getBoundingClientRect(), c2.getBoundingClientRect()].sort((p, q) => p.left - q.left);
-      const el = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      el.setAttribute('x1', l.right - bb.left); el.setAttribute('y1', l.top + l.height / 2 - bb.top);
-      el.setAttribute('x2', r.left - bb.left); el.setAttribute('y2', r.top + r.height / 2 - bb.top);
-      el.style.stroke = color;
-      lines.appendChild(el);
+      dashLink(lines, l.right - bb.left, l.top + l.height / 2 - bb.top, r.left - bb.left, r.top + r.height / 2 - bb.top, color);
     };
     stage.querySelectorAll('.pk-pair').forEach(c => {
       c.onclick = () => {

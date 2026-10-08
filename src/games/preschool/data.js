@@ -8,7 +8,7 @@
  *
  * Các dạng lượt chơi:
  *   intro  — làm quen số: nghe đọc số, chạm đếm đồ vật, tô màu hàng số rỗng
- *   match  — "nối số": chọn (các) hình có đúng n đồ vật
+ *   match  — "nối số": chọn (các) hình có đúng n đồ vật (counts: số đồ vật từng hình, hiện thẻ số trên hình)
  *   count  — đếm rồi chọn số (options: các số để chọn)
  *   trace  — tô số bằng ngón tay theo nét
  *   order  — chạm các quả theo thứ tự 1 → 10
@@ -28,25 +28,25 @@ export const img = (name) => IMG[name];
 const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
 
 // ── Phần 1: Bé làm quen với các số từ 1 đến 10 ──────────────────────────────
-// [lời minh hoạ, câu hỏi đếm, vị trí hình đúng trong 4 hình nối số]
+// [lời minh hoạ, câu hỏi đếm, vị trí hình đúng trong 4 hình nối số, số đồ vật của 4 hình nối số]
 const LESSONS = [
-  ['Một cái bánh sinh nhật', 'con bướm', [1]],
-  ['Hai cái kẹo mút', 'cái bánh ngọt', [0, 1]],
-  ['Ba cái bánh ngọt', 'con cừu', [0]],
-  ['Bốn con cua', 'cái ô', [3]],
-  ['Năm cái máy bay', 'cái xe đạp', [1]],
-  ['Sáu quả cà chua', 'cây bắp cải', [3]],
-  ['Bảy cái hamburger', 'cái trống', [3]],
-  ['Tám nải chuối', 'quả dưa hấu', [3]],
-  ['Chín quả bóng', 'cốc nước trái cây', [2]],
-  ['Mười quả dứa', 'đĩa bánh', [3]],
+  ['Một cái bánh sinh nhật', 'con bướm', [1], [3, 1, 5, 2]],
+  ['Hai cái kẹo mút', 'cái bánh ngọt', [0, 1], [2, 2, 3, 1]],
+  ['Ba cái bánh ngọt', 'con cừu', [0], [3, 4, 2, 1]],
+  ['Bốn con cua', 'cái ô', [3], [3, 2, 1, 4]],
+  ['Năm cái máy bay', 'cái xe đạp', [1], [2, 5, 3, 4]],
+  ['Sáu quả cà chua', 'cây bắp cải', [3], [1, 3, 4, 6]],
+  ['Bảy cái hamburger', 'cái trống', [3], [4, 6, 5, 7]],
+  ['Tám nải chuối', 'quả dưa hấu', [3], [6, 5, 3, 8]],
+  ['Chín quả bóng', 'cốc nước trái cây', [2], [8, 6, 9, 5]],
+  ['Mười quả dứa', 'đĩa bánh', [3], [3, 6, 4, 10]],
 ];
 
 // Sách (trang 10) không có hình nào đủ 5 đồ vật — thay hình củ cà rốt (1, trùng Bài 1)
 // bằng hình 5 cây xúc xích ở trang 30 của sách.
 const MATCH_OVERRIDE = { '5:1': 'c30_4' };
 
-const PART1 = LESSONS.map(([caption, thing, answers], i) => {
+const PART1 = LESSONS.map(([caption, thing, answers, counts], i) => {
   const n = i + 1;
   return {
     id: `bai-${n}`,
@@ -60,6 +60,7 @@ const PART1 = LESSONS.map(([caption, thing, answers], i) => {
         type: 'match', n,
         choices: [0, 1, 2, 3].map(k => img(MATCH_OVERRIDE[`${n}:${k}`] || `b${n}_m${k}`)),
         answers,
+        counts,
       },
       { type: 'count', img: img(`b${n}_count`), items: ITEMS[n].count, answer: n, thing, options: range(1, 10) },
       { type: 'trace', n },

@@ -92,6 +92,100 @@
 @keyframes pk-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @keyframes pk-jump { 0%, 100% { transform: translateY(0) scale(1); } 40% { transform: translateY(-18px) scale(1.1); } }
 @keyframes pk-tilt { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-14deg); } 65% { transform: rotate(10deg); } }
+
+/* ── Bạn Thỏ (bunny.js): một SVG có sẵn mọi nét mặt, class của nút chọn nét ── */
+/* Mặt nằm trong nút tròn, hai tai thò lên trên viền nút. */
+.pk-mascot { position: relative; padding: 0; }
+.pk-mascot .bn { position: absolute; left: 0; bottom: 0; width: 100%; height: auto; overflow: visible; pointer-events: none; }
+.pk-mascot.is-cheer { animation: pk-jump 0.6s ease 3, pk-bob 2.4s ease-in-out 1.8s infinite; }
+.bn * { transform-box: view-box; }
+.bn-eyes-happy, .bn-eyes-up, .bn-eyes-star, .bn-mouth-open, .bn-mouth-o { display: none; }
+.is-happy .bn-eyes-round, .is-sad .bn-eyes-round, .is-cheer .bn-eyes-round { display: none; }
+.is-happy .bn-eyes-happy, .is-sad .bn-eyes-up, .is-cheer .bn-eyes-star { display: inline; }
+.is-happy .bn-mouth-smile, .is-cheer .bn-mouth-smile, .is-sad .bn-mouth-smile { display: none; }
+.is-happy .bn-mouth-open, .is-cheer .bn-mouth-open, .is-sad .bn-mouth-o { display: inline; }
+/* Đang đọc: miệng há / khép xen nhau (nét mặt vẫn theo cảm xúc). */
+.is-talking .bn-mouth-o { display: none; }
+.is-talking .bn-mouth-open, .is-talking .bn-mouth-smile { display: inline; animation: bn-talk 0.36s steps(1) infinite; }
+.is-talking .bn-mouth-smile { animation-delay: -0.18s; }
+@keyframes bn-talk { 50% { opacity: 0; } }
+.bn-earL { transform-origin: 86px 40px; animation: bn-earL 2.4s ease-in-out infinite; }
+.bn-earR { transform-origin: 114px 40px; animation: bn-earR 2.4s ease-in-out infinite; }
+.is-sad .bn-earR, .bn-earDroop { transform-origin: 114px 42px; animation: bn-droop 2s ease-in-out infinite; }
+@keyframes bn-earL { 50% { transform: rotate(-6deg); } }
+@keyframes bn-earR { 50% { transform: rotate(6deg); } }
+@keyframes bn-droop { 0%, 100% { transform: rotate(66deg); } 50% { transform: rotate(58deg); } }
+.bn-blink { transform-origin: 100px 72px; animation: bn-blink 3.2s infinite; }
+@keyframes bn-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.1); } }
+.bn-twinkle { animation: bn-twinkle 0.7s ease-in-out infinite alternate; }
+@keyframes bn-twinkle { from { transform: scale(0.85) rotate(-10deg); } to { transform: scale(1.2) rotate(12deg); } }
+.bn-tail { transform-origin: 142px 166px; animation: bn-tail 0.5s ease-in-out infinite alternate; }
+@keyframes bn-tail { to { transform: scale(1.15); } }
+.bn-trophy { transform-origin: 158px 60px; animation: bn-trophy 1s ease-in-out infinite; }
+@keyframes bn-trophy { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-8px) rotate(5deg); } }
+.bn-medal { transform-origin: 100px 116px; animation: bn-medal 1.2s ease-in-out infinite alternate; }
+@keyframes bn-medal { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+
+/* Thỏ cả người ló lên ở mép dưới (bunnyPose): đè lên màn chơi, không chặn chạm, tự lặn xuống.
+   Gắn vào body; engine.js đặt `left` (giữa, hoặc góc trái / phải nếu ở giữa che nút bé cần bấm). */
+.pk-bunny-pop {
+  position: fixed; left: 0; bottom: max(14px, 3vh); z-index: 50; width: min(30vh, 40vw, 260px);
+  pointer-events: none; transform: translateY(130%);
+}
+.pk-bunny-pop .bn { width: 100%; height: auto; display: block; overflow: visible; }
+.pk-bunny-pop.is-on { animation: bn-peek 5s linear both; }
+.pk-bunny-pop.is-stay.is-on { animation-name: bn-stay; }
+/* Ló lên nhanh (0,6 giây), đứng yên khoảng 4 giây, rồi lặn xuống. */
+@keyframes bn-peek {
+  0% { transform: translateY(130%); animation-timing-function: cubic-bezier(.3, 1.2, .5, 1); }
+  8% { transform: translateY(-5%); }
+  12%, 92% { transform: translateY(0); animation-timing-function: ease-in; }
+  100% { transform: translateY(130%); }
+}
+@keyframes bn-stay { 0%, 92% { transform: translateY(0); animation-timing-function: ease-in; } 100% { transform: translateY(130%); } }
+.bn-bob { animation: bn-bob 0.8s ease-in-out infinite; }
+@keyframes bn-bob { 50% { transform: translateY(-6px); } }
+.bn-sway { transform-origin: 100px 196px; animation: bn-sway 0.8s ease-in-out infinite alternate; }
+@keyframes bn-sway { from { transform: rotate(-9deg); } to { transform: rotate(9deg); } }
+.bn-clapL { transform-origin: 70px 134px; animation: bn-clapL 0.3s ease-in-out infinite alternate; }
+.bn-clapR { transform-origin: 130px 134px; animation: bn-clapR 0.3s ease-in-out infinite alternate; }
+@keyframes bn-clapL { to { transform: rotate(-16deg); } }
+@keyframes bn-clapR { to { transform: rotate(16deg); } }
+.bn-wave { transform-origin: 130px 132px; animation: bn-wave 0.6s ease-in-out infinite alternate; }
+@keyframes bn-wave { to { transform: rotate(8deg); } }
+.bn-shrug { animation: bn-shrug 0.9s ease-in-out infinite; }
+@keyframes bn-shrug { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-7px); } }
+.bn-shrugL { transform-origin: 70px 134px; animation: bn-shrugL 0.9s ease-in-out infinite; }
+.bn-shrugR { transform-origin: 130px 134px; animation: bn-shrugR 0.9s ease-in-out infinite; }
+@keyframes bn-shrugL { 30% { transform: rotate(14deg); } }
+@keyframes bn-shrugR { 30% { transform: rotate(-14deg); } }
+.bn-pump { transform-origin: 130px 132px; animation: bn-pump 0.4s ease-in-out infinite alternate; }
+@keyframes bn-pump { to { transform: rotate(-14deg) translateY(-4px); } }
+.bn-beat { animation: bn-beat 0.6s ease-in-out infinite; }
+@keyframes bn-beat { 40% { transform: scale(1.3); } }
+.bn-spark { animation: bn-spark 1.4s ease-in-out infinite; }
+@keyframes bn-spark { 0%, 100% { transform: scale(0); opacity: 0; } 50% { transform: scale(1); opacity: 1; } }
+.bn-float { animation: bn-float 2.2s ease-out infinite; }
+@keyframes bn-float { 0% { transform: translateY(0) scale(.4); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-70px) scale(1.1); opacity: 0; } }
+.bn-fall { animation: bn-fall 2.2s linear infinite; }
+@keyframes bn-fall { from { transform: translateY(-20px) rotate(0); } to { transform: translateY(250px) rotate(540deg); } }
+.bn-dot { animation: bn-dot 1.2s ease-in-out infinite; }
+@keyframes bn-dot { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+.bn-drip { animation: bn-drip 1.4s ease-in infinite; }
+@keyframes bn-drip { 0% { transform: translateY(-6px); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(16px); opacity: 0; } }
+.bn-hop { transform-origin: 100px 196px; animation: bn-hop 0.9s cubic-bezier(.3, 0, .4, 1) infinite; }
+@keyframes bn-hop { 0%, 100% { transform: translateY(0) scale(1.05, .95); } 15% { transform: scale(1); } 45% { transform: translateY(-20px) scale(.97, 1.04); } 80% { transform: translateY(0) scale(1); } }
+.bn-jump { transform-origin: 100px 196px; animation: bn-jump 1.2s cubic-bezier(.3, 0, .4, 1) infinite; }
+@keyframes bn-jump { 0%, 100% { transform: translateY(0) scale(1.07, .93); } 12% { transform: scale(1); } 45% { transform: translateY(-30px) rotate(-6deg); } 62% { transform: translateY(-26px) rotate(5deg); } 88% { transform: translateY(0); } }
+.bn-tick { transform-origin: 170px 40px; animation: pk-pop-in 0.4s 0.25s both; }
+.bn-held-star { transform-origin: 100px -6px; animation: bn-held-star 1.2s ease-in-out infinite; }
+@keyframes bn-held-star { 0%, 100% { transform: rotate(-10deg) scale(1); } 50% { transform: rotate(10deg) scale(1.12); } }
+.bn-tilt { transform-origin: 100px 120px; animation: bn-tilt 2.4s ease-in-out infinite; }
+@keyframes bn-tilt { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+.bn-scratch { transform-origin: 70px 134px; animation: bn-scratch 0.35s ease-in-out infinite alternate; }
+@keyframes bn-scratch { to { transform: rotate(7deg); } }
+.bn-qm { transform-origin: 20px 26px; animation: bn-qm 1.6s ease-in-out infinite; }
+@keyframes bn-qm { 0%, 100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-8px) rotate(8deg); } }
 .pk-bubble {
   position: relative; flex: 1;
   padding: 0.7rem 1.2rem; border-radius: 22px;
@@ -148,7 +242,8 @@
 .pk-node.is-complete .pk-node-face { border-color: #FDE047; }
 .pk-node-crown { position: absolute; top: -14px; right: -4px; font-size: 1.6rem; rotate: 18deg; }
 .pk-node-here {
-  position: absolute; top: -40px; left: 50%; translate: -50% 0; font-size: 2rem;
+  position: absolute; top: -62px; left: 50%; translate: -50% 0; width: 46px; height: 59px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
   animation: pk-hop 0.9s ease-in-out infinite;
 }
 .pk-node.is-current .pk-node-ring { animation: pk-glow 1.6s ease-in-out infinite; }
@@ -305,7 +400,7 @@
 /* Nối số */
 .pk-match {
   /* Số ở cột giữa, hai bên để trống rộng cho nét nối từ thẻ hình đến số. */
-  position: relative; display: grid; grid-template-columns: 1fr clamp(150px, 22vw, 260px) 1fr; gap: 1rem 0;
+  position: relative; display: grid; grid-template-columns: 1fr clamp(150px, 22vw, 260px) 1fr; gap: 1.8rem 0;
   max-width: 900px; margin: 0 auto;
 }
 .pk-match-card.k0 { grid-area: 1 / 1; }
@@ -314,6 +409,10 @@
 .pk-match-card.k3 { grid-area: 2 / 3; }
 .pk-match-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: visible; }
 .pk-match-lines line { stroke-width: 8; stroke-linecap: round; stroke-dasharray: 600; stroke-dashoffset: 600; animation: pk-draw 0.5s ease-out forwards; }
+/* Nét nối đứt chạy (dashLink): gạch tròn đầu trôi từ ô số sang tranh. */
+.pk-dash { fill: none; stroke-width: 7; stroke-linecap: round; stroke-dasharray: 10 13; animation: pk-dash-in 0.3s ease-out both, pk-dash-run 0.7s linear infinite; }
+@keyframes pk-dash-in { from { opacity: 0; } }
+@keyframes pk-dash-run { to { stroke-dashoffset: -23; } }
 .pk-card {
   position: relative; z-index: 2; display: grid; place-items: center;
   padding: 10px; border-radius: 22px; border: 4px solid #93C5FD; background: #fff; cursor: pointer;
@@ -328,14 +427,24 @@
   width: 42px; height: 42px; border-radius: 50%; background: #22C55E; color: #fff; font-size: 1.6rem; font-weight: 800;
   border: 3px solid #fff; animation: pk-pop-in 0.3s both;
 }
-.pk-match-num {
-  position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 3;
+.pk-match-num, .pk-num-tag {
   display: grid; place-items: center; width: 84px; height: 96px; border-radius: 20px;
   border: 4px solid #93C5FD; background: #fff;
   font-size: 4.2rem; font-weight: 800; line-height: 1; color: var(--c);
   -webkit-text-stroke: 3px #1E293B; paint-order: stroke fill;
   box-shadow: 0 5px 0 #60A5FA;
 }
+.pk-match-num { position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 3; }
+/* Thẻ số trên tranh nối số (cùng kiểu ô số giữa, nhỏ hơn một chút), ở góc trên phía ngoài,
+   xa ô số giữa và nét nối. Tranh có thẻ số thì không cần dấu ✓ nữa. */
+.pk-num-tag {
+  position: absolute; top: -16px; z-index: 3; width: 68px; height: 78px; border-radius: 16px; font-size: 3.4rem;
+  pointer-events: none;
+}
+.pk-match-card.k0 .pk-num-tag, .pk-match-card.k2 .pk-num-tag { left: -14px; }
+.pk-match-card.k1 .pk-num-tag, .pk-match-card.k3 .pk-num-tag { right: -14px; }
+.pk-match-card.has-tag.is-right::after { content: none; }
+.pk-num-tag.is-pop { animation: pk-pop-in 0.35s both; }
 
 /* Đếm */
 .pk-count { text-align: center; }
@@ -494,7 +603,9 @@
   background: #fff; text-align: center; box-shadow: 0 10px 0 #FBBF24, 0 18px 40px rgba(0, 0, 0, 0.15);
   animation: pk-pop-in 0.5s both;
 }
-.pk-win-trophy { font-size: 6rem; line-height: 1.1; animation: pk-jump 0.8s ease infinite; }
+.pk-node-here .bn { width: 100%; height: 100%; display: block; overflow: visible; }
+.pk-win-bunny { width: min(220px, 32vh); margin: 0 auto; animation: pk-bob 1.6s ease-in-out infinite; }
+.pk-win-bunny .bn { width: 100%; height: auto; display: block; }
 .pk-win h1 { font-size: 2.4rem; font-weight: 800; color: #EA580C; line-height: 1.1; }
 .pk-win p { font-size: 1.2rem; font-weight: 700; }
 .pk-win-stars { margin: 0.6rem 0 1.2rem; font-size: 2rem; font-weight: 800; color: #B45309; }
@@ -542,8 +653,9 @@
   .pk-round-btn { width: 50px; height: 50px; font-size: 1.5rem; }
   .pk-mascot { width: 56px; height: 56px; font-size: 2.1rem; }
   .pk-star-count { display: none; }
-  .pk-match { grid-template-columns: 1fr 108px 1fr; gap: 0.7rem 0; }
+  .pk-match { grid-template-columns: 1fr 108px 1fr; gap: 1.5rem 0; }
   .pk-match-num { width: 62px; height: 72px; font-size: 3rem; }
+  .pk-num-tag { width: 50px; height: 58px; font-size: 2.4rem; border-radius: 13px; }
   .pk-bigcard { flex: none; width: 112px; height: 150px; }
   .pk-bignum { font-size: 5.2rem; }
   .pk-bigword { font-size: 1.1rem; }
@@ -559,7 +671,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pk *, .pk-burst *, .pk-rain * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+  /* Bạn Thỏ (nút hướng dẫn và Thỏ ló lên khi đúng / sai) vẫn chạy đủ hoạt ảnh: đó là phản hồi cho bé. */
+  .pk *:not(.pk-bunny-pop, .bn, .bn *), .pk-burst *, .pk-rain * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }
 
 /* ── Tập 2: So sánh ────────────────────────────────────────────────────── */
