@@ -138,6 +138,7 @@ import { GRADE3_GAMES } from '../data/features.js';
 import { levelsForUnit } from './grade3Games/catalog.js';
 import { toVietnameseAnswer, isEnglish, tr } from '../engine/i18n.js';
 import { attachTrainSwap, attachTrainPaint, trainEngine, trainMatchCar } from '../engine/trains.js';
+import { sfx } from './preschool/fx.js';
 
 // ── TEXT / ANSWER HELPERS ───────────────────────────────────────────────────
 
@@ -5894,7 +5895,7 @@ export function renderWorkbook(app, onBack, cfg) {
       } else {
         revealChoiceAnswer(q, [q.answer], [q.answer]);
       }
-      showFeedback(true);
+      showFeedback(true, { restored: true });
       return;
     }
 
@@ -6007,7 +6008,7 @@ export function renderWorkbook(app, onBack, cfg) {
       if (q.pairDrop) attachPairDrop(app, q, groups);
       attachTrainActions(q, groups);
       submitBtn.remove();
-      showFeedback(true);
+      showFeedback(true, { restored: true });
       return;
     }
 
@@ -6065,7 +6066,7 @@ export function renderWorkbook(app, onBack, cfg) {
       allInputs.forEach(inp => { inp.disabled = true; inp.classList.add('e3-correct-input'); });
       attachTrainActions(q, blankGroups);
       checkBtn.remove();
-      showFeedback(true);
+      showFeedback(true, { restored: true });
       return;
     }
 
@@ -6112,7 +6113,7 @@ export function renderWorkbook(app, onBack, cfg) {
       });
       app.querySelectorAll('.gw-compare-btn').forEach(b => { b.disabled = true; });
       checkBtn.remove();
-      showFeedback(true);
+      showFeedback(true, { restored: true });
       return;
     }
 
@@ -6180,7 +6181,7 @@ export function renderWorkbook(app, onBack, cfg) {
       q.pairs.forEach(([a, b]) => { itemBtn(a)?.classList.add('gw-match-correct'); itemBtn(b)?.classList.add('gw-match-correct'); });
       q.pairs.forEach(([leftId, rightId]) => drawMatchLine(leftId, rightId));
       checkBtn?.remove();
-      showFeedback(true);
+      showFeedback(true, { restored: true });
       return;
     }
 
@@ -6325,11 +6326,12 @@ export function renderWorkbook(app, onBack, cfg) {
     updateCheckBtn();
   }
 
-  function showFeedback(isRight) {
+  function showFeedback(isRight, { restored = false } = {}) {
     app.querySelector('.e3-feedback')?.remove();
     const banner = document.createElement('div');
     banner.className = `e3-feedback ${isRight ? 'e3-feedback-right' : 'e3-feedback-wrong'}`;
     banner.innerHTML = isRight ? '✅ Đúng rồi! Giỏi lắm!' : `❌ Chưa đúng! Thử lại nhé. ${lastWrongStars}`;
+    if (!restored) { if (isRight) sfx.ding(); else sfx.boing(); }
     const anchor = app.querySelector('#e3-blanks') || app.querySelector('#e3-options')
       || app.querySelector('#gw-table') || app.querySelector('#gw-compare') || app.querySelector('#gw-match');
     anchor.after(banner);

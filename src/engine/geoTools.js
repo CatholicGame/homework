@@ -27,6 +27,8 @@
  *                   names: { A: 'Hình A' }, unit: 'cm²' | 'ô vuông' }
  */
 
+import { audioCtx, playSfx } from './sfx.js';
+
 const NS = 'http://www.w3.org/2000/svg';
 const INK = '#1E293B';
 const TOOLS = [
@@ -75,16 +77,8 @@ function inPoly(p, poly) {
 const centroid = (poly) => mul(poly.reduce((s, p) => add(s, p), [0, 0]), 1 / poly.length);
 
 // ── âm thanh ngắn (Web Audio) ───────────────────────────────────────────────
-let actx = null;
-function audio() {
-  try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    if (actx.state === 'suspended') actx.resume();
-    return actx;
-  } catch { return null; }
-}
 function tone(freqs, { type = 'sine', gap = 0.09, dur = 0.22, vol = 0.18 } = {}) {
-  const ctx = audio();
+  const ctx = audioCtx();
   if (!ctx) return;
   freqs.forEach((f, i) => {
     const t = ctx.currentTime + i * gap;
@@ -98,10 +92,14 @@ function tone(freqs, { type = 'sine', gap = 0.09, dur = 0.22, vol = 0.18 } = {})
     o.start(t); o.stop(t + dur + 0.02);
   });
 }
-const soundFit = () => tone([660, 880, 1320], { gap: 0.08 });
-const soundGap = () => tone([220, 180], { type: 'triangle', gap: 0.12, dur: 0.18, vol: 0.14 });
-const soundTick = (n = 0) => tone([520 + (n % 8) * 40], { type: 'triangle', dur: 0.08, vol: 0.12 });
-const soundDone = () => tone([523, 659, 784, 1046], { gap: 0.1, dur: 0.3 });
+const soundFit = () => playSfx('correct') || tone([660, 880, 1320], { gap: 0.08 });
+const soundGap = () => playSfx('wrong') || tone([220, 180], { type: 'triangle', gap: 0.12, dur: 0.18, vol: 0.14 });
+/** Chạm chọn một đỉnh / cạnh / ô: cao dần theo số đã chọn. */
+const soundPick = (n = 0) => playSfx('pop', { rate: 2 ** ((n % 8) / 12) }) || tone([520 + (n % 8) * 40], { type: 'triangle', dur: 0.1, vol: 0.16 });
+const soundUnpick = () => playSfx('tap') || tone([700], { type: 'triangle', dur: 0.06, vol: 0.12 });
+/** Tìm đúng thêm một hình / một cặp. */
+const soundFound = (n = 0) => playSfx('piece', { rate: 2 ** ((Math.min(n, 12) - 1) / 12) }) || tone([600 + n * 70, 900 + n * 70], { gap: 0.07, dur: 0.14 });
+const soundDone = () => playSfx('complete') || tone([523, 659, 784, 1046], { gap: 0.1, dur: 0.3 });
 
 // ── nút dưới hình ───────────────────────────────────────────────────────────
 export function attachGeoTools(root, q) {
@@ -1243,12 +1241,12 @@ function mountCount(ctx) {
 
   function tap(n) {
     const i = sel.indexOf(n);
-    if (i >= 0) { sel.splice(i, 1); paintSel(); say(''); return; }
+    if (i >= 0) { sel.splice(i, 1); paintSel(); soundUnpick(); say(''); return; }
     if (!sel.length) showFill(null);
     sel.push(n);
     paintSel();
     const K = kinds[cur];
-    if (sel.length < K.need) { say(''); return; }
+    if (sel.length < K.need) { soundPick(sel.length - 1); say(''); return; }
     const key = setKey(sel);
     const picked = allNamed ? sel.map(shown).join(', ') : '';
     sel = [];
@@ -1273,7 +1271,7 @@ function mountCount(ctx) {
     paint();
     showFill(s);
     blink(found[cur].length - 1);
-    soundTick(found[cur].length);
+    soundFound(found[cur].length);
     const all = found[cur].length === K.shapes.length;
     if (all) setTimeout(soundDone, 250);
     say(`${all ? '🎉 ' : '✔️ '}Hình ${K.kind} thứ <b>${found[cur].length}</b>${allNamed ? `: <b>${shown(hit.name)}</b>` : ''}.${all ? ' Đếm đủ rồi!' : ''}`, all ? 'gt-good' : 'gt-mix');
@@ -1417,13 +1415,13 @@ function mountPairs(ctx) {
 
   function tap(s) {
     const i = sel.indexOf(s);
-    if (i >= 0) { sel.splice(i, 1); paintSel(); return; }
+    if (i >= 0) { sel.splice(i, 1); paintSel(); soundUnpick(); return; }
     if (sel.length === 2) sel = [];
     if (!sel.length) res.replaceChildren();
     sel.push(s);
     paintSel();
     say('');
-    if (sel.length < 2) return;
+    if (sel.length < 2) { soundPick(0); return; }
     const [s1, s2] = sel;
     const r = show(s1, s2);
     const kind = kinds[cur];
@@ -1445,7 +1443,7 @@ function mountPairs(ctx) {
     ctx.changed();
     paint();
     blink(found[cur].length - 1);
-    soundTick(found[cur].length);
+    soundFound(found[cur].length);
     say(`✔️ ${tag} ${kind === 'song song' ? '<b>song song</b>: kéo dài mãi không gặp nhau' : kind === 'vuông góc' ? 'cắt nhau và <b>vuông góc</b>' : 'cắt nhau, <b>không vuông góc</b>'}.`, 'gt-good');
   }
 
@@ -1526,7 +1524,7 @@ function mountArea(ctx) {
     s.placed++;
     if (instant) tileAt(s, cl, s.placed);
     else fly(s, cl, s.placed);
-    if (!quietSound) soundTick(s.placed);
+    if (!quietSound) soundPick(s.placed);
     update(s, instant);
     if (!instant) { (order[s.id] ||= []).push(s.cells.indexOf(cl)); ctx.changed(); }
     return true;

@@ -28,6 +28,7 @@
  */
 
 import { fillBlanks } from './geoTools.js';
+import { audioCtx, playSfx } from './sfx.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const INK = '#3F3A40';
@@ -122,14 +123,7 @@ function answersOf(rules, m) {
 }
 
 // ── âm thanh ngắn (Web Audio) ───────────────────────────────────────────────
-let actx = null;
-function audio() {
-  try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    if (actx.state === 'suspended') actx.resume();
-    return actx;
-  } catch { return null; }
-}
+const audio = audioCtx;
 function noise(ctx, secs) {
   const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * secs), ctx.sampleRate);
   const d = buf.getChannelData(0);
@@ -140,6 +134,7 @@ function noise(ctx, secs) {
 }
 /** "cộp": tiếng gõ trầm + tiếng bụp ngắn. */
 function soundBump() {
+  if (playSfx('bump')) return;
   const ctx = audio();
   if (!ctx) return;
   const t = ctx.currentTime;
@@ -162,6 +157,8 @@ function soundBump() {
 }
 /** "vù": tiếng gió nhẹ khi hai đường chạy mãi. */
 function soundWhoosh(secs) {
+  // file dài ~1,5 giây: kéo giãn cho khớp thời gian hai đường chạy (giọng trầm hơn một chút, nghe xa hơn)
+  if (playSfx('whoosh', { rate: Math.max(0.6, Math.min(1.2, 1.46 / secs)) })) return;
   const ctx = audio();
   if (!ctx) return;
   const t = ctx.currentTime;

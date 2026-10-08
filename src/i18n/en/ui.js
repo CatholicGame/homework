@@ -28,6 +28,7 @@ export default {
     'Đã có bản mới': 'A new version is ready',
     'Bấm Cập nhật để dùng bản mới nhất.': 'Tap Update to get the latest version.',
     'Cập nhật': 'Update',
+    'Để sau': 'Later',
     'Bàn phím số ảo': 'Number keypad',
     'Bàn phím chữ đọc số': 'Number words keypad',
     'Ô trước': 'Previous box',

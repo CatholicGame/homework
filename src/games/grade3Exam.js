@@ -16,6 +16,7 @@ import imgExamTrapezoid from '../assets/grade3-exam/exam1_trapezoid.svg';
 import imgExamRect2 from '../assets/grade3-exam/exam1_rect2.svg';
 import { gateCheckButton, keepWrongBanner } from '../engine/gameEngine.js';
 import { recordAttempt } from '../engine/activity.js';
+import { sfx } from './preschool/fx.js';
 
 const EXAMS = [
   {
@@ -565,7 +566,7 @@ export function render(app, onBack) {
           inp.classList.add('e3-correct-input');
         });
       }
-      showFeedback(true);
+      showFeedback(true, { restored: true });
       return;
     }
 
@@ -671,11 +672,12 @@ export function render(app, onBack) {
     app.querySelector('#e3-submit-multi')?.remove();
   }
 
-  function showFeedback(isRight) {
+  function showFeedback(isRight, { restored = false } = {}) {
     app.querySelector('.e3-feedback')?.remove();
     const banner = document.createElement('div');
     banner.className = `e3-feedback ${isRight ? 'e3-feedback-right' : 'e3-feedback-wrong'}`;
     banner.innerHTML = isRight ? '✅ Đúng rồi! Giỏi lắm!' : `❌ Chưa đúng! Thử lại nhé. ${lastWrongStars}`;
+    if (!restored) { if (isRight) sfx.ding(); else sfx.boing(); }
     const anchor = app.querySelector('#e3-blanks') || app.querySelector('#e3-options');
     anchor.after(banner);
 

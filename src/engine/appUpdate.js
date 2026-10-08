@@ -1,7 +1,7 @@
 // Có bản mới: điện thoại quay lại trình duyệt thường chỉ khôi phục trang cũ trong bộ nhớ (trông như vừa tải
 // lại nhưng vẫn là bản cũ). Mỗi lần quay lại trang (và định kỳ), hỏi máy chủ index.html mới nhất, so tên
 // file JS chính (Vite gắn mã băm) với file đang chạy: khác là đã có bản mới.
-//   Rời trang lâu (bé đã thôi học): tải lại luôn. Mới rời một lát: hiện nút "Cập nhật" để không mất bài đang làm.
+//   Rời trang lâu (bé đã thôi học): tải lại luôn. Mới rời một lát: hiện thẻ "Cập nhật" giữa màn hình (bé tự bấm, không mất bài đang làm).
 
 const RELOAD_AWAY_MS = 10 * 60 * 1000;
 const POLL_MS = 15 * 60 * 1000;
@@ -36,30 +36,41 @@ function showBanner() {
   banner = showUpdateCard({ onClose: () => { banner = null; lastCheck = Date.now() + POLL_MS; } });
 }
 
-// Thẻ "Đã có bản mới" ở cuối màn hình, dùng chung cho cả main.js (file JS cũ đã bị xoá sau khi cập nhật).
+// Thẻ "Đã có bản mới" nổi giữa màn hình trên nền mờ, dùng chung cho cả main.js (file JS cũ đã bị xoá sau khi cập nhật).
 const STYLE = `
-  .app-update { position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); z-index: 100000;
-    transform: translateX(-50%); width: min(27rem, calc(100vw - 24px)); box-sizing: border-box;
-    display: flex; align-items: center; gap: 12px; padding: 12px 10px 12px 12px; border-radius: 20px;
-    background: #fff; color: #1E293B; border: 2px solid #E0E7FF;
-    font: 600 15px/1.3 Quicksand, system-ui, sans-serif; box-shadow: 0 12px 32px rgba(30, 41, 59, 0.28);
-    animation: app-update-in 0.35s ease-out; }
-  @keyframes app-update-in { from { opacity: 0; transform: translate(-50%, 16px); } }
-  @media (prefers-reduced-motion: reduce) { .app-update { animation-duration: 0.7s; } }
-  .app-update-icon { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px;
-    background: linear-gradient(135deg, #EEF2FF, #FCE7F3); font-size: 24px; }
-  .app-update-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .app-update-text b { font-size: 16px; font-weight: 800; }
-  .app-update-text small { font-size: 13px; font-weight: 600; color: #64748B; }
+  .app-update-veil { position: fixed; inset: 0; z-index: 100000; display: grid; place-items: center; padding: 16px;
+    background: rgba(15, 23, 42, 0.5); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+    animation: app-update-fade 0.3s ease-out; }
+  @keyframes app-update-fade { from { opacity: 0; } }
+  .app-update { width: min(23rem, 100%); box-sizing: border-box; display: flex; flex-direction: column; align-items: center;
+    gap: 10px; padding: 28px 22px 16px; border-radius: 28px; text-align: center;
+    background: #fff; color: #1E293B; border: 3px solid #FDE68A;
+    font: 600 15px/1.35 Quicksand, system-ui, sans-serif; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4);
+    animation: app-update-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1); }
+  @keyframes app-update-pop { from { opacity: 0; transform: scale(0.8); } }
+  .app-update-icon { display: grid; place-items: center; width: 84px; height: 84px; border-radius: 50%;
+    background: linear-gradient(135deg, #FEF3C7, #FCE7F3); font-size: 46px; animation: app-update-bob 1.6s ease-in-out infinite; }
+  @keyframes app-update-bob { 50% { transform: translateY(-6px) rotate(-6deg); } }
+  .app-update-text { display: flex; flex-direction: column; gap: 4px; }
+  .app-update-text b { font-size: 23px; font-weight: 800; }
+  .app-update-text small { font-size: 15px; font-weight: 600; color: #64748B; }
   .app-update button { border: 0; cursor: pointer; font: inherit; }
-  .app-update-go { flex: none; padding: 10px 16px; border-radius: 999px; background: #FACC15; color: #1E293B;
-    font-weight: 800 !important; box-shadow: 0 4px 0 #CA8A04; }
-  .app-update-go:active { transform: translateY(3px); box-shadow: 0 1px 0 #CA8A04; }
-  .app-update-x { flex: none; width: 32px; height: 32px; border-radius: 50%; background: #F1F5F9; color: #64748B; font-size: 14px; }`;
+  .app-update .app-update-go { width: 100%; margin-top: 8px; padding: 16px 20px; border-radius: 999px; background: #FACC15; color: #1E293B;
+    font-size: 20px; font-weight: 800 !important; box-shadow: 0 6px 0 #CA8A04;
+    animation: app-update-glow 1.8s ease-in-out infinite; }
+  @keyframes app-update-glow { 50% { box-shadow: 0 6px 0 #CA8A04, 0 0 0 10px rgba(250, 204, 21, 0.3); } }
+  .app-update-go:focus-visible { outline: 3px solid #1E293B; outline-offset: 4px; }
+  .app-update-go:active { transform: translateY(4px); box-shadow: 0 2px 0 #CA8A04; animation: none; }
+  .app-update .app-update-x { padding: 8px 16px; border-radius: 999px; background: none; color: #64748B; font-size: 15px; }
+  .app-update-x:hover { background: #F1F5F9; }
+  @media (prefers-reduced-motion: reduce) {
+    .app-update-veil, .app-update { animation-duration: 0.6s; animation-timing-function: ease-out; }
+    .app-update-icon, .app-update-go { animation: none; }
+  }`;
 
-/** Hiện thẻ cập nhật (một thẻ duy nhất). `onClose`: bấm ✕ "Để sau". */
+/** Hiện thẻ cập nhật giữa màn hình (một thẻ duy nhất). `onClose`: bấm "Để sau". */
 export function showUpdateCard({ onClose } = {}) {
-  const old = document.querySelector('.app-update');
+  const old = document.querySelector('.app-update-veil');
   if (old) return old;
   if (!document.getElementById('app-update-style')) {
     const style = document.createElement('style');
@@ -67,18 +78,20 @@ export function showUpdateCard({ onClose } = {}) {
     style.textContent = STYLE;
     document.head.appendChild(style);
   }
-  const card = document.createElement('div');
-  card.className = 'app-update';
-  card.setAttribute('role', 'status');
-  card.innerHTML = `
-    <span class="app-update-icon" aria-hidden="true">✨</span>
-    <span class="app-update-text"><b>Đã có bản mới</b><small>Bấm Cập nhật để dùng bản mới nhất.</small></span>
-    <button type="button" class="app-update-go">Cập nhật</button>
-    <button type="button" class="app-update-x" aria-label="Để sau">✕</button>`;
-  card.querySelector('.app-update-go').onclick = () => location.reload();
-  card.querySelector('.app-update-x').onclick = () => { card.remove(); onClose?.(); };
-  document.body.appendChild(card);
-  return card;
+  const veil = document.createElement('div');
+  veil.className = 'app-update-veil';
+  veil.innerHTML = `
+    <div class="app-update" role="dialog" aria-modal="true" aria-labelledby="app-update-title">
+      <span class="app-update-icon" aria-hidden="true">✨</span>
+      <span class="app-update-text"><b id="app-update-title">Đã có bản mới</b><small>Bấm Cập nhật để dùng bản mới nhất.</small></span>
+      <button type="button" class="app-update-go">Cập nhật</button>
+      <button type="button" class="app-update-x">Để sau</button>
+    </div>`;
+  veil.querySelector('.app-update-go').onclick = () => location.reload();
+  veil.querySelector('.app-update-x').onclick = () => { veil.remove(); onClose?.(); };
+  document.body.appendChild(veil);
+  veil.querySelector('.app-update-go').focus();
+  return veil;
 }
 
 let inited = false;

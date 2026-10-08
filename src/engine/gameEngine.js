@@ -2,6 +2,7 @@
  * Game Engine Core — Scoring, Feedback, Confetti, Sounds
  */
 import { saveProgress } from './progressTracker.js';
+import { audioCtx, playSfx } from './sfx.js';
 
 export class GameEngine {
   constructor({ totalQuestions = 10, onComplete = null, gameId = '' }) {
@@ -62,32 +63,30 @@ export class GameEngine {
     setTimeout(() => overlay.remove(), 800);
   }
 
-  /** Play correct/wrong sound (Web Audio API) */
+  /** Play correct/wrong sound (engine/sfx.js; synth fallback while the file loads) */
   playSound(type) {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      gain.gain.value = 0.15;
+    if (playSfx(type === 'correct' ? 'correct' : 'wrong')) return;
+    const ctx = audioCtx();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    gain.gain.value = 0.15;
 
-      if (type === 'correct') {
-        osc.frequency.setValueAtTime(523, ctx.currentTime); // C5
-        osc.frequency.setValueAtTime(659, ctx.currentTime + 0.1); // E5
-        osc.frequency.setValueAtTime(784, ctx.currentTime + 0.2); // G5
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.4);
-      } else {
-        osc.frequency.setValueAtTime(300, ctx.currentTime);
-        osc.frequency.setValueAtTime(200, ctx.currentTime + 0.15);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.3);
-      }
-    } catch (e) {
-      // Audio not available, skip
+    if (type === 'correct') {
+      osc.frequency.setValueAtTime(523, ctx.currentTime); // C5
+      osc.frequency.setValueAtTime(659, ctx.currentTime + 0.1); // E5
+      osc.frequency.setValueAtTime(784, ctx.currentTime + 0.2); // G5
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } else {
+      osc.frequency.setValueAtTime(300, ctx.currentTime);
+      osc.frequency.setValueAtTime(200, ctx.currentTime + 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.3);
     }
   }
 

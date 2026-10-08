@@ -36,6 +36,7 @@
  */
 
 import { fillBlanks, figureBox } from './geoTools.js';
+import { audioCtx, playSfx } from './sfx.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const INK = '#1E293B';
@@ -68,12 +69,9 @@ function el(tag, attrs = {}, parent) {
 }
 
 // ── âm thanh ngắn ───────────────────────────────────────────────────────────
-let actx = null;
 function tone(freqs, { type = 'sine', gap = 0.09, dur = 0.22, vol = 0.16 } = {}) {
-  try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    if (actx.state === 'suspended') actx.resume();
-  } catch { return; }
+  const actx = audioCtx();
+  if (!actx) return;
   freqs.forEach((f, i) => {
     const t = actx.currentTime + i * gap;
     const o = actx.createOscillator();
@@ -86,9 +84,9 @@ function tone(freqs, { type = 'sine', gap = 0.09, dur = 0.22, vol = 0.16 } = {})
     o.start(t); o.stop(t + dur + 0.02);
   });
 }
-const soundStep = (n) => tone([440 + (n % 10) * 45], { type: 'triangle', dur: 0.06, vol: 0.08 });
-const soundPiece = (n) => tone([600 + n * 70, 900 + n * 70], { gap: 0.07, dur: 0.14 });
-const soundDone = () => tone([523, 659, 784, 1046], { gap: 0.1, dur: 0.3 });
+const soundStep = (n) => playSfx('step', { rate: n % 2 ? 1.06 : 1 }) || tone([440 + (n % 10) * 45], { type: 'triangle', dur: 0.06, vol: 0.08 });
+const soundPiece = (n) => playSfx('piece', { rate: 2 ** (Math.min(n, 12) / 12) }) || tone([600 + n * 70, 900 + n * 70], { gap: 0.07, dur: 0.14 });
+const soundDone = () => playSfx('complete') || tone([523, 659, 784, 1046], { gap: 0.1, dur: 0.3 });
 
 // ── hình ────────────────────────────────────────────────────────────────────
 function normalize(s) {

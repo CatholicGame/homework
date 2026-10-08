@@ -36,6 +36,7 @@ import { flyOne } from '../games/grade3Games/fly.js';
 import { say as rawSay, stopSpeaking, isMuted, setMuted } from '../games/preschool/fx.js';
 import { isEnglish } from './i18n.js';
 import { speakableVi } from './letterNames.js';
+import { audioCtx, playSfx } from './sfx.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const MEMO = new WeakMap();
@@ -70,11 +71,10 @@ function el(tag, attrs = {}, parent) {
 }
 
 // ── âm thanh ngắn ──
-let actx = null;
 function tone(freqs, { gap = 0.09, dur = 0.2, vol = 0.16, type = 'sine' } = {}) {
   try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    if (actx.state === 'suspended') actx.resume();
+    const actx = audioCtx();
+    if (!actx) return;
     freqs.forEach((f, i) => {
       const o = actx.createOscillator(), g = actx.createGain();
       o.type = type;
@@ -89,10 +89,10 @@ function tone(freqs, { gap = 0.09, dur = 0.2, vol = 0.16, type = 'sine' } = {}) 
     });
   } catch { /* không có âm thanh */ }
 }
-const soundPick = (n) => tone([523 + (n % 6) * 70], { dur: 0.15 });
-const soundNo = () => tone([220, 180], { type: 'triangle', gap: 0.12, dur: 0.18, vol: 0.13 });
-const soundStep = () => tone([523, 659, 784], { gap: 0.09, dur: 0.25 });
-const soundDone = () => tone([523, 659, 784, 1046], { gap: 0.1, dur: 0.3 });
+const soundPick = (n) => playSfx('pop', { rate: 2 ** ((n % 6) * 2 / 12) }) || tone([523 + (n % 6) * 70], { dur: 0.15 });
+const soundNo = () => playSfx('wrong') || tone([220, 180], { type: 'triangle', gap: 0.12, dur: 0.18, vol: 0.13 });
+const soundStep = () => playSfx('correct') || tone([523, 659, 784], { gap: 0.09, dur: 0.25 });
+const soundDone = () => playSfx('complete') || tone([523, 659, 784, 1046], { gap: 0.1, dur: 0.3 });
 
 // ── chuẩn bị hình: điểm, đoạn vẽ, việc ──
 const sidesOf = (order) => order.map((v, i) => [v, order[(i + 1) % order.length]]);

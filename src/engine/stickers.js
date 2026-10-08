@@ -28,7 +28,6 @@ export const WHEEL_IMG = {
   girl: new URL('../assets/sticker/girl_spin.png', import.meta.url).href,
 };
 export const CONFETTI_IMG = new URL('../assets/sticker/confetti_effect.svg', import.meta.url).href;
-export const CONFETTI_SFX = new URL('../assets/sticker/confetti_sfx.mp3', import.meta.url).href;
 
 /**
  * Các ô trên ảnh vòng quay, theo chiều kim đồng hồ bắt đầu từ vạch 12 giờ

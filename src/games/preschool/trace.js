@@ -30,7 +30,7 @@ export function numberStrokes(n) {
 import { loopSound } from './fx.js';
 
 // Tiếng máy ô tô chạy lặp khi bé đang kéo xe (chỉ kiểu bút 'car').
-const carLoop = loopSound(new URL('../../assets/car_loop_sound.mp3', import.meta.url).href, { volume: 0.5 });
+const carLoop = loopSound('carLoop', { vol: 0.8 });
 const carSound = (on) => (on ? carLoop.start() : carLoop.stop());
 
 const SVG_NS = 'http://www.w3.org/2000/svg';

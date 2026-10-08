@@ -5,8 +5,9 @@
 
 import {
   getGender, getSets, getOwned, getSpinStatus, solvesPerSpin, spin, countOwned, getReceivedDates,
-  WHEEL_IMG, CONFETTI_IMG, CONFETTI_SFX,
+  WHEEL_IMG, CONFETTI_IMG,
 } from '../engine/stickers.js';
+import { playSfxSoon, preloadSfx } from '../engine/sfx.js';
 
 const SPIN_MS = 4800;
 const TURNS = 6;
@@ -40,6 +41,7 @@ export function render(app, onBack) {
     </div>
   `;
 
+  preloadSfx('wheelSpin', 'confetti');
   const wheel = app.querySelector('#stk-wheel');
   const spinBtn = app.querySelector('#stk-spin');
   app.querySelector('#stk-back').onclick = () => { if (!spinning) onBack(); };
@@ -164,6 +166,8 @@ export function render(app, onBack) {
     rotation += TURNS * 360 + ((target - (rotation % 360)) + 360) % 360;
     wheel.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.15, 0.7, 0.1, 1)`;
     wheel.style.transform = `rotate(${rotation}deg)`;
+    // file dài 3,8 giây: phát chậm lại cho tiếng tách cuối cùng rơi đúng lúc vòng quay dừng
+    playSfxSoon('wheelSpin', { rate: 3800 / SPIN_MS });
 
     let done = false;
     const finish = () => {
@@ -179,10 +183,7 @@ export function render(app, onBack) {
   }
 
   function reveal({ set, sticker, isNew }) {
-    try {
-      const sfx = new Audio(CONFETTI_SFX);
-      sfx.play().catch(() => {});
-    } catch { /* no audio */ }
+    playSfxSoon('confetti');
     const overlay = document.createElement('div');
     overlay.className = 'app-dialog-overlay stk-reveal-overlay';
     overlay.innerHTML = `

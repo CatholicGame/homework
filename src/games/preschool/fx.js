@@ -1,10 +1,11 @@
 /**
  * Âm thanh, giọng đọc và hiệu ứng cho "Bé Học Vui Toán" — bé mầm non chưa đọc được chữ,
  * nên mọi lời dặn đều được đọc to (giọng tiếng Việt của máy, nếu có).
- * Tiếng động tổng hợp bằng Web Audio, không cần tải file âm thanh.
+ * Tiếng động: file trong src/assets/sfx (engine/sfx.js), tiếng tổng hợp khi file chưa tải xong.
  */
 
 import { isEnglish, tr } from '../../engine/i18n.js';
+import { audioCtx, playSfx, loopSfx } from '../../engine/sfx.js';
 
 const MUTE_KEY = 'pre1-mute';
 
@@ -231,14 +232,8 @@ export function stopSpeaking() {
 }
 
 // ── Tiếng động ───────────────────────────────────────────────────────────────
-let ctx = null;
 function audio() {
-  if (muted) return null;
-  try {
-    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
-    if (ctx.state === 'suspended') ctx.resume();
-    return ctx;
-  } catch { return null; }
+  return muted ? null : audioCtx();
 }
 
 function tone(freq, start, dur, { type = 'sine', vol = 0.18, slide = 0 } = {}) {
@@ -258,59 +253,37 @@ function tone(freq, start, dur, { type = 'sine', vol = 0.18, slide = 0 } = {}) {
   osc.stop(t + dur + 0.05);
 }
 
-/**
- * Tiếng lặp từ file (vd. máy ô tô khi bé kéo xe tô số). Phát qua cùng AudioContext với tiếng
- * động (đã mở khoá từ lần chạm trước), không dùng thẻ <audio>: iPad chặn audio.play() gọi
- * trong pointerdown, bàn tay trước camera thì không có lần chạm thật nào.
- */
-export function loopSound(url, { volume = 0.5 } = {}) {
-  let buf = null, loading = null, src = null, gain = null, want = false;
-  const load = (c) => loading || (loading = fetch(url).then(r => r.arrayBuffer())
-    .then(data => new Promise((ok, no) => c.decodeAudioData(data, ok, no)))
-    .then(b => { buf = b; }).catch(() => { loading = null; }));
-  const begin = (c) => {
-    if (!want || src || !buf) return;
-    gain = c.createGain();
-    gain.gain.value = volume;
-    src = c.createBufferSource();
-    src.buffer = buf;
-    src.loop = true;
-    src.connect(gain).connect(c.destination);
-    src.start();
-  };
-  return {
-    start() {
-      want = true;
-      const c = audio();
-      if (!c) return;
-      if (buf) begin(c); else load(c).then(() => begin(c));
-    },
-    stop() {
-      want = false;
-      if (!src) return;
-      try { src.stop(); } catch { /* đã dừng */ }
-      src.disconnect(); gain.disconnect();
-      src = gain = null;
-    },
-  };
-}
+/** Phát file tiếng (engine/sfx.js); false khi đang tắt tiếng hoặc file chưa sẵn sàng. */
+const file = (name, opts) => !muted && playSfx(name, opts);
 
 export const sfx = {
-  /** Chạm / đếm một đồ vật: cao dần theo số đếm. */
-  pop(step = 0) { tone(420 + step * 45, 0, 0.12, { type: 'triangle', vol: 0.2, slide: 1.6 }); },
-  tap() { tone(700, 0, 0.06, { type: 'triangle', vol: 0.12 }); },
+  /** Chạm / đếm một đồ vật: cao dần theo số đếm (tối đa lên một quãng tám). */
+  pop(step = 0) {
+    file('pop', { rate: 2 ** (Math.min(step, 14) / 14) })
+      || tone(420 + step * 45, 0, 0.12, { type: 'triangle', vol: 0.2, slide: 1.6 });
+  },
+  tap() { file('tap') || tone(700, 0, 0.06, { type: 'triangle', vol: 0.12 }); },
+  /** Tiếng tách nhỏ (thước, kim xoay từng nấc). */
+  tick() { file('tick') || tone(880, 0, 0.04, { type: 'triangle', vol: 0.06 }); },
   /** Đúng. */
-  ding() { tone(880, 0, 0.18, { vol: 0.16 }); tone(1320, 0.09, 0.28, { vol: 0.14 }); },
-  /** Sai — tiếng "boing" nhẹ, không làm bé sợ. */
-  boing() { tone(260, 0, 0.28, { type: 'sine', vol: 0.2, slide: 0.55 }); },
-  /** Tô xong một nét. */
-  swish() { tone(500, 0, 0.18, { type: 'triangle', vol: 0.12, slide: 2.2 }); },
+  ding() { file('correct') || (tone(880, 0, 0.18, { vol: 0.16 }), tone(1320, 0.09, 0.28, { vol: 0.14 })); },
+  /** Sai: tiếng "boing" nhẹ, không làm bé sợ. */
+  boing() { file('wrong') || tone(260, 0, 0.28, { type: 'sine', vol: 0.2, slide: 0.55 }); },
+  /** Tô xong một nét / đồ vật bay đi. */
+  swish() { file('swish') || tone(500, 0, 0.18, { type: 'triangle', vol: 0.12, slide: 2.2 }); },
   /** Xong cả lượt chơi. */
   fanfare() {
+    if (file('complete')) return;
     [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.11, 0.25, { type: 'triangle', vol: 0.16 }));
     tone(1319, 0.46, 0.5, { type: 'triangle', vol: 0.14 });
   },
 };
+
+/** Tiếng lặp (vd. máy ô tô khi bé kéo xe tô số); im khi đang tắt tiếng. */
+export function loopSound(name, opts) {
+  const loop = loopSfx(name, opts);
+  return { start() { if (!muted) loop.start(); }, stop: loop.stop };
+}
 
 // ── Hiệu ứng hình ────────────────────────────────────────────────────────────
 const CONFETTI = ['#FF6B9D', '#C084FC', '#60A5FA', '#4ADE80', '#FBBF24', '#FB923C', '#22D3EE'];

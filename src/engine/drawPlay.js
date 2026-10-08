@@ -40,6 +40,7 @@
  */
 
 import { fillBlanks } from './geoTools.js';
+import { audioCtx, playSfx } from './sfx.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const U = 60; // đơn vị SVG cho 1 cm
@@ -89,12 +90,9 @@ function el(tag, attrs = {}, parent) {
 }
 
 // ── âm thanh ngắn ───────────────────────────────────────────────────────────
-let actx = null;
 function tone(freqs, { type = 'sine', gap = 0.09, dur = 0.22, vol = 0.14 } = {}) {
-  try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    if (actx.state === 'suspended') actx.resume();
-  } catch { return; }
+  const actx = audioCtx();
+  if (!actx) return;
   freqs.forEach((f, i) => {
     const t = actx.currentTime + i * gap;
     const o = actx.createOscillator();
@@ -107,10 +105,10 @@ function tone(freqs, { type = 'sine', gap = 0.09, dur = 0.22, vol = 0.14 } = {})
     o.start(t); o.stop(t + dur + 0.02);
   });
 }
-const soundTick = () => tone([880], { type: 'triangle', dur: 0.04, vol: 0.05 });
-const soundStep = () => tone([660, 880], { gap: 0.08, dur: 0.16 });
-const soundWrong = () => tone([300, 240], { type: 'triangle', gap: 0.1, dur: 0.18, vol: 0.1 });
-const soundDone = () => tone([523, 659, 784, 1046], { gap: 0.1, dur: 0.3 });
+const soundTick = () => playSfx('tick', { vol: 0.6 }) || tone([880], { type: 'triangle', dur: 0.04, vol: 0.05 });
+const soundStep = () => playSfx('piece') || tone([660, 880], { gap: 0.08, dur: 0.16 });
+const soundWrong = () => playSfx('wrong') || tone([300, 240], { type: 'triangle', gap: 0.1, dur: 0.18, vol: 0.1 });
+const soundDone = () => playSfx('complete') || tone([523, 659, 784, 1046], { gap: 0.1, dur: 0.3 });
 
 // ── dữ liệu: các bước ───────────────────────────────────────────────────────
 function normStep(s) {
