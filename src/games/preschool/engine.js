@@ -14,7 +14,7 @@
 
 import '../../styles/preschool.css';
 import { NUMBER_COLORS, numberWord } from './numbers.js';
-import { say, stopSpeaking, whenQuiet, sfx, burst, rain, shake, crossMark, clearCrossMarks, centerOf, isMuted, setMuted, voiceStatus, onVoiceStatus, voiceInfo } from './fx.js';
+import { say, stopSpeaking, whenQuiet, sfx, burst, rain, shake, crossMark, clearCrossMarks, centerOf, flyTo, isMuted, setMuted, voiceStatus, onVoiceStatus, voiceInfo } from './fx.js';
 import { reportVoiceStatus } from '../../engine/voiceReport.js';
 import { mountTracer, getPen, setPen, CAR } from './trace.js';
 import { letterGlyph } from './letters.js';
@@ -381,20 +381,67 @@ export function renderPreschool(app, onBack, book) {
     app.querySelector('#pk-go')?.addEventListener('click', () => openStation(next));
   }
 
+  /** Màn hình dọc + đồ vật xếp một hàng (từ 6 cái): cắt hình giữa hai đồ vật thành hai nửa.
+   *  Trả về [{ x, w }, { x, w }] (phần của chiều ngang hình, 0–1) kèm `max` = nửa dài hơn; không thì null. */
+  function splitRow(items, others = []) {
+    if (!items || items.length < 6 || innerWidth > innerHeight) return null;
+    const ys = items.map(([, y, , h]) => y + h / 2);
+    const minH = Math.min(...items.map(it => it[3]));
+    if (Math.max(...ys) - Math.min(...ys) > minH / 2) return null;
+    const byX = [...items].sort((p, q) => p[0] - q[0]);
+    const k = Math.ceil(byX.length / 2);
+    const cut = (byX[k - 1][0] + byX[k - 1][2] + byX[k][0]) / 2 / 100;
+    // Nửa sau dừng sau đồ vật cuối cùng (của cả hàng so sánh cùng kế hoạch): bỏ khoảng trắng, ô trống
+    // của sách ở cuối dải.
+    const end = Math.min(1, Math.max(...[...items, ...others].map(([x, , w]) => x + w)) / 100 + 0.02);
+    const halves = [{ x: 0, w: cut }, { x: cut, w: end - cut }];
+    halves.max = Math.max(cut, end - cut);
+    return halves;
+  }
+
+  /** Các hình gập cùng kế hoạch: chung một tỉ lệ (của hình cao nhất) để cùng bề ngang, đồ vật to bằng nhau. */
+  function sameRowWidth(wraps) {
+    const imgs = wraps.map(w => w.querySelector('img'));
+    Promise.all(imgs.map(im => (im.complete ? im : new Promise(r => im.addEventListener('load', () => r(im), { once: true }))))).then(() => {
+      const ar = Math.min(...wraps.map(w => Number(w.style.getPropertyValue('--half-ar')) || Infinity));
+      if (Number.isFinite(ar)) wraps.forEach(w => w.style.setProperty('--half-ar', ar));
+    });
+  }
+
   // ════════════════════════════════════════════════════════════════════════
   // Chạm để đếm: mỗi lần chạm một đồ vật hiện số thứ tự và đọc to số đếm.
   // `items` = khung từng đồ vật [x%, y%, w%, h%, nhóm?], mặc định tra trong count-items.json. Chỉ chạm
   // vào đồ vật mới được đếm, mỗi đồ vật một số; hình không có khung thì chỉ để xem.
   // ════════════════════════════════════════════════════════════════════════
-  function countingPicture(src, items, { alt = '', onCount } = {}) {
+  function countingPicture(src, items, { alt = '', onCount, split = false } = {}) {
     items = items || COUNT_ITEMS[COUNT_NAME[src]] || null;
     const wrap = document.createElement('div');
     wrap.className = 'pk-pic';
-    wrap.innerHTML = `
+    // `split` (so sánh hai hình), màn hình dọc: hình dải dài một hàng gập thành hai hàng (hai nửa của
+    // cùng một hình xếp chồng), mỗi hàng ít đồ vật hơn nên hình vẽ to gần gấp đôi. true = tự gập theo
+    // đồ vật của hình này; một kế hoạch splitRow() = gập theo kế hoạch chung (hai hàng so sánh cắt cùng
+    // một chỗ để đồ vật thẳng cột). Nửa không có đồ vật thì bỏ.
+    let halves = split === true ? splitRow(items) : split || null;
+    if (halves && items?.length) {
+      const used = halves.filter(hf => hf === halves[0] || items.some(([x, , w]) => x + w / 2 >= hf.x * 100));
+      halves = Object.assign(used, { max: halves.max });
+    }
+    wrap.innerHTML = halves
+      ? halves.map(hf => `<div class="pk-half" style="width:${(hf.w / halves.max) * 100}%"><div class="pk-half-clip"><img src="${src}" alt="${alt}" draggable="false" style="width:${100 / hf.w}%;margin-left:${(-hf.x / hf.w) * 100}%"></div><div class="pk-pic-layer"></div></div>`).join('')
+        + '<button type="button" class="pk-recount" hidden aria-label="Đếm lại">↺</button>'
+      : `
       <img src="${src}" alt="${alt}" draggable="false">
       <div class="pk-pic-layer"></div>
       <button type="button" class="pk-recount" hidden aria-label="Đếm lại">↺</button>`;
-    const layer = wrap.querySelector('.pk-pic-layer');
+    if (halves) {
+      wrap.classList.add('is-split');
+      // Tỉ lệ ngang / cao của hàng dài hơn: CSS giới hạn bề ngang để hai hàng không cao quá màn hình.
+      const img = wrap.querySelector('img');
+      const setAr = () => img.naturalHeight && wrap.style.setProperty('--half-ar', (img.naturalWidth * halves.max) / img.naturalHeight);
+      if (img.complete) setAr(); else img.addEventListener('load', setAr, { once: true });
+    }
+    const layers = [...wrap.querySelectorAll('.pk-pic-layer')];
+    const layer = layers[0];
     const recount = wrap.querySelector('.pk-recount');
     let count = 0;
     let perGroup = {};
@@ -425,12 +472,20 @@ export function renderPreschool(app, onBack, book) {
     };
 
     if (items?.length) {
-      const [hx, hy, hw, hh] = items[0];
-      hint.style.left = `${hx + hw / 2}%`;
-      hint.style.top = `${hy + hh / 2}%`;
-      layer.appendChild(hint);
+      // Khung đồ vật tính theo cả hình; hình gập hai hàng thì đổi sang toạ độ trong nửa chứa nó.
+      const place = ([x, y, w, h]) => {
+        const k = halves?.[1] && x + w / 2 >= halves[1].x * 100 ? 1 : 0;
+        const hf = halves?.[k] || { x: 0, w: 1 };
+        return { host: layers[k], x: (x - hf.x * 100) / hf.w, y, w: w / hf.w, h };
+      };
+      const first = place(items[0]);
+      hint.style.left = `${first.x + first.w / 2}%`;
+      hint.style.top = `${first.y + first.h / 2}%`;
+      first.host.appendChild(hint);
       showHint(true);
-      items.forEach(([x, y, w, h, g = 0]) => {
+      items.forEach((it) => {
+        const g = it[4] || 0;
+        const { host, x, y, w, h } = place(it);
         const hit = document.createElement('button');
         hit.type = 'button';
         hit.className = 'pk-item';
@@ -443,7 +498,7 @@ export function renderPreschool(app, onBack, book) {
           showHint(false);
           mark(hit, g);
         };
-        layer.appendChild(hit);
+        host.appendChild(hit);
       });
     } else {
       layer.style.cursor = 'default';
@@ -454,8 +509,8 @@ export function renderPreschool(app, onBack, book) {
       count = 0;
       perGroup = {};
       if (items?.length) showHint(true);
-      layer.querySelectorAll('.pk-mark').forEach(m => m.remove());
-      layer.querySelectorAll('.pk-item').forEach(m => m.classList.remove('is-counted'));
+      wrap.querySelectorAll('.pk-mark').forEach(m => m.remove());
+      wrap.querySelectorAll('.pk-item').forEach(m => m.classList.remove('is-counted'));
       recount.hidden = true;
       sfx.tap();
       onCount?.(0);
@@ -804,6 +859,7 @@ export function renderPreschool(app, onBack, book) {
       { label: 'Tổng', answer: round.top + round.bottom, band: 'all', say: 'Cả hai hàng có tất cả bao nhiêu đồ vật? Bé đếm tiếp!' },
     ];
     let step = 0;
+    let flying = false;
     const pic = countingPicture(round.img, null);
     stage.innerHTML = `
       <div class="pk-rows">
@@ -817,15 +873,20 @@ export function renderPreschool(app, onBack, book) {
     const band = stage.querySelector('.pk-band');
     const pad = numberChoices(Array.from({ length: 20 }, (_, i) => i + 1), (v, btn) => {
       const s = steps[step];
-      if (!s) return;
+      if (!s || flying) return;
       if (v !== s.answer) { wrong(btn, 'Chưa đúng rồi. Bé đếm lại!'); return; }
       const box = stage.querySelector(`.pk-sumbox[data-i="${step}"]`);
-      box.classList.add('is-done');
-      box.querySelector('b').textContent = v;
       step++;
-      if (step === steps.length) { solve(`Đúng rồi! ${numberWord(round.top)} với ${numberWord(round.bottom)} là ${numberWord(v)}!`); band.dataset.band = ''; return; }
-      right(box, `Đúng rồi! ${numberWord(v)}!`);
-      setTimeout(() => setStep(), 900);
+      flying = true;
+      sfx.swish();
+      flyTo(btn, box.querySelector('b'), v, () => {
+        flying = false;
+        box.classList.add('is-done');
+        box.querySelector('b').textContent = v;
+        if (step === steps.length) { solve(`Đúng rồi! ${numberWord(round.top)} với ${numberWord(round.bottom)} là ${numberWord(v)}!`); band.dataset.band = ''; return; }
+        right(box, `Đúng rồi! ${numberWord(v)}!`);
+        setTimeout(() => setStep(), 700);
+      });
     });
     pad.classList.add('is-pad');
     stage.querySelector('.pk-rows').append(pad);
@@ -879,7 +940,13 @@ export function renderPreschool(app, onBack, book) {
          <div class="pk-cmp-pad"></div>`;
 
     const sides = [...stage.querySelectorAll('.pk-cmp-side')];
-    const pics = single ? [countingPicture(round.img, null)] : round.imgs.map(src => countingPicture(src, null));
+    // Hai hàng so sánh: gập cả hai theo hàng nhiều đồ vật hơn, cùng chỗ cắt, cùng bề ngang, để đồ vật
+    // to bằng nhau và thẳng cột như sách (so sánh từng cái một).
+    const rowItems = round.imgs.map(src => COUNT_ITEMS[COUNT_NAME[src]] || []);
+    const plan = rows ? splitRow(rowItems[a >= b ? 0 : 1], rowItems[a >= b ? 1 : 0]) : null;
+    const pics = single ? [countingPicture(round.img, null)]
+      : round.imgs.map(src => countingPicture(src, null, { split: rows ? plan : true }));
+    if (plan) sameRowWidth(pics.map(p => p.el));
     pics.forEach((pic, i) => sides[i].querySelector('.pk-cmp-pic').append(pic.el));
     const slot = stage.querySelector('.pk-sign-slot');
     const pad = stage.querySelector('.pk-cmp-pad');
@@ -891,6 +958,7 @@ export function renderPreschool(app, onBack, book) {
     steps.push({ kind: mode === 'more' ? 'more' : 'sign' });
     let step = 0;
     let done = false;
+    let flying = false; // số / dấu đang bay về ô, chưa nhận chạm tiếp
 
     const highlight = (i) => {
       sides.forEach((el, k) => el.classList.toggle('is-on', !single && k === i));
@@ -913,21 +981,26 @@ export function renderPreschool(app, onBack, book) {
       highlight(st.kind === 'num' ? st.i : -1);
       if (st.kind === 'num') {
         const choices = numberChoices(Array.from({ length: max }, (_, k) => k + 1), (v, btn) => {
-          if (done) return;
+          if (done || flying) return;
           if (v !== round.counts[st.i]) { wrong(btn, `Chưa đúng rồi. Bé chạm vào từng cái ở ${sideName[st.i]} để đếm lại!`); return; }
           const el = box(st.i);
-          el.classList.add('is-done');
-          el.querySelector('b').textContent = v;
+          flying = true;
           step++;
-          right(el, `Đúng rồi! ${numberWord(v)}!`);
-          setTimeout(next, 800);
+          sfx.swish();
+          flyTo(btn, el, v, () => {
+            flying = false;
+            el.classList.add('is-done');
+            el.querySelector('b').textContent = v;
+            right(el, `Đúng rồi! ${numberWord(v)}!`);
+            setTimeout(next, 650);
+          });
         });
         choices.classList.add('is-pad');
         pad.append(choices);
         talk(`${cap(sideName[st.i])} có mấy cái? Bé chạm để đếm, rồi chọn số!`);
       } else if (st.kind === 'sign') {
         pad.append(signPad((sg, btn) => {
-          if (done) return;
+          if (done || flying) return;
           if (sg !== rel) {
             wrong(btn, sg === '=' ? 'Hai bên chưa bằng nhau đâu. Bé đếm lại!'
               : rel === '=' ? 'Hai bên bằng nhau đấy. Bé chọn dấu bằng!'
@@ -935,7 +1008,9 @@ export function renderPreschool(app, onBack, book) {
             return;
           }
           btn.classList.add('is-right');
-          finish();
+          flying = true;
+          sfx.swish();
+          flyTo(btn, slot, sg, () => { flying = false; finish(); });
         }));
         talk(mode === 'sign'
           ? 'Bé đếm hai bên, rồi chọn dấu bé hơn, bằng, hay lớn hơn!'

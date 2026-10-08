@@ -271,6 +271,21 @@ html.kb-open body { background: #F1F5F9; }
   background: #fff;
   transform: scale(1.08);
 }
+.fs-fail-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 64px;
+  transform: translateX(-50%);
+  z-index: 1201;
+  max-width: calc(100vw - 32px);
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
 /* The virtual keypad is now wide enough on phones to reach this same bottom-right
    corner — hide the button while typing rather than let them overlap. */
 body.vk-active #global-fullscreen-btn {

@@ -51,9 +51,24 @@ function initFullscreenButton() {
   };
   sync();
 
+  // Trình duyệt từ chối (vd. Chrome Android sau khi hỏi quyền camera): hiện lý do thay vì im lặng.
+  const fail = (err) => {
+    document.querySelector('.fs-fail-toast')?.remove();
+    const t = document.createElement('div');
+    t.className = 'fs-fail-toast';
+    t.textContent = `Không vào được toàn màn hình${err?.message ? `: ${err.message}` : '.'}`;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 6000);
+  };
+
   btn.onclick = () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().catch(() => {});
+      const el = document.documentElement;
+      try {
+        const req = el.requestFullscreen ? el.requestFullscreen() : el.webkitRequestFullscreen?.();
+        if (!el.requestFullscreen && !el.webkitRequestFullscreen) fail({ message: 'trình duyệt này không hỗ trợ.' });
+        req?.catch?.(fail);
+      } catch (err) { fail(err); }
     } else {
       document.exitFullscreen?.();
     }

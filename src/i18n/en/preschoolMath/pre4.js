@@ -113,6 +113,9 @@ export default {
   'Giỏi quá! Chuột con đã qua đường an toàn rồi!': 'Great job! Little Mouse crossed the road safely!',
   'Bài toán có lời': 'Word problems',
   'Nghe đề bài, viết phép tính': 'Listen to the problem, write the number sentence',
+  'Chưa đúng rồi. Bé chạm vào bạn Thỏ để nghe lại đề bài!': 'Not quite. Tap Bunny to hear the problem again!',
+  'Số {0} không điền vào ô này': 'The number {0} does not go in this box',
+  'Bé chạm vào ô khác': 'Tap another box',
   'Trên lá cây có mười sáu con sâu, đã bò đi chín con. Hỏi trên lá cây còn mấy con sâu?':
     'There are sixteen caterpillars on the leaf, and nine crawl away. How many caterpillars are left on the leaf?',
   'Trong vườn hoa nở mười ba bông hoa, đã ngắt đi năm bông. Hỏi trong vườn còn lại mấy bông hoa?':
@@ -390,7 +393,7 @@ export default {
   'Đúng rồi! Các bông hoa và hình trang trí đều đổi bên như soi gương!': 'Correct! The flowers and decorations are all on the other side, like in a mirror!',
   'Trong bốn nhóm hình tam giác, nhóm nào có hình tam giác màu xanh lam nằm dưới cùng, bị các hình khác đè lên? Bé chạm vào nhóm đó!':
     'In the four groups of triangles, which group has the blue triangle at the bottom, under the other shapes? Tap that group!',
-  'Chưa đúng rồi. Bé nhìn chỗ các đường cắt nhau, đường nào bị che!': 'Not quite. Look where the lines cross and see which line is covered!',
+  'Chưa đúng rồi. Bé tìm nhóm có hình tam giác xanh lam bị các hình khác che mất một phần!': 'Not quite. Find the group where the blue triangle is partly hidden by the other shapes!',
   'Có bốn chiếc hộp. Ba chiếc là cùng một hộp xoay các hướng khác nhau, còn một chiếc khác hẳn. Bé tìm chiếc hộp khác!':
     'There are four boxes. Three are the same box turned different ways, and one is completely different. Find the different box!',
   'Hộp này giống các hộp khác, chỉ xoay đi thôi. Bé tìm lại!': 'This box is the same as the others, just turned. Look again!',

@@ -149,7 +149,7 @@ export const STATIONS = [
       {
         type: 'spot', img: img('p50_tamgiac'), zones: zones('p50_tamgiac'), answer: [0],
         say: 'Trong bốn nhóm hình tam giác, nhóm nào có hình tam giác màu xanh lam nằm dưới cùng, bị các hình khác đè lên? Bé chạm vào nhóm đó!',
-        hint: 'Chưa đúng rồi. Bé nhìn chỗ các đường cắt nhau, đường nào bị che!',
+        hint: 'Chưa đúng rồi. Bé tìm nhóm có hình tam giác xanh lam bị các hình khác che mất một phần!',
       },
       // Trang 53: chiếc hộp không giống ba hộp còn lại là hộp số 2.
       {

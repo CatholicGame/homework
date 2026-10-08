@@ -368,6 +368,48 @@ export function clearCrossMarks() {
   document.querySelectorAll('.pk-cross').forEach((m) => m.remove());
 }
 
+/**
+ * Số / dấu bé vừa chọn bay theo đường vòng từ nút về ô đáp án, rồi gọi onLand.
+ * Bản sao gắn vào body (sân chơi bị scale bởi fit.js) nên lấy kiểu chữ, màu
+ * từ nút gốc theo kích thước thật trên màn hình.
+ */
+export function flyTo(from, to, text, onLand, ms = 620) {
+  if (!from?.isConnected || !to?.isConnected) { onLand?.(); return; }
+  const a = from.getBoundingClientRect();
+  const b = to.getBoundingClientRect();
+  const cs = getComputedStyle(from);
+  const k = from.offsetWidth ? a.width / from.offsetWidth : 1;
+  const chip = document.createElement('div');
+  chip.className = 'pk-fly';
+  chip.setAttribute('aria-hidden', 'true');
+  chip.textContent = text;
+  Object.assign(chip.style, {
+    left: `${a.left}px`, top: `${a.top}px`, width: `${a.width}px`, height: `${a.height}px`,
+    background: cs.backgroundColor, color: cs.color, borderRadius: cs.borderRadius,
+    fontFamily: cs.fontFamily, fontWeight: cs.fontWeight,
+    fontSize: `${parseFloat(cs.fontSize) * k}px`,
+  });
+  document.body.appendChild(chip);
+  const dx = b.left + b.width / 2 - (a.left + a.width / 2);
+  const dy = b.top + b.height / 2 - (a.top + a.height / 2);
+  const s = Math.max(0.6, Math.min(1.6, b.height / a.height));
+  const lift = Math.min(160, 40 + Math.abs(dx) * 0.3);
+  const anim = chip.animate([
+    { transform: 'translate(0, 0) scale(1)' },
+    { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - lift}px) scale(${(1 + s) / 2 + 0.25}) rotate(-8deg)`, offset: 0.5 },
+    { transform: `translate(${dx}px, ${dy}px) scale(${s})` },
+  ], { duration: ms, easing: 'cubic-bezier(.45,.05,.4,1)', fill: 'forwards' });
+  let landed = false;
+  const land = () => {
+    if (landed) return;
+    landed = true;
+    chip.remove();
+    onLand?.();
+  };
+  anim.onfinish = land;
+  setTimeout(land, ms + 300); // tab ẩn: animation có thể không chạy
+}
+
 export function centerOf(el) {
   const r = el.getBoundingClientRect();
   return [r.left + r.width / 2, r.top + r.height / 2];

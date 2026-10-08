@@ -335,9 +335,16 @@
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25); pointer-events: none;
   animation: pk-pop-in 0.25s both;
 }
+.pk-pic .pk-item { container-type: size; }
+/* Đồ vật nhỏ (hàng hoa, quả trong dải hình): số đếm co theo cỡ đồ vật và ngồi trên góc, chỉ che một góc nhỏ. */
+.pk-pic .pk-item > .pk-mark {
+  top: 0; right: 0; translate: 50% -50%;
+  min-width: clamp(22px, 55cqmin, 38px); height: clamp(22px, 55cqmin, 38px); padding: 0 3px;
+  border-width: clamp(2px, 6cqmin, 3px); font-size: clamp(0.8rem, 34cqmin, 1.3rem);
+}
 .pk-recount {
-  position: absolute; left: -8px; top: -8px; z-index: 4;
-  width: 44px; height: 44px; border-radius: 50%; border: 3px solid #fff;
+  position: absolute; left: -16px; top: -16px; z-index: 4;
+  width: 40px; height: 40px; border-radius: 50%; border: 3px solid #fff;
   background: #A78BFA; color: #fff !important; font-size: 1.5rem; font-weight: 800; cursor: pointer;
   box-shadow: 0 3px 0 #7C3AED;
 }
@@ -357,6 +364,12 @@
 .pk-choices.is-pad .pk-choice { width: 52px; height: 52px; font-size: 1.5rem; border-width: 3px; }
 .pk-choice:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.18); }
 .pk-choice.is-right { transform: scale(1.18); }
+/* Số / dấu bay từ nút về ô đáp án (fx.js flyTo). */
+.pk-fly {
+  position: fixed; z-index: 60; display: grid; place-items: center; pointer-events: none;
+  border: 3px solid #fff; line-height: 1; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25); will-change: transform;
+}
 .pk-circle { position: absolute; inset: -12px; width: calc(100% + 24px); height: calc(100% + 24px); pointer-events: none; overflow: visible; }
 .pk-circle path {
   fill: none; stroke: #DC2626; stroke-width: 6; stroke-linecap: round;
@@ -1454,4 +1467,48 @@ body.pk-hand-on:not(.pk-ar) .pk-hand-status {
   position: absolute; left: 50%; bottom: -1.1rem; translate: -50% 0; white-space: nowrap;
   padding: 0 0.4rem; border-radius: 999px; background: #fff; color: #0369A1; font-size: 0.72rem; font-weight: 800; line-height: 1.35;
   box-shadow: 0 2px 0 rgba(2, 132, 199, 0.3); pointer-events: none;
+}
+
+/* Hình dải một hàng gập thành hai hàng trên màn hình dọc (engine.js splitRow): hai nửa của cùng hình
+   xếp chồng, căn trái để đồ vật hai hàng thẳng cột, cùng tỉ lệ nên đồ vật to bằng nhau. */
+.pk-pic.is-split {
+  --pk-row-h: max(70px, calc((100svh - 330px) / 2));
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px; width: 100%;
+  max-width: calc(var(--pk-row-h) * var(--half-ar, 99) + 20px);
+}
+/* So sánh hai hàng: bốn hàng hình chia phần cao còn lại (lời Thỏ, ô dấu, bàn phím số đã trừ ra). */
+.pk-cmp.is-rows .pk-pic.is-split { --pk-row-h: max(44px, calc((100svh - 520px) / 4)); }
+.pk-cmp:not(.is-rows) .pk-pic.is-split { --pk-row-h: max(50px, calc((100svh - 440px) / 4)); }
+/* Hình là ô flex của hàng (ô số ? đứng sát bên), rộng theo phần cao dành cho hàng hình. */
+.pk-cmp-pic:has(> .pk-pic.is-split) { display: contents; }
+.pk-cmp-side .pk-pic.is-split { flex: 0 1 calc(var(--pk-row-h) * var(--half-ar, 99) + 20px); min-width: 0; width: auto; max-width: none; }
+.pk-pic.is-split .pk-half { position: relative; }
+.pk-pic.is-split .pk-half-clip { overflow: hidden; border-radius: 12px; }
+.pk-pic.is-split .pk-half-clip > img { display: block; max-width: none; max-height: none; height: auto; border-radius: 0; }
+.pk-pic.is-split .pk-half > .pk-pic-layer { inset: 0; }
+
+/* Màn hình dọc, bàn phím 1–10: hai hàng năm số, nút rộng theo bề ngang (to hẳn, không rớt lẻ 9, 10 xuống hàng). */
+@media (orientation: portrait) {
+  .pk-choices.is-pad:has(> .pk-choice:nth-child(10):last-child) {
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.6rem;
+    width: min(100%, 440px); max-width: 440px;
+  }
+  .pk-choices.is-pad:has(> .pk-choice:nth-child(10):last-child) .pk-choice {
+    width: 100%; height: auto; aspect-ratio: 1; font-size: min(2.3rem, 8vw); border-width: 4px;
+  }
+  .pk-choices.is-pad:has(> .pk-choice:nth-child(10):last-child) { width: min(100%, 440px, calc(5 * 8svh + 2.4rem)); }
+  /* So sánh hai hàng: khối so sánh lấy đúng phần cao còn lại của vùng chơi (sau lời Thỏ, bàn phím),
+     bốn hàng hình chia nhau phần đó trừ ô dấu ở giữa và viền khung. */
+  .pk-stage > .pk-cmp.is-rows:has(.pk-pic.is-split) { flex: 1 1 0; min-height: 0; container-type: size; }
+  .pk-cmp.is-rows .pk-pic.is-split { --pk-row-h: max(28px, calc((100cqh - 140px) / 4)); }
+  .pk-stage > .pk-cmp.is-rows:has(.pk-pic.is-split) { justify-content: safe center; }
+  /* Nhiều nhất / ít nhất: ba thẻ chia đều phần cao còn lại, hình lấp đầy thẻ. */
+  .pk-play-page .pk-stage > .pk-pick {
+    flex: 1 1 0; min-height: 0; max-width: 520px;
+    grid-template-columns: 1fr; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 0.7rem;
+  }
+  .pk-pick .pk-card { min-height: 0; }
+  .pk-pick .pk-card img { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); max-height: none; }
+  /* Chân trang dọc chỉ cần chỗ cho nút ⤢ (nút ➜ chỉ hiện khi xong lượt, lúc đó không cần bàn phím). */
+  .pk.pk-play-page { padding-bottom: 3rem; }
 }

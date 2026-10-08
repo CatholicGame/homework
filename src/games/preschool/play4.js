@@ -209,7 +209,11 @@ function playEq(ctx) {
       if (current !== box) return;
       const l = Number(box.dataset.l), t = Number(box.dataset.t);
       if (!accepts(l, t, v)) {
-        wrong(btn, round.hint || (isOp(tok) ? 'Chưa đúng rồi. Thêm vào là cộng, bớt đi là trừ đấy!' : 'Chưa đúng rồi. Bé nhìn hình đếm lại!'));
+        // Số đúng nhưng bé đang chọn nhầm ô (vd. bấm 16 khi ô số 9 đang sáng): chỉ sang ô khác, đừng bảo đếm lại.
+        const elsewhere = !isOp(tok) && boxes.some(b => b !== box && !b.classList.contains('is-done')
+          && !isOp(lines[b.dataset.l][b.dataset.t]) && accepts(Number(b.dataset.l), Number(b.dataset.t), v));
+        wrong(btn, elsewhere ? `Số ${numberWord(v)} không điền vào ô này. Bé chạm vào ô khác!`
+          : isOp(tok) ? 'Chưa đúng rồi. Thêm vào là cộng, bớt đi là trừ đấy!' : round.hint || 'Chưa đúng rồi. Bé nhìn hình đếm lại!');
         return;
       }
       box.dataset.v = v;
@@ -217,15 +221,16 @@ function playEq(ctx) {
       box.classList.remove('is-on');
       box.classList.add('is-done');
       sfx.pop(typeof v === 'number' ? Math.min(v, 12) : 6);
-      say(sayValue(v));
       const next = boxes.find(b => !b.classList.contains('is-done'));
       if (!next) {
+        say(sayValue(v));
         padHost.innerHTML = '';
         const text = lines.map((line, i) => cap(readText(line.map((_, j) => valueAt(i, j)).join(' ')))).join('. ');
         setTimeout(() => solve(round.done || `${pick(PRAISE)} ${text}.`), 350);
         return;
       }
-      right(box);
+      // Bong bóng đổi sang lời khen, không để lời "chưa đúng" của lần trước còn treo.
+      right(box, `Đúng rồi! ${cap(sayValue(v))}!`);
       focus(next);
     });
   };

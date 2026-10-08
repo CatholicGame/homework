@@ -128,12 +128,13 @@ export const STATIONS = [
   },
   {
     id: 'bai-toan-1', icon: '🐛', color: '#65A30D', title: 'Bài toán có lời', name: 'Nghe đề bài, viết phép tính',
+    // Đề chỉ có chữ, không có hình để đếm: sai thì nhắc nghe lại đề.
     rounds: [
       { type: 'eq', img: img('p12_sau'), lines: [[16, '-', 9, '=', 7]], say: 'Trên lá cây có mười sáu con sâu, đã bò đi chín con. Hỏi trên lá cây còn mấy con sâu?' },
       { type: 'eq', img: img('p12_hoa'), lines: [[13, '-', 5, '=', 8]], say: 'Trong vườn hoa nở mười ba bông hoa, đã ngắt đi năm bông. Hỏi trong vườn còn lại mấy bông hoa?' },
       { type: 'eq', img: img('p12_keo'), lines: [[8, '+', 7, '=', 15]], say: 'Bạn Hồng có tám chiếc kẹo, mẹ cho thêm bảy chiếc nữa. Hỏi bạn Hồng có tất cả bao nhiêu chiếc kẹo?' },
       { type: 'eq', img: img('p12_ngo'), lines: [[10, '+', 4, '=', 14]], say: 'Gấu con có mười bắp ngô, sau đó bẻ thêm bốn bắp nữa. Hỏi Gấu con có tất cả bao nhiêu bắp ngô?' },
-    ],
+    ].map(r => ({ ...r, hint: 'Chưa đúng rồi. Bé chạm vào bạn Thỏ để nghe lại đề bài!' })),
   },
   {
     id: 'cong-ba-so', icon: '🍎', color: '#DC2626', title: 'Cộng ba số', name: 'Đếm từng nhóm rồi cộng lại',
