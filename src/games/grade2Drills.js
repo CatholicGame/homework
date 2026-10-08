@@ -13,6 +13,7 @@ import { how } from './grade3Drills/kit.js';
 import { TEN_GAME } from './grade2Drills/tenframe.js';
 import { ADD_GAME, TAB_GAME, MEN_GAME } from './grade2Drills/facts.js';
 import { TIME2_GAME, CAL2_GAME } from './grade3Drills/time.js';
+import { SHARK2_GAME } from './grade3Drills/shark.js';
 
 // ── ✍️ Đặt tính rồi tính ──────────────────────────────────────────────────────────────────────────────
 const carries = (op, a, b) => columnSteps(op, a, b).filter(s => s.kind === 'carry').length;
@@ -97,6 +98,7 @@ const tool = (id, game, desc, tags) => ({ id, icon: game.icon, title: game.title
 export const DRILL2_LIST = [
   tool('ten', TEN_GAME, 'Cộng, trừ qua 10 bằng cách làm tròn 10 với khung 10 chấm.', ['Cộng qua 10', 'Trừ qua 10', 'Tách số']),
   tool('add', ADD_GAME, 'Luyện cho thuộc. Phép nào hay sai sẽ được ra lại nhiều hơn.', ['Bảng cộng', 'Bảng trừ', 'Số còn thiếu']),
+  tool('shark', SHARK2_GAME, 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng, tính chậm là bị đớp!', ['Cộng, trừ qua 10', 'Nhân, chia 2, 5', 'Tính nhanh']),
   tool('col', COL_GAME, 'Viết thẳng cột, tính từ hàng đơn vị, nhớ đúng số nhớ.', ['Có nhớ', 'Phạm vi 100', 'Phạm vi 1 000']),
   tool('tab', TAB_GAME, 'Thuộc bảng nhân, bảng chia 2 và 5.', ['Bảng nhân 2, 5', 'Bảng chia 2, 5']),
   tool('men', MEN_GAME, '30 + 50: 3 chục cộng 5 chục bằng 8 chục.', ['Tròn chục', 'Tròn trăm', 'Không nhớ']),
