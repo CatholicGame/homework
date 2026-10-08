@@ -80,6 +80,7 @@ export default {
     'Bạn có chắc muốn đăng xuất khỏi': 'Are you sure you want to sign out of',
     '🔄 Đổi lớp': '🔄 Change grade',
     'Vào học ➜': 'Start ➜',
+    'Chọn trò ➜': 'Pick a game ➜',
     '▶ Tiếp tục:': '▶ Continue:',
     'Chưa có tiếng Anh': 'Vietnamese only for now',
     'Học tiếng Việt': 'Vietnamese lesson',

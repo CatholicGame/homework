@@ -257,10 +257,14 @@ function tone(freq, start, dur, { type = 'sine', vol = 0.18, slide = 0 } = {}) {
 const file = (name, opts) => !muted && playSfx(name, opts);
 
 export const sfx = {
-  /** Chạm / đếm một đồ vật: cao dần theo số đếm (tối đa lên một quãng tám). */
+  /**
+   * Chạm / đếm một đồ vật, điền một số: tiếng "póc" nhỏ, chỉ cao lên chút ít theo số đếm (tối đa 4 nửa cung).
+   * Đẩy cao cả quãng tám thì chói và đè lên giọng đọc số, nên giữ giọng trầm.
+   */
   pop(step = 0) {
-    file('pop', { rate: 2 ** (Math.min(step, 14) / 14) })
-      || tone(420 + step * 45, 0, 0.12, { type: 'triangle', vol: 0.2, slide: 1.6 });
+    const k = Math.min(step, 12) / 12;
+    file('pop', { rate: 2 ** (k * 4 / 12) })
+      || tone(420 + k * 110, 0, 0.1, { type: 'sine', vol: 0.08, slide: 1.3 });
   },
   tap() { file('tap') || tone(700, 0, 0.06, { type: 'triangle', vol: 0.12 }); },
   /** Tiếng tách nhỏ (thước, kim xoay từng nấc). */
@@ -271,6 +275,43 @@ export const sfx = {
   boing() { file('wrong') || tone(260, 0, 0.28, { type: 'sine', vol: 0.2, slide: 0.55 }); },
   /** Tô xong một nét / đồ vật bay đi. */
   swish() { file('swish') || tone(500, 0, 0.18, { type: 'triangle', vol: 0.12, slide: 2.2 }); },
+  /** Súng điện bắn trúng (🦈 Săn cá mập): tiếng "bzzt" ngắn. */
+  zap() { file('zap') || tone(180, 0, 0.22, { type: 'sawtooth', vol: 0.08, slide: 2.5 }); },
+  /** Cá mập bơi vào biển: tiếng nước lướt nhẹ (không có bản tổng hợp, chưa tải xong thì im). */
+  sharkIn() { file('sharkIn'); },
+  /** Cá mập sắp tới thợ lặn: hai nốt trầm báo "nhanh lên". */
+  sharkNear() { file('sharkNear') || (tone(123, 0, 0.12, { type: 'triangle', vol: 0.14 }), tone(138, 0.16, 0.12, { type: 'triangle', vol: 0.14 })); },
+  /** Cá mập đớp thợ lặn (hoạt hình, không đáng sợ). */
+  chomp() { file('chomp') || tone(220, 0, 0.16, { type: 'square', vol: 0.08, slide: 0.5 }); },
+  // ── 🛸 Bảo vệ Trái Đất (grade3Drills/ufo.js; prompt ở docs/sfx/PROMPTS.md). Chưa có file thì phát tiếng tổng hợp. ──
+  /** Một đĩa bay xuất hiện: "woo-oo" trượt xuống. */
+  ufoIn() { file('ufoIn', { vol: 0.8 }) || tone(700, 0, 0.32, { type: 'sine', vol: 0.05, slide: 0.55 }); },
+  /** Đĩa bay sắp chạm vòm khiên: hai tiếng "bi-bu". */
+  ufoNear() { file('ufoNear') || (tone(520, 0, 0.1, { type: 'triangle', vol: 0.08 }), tone(390, 0.13, 0.12, { type: 'triangle', vol: 0.08 })); },
+  /** Viên pha lê khớp vào ổ nạp của pháo. */
+  ufoLoad() { file('ufoLoad') || (tone(1500, 0, 0.05, { type: 'triangle', vol: 0.06 }), tone(900, 0.05, 0.05, { type: 'square', vol: 0.03 })); },
+  /** Pháo bắn tia sáng: "pew". */
+  laser() { file('laser') || tone(1300, 0, 0.16, { type: 'square', vol: 0.04, slide: 0.35 }); },
+  /** Bắn đúng: khiên bong bóng vỡ, lấp lánh. */
+  shieldBreak() { file('shieldBreak') || [1760, 2350, 1980, 2640].forEach((f, i) => tone(f, i * 0.06, 0.16, { type: 'triangle', vol: 0.06, slide: 0.8 })); },
+  /** Bắn sai: đạn bật khỏi khiên, "bwong". */
+  deflect() { file('deflect') || tone(330, 0, 0.3, { type: 'sine', vol: 0.16, slide: 0.6 }); },
+  /** Tàu quay tít bay về vũ trụ. */
+  ufoAway() { file('ufoAway', { vol: 0.8 }) || tone(380, 0, 0.6, { type: 'sine', vol: 0.06, slide: 2.6 }); },
+  /** Con số về cửa sổ, đèn sáng lại. */
+  numberHome() { file('numberHome') || (tone(1568, 0, 0.14, { type: 'triangle', vol: 0.07 }), tone(2093, 0.08, 0.2, { type: 'triangle', vol: 0.07 })); },
+  /** Tàu chạm vòm khiên thành phố: mất một vạch. */
+  domeHit() { file('domeHit') || (tone(150, 0, 0.32, { type: 'sine', vol: 0.22, slide: 0.7 }), tone(820, 0.02, 0.22, { type: 'triangle', vol: 0.04, slide: 0.5 })); },
+  /** Rađa của Rô-bốt Bíp: tàu mẹ tới, đổi mật mã. */
+  radarAlarm() { file('radarAlarm') || [0, 0.34].forEach(t => { tone(660, t, 0.11, { type: 'square', vol: 0.035 }); tone(880, t + 0.14, 0.11, { type: 'square', vol: 0.035 }); }); },
+  /** Tàu mẹ hạ xuống. */
+  motherIn() { file('motherIn') || tone(260, 0, 1.1, { type: 'sine', vol: 0.09, slide: 0.6 }); },
+  /** Tàu Zíp bắn trả xuống vòm khiên (dùng lại tiếng laser, trầm hơn). */
+  alienShot() { file('laser', { rate: 0.7, vol: 0.8 }) || tone(700, 0, 0.2, { type: 'square', vol: 0.035, slide: 0.4 }); },
+  /** Vòm khiên Trái Đất vỡ tan (dùng lại tiếng khiên vỡ, trầm hơn). */
+  domeBreak() { file('shieldBreak', { rate: 0.55 }) || [880, 660, 520, 390].forEach((f, i) => tone(f, i * 0.08, 0.25, { type: 'triangle', vol: 0.08, slide: 0.6 })); },
+  /** Thắng đợt: pháo hoa xa (không có bản tổng hợp, chưa có file thì im). */
+  fireworks() { file('fireworks'); },
   /** Xong cả lượt chơi. */
   fanfare() {
     if (file('complete')) return;
@@ -282,7 +323,7 @@ export const sfx = {
 /** Tiếng lặp (vd. máy ô tô khi bé kéo xe tô số); im khi đang tắt tiếng. */
 export function loopSound(name, opts) {
   const loop = loopSfx(name, opts);
-  return { start() { if (!muted) loop.start(); }, stop: loop.stop };
+  return { start() { if (!muted) loop.start(); }, stop: loop.stop, duck: loop.duck };
 }
 
 // ── Hiệu ứng hình ────────────────────────────────────────────────────────────

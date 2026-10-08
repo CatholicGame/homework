@@ -10,6 +10,7 @@ import { renderGamesHub } from './grade3Games.js';
 import { DADD_GAME, DMUL_GAME } from './grade5Drills/dcol.js';
 import { DDIV_GAME } from './grade5Drills/ddiv.js';
 import { SHARK5_GAME } from './grade3Drills/shark.js';
+import { UFO5_GAME } from './grade3Drills/ufo.js';
 import { practiceGame } from './grade4Tools/practice.js';
 import { how, TEACHER } from './grade3Drills/kit.js';
 import { BOOK5 } from './grade5Tools.js';
@@ -75,6 +76,7 @@ const tool = (id, game, desc, tags) => ({ id, icon: game.icon, title: game.title
 
 export const DRILL5_LIST = [
   tool('shark', SHARK5_GAME, 'Cá mập mang phép tính bơi tới: tính nhẩm số tới ba chữ số, gõ đúng kết quả để bắn trúng!', ['Bảng nhân chia', 'Số tròn chục, tròn trăm', 'Tính nhanh']),
+  tool('ufo', UFO5_GAME, 'Đĩa bay mang ổ khoá có số bị giấu: chọn đúng viên đạn, số thay vào ổ khoá là thấy đúng sai!', ['Số thập phân', 'Công thức']),
   tool('add', DADD_GAME, 'Cộng, trừ số thập phân: các dấu phẩy thẳng cột, viết dấu phẩy ở kết quả.', ['Thẳng dấu phẩy', 'Thêm chữ số 0', 'Với số tự nhiên']),
   tool('mul', DMUL_GAME, 'Nhân như số tự nhiên, đếm chữ số thập phân của hai thừa số rồi đặt dấu phẩy ở tích.', ['Đếm chữ số thập phân', 'Tích riêng']),
   tool('div', DDIV_GAME, 'Chia số thập phân: viết dấu phẩy ở thương, thêm 0 vào số dư, chia cho số thập phân.', ['Dấu phẩy ở thương', 'Thương có chữ số 0', 'Chia cho số thập phân']),

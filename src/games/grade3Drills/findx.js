@@ -20,7 +20,7 @@ const SIGNS = ['+', '−', '×', ':'];
 const calc = (x, op, y) => (op === '+' ? x + y : op === '−' ? x - y : op === '×' ? x * y : x / y);
 
 /** Cách tìm "?" ở vị trí pos (0 hoặc 2) của phép a op b = c: { x, op, y, rule }. */
-function solveRule(op, pos, a, b, c) {
+export function solveRule(op, pos, a, b, c) {
   if (op === '+') return { x: c, op: '−', y: pos === 0 ? b : a, rule: 'Muốn tìm số hạng, ta lấy tổng trừ đi số hạng kia.' };
   if (op === '×') return { x: c, op: ':', y: pos === 0 ? b : a, rule: 'Muốn tìm thừa số, ta lấy tích chia cho thừa số kia.' };
   if (op === '−') return pos === 0

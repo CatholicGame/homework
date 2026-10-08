@@ -130,6 +130,8 @@ export function renderGamesHub(app, ctx, start = null, {
   const linked = (l) => l.lessons?.[ctx.book]?.includes(unit) || l.also?.[ctx.book]?.includes(unit);
   const focused = (game, l) => (fromLesson && unitFocused && game.focus && linked(l) ? game.focus(l, unitFocused) : l);
   let hubQuery = ''; // 🔎 chữ đang tìm ở danh sách công cụ / trò chơi (giữ khi vào rồi quay lại)
+  // Hub chỉ có một trò một phần chơi (🦈 Săn cá mập, 🛸 Bảo vệ Trái Đất…): bỏ màn danh sách trò, mở thẳng danh sách cấp.
+  const solo = GAMES.length === 1 && GAMES[0].single ? GAMES[0] : null;
   if (lv) showIntro(found.g, found.s.game, lv);
   else showGames();
 
@@ -158,6 +160,7 @@ export function renderGamesHub(app, ctx, start = null, {
   }
 
   function showGames() {
+    if (solo) { showLevels(solo, solo.stalls[0].game); return; }
     shell(`
       ${topbar(hubTitle, { kicker, stars: true })}
       <p class="g3g-lead">${lead}</p>
@@ -248,7 +251,7 @@ export function renderGamesHub(app, ctx, start = null, {
   function showLevels(g, game) {
     fromLesson = false;
     shell(`
-      ${topbar(`${game.icon} ${game.title}`, { kicker: g.single ? `${hubIcon} ${hubTitle}` : `${g.icon} ${g.title}` })}
+      ${solo ? topbar(hubTitle, { kicker, stars: true }) : topbar(`${game.icon} ${game.title}`, { kicker: g.single ? `${hubIcon} ${hubTitle}` : `${g.icon} ${g.title}` })}
       ${game.purpose ? `<p class="g3g-purpose">🎯 ${game.purpose}</p>` : ''}
       <p class="g3g-lead">${levelLead}</p>
       <div class="g3g-list">
@@ -265,7 +268,7 @@ export function renderGamesHub(app, ctx, start = null, {
         }).join('')}
       </div>
       ${game.note ? `<aside class="g3g-note">${game.note}</aside>` : ''}`);
-    app.querySelector('[data-act="back"]').onclick = () => (g.single ? showGames() : showStalls(g));
+    app.querySelector('[data-act="back"]').onclick = () => (solo ? ctx.onBack() : g.single ? showGames() : showStalls(g));
     app.querySelectorAll('[data-level]').forEach(b => { b.onclick = () => showIntro(g, game, game.levels.find(l => l.id === b.dataset.level)); });
   }
 

@@ -11,11 +11,26 @@ const url = (f) => new URL(`../assets/sfx/${f}`, import.meta.url).href;
 
 /** Tiếng ngắn: tải sẵn ngay khi trang rảnh. */
 const SHORT = {
-  tap: url('tap.mp3'),
-  pop: url('pop.mp3'),
-  tick: url('tick.mp3'),
+  tap: url('tap.wav'),
+  pop: url('pop.wav'),
+  tick: url('tick.wav'),
   step: url('step.mp3'),
   swish: url('swish.mp3'),
+  zap: url('zap.wav'),
+  sharkIn: url('shark-in.wav'),
+  sharkNear: url('shark-near.wav'),
+  chomp: url('shark-chomp.wav'),
+  // 🛸 Bảo vệ Trái Đất (gốc: docs/sfx/zip zap/, xử lý xem docs/sfx/PROMPTS.md)
+  ufoIn: url('ufo-in.wav'),
+  ufoNear: url('ufo-near.wav'),
+  ufoLoad: url('ufo-load.wav'),
+  laser: url('laser.wav'),
+  shieldBreak: url('shield-break.wav'),
+  deflect: url('deflect.wav'),
+  ufoAway: url('ufo-away.wav'),
+  numberHome: url('number-home.wav'),
+  domeHit: url('dome-hit.wav'),
+  radarAlarm: url('radar-alarm.wav'),
   piece: url('piece.mp3'),
   correct: url('correct.mp3'),
   wrong: url('wrong.mp3'),
@@ -28,6 +43,10 @@ const LONG = {
   confetti: url('confetti.mp3'),
   wheelSpin: url('wheel-spin.mp3'),
   carLoop: url('car-loop.wav'),
+  oceanLoop: url('ocean-loop.wav'),
+  spaceLoop: url('space-loop.wav'),
+  motherIn: url('mother-in.wav'),
+  fireworks: url('fireworks.wav'),
 };
 const URLS = { ...SHORT, ...LONG };
 
@@ -36,9 +55,10 @@ const raw = {};      // name → Promise<ArrayBuffer>
 const buffers = {};  // name → AudioBuffer
 const decoding = {}; // name → Promise<AudioBuffer|null>
 
-const fetchRaw = (name) => raw[name] || (raw[name] = fetch(URLS[name])
+// Tên chưa có file (tiếng mới chưa tạo xong): không tải, nơi gọi phát tiếng tổng hợp thay.
+const fetchRaw = (name) => (!URLS[name] ? Promise.resolve(null) : raw[name] || (raw[name] = fetch(URLS[name])
   .then(r => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(r.status))))
-  .catch(() => { delete raw[name]; return null; }));
+  .catch(() => { delete raw[name]; return null; })));
 
 function decode(name) {
   if (buffers[name]) return Promise.resolve(buffers[name]);
@@ -119,6 +139,17 @@ export function loopSfx(name, { vol = 1 } = {}) {
       want = true;
       if (!audioCtx()) return;
       if (buffers[name]) begin(); else decode(name).then(begin);
+    },
+    /** Hạ nhỏ còn level × âm lượng trong ms mili giây rồi lên lại (nhường chỗ cho giọng đọc). */
+    duck(level = 0.35, ms = 2000) {
+      const c = ctx;
+      if (!gain || !c) return;
+      const g = gain.gain, t = c.currentTime;
+      g.cancelScheduledValues(t);
+      g.setValueAtTime(g.value, t);
+      g.linearRampToValueAtTime(vol * level, t + 0.15);
+      g.setValueAtTime(vol * level, t + ms / 1000);
+      g.linearRampToValueAtTime(vol, t + ms / 1000 + 0.6);
     },
     stop() {
       want = false;

@@ -6,7 +6,7 @@
  * Một lượt = một đàn cá (level.count con). Thợ lặn có LIVES mạng mỗi đàn, mỗi lần bị đớp mất một mạng; hết mạng thì thợ lặn
  * chết (đứt dây, chìm xuống cát), cá còn lại bơi đi, lượt thua. Còn mạng tới hết đàn là đạt. Gõ sai không mất mạng.
  *
- * Lớp 1 (thẻ riêng grade1Shark.js), Luyện Tính lớp 2, 3, 4, 5. Lớp 4, 5 chỉ dùng số tới ba chữ số (tính nhẩm nhanh).
+ * Thẻ riêng mỗi lớp (gradeShark.js), Luyện Tính lớp 2, 3, 4, 5. Lớp 4, 5 chỉ dùng số tới ba chữ số (tính nhẩm nhanh).
  * Mẫu dùng chung: sharkGame(meta, levels), mỗi cấp chỉ cần pool() → danh sách phép tính (add / sub / mul / div).
  * Đàn cá không có hai kết quả trùng nhau hay kết quả này là phần đầu của kết quả kia (4 và 40), nên gõ xong là bắn ngay
  * không cần bấm OK. Phép hay để cá đớp được ghi vào sổ phép hay sai (kit.js noteFact), ra lại nhiều hơn.
@@ -17,6 +17,7 @@
 
 import imgChuHai from '../../assets/grade3-games/npc/chu-hai.webp';
 import { injectGameStyles } from '../grade3Games/styles.js';
+import { loopSound } from '../preschool/fx.js';
 import { sfx, calmMotion, sleep, how, weightedPick, loadWeak, noteFact, MINUS } from './kit.js';
 import { sharkSvg, bonesSvg, MINI_SHARK, DIVER, SEA, HEART } from './sharkArt.js';
 
@@ -101,7 +102,14 @@ const COLORS = [['#7E9DB4', '#67879F'], ['#8DA4B8', '#728BA0'], ['#7895AA', '#5F
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'del', '0', 'ok'];
 const LIVES = 3;
 
+// Nền dưới biển: bật khi vào đàn đầu, chạy liền qua các đàn và thẻ kết quả, tắt khi rời trò
+// (chỉ đàn mới nhất được tắt, vì đàn sau dựng xong rồi đàn trước mới biết mình bị gỡ).
+const oceanBg = loopSound('oceanLoop', { vol: 0.6 });
+let oceanOwner = 0;
+
 function mountShark(stage, m, level, api) {
+  const bgId = ++oceanOwner;
+  oceanBg.start();
   injectGameStyles();
   injectSharkStyles();
   stage.innerHTML = `
@@ -166,6 +174,7 @@ function mountShark(stage, m, level, api) {
     measure(s);
     sharks.add(s);
     place(s);
+    sfx.sharkIn();
   }
 
   /** Mép trái của cá khi tới chỗ đớp thợ lặn. */
@@ -179,13 +188,13 @@ function mountShark(stage, m, level, api) {
 
   let last = performance.now(), t = 0;
   const tick = (now) => {
-    if (!ocean.isConnected) { ro.disconnect(); return; }
+    if (!ocean.isConnected) { ro.disconnect(); if (bgId === oceanOwner) oceanBg.stop(); return; }
     const dt = Math.min(0.25, (now - last) / 1000);
     last = now; t += dt;
     for (const s of sharks) {
       if (s.state !== 'swim') continue;
       s.p = Math.min(1, s.p + dt / s.secs);
-      s.el.classList.toggle('shk-near', s.p > 0.72);
+      if (s.p > 0.72 && !s.near) { s.near = true; s.el.classList.add('shk-near'); sfx.sharkNear(); }
       place(s, t);
       if (s.p >= 1) bite(s);
     }
@@ -212,7 +221,7 @@ function mountShark(stage, m, level, api) {
     ocean.appendChild(bolt);
     setTimeout(() => bolt.remove(), 320);
     diver.classList.remove('shk-fire'); void diver.offsetWidth; diver.classList.add('shk-fire');
-    sfx.swish();
+    sfx.zap();
     s.el.querySelector('.shk-pic').innerHTML = bonesSvg();
     s.el.classList.remove('shk-near');
     s.el.classList.add('shk-dead');
@@ -237,7 +246,7 @@ function mountShark(stage, m, level, api) {
     const tx = d.x + d.w * 0.35 - s.x, ty = d.y + d.h * 0.42 - (s.y + s.h * 0.55);
     s.el.querySelector('.shk-inner').style.transform = `translate(${tx.toFixed(0)}px, ${ty.toFixed(0)}px)`;
     await sleep(260);
-    sfx.boing();
+    sfx.chomp();
     lives--;
     hearts[lives]?.classList.add('shk-heart-lost');
     livesBox.classList.remove('shk-lives-hit'); void livesBox.offsetWidth; livesBox.classList.add('shk-lives-hit');

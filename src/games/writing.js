@@ -231,9 +231,11 @@ export function render(app, onBack) {
           <button type="button" class="btn btn-primary wr-submit">📨 Nộp bài cho cô chấm</button>
         </div>
       </div>
-      ${essay.review ? '<div class="wr-card wr-fixes"></div>' : ''}
       </div>
-      <aside class="wr-card wr-bank" aria-label="Bộ từ ngữ gợi ý"></aside>
+      <div class="wr-side">
+      ${essay.review ? '<section class="wr-card wr-fixes wr-scroll" aria-label="Lời cô dặn"></section>' : ''}
+      <aside class="wr-card wr-bank wr-scroll" aria-label="Bộ từ ngữ gợi ý"></aside>
+      </div>
       </div>`);
 
     const promptEl = body.querySelector('#wr-prompt');
@@ -256,7 +258,7 @@ export function render(app, onBack) {
       countEl.classList.toggle('is-near', n > MAX_WORDS - 30 && n <= MAX_WORDS);
       submit.disabled = !promptEl.value.trim() || n < 5 || n > MAX_WORDS;
       submit.title = !promptEl.value.trim() ? 'Em nhập yêu cầu (đề bài) trước' : n < 5 ? 'Em viết thêm rồi nộp' : '';
-      if (fixes) drawFixes(fixes, getEssay(id), textEl.value);
+      if (fixes) markFixed(fixes, textEl.value);
       markUsedWords();
     }
 
@@ -376,6 +378,7 @@ export function render(app, onBack) {
     body.querySelector('.wr-see-review')?.addEventListener('click', () => { flush(); showReview(id); });
     submit.onclick = () => { flush(); submitEssay(id); };
 
+    if (fixes) drawFixes(fixes, getEssay(id));
     drawBank();
     refresh();
     limitMsg.hidden = countWords(textEl.value) < MAX_WORDS;
@@ -383,24 +386,48 @@ export function render(app, onBack) {
     else promptEl.focus({ preventScroll: true });
   }
 
-  /** Lỗi cô đã chỉ ra ở lần chấm trước: lỗi nào không còn trong bài thì đánh dấu đã sửa. */
-  function drawFixes(box, essay, text) {
-    const issues = markRanges(essay.review.text, essay.review.issues);
-    if (!issues.length) { box.hidden = true; return; }
-    const fixed = issues.filter(r => !text.includes(r.issue.text)).length;
+  /**
+   * Lời cô dặn ở lần chấm trước, để bé xem lại khi sửa bài: lỗi (kèm giải thích), từ ngữ hay, gợi ý viết hay hơn.
+   * Vẽ một lần (khung tự cuộn, không nhảy về đầu khi bé gõ); markFixed đánh dấu lỗi nào đã sửa.
+   */
+  function drawFixes(box, essay) {
+    const rv = essay.review;
+    const issues = markRanges(rv.text, rv.issues);
+    if (!issues.length && !rv.vocab.length && !rv.tips.length) { box.hidden = true; return; }
     box.innerHTML = `
-      <h2 class="wr-h2">🔎 Lỗi cô đã chỉ ra <span class="wr-h2-sub">Đã sửa ${fixed}/${issues.length}</span></h2>
-      <ol class="wr-fix-list">
-        ${issues.map(r => {
-          const done = !text.includes(r.issue.text);
-          return `<li class="wr-fix ${done ? 'is-fixed' : ''}">
-            <span class="wr-fix-type wr-type-${r.issue.type}">${TYPES[r.issue.type].label}</span>
-            <span class="wr-fix-what"><s class="wr-wrong wr-wrong-${r.issue.type}">${esc(r.issue.text)}</s>
-              ${r.issue.suggestions.length ? `→ <b>${r.issue.suggestions.map(esc).join(' / ')}</b>` : ''}</span>
-            ${done ? '<span class="wr-fix-ok">✓ Đã sửa</span>' : ''}
-          </li>`;
-        }).join('')}
-      </ol>`;
+      ${issues.length ? `
+        <h2 class="wr-h2">🔎 Lỗi cô đã chỉ ra <span class="wr-h2-sub wr-fixed-n"></span></h2>
+        <ol class="wr-fix-list">
+          ${issues.map(r => `
+            <li class="wr-fix" data-wrong="${esc(r.issue.text)}">
+              <span class="wr-fix-type wr-type-${r.issue.type}">${TYPES[r.issue.type].label}</span>
+              <span class="wr-fix-what"><s class="wr-wrong wr-wrong-${r.issue.type}">${esc(r.issue.text)}</s>
+                ${r.issue.suggestions.length ? `→ <b class="wr-sugg">${r.issue.suggestions.map(esc).join(' / ')}</b>` : ''}
+                ${r.issue.explain ? `<span class="wr-explain">${esc(r.issue.explain)}</span>` : ''}</span>
+              <span class="wr-fix-ok">✓ Đã sửa</span>
+            </li>`).join('')}
+        </ol>` : ''}
+      ${rv.vocab.length ? `
+        <h2 class="wr-h2 wr-h2-more">💡 Từ ngữ hay em có thể dùng</h2>
+        <div class="wr-vocab">
+          ${rv.vocab.map(v => `<div class="wr-word"><b>${esc(v.word)}</b>${v.example ? `<span>${esc(v.example)}</span>` : ''}</div>`).join('')}
+        </div>` : ''}
+      ${rv.tips.length ? `
+        <h2 class="wr-h2 wr-h2-more">🚀 Để bài hay hơn</h2>
+        <ul class="wr-bullets">${rv.tips.map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}`;
+  }
+
+  /** Lỗi nào không còn trong bài thì đánh dấu đã sửa. */
+  function markFixed(box, text) {
+    const items = [...box.querySelectorAll('.wr-fix')];
+    let fixed = 0;
+    items.forEach(li => {
+      const done = !text.includes(li.dataset.wrong);
+      li.classList.toggle('is-fixed', done);
+      fixed += done;
+    });
+    const n = box.querySelector('.wr-fixed-n');
+    if (n) n.textContent = `Đã sửa ${fixed}/${items.length}`;
   }
 
   // ── Nộp bài ───────────────────────────────────────────────────────────────

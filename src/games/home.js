@@ -67,12 +67,63 @@ function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+export const CHALLENGE_ID = 'challenge';
+
+// English: thẻ sách chưa có bản tiếng Anh (hoặc sách học tiếng Việt) ghi rõ là học bằng tiếng Việt.
+function langTag(gameId) {
+  if (gameId === CHALLENGE_ID || getLang() !== 'en' || hasEnglish(gameId)) return '';
+  return `<span class="card-lang">${VI_BOOKS.has(gameId) ? 'Học tiếng Việt' : 'Chưa có tiếng Anh'}</span>`;
+}
+
+function gameCards(grade, list) {
+  return list.map((g, gIdx) => `
+    <button type="button" class="game-card" data-game="${g.id}" style="animation-delay: ${0.15 + gIdx * 0.05}s; --card-color: ${g.color || grade.color}">
+      <span class="card-icon">${g.icon}</span>
+      <span class="card-text">
+        <h3>${g.title}</h3>
+        <p>${g.desc}</p>
+        ${langTag(g.id)}
+      </span>
+      <span class="card-go">${g.id === CHALLENGE_ID ? 'Chọn trò ➜' : 'Vào học ➜'}</span>
+    </button>
+  `).join('');
+}
+
+function challengeCard(list) {
+  return { id: CHALLENGE_ID, icon: '🎮', color: '#E11D48', title: 'Challenge games', desc: list.map(g => `${g.icon} ${g.title}`).join(', ') };
+}
+
+/** Trang "Challenge games": các trò thử thách của lớp đang học; chọn trò → danh sách cấp của trò. */
+export function renderChallengeHub(app, navigate) {
+  const grade = getGrade(getProfileGrade());
+  const games = (grade?.games || []).filter(g => g.group === 'challenge');
+  app.innerHTML = `
+    <div class="home challenge-hub">
+      <div class="lb-top">
+        <button type="button" class="btn btn-ghost" id="challenge-back">← Trang chủ</button>
+      </div>
+      <div class="category animate-fadeIn">
+        <h2 class="section-title">🎮 Challenge games${grade ? `: ${grade.title}` : ''}</h2>
+        <div class="game-grid">${gameCards(grade, games)}</div>
+      </div>
+    </div>
+  `;
+  app.querySelector('#challenge-back').addEventListener('click', () => navigate('home'));
+  app.querySelectorAll('.game-card').forEach(card => {
+    card.addEventListener('click', () => navigate(card.dataset.game));
+  });
+}
+
 export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
   const grade = getGrade(getProfileGrade());
   renderPage();
 
   function renderPage() {
-    const games = grade?.games || [];
+    const all = grade?.games || [];
+    // Trò chơi thử thách (chụp chim, cá mập, đĩa bay) gom vào một thẻ "Challenge games" → trang danh sách riêng.
+    const challenge = all.filter(g => g.group === 'challenge');
+    const games = all.filter(g => g.group !== 'challenge');
+    if (challenge.length) games.push(challengeCard(challenge));
     app.innerHTML = `
       <div class="home">
         ${userBar()}
@@ -89,19 +140,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
             <button type="button" class="home-grade-change" id="home-grade-change">🔄 Đổi lớp</button>
           </div>
           ${games.length ? `
-          <div class="game-grid">
-            ${games.map((g, gIdx) => `
-              <button type="button" class="game-card" data-game="${g.id}" style="animation-delay: ${0.15 + gIdx * 0.05}s; --card-color: ${g.color || grade.color}">
-                <span class="card-icon">${g.icon}</span>
-                <span class="card-text">
-                  <h3>${g.title}</h3>
-                  <p>${g.desc}</p>
-                  ${langTag(g.id)}
-                </span>
-                <span class="card-go">Vào học ➜</span>
-              </button>
-            `).join('')}
-          </div>` : '<p class="daily-message">Bài tập của lớp này sắp ra mắt. Hẹn gặp lại bé nhé! 🚀</p>'}
+          <div class="game-grid">${gameCards(grade, games)}</div>` : '<p class="daily-message">Bài tập của lớp này sắp ra mắt. Hẹn gặp lại bé nhé! 🚀</p>'}
         </div>
 
         <div class="dashboard animate-fadeIn" style="animation-delay: 0.2s">
@@ -116,12 +155,6 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
     app.querySelectorAll('.game-card').forEach(card => {
       card.addEventListener('click', () => navigate(card.dataset.game));
     });
-  }
-
-  // English: thẻ sách chưa có bản tiếng Anh (hoặc sách học tiếng Việt) ghi rõ là học bằng tiếng Việt.
-  function langTag(gameId) {
-    if (getLang() !== 'en' || hasEnglish(gameId)) return '';
-    return `<span class="card-lang">${VI_BOOKS.has(gameId) ? 'Học tiếng Việt' : 'Chưa có tiếng Anh'}</span>`;
   }
 
   // ── Đầu trang: lời chào, nút "Tiếp tục", tiến độ sticker ─────────────────

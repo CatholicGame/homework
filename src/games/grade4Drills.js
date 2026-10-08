@@ -11,6 +11,7 @@ import { renderGamesHub } from './grade3Games.js';
 import { DIVISION_GAME } from './grade3Drills/division.js';
 import { MUL_GAME } from './grade4Drills/mul.js';
 import { SHARK4_GAME } from './grade3Drills/shark.js';
+import { UFO4_GAME } from './grade3Drills/ufo.js';
 
 // ── ➗ Chia nhiều chữ số ──────────────────────────────────────────────────────────────────────────────
 /** D = q × d + r với số chia, thương cho trước; zero: thương có (true) / không có (false) chữ số 0. */
@@ -73,6 +74,7 @@ const tool = (id, game, desc, tags) => ({ id, icon: game.icon, title: game.title
 
 export const DRILL4_LIST = [
   tool('shark', SHARK4_GAME, 'Cá mập mang phép tính bơi tới: tính nhẩm số tới ba chữ số, gõ đúng kết quả để bắn trúng!', ['Tính nhẩm', 'Nhân, chia với 10, 100', 'Tính nhanh']),
+  tool('ufo', UFO4_GAME, 'Đĩa bay mang ổ khoá có số bị giấu: chọn đúng viên đạn, số thay vào ổ khoá là thấy đúng sai!', ['Biểu thức chứa chữ', 'Tìm x']),
   tool('mul', MUL_GAME, 'Nhân với số có một, hai, ba chữ số: tích riêng lùi một cột rồi cộng.', ['Tích riêng', 'Số có hai chữ số', 'Nâng cao']),
   tool('div', DIV4_GAME, 'Chia cho số có một, hai, ba chữ số: ước lượng thương rồi chia, nhân, trừ, hạ.', ['Ước lượng thương', 'Thương có chữ số 0', 'Nâng cao']),
 ];
