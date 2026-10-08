@@ -1,13 +1,9 @@
 /**
- * Global image lightbox — tap any question illustration (`.e3-q-img`, used by
- * both grade3Exam.js and grade3Workbook.js) to see it enlarged. Wired once at
- * app startup via event delegation, so it works for every game without each
- * one adding its own click handler or overlay markup.
- *
- * Native pinch-zoom already works on the enlarged image because index.html's
- * viewport meta doesn't set user-scalable=no/maximum-scale — the overlay just
- * gives the image enough room (and nothing else in the way) for that to be
- * useful on a phone/tablet.
+ * Hình câu hỏi (`.e3-q-img`, dùng chung cho grade3Exam.js và grade3Workbook.js), gắn một lần lúc mở app
+ * bằng event delegation:
+ *   • Chạm hình có hành động thực hành (↔️ Kéo dài, 📐 Ê ke, ⚖️ Thử cân…): vào thực hành luôn.
+ *   • Nút "📷 Ảnh gốc" ngay dưới hình vẽ lại (chỉ bản dev).
+ * Chạm hình để phóng to đã bỏ: bé chạm nhầm vào hình là mất câu hỏi đang làm.
  */
 import ORIGINALS from './origImages.js';
 
@@ -27,39 +23,7 @@ export function initLightbox() {
   const style = document.createElement('style');
   style.id = 'lightbox-styles';
   style.textContent = `
-    .e3-q-img { cursor: zoom-in; }
     .e3-question-card:has(> .gp-open, > .cp-open, > .gt-row, > .bal-open:not(.bal-locked), > .pour-open:not(.pour-locked)) > .e3-q-img:not([data-showing-orig="1"]) { cursor: pointer; }
-    .lightbox-overlay {
-      position: fixed; inset: 0; z-index: 5000;
-      background: rgba(15, 23, 42, 0.85);
-      display: flex; align-items: center; justify-content: center;
-      padding: 2.5rem 1.2rem 1.2rem;
-      animation: lightbox-fade-in 0.15s ease-out;
-    }
-    @keyframes lightbox-fade-in { from { opacity: 0; } to { opacity: 1; } }
-    .lightbox-img {
-      max-width: 95vw; max-height: 92vh;
-      background: #fff; /* hình SVG trong suốt — không để lẫn vào lớp phủ tối */
-      padding: 0.6rem;
-      border-radius: 0.75rem;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-    }
-    .lightbox-close {
-      position: fixed; top: 14px; right: 14px; z-index: 5001;
-      width: 2.4rem; height: 2.4rem; border-radius: 50%;
-      border: none; background: rgba(255,255,255,0.95); color: #1e293b;
-      font-size: 1.3rem; font-weight: 700; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-    }
-    .lightbox-orig {
-      position: fixed; top: 14px; right: 64px; z-index: 5001;
-      height: 2.4rem; padding: 0 1rem; border-radius: 1.2rem;
-      border: none; background: rgba(255,255,255,0.95); color: #1e293b;
-      font: 700 0.95rem Quicksand, sans-serif; cursor: pointer;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-    }
-    .lightbox-orig.is-on { background: #0EA5E9; color: #fff; }
     .e3-orig-toggle {
       display: block; margin: 6px auto 0; padding: 4px 12px;
       border: 1.5px solid #CBD5E1; border-radius: 999px; background: #fff; color: #334155;
@@ -70,58 +34,14 @@ export function initLightbox() {
   `;
   document.head.appendChild(style);
 
-  let overlay = null;
-
-  function close() {
-    overlay?.remove();
-    overlay = null;
-    document.removeEventListener('keydown', onKeydown);
-  }
-
-  function onKeydown(e) {
-    if (e.key === 'Escape') close();
-  }
-
-  function open(src, alt, startWithOriginal = false) {
-    overlay = document.createElement('div');
-    overlay.className = 'lightbox-overlay';
-    overlay.innerHTML = `
-      <button type="button" class="lightbox-close" aria-label="Đóng">✕</button>
-      <img class="lightbox-img" src="${src}" alt="${alt || ''}">
-    `;
-    const loadOriginal = originalLoader(src);
-    if (loadOriginal) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'lightbox-orig';
-      btn.textContent = '📷 Ảnh gốc';
-      const img = overlay.querySelector('.lightbox-img');
-      btn.onclick = async () => {
-        const showOrig = !btn.classList.contains('is-on');
-        img.src = showOrig ? await loadOriginal() : src;
-        btn.classList.toggle('is-on', showOrig);
-        btn.textContent = showOrig ? '✏️ Hình vẽ lại' : '📷 Ảnh gốc';
-      };
-      overlay.prepend(btn);
-      if (startWithOriginal) btn.click();
-    }
-    overlay.addEventListener('click', e => {
-      if (e.target === overlay || e.target.classList.contains('lightbox-close')) close();
-    });
-    document.addEventListener('keydown', onKeydown);
-    document.body.appendChild(overlay);
-  }
-
   document.addEventListener('click', e => {
     const toggle = e.target.closest('.e3-orig-toggle');
     if (toggle) { toggleInline(toggle); return; }
     const img = e.target.closest('.e3-q-img');
-    // 👆 Chạm để đếm (engine/tapCount.js), 🖍️ tô thẳng lên hình (engine/colorPaint.js), 🔤 chạm điểm trên hình (engine/namePlay.js): không phóng to.
-    if (img?.classList.contains('tc-wrap') || img?.classList.contains('cp-inline') || img?.classList.contains('np-inline-svg')) return;
+    // 👆 Chạm để đếm (engine/tapCount.js), 🖍️ tô thẳng lên hình (engine/colorPaint.js), 🔤 chạm điểm trên hình (engine/namePlay.js): hình tự xử lý chạm.
+    if (!img || img.classList.contains('tc-wrap') || img.classList.contains('cp-inline') || img.classList.contains('np-inline-svg')) return;
     // Hình có hành động thực hành (↔️ Kéo dài, 📐 Ê ke, 📏 Thước, 🔢 Đếm hình, 🟦 Ô vuông, 🖍️ Tô màu, ⚖️ Thử cân, 🫗 Thử rót): chạm hình là vào thực hành luôn.
-    const action = img && actionButtonFor(img);
-    if (action) { action.click(); return; }
-    if (img) open(img.dataset.paintedSrc || img.dataset.svgSrc || img.getAttribute('src'), img.alt, img.dataset.showingOrig === '1');
+    actionButtonFor(img)?.click();
   });
 
   // Nút "📷 Ảnh gốc" ngay dưới mỗi hình vẽ lại trong câu hỏi (trừ hình nhỏ trong ô bảng).
@@ -140,7 +60,7 @@ export function initLightbox() {
   addToggles();
 }
 
-// Nút hành động ngay dưới hình câu hỏi (đã mở khoá). Đang xem "📷 Ảnh gốc" thì vẫn phóng to như cũ.
+// Nút hành động ngay dưới hình câu hỏi (đã mở khoá). Đang xem "📷 Ảnh gốc" thì chạm hình không làm gì.
 const ACTION_BUTTONS = '.gp-open, .cp-open, .gt-open, .np-open-img, .pm-open, .dp-open:not(.dp-locked), .bal-open:not(.bal-locked), .pour-open:not(.pour-locked)';
 function actionButtonFor(img) {
   if (img.dataset.showingOrig === '1' || !img.parentElement?.classList.contains('e3-question-card')) return null;

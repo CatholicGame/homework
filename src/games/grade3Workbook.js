@@ -6756,7 +6756,7 @@ function injectStyles() {
        moves, and only the scroll zone below it scrolls — with its own
        scrollbar, so nothing in the top zone ever scrolls with the page.
        The question card shows in full by default; the image keeps its own
-       height cap (tap it to open the full-size lightbox). The grip below
+       height cap. The grip below
        the card lets the child pick another size. */
     .gw-app.gw-quiz-screen { height: 100%; min-height: 0; padding-bottom: 0; overflow: hidden; }
     .gw-quiz-screen .e3-quiz { display: flex; flex-direction: column; height: 100%; min-height: 0; padding-bottom: 0; }
