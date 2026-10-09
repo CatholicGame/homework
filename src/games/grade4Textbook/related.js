@@ -9,6 +9,7 @@
 
 import { CATALOG } from './catalog.js';
 import { KNOWLEDGE } from './knowledge.js';
+import { demoHtml, bindDemos } from './knowledgeDemo.js';
 
 const EXPLORE = [
   [1, 3, ['g4:1']], [4, 5, ['g4:4']], [6, 7, ['g4:10']], [8, 8, ['g4:11']], [9, 9, ['g4:14']],
@@ -56,12 +57,12 @@ const loaders = { g4: () => import('../grade4Tools.js'), g5: () => import('../gr
 function knowledgeHtml(units) {
   return units.map((k) => {
     const c = byNumber.get(k);
-    const { points = [], examples = [] } = KNOWLEDGE[c.id];
+    const { points = [], examples = [], demos = [] } = KNOWLEDGE[c.id];
     return `
       <section class="gw-kn-sec">
         <h3 class="gw-kn-h"><span>Bài ${k}</span>${c.title}<small>📖 trang ${c.page}</small></h3>
         <ul class="gw-kn-points">${points.map(p => `<li>${p}</li>`).join('')}</ul>
-        ${examples.length ? `<div class="gw-kn-ex"><b>Ví dụ</b>${examples.map(e => `<p>${String(e).replace(/\n/g, '<br>')}</p>`).join('')}</div>` : ''}
+        ${examples.length || demos.length ? `<div class="gw-kn-ex"><b>Ví dụ</b>${examples.map(e => `<p>${String(e).replace(/\n/g, '<br>')}</p>`).join('')}${demos.map(demoHtml).join('')}</div>` : ''}
       </section>`;
   }).join('');
 }
@@ -89,6 +90,7 @@ export function relatedFor(unitId, q) {
             </div>
           </div>`;
         host.querySelectorAll('[data-act="close"]').forEach(b => { b.onclick = close; });
+        bindDemos(host);
       },
     });
   }

@@ -36,7 +36,7 @@ export function createPlace(host, { cols = 5, value = 0, classes = false, tray =
   injectPlaceStyles();
   const t = emitter({});
   const counts = Array(cols).fill(0);
-  let busy = 0;
+  let gen = 0;
   let locked = false;
   const places = Array.from({ length: cols }, (_, i) => cols - 1 - i); // trái → phải: hàng cao → đơn vị
 
@@ -104,40 +104,66 @@ export function createPlace(host, { cols = 5, value = 0, classes = false, tray =
   /** Đặt ngay một giá trị (không bay). */
   t.set = (v) => {
     const ds = digitsOf(v, cols);
+    gen++; incoming.fill(0); carrying.fill(false); queued.forEach(q => q.splice(0).forEach(x => x.res())); // thẻ đang bay của bảng cũ không ghi vào bảng mới
     for (const p of places) { counts[p] = ds[p] || 0; placeChips(p, counts[p]); }
     render();
     t.showSum(false);
   };
 
-  /** Thêm một thẻ vào hàng p (bay từ khay hoặc từ `from`). Đủ 10 thì đổi sang hàng bên trái. */
-  t.add = async (p, { from = null, quiet = false } = {}) => {
-    busy++;
-    try {
-      const st = stack(p);
-      st.insertAdjacentHTML('beforeend', piece(p));
-      const el = st.lastElementChild;
-      el.style.visibility = 'hidden';
-      const fromEl = from || src(p);
-      if (fromEl) {
-        await new Promise(res => flyOne(piece(p), fromEl.getBoundingClientRect(), el.getBoundingClientRect(), { minMs: 320, maxMs: 520, onLand: res }));
-      }
-      el.style.visibility = '';
-      counts[p]++;
-      if (!quiet) sfx.pop(Math.min(counts[p], 9));
-      render();
-      t.emit('add', p);
-      if (counts[p] >= 10) await carry(p);
-    } finally { busy--; }
+  // Bấm nhanh liên tục được: số trên bảng đổi ngay lúc bấm, thẻ bay nhảy vào cột rồi xếp chồng lên.
+  // Một cột giữ tối đa 10 thẻ (kể cả thẻ đang bay tới); đủ 10 thẻ đã đáp thì cả 10 bay dồn sang cột bên trái,
+  // bấm thêm lúc cột đang đủ 10 thì xếp hàng chờ, bay vào ngay khi cột đổi xong.
+  const incoming = Array(cols).fill(0); // thẻ đổi từ cột bên phải đang bay tới (chưa tính vào counts)
+  const carrying = Array(cols).fill(false);
+  const queued = Array.from({ length: cols }, () => []); // lần bấm khi cột đã đủ 10
+  const room = (p) => p + 1 >= cols || counts[p] + incoming[p] < 10; // cột cao nhất không đổi được nên không chờ
+
+  /** Thêm một thẻ vào hàng p (bay từ khay hoặc từ `from`). Đủ 10 thì đổi sang hàng bên trái. Xong khi thẻ đáp (và đổi xong). */
+  t.add = (p, { from = null, quiet = false } = {}) => {
+    if (!room(p)) { if (!quiet) sfx.tap(); return new Promise(res => queued[p].push({ from, quiet, res })); } // bay vào ngay sau khi cột đổi xong
+    counts[p]++;
+    render();
+    t.emit('add', p);
+    const st = stack(p);
+    st.insertAdjacentHTML('beforeend', piece(p));
+    const el = st.lastElementChild;
+    el.dataset.fly = '1';
+    el.style.visibility = 'hidden';
+    const fromEl = from || src(p);
+    if (!quiet) sfx.tap();
+    const g = gen;
+    return new Promise((res) => {
+      const land = () => {
+        if (g !== gen) { res(); return; }
+        delete el.dataset.fly;
+        el.style.visibility = '';
+        el.classList.add('g4p-land');
+        if (!quiet) sfx.pop(Math.min(counts[p], 9));
+        checkCarry(p).then(res);
+      };
+      if (fromEl) flyOne(piece(p), fromEl.getBoundingClientRect(), el.getBoundingClientRect(), { minMs: 260, maxMs: 420, className: 'g4p-fly', onLand: land });
+      else land();
+    });
   };
 
-  /** 10 thẻ hàng p bay dồn thành 1 thẻ hàng p+1. */
+  /** Cột p đủ 10 thẻ và cả 10 đã đáp → đổi. */
+  function checkCarry(p) {
+    if (carrying[p] || counts[p] < 10 || p + 1 >= cols || stack(p).querySelector('[data-fly]')) return Promise.resolve();
+    return carry(p);
+  }
+
+  /** 10 thẻ hàng p nhảy dồn thành 1 thẻ hàng p+1. */
   async function carry(p) {
-    if (p + 1 >= cols) return;
+    const g = gen;
+    carrying[p] = true;
+    incoming[p + 1]++;
     col(p).classList.add('g4p-full');
-    await sleep(350);
+    await sleep(220);
+    if (g !== gen) return;
     const target = stack(p + 1);
     target.insertAdjacentHTML('beforeend', piece(p + 1));
     const slot = target.lastElementChild;
+    slot.dataset.fly = '1';
     slot.style.visibility = 'hidden';
     const to = slot.getBoundingClientRect();
     const chips = [...stack(p).children].reverse();
@@ -145,30 +171,35 @@ export function createPlace(host, { cols = 5, value = 0, classes = false, tray =
       let left = chips.length;
       chips.forEach((c, i) => {
         const r = c.getBoundingClientRect();
-        flyOne(piece(p), r, to, { delay: i * 50, minMs: 380, maxMs: 560, onLand: () => { if (--left === 0) res(); } });
-        setTimeout(() => { c.style.visibility = 'hidden'; }, i * 50);
+        flyOne(piece(p), r, to, { delay: i * 40, minMs: 340, maxMs: 480, className: 'g4p-fly', onLand: () => { if (--left === 0) res(); } });
+        setTimeout(() => { c.style.visibility = 'hidden'; }, i * 40);
       });
     });
+    if (g !== gen) return;
     stack(p).innerHTML = '';
     counts[p] = 0;
     col(p).classList.remove('g4p-full');
+    delete slot.dataset.fly;
     slot.style.visibility = '';
     slot.classList.add('g4p-pop');
+    incoming[p + 1]--;
     counts[p + 1]++;
+    carrying[p] = false;
     sfx.ding();
     render();
     t.emit('carry', p);
-    if (counts[p + 1] >= 10) await carry(p + 1);
+    while (queued[p].length && room(p)) { const q = queued[p].shift(); t.add(p, q).then(q.res); }
+    await checkCarry(p + 1);
   }
 
-  /** Bỏ một thẻ ở hàng p. */
+  /** Bỏ một thẻ (đã đáp) ở hàng p. */
   t.remove = (p) => {
-    if (!counts[p]) return;
-    const st = stack(p);
-    const el = st.lastElementChild;
+    if (!counts[p] || carrying[p]) return;
+    const el = [...stack(p).children].reverse().find(x => !x.dataset.fly);
+    if (!el) return;
     const s = src(p);
-    if (el && s) flyOne(piece(p), el.getBoundingClientRect(), s.getBoundingClientRect(), { minMs: 280, maxMs: 420 });
-    el?.remove();
+    if (s) flyOne(piece(p), el.getBoundingClientRect(), s.getBoundingClientRect(), { minMs: 280, maxMs: 420, className: 'g4p-fly' });
+    el.remove();
     counts[p]--;
     sfx.tap();
     render();
@@ -233,7 +264,7 @@ export function createPlace(host, { cols = 5, value = 0, classes = false, tray =
       if (c) { sfx.tap(); t.emit('pick', +c.dataset.p); }
       return;
     }
-    if (locked || busy) return;
+    if (locked) return;
     const s = e.target.closest('.g4p-src');
     if (s && !s.classList.contains('g4p-off')) { t.add(+s.dataset.p).then(() => t.emit()); return; }
     const c = e.target.closest('.g4p-col');
@@ -354,11 +385,15 @@ function injectPlaceStyles() {
     .g4p-full { animation: g4pFull .35s ease-in-out 2; }
     @keyframes g4pFull { 50% { background: #FEF08A; } }
     .g4p-pop { animation: g4pPop .45s cubic-bezier(.2,1.6,.4,1); }
+    .g3-fly.g4p-fly { z-index: 4500; container-type: size; font-family: 'Baloo 2', sans-serif; }
+    .g3-fly.g4p-fly .g4p-chip span { font-size: min(70cqh, calc(175cqi / var(--n, 6))); }
+    .g4p-land { animation: g4pLand .32s ease-out; transform-origin: 50% 100%; }
+    @keyframes g4pLand { 0% { transform: translateY(-35%) scale(1.06, 0.86); } 55% { transform: translateY(0) scale(0.95, 1.08); } }
     @keyframes g4pPop { from { transform: scale(0.3); } }
     .g4p-locked .g4p-src, .g4p-locked .g4p-col { cursor: default; }
     .g4p-picking .g4p-col:hover { box-shadow: 0 0 0 4px #FDE68A, 0 3px 0 rgba(63,58,64,0.1); }
     .g4p-picking .g4p-src { opacity: 0.35; pointer-events: none; }
-    @media (prefers-reduced-motion: reduce) { .g4p-pop { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .g4p-pop, .g4p-land { animation: g4pCalm .3s ease-out; } @keyframes g4pCalm { from { opacity: 0.4; } } }
 
     .g4c { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 3cqh; padding: 3cqh 3cqi; font-family: 'Baloo 2', sans-serif; justify-content: center; }
     .g4c-grid { position: relative; display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 1cqh 0.6cqi; }

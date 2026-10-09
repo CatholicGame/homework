@@ -92,17 +92,24 @@ export function runExplore(app, { id, title, icon = '🔎', setup, steps, onExit
   const muteBtn = app.querySelector('[data-act="mute"]');
   muteBtn.onclick = () => { setMuted(!isMuted()); muteBtn.textContent = isMuted() ? '🔇' : '🔊'; };
 
-  let drill, t, nav, nextBtn, lastSaid = '';
+  let drill, t, nav, nextBtn, skipBtn, lastSaid = '';
+  let skipStep = false, wake = null; // bước hiện tại đã bấm Bỏ qua; wake() thôi chờ câu đang đọc
   function mount() {
     drill = mountDrill(stage, { api: { say: fxSay }, board: '<div class="g4-board"></div>', cls: 'g4-scene' });
     const zone = drill.scene.querySelector('.g3d-padzone');
     zone.innerHTML = `<div class="g4-nav">
-        <button type="button" class="g4-nav-btn g4-replay" aria-label="Nghe lại">🔊 <span>Nghe lại</span></button>
+        <div class="g4-nav-row">
+          <button type="button" class="g4-nav-btn g4-replay" aria-label="Nghe lại">🔊 <span>Nghe lại</span></button>
+          <button type="button" class="g4-nav-btn g4-replay g4-skip" aria-label="Bỏ qua lời giải thích" disabled>⏭ <span>Bỏ qua</span></button>
+        </div>
         <button type="button" class="g4-nav-btn g4-next" disabled>Tiếp ▶</button>
       </div>`;
     nav = zone.querySelector('.g4-nav');
     nextBtn = nav.querySelector('.g4-next');
+    skipBtn = nav.querySelector('.g4-skip');
     nav.querySelector('.g4-replay').onclick = () => { if (lastSaid) fxSay(lastSaid); };
+    // Bỏ qua: tắt giọng, các câu giải thích còn lại của bước này chỉ hiện chữ (không chờ đọc); thao tác của em vẫn phải làm.
+    skipBtn.onclick = () => { sfx.tap(); skipStep = true; skipBtn.disabled = true; stopSpeaking(); wake?.(); };
     t = setup(drill.scene.querySelector('.g4-board'));
   }
 
@@ -117,8 +124,10 @@ export function runExplore(app, { id, title, icon = '🔎', setup, steps, onExit
       async say(text, shown) {
         check(r);
         lastSaid = text.replace(/<[^>]*>/g, '');
+        if (skipStep) { drill.show(shown || text); await rawSleep(250); check(r); return; }
         drill.say(text, shown);
-        await new Promise(res => whenQuiet(res, { min: Math.min(2600, 500 + lastSaid.length * 35), max: 14000 }));
+        await new Promise((res) => { wake = res; whenQuiet(res, { min: Math.min(2600, 500 + lastSaid.length * 35), max: 14000 }); });
+        wake = null;
         check(r);
       },
       /** Chỉ đổi chữ trong bong bóng (không đọc). */
@@ -221,8 +230,10 @@ export function runExplore(app, { id, title, icon = '🔎', setup, steps, onExit
     try {
       for (let i = 0; i < steps.length; i++) {
         markDot(i, false);
+        skipStep = false; skipBtn.disabled = false;
         await steps[i](ctx(r));
         check(r);
+        skipBtn.disabled = true;
         markDot(i, true);
         if (i < steps.length - 1) { await waitNext('Tiếp ▶'); check(r); }
       }
@@ -277,7 +288,9 @@ export function injectFrameStyles() {
     .g4-nav-btn { border: 2px solid ${EDGE}; border-radius: 1rem; font-family: 'Baloo 2', sans-serif; font-weight: 800; cursor: pointer; touch-action: manipulation;
       font-size: clamp(1.1rem, 2.2vh + 0.6rem, 2rem); padding: 0.35em 0.6em; background: #fff; color: #1E293B; box-shadow: 0 4px 0 rgba(63,58,64,0.18); }
     .g4-nav-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(63,58,64,0.18); }
-    .g4-replay { font-size: clamp(0.95rem, 1.5vh + 0.5rem, 1.4rem); align-self: flex-start; }
+    .g4-nav-row { flex: none; display: flex; gap: 0.5rem; }
+    .g4-replay { font-size: clamp(0.95rem, 1.5vh + 0.5rem, 1.4rem); }
+    .g4-skip:disabled { opacity: 0.35; cursor: default; }
     .g4-next { flex: 1 1 0; max-height: 9rem; background: #CBD5E1; color: #64748B; }
     .g4-next:disabled { cursor: default; }
     .g4-next.g4-ready { background: linear-gradient(180deg, #4ADE80, #22C55E); color: #fff; text-shadow: 0 2px 0 rgba(21,128,61,0.45); animation: g4Pulse 1.6s ease-in-out infinite; }
@@ -305,7 +318,8 @@ export function injectFrameStyles() {
       .g4-choices:has(> .g4-choice:nth-child(4)) > .g4-choice { flex: 1 1 calc(50% - 1.2cqi); font-size: min(6cqh, 6.2cqi); }
       .g3d-scene.g4-scene { grid-template-rows: auto minmax(0, 1fr) clamp(84px, 10%, 140px); }
       .g4-nav { flex-direction: row; align-items: stretch; }
-      .g4-replay { align-self: stretch; }
+      .g4-nav-row { flex-direction: column; gap: 0.35rem; }
+      .g4-nav-row .g4-replay { flex: 1 1 0; min-height: 0; padding: 0 0.5em; font-size: clamp(0.9rem, 1.1vh + 0.5rem, 1.25rem); text-align: left; }
       .g4-next { max-height: none; }
       /* vùng nút dọc thấp: dòng chúc mừng đè lên đáy tờ giấy (chỗ trống của nút chọn), ba nút một hàng vừa kín vùng */
       .g3d-scene.g4-scene > .g3d-padzone { z-index: 3; }

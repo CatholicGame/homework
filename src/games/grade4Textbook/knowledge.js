@@ -6,7 +6,8 @@
  * Nút "📘 Kiến thức" trên mỗi bài tập mở lớp này. Chỉ có các bài dạy kiến thức mới;
  * các bài "Luyện tập", "Luyện tập chung", "Ôn tập …", "Thực hành" (bản đồ) không có mục ở đây.
  *
- *   KNOWLEDGE['bai-4'] = { points: [quy tắc, định nghĩa…], examples: [ví dụ đã giải] }
+ *   KNOWLEDGE['bai-4'] = { points: [quy tắc, định nghĩa…], examples: [ví dụ đã giải], demos: [ví dụ xem từng bước] }
+ * demos: xem knowledgeDemo.js (so sánh, cộng, trừ, nhân đặt tính), thay cho ví dụ chữ dài cùng nội dung.
  * Được dùng HTML <b>, <br>; phân số viết bằng fr(a, b).
  */
 
@@ -53,10 +54,7 @@ export const KNOWLEDGE = {
       'Số nào có <b>ít chữ số hơn</b> thì bé hơn; số nào có nhiều chữ số hơn thì lớn hơn.',
       'Nếu hai số có số chữ số bằng nhau, ta so sánh từng cặp chữ số ở cùng một hàng, bắt đầu từ hàng cao nhất (từ trái sang phải). Cặp đầu tiên khác nhau quyết định số nào lớn hơn.',
     ],
-    examples: [
-      '99 578 có ít chữ số hơn 100 000 nên 99 578 < 100 000, hay 100 000 > 99 578.',
-      'So sánh 693 251 và 693 500: hai số có cùng số chữ số. Hàng trăm nghìn đều là 6, hàng chục nghìn đều là 9, hàng nghìn đều là 3. Đến hàng trăm: 2 < 5.<br>Vậy 693 251 < 693 500, hay 693 500 > 693 251.',
-    ],
+    demos: [{ kind: 'compare', a: 99578, b: 100000 }, { kind: 'compare', a: 693251, b: 693500 }],
   },
   'bai-10': {
     points: [
@@ -113,9 +111,9 @@ export const KNOWLEDGE = {
     ],
     examples: [
       '100 > 99; 99 < 100.',
-      '29 869 và 30 005 đều có năm chữ số; ở hàng chục nghìn có 2 < 3, vậy 29 869 < 30 005.',
       'Xếp 7698; 7968; 7896; 7869 từ bé đến lớn: 7698; 7869; 7896; 7968.',
     ],
+    demos: [{ kind: 'compare', a: 29869, b: 30005 }],
   },
   'bai-18': {
     points: [
@@ -191,20 +189,14 @@ export const KNOWLEDGE = {
       'Đặt tính: viết số hạng này dưới số hạng kia sao cho các chữ số cùng hàng thẳng cột với nhau, viết dấu +, kẻ gạch ngang.',
       'Cộng theo thứ tự <b>từ phải sang trái</b> (từ hàng đơn vị). Được 10 trở lên thì viết chữ số hàng đơn vị và <b>nhớ 1</b> sang hàng bên trái.',
     ],
-    examples: [
-      '48 352 + 21 026: 2 cộng 6 bằng 8, viết 8; 5 cộng 2 bằng 7, viết 7; 3 cộng 0 bằng 3, viết 3; 8 cộng 1 bằng 9, viết 9; 4 cộng 2 bằng 6, viết 6.<br>Vậy 48 352 + 21 026 = 69 378.',
-      '367 859 + 541 728: 9 cộng 8 bằng 17, viết 7 nhớ 1; 5 cộng 2 bằng 7, thêm 1 bằng 8, viết 8; 8 cộng 7 bằng 15, viết 5 nhớ 1; 7 cộng 1 bằng 8, thêm 1 bằng 9, viết 9; 6 cộng 4 bằng 10, viết 0 nhớ 1; 3 cộng 5 bằng 8, thêm 1 bằng 9, viết 9.<br>Vậy 367 859 + 541 728 = 909 587.',
-    ],
+    demos: [{ kind: 'add', a: 48352, b: 21026 }, { kind: 'add', a: 367859, b: 541728 }],
   },
   'bai-30': {
     points: [
       'Đặt tính: viết số trừ dưới số bị trừ, các chữ số cùng hàng thẳng cột, viết dấu −, kẻ gạch ngang.',
       'Trừ theo thứ tự <b>từ phải sang trái</b>. Nếu chữ số trên bé hơn chữ số dưới thì lấy thêm 10 để trừ (nhớ 1), rồi thêm 1 vào chữ số của số trừ ở hàng bên trái.',
     ],
-    examples: [
-      '865 279 − 450 237: 9 trừ 7 bằng 2, viết 2; 7 trừ 3 bằng 4, viết 4; 2 trừ 2 bằng 0, viết 0; 5 trừ 0 bằng 5, viết 5; 6 trừ 5 bằng 1, viết 1; 8 trừ 4 bằng 4, viết 4.<br>Vậy 865 279 − 450 237 = 415 042.',
-      '647 253 − 285 749: 13 trừ 9 bằng 4, viết 4 nhớ 1; 4 thêm 1 bằng 5, 5 trừ 5 bằng 0, viết 0; 12 trừ 7 bằng 5, viết 5 nhớ 1; 5 thêm 1 bằng 6, 7 trừ 6 bằng 1, viết 1; 14 trừ 8 bằng 6, viết 6 nhớ 1; 2 thêm 1 bằng 3, 6 trừ 3 bằng 3, viết 3.<br>Vậy 647 253 − 285 749 = 361 504.',
-    ],
+    demos: [{ kind: 'sub', a: 865279, b: 450237 }, { kind: 'sub', a: 647253, b: 285749 }],
   },
   'bai-32': {
     points: [
@@ -341,10 +333,7 @@ export const KNOWLEDGE = {
       'Đặt tính: viết thừa số có một chữ số dưới hàng đơn vị của thừa số kia, viết dấu ×, kẻ gạch ngang.',
       'Nhân theo thứ tự <b>từ phải sang trái</b>. Được tích từ 10 trở lên thì viết chữ số hàng đơn vị, nhớ chữ số hàng chục để cộng vào lần nhân sau.',
     ],
-    examples: [
-      '241 324 × 2: 2 nhân 4 bằng 8, viết 8; 2 nhân 2 bằng 4, viết 4; 2 nhân 3 bằng 6, viết 6; 2 nhân 1 bằng 2, viết 2; 2 nhân 4 bằng 8, viết 8; 2 nhân 2 bằng 4, viết 4.<br>Vậy 241 324 × 2 = 482 648.',
-      '136 204 × 4: 4 nhân 4 bằng 16, viết 6 nhớ 1; 4 nhân 0 bằng 0, thêm 1 bằng 1, viết 1; 4 nhân 2 bằng 8, viết 8; 4 nhân 6 bằng 24, viết 4 nhớ 2; 4 nhân 3 bằng 12, thêm 2 bằng 14, viết 4 nhớ 1; 4 nhân 1 bằng 4, thêm 1 bằng 5, viết 5.<br>Vậy 136 204 × 4 = 544 816.',
-    ],
+    demos: [{ kind: 'mul1', a: 241324, b: 2 }, { kind: 'mul1', a: 136204, b: 4 }],
   },
   'bai-50': {
     points: [

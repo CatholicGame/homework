@@ -20,7 +20,8 @@ export function flyOne(html, from, to, { delay = 0, minMs = 450, maxMs = 900, sp
   const el = document.createElement('div');
   el.className = `g3-fly ${className}`;
   el.innerHTML = html;
-  Object.assign(el.style, { left: `${from.left}px`, top: `${from.top}px`, width: `${from.width}px`, height: `${from.height}px` });
+  // position fixed ngay trên phần tử: không phụ thuộc CSS .g3-fly (chỉ nạp cùng trò Lớp 3), thiếu nó đồ bay nằm ngoài màn hình.
+  Object.assign(el.style, { position: 'fixed', pointerEvents: 'none', transformOrigin: '50% 50%', left: `${from.left}px`, top: `${from.top}px`, width: `${from.width}px`, height: `${from.height}px` });
   document.body.appendChild(el);
   // Tính theo tâm (transform-origin giữa khung) để phóng to / xoay không làm lệch điểm đáp.
   const dx = to.left + to.width / 2 - (from.left + from.width / 2);
