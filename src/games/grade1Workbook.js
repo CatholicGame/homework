@@ -32,6 +32,6 @@ const WORKBOOK1_CONFIG = {
   unitName: (u) => (typeof u.number === 'number' ? `Bài ${u.number}. ${u.title}` : u.title),
 };
 
-export function render(app, onBack) {
-  renderWorkbook(app, onBack, WORKBOOK1_CONFIG);
+export function render(app, onBack, { open } = {}) {
+  renderWorkbook(app, onBack, { ...WORKBOOK1_CONFIG, open });
 }

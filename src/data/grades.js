@@ -9,6 +9,9 @@ import { MEMORY_ISLAND } from './features.js';
 // firestore.rules). Mã này phải khớp với firestore.rules và BOOK_GRADE trong engine/stars.js.
 export const PRESCHOOL = -1;
 
+// 🗺️ Bản đồ kiến thức (games/knowledgeMap.js): cùng một thẻ cho lớp 1–5, trang tự lấy lớp trong hồ sơ.
+const KNOWLEDGE_MAP = { id: 'knowledge-map', icon: '🗺️', color: '#16A34A', title: 'Bản đồ kiến thức', desc: 'Các kiến thức quan trọng của lớp: em đã vững, đang học hay chưa học, chạm để học tiếp' };
+
 export const GRADES = [
   {
     num: PRESCHOOL, title: 'Tiền tiểu học', short: '🧸', sub: 'Tiền TH', icon: '🧸', color: '#EC4899',
@@ -23,6 +26,7 @@ export const GRADES = [
   {
     num: 1, title: 'Lớp 1', icon: '1️⃣', color: '#FF6B9D',
     games: [
+      KNOWLEDGE_MAP,
       { id: 'grade1-workbook', icon: '📒', color: '#FF6B9D', title: 'Vở Bài Tập Toán 1 — Tập Một', desc: 'Bài 1–34' },
       { id: 'grade1-photo', group: 'challenge', icon: '📷', color: '#0EA5E9', title: 'Bé Chụp Ảnh Chim', desc: 'Chụp ảnh đàn chim rồi chạm đếm: đến 20, đếm theo chục đến 100' },
       { id: 'grade1-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Cộng, trừ trong phạm vi 10, 20, 100' },
@@ -32,6 +36,7 @@ export const GRADES = [
   {
     num: 2, title: 'Lớp 2', icon: '2️⃣', color: '#60A5FA',
     games: [
+      KNOWLEDGE_MAP,
       { id: 'grade2-workbook', icon: '📒', color: '#0EA5E9', title: 'Vở Bài Tập Toán 2 — Tập Một', desc: 'Bài 1–36' },
       { id: 'grade2-workbook-2', icon: '📙', color: '#F59E0B', title: 'Vở Bài Tập Toán 2 — Tập Hai', desc: 'Bài 37–75' },
       { id: 'grade2-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Làm tròn 10, bảng cộng trừ, đặt tính, bảng nhân chia 2 và 5, tính nhẩm, bài toán có lời văn' },
@@ -43,7 +48,8 @@ export const GRADES = [
   {
     num: 3, title: 'Lớp 3', icon: '3️⃣', color: '#34D399',
     games: [
-      ...(MEMORY_ISLAND ? [{ id: 'memory-island', icon: '🏝️', color: '#0EA5E9', title: 'Đảo Trí Nhớ', desc: 'Ôn bảng nhân chia, đổi đơn vị, số La Mã bằng trò chơi lật thẻ' }] : []),
+      KNOWLEDGE_MAP,
+      ...(MEMORY_ISLAND ? [{ id: 'memory-island', group: 'challenge', icon: '🏝️', color: '#0EA5E9', title: 'Đảo Trí Nhớ', desc: 'Ôn bảng nhân chia, đổi đơn vị, số La Mã bằng trò chơi lật thẻ' }] : []),
       { id: 'grade3-workbook', icon: '📗', color: '#10B981', title: 'Vở Bài Tập Toán 3 — Tập Một', desc: 'Bài 1–44' },
       { id: 'grade3-workbook-2', icon: '📕', color: '#EF4444', title: 'Vở Bài Tập Toán 3 — Tập Hai', desc: 'Bài 45–81' },
       { id: 'grade3-practice', icon: '📘', color: '#3B82F6', title: 'Luyện Tập Toán 3', desc: 'Tập Một — Luyện tập theo tuần' },
@@ -58,6 +64,7 @@ export const GRADES = [
   {
     num: 4, title: 'Lớp 4', icon: '4️⃣', color: '#C084FC',
     games: [
+      KNOWLEDGE_MAP,
       { id: 'grade4-textbook', icon: '📖', color: '#6366F1', title: 'Sách Toán 4', desc: 'Sách giáo khoa Toán 4, bài 1–175: làm bài tập ngay trong sách, phép tính lớn có nút ✍️ Tính để đặt tính' },
       { id: 'grade4-tools', icon: '🧰', color: '#8B5CF6', title: 'Toán 4: Học bằng công cụ', desc: 'Tập Một, Bài 1–37: bảng hàng, tia số, thước đo góc, ê ke… em tự tay khám phá rồi thực hành' },
       { id: 'grade4-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Nhân, chia đặt tính với số có một, hai, ba chữ số: tích riêng, ước lượng thương' },
@@ -69,6 +76,7 @@ export const GRADES = [
   {
     num: 5, title: 'Lớp 5', icon: '5️⃣', color: '#FBBF24',
     games: [
+      KNOWLEDGE_MAP,
       { id: 'grade5-tools', icon: '🧰', color: '#F59E0B', title: 'Toán 5: Học bằng công cụ', desc: 'Tập Một, Bài 1–35: băng phân số, số thập phân, bảng đơn vị đo, cắt ghép hình… em tự tay khám phá rồi thực hành' },
       { id: 'grade5-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Cộng, trừ, nhân, chia số thập phân đặt tính; nhân chia nhẩm với 10, 100, 0,1; phân số' },
       { id: 'grade5-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Bảng nhân chia, nhân chia số tròn chục, tròn trăm' },

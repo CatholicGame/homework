@@ -4424,8 +4424,8 @@ const WORKBOOK_CONFIG = {
 // cho trang thử scripts/geotools-dev.html
 export { UNITS as WORKBOOK3_UNITS };
 
-export function render(app, onBack) {
-  renderWorkbook(app, onBack, WORKBOOK_CONFIG);
+export function render(app, onBack, { open } = {}) {
+  renderWorkbook(app, onBack, { ...WORKBOOK_CONFIG, open });
 }
 
 export function renderWorkbook(app, onBack, cfg) {
@@ -6421,6 +6421,8 @@ export function renderWorkbook(app, onBack, cfg) {
 
   if (import.meta.env.DEV) window.__gwShowResult = showResult; // chạy thử màn kết quả không cần làm hết bài
   showIntro();
+  // cfg.open (từ 🗺️ Bản đồ kiến thức): mở thẳng một bài; nút quay lại trong bài về menu bài như thường.
+  if (cfg.open && UNITS.some(u => u.id === cfg.open)) openUnit(cfg.open);
 }
 
 // ── Layer over the exercise (📘 Kiến thức, 🔎 Khám phá) ───────────────────────

@@ -373,6 +373,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
               <span>${guest ? 'Đang dùng thử, bài làm chỉ lưu trên máy này' : escapeHtml(user.email)}</span>
             </div>
             <button type="button" class="user-menu-item user-menu-edit" id="user-edit-profile" role="menuitem">✏️ Đổi lớp, avatar và biệt danh</button>
+            <button type="button" class="user-menu-item" id="user-kmap" role="menuitem">🗺️ Bản đồ kiến thức của bé</button>
             ${guest ? `
             <button type="button" class="user-menu-item" id="user-signin" role="menuitem">🔐 Đăng nhập Google để lưu lên Drive</button>` : `
             <button type="button" class="user-menu-item" id="user-reviews" role="menuitem">⭐ Đánh giá ứng dụng</button>
@@ -407,6 +408,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
     app.querySelector('#user-sticker-btn').addEventListener('click', () => navigate('stickers'));
     btn.addEventListener('click', () => setOpen(menu.hidden));
     app.querySelector('#user-edit-profile').addEventListener('click', () => { setOpen(false); navigate('profile'); });
+    app.querySelector('#user-kmap').addEventListener('click', () => { setOpen(false); navigate('knowledge-map'); });
     app.querySelector('#user-reviews')?.addEventListener('click', () => { setOpen(false); navigate('reviews'); });
     app.querySelector('#user-admin')?.addEventListener('click', () => { setOpen(false); location.hash = 'admin'; });
     app.querySelector('#user-signout')?.addEventListener('click', () => { setOpen(false); openSignOutDialog(); });

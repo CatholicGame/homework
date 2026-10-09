@@ -35,6 +35,6 @@ const WORKBOOK2_TAP2_CONFIG = {
   loadGames: GRADE2_GAMES ? () => import('./grade2Games.js') : null, // production chưa bật: không đóng gói code trò chơi
 };
 
-export function render(app, onBack) {
-  renderWorkbook(app, onBack, WORKBOOK2_TAP2_CONFIG);
+export function render(app, onBack, { open } = {}) {
+  renderWorkbook(app, onBack, { ...WORKBOOK2_TAP2_CONFIG, open });
 }

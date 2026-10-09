@@ -33,6 +33,6 @@ const PRACTICE_CONFIG = {
   related: relatedForGrade3,
 };
 
-export function render(app, onBack) {
-  renderWorkbook(app, onBack, PRACTICE_CONFIG);
+export function render(app, onBack, { open } = {}) {
+  renderWorkbook(app, onBack, { ...PRACTICE_CONFIG, open });
 }

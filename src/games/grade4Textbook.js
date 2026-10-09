@@ -37,6 +37,6 @@ const TEXTBOOK4_CONFIG = {
   related: relatedFor,
 };
 
-export function render(app, onBack) {
-  renderWorkbook(app, onBack, TEXTBOOK4_CONFIG);
+export function render(app, onBack, { open } = {}) {
+  renderWorkbook(app, onBack, { ...TEXTBOOK4_CONFIG, open });
 }

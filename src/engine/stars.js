@@ -109,6 +109,11 @@ export function earnedFor(key) {
   return loadLedger().earned[key] || 0;
 }
 
+/** Khoá của mọi câu đã nhận sao (bản đồ kiến thức đếm câu đã giải theo từng Bài). */
+export function getEarnedKeys() {
+  return Object.keys(loadLedger().earned);
+}
+
 // Tiền tố khoá sao của từng sách → lớp (1–5; -1 = Tiền tiểu học, xem PRESCHOOL trong data/grades.js).
 // Thêm sách mới thì thêm một dòng.
 const BOOK_GRADE = { exam: 3, worksheet: 3, workbook: 3, practice: 3, g3games: 3, drill: 3, workbook2: 2, workbook1: 1, drill2: 2, g2games: 2, pre1: -1, pre2: -1, pre3: -1, pre4: -1, pre5: -1, g1bird: 1, shark1: 1, ufo1: 1, tool4: 4, drill4: 4, textbook4: 4, tool5: 5, drill5: 5, memory3: 3 };

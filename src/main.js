@@ -219,7 +219,8 @@ let guestChosenNow = false; // lần mở này bé vừa bấm "Dùng thử"
 let loginError = ''; // lỗi đăng nhập qua máy chủ, hiện một lần trên màn đăng nhập
 let profileReturn = 'home'; // màn quay về sau khi sửa hồ sơ
 let currentPage = null;
-function navigate(gameId) {
+// opts (mở từ 🗺️ Bản đồ kiến thức): { open: 'bai-N' mở thẳng một bài của sách, back: trang quay về thay trang chủ }.
+function navigate(gameId, opts = {}) {
   currentPage = gameId || 'home';
   const app = document.getElementById('app');
   app.innerHTML = '';
@@ -291,6 +292,16 @@ function navigate(gameId) {
     import('./games/reviews.js').then(mod => {
       if (token !== navToken) return;
       mod.render(app, () => navigate('home'));
+    }).catch(() => {
+      if (token === navToken) renderLoadError(app, () => navigate('home'));
+    });
+    return;
+  }
+
+  if (gameId === 'knowledge-map') {
+    import('./games/knowledgeMap.js').then(mod => {
+      if (token !== navToken) return;
+      mod.render(app, () => navigate('home'), { navigate });
     }).catch(() => {
       if (token === navToken) renderLoadError(app, () => navigate('home'));
     });
@@ -391,8 +402,8 @@ function navigate(gameId) {
       if (token !== navToken) return;
       app.innerHTML = '';
       // Trò trong nhóm Challenge games: nút quay lại về trang danh sách trò, không về thẳng trang chủ.
-      const back = getGrade(getProfileGrade())?.games.find(g => g.id === gameId)?.group === 'challenge' ? CHALLENGE_ID : 'home';
-      mod.render(app, () => navigate(back), { onSignIn: user.guest ? goSignIn : null });
+      const back = opts.back || (getGrade(getProfileGrade())?.games.find(g => g.id === gameId)?.group === 'challenge' ? CHALLENGE_ID : 'home');
+      mod.render(app, () => navigate(back), { onSignIn: user.guest ? goSignIn : null, open: opts.open });
     }).catch(() => {
       clearTimeout(loadingTimer);
       if (token !== navToken) return;

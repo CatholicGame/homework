@@ -37,6 +37,6 @@ const WORKBOOK_TAP2_CONFIG = {
   related: relatedForGrade3,
 };
 
-export function render(app, onBack) {
-  renderWorkbook(app, onBack, WORKBOOK_TAP2_CONFIG);
+export function render(app, onBack, { open } = {}) {
+  renderWorkbook(app, onBack, { ...WORKBOOK_TAP2_CONFIG, open });
 }
