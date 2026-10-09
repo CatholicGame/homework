@@ -17,7 +17,7 @@
 
 import { getCurrentUser, getAccessToken, getFreshAccessToken, isGuest, leaveGuest } from './auth.js';
 import { getTotalStars, getStarsByGrade, getGradePeriodStars } from './stars.js';
-import { getProfile, saveProfile, markProfileSynced, NAME_MAX } from './profile.js';
+import { getProfile, saveProfile, markProfileSynced, NAME_MAX, CONSENT_TEXT, parentConsentAt } from './profile.js';
 import { castRows, makeLaunch } from './leaderboardCast.js';
 import { describeDevice } from './voiceReport.js';
 import { deviceKey } from './deviceKey.js';
@@ -370,6 +370,7 @@ let profileSync = null; // lần đồng bộ hồ sơ đang chạy — pushNow 
 async function syncProfileNow() {
   const fb = await ensureSignedInSilently();
   if (!fb) return false;
+  recordConsent(fb).catch((e) => console.warn('[profile] Chưa ghi được xác nhận phụ huynh:', e?.code || e));
   const { db, fs, auth } = fb;
   const uid = auth.currentUser.uid;
   const ref = fs.doc(db, PROFILES, uid);
@@ -396,6 +397,20 @@ async function syncProfileNow() {
   }
   if (JSON.stringify(normEntry(getProfile())) === json) markProfileSynced();
   return false;
+}
+
+// `consents/{firebaseUid}`: { text, at, createdAt } — bằng chứng phụ huynh đã đồng ý (Nghị định 13/2023).
+// Ghi một lần, không sửa được; riêng với profiles để luật chưa deploy không chặn đồng bộ hồ sơ.
+let consentRecorded = null; // uid đã ghi
+async function recordConsent({ db, fs, auth }) {
+  const uid = auth.currentUser.uid;
+  const at = parentConsentAt();
+  if (!at || consentRecorded === uid) return;
+  const ref = fs.doc(db, 'consents', uid);
+  if (!(await fs.getDoc(ref)).exists()) {
+    await fs.setDoc(ref, { text: CONSENT_TEXT, at, createdAt: fs.serverTimestamp() });
+  }
+  consentRecorded = uid;
 }
 
 /**

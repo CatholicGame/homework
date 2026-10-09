@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>knowledge dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" /></head>
+<body style="margin:0;background:#E0F2FE"><div id="app" style="box-sizing:border-box;padding:12px;max-width:900px;margin:0 auto"></div>
+<script type="module">
+// Xem các ví dụ "xem từng bước" của 📘 Kiến thức SGK Toán 4 (src/games/grade4Textbook/knowledgeDemo.js).
+//   ?bai=9            mọi ví dụ của Bài 9 (cả điểm kiến thức)
+//   ?bai=9&d=1&f=3    chỉ ví dụ thứ 2 của Bài 9, mở ở bước 3 (f=-1: bước cuối); &t=1 chọn nút "Thử với" thứ 2
+//   ?all=1            mọi bài có ví dụ (kiểm tra lỗi dựng: tiêu đề trang = số ví dụ hoặc ERR …)
+//   ?spec={json}      một ví dụ bất kì
+// Chụp: chrome --headless --screenshot=out.png --window-size=420,900 --virtual-time-budget=3000 "http://localhost:5173/scripts/knowledge-dev.html?bai=9&d=1&f=3"
+addEventListener('error', e => { document.title = 'ERR ' + e.message; });
+addEventListener('unhandledrejection', e => { document.title = 'REJ ' + (e.reason && e.reason.stack || e.reason); });
+const p = new URLSearchParams(location.search);
+localStorage.setItem('pre1-mute', '1');
+await import('/src/games/grade3Workbook.js'); // kiểu .gw-frac
+const { KNOWLEDGE } = await import('/src/games/grade4Textbook/knowledge.js');
+const { demoHtml, bindDemos } = await import('/src/games/grade4Textbook/knowledgeDemo.js');
+const app = document.getElementById('app');
+const frStyle = document.createElement('style');
+frStyle.textContent = `.gw-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.1;margin:0 .12em;font-size:.95em}.gw-frac>span{padding:0 .2em}.gw-frac>span+span{border-top:2px solid currentColor}
+  .gw-kn-points{font-size:1.05rem;line-height:1.5} .sec{background:#fff;border-radius:1rem;padding:.6rem 1rem;margin-bottom:1rem} .sec h3{margin:.2rem 0}`;
+document.head.appendChild(frStyle);
+const render = (key, only) => {
+  const k = KNOWLEDGE[key];
+  const demos = only != null ? [k.demos[only]] : k.demos || [];
+  return `<div class="sec"><h3>${key}</h3>${only == null ? `<ul class="gw-kn-points">${(k.points || []).map(x => `<li>${x}</li>`).join('')}</ul>${(k.examples || []).map(e => `<p>${e}</p>`).join('')}` : ''}${demos.map(demoHtml).join('')}</div>`;
+};
+if (p.get('spec')) app.innerHTML = demoHtml(JSON.parse(p.get('spec')));
+else if (p.get('all')) {
+  let n = 0;
+  app.innerHTML = Object.keys(KNOWLEDGE).map(k => { n += (KNOWLEDGE[k].demos || []).length; return render(k); }).join('');
+  document.title = `${n} demos`;
+} else app.innerHTML = render(`bai-${p.get('bai')}`, p.get('d') != null ? Number(p.get('d')) : null);
+bindDemos(app);
+if (p.get('f') != null) {
+  const el = app.querySelectorAll('.kd')[0];
+  el.kdJump(Number(p.get('f')), p.get('t') != null ? Number(p.get('t')) : null);
+}
+if (p.get('frames')) document.title = [...app.querySelectorAll('.kd')].map(el => el.kdJump(0)).join(',');
+</script></body></html>

@@ -1742,6 +1742,25 @@
 .profile-grade-btn.is-selected .profile-grade-num { color: white; }
 .profile-grade-btn:disabled { opacity: 0.45; cursor: default; }
 
+/* Xác nhận của phụ huynh (một lần, trước nút Xong) */
+.profile-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  background: #F8FAFC;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.profile-consent input { flex: none; width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--primary, #6366F1); cursor: pointer; }
+.profile-consent:has(input:checked) { border-color: #86EFAC; background: #F0FDF4; }
+
 .profile-need { margin: 8px 0 0; font-size: 0.85rem; font-weight: 600; color: var(--text-light); text-align: center; }
 .profile-skip:disabled { opacity: 0.45; cursor: default; }
 

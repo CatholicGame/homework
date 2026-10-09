@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>lesson help dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" /></head>
+<body style="margin:0;background:#E0F2FE"><div id="app" style="box-sizing:border-box;padding:12px;max-width:900px;margin:0 auto"></div>
+<script type="module">
+// Xem 📘 Kiến thức / 🔎 Khám phá của Lớp 1, 2, 3, 5 (src/games/lessonHelp.js).
+//   ?g=2&bai=48              lớp phủ 📘 Kiến thức của Bài 48 Toán 2 (giống khi bấm nút trên vở bài tập)
+//   ?g=2&bai=48&d=0&f=3      mở ví dụ thứ 1 ở bước 3 (f=-1: bước cuối); &t=1 chọn nút "Thử với" thứ 2
+//   ?g=2&x=b48               chạy Khám phá EXPLORES['b48'] (x1/x2/x3); ?g=3&x=g4:1 dùng lại Khám phá Toán 4
+//   ?g=2&map=1               bảng: mỗi bài có kiến thức gì, khám phá gì (kiểm tra thiếu)
+//   ?g=2&all=1               dựng mọi ví dụ của mọi bài (tiêu đề trang = số ví dụ, hoặc ERR …)
+//   ?g=5&bai=10              Toán 5
+// Chụp: chrome --headless --screenshot=out.png --window-size=420,900 --virtual-time-budget=3000 "http://localhost:5173/scripts/lesson-help-dev.html?g=2&bai=48&d=0&f=3"
+addEventListener('error', e => { document.title = 'ERR ' + e.message; });
+addEventListener('unhandledrejection', e => { document.title = 'REJ ' + (e.reason && e.reason.stack || e.reason); });
+const p = new URLSearchParams(location.search);
+localStorage.setItem('pre1-mute', '1');
+await import('/src/games/grade3Workbook.js'); // kiểu .gw-frac, .gw-kn
+const g = p.get('g') || '2';
+const SRC = {
+  1: ['/src/games/grade1Knowledge/index.js', 'KNOWLEDGE1', '/src/games/grade1Explore/map.js', 'EXPLORE_MAP1', 'x1'],
+  2: ['/src/games/grade2Knowledge/index.js', 'KNOWLEDGE2', '/src/games/grade2Explore/map.js', 'EXPLORE_MAP2', 'x2'],
+  3: ['/src/games/grade3Knowledge/index.js', 'KNOWLEDGE3', '/src/games/grade3Explore/map.js', 'EXPLORE_MAP3', 'x3'],
+  5: ['/src/games/grade5Tools/knowledge.js', 'KNOWLEDGE5', null, null, 'g5'],
+}[g];
+const K = (await import(/* @vite-ignore */ SRC[0]))[SRC[1]];
+const MAP = SRC[2] ? (await import(/* @vite-ignore */ SRC[2]))[SRC[3]] : {};
+const H = await import('/src/games/lessonHelp.js');
+const app = document.getElementById('app');
+const close = () => { document.title = 'closed'; };
+
+if (p.get('x')) {
+  const ref = p.get('x').includes(':') ? p.get('x') : `${SRC[4]}:${p.get('x')}`;
+  app.style.cssText = 'position:fixed;inset:0;display:flex;flex-direction:column';
+  await H.openExplore(app, ref, close, { book: `SGK Toán ${g}` });
+} else if (p.get('map')) {
+  const ns = [...new Set([...Object.keys(K), ...Object.keys(MAP)].map(Number))].sort((a, b) => a - b);
+  app.innerHTML = `<table border="1" cellpadding="4" style="background:#fff;border-collapse:collapse;font:14px Quicksand">
+    <tr><th>Bài</th><th>Tên</th><th>Kiến thức</th><th>Ví dụ từng bước</th><th>Khám phá</th></tr>
+    ${ns.map(n => { const e = K[n] || {}; const x = [].concat(MAP[n] || []);
+      return `<tr><td>${n}</td><td>${e.title || ''}</td><td>${e.see ? 'xem ' + e.see.join(', ') : (e.points || []).length}</td><td>${(e.demos || []).map(d => d.kind).join(', ')}</td>
+        <td>${x.map(o => o.key || o.reuse || (o.see != null ? 'xem ' + o.see : '?')).join(', ')}</td></tr>`; }).join('')}</table>`;
+  document.title = `${ns.length} bài`;
+} else if (p.get('all')) {
+  const ns = Object.keys(K).map(Number).filter(n => !K[n].see);
+  const item = H.knowledgeItem(K, ns, { book: `SGK Toán ${g}` });
+  item.open(app, close);
+  document.title = `${app.querySelectorAll('.kd').length} demos`;
+} else {
+  const n = Number(p.get('bai'));
+  const item = H.knowledgeItem(K, H.knowledgeBais(K, [n]), { book: `SGK Toán ${g}` });
+  app.style.cssText = 'position:fixed;inset:0;display:flex;flex-direction:column';
+  item.open(app, close);
+  if (p.get('f') != null) {
+    const el = app.querySelectorAll('.kd')[Number(p.get('d') || 0)];
+    el.kdJump(Number(p.get('f')), p.get('t') != null ? Number(p.get('t')) : null);
+    el.scrollIntoView({ block: 'start' });
+  }
+  if (p.get('frames')) document.title = [...app.querySelectorAll('.kd')].map(el => el.kdJump(0)).join(',');
+}
+</script></body></html>

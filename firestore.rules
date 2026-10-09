@@ -91,6 +91,16 @@ service cloud.firestore {
       allow create, update: if isOwner(uid) && validProfile(request.resource.data);
     }
 
+    // Xác nhận của phụ huynh (Nghị định 13/2023): ghi một lần, không sửa, không xoá từ app.
+    match /consents/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['text', 'at', 'createdAt'])
+        && request.resource.data.text is string && request.resource.data.text.size() <= 300
+        && request.resource.data.at is int
+        && request.resource.data.createdAt == request.time;
+    }
+
     // Sổ đăng ký học sinh: mỗi bé tự ghi khi mở app (tối đa 1 lần/ngày) — admin đếm số bé đã đăng ký
     // và số bé đang hoạt động. createdAt ghi một lần, không đổi được; email phải đúng tài khoản đăng nhập.
     function validUser(d) {

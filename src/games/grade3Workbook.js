@@ -4417,7 +4417,7 @@ const WORKBOOK_CONFIG = {
   unitWord: 'bài',
   unitName: (u) => `Bài ${u.number}. ${u.title}`,
   gamesBook: 'workbook', // nút "Trò chơi tăng cường" (grade3Games.js)
-  // 📘 Kiến thức trên câu hình học (lớp phủ): grade3Knowledge.js.
+  // 📘 Kiến thức / 🔎 Khám phá trên mỗi câu (lớp phủ): grade3Knowledge.js.
   related: relatedForGrade3,
 };
 

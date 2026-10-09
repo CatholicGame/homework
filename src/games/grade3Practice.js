@@ -7,7 +7,7 @@
  */
 
 import { renderWorkbook } from './grade3Workbook.js';
-import { relatedForGrade3 } from './grade3Knowledge.js';
+import { relatedForGrade3Practice } from './grade3Knowledge.js';
 import { WEEKS_1_4 } from './grade3Practice/tuan01-04.js';
 import { WEEKS_5_8 } from './grade3Practice/tuan05-08.js';
 import { WEEKS_9_12 } from './grade3Practice/tuan09-12.js';
@@ -29,8 +29,8 @@ const PRACTICE_CONFIG = {
   // The end-of-term test unit has no week number (number: 'KT').
   unitName: (u) => (typeof u.number === 'number' ? `Tuần ${u.number}. ${u.title}` : u.title),
   gamesBook: 'practice', // nút "Trò chơi tăng cường" (grade3Games.js)
-  // 📘 Kiến thức trên câu hình học (lớp phủ): grade3Knowledge.js.
-  related: relatedForGrade3,
+  // 📘 Kiến thức / 🔎 Khám phá của các bài trong tuần (lớp phủ): grade3Knowledge.js.
+  related: relatedForGrade3Practice,
 };
 
 export function render(app, onBack, { open } = {}) {

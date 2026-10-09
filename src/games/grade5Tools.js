@@ -1,7 +1,7 @@
 /**
  * 🧰 Toán 5: Học bằng công cụ (Tập Một, SGK Kết nối tri thức). Thiết kế + tổng hợp kiến thức: docs/lop_5/thiet-ke-cong-cu-tap1.md.
  * Danh sách 6 chủ đề, Bài 1–35 → mỗi bài: ① Khám phá (thầy hướng dẫn từng bước trên công cụ, không chấm)
- * và ② Thực hành (5 câu, sao 'tool5:bai-N'). Bài Luyện tập chung / Ôn tập chỉ có Thực hành (trộn các bài).
+ * và ② Thực hành (5 câu, sao 'tool5:bai-N'), cùng 📘 Kiến thức (grade5Tools/knowledge.js, ví dụ xem từng bước). Bài Luyện tập chung / Ôn tập chỉ có Thực hành (trộn các bài).
  * Dùng lại khung của Toán 4 (grade4Tools/frame.js, practice.js) với sách riêng: bàn phím có dấu phẩy.
  */
 
@@ -15,6 +15,8 @@ import { injectGameStyles, menuBackdrop, fitMenu } from './grade3Games/styles.js
 import { preloadNpcs } from './grade3Games/npc.js';
 import { getTotalStars, hasEarned } from '../engine/stars.js';
 import { css } from './grade4Tools/frame.js';
+import { KNOWLEDGE5 } from './grade5Tools/knowledge.js';
+import { knowledgeBais, knowledgeItem, openLayer } from './lessonHelp.js';
 
 /** Sách cho phần Thực hành chung (practice.js): sao 'tool5', bàn phím có dấu phẩy. */
 export const BOOK5 = { label: 'Toán 5', lessonByN, pagesText, starPrefix: 'tool5', idPrefix: 'g5', comma: true };
@@ -73,6 +75,8 @@ export function render(app, onBack, { open } = {}) {
     const ex = exploreOf(l.n);
     const tasks = tasksOf(l.n);
     const seen = loadSeen()[seenId(l)];
+    const kn = knowledgeBais(KNOWLEDGE5, [l.n]);
+    const mixEx = (l.mix || []).filter(k => exploreOf(k)); // bài trộn: Khám phá lại các bài gốc
     shell(`
       ${topbar(`Bài ${l.n}`, `🧰 Toán 5 · Chủ đề ${l.topic}`)}
       <div class="g3g-card g4h-lesson">
@@ -82,20 +86,24 @@ export function render(app, onBack, { open } = {}) {
         <div class="g4h-sgk">📖 SGK Toán 5 Tập Một, ${pagesText(l)}</div>
         ${l.mix ? `<div class="g4h-mix"><span>Kiến thức ở các bài:</span>${l.mix.map(k => { const m = lessonByN(k); return `<i><b>Bài ${m.n}</b> ${m.title} · tr. ${m.pages[0]}</i>`; }).join('')}</div>` : ''}
         <div class="g4h-go">
+          ${kn.length ? `<button type="button" class="g4h-big g5h-kn" data-act="knowledge"><span class="g4h-big-i">📘</span><span><strong>Kiến thức</strong><small>${l.mix ? 'Ôn lại điều cần nhớ của các bài' : 'Điều cần nhớ của bài'}, ví dụ xem từng bước</small></span></button>` : ''}
           ${ex ? `<button type="button" class="g4h-big g4h-ex" data-act="explore"><span class="g4h-big-i">🔎</span><span><strong>Khám phá</strong><small>Thầy hướng dẫn từng bước, em tự tay làm trên công cụ${seen ? ' · ✓ đã xem' : ''}</small></span></button>` : ''}
           ${tasks.length ? `<button type="button" class="g4h-big g4h-pr" data-act="practice"><span class="g4h-big-i">✏️</span><span><strong>Thực hành</strong><small>5 câu, mỗi lần số mới${hasEarned(`tool5:${l.id}`) ? ' · ⭐ đã nhận sao' : ''}</small></span></button>` : ''}
         </div>
+        ${mixEx.length ? `<div class="g5h-mixex"><span>🔎 Khám phá lại:</span>${mixEx.map(k => `<button type="button" data-ex="${k}">Bài ${k}</button>`).join('')}</div>` : ''}
       </div>`);
     app.querySelector('[data-act="back"]').onclick = showList;
     app.querySelector('[data-act="explore"]')?.addEventListener('click', () => startExplore(l));
+    app.querySelector('[data-act="knowledge"]')?.addEventListener('click', () => openLayer(knowledgeItem(KNOWLEDGE5, kn, { book: 'SGK Toán 5 Tập Một' })));
+    app.querySelectorAll('[data-ex]').forEach(b => { b.onclick = () => startExplore(lessonByN(+b.dataset.ex), () => showLesson(l)); });
     app.querySelector('[data-act="practice"]')?.addEventListener('click', () => startPractice(l));
   }
 
-  function startExplore(l) {
+  function startExplore(l, back = () => showLesson(l)) {
     const ex = exploreOf(l.n);
     runExplore(app, {
       id: seenId(l), title: `Bài ${l.n}: ${l.title} <small class="g4h-ref">📖 SGK ${pagesText(l)}</small>`, setup: ex.setup, steps: ex.steps,
-      onExit: () => showLesson(l),
+      onExit: back,
       onPractice: tasksOf(l.n).length ? () => startPractice(l) : null,
     });
   }
@@ -132,6 +140,12 @@ export function exploreIn(host, n, onExit) {
 }
 
 function injectHubStyles() {
+  css('g5-kn', `
+    .g5h-kn { background: linear-gradient(180deg, #FBBF24, #F59E0B); box-shadow: 0 6px 0 #B45309, 0 10px 18px rgba(180,83,9,0.25); }
+    .g5h-mixex { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.4rem; margin-top: 0.8rem; font-weight: 800; color: #0C4A6E; }
+    .g5h-mixex button { border: 2px solid #7DD3FC; background: #F0F9FF; color: #0369A1; border-radius: 999px; padding: 0.25rem 0.9rem; min-height: 2.6rem; font: 800 1rem Quicksand, sans-serif; cursor: pointer; box-shadow: 0 3px 0 #7DD3FC; }
+    .g5h-mixex button:active { transform: translateY(2px); box-shadow: none; }
+  `);
   css('g4-hub', `
     .g4h-topic { margin: 1.1rem 0 0.4rem; }
     .g4h-th { display: flex; align-items: center; gap: 0.6rem; font-size: 1.25rem; font-weight: 800; color: #1E3A5F; margin: 0 0 0.6rem; }

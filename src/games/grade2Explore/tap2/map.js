@@ -1,0 +1,46 @@
+/** Khám phá Toán 2 Tập Hai: bài → mục (định dạng ở lessonHelp.js). Nội dung chạy ở ./index.js (tải khi bấm). */
+const ADD = /\+|cộng|tổng/;
+const SUB = /−|-|trừ|hiệu/;
+const MUL = /×|nhân/;
+const DIV = /:|chia/;
+const CMP = /[<>]|so sánh|lớn|bé|thứ tự/;
+export const EXPLORE_MAP = {
+  37: [{ key: 'b37', title: 'Bài 37: Phép nhân' }],
+  38: [{ key: 'b38', title: 'Bài 38: Thừa số, tích' }],
+  39: [{ key: 'b39', title: 'Bài 39: Bảng nhân 2' }],
+  40: [{ key: 'b40', title: 'Bài 40: Bảng nhân 5' }],
+  41: [{ key: 'b41', title: 'Bài 41: Phép chia' }],
+  42: [{ key: 'b42', title: 'Bài 42: Số bị chia, số chia, thương' }],
+  43: [{ key: 'b43', title: 'Bài 43: Bảng chia 2' }],
+  44: [{ key: 'b44', title: 'Bài 44: Bảng chia 5' }],
+  45: [{ see: 37 }, { see: 41 }, { see: 40 }],
+  46: [{ key: 'b46', title: 'Bài 46: Khối trụ, khối cầu' }],
+  47: [{ see: 46, when: /khối|hình|lăn/i }, { see: 37, when: MUL }, { see: 41, when: DIV }],
+  48: [{ key: 'b48', title: 'Bài 48: Đơn vị, chục, trăm, nghìn' }],
+  49: [{ key: 'b49', title: 'Bài 49: Các số tròn trăm, tròn chục' }],
+  50: [{ key: 'b50', title: 'Bài 50: So sánh các số tròn trăm, tròn chục' }],
+  51: [{ key: 'b51', title: 'Bài 51: Số có ba chữ số' }],
+  52: [{ key: 'b52', title: 'Bài 52: Viết số thành tổng các trăm, chục, đơn vị' }],
+  53: [{ key: 'b53', title: 'Bài 53: So sánh các số có ba chữ số' }],
+  54: [{ see: 51 }, { see: 52, when: /tổng|\+/ }, { see: 53, when: CMP }],
+  55: [{ key: 'b55', title: 'Bài 55: Đề-xi-mét. Mét. Ki-lô-mét' }],
+  56: [{ key: 'b56', title: 'Bài 56: Giới thiệu tiền Việt Nam' }],
+  58: [{ see: 55 }, { see: 56, when: /đồng|tiền/ }],
+  59: [{ key: 'b59', title: 'Bài 59: Phép cộng (không nhớ) trong phạm vi 1 000' }],
+  60: [{ key: 'b60', title: 'Bài 60: Phép cộng (có nhớ) trong phạm vi 1 000' }],
+  61: [{ key: 'b61', title: 'Bài 61: Phép trừ (không nhớ) trong phạm vi 1 000' }],
+  62: [{ key: 'b62', title: 'Bài 62: Phép trừ (có nhớ) trong phạm vi 1 000' }],
+  63: [{ see: 60, when: ADD }, { see: 62, when: SUB }, { see: 59 }],
+  64: [{ key: 'b64', title: 'Bài 64: Thu thập, phân loại, kiểm đếm số liệu' }],
+  65: [{ key: 'b65', title: 'Bài 65: Biểu đồ tranh' }],
+  66: [{ key: 'b66', title: 'Bài 66: Chắc chắn, có thể, không thể' }],
+  67: [{ see: 64 }, { see: 65 }],
+  68: [{ see: 51 }, { see: 52, when: /tổng|\+/ }, { see: 53, when: CMP }],
+  69: [{ see: 20, when: ADD }, { see: 23, when: SUB }, { see: 15, when: /kg|cân nặng/ }],
+  70: [{ see: 60, when: ADD }, { see: 62, when: SUB }, { see: 55, when: /km|cm|dm|mét/ }],
+  71: [{ see: 37, when: MUL }, { see: 41, when: DIV }, { see: 39, when: /mỗi|bánh xe|chân/ }],
+  72: [{ see: 46, when: /khối/ }, { see: 26, when: /gấp khúc|tứ giác|độ dài|dài/ }, { see: 25, when: /thẳng hàng|điểm|đoạn thẳng|đường/ }],
+  73: [{ see: 55, when: /cm|dm|km|mét|\bm\b/ }, { see: 15, when: /kg|cân/ }, { see: 16, when: /lít|\bl\b/ }, { see: 29, when: /giờ|đồng hồ|phút/ }, { see: 30, when: /ngày|tháng|lịch/ }],
+  74: [{ see: 64, when: /kiểm đếm|đếm|hình/ }, { see: 65, when: /biểu đồ|vẽ/ }, { see: 66, when: /chắc chắn|có thể|không thể|lấy/ }],
+  75: [{ see: 60, when: ADD }, { see: 62, when: SUB }, { see: 53, when: CMP }, { see: 26, when: /gấp khúc/ }, { see: 51, when: /số/ }],
+};

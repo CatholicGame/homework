@@ -6,7 +6,7 @@
  * mode 'edit': mở từ menu avatar, vào thẳng bước chọn avatar, có nút "Huỷ".
  */
 
-import { AVATARS, NAME_MAX, getProfile, saveProfile, avatarUrl } from '../engine/profile.js';
+import { AVATARS, NAME_MAX, getProfile, saveProfile, avatarUrl, CONSENT_TEXT, parentConsentAt, saveParentConsent } from '../engine/profile.js';
 import { GRADES } from '../data/grades.js';
 
 function escapeHtml(str) {
@@ -23,6 +23,10 @@ export function renderProfileSetup(app, { mode = 'onboard', onDone }) {
     // Biệt danh hiện trên bảng xếp hạng — không điền sẵn tên thật từ tài khoản Google.
     name: current.name || '',
     grade: current.grade || null,
+    // Chỉ hỏi ở lần thiết lập đầu; phụ huynh đã xác nhận (trên máy này) thì không hỏi lại.
+    // Đổi lớp / avatar từ menu (mode 'edit') thì không hỏi, kể cả hồ sơ cũ chưa có xác nhận.
+    askConsent: mode === 'onboard' && !parentConsentAt(),
+    consent: false,
   };
 
   if (mode === 'edit' || state.gender) showAvatarStep();
@@ -110,11 +114,17 @@ export function renderProfileSetup(app, { mode = 'onboard', onDone }) {
             `).join('')}
           </div>
 
+          ${state.askConsent ? `
+            <label class="profile-consent">
+              <input type="checkbox" id="profile-consent"${state.consent ? ' checked' : ''}>
+              <span>${CONSENT_TEXT}</span>
+            </label>` : ''}
+
           <button type="button" class="btn btn-primary profile-done" id="profile-done" ${canFinish() ? '' : 'disabled'}>Xong ✓</button>
           <p class="profile-need" id="profile-need"${needText() ? '' : ' hidden'}>${needText()}</p>
           <div class="profile-secondary">
             ${mode === 'onboard'
-              ? `<button type="button" class="profile-skip" id="profile-back">← Quay lại</button><button type="button" class="profile-skip" id="profile-skip" ${state.grade ? '' : 'disabled'}>Bỏ qua, để sau</button>`
+              ? `<button type="button" class="profile-skip" id="profile-back">← Quay lại</button><button type="button" class="profile-skip" id="profile-skip" ${canSkip() ? '' : 'disabled'}>Bỏ qua, để sau</button>`
               : '<button type="button" class="profile-skip" id="profile-cancel">Huỷ</button>'}
           </div>
         </div>
@@ -161,8 +171,14 @@ export function renderProfileSetup(app, { mode = 'onboard', onDone }) {
       });
     });
 
+    app.querySelector('#profile-consent')?.addEventListener('change', (e) => {
+      state.consent = e.target.checked;
+      syncFinish();
+    });
+
     app.querySelector('#profile-done').onclick = () => {
       if (!canFinish()) return;
+      keepConsent();
       const name = state.name.trim().slice(0, NAME_MAX);
       saveProfile({ gender: state.gender, avatar: state.avatar, name, grade: state.grade });
       onDone();
@@ -172,14 +188,28 @@ export function renderProfileSetup(app, { mode = 'onboard', onDone }) {
     app.querySelector('#profile-cancel')?.addEventListener('click', onDone);
   }
 
+  function consentOk() {
+    return !state.askConsent || state.consent;
+  }
+
   function canFinish() {
-    return !!(state.grade && state.avatar);
+    return !!(state.grade && state.avatar) && consentOk();
+  }
+
+  function canSkip() {
+    return !!state.grade && consentOk();
   }
 
   function needText() {
     if (!state.grade) return 'Chọn lớp của bé trước nhé 👆';
     if (!state.avatar) return 'Chọn một hình đại diện nhé 👇';
+    if (!consentOk()) return 'Bố mẹ đánh dấu ô xác nhận phía trên để bắt đầu.';
     return '';
+  }
+
+  // Lưu xác nhận vĩnh viễn (trước saveProfile để hồ sơ mang theo consentAt).
+  function keepConsent() {
+    if (state.askConsent && state.consent) saveParentConsent();
   }
 
   function syncFinish() {
@@ -188,12 +218,13 @@ export function renderProfileSetup(app, { mode = 'onboard', onDone }) {
     need.textContent = needText();
     need.hidden = !need.textContent;
     const skipBtn = app.querySelector('#profile-skip');
-    if (skipBtn) skipBtn.disabled = !state.grade;
+    if (skipBtn) skipBtn.disabled = !canSkip();
   }
 
-  // Bỏ qua avatar/biệt danh — nhưng vẫn phải có lớp.
+  // Bỏ qua avatar/biệt danh, nhưng vẫn phải có lớp và xác nhận của phụ huynh.
   function skip() {
-    if (!state.grade) return;
+    if (!canSkip()) return;
+    keepConsent();
     saveProfile({ grade: state.grade });
     onDone();
   }

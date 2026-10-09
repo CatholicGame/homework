@@ -33,7 +33,7 @@ const WORKBOOK_TAP2_CONFIG = {
   menuLabel: 'Chọn bài để luyện tập:',
   unitWord: 'bài',
   unitName: (u) => `Bài ${u.number}. ${u.title}`,
-  // 📘 Kiến thức trên câu hình học (lớp phủ): grade3Knowledge.js.
+  // 📘 Kiến thức / 🔎 Khám phá trên mỗi câu (lớp phủ): grade3Knowledge.js.
   related: relatedForGrade3,
 };
 

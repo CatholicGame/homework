@@ -275,7 +275,7 @@ function injectLineStyles() {
   styled = true;
   css('g4-line', `
     .g4l { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 1cqh 1cqi; overflow: hidden; border-radius: 0.8rem; }
-    .g4l-cap { flex: none; text-align: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #1E293B; font-size: min(6.5cqh, 4cqi); line-height: 1.25; min-height: 2.5em; display: grid; place-items: center; }
+    .g4l-cap { flex: none; text-align: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #1E293B; font-size: min(6.5cqh, 4cqi); line-height: 1.25; min-height: 2.5em; display: grid; place-items: center; position: relative; z-index: 1; }
     .g4l-cap b { color: #DC2626; }
     .g4l-svg { flex: 1; min-height: 0; width: 100%; height: 100%; font-family: 'Baloo 2', sans-serif; overflow: visible; }
     .g4l-lab { font-weight: 800; fill: #1E293B; }

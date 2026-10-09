@@ -13,6 +13,7 @@
  *     tính chung ≈ 30% / 30% / 30% / 10% (trung bình ≈ 10 sao/ngày/bạn, bé thật chăm được 15–30);
  *     bạn chăm (cột sao/tháng cao trong CAST) rơi vào nhóm cao nhiều hơn, bạn lười thì ngược lại,
  *     và độ hăng hái đổi theo tuần → thứ hạng đổi chỗ nhưng vẫn có đầu bảng, cuối bảng.
+ *     Từ SLOW_FROM mọi bạn chỉ còn SLOW_RATE số sao đó (≈ 3 sao/ngày) để bé thật đuổi kịp.
  *   - CHỈ TĂNG, MỌI MÁY THẤY NHƯ NHAU: sao mỗi ngày tính tất định từ (bạn, ngày) bằng hàm băm,
  *     tổng = sao khởi động + các ngày đã qua; hôm nay tăng dần qua 1–3 buổi học (sáng sớm, trưa, chiều, tối).
  * Bé học 15–30 sao/ngày sẽ leo dần lên đầu; bé nghỉ vài ngày sẽ bị các bạn vượt.
@@ -28,6 +29,9 @@ const LEAD_MAX = 0.3;
 const FLOOR_TOP = 20;
 // Nhóm sao mỗi ngày: [từ, tới] (tới không tính).
 const TIER_HIGH = [15, 31], TIER_MID = [5, 15], TIER_LOW = [0, 5];
+// Từ ngày SLOW_FROM, sao mỗi ngày của mọi bạn ảo chỉ còn SLOW_RATE (30%) để bé thật đuổi kịp.
+// Các ngày trước giữ nguyên nên tổng sao không bao giờ tụt.
+const SLOW_FROM = '2026-10-10', SLOW_RATE = 0.3;
 
 /** Số giả 0..1 tất định từ các khoá (FNV-1a + xáo bit). */
 function rand(...keys) {
@@ -91,7 +95,8 @@ function dayStars(m, date) {
   const r = rand(m.id, 'tier', key);
   const tier = r < pHigh ? TIER_HIGH : r < pHigh + pMid ? TIER_MID : r < 1 - pOff ? TIER_LOW : null;
   if (!tier) return 0;
-  return tier[0] + Math.floor(rand(m.id, 'n', key) * (tier[1] - tier[0]));
+  const k = tier[0] + Math.floor(rand(m.id, 'n', key) * (tier[1] - tier[0]));
+  return key >= SLOW_FROM ? Math.round(k * SLOW_RATE) : k;
 }
 
 // Các khung giờ học trong ngày (giờ thập phân): sáng sớm trước giờ đi học, chiều, tối.

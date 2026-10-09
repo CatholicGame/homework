@@ -8,6 +8,9 @@
  */
 
 import { renderWorkbook } from './grade3Workbook.js';
+import { makeRelated } from './lessonHelp.js';
+import { KNOWLEDGE2 } from './grade2Knowledge/index.js';
+import { EXPLORE_MAP2 } from './grade2Explore/map.js';
 import { GRADE2_GAMES } from '../data/features.js';
 import { levelsForUnit as gamesForUnit } from './grade2Games/catalog.js';
 import { BAI_1_6 } from './grade2Workbook/bai01-06.js';
@@ -33,6 +36,8 @@ const WORKBOOK2_TAP1_CONFIG = {
   // Trò chơi tăng cường Toán 2 (grade2Games.js) — hai thẻ Tập Một / Tập Hai dùng chung danh sách trò.
   gamesBook: 'g2', gamesEnabled: GRADE2_GAMES, gamesLevelsForUnit: gamesForUnit,
   loadGames: GRADE2_GAMES ? () => import('./grade2Games.js') : null, // production chưa bật: không đóng gói code trò chơi
+  // 📘 Kiến thức / 🔎 Khám phá trên mỗi câu (lớp phủ): lessonHelp.js.
+  related: makeRelated({ book: 'SGK Toán 2', knowledge: KNOWLEDGE2, exploreMap: EXPLORE_MAP2, xbook: 'x2' }),
 };
 
 export function render(app, onBack, { open } = {}) {

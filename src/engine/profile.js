@@ -34,6 +34,10 @@ export function getProfile() {
 
 export function saveProfile(patch, { fromRemote = false } = {}) {
   const p = { ...getProfile(), ...patch, setupDone: true };
+  // Xác nhận của phụ huynh đi theo hồ sơ của mọi tài khoản trên máy này.
+  if (!p.consentAt) {
+    try { const at = JSON.parse(localStorage.getItem(CONSENT_KEY))?.at; if (at) p.consentAt = at; } catch { /* ignore */ }
+  }
   if (fromRemote) delete p.pendingPush;
   else p.pendingPush = true;
   try { localStorage.setItem(storeKey(), JSON.stringify(p)); } catch { /* storage unavailable */ }
@@ -67,6 +71,27 @@ export function adoptGuestProfile() {
   saveProfile(rest);
   try { localStorage.removeItem(key); } catch { /* ignore */ }
   return true;
+}
+
+// ── Xác nhận của phụ huynh (Nghị định 13/2023) ──────────────────────────────
+// Hỏi một lần ở bước chọn avatar, lưu vĩnh viễn trên máy (không theo tài khoản, nên bé dùng thử
+// rồi đăng nhập không phải hỏi lại) và ghi một bản lên Firebase consents/{uid} (leaderboard.js).
+export const CONSENT_TEXT = 'Tôi xác nhận mình là cha, mẹ hoặc người giám hộ và đồng ý để iMath lưu kết quả học tập của con theo Nghị định 13/2023.';
+const CONSENT_KEY = 'tth_parent_consent';
+
+/** Thời điểm phụ huynh xác nhận (ms), null nếu chưa. */
+export function parentConsentAt() {
+  try {
+    const at = JSON.parse(localStorage.getItem(CONSENT_KEY))?.at;
+    if (at) return at;
+  } catch { /* ignore */ }
+  return getProfile().consentAt || null;
+}
+
+export function saveParentConsent() {
+  const at = parentConsentAt() || Date.now();
+  try { localStorage.setItem(CONSENT_KEY, JSON.stringify({ at, text: CONSENT_TEXT })); } catch { /* storage unavailable */ }
+  return at;
 }
 
 export function isSetupDone() {

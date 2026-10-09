@@ -39,7 +39,8 @@ export default defineConfig(({ command, mode }) => ({
     port: 5173,
     open: true,
     // Sách nguồn PDF (bản quét lớn) không phải mã nguồn — đừng theo dõi, tránh lỗi EBUSY khi file đang mở/chép.
-    watch: { ignored: ['**/docs/**'] }
+    // scripts/.tmp: ảnh chụp, hồ sơ Chrome của các lần thử (file bị khoá làm dev server dừng).
+    watch: { ignored: ['**/docs/**', '**/scripts/.tmp/**'] }
   },
   build: {
     outDir: 'dist',

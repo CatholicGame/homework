@@ -7,6 +7,9 @@
  */
 
 import { renderWorkbook } from './grade3Workbook.js';
+import { makeRelated } from './lessonHelp.js';
+import { KNOWLEDGE1 } from './grade1Knowledge/index.js';
+import { EXPLORE_MAP1 } from './grade1Explore/map.js';
 import { BAI_1_6 } from './grade1Workbook/bai01-06.js';
 import { BAI_7_12 } from './grade1Workbook/bai07-12.js';
 import { BAI_13_18 } from './grade1Workbook/bai13-18.js';
@@ -30,6 +33,8 @@ const WORKBOOK1_CONFIG = {
   autoColumns: true,
   // Bài "Tự kiểm tra" không có số bài.
   unitName: (u) => (typeof u.number === 'number' ? `Bài ${u.number}. ${u.title}` : u.title),
+  // 📘 Kiến thức / 🔎 Khám phá trên mỗi câu (lớp phủ): lessonHelp.js.
+  related: makeRelated({ book: 'Vở BT Toán 1', knowledge: KNOWLEDGE1, exploreMap: EXPLORE_MAP1, xbook: 'x1' }),
 };
 
 export function render(app, onBack, { open } = {}) {

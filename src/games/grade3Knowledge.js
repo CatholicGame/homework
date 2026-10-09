@@ -1,6 +1,6 @@
 /**
- * Lớp 3: nút "📘 Kiến thức" trên các câu hình học (Vở BT Toán 3 Tập 1, Tập 2, Luyện tập Toán 3), như SGK Toán 4
- * (grade4Textbook/related.js). Vở bài tập không có phần bài học, nên kiến thức ở đây viết lại theo phần bài học
+ * Lớp 3: nút "📘 Kiến thức" và "🔎 Khám phá" (Vở BT Toán 3 Tập 1, Tập 2, Luyện tập Toán 3), như SGK Toán 4
+ * (grade4Textbook/related.js). Kiến thức từng bài: grade3Knowledge/; ở đây là các mục hình học thêm theo câu. Vở bài tập không có phần bài học, nên kiến thức ở đây viết lại theo phần bài học
  * của SGK Toán 3 (Kết nối tri thức) và Toán 2 (ba điểm thẳng hàng, đường gấp khúc), lời dễ hiểu cho học sinh lớp 3.
  *
  * Mục kiến thức chọn theo nội dung câu đang làm (chữ của câu và các ô trống), không theo bài: Bài 7 "Ôn tập hình
@@ -9,6 +9,10 @@
  *   TOPICS[k] = { title, from, test: /…/, skip?: /…/, after?: [k], fig?: SVG, points: [...], examples: [...] }
  *   skip: chữ của câu khớp thì bỏ mục này; after: bỏ mục này khi câu đã có một trong các mục đó.
  */
+
+import { makeRelated, knowledgeBais, knowledgeItem } from './lessonHelp.js';
+import { KNOWLEDGE3 } from './grade3Knowledge/index.js';
+import { EXPLORE_MAP3 } from './grade3Explore/map.js';
 
 const INK = '#1E293B';
 const BLUE = '#0284C7';
@@ -203,24 +207,41 @@ function knowledgeHtml(keys) {
   }).join('');
 }
 
-/** cfg.related của các sách Toán 3: [{ icon, label, open(host, close) }] cho câu q. */
-export function relatedForGrade3(unitId, q) {
-  const keys = topicsFor(q);
-  if (!keys.length) return [];
-  return [{
-    icon: '📘', label: 'Kiến thức',
-    open(host, close) {
-      host.innerHTML = `
-        <div class="gw-kn">
-          <div class="gw-kn-top">
-            <button type="button" class="e3-back-icon" data-act="close" aria-label="Đóng">✕</button>
-            <div class="gw-kn-title">📘 Kiến thức</div>
-          </div>
-          <div class="gw-kn-body">${knowledgeHtml(keys)}
-            <button type="button" class="e3-btn e3-btn-primary gw-kn-back" data-act="close">Làm tiếp bài tập ✏️</button>
-          </div>
-        </div>`;
-      host.querySelectorAll('[data-act="close"]').forEach((b) => { b.onclick = close; });
-    },
-  }];
+// Luyện tập Toán 3 chia theo tuần: tuần → các bài SGK được luyện trong tuần đó (theo tên tuần).
+const TUAN_BAI = {
+  1: [1, 2, 3], 2: [3, 4, 5], 3: [6, 7, 8], 4: [8, 9, 10], 5: [10, 11, 12], 6: [12, 13, 14],
+  7: [15, 16, 17], 8: [18, 19], 9: [21, 23], 10: [24, 25], 11: [26, 27], 12: [28, 29, 30],
+  13: [30, 31, 32, 33, 34], 14: [34, 35, 36], 15: [37, 38], 16: [38, 39], 17: [40, 41, 42], 18: [42, 43, 44],
+};
+const weekBais = (unitId) => { const m = /^tuan-(\d+)/.exec(String(unitId)); return m ? TUAN_BAI[+m[1]] || [] : []; };
+
+/** Mục hình học hợp với câu q, bỏ mục mà phần kiến thức của bài đã có (from: 'Bài 16'). */
+function geometryExtra(bais) {
+  return (unitId, q) => {
+    const own = knowledgeBais(KNOWLEDGE3, bais(unitId));
+    const keys = topicsFor(q).filter((k) => { const ns = (/Bài ([\d, ]+)/.exec(TOPICS[k].from)?.[1] || '').match(/\d+/g) || []; return !ns.some((n) => own.includes(+n)); });
+    return keys.length ? knowledgeHtml(keys) : '';
+  };
 }
+
+const baiOf = (unitId) => { const m = /^bai-(\d+)/.exec(String(unitId)); return m ? [+m[1]] : []; };
+
+/**
+ * cfg.related của các sách Toán 3: 📘 Kiến thức của bài (grade3Knowledge/, cộng mục hình học hợp với câu ở trên)
+ * và 🔎 Khám phá (grade3Explore/). Vở BT Tập 1, Tập 2: theo bài; Luyện tập: theo các bài của tuần.
+ */
+function related(bais) {
+  const base = makeRelated({ book: 'SGK Toán 3', knowledge: KNOWLEDGE3, exploreMap: EXPLORE_MAP3, xbook: 'x3', bais });
+  const extra = geometryExtra(bais);
+  return (unitId, q) => {
+    const items = base(unitId, q);
+    const more = extra(unitId, q);
+    if (!more) return items;
+    const own = knowledgeBais(KNOWLEDGE3, bais(unitId));
+    const kn = knowledgeItem(KNOWLEDGE3, own, { book: 'SGK Toán 3', extra: more });
+    return [kn, ...items.filter((it) => it.icon !== '📘')];
+  };
+}
+
+export const relatedForGrade3 = related(baiOf);
+export const relatedForGrade3Practice = related(weekBais);

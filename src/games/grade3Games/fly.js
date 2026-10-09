@@ -41,7 +41,11 @@ export function flyOne(html, from, to, { delay = 0, minMs = 450, maxMs = 900, sp
   }
   const dur = Math.round(Math.max(minMs, Math.min(maxMs, minMs + dist * 0.9)));
   const anim = el.animate(frames, { duration: dur, delay, easing: 'linear', fill: 'both' });
-  anim.finished.then(() => { el.remove(); onLand?.(); }, () => el.remove());
+  // Hoạt ảnh bị treo (tab ẩn, trình duyệt bận): quá giờ thì vẫn đáp, đồ bay không nằm lại trên màn hình.
+  let landed = false;
+  const land = (ok) => { if (landed) return; landed = true; el.remove(); if (ok) onLand?.(); };
+  anim.finished.then(() => land(true), () => land(false));
+  setTimeout(() => land(true), delay + dur + 400);
   return delay + dur;
 }
 
