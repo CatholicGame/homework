@@ -7,12 +7,37 @@
 
 import { firebaseSession } from './leaderboard.js';
 import { getProfile, getProfileGrade } from './profile.js';
+import { scopedKey } from './auth.js';
 
 const COLLECTION = 'reviews';
 const FETCH_LIMIT = 500;
 export const NAME_MAX = 40;
 export const COMMENT_MAX = 1000;
 export const REPLY_MAX = 1000;
+
+// Dải mời đánh giá ở trang chủ: ẩn hẳn khi đã gửi, "Để sau" thì ẩn PROMPT_SNOOZE_DAYS ngày.
+const PROMPT_KEY = 'tth:review-prompt';
+const PROMPT_SNOOZE_DAYS = 7;
+let pendingRating = 0;
+
+function readPrompt() {
+  try { return JSON.parse(localStorage.getItem(scopedKey(PROMPT_KEY))) || {}; } catch { return {}; }
+}
+function writePrompt(v) {
+  try { localStorage.setItem(scopedKey(PROMPT_KEY), JSON.stringify({ ...readPrompt(), ...v })); } catch { /* storage unavailable */ }
+}
+
+/** Có nên hiện dải mời đánh giá ở trang chủ không. */
+export function shouldPromptReview() {
+  const p = readPrompt();
+  return !p.done && !(p.snoozeUntil > Date.now());
+}
+export function snoozeReviewPrompt() {
+  writePrompt({ snoozeUntil: Date.now() + PROMPT_SNOOZE_DAYS * 86400000 });
+}
+/** Số sao bấm ở trang chủ, trang đánh giá chọn sẵn (lấy một lần). */
+export function setPendingRating(s) { pendingRating = s; }
+export function takePendingRating() { const s = pendingRating; pendingRating = 0; return s; }
 
 const toMs = (ts) => (ts?.toMillis ? ts.toMillis() : 0);
 
@@ -46,6 +71,7 @@ export async function fetchReviews() {
   const snap = await fs.getDocs(fs.query(fs.collection(db, COLLECTION), fs.orderBy('updatedAt', 'desc'), fs.limit(FETCH_LIMIT)));
   const reviews = snap.docs.map(toReview);
   const mine = reviews.find(r => r.id === auth.currentUser?.uid) || null;
+  if (mine) writePrompt({ done: true });
   return { reviews, mine };
 }
 
@@ -66,6 +92,7 @@ export async function submitReview({ rating, comment, name }) {
   const existing = await fs.getDoc(ref);
   if (existing.exists()) await fs.updateDoc(ref, data);
   else await fs.setDoc(ref, { ...data, createdAt: fs.serverTimestamp() });
+  writePrompt({ done: true });
 }
 
 // ── Admin ────────────────────────────────────────────────────────────────────

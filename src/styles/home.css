@@ -302,6 +302,50 @@
 .dashboard-top { margin-bottom: 24px; }
 .daily-greet .stk-banner { margin-bottom: 0; }
 .daily-greet .daily-head { margin-bottom: 14px; }
+
+/* Dải mời phụ huynh đánh giá (dưới lời chào) */
+.rv-prompt {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 14px;
+  padding: 12px 16px;
+  border: 2px solid #FCD34D;
+  border-radius: var(--radius-lg, 18px);
+  background: linear-gradient(90deg, #FFFBEB, #FEF3C7);
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.18);
+}
+.rv-prompt-icon { font-size: 1.8rem; line-height: 1; }
+.rv-prompt-text { flex: 1 1 220px; margin: 0; color: #78350F; font-weight: 600; font-size: 1rem; }
+.rv-prompt-stars { display: flex; gap: 2px; }
+.rv-prompt-star {
+  padding: 0 3px;
+  border: none;
+  background: none;
+  color: #E5C77A;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.12s, color 0.12s;
+}
+.rv-prompt-star.is-on { color: #F59E0B; transform: scale(1.12); }
+.rv-prompt-later {
+  border: none;
+  background: none;
+  color: #92400E;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+@media (max-width: 520px) {
+  .rv-prompt { justify-content: center; text-align: center; }
+  .rv-prompt-icon { display: none; }
+  .rv-prompt-text { flex-basis: 100%; }
+}
 .daily-stats-title { margin-bottom: 14px; }
 
 /* Card progress */

@@ -11,6 +11,7 @@ import { isAdminUser } from '../engine/admin.js';
 import { getBoardGradeStars } from '../engine/leaderboard.js';
 import { getCloudStatus, syncNow } from '../engine/cloudSync.js';
 import { getLang, setLang, hasEnglish, LANGS } from '../engine/i18n.js';
+import { shouldPromptReview, snoozeReviewPrompt, setPendingRating } from '../engine/reviews.js';
 
 // Sách học tiếng Việt: luôn 100% tiếng Việt, kể cả khi chọn English (engine/i18n.js).
 const VI_BOOKS = new Set(['pre3-abc']);
@@ -132,6 +133,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
             <h1>🎓 Toán Tiểu Học</h1>
           </div>
           ${greetingPanel()}
+          ${reviewPrompt()}
         </div>
 
         <div class="category animate-fadeIn" style="animation-delay: 0.1s">
@@ -151,6 +153,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
 
     bindUserBar();
     bindDailyPanel();
+    bindReviewPrompt();
     app.querySelector('#home-grade-change').addEventListener('click', () => navigate('profile'));
     app.querySelectorAll('.game-card').forEach(card => {
       card.addEventListener('click', () => navigate(card.dataset.game));
@@ -175,6 +178,34 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
         ${stickerPanel()}
       </section>
     `;
+  }
+
+  // ── Dải mời phụ huynh đánh giá (mục trong menu tài khoản ít ai thấy) ─────
+  function reviewPrompt() {
+    if (!user || user.guest || !shouldPromptReview()) return '';
+    return `
+      <section class="rv-prompt" id="rv-prompt" aria-label="Mời đánh giá ứng dụng">
+        <span class="rv-prompt-icon" aria-hidden="true">👨‍👩‍👧</span>
+        <p class="rv-prompt-text"><strong>Ba mẹ ơi,</strong> ứng dụng có giúp bé học tốt hơn không?</p>
+        <div class="rv-prompt-stars" role="group" aria-label="Chọn số sao để đánh giá">
+          ${[1, 2, 3, 4, 5].map(s => `<button type="button" class="rv-prompt-star" data-s="${s}" aria-label="${s} sao">★</button>`).join('')}
+        </div>
+        <button type="button" class="rv-prompt-later" id="rv-prompt-later">Để sau</button>
+      </section>`;
+  }
+
+  function bindReviewPrompt() {
+    const box = app.querySelector('#rv-prompt');
+    if (!box) return;
+    const stars = [...box.querySelectorAll('.rv-prompt-star')];
+    const paint = (n) => stars.forEach((b, i) => b.classList.toggle('is-on', i < n));
+    stars.forEach((b) => {
+      const s = Number(b.dataset.s);
+      b.addEventListener('pointerenter', () => paint(s));
+      b.addEventListener('pointerleave', () => paint(0));
+      b.addEventListener('click', () => { setPendingRating(s); navigate('reviews'); });
+    });
+    box.querySelector('#rv-prompt-later').addEventListener('click', () => { snoozeReviewPrompt(); box.remove(); });
   }
 
   // ── Bảng theo dõi học hằng ngày ─────────────────────────────────────────

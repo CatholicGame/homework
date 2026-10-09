@@ -6,7 +6,7 @@
 import { isLeaderboardConfigured, needsConnect, connectLeaderboard } from '../engine/leaderboard.js';
 import { preloadAuth } from '../engine/auth.js';
 import { avatarUrl, displayName } from '../engine/profile.js';
-import { fetchReviews, submitReview, reviewStats, NAME_MAX, COMMENT_MAX } from '../engine/reviews.js';
+import { fetchReviews, submitReview, reviewStats, takePendingRating, NAME_MAX, COMMENT_MAX } from '../engine/reviews.js';
 import '../styles/reviews.css';
 
 const CAPTIONS = ['', 'Rất tệ 😢', 'Chưa tốt 😕', 'Bình thường 😐', 'Tốt 🙂', 'Tuyệt vời! 🤩'];
@@ -36,6 +36,7 @@ const fmtDate = (ms) => new Date(ms).toLocaleDateString('vi-VN');
 
 export function render(app, onBack) {
   const state = { reviews: null, mine: null, editing: true, rating: 0 };
+  const picked = takePendingRating(); // số sao phụ huynh vừa bấm ở dải mời trên trang chủ
 
   preloadAuth();
 
@@ -73,7 +74,7 @@ export function render(app, onBack) {
       state.reviews = reviews;
       state.mine = mine;
       state.editing = !mine;
-      state.rating = mine?.rating || 0;
+      state.rating = (!mine && picked) || mine?.rating || 0;
       draw();
     } catch (e) {
       if (e?.message === 'need-connect') return showConnect();
