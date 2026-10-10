@@ -8,7 +8,10 @@ import { isNumberWords, sameReading } from '../engine/numberWords.js';
 
 /** Giá trị biểu thức "3 × 2", "27 ÷ 3", "4 + 5 × 2", "20 : 4 × 5" (nhân chia trước, trái sang phải). */
 export function evalExpr(s) {
-  const toks = String(s).replace(/\s+/g, '').match(/\d+|[×÷:+−\-*/]/g) || [];
+  // Ngoặc: tính ngoặc trong cùng trước, thay bằng kết quả: "(70 000 − 25 000) : 9".
+  let str = String(s).replace(/\s+/g, '');
+  while (/\([^()]*\)/.test(str)) str = str.replace(/\(([^()]*)\)/, (_, e) => String(evalExpr(e)));
+  const toks = str.match(/\d+|[×÷:+−\-*/]/g) || [];
   const terms = [];
   let sign = 1, cur = null, op = null;
   for (const t of toks) {
@@ -174,14 +177,22 @@ const norm = (v) => String(v ?? '').normalize('NFC').trim().toLowerCase().replac
 /** So một ô: đáp án số, chữ (nhiều cách viết ngăn bằng |), dấu. Ô đọc số nhận
  *  mọi cách đọc đúng: "linh tư" = "linh bốn", "mươi lăm" = "mươi năm" (numberWords.js). */
 export function matchSlot(given, right) {
-  if (typeof right === 'number') return String(given ?? '').trim() !== '' && Number(given) === right;
+  // Số lớn viết tách lớp ("345 678") vẫn đúng.
+  if (typeof right === 'number') { const v = String(given ?? '').replace(/\s+/g, ''); return v !== '' && Number(v) === right; }
   return String(right).split('|').some(r => norm(r) === norm(given) || (isNumberWords(r) && sameReading(r, given)));
 }
 
 /** Đúng/sai từng ô của một ý: anyOrder thì đối chiếu như một tập hợp. */
 export function gradeSlots(vals, n) {
   if (n.inv) return gradeFindx(vals, n);
-  if (!n.anyOrder) return n.ans.map((r, i) => matchSlot(vals[i], r));
+  if (!n.anyOrder) {
+    const ok = n.ans.map((r, i) => matchSlot(vals[i], r));
+    // "… + … = …", "… × … = …": cộng, nhân đổi chỗ hai số vẫn đúng (bài toán hai bước, viết phép tính).
+    if (n.ans.length === 3 && /^[^…□]*[…□]\s*[+×]\s*[…□]\s*=\s*[…□][^…□]*$/.test(n.t || '') && matchSlot(vals[0], n.ans[1]) && matchSlot(vals[1], n.ans[0])) {
+      ok[0] = ok[1] = true;
+    }
+    return ok;
+  }
   const left = [...n.ans];
   return vals.map(v => {
     const k = left.findIndex(r => matchSlot(v, r));

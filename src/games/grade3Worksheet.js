@@ -76,37 +76,97 @@ const ROUTE_KINDS = [
   { kind: 'ck', icon: '🏆', name: 'Kiểm tra cuối học kì', desc: 'Ôn tất cả các bài của học kì',
     note: 'Bài kiểm tra cuối học kì: có câu của mọi phần đã học trong học kì.' },
 ];
-// Vite cần đường dẫn glob viết sẵn: mỗi lớp, mỗi nhóm một dòng.
+// Vite cần đường dẫn glob viết sẵn: mỗi lớp, mỗi học kì, mỗi nhóm một dòng. Học kì II nằm ở thư mục con hk2/.
 const ROUTE_GLOBS = {
   1: {
-    nh: import.meta.glob('../data/routeTests/g1/nh*.js'),
-    th: import.meta.glob('../data/routeTests/g1/th*.js'),
-    gk: import.meta.glob('../data/routeTests/g1/gk*.js'),
-    ck: import.meta.glob('../data/routeTests/g1/ck*.js'),
+    1: {
+      nh: import.meta.glob('../data/routeTests/g1/nh*.js'),
+      th: import.meta.glob('../data/routeTests/g1/th*.js'),
+      gk: import.meta.glob('../data/routeTests/g1/gk*.js'),
+      ck: import.meta.glob('../data/routeTests/g1/ck*.js'),
+    },
+    2: {
+      nh: import.meta.glob('../data/routeTests/g1/hk2/nh*.js'),
+      th: import.meta.glob('../data/routeTests/g1/hk2/th*.js'),
+      gk: import.meta.glob('../data/routeTests/g1/hk2/gk*.js'),
+      ck: import.meta.glob('../data/routeTests/g1/hk2/ck*.js'),
+    },
   },
   2: {
-    nh: import.meta.glob('../data/routeTests/g2/nh*.js'),
-    th: import.meta.glob('../data/routeTests/g2/th*.js'),
-    gk: import.meta.glob('../data/routeTests/g2/gk*.js'),
-    ck: import.meta.glob('../data/routeTests/g2/ck*.js'),
+    1: {
+      nh: import.meta.glob('../data/routeTests/g2/nh*.js'),
+      th: import.meta.glob('../data/routeTests/g2/th*.js'),
+      gk: import.meta.glob('../data/routeTests/g2/gk*.js'),
+      ck: import.meta.glob('../data/routeTests/g2/ck*.js'),
+    },
+    2: {
+      nh: import.meta.glob('../data/routeTests/g2/hk2/nh*.js'),
+      th: import.meta.glob('../data/routeTests/g2/hk2/th*.js'),
+      gk: import.meta.glob('../data/routeTests/g2/hk2/gk*.js'),
+      ck: import.meta.glob('../data/routeTests/g2/hk2/ck*.js'),
+    },
+  },
+  3: {
+    1: {
+      nh: import.meta.glob('../data/routeTests/g3/nh*.js'),
+      th: import.meta.glob('../data/routeTests/g3/th*.js'),
+      gk: import.meta.glob('../data/routeTests/g3/gk*.js'),
+      ck: import.meta.glob('../data/routeTests/g3/ck*.js'),
+    },
+    2: {
+      nh: import.meta.glob('../data/routeTests/g3/hk2/nh*.js'),
+      th: import.meta.glob('../data/routeTests/g3/hk2/th*.js'),
+      gk: import.meta.glob('../data/routeTests/g3/hk2/gk*.js'),
+      ck: import.meta.glob('../data/routeTests/g3/hk2/ck*.js'),
+    },
+  },
+  4: {
+    1: {
+      nh: import.meta.glob('../data/routeTests/g4/nh*.js'),
+      th: import.meta.glob('../data/routeTests/g4/th*.js'),
+      gk: import.meta.glob('../data/routeTests/g4/gk*.js'),
+      ck: import.meta.glob('../data/routeTests/g4/ck*.js'),
+    },
+    2: {
+      nh: import.meta.glob('../data/routeTests/g4/hk2/nh*.js'),
+      th: import.meta.glob('../data/routeTests/g4/hk2/th*.js'),
+      gk: import.meta.glob('../data/routeTests/g4/hk2/gk*.js'),
+      ck: import.meta.glob('../data/routeTests/g4/hk2/ck*.js'),
+    },
   },
 };
-const routeCollections = (grade) => ROUTE_KINDS.map(k => {
-  const mods = ROUTE_GLOBS[grade][k.kind];
+// Id đề: học kì I l{lớp}-nh-01…, học kì II l{lớp}k2-nh-01… (cùng khoá sao route{lớp}).
+const routeCollections = (grade, term) => ROUTE_KINDS.map(k => {
+  const mods = ROUTE_GLOBS[grade][term][k.kind];
+  const pre = `l${grade}${term === 2 ? 'k2' : ''}-${k.kind}-`;
   return {
-    ...k, id: `route${grade}-${k.kind}`, unit: 'bài', noun: 'bài kiểm tra',
+    ...k, id: `route${grade}${term === 2 ? 'k2' : ''}-${k.kind}`, term, unit: 'bài', noun: 'bài kiểm tra',
     sub: (s) => `Môn: Toán | Lớp ${grade} | Thời gian: ${s.time} phút`,
-    count: Object.keys(mods).length, owns: (id) => id.startsWith(`l${grade}-${k.kind}-`), load: loader(mods),
+    count: Object.keys(mods).length, owns: (id) => id.startsWith(pre), load: loader(mods),
     starPrefix: `route${grade}`, timed: true, route: true, ...(grade === 1 ? { speak: true, big: true } : {}),
   };
 });
+const TERMS = [{ n: 1, name: 'Học kì I' }, { n: 2, name: 'Học kì II' }];
 
-/** Luyện Đề của từng lớp: lớp 3 có các bộ trên, lớp 1, 2 có bốn thư mục Kiểm tra theo lộ trình. */
+/**
+ * Luyện Đề của từng lớp: hai tab Học kì I, Học kì II (c.term, mặc định 1), mỗi tab có bốn thư mục Kiểm tra theo lộ trình.
+ * Lớp 3: tab Học kì I có thêm các bộ trên (phiếu bài tập Bài 1–15, đề giữa kì I, đề ôn tổng hợp).
+ */
 const CONFIGS = {
-  3: { id: 'grade3-worksheet', collections: COLLECTIONS },
-  1: { id: 'grade1-tests', collections: routeCollections(1) },
-  2: { id: 'grade2-tests', collections: routeCollections(2) },
+  3: { id: 'grade3-worksheet', collections: [...routeCollections(3, 1), ...COLLECTIONS, ...routeCollections(3, 2)] },
+  1: { id: 'grade1-tests', collections: [...routeCollections(1, 1), ...routeCollections(1, 2)] },
+  2: { id: 'grade2-tests', collections: [...routeCollections(2, 1), ...routeCollections(2, 2)] },
+  4: { id: 'grade4-tests', collections: [...routeCollections(4, 1), ...routeCollections(4, 2)] },
 };
+const termOf = (c) => c.term || 1;
+// Tab đang chọn (mỗi lớp một tab, chỉ trên máy này). Chưa chọn: tháng 2–7 là học kì II, nhưng học kì đó chưa có đề thì về học kì I.
+const termKey = (grade) => `g3ws-term-${grade}`;
+function savedTerm(grade) {
+  try { const v = Number(localStorage.getItem(termKey(grade))); return v === 1 || v === 2 ? v : 0; } catch { return 0; }
+}
+function saveTerm(grade, t) {
+  try { localStorage.setItem(termKey(grade), String(t)); } catch { /* chế độ riêng tư */ }
+}
 
 const STORE = 'g3ws-v1'; // dùng chung mọi lớp (id đề không trùng nhau)
 const DEFAULT_MIN = 45; // phiếu / đề lớp 3 làm trong 45 phút; bộ `timed` dùng sheet.time
@@ -117,7 +177,8 @@ const LETTERS = 'abcdefgh';
 const OPT_LETTERS = 'ABCDEFGH';
 const FILL_TYPES = new Set(['calc', 'fill', 'findx', 'compare']);
 
-const num = (v) => (String(v ?? '').trim() === '' ? NaN : Number(v));
+// Số lớn viết tách lớp ("7 500") vẫn đọc được.
+const num = (v) => { const t = String(v ?? '').replace(/\s+/g, ''); return t === '' ? NaN : Number(t); };
 const subs = (q) => q.items || [q];
 const plain = (s) => String(s).replace(/<[^>]*>/g, '').replace(/\{(\d+)\/(\d+)\}/g, '$1/$2');
 
@@ -346,14 +407,23 @@ export function grade2Render(app, onBack, opts = {}) {
   renderGrade(2, app, onBack, opts);
 }
 
+/** Luyện Đề lớp 4: bộ Kiểm tra theo lộ trình theo Toán 4 Kết nối tri thức (thẻ grade4-tests). */
+export function grade4Render(app, onBack, opts = {}) {
+  renderGrade(4, app, onBack, opts);
+}
+
 /** `opts.navigate`: mở một sách ở một Bài (dải Ôn lại sau khi chấm bài kiểm tra theo lộ trình). */
 function renderGrade(grade, app, onBack, opts = {}) {
   const cfg = CONFIGS[grade];
   const COLLECTIONS = cfg.collections;
   const single = COLLECTIONS.length === 1;
+  const hasTerm = (t) => COLLECTIONS.some(c => termOf(c) === t && c.count);
+  const month = new Date().getMonth() + 1;
+  let term = savedTerm(grade) || (month >= 2 && month <= 7 && hasTerm(2) ? 2 : 1);
   injectStyles();
   if (opts.open) {
     const col = COLLECTIONS.find(c => c.owns(opts.open));
+    term = termOf(col);
     col.load().then(list => {
       const sheet = list.find(s => s.id === opts.open);
       if (col.open) col.open(app, sheet, () => showList(col));
@@ -364,15 +434,20 @@ function renderGrade(grade, app, onBack, opts = {}) {
 
   function showHub() {
     const store = loadStore();
+    const shown = COLLECTIONS.filter(c => termOf(c) === term && c.count);
     app.innerHTML = `
       <div class="ws-desk">
         <div class="ws-list">
           <div class="ws-list-head">
             <button type="button" class="ws-back" id="ws-back">← Quay lại</button>
             <h1 class="ws-list-title">✏️ Luyện Đề</h1>
+            <div class="ws-terms" role="tablist">
+              ${TERMS.map(t => `<button type="button" role="tab" class="ws-term${t.n === term ? ' is-on' : ''}" data-term="${t.n}" aria-selected="${t.n === term}">${t.name}</button>`).join('')}
+            </div>
           </div>
+          ${shown.length ? '' : `<p class="ws-terms-empty">📝 Đề ${TERMS[term - 1].name} đang được soạn. Con làm các đề ${TERMS[0].name} trước.</p>`}
           <div class="ws-hub">
-            ${COLLECTIONS.map(c => {
+            ${shown.map(c => {
               const done = c.done ? c.done() : Object.keys(store).filter(id => c.owns(id) && store[id].best != null).length;
               return `
                 <button type="button" class="ws-folder" data-col="${c.id}">
@@ -394,6 +469,9 @@ function renderGrade(grade, app, onBack, opts = {}) {
         </div>
       </div>`;
     app.querySelector('#ws-back').onclick = onBack;
+    app.querySelectorAll('.ws-term').forEach(btn => {
+      btn.onclick = () => { term = +btn.dataset.term; saveTerm(grade, term); showHub(); };
+    });
     app.querySelectorAll('.ws-folder').forEach(btn => {
       btn.onclick = () => showList(COLLECTIONS.find(c => c.id === btn.dataset.col));
     });
@@ -1091,7 +1169,8 @@ function renderGrade(grade, app, onBack, opts = {}) {
           ? `<button type="button" class="ws-review-btn" data-card="${b.card}" data-open="${b.open}"><b>Bài ${n}</b> ${title}</button>`
           : `<span class="ws-review-btn"><b>Bài ${n}</b> ${title}</span>`;
       }).join('');
-      return `<div class="ws-review"><p class="ws-review-title">📒 Ôn lại trong Vở bài tập:</p><div class="ws-review-list">${btns}</div></div>`;
+      const where = /^workbook/.test(sheet.after.book) ? 'Vở bài tập' : bookOf(sheet.after.book, 'bai-1')?.label || 'sách';
+      return `<div class="ws-review"><p class="ws-review-title">📒 Ôn lại trong ${escapeHtml(where)}:</p><div class="ws-review-list">${btns}</div></div>`;
     }
 
     // ── HTML từng câu (làm bài) ──
@@ -1117,10 +1196,12 @@ function renderGrade(grade, app, onBack, opts = {}) {
     const field = (k, v, cls = '', right) => {
       const text = right != null && isTextSlot(right);
       if (g) return `<span class="ws-filled ${cls}">${escapeHtml(v)}</span>`;
-      const w = text ? ` style="width:${Math.min(14, Math.max(3.4, String(right).split('|')[0].length * 0.62))}em"` : '';
+      // Ô chữ dài theo đáp án; ô số dài theo số chữ số (số lớn lớp 4, 5: 6 đến 9 chữ số).
+      const w = text ? ` style="width:${Math.min(14, Math.max(3.4, String(right).split('|')[0].length * 0.62))}em"`
+        : typeof right === 'number' && String(right).length > 4 ? ` style="width:${(String(right).length * 0.72 + 0.6).toFixed(1)}em"` : '';
       return text
         ? `<input class="ws-in ws-in-text ${cls}" data-k="${id}|${k}" data-text="1"${isWordsSlot(right) ? ' data-vk-words="1"' : ''} value="${escapeHtml(v)}"${w} autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Chỗ trống">`
-        : `<input class="ws-in ${cls}" data-k="${id}|${k}" value="${escapeHtml(v)}" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Ô trống">`;
+        : `<input class="ws-in ${cls}" data-k="${id}|${k}" value="${escapeHtml(v)}"${w} inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Ô trống">`;
     };
     const signBox = (k, v, choices, extra = '') => (g
       ? `<span class="ws-filled ws-cmp ws-cmp-set${extra}">${rich(v)}</span>`
@@ -1146,12 +1227,12 @@ function renderGrade(grade, app, onBack, opts = {}) {
               body = `<span>${rich(t)} =</span>${field(`${i}|0`, v[0], '', nm.ans[0])}${nm.rem ? `<span>dư</span>${field(`${i}|1`, v[1])}` : ''}${nm.unit ? `<span>${nm.unit}</span>` : ''}`;
             } else if (q.type === 'findx' && nm.inv) {
               // Như vở: đề, (tính vế phải), x = số dấu số, x = kết quả.
-              const f = (j) => field(`${i}|${j}`, v[j] ?? '');
+              const f = (j) => field(`${i}|${j}`, v[j] ?? '', '', typeof nm.ans[j] === 'number' ? nm.ans[j] : undefined);
               body = `<span class="ws-fx"><span>${rich(t)}</span>${nm.pre ? `<span class="ws-fx-ans">${rich(nm.lhs)} = ${f(4)}</span>` : ''}`
                 + `<span class="ws-fx-ans">${nm.v} = ${f(1)}${signBox(`${i}|2`, v[2] ?? '', OPS)}${f(3)}</span>`
                 + `<span class="ws-fx-ans">${nm.v} = ${f(0)}</span></span>`;
             } else if (q.type === 'findx') {
-              body = `<span class="ws-fx"><span>${rich(t)}</span><span class="ws-fx-ans">${nm.v} = ${field(`${i}|0`, v[0])}</span></span>`;
+              body = `<span class="ws-fx"><span>${rich(t)}</span><span class="ws-fx-ans">${nm.v} = ${field(`${i}|0`, v[0], '', typeof nm.ans[0] === 'number' ? nm.ans[0] : undefined)}</span></span>`;
             } else if (q.type === 'compare') {
               const [l, r] = t.split(/□|…/);
               body = `<span>${rich(l)}</span>${signBox(`${i}|0`, v[0], CMP)}<span>${rich(r)}</span>`;
@@ -1169,7 +1250,7 @@ function renderGrade(grade, app, onBack, opts = {}) {
             }
             // Ý có hình (lớp 1: đếm rồi viết số): hình ở trên, dòng điền ở dưới.
             if (nm.fig) return `<div class="ws-item">${showLetters ? letter(i, e.norm.length) : ''}<div class="ws-ifig">${nm.fig}</div><div class="ws-iline">${body}${g ? mark(g.items[i], g.fix[i]) : ''}</div></div>`;
-            return `<div class="ws-item">${showLetters ? letter(i, e.norm.length) : ''}${body}${g ? mark(g.items[i], g.fix[i]) : ''}</div>`;
+            return `<div class="ws-item${figs ? ' ws-item-wide' : ''}">${showLetters ? letter(i, e.norm.length) : ''}${body}${g ? mark(g.items[i], g.fix[i]) : ''}</div>`;
           }).join('')}
         </div>`;
     }
@@ -1338,6 +1419,8 @@ function renderGrade(grade, app, onBack, opts = {}) {
 
     const STEP_NAMES = ['Hiểu đề', 'Lời giải', 'Phép tính', 'Đáp số'];
     const reached = Math.max(step, a.max || 1);
+    // Ô số của lời giải rộng theo số lớn nhất trong phép tính (chỉ để đặt độ rộng, không lộ đáp án).
+    const wide = Math.max(x.a, x.b, x.result);
     return `
       <div class="ws-word">
         <p class="ws-wtext">${rich(q.text)}</p>
@@ -1347,14 +1430,14 @@ function renderGrade(grade, app, onBack, opts = {}) {
             <div class="ws-line ws-l0">Bài giải</div>
             <div class="ws-line ws-l1${lineCls(2)}">${placed || (g ? '' : '<span class="ws-ph">(câu lời giải)</span>')}${lineMark('line1', sentenceRight)}${nextBtn(2)}</div>
             <div class="ws-line ws-l2${lineCls(3)}">
-              ${field('a', a.a, 'ws-in-n')}
+              ${field('a', a.a, 'ws-in-n', wide)}
               ${g ? field('op', a.op, 'ws-in-op') : `<input class="ws-in ws-in-op" data-k="${id}|op" value="${escapeHtml(a.op)}" maxlength="1" inputmode="numeric" placeholder="?" autocomplete="off" aria-label="Dấu phép tính">`}
-              ${field('b', a.b, 'ws-in-n')}<span>=</span>${field('r', a.r, 'ws-in-n')}
+              ${field('b', a.b, 'ws-in-n', wide)}<span>=</span>${field('r', a.r, 'ws-in-n', wide)}
               <span class="ws-keep">(<span class="ws-slot ws-unitbox${a.unit ? '' : ' ws-empty'}">${a.unit || 'đơn vị'}</span>)</span>
               ${lineMark('line2', `${x.a} ${x.op} ${x.b} = ${x.result} (${x.unit})`)}${nextBtn(3)}
             </div>
             <div class="ws-line ws-l3${lineCls(4)}">
-              <span class="ws-u">Đáp số:</span>${field('ans', a.ans, 'ws-in-n')}
+              <span class="ws-u">Đáp số:</span>${field('ans', a.ans, 'ws-in-n', wide)}
               <span class="ws-keep"><span class="ws-slot ws-ansunitbox${a.ansUnit ? '' : ' ws-empty'}">${a.ansUnit || 'đơn vị'}</span>.</span>
               ${lineMark('line3', `Đáp số: ${x.result} ${x.unit}.`)}${nextBtn(4)}
             </div>
@@ -1537,6 +1620,11 @@ function injectStyles() {
     .ws-list { max-width: 1100px; margin: 0 auto; }
     .ws-list-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
     .ws-list-title { margin: 0; color: #fff; font-size: clamp(1.4rem, 4vw, 2.2rem); text-shadow: 0 2px 0 #8a5527; }
+    .ws-terms { margin-left: auto; display: inline-grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; padding: 0.3rem; background: rgba(120, 60, 20, 0.35); border-radius: 999px; }
+    .ws-term { border: none; background: transparent; color: #fff; font: inherit; font-weight: 800; font-size: 1.1rem; padding: 0.55rem 1.2rem; min-width: 8.5rem; text-align: center; border-radius: 999px; cursor: pointer; }
+    @media (orientation: portrait) { .ws-terms { display: grid; width: 100%; box-sizing: border-box; } } /* dọc: hai tab chia đều cả hàng */
+    .ws-term.is-on { background: #fff; color: #7c2d12; box-shadow: 0 3px 0 #8a5527; }
+    .ws-terms-empty { margin: 1.4rem 0 0; padding: 1.2rem 1.4rem; background: #fffdf7; border-radius: 1rem; font-weight: 700; font-size: 1.1rem; color: #7c2d12; box-shadow: 0 6px 0 #8a5527; }
     .ws-hub { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 2.6rem 1.6rem; padding-top: 1.4rem; min-height: calc(100vh - 9rem); }
     .ws-folder { position: relative; border: none; background: none; padding: 0; font: inherit; text-align: left; cursor: pointer; min-height: 15rem; display: flex; }
     .ws-folder-tab { position: absolute; left: 1.2rem; top: -1.3rem; width: 40%; height: 2rem; background: #fbbf24; border-radius: 0.8rem 0.8rem 0 0; box-shadow: inset 0 -3px 0 #d97706; }
@@ -1687,13 +1775,15 @@ function injectStyles() {
     .ws-frac span:first-child { border-bottom: 1.5px solid currentColor; padding: 0 0.15em; }
     .ws-fig { margin: 0.3rem 0 0.5rem; }
     .ws-fig svg, .ws-optt svg { max-width: 100%; height: auto; }
+    .ws-fig svg + svg { margin-left: 1.5rem; } /* nhiều hình ghép trong một fig (hai nhiệt kế…) */
 
     .ws-items { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem 1rem; }
     .ws-items-1 { grid-template-columns: 1fr; }
     .ws-items-2 { grid-template-columns: repeat(2, minmax(0, 18rem)); }
     .ws-items-3 { grid-template-columns: repeat(3, 1fr); }
-    .ws-items-col { grid-template-columns: repeat(4, max-content); gap: 0.8rem 2.6rem; }
-    @container (max-width: 720px) { .ws-items, .ws-items-3 { grid-template-columns: repeat(2, 1fr); } .ws-items-1 { grid-template-columns: 1fr; } .ws-items-col { grid-template-columns: repeat(2, max-content); } }
+    /* Đặt tính: xếp hàng, hết chỗ thì xuống dòng (bài đã chấm có thêm chữ sửa đỏ cạnh từng phép tính). */
+    .ws-items-col { display: flex; flex-wrap: wrap; gap: 0.8rem 2.6rem; }
+    @container (max-width: 720px) { .ws-items, .ws-items-3 { grid-template-columns: repeat(2, 1fr); } .ws-items-1 { grid-template-columns: 1fr; } .ws-items-col { display: grid; grid-template-columns: repeat(2, max-content); } }
     .ws-item { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; white-space: nowrap; min-height: 2.6rem; }
     .ws-items-1 .ws-item { white-space: normal; }
     .ws-letter { font-weight: 700; color: #64748b; margin-right: 0.2rem; }
@@ -1916,7 +2006,7 @@ function injectStyles() {
       .ws-item { flex-wrap: nowrap; gap: 0.2rem; }
       .ws-items-1 .ws-item { flex-wrap: wrap; }
       .ws-items-2 { grid-template-columns: 1fr; }
-      .ws-items-col { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem 0.8rem; }
+      .ws-items-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem 0.8rem; }
       .ws-items-col .ws-item { flex-wrap: wrap; }
       .ws-tf { gap: 0.3rem; }
       .ws-in { width: 2.3em; }
@@ -1960,6 +2050,8 @@ function injectStyles() {
     .ws-items-fig-1 { --fc: 1; } .ws-items-fig-2 { --fc: 2; }
     @container (max-width: 560px) { .ws-items-fig { --fc: 1; } }
     .ws-items-fig .ws-item { flex-direction: column; align-items: flex-start; white-space: normal; gap: 0.3rem; }
+    /* Ý không có hình trong câu nhiều hình: nằm hết một hàng, không bị dồn vào cột hẹp. */
+    .ws-items-fig .ws-item-wide { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; align-items: center; }
     .ws-ifig svg { display: block; width: 100%; max-width: 16rem; height: auto; }
     .ws-iline { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; }
     .ws-review { width: 100%; border: 2px dashed #fca5a5; border-radius: 0.8rem; padding: 0.8rem 1rem; box-sizing: border-box; margin-bottom: 0.6rem; }

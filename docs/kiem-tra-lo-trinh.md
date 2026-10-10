@@ -20,7 +20,7 @@ Lộ trình của một lớp đi theo **thứ tự Bài của sách chính** c�
 | 1 | Vở BT Toán 1 (`workbook1`) |
 | 2 | Vở BT Toán 2 Tập 1, 2 (`workbook2`) |
 | 3 | Vở BT Toán 3 Tập 1, 2 (`workbook`), thêm Luyện tập (`practice`) |
-| 4 | Toán 4 công cụ (`tool4`), chưa chốt |
+| 4 | Toán 4 công cụ (`tool4`, SGK Kết nối tri thức) |
 | 5 | Toán 5 công cụ (`tool5`) |
 
 "Bài mới" là Bài dạy kiến thức mới, có `points` trong phần kiến thức. Bài Luyện tập, Luyện tập chung, Ôn tập
@@ -83,6 +83,56 @@ Lộ trình lớp 2, Học kì I (Vở BT Toán 2 Tập Một, Bài 1–36), ghi
 
 Lớp 2 có 4 chặng tổng hợp, mỗi chặng 2 đề (8 đề).
 
+Lộ trình lớp 3, Học kì I (Vở BT Toán 3 Tập Một, Bài 1–44), ghi trong `src/data/routeTests/g3/plan.js`:
+
+| Bài kiểm tra | Bài | Bài mới |
+|---|---|---|
+| ⚡ Nhanh 1 | 1–3 | 1 Ôn tập các số đến 1 000 · 2 Ôn tập cộng, trừ trong phạm vi 1 000 · 3 Tìm thành phần trong phép cộng, phép trừ |
+| ⚡ Nhanh 2 | 4–8 | 4 Bảng nhân, chia 2; 5 · 5 Bảng nhân, chia 3 · 6 Bảng nhân, chia 4 · 7 Ôn tập hình học và đo lường |
+| 🧭 Tổng hợp 1 | 1–8 | Nhanh 1 + Nhanh 2 |
+| ⚡ Nhanh 3 | 9–12 | 9, 10, 11, 12 Bảng nhân, bảng chia 6, 7, 8, 9 (gộp câu nhiều ý) |
+| ⚡ Nhanh 4 | 13–15 | 13 Tìm thành phần trong phép nhân, phép chia · 14 Một phần mấy |
+| 🧭 Tổng hợp 2 | 9–15 | Nhanh 3 + Nhanh 4, ôn Bài 1–8 |
+| ⚡ Nhanh 5 | 16–18 | 16 Trung điểm · 17 Hình tròn, tâm, bán kính, đường kính · 18 Góc vuông, góc không vuông |
+| ⚡ Nhanh 6 | 19–22 | 19 Tam giác, tứ giác, hình chữ nhật, hình vuông · 20 Thực hành vẽ · 21 Khối lập phương, khối hộp chữ nhật |
+| 🧭 Tổng hợp 3 | 16–22 | Nhanh 5 + Nhanh 6, ôn Bài 1–15 |
+| 📝 Giữa kì I | 1–22 | Nhanh 1 đến 6 |
+| ⚡ Nhanh 7 | 23–25 | 23 Nhân số có hai chữ số · 24 Gấp lên một số lần · 25 Chia hết, chia có dư |
+| ⚡ Nhanh 8 | 26–29 | 26 Chia số có hai chữ số · 27 Giảm đi một số lần · 28 Bài toán giải bằng hai bước tính |
+| 🧭 Tổng hợp 4 | 23–29 | Nhanh 7 + Nhanh 8, ôn Bài 1–22 |
+| ⚡ Nhanh 9 | 30–35 | 30 Mi-li-mét · 31 Gam · 32 Mi-li-lít · 33 Nhiệt độ |
+| ⚡ Nhanh 10 | 36–37 | 36 Nhân số có ba chữ số · 37 Chia số có ba chữ số |
+| 🧭 Tổng hợp 5 | 30–37 | Nhanh 9 + Nhanh 10, ôn Bài 1–29 |
+| ⚡ Nhanh 11 | 38–44 | 38 Biểu thức số · 39 So sánh số lớn gấp mấy lần số bé · 43 Ôn tập hình học và đo lường |
+| 🏆 Cuối kì I | 1–44 | Nhanh 1 đến 11 |
+
+Lớp 3 có 5 chặng tổng hợp, mỗi chặng 2 đề (10 đề). Nhanh 11 không đủ cặp nên do bài cuối kì phủ.
+
+Lộ trình lớp 4, Học kì I (SGK Toán 4 Kết nối tri thức Tập Một, Bài 1–37, trong app là Toán 4 công cụ `tool4`),
+ghi trong `src/data/routeTests/g4/plan.js`. Lớp 4 không có vở bài tập trong app nên điểm cốt lõi từng Bài viết riêng
+ở `src/games/grade4Tools/knowledge.js` (`KNOWLEDGE4`).
+
+| Bài kiểm tra | Bài | Bài mới |
+|---|---|---|
+| ⚡ Nhanh 1 | 1–3 | 1 Ôn tập các số đến 100 000 · 2 Ôn tập các phép tính · 3 Số chẵn, số lẻ |
+| ⚡ Nhanh 2 | 4–6 | 4 Biểu thức chứa chữ · 5 Giải bài toán có ba bước tính |
+| 🧭 Tổng hợp 1 | 1–6 | Nhanh 1 + Nhanh 2 |
+| ⚡ Nhanh 3 | 7–9 | 7 Đo góc, đơn vị đo góc · 8 Góc nhọn, góc tù, góc bẹt |
+| ⚡ Nhanh 4 | 10–12 | 10 Số có sáu chữ số, số 1 000 000 · 11 Hàng và lớp · 12 Các số trong phạm vi lớp triệu |
+| 🧭 Tổng hợp 2 | 7–12 | Nhanh 3 + Nhanh 4, ôn Bài 1–6 |
+| ⚡ Nhanh 5 | 13–16 | 13 Làm tròn số đến hàng trăm nghìn · 14 So sánh các số có nhiều chữ số · 15 Dãy số tự nhiên |
+| ⚡ Nhanh 6 | 17–21 | 17 Yến, tạ, tấn · 18 dm², m², mm² · 19 Giây, thế kỉ |
+| 🧭 Tổng hợp 3 | 13–21 | Nhanh 5 + Nhanh 6, ôn Bài 1–12 |
+| 📝 Giữa kì I | 1–21 | Nhanh 1 đến 6 |
+| ⚡ Nhanh 7 | 22–26 | 22 Phép cộng · 23 Phép trừ các số có nhiều chữ số · 24 Giao hoán, kết hợp · 25 Tổng và hiệu |
+| ⚡ Nhanh 8 | 27–32 | 27 Hai đường thẳng vuông góc · 29 Hai đường thẳng song song · 31 Hình bình hành, hình thoi |
+| 🧭 Tổng hợp 4 | 22–32 | Nhanh 7 + Nhanh 8, ôn Bài 1–21 |
+| 🏆 Cuối kì I | 1–37 | Nhanh 1 đến 8 (Bài 33–37 là Ôn tập học kì 1) |
+
+Lớp 4 có 4 chặng tổng hợp, mỗi chặng 2 đề (8 đề). Giữa kì 15 câu, cuối kì 20 câu như mục 4.
+Số lớn viết tách lớp như sách (`'345 678'`); ô số tự rộng theo số chữ số, bé gõ có hay không có dấu cách đều được.
+**Lớp 3 giữa kì 14 câu, cuối kì 15 câu** (người dùng chọn "khoảng 12–15 câu", 2026-10-10), Phần B 4–5 câu.
+
 ---
 
 ## 2. Chọn kiến thức cốt lõi của từng Bài
@@ -131,6 +181,7 @@ Theo ba mức của Thông tư 27 (đánh giá học sinh tiểu học):
 Số câu giữa kì, cuối kì theo đề thi thật ở trường (người dùng cho biết, 2026-10-10): giữa kì thường 15 câu,
 cuối kì thường 20 câu, phần tự luận chiếm 4–5 câu, còn lại là trắc nghiệm. Thời gian làm bài thường 45 phút.
 Lớp 1 (`src/data/routeTests/g1`) làm trước quy tắc này nên giữa kì, cuối kì vẫn 10 câu, chờ chốt có đổi hay không.
+Lớp 3 theo yêu cầu riêng của người dùng: giữa kì 14 câu (M1/M2/M3 = 7/4/3), cuối kì 15 câu (7/5/3).
 
 Bố cục giống đề giữa kì lớp 3. Các câu **đánh số liên tục** (`numbering: 'continuous'`), các câu cùng số điểm.
 Engine chấm theo tỉ lệ đúng của từng câu rồi quy ra thang 10. Câu nhiều ý thì mỗi ý được một phần điểm.
@@ -245,11 +296,20 @@ của `engine/stars.js`.
 
 ## 9. Chỗ đặt trong app
 
+- Luyện Đề lớp 1, 2, 3 có hai tab **Học kì I | Học kì II** ở đầu màn. Mỗi tab có bốn thư mục của học kì đó.
+  Đề Học kì II đặt ở thư mục con `src/data/routeTests/g{lớp}/hk2/` (có `plan.js` riêng), id `l{lớp}k2-nh-01`, `l{lớp}k2-gk-1`…,
+  cùng khoá sao `route{lớp}`. Tab chưa có đề thì hiện dòng "đang được soạn". Tab mặc định: tab bé chọn lần trước,
+  chưa chọn thì tháng 2–7 là Học kì II (nếu đã có đề), còn lại Học kì I. Lớp 3: phiếu bài tập, 65 đề giữa kì I,
+  đề ôn tổng hợp nằm ở tab Học kì I.
+
 - **Lớp 1** (đã làm mẫu): thẻ ✏️ Luyện Đề `grade1-tests`, `grade1Render` trong `src/games/grade3Worksheet.js`
   (cấu hình `CONFIGS`, `ROUTE_COLLECTIONS`).
-- **Lớp 3**: thêm bốn thư mục vào Luyện Đề có sẵn. Giữa kì I có thể trỏ thêm tới bộ 65 đề giữa kì.
+- **Lớp 3**: bốn thư mục đứng đầu Luyện Đề có sẵn (`grade3-worksheet`, `render`), trước Phiếu bài tập, 65 đề giữa kì,
+  Đề ôn tổng hợp. Đề ở `src/data/routeTests/g3/`, sao `route3`.
 - **Lớp 2**: thẻ ✏️ Luyện Đề `grade2-tests`, `grade2Render` (Học kì I, `src/data/routeTests/g2/`).
-- **Lớp 4, 5**: mỗi lớp một thẻ Luyện Đề như lớp 1.
+- **Lớp 4**: thẻ ✏️ Luyện Đề `grade4-tests`, `grade4Render` (Học kì I, `src/data/routeTests/g4/`), sao `route4`.
+  Dải Ôn lại mở thẳng Bài trong Toán 4 công cụ.
+- **Lớp 5**: một thẻ Luyện Đề như lớp 1.
 
 ---
 
@@ -257,7 +317,7 @@ của `engine/stars.js`.
 
 `node scripts/check-worksheets.mjs`. Đề có `kind` thì kiểm tra thêm:
 
-- Số câu: nhanh 5, tổng hợp 10, giữa kì 15, cuối kì 20 (lớp 1 giữa kì, cuối kì còn 10). Giữa kì, cuối kì: Phần B 4–5 câu.
+- Số câu: nhanh 5, tổng hợp 10, giữa kì 15, cuối kì 20 (lớp 1 giữa kì, cuối kì còn 10; lớp 3 giữa kì 14, cuối kì 15). Giữa kì, cuối kì: Phần B 4–5 câu.
   Số câu M1, M2, M3 đúng ma trận mục 4 (lệch ±1 được).
 - `bai` và `point` có thật trong `points` của Bài đó.
 - Nhanh, tổng hợp: mỗi Bài mới trong khoảng có ít nhất 1 câu không phải câu ôn. Câu ôn chỉ dùng Bài **trước** khoảng.
@@ -285,7 +345,14 @@ Xem thử: `scripts/games-preview.html?book=grade3Worksheet.js&fn=grade1Render&o
 Xem thử: `scripts/games-preview.html?book=grade3Worksheet.js&fn=grade2Render&open=l2-nh-01&click=.ws-start`.
 Còn: Học kì II (Bài 37–75).
 
+## Đã làm (lớp 4, Học kì I)
+
+26 đề trong `src/data/routeTests/g4/` theo SGK Toán 4 Kết nối tri thức (Toán 4 công cụ, `tool4`): ⚡ Nhanh 1–8,
+🧭 Tổng hợp 1–4 mỗi chặng 2 đề, 📝 Giữa kì I 5 đề (Bài 1–21), 🏆 Cuối kì I 5 đề (Bài 1–37). Điểm cốt lõi:
+`src/games/grade4Tools/knowledge.js`. Hình vẽ: `art.js` (thước đo góc hai vòng số, sơ đồ tổng và hiệu, dùng lại hình lớp 2, 3).
+Engine: `evalExpr` tính được ngoặc; ô số lớn tự rộng; số gõ có dấu cách vẫn đúng (cả lời giải bài toán).
+Xem thử: `scripts/games-preview.html?book=grade3Worksheet.js&fn=grade4Render&open=l4-nh-01&click=.ws-start`.
+
 ## Còn phải chốt
 
-1. Lớp 4 đi theo sách nào: SGK Toán 4 cũ (`textbook4`, 175 bài) hay Toán 4 công cụ (`tool4`, sách mới).
-2. Làm đủ đề A, B, C cho mỗi bài kiểm tra, hay mỗi bài một đề trước.
+1. Làm đủ đề A, B, C cho mỗi bài kiểm tra, hay mỗi bài một đề trước.

@@ -376,6 +376,7 @@ function navigate(gameId, opts = {}) {
     'grade1-workbook-2': () => import('./games/grade1Workbook2.js'),
     'grade1-tests': () => import('./games/grade3Worksheet.js').then(m => ({ render: m.grade1Render })),
     'grade2-tests': () => import('./games/grade3Worksheet.js').then(m => ({ render: m.grade2Render })),
+    'grade4-tests': () => import('./games/grade3Worksheet.js').then(m => ({ render: m.grade4Render })),
     'grade1-photo': () => import('./games/grade1Photo.js'),
     'grade1-shark': () => import('./games/gradeShark.js').then(m => ({ render: m.sharkRender(1) })),
     'grade2-shark': () => import('./games/gradeShark.js').then(m => ({ render: m.sharkRender(2) })),

@@ -5,15 +5,20 @@ import { readdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { normQuestion, tablesOf, itemSlots, findVar, holes } from '../src/games/worksheetCore.js';
 
-const DIRS = ['src/data/grade3Worksheets', 'src/data/grade3Midterm', 'src/data/routeTests/g1', 'src/data/routeTests/g2'];
+const DIRS = ['src/data/grade3Worksheets', 'src/data/grade3Midterm', 'src/data/routeTests/g1', 'src/data/routeTests/g2', 'src/data/routeTests/g3', 'src/data/routeTests/g4',
+  'src/data/routeTests/g1/hk2', 'src/data/routeTests/g2/hk2', 'src/data/routeTests/g3/hk2', 'src/data/routeTests/g4/hk2']; // hk2: Học kì II, có plan.js riêng
 // Kiến thức từng Bài (points) của sách chính mỗi lớp, để kiểm tra trường bai / point của đề theo lộ trình.
 const KNOWLEDGE = {
   workbook1: async () => (await import('../src/games/grade1Knowledge/index.js')).KNOWLEDGE1,
   workbook2: async () => (await import('../src/games/grade2Knowledge/index.js')).KNOWLEDGE2,
+  workbook: async () => (await import('../src/games/grade3Knowledge/index.js')).KNOWLEDGE3,
+  tool4: async () => (await import('../src/games/grade4Tools/knowledge.js')).KNOWLEDGE4,
 };
 // tl: số câu Phần B (tự luận). Giữa kì 15 câu, cuối kì 20 câu theo đề thi thật; lớp 1 làm trước nên còn 10 câu (OLD_EXAM).
 const KINDS = { nhanh: { n: 5, lv: [3, 1, 1], review: [0, 1] }, tonghop: { n: 10, lv: [5, 3, 2], review: [2, 4] }, giuaki: { n: 15, lv: [8, 4, 3], tl: [4, 5] }, cuoiki: { n: 20, lv: [10, 6, 4], tl: [4, 5] } };
 const OLD_EXAM = { books: ['workbook1'], rule: { n: 10, lv: [5, 3, 2] } };
+// Lớp 3: người dùng chọn giữa kì, cuối kì khoảng 12–15 câu (2026-10-10): giữa kì 14, cuối kì 15.
+const BOOK_KINDS = { workbook: { giuaki: { n: 14, lv: [7, 4, 3], tl: [4, 5] }, cuoiki: { n: 15, lv: [7, 5, 3], tl: [4, 5] } } };
 const unitList = (spec) => String(spec).split(',').flatMap(p => { const [a, b = a] = p.trim().split('-').map(Number); return Array.from({ length: b - a + 1 }, (_, i) => a + i); });
 const only = process.argv.slice(2);
 const OPS = ['+', '−', '×', ':'];
@@ -127,7 +132,7 @@ for (const dir of DIRS) {
 }
 /** Luật ma trận của một bài kiểm tra theo lộ trình (docs/kiem-tra-lo-trinh.md mục 1, 4, 10). */
 async function checkRoute(sheet, err, dir) {
-  let rule = KINDS[sheet.kind];
+  let rule = BOOK_KINDS[sheet.after?.book]?.[sheet.kind] || KINDS[sheet.kind];
   if (!rule) { err('', `kind "${sheet.kind}" lạ`); return; }
   if (rule.tl && OLD_EXAM.books.includes(sheet.after?.book)) rule = OLD_EXAM.rule;
   if (rule.tl) {

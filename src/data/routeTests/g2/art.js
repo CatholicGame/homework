@@ -87,16 +87,17 @@ export function twoRows(nameA, kindA, a, nameB, kindB, b, { cell = 38 } = {}) {
 
 // ── Đo lường ────────────────────────────────────────────────────────────────
 
-/** Quả cân có số kg (hình thang xám, có quai). */
+/** Quả cân có số kg (hình thang xám, có quai). Chuỗi (vd '500 g') thì ghi đúng chuỗi đó. */
 function weight(x, base, kg) {
-  const w = 36 + String(kg).length * 4, h = 30;
+  const lab = typeof kg === 'number' ? `${kg} kg` : kg;
+  const w = typeof kg === 'number' ? 36 + String(kg).length * 4 : 12 + lab.length * 6, h = 30;
   return `<path d="M${r1(x - 6)} ${r1(base - h - 8)} q6 -8 12 0" fill="none" stroke="#475569" stroke-width="2.4"/>`
     + `<path d="M${r1(x - w / 2 + 4)} ${r1(base - h)} H${r1(x + w / 2 - 4)} L${r1(x + w / 2)} ${base} H${r1(x - w / 2)} Z" fill="#94a3b8" stroke="#334155" stroke-width="1.8" stroke-linejoin="round"/>`
-    + text(x, base - 9, `${kg} kg`, { size: 13, fill: '#fff' });
+    + text(x, base - 9, lab, { size: typeof kg === 'number' ? 13 : 12, fill: '#fff' });
 }
 
 /**
- * Cân đĩa. left / right: danh sách đồ đặt lên đĩa, mỗi phần tử là số (quả cân kg) hoặc tên đồ vật
+ * Cân đĩa. left / right: danh sách đồ đặt lên đĩa, mỗi phần tử là số (quả cân kg), chuỗi '200 g' (quả cân gam) hoặc tên đồ vật
  * (kèm chữ nhỏ: { kind, label }). tilt: 'left' (đĩa trái thấp hơn), 'right', hoặc 0 (thăng bằng).
  */
 export function balance(left, right, { tilt = 0 } = {}) {
@@ -106,10 +107,11 @@ export function balance(left, right, { tilt = 0 } = {}) {
   const panY = (p) => p.y + 52;
   const stack = (list, p) => {
     const base = panY(p) - 2;
-    const n = list.length, sp = Math.min(46, 100 / Math.max(1, n - 1));
+    // Quả cân gam ('500 g') rộng hơn quả cân kg: giãn ra cho móc treo không chồng nhau.
+    const n = list.length, sp = list.some(o => typeof o === 'string' && /\d+ g$/.test(o)) ? 50 : Math.min(46, 100 / Math.max(1, n - 1));
     return list.map((o, i) => {
       const x = p.x + (i - (n - 1) / 2) * sp;
-      if (typeof o === 'number') return weight(x, base, o);
+      if (typeof o === 'number' || /^\d+ (kg|g)$/.test(o)) return weight(x, base, o);
       const kind = typeof o === 'string' ? o : o.kind;
       const big = typeof o === 'object' && o.size ? o.size : 46;
       return item(kind, x, base - big / 2, big) + (o.label ? text(x, panY(p) + 30, o.label, { size: 14, fill: '#92400e' }) : '');
@@ -122,7 +124,7 @@ export function balance(left, right, { tilt = 0 } = {}) {
     + `<line x1="${L.x}" y1="${L.y}" x2="${R.x}" y2="${R.y}" stroke="#713f12" stroke-width="7" stroke-linecap="round"/>`
     + `<circle cx="${cx}" cy="${pivotY}" r="7" fill="#fde68a" stroke="#713f12" stroke-width="2"/>`
     + pan(L) + pan(R) + stack(left, L) + stack(right, R);
-  return svg(W, 206, body, 320);
+  return svg(W, 206, body, 350);
 }
 
 /** Một bình chứa có số lít: kind 'can' (can nhựa), 'ca' (ca có quai), 'chai', 'xo' (xô). */
