@@ -12,7 +12,6 @@ import { css, emitter, INK, sfx, watchUnits } from './frame.js';
 import { calmMotion } from '../grade3Games/fly.js';
 
 const CELL = 50, COLS = 20, ROWS = 11;
-const W = COLS * CELL, H = ROWS * CELL;
 const NS = 'http://www.w3.org/2000/svg';
 const el = (tag, attrs = {}, html = '') => {
   const e = document.createElementNS(NS, tag);
@@ -37,26 +36,34 @@ function foot(p, a, d) {
 }
 const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
 
-/** Đoạn của đường thẳng qua a hướng d, cắt trong khung giấy. */
-function clipLine(a, d) {
+/** Đoạn của đường thẳng qua a hướng d, cắt trong khung giấy (cols × rows ô). */
+function clipLine(a, d, cols = COLS, rows = ROWS) {
   const ux = Math.cos(rad(d)), uy = Math.sin(rad(d));
   const ts = [];
-  if (Math.abs(ux) > 1e-9) ts.push((0 - a.x) / ux, (COLS - a.x) / ux);
-  if (Math.abs(uy) > 1e-9) ts.push((0 - a.y) / uy, (ROWS - a.y) / uy);
-  const ok = ts.filter(t => { const x = a.x + t * ux, y = a.y + t * uy; return x >= -1e-6 && x <= COLS + 1e-6 && y >= -1e-6 && y <= ROWS + 1e-6; });
+  if (Math.abs(ux) > 1e-9) ts.push((0 - a.x) / ux, (cols - a.x) / ux);
+  if (Math.abs(uy) > 1e-9) ts.push((0 - a.y) / uy, (rows - a.y) / uy);
+  const ok = ts.filter(t => { const x = a.x + t * ux, y = a.y + t * uy; return x >= -1e-6 && x <= cols + 1e-6 && y >= -1e-6 && y <= rows + 1e-6; });
   const t0 = Math.min(...ok), t1 = Math.max(...ok);
   return [{ x: a.x + t0 * ux, y: a.y + t0 * uy }, { x: a.x + t1 * ux, y: a.y + t1 * uy }];
 }
 
-export function createSquare(host, { eke = true } = {}) {
+/**
+ * cols, rows: cỡ giấy (ô), mặc định 20 × 11.
+ * Ngoài đường nền `base` (một đường), t.eke({ bases: [id…] }) cho ê ke khớp với BẤT KỲ đường nào trong danh sách
+ * (trò 🛤️ Kỹ sư đường sắt: bé có thể đặt nhầm dọc đường khác): S.onBase = id đường đang khớp, S.aligned = đã khớp
+ * một đường (không đòi cạnh kia qua `through`; `through` chỉ hút ê ke khi trượt tới gần).
+ */
+export function createSquare(host, { eke = true, cols = COLS, rows = ROWS } = {}) {
   injectSquareStyles();
+  const W = cols * CELL, H = rows * CELL;
+  const clip = (a, d) => clipLine(a, d, cols, rows);
   const t = emitter({});
   host.innerHTML = `<div class="g4s"><div class="g4s-cap">&nbsp;</div><svg class="g4s-svg" viewBox="-20 -20 ${W + 40} ${H + 40}" preserveAspectRatio="xMidYMid meet"></svg></div>`;
   const svg = host.querySelector('svg');
   watchUnits(svg);
   let grid = '';
-  for (let i = 0; i <= COLS; i++) grid += `<line x1="${i * CELL}" y1="0" x2="${i * CELL}" y2="${H}"/>`;
-  for (let j = 0; j <= ROWS; j++) grid += `<line x1="0" y1="${j * CELL}" x2="${W}" y2="${j * CELL}"/>`;
+  for (let i = 0; i <= cols; i++) grid += `<line x1="${i * CELL}" y1="0" x2="${i * CELL}" y2="${H}"/>`;
+  for (let j = 0; j <= rows; j++) grid += `<line x1="0" y1="${j * CELL}" x2="${W}" y2="${j * CELL}"/>`;
   svg.append(el('rect', { x: 0, y: 0, width: W, height: H, fill: '#fff', stroke: '#BAE6FD', 'stroke-width': 3 }));
   svg.append(el('g', { class: 'g4s-grid' }, grid));
   const gLines = el('g'), gMarks = el('g'), gPts = el('g'), gEke = el('g', { class: 'g4s-eke' }), gTop = el('g');
@@ -64,7 +71,7 @@ export function createSquare(host, { eke = true } = {}) {
 
   const P = {}; // tên → {x, y}
   const LINES = {}; // id → { a, b, full, color, el }
-  const S = { c: { x: 14, y: 9 }, rot: 0, base: null, through: null, aligned: false, on: null };
+  const S = { c: { x: 14, y: 9 }, rot: 0, base: null, bases: null, onBase: null, through: null, aligned: false, on: null };
   t.P = P; t.LINES = LINES; t.S = S; t.svg = svg;
   t.caption = (html) => { host.querySelector('.g4s-cap').innerHTML = html || '&nbsp;'; };
   const X = (v) => v * CELL;
@@ -79,7 +86,7 @@ export function createSquare(host, { eke = true } = {}) {
   t.line = (id, a, b, { full = false, color = INK, width = 5, dash = '' } = {}) => {
     const pa = typeof a === 'string' ? P[a] : a, pb = typeof b === 'string' ? P[b] : b;
     LINES[id]?.el.remove();
-    const [q0, q1] = full ? clipLine(pa, dirOf(pa, pb)) : [pa, pb];
+    const [q0, q1] = full ? clip(pa, dirOf(pa, pb)) : [pa, pb];
     const e = el('line', { x1: X(q0.x), y1: X(q0.y), x2: X(q1.x), y2: X(q1.y), stroke: color, 'stroke-width': width, 'stroke-linecap': 'round', ...(dash ? { 'stroke-dasharray': dash } : {}) });
     gLines.append(e);
     LINES[id] = { a: pa, b: pb, full, color, el: e, d: dirOf(pa, pb) };
@@ -88,7 +95,7 @@ export function createSquare(host, { eke = true } = {}) {
   /** Kéo dài đoạn thành đường thẳng tới mép giấy (có chuyển động). */
   t.extend = async (id, { color } = {}) => {
     const L = LINES[id];
-    const [q0, q1] = clipLine(L.a, L.d);
+    const [q0, q1] = clip(L.a, L.d);
     const ext = el('line', { x1: X(q0.x), y1: X(q0.y), x2: X(q1.x), y2: X(q1.y), stroke: color || L.color, 'stroke-width': 4, 'stroke-dasharray': '14 10', 'stroke-linecap': 'round' });
     gLines.insertBefore(ext, gLines.firstChild);
     const len = dist(q0, q1) * CELL;
@@ -122,7 +129,14 @@ export function createSquare(host, { eke = true } = {}) {
     gEke.setAttribute('transform', `translate(${X(S.c.x)} ${X(S.c.y)}) rotate(${S.rot})`);
     // Khớp: đỉnh trên đường nền, một cạnh dọc theo đường nền, cạnh kia qua điểm `through` (nếu có).
     let ok = false;
-    if (S.base) {
+    S.onBase = null;
+    if (S.bases) {
+      S.onBase = S.bases.find(id => {
+        const L = LINES[id];
+        return L && dist(S.c, foot(S.c, L.a, L.d)) < 0.02 && [0, 90, 180, 270].some(k => Math.abs(diff(S.rot + k, L.d)) < 0.3);
+      }) || null;
+      ok = !!S.onBase;
+    } else if (S.base) {
       const L = LINES[S.base];
       const onLine = dist(S.c, foot(S.c, L.a, L.d)) < 0.02;
       const dirOk = [0, 90, 180, 270].some(k => Math.abs(diff(S.rot + k, L.d)) < 0.3);
@@ -157,7 +171,7 @@ export function createSquare(host, { eke = true } = {}) {
 
   /** Bút chì vẽ đường thẳng qua p theo hướng d (độ), có chuyển động. Trả về id đường mới. */
   t.drawAlong = async (id, p, d, { color = '#2563EB' } = {}) => {
-    const [q0, q1] = clipLine(p, d);
+    const [q0, q1] = clip(p, d);
     const e = t.line(id, q0, q1, { color, width: 5 });
     const len = dist(q0, q1) * CELL;
     e.setAttribute('stroke-dasharray', `${len}`);
@@ -194,7 +208,20 @@ export function createSquare(host, { eke = true } = {}) {
     } else {
       let c = { x: p.x + drag.dx, y: p.y + drag.dy };
       // trượt dọc đường nền khi đã khớp hướng
-      if (S.base) {
+      if (S.bases) {
+        const thr = S.through ? P[S.through] : null;
+        let best = null;
+        for (const id of S.bases) {
+          const L = LINES[id];
+          if (!L || ![0, 90, 180, 270].some(k => Math.abs(diff(S.rot + k, L.d)) < 0.3)) continue;
+          const f = foot(c, L.a, L.d), dd = dist(c, f);
+          if (dd < 0.6 && (!best || dd < best.dd)) best = { f, dd, L };
+        }
+        if (best) {
+          c = best.f;
+          if (thr) { const g = foot(thr, best.L.a, best.L.d); if (dist(c, g) < 0.45) c = g; }
+        }
+      } else if (S.base) {
         const L = LINES[S.base];
         const dirOk = [0, 90, 180, 270].some(k => Math.abs(diff(S.rot + k, L.d)) < 0.3);
         const f = foot(c, L.a, L.d);
@@ -236,4 +263,4 @@ function injectSquareStyles() {
   `);
 }
 
-export { dirOf, foot, CELL };
+export { dirOf, foot, clipLine, CELL };

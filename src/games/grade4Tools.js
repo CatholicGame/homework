@@ -14,6 +14,8 @@ import { injectGameStyles, menuBackdrop, fitMenu } from './grade3Games/styles.js
 import { preloadNpcs } from './grade3Games/npc.js';
 import { getTotalStars, hasEarned } from '../engine/stars.js';
 import { css } from './grade4Tools/frame.js';
+import { GRADE4_GAMES } from '../data/features.js';
+import { levelsForUnit } from './grade4Games/catalog.js';
 
 const toolIcons = (l) => (l.tools.length ? l.tools.map(k => TOOLS[k].icon).join('') : '📝');
 
@@ -40,6 +42,7 @@ export function render(app, onBack, { open } = {}) {
     shell(`
       ${topbar('Học bằng công cụ', '🧰 Toán 4 · Tập Một')}
       <p class="g3g-lead">Mỗi bài có công cụ để em tự tay thử: bảng hàng, tia số, thước đo góc, ê ke… Khám phá trước, rồi thực hành.</p>
+      ${GRADE4_GAMES ? '<button type="button" class="g4h-games" data-act="games"><span>🎮</span><strong>Trò chơi tăng cường</strong><small>Dùng kiến thức đã học để làm việc thật!</small></button>' : ''}
       ${TOPICS.map(t => `
         <section class="g4h-topic">
           <h2 class="g4h-th"><span class="g4h-tn">Chủ đề ${t.num}</span>${t.title}</h2>
@@ -57,6 +60,7 @@ export function render(app, onBack, { open } = {}) {
           </div>
         </section>`).join('')}`);
     app.querySelector('[data-act="back"]').onclick = onBack;
+    app.querySelector('[data-act="games"]')?.addEventListener('click', () => openGames(null, showList));
     app.querySelectorAll('.g4h-tile[data-n]').forEach(b => { b.onclick = () => showLesson(lessonByN(+b.dataset.n)); });
     mountToolSearch(app, { TOPICS, TOOLS, lessonByN, exploreOf, tasksOf }, search);
     if (lastN) app.querySelector(`.g4h-tile[data-n="${lastN}"]`)?.scrollIntoView({ block: 'center' });
@@ -67,6 +71,7 @@ export function render(app, onBack, { open } = {}) {
     const ex = exploreOf(l.n);
     const tasks = tasksOf(l.n);
     const seen = loadSeen()[l.id];
+    const games = GRADE4_GAMES ? levelsForUnit(l.id) : [];
     shell(`
       ${topbar(`Bài ${l.n}`, `🧰 Toán 4 · Chủ đề ${l.topic}`)}
       <div class="g3g-card g4h-lesson">
@@ -78,11 +83,24 @@ export function render(app, onBack, { open } = {}) {
         <div class="g4h-go">
           ${ex ? `<button type="button" class="g4h-big g4h-ex" data-act="explore"><span class="g4h-big-i">🔎</span><span><strong>Khám phá</strong><small>Thầy hướng dẫn từng bước, em tự tay làm trên công cụ${seen ? ' · ✓ đã xem' : ''}</small></span></button>` : ''}
           ${tasks.length ? `<button type="button" class="g4h-big g4h-pr" data-act="practice"><span class="g4h-big-i">✏️</span><span><strong>Thực hành</strong><small>5 câu, mỗi lần số mới${hasEarned(`tool4:${l.id}`) ? ' · ⭐ đã nhận sao' : ''}</small></span></button>` : ''}
+          ${games.length ? `<button type="button" class="g4h-big g4h-gm" data-act="game"><span class="g4h-big-i">${games[0].stall.icon}</span><span><strong>Trò chơi</strong><small>${games[0].stall.title}: ${games[0].level.title}</small></span></button>` : ''}
         </div>
       </div>`);
     app.querySelector('[data-act="back"]').onclick = showList;
     app.querySelector('[data-act="explore"]')?.addEventListener('click', () => startExplore(l));
     app.querySelector('[data-act="practice"]')?.addEventListener('click', () => startPractice(l));
+    app.querySelector('[data-act="game"]')?.addEventListener('click', () => openGames({ stall: games[0].stall.id, level: games[0].level.id, unit: l.id }, () => showLesson(l)));
+  }
+
+  /** 🎮 Trò chơi tăng cường Toán 4 (tải động). start: mở thẳng một cấp; back: nút quay lại của hub. */
+  function openGames(start, back) {
+    import('./grade4Games.js').then(({ renderGames }) => {
+      const units = TOPICS.flatMap(t => t.lessons).map(x => ({ id: x.id, number: x.n, title: x.title }));
+      renderGames(app, {
+        book: 'tools', units, unitName: (u) => `Bài ${u.number}. ${u.title}`, storageKey: 'g4tools-games-none',
+        openUnit: (id) => showLesson(lessonByN(+String(id).replace(/\D/g, ''))), onBack: back,
+      }, start);
+    });
   }
 
   function startExplore(l) {
@@ -163,6 +181,13 @@ function injectHubStyles() {
     .g4h-big small { display: block; font-size: 1rem; font-weight: 700; opacity: 0.95; line-height: 1.3; }
     .g4h-big-i { font-size: 2.6rem; line-height: 1; }
     .g4h-ex { background: linear-gradient(180deg, #38BDF8, #0EA5E9); box-shadow: 0 6px 0 #0369A1, 0 10px 18px rgba(3,105,161,0.25); }
+    .g4h-games { display: flex; align-items: center; gap: 0.3rem 0.8rem; flex-wrap: wrap; width: 100%; margin: 0.2rem 0 0.4rem; border: 4px solid #fff; border-radius: 1.3rem; padding: 0.6rem 1rem; cursor: pointer; font-family: inherit; color: #fff; text-align: left;
+      background: linear-gradient(180deg, #FB923C, #F97316); box-shadow: 0 6px 0 #C2410C, 0 10px 18px rgba(194,65,12,0.25); }
+    .g4h-games:active { transform: translateY(4px); }
+    .g4h-games span { font-size: 2.2rem; line-height: 1; }
+    .g4h-games strong { font-size: 1.5rem; text-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+    .g4h-games small { flex: 1 1 14rem; font-size: 1rem; font-weight: 700; opacity: 0.95; }
+    .g4h-gm { background: linear-gradient(180deg, #FB923C, #F97316); box-shadow: 0 6px 0 #C2410C, 0 10px 18px rgba(194,65,12,0.25); }
     .g4h-pr { background: linear-gradient(180deg, #4ADE80, #22C55E); box-shadow: 0 6px 0 #15803D, 0 10px 18px rgba(21,128,61,0.25); }
   `);
 }

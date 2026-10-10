@@ -116,7 +116,7 @@ export function getEarnedKeys() {
 
 // Tiền tố khoá sao của từng sách → lớp (1–5; -1 = Tiền tiểu học, xem PRESCHOOL trong data/grades.js).
 // Thêm sách mới thì thêm một dòng.
-const BOOK_GRADE = { exam: 3, worksheet: 3, workbook: 3, practice: 3, g3games: 3, drill: 3, workbook2: 2, workbook1: 1, workbook1b: 1, drill2: 2, g2games: 2, pre1: -1, pre2: -1, pre3: -1, pre4: -1, pre5: -1, g1bird: 1, shark1: 1, ufo1: 1, tool4: 4, drill4: 4, textbook4: 4, tool5: 5, drill5: 5, memory3: 3, route1: 1, route2: 2, route3: 3, route4: 4 };
+const BOOK_GRADE = { exam: 3, worksheet: 3, workbook: 3, practice: 3, g3games: 3, drill: 3, workbook2: 2, workbook1: 1, workbook1b: 1, drill2: 2, g2games: 2, pre1: -1, pre2: -1, pre3: -1, pre4: -1, pre5: -1, g1bird: 1, shark1: 1, ufo1: 1, tool4: 4, drill4: 4, g4games: 4, textbook4: 4, tool5: 5, drill5: 5, memory3: 3, route1: 1, route2: 2, route3: 3, route4: 4, route5: 5 };
 
 /**
  * Sao của một lớp theo từng khoảng thời gian (giờ máy):

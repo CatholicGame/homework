@@ -71,7 +71,7 @@ Trò chơi **dùng lại bộ vẽ của công cụ** (thước đo góc `angle.
 | 4 | 🪚 **Xưởng mộc đo góc** | E | 7, 8, 9 | thước đo góc `angle.js` | 4 |
 | 5 | 🏦 **Ngân hàng heo đất** | F, A, K | 1, 2, 10–12, 22, 23 | bảng hàng `place.js` | 5 |
 | 6 | 🏙️ **Bản đồ thành phố** | F | 12, 13, 14 | tia số `line.js` | 6 |
-| 7 | 🛤️ **Kỹ sư đường sắt** | L | 27–30 | ê ke `square.js` | 7 |
+| 7 | 🛤️ **Kỹ sư đường sắt** | L | 27–30 | ê ke `square.js` | ⭐ 0 (làm trước, đã chốt) |
 | 8 | 🪁 **Xưởng diều** | L | 31, 32 | bảng ghim `quad.js` | 8 |
 | 9 | 🧱 **Thợ lát nền** | H | 18 | lưới diện tích `canvas.js` | 9 |
 | 10 | ⏳ **Bảo tàng thời gian** | I, K | 19 | đồng hồ bấm giây, dòng thời gian | 10 |
@@ -134,6 +134,12 @@ Mỗi trò 2–4 cấp. Thứ tự ưu tiên chọn theo: kiến thức trọng 
 - **Số liệu thật:** bao lúa 50 kg, bao cà phê 60 kg, con heo 1 tạ, con bò 4 tạ, xe tải nhỏ 2 tấn, biển cầu 5T / 10T / 13T.
 - **Khi sai:** cầu rung, xe phanh lại trước cầu, chú công an giao thông thổi còi; xe lùi về, bao thừa bay xuống.
 
+> **Đã code bản đầu (2026-10-11, bản dev):** `src/games/grade4Games/weigh.js`, hình `grade4Games/art/weigh.js`, sao `g4games:weigh-1..4`. Cảnh vẽ ở trên (ruộng lúa, sân trạm cân), bảng việc ở dưới, NPC bên phải (Chú Tâm bốc hàng, Bác Ba tài xế, Chú Khang công an, Anh Nam quản lý kho).
+> - **Cấp 1 Đọc cân, ghi phiếu:** cân bàn đồng hồ (mặt 100 / 200 / 500 kg); bao, sọt cam, heo, bò rơi lên bàn cân, kim quay. Ba dạng xoay vòng: kg → yến; kg → tạ, yến (heo, bò); đồ vật đeo thẻ "1 tạ 4 yến" → kg, mặt cân che "?" tới khi bấm Xong.
+> - **Cấp 2 Chất hàng theo đơn:** đơn "2 tấn 4 tạ 5 yến ngô" / "42 tạ" / "125 yến"; bé chạm bao lớn 1 tấn, bao 50 kg, bao bay lên xe, đồng hồ trạm cân (đã trừ bì xe) nhảy số; ↶ Dỡ bớt. Đúng thì xe chạy đi.
+> - **Cấp 3 Xe qua cầu:** biển 5T / 10T / 13T, ba thẻ xe (xe và hàng ghi bằng tấn, tạ, kg khác nhau), luôn có một xe quá tải, một xe vừa đúng hoặc sát tải trọng. Sau Xong từng xe chạy tới cầu: được thì qua, quá tải thì cầu rung, chú công an hô, xe lùi; thẻ hiện "= 48 tạ < 50 tạ".
+> - **Cấp 4 Sổ trạm cân:** xen kẽ hàng = cả xe − xe không (xe vào cân, dỡ hàng vào kho, cân lại) và cả xe = xe không + hàng (cân xe không, Xong thì chất hàng, cân kiểm chứng). Số chia hết cho 10, luôn có ít nhất một lần nhớ / mượn.
+
 ### 4.4 🪚 Xưởng mộc đo góc (Bài 7, 8, 9)
 
 **Câu chuyện:** Bác thợ mộc nhận đơn đóng ghế, giá sách, cửa, thang. Mỗi món cần góc đúng số đo.
@@ -171,7 +177,18 @@ Mỗi trò 2–4 cấp. Thứ tự ưu tiên chọn theo: kiến thức trọng 
 
 - **Số liệu:** dân số xấp xỉ theo Tổng cục Thống kê, ghi năm nguồn trong code; xem [§9](#9-câu-hỏi-cần-chốt) câu 4.
 
+> **Đã code bản đầu (2026-10-10, bản dev):** `src/games/grade4Games/city.js`, hình `grade4Games/art/city.js`, tên trò **🏙️ Bản đồ dân số**. Đã chốt:
+> - **Số liệu:** chỉ 23 tỉnh, thành có số dân ghi trong **Nghị quyết 202/2025/QH15** (sắp xếp đơn vị hành chính cấp tỉnh, đối chiếu trên xaydungchinhsach.chinhphu.vn). 11 tỉnh, thành không sắp xếp (Hà Nội, Huế, Thanh Hóa, Nghệ An…) không có số trong Nghị quyết, các nguồn khác lệch nhau nhiều (Thanh Hóa 3,76 triệu hay 4,32 triệu) nên không hỏi số dân của chúng; bản đồ vẫn vẽ đủ 34 chấm, Hà Nội là ngôi sao thủ đô. Màn chơi ghi nguồn dưới bản đồ.
+> - **Bản đồ tự vẽ** giản lược theo kinh độ, vĩ độ, luôn có **QĐ. Hoàng Sa (Đà Nẵng)** và **QĐ. Trường Sa (Khánh Hòa)**.
+> - **Phóng viên → bản tin:** chị Hà phóng viên giao việc; màn hình bản tin ở giữa, số tô màu theo lớp (triệu tím, nghìn xanh dương, đơn vị xanh lá).
+> - **Cấp 1 Đọc số dân (Bài 12, cả Bài 10, 11):** chọn cách đọc đúng (bẫy đổi chỗ hai chữ số, bỏ một chữ số); nghe đọc rồi gõ số; chữ số được tô thuộc hàng nào (có ngoặc lớp dưới số).
+> - **Cấp 2 Xếp hạng dân số (Bài 14):** tỉnh nào đông / ít dân hơn (hai số cùng số chữ số, cùng chữ số đầu); chạm 4 tỉnh theo thứ tự. Sau Xong thanh dân số mọc lên theo tỉ lệ.
+> - **Cấp 3 Làm tròn số dân (Bài 13):** chọn trong 3 số (mốc dưới, mốc trên, bẫy làm tròn sai hàng); tia số nghiêng, bi lăn về mốc gần hơn.
+> - Chưa làm: chạm thành phố để nghe đọc, đọc to qua micro.
+
 ### 4.7 🛤️ Kỹ sư đường sắt (Bài 27–30)
+
+> Thiết kế chi tiết (4 cấp, bố cục, sinh đề, hậu quả, kỹ thuật): [thiet-ke-ky-su-duong-sat.md](thiet-ke-ky-su-duong-sat.md).
 
 **Câu chuyện:** Thành phố làm tuyến tàu mới. Bé đặt đường ray và đường ngang cho tàu chạy an toàn.
 
@@ -262,9 +279,9 @@ src/games/grade4Games/
 | Giai đoạn | Nội dung | Kết quả |
 |---|---|---|
 | 0 | Cảnh mẫu tĩnh Tiệm bánh công thức | Duyệt phong cách |
-| 1 | Nút vào trong `grade4-tools` + hub + catalog + 🍞 Tiệm bánh (4 cấp) | Chơi được trọn một trò lớp 4 |
+| 1 | Nút vào trong `grade4-tools` + hub + catalog + 🛤️ Kỹ sư đường sắt (4 cấp, [thiết kế](thiet-ke-ky-su-duong-sat.md)), rồi 🍞 Tiệm bánh (4 cấp) | Chơi được trọn một trò lớp 4 |
 | 2 | 🍬 Chia phần → 🚚 Trạm cân → 🪚 Xưởng mộc | Phủ phần trọng tâm Tập 1 |
-| 3 | 🏦 Ngân hàng → 🏙️ Bản đồ → 🛤️ Đường sắt → 🪁 Diều | Số lớn và hình học |
+| 3 | 🏦 Ngân hàng → 🏙️ Bản đồ → 🪁 Diều | Số lớn và hình học |
 | 4 | 🧱 Lát nền → ⏳ Bảo tàng → 📮 Bưu tá; chế độ "Trộn đề" | Phủ hết Bài 1–37 |
 | Phát hành | Bạn chốt → `GRADE4_GAMES = true` | Lên production |
 

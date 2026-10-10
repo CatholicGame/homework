@@ -3691,6 +3691,18 @@ export const STAR_RATINGS = {
   'g1bird:chup-chuc-b:0': 2,
   'g1bird:chup-chuc-b:1': 2,
   'g1bird:chup-chuc-b:2': 2,
+  // g4games: trò chơi tăng cường Toán 4 (grade4Games.js), một khoá cho mỗi cấp
+  'g4games:rail-1': 2,
+  'g4games:rail-2': 3,
+  'g4games:rail-3': 2,
+  'g4games:rail-4': 3,
+  'g4games:city-1': 2,
+  'g4games:city-2': 2,
+  'g4games:city-3': 2,
+  'g4games:weigh-1': 2,
+  'g4games:weigh-2': 2,
+  'g4games:weigh-3': 3,
+  'g4games:weigh-4': 2,
   // g2games: trò chơi tăng cường Toán 2 (grade2Games.js) — một khoá cho mỗi cấp
   'g2games:fac-1': 2,
   'g2games:fac-2': 2,

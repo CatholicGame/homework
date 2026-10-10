@@ -14,3 +14,7 @@ export const GRADE2_GAMES = true;
 // 🏝️ Đảo Trí Nhớ (docs/thiet-ke-tro-choi-tri-nho.md): trò trí nhớ ôn kiến thức, đang làm (giai đoạn 1: Bãi Lật Thẻ lớp 3).
 // Chỉ hiện ở bản dev; bật production khi chốt: đổi thành true.
 export const MEMORY_ISLAND = import.meta.env.DEV;
+
+// Trò chơi tăng cường Toán 4 (docs/lop_4/thiet-ke-tro-choi.md), trò đầu tiên 🛤️ Kỹ sư đường sắt.
+// Chỉ hiện ở bản dev; bật production khi chốt: đổi thành true.
+export const GRADE4_GAMES = import.meta.env.DEV;

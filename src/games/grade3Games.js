@@ -118,6 +118,7 @@ export function renderGamesHub(app, ctx, start = null, {
   games: GAMES = GRADE3_LIST, kicker = '🎮 Toán 3', stallLessons = false, unitFocus = tablesForUnit,
   title: hubTitle = 'Trò chơi tăng cường', icon: hubIcon = '🎮',
   lead = 'Mỗi lần chơi là một lượt mới: số mới, khách mới!', levelLead = 'Chọn cấp. Cấp nào cũng chơi được!',
+  skipList = true,
 } = {}) {
   injectGameStyles();
   preloadNpcs();
@@ -131,7 +132,8 @@ export function renderGamesHub(app, ctx, start = null, {
   const focused = (game, l) => (fromLesson && unitFocused && game.focus && linked(l) ? game.focus(l, unitFocused) : l);
   let hubQuery = ''; // 🔎 chữ đang tìm ở danh sách công cụ / trò chơi (giữ khi vào rồi quay lại)
   // Hub chỉ có một trò một phần chơi (🦈 Săn cá mập, 🛸 Bảo vệ Trái Đất…): bỏ màn danh sách trò, mở thẳng danh sách cấp.
-  const solo = GAMES.length === 1 && GAMES[0].single ? GAMES[0] : null;
+  // skipList: false — vẫn hiện danh sách trò (lớp 4: mới có một trò nhưng sẽ thêm trò khác).
+  const solo = skipList && GAMES.length === 1 && GAMES[0].single ? GAMES[0] : null;
   if (lv) showIntro(found.g, found.s.game, lv);
   else showGames();
 
