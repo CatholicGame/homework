@@ -104,6 +104,7 @@ export default {
     'Hôm nay': 'Today',
     '📚 Lớp {0} — chọn bài để học': '📚 Grade {0}: choose a book',
     'Chọn bài để học': 'Choose a book',
+    '📚 Chọn bài để học': '📚 Choose a book',
     'Bấm để quay và nhận sticker nhé': 'Tap to spin and win a sticker',
     'Quay ngay ➜': 'Spin now ➜',
     'Xem sticker ➜': 'See stickers ➜',

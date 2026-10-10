@@ -1,0 +1,55 @@
+/** Kiểm tra cuối học kì I: Bài 1–34 Vở BT Toán 1 (Nhanh 1 đến 7). Quy tắc: docs/kiem-tra-lo-trinh.md. */
+import { things, groups, shapes } from './art.js';
+
+export default {
+  id: 'l1-ck-1',
+  kind: 'cuoiki',
+  title: 'Kiểm tra cuối học kì I (Đề 1)',
+  short: 'Cuối kì I · Đề 1',
+  after: { book: 'workbook1', units: '1-34' },
+  desc: 'Hình phẳng; các số đến 10; so sánh; phép cộng trong phạm vi 5, phép trừ trong phạm vi 3',
+  time: 35,
+  numbering: 'continuous',
+  parts: [
+    { title: 'A. Phần trắc nghiệm', label: 'Câu', questions: [
+      { type: 'mc', bai: 25, point: 0, level: 1,
+        prompt: 'Có 2 con gà, thêm 1 con gà. Có tất cả mấy con gà?', fig: groups('chick', 2, 1),
+        options: ['1', '2', '3', '4'], ans: 2 },
+      { type: 'mc', bai: 4, point: 0, level: 2,
+        prompt: 'Có mấy hình tam giác?', fig: shapes(['triangle', 'square', 'triangle', 'circle', 'triangle', 'triangle', 'square']),
+        options: ['3', '4', '5', '7'], ans: 1 },
+      // Đáp án nhiễu: 0 (đếm quá), 1 (số đứng sau), 6.
+      { type: 'mc', bai: 8, point: 2, level: 1,
+        prompt: 'Đếm ngược: 5, 4, 3, …, 1. Số còn thiếu là:',
+        say: 'Đếm ngược: 5, 4, 3, mấy, 1. Số còn thiếu là số mấy?',
+        options: ['6', '2', '1', '0'], ans: 1 },
+      { type: 'tf', bai: [31, 29], point: 0, level: 2,
+        prompt: 'Đúng ghi Đ, sai ghi S:',
+        say: 'Đúng ghi Đ, sai ghi S. 4 cộng 0 bằng 4. 0 cộng 3 bằng 0. 2 cộng 3 bằng 3 cộng 2. 1 cộng 2 bằng 4.',
+        items: ['4 + 0 = 4', '0 + 3 = 0', '2 + 3 = 3 + 2', '1 + 2 = 4'], ans: ['Đ', 'S', 'Đ', 'S'] },
+      { type: 'mc', bai: 34, point: 0, level: 1,
+        prompt: 'Có 3 con ếch, 1 con nhảy đi. Còn lại mấy con ếch?', fig: things('frog', 3, { gone: 1 }),
+        options: ['1', '2', '3', '4'], ans: 1 },
+      // Đáp án nhiễu: 12 (lấy 7 cộng 5), 3 và 1 (nhầm cặp số khác của 7).
+      { type: 'mc', bai: 17, point: 2, level: 1,
+        prompt: '7 gồm 5 và mấy?',
+        options: ['1', '2', '3', '12'], ans: 1 },
+    ] },
+    { title: 'B. Phần tự luận', label: 'Câu', questions: [
+      { type: 'calc', bai: [25, 27, 29, 34], point: 1, level: 1,
+        prompt: 'Tính:',
+        items: ['1 + 2', '2 + 2', '4 + 1', '0 + 5', '3 − 1', '2 − 1'] },
+      { type: 'compare', bai: [11, 13, 20, 21], point: 1, level: 2,
+        prompt: 'Điền dấu >, <, =:',
+        items: ['2 + 1 □ 4', '4 + 0 □ 3', '10 □ 9', '0 □ 1'] },
+      { type: 'fill', bai: 29, point: 0, level: 3,
+        prompt: 'Viết phép tính thích hợp:', fig: groups('bird', 3, 2, { label: 'bay tới' }),
+        say: 'Có 3 con chim, 2 con chim bay tới. Viết phép tính thích hợp.',
+        items: [{ t: '3 □ 2 = …', ans: ['+', 5], choices: ['+', '−'] }] },
+      { type: 'fill', bai: [27, 29, 31, 34], point: 0, level: 3,
+        prompt: 'Số?',
+        say: 'Điền số còn thiếu.',
+        items: ['□ + 1 = 4', '2 + □ = 5', '3 − □ = 1', '□ + 0 = 2'] },
+    ] },
+  ],
+};

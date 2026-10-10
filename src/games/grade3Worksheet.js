@@ -10,8 +10,11 @@
 
 import { scopedKey, getCurrentUser } from '../engine/auth.js';
 import { getProfile } from '../engine/profile.js';
-import { awardStars, recordWrong, earnedFor } from '../engine/stars.js';
+import { awardStars, recordWrong, earnedFor, getEarnedKeys } from '../engine/stars.js';
 import { flyOne } from './grade3Games/fly.js';
+import { say } from './preschool/fx.js';
+import { UNIT_INFO } from '../data/knowledgeUnits.js';
+import { bookOf } from '../data/knowledgeMap.js';
 import { normQuestion, tablesOf, NORM_TYPES, itemSlots, gradeSlots, isTextSlot, isWordsSlot, columnParts, holes } from './worksheetCore.js';
 
 // bai01.js, bai01b.js… (cùng số bài, nhiều phiếu: thêm chữ cái), de01.js… de65.js. Nạp khi mở thư mục.
@@ -28,6 +31,19 @@ const loadMidterm = loader(MIDTERM);
 const FREE_SHEETS = 2;
 const lockedAt = (i) => !getCurrentUser() && i >= FREE_SHEETS;
 
+// Một bộ đề: id, tên, thẻ thư mục, dòng phụ đầu tờ đề (sub), nạp đề (load), id đề thuộc bộ (owns).
+// Kiểm tra theo lộ trình (docs/kiem-tra-lo-trinh.md) thêm: starPrefix (khoá sao), noun, timed (dùng sheet.time),
+// speak (nút 🔊 đọc đề, lớp 1), big (chữ to), route (thẻ ghi "Sau Bài …", cờ ▶ Làm tiếp, dải Ôn lại sau khi chấm).
+// Đề ôn tổng hợp: 38 câu phần Toán của Ôn Luyện Đề (grade3Exam.js) chia thành 8 đề ngắn (7 đề 5 câu, 1 đề 3 câu).
+// Mở bằng màn câu hỏi của grade3Exam (từng câu, gợi ý, sao exam:de-1:math:<câu>), không phải tờ giấy.
+const REVIEW_SIZES = [5, 5, 5, 5, 5, 5, 5, 3];
+const REVIEW_SETS = REVIEW_SIZES.map((n, i) => {
+  const from = REVIEW_SIZES.slice(0, i).reduce((a, b) => a + b, 0);
+  const keys = Array.from({ length: n }, (_, k) => `exam:de-1:math:${from + k}`);
+  return { id: `on-${i + 1}`, short: `Đề ${i + 1}`, desc: `${n} câu ôn tổng hợp`, from, to: from + n, keys };
+});
+const reviewSolved = (s) => s.keys.filter(k => earnedFor(k) > 0).length;
+
 const COLLECTIONS = [
   {
     id: 'phieu', icon: '🗒️', name: 'Phiếu bài tập', desc: 'Luyện theo từng bài học', unit: 'phiếu',
@@ -39,10 +55,61 @@ const COLLECTIONS = [
     sub: () => 'Ôn tập giữa học kì I | Môn: Toán | Lớp 3 | Thời gian: 45 phút',
     count: Object.keys(MIDTERM).length, owns: (id) => /^de-\d+$/.test(id), load: loadMidterm,
   },
+  {
+    id: 'ontonghop', icon: '🧩', name: 'Đề ôn tổng hợp', desc: 'Đề ngắn, ôn các dạng toán của lớp 3', unit: 'đề',
+    count: REVIEW_SETS.length, owns: (id) => /^on-\d+$/.test(id), load: () => Promise.resolve(REVIEW_SETS),
+    // Đã làm = đề có mọi câu đã đúng (có sao); thẻ đề ghi số câu đúng thay cho điểm.
+    done: () => REVIEW_SETS.filter(s => reviewSolved(s) === s.keys.length).length,
+    score: (s) => { const n = reviewSolved(s); return n ? `Đúng ${n}/${s.keys.length}` : null; },
+    open: (app, s, back) => import('./grade3Exam.js').then(m => m.render(app, back, { range: { from: s.from, to: s.to, title: `Đề ôn tổng hợp: ${s.short}` } })),
+  },
 ];
 
-const STORE = 'g3ws-v1';
-const LIMIT_MS = 45 * 60 * 1000; // mỗi phiếu / đề làm trong 45 phút
+// Kiểm tra theo lộ trình (docs/kiem-tra-lo-trinh.md): bốn nhóm, mỗi nhóm một thư mục. Lộ trình: src/data/routeTests/g{lớp}/plan.js.
+const ROUTE_KINDS = [
+  { kind: 'nh', icon: '⚡', name: 'Kiểm tra nhanh', desc: 'Học xong khoảng 3 bài thì làm một bài 5 câu',
+    note: 'Bài kiểm tra ngắn sau mỗi vài Bài trong vở. Câu nào chưa đúng, cô chỉ Bài cần ôn lại.' },
+  { kind: 'th', icon: '🧭', name: 'Kiểm tra tổng hợp', desc: 'Sau hai bài kiểm tra nhanh, ôn cả những bài trước',
+    note: 'Ôn lại các Bài của hai bài kiểm tra nhanh và một ít Bài cũ hơn.' },
+  { kind: 'gk', icon: '📝', name: 'Kiểm tra giữa học kì', desc: 'Ôn tất cả các bài từ đầu học kì',
+    note: 'Bài kiểm tra giữa học kì: có câu của mọi phần đã học từ đầu học kì.' },
+  { kind: 'ck', icon: '🏆', name: 'Kiểm tra cuối học kì', desc: 'Ôn tất cả các bài của học kì',
+    note: 'Bài kiểm tra cuối học kì: có câu của mọi phần đã học trong học kì.' },
+];
+// Vite cần đường dẫn glob viết sẵn: mỗi lớp, mỗi nhóm một dòng.
+const ROUTE_GLOBS = {
+  1: {
+    nh: import.meta.glob('../data/routeTests/g1/nh*.js'),
+    th: import.meta.glob('../data/routeTests/g1/th*.js'),
+    gk: import.meta.glob('../data/routeTests/g1/gk*.js'),
+    ck: import.meta.glob('../data/routeTests/g1/ck*.js'),
+  },
+  2: {
+    nh: import.meta.glob('../data/routeTests/g2/nh*.js'),
+    th: import.meta.glob('../data/routeTests/g2/th*.js'),
+    gk: import.meta.glob('../data/routeTests/g2/gk*.js'),
+    ck: import.meta.glob('../data/routeTests/g2/ck*.js'),
+  },
+};
+const routeCollections = (grade) => ROUTE_KINDS.map(k => {
+  const mods = ROUTE_GLOBS[grade][k.kind];
+  return {
+    ...k, id: `route${grade}-${k.kind}`, unit: 'bài', noun: 'bài kiểm tra',
+    sub: (s) => `Môn: Toán | Lớp ${grade} | Thời gian: ${s.time} phút`,
+    count: Object.keys(mods).length, owns: (id) => id.startsWith(`l${grade}-${k.kind}-`), load: loader(mods),
+    starPrefix: `route${grade}`, timed: true, route: true, ...(grade === 1 ? { speak: true, big: true } : {}),
+  };
+});
+
+/** Luyện Đề của từng lớp: lớp 3 có các bộ trên, lớp 1, 2 có bốn thư mục Kiểm tra theo lộ trình. */
+const CONFIGS = {
+  3: { id: 'grade3-worksheet', collections: COLLECTIONS },
+  1: { id: 'grade1-tests', collections: routeCollections(1) },
+  2: { id: 'grade2-tests', collections: routeCollections(2) },
+};
+
+const STORE = 'g3ws-v1'; // dùng chung mọi lớp (id đề không trùng nhau)
+const DEFAULT_MIN = 45; // phiếu / đề lớp 3 làm trong 45 phút; bộ `timed` dùng sheet.time
 const OPS = ['+', '−', '×', ':'];
 const CMP = ['>', '<', '='];
 const TF = ['Đ', 'S'];
@@ -53,6 +120,12 @@ const FILL_TYPES = new Set(['calc', 'fill', 'findx', 'compare']);
 const num = (v) => (String(v ?? '').trim() === '' ? NaN : Number(v));
 const subs = (q) => q.items || [q];
 const plain = (s) => String(s).replace(/<[^>]*>/g, '').replace(/\{(\d+)\/(\d+)\}/g, '$1/$2');
+
+/** Lời đọc của một câu (nút 🔊): q.say, không có thì đọc lời đề. Dấu viết thành chữ để máy đọc đúng. */
+function sayText(q) {
+  const t = q.say || plain(q.prompt || q.text || '');
+  return t.replace(/\s*<\s*/g, ' bé hơn ').replace(/\s*>\s*/g, ' lớn hơn ').replace(/\s*[−-]\s*/g, ' trừ ').replace(/\s*\+\s*/g, ' cộng ').replace(/…|□/g, ' mấy ');
+}
 
 /** Chữ trong đề: {1/6} → phân số chồng. */
 function rich(s) {
@@ -89,7 +162,7 @@ export function indexSheet(sheet) {
     if (sheet.numbering === 'part') n = 0;
     part.questions.forEach((q, qi) => {
       n++;
-      const e = { id: `${pi}.${qi}`, n, pi, q };
+      const e = { id: `${pi}.${qi}`, n, pi, q, sheetId: sheet.id };
       if (byPart) {
         e.label = part.label ?? 'Câu';
         e.ref = `${(e.label || 'câu').toLowerCase()} ${n}${sheet.parts.length > 1 ? ` (${partName(part)})` : ''}`;
@@ -105,7 +178,8 @@ export function indexSheet(sheet) {
   return list;
 }
 
-const starKey = (sheet, pi) => `worksheet:${sheet.id}:p${pi}`;
+const starKey = (col, sheet, pi) => `${col.starPrefix || 'worksheet'}:${sheet.id}:p${pi}`;
+const nounOf = (col) => col.noun || (col.id === 'giuaki' ? 'đề' : 'phiếu');
 
 // ── lưu ──────────────────────────────────────────────────────────────────────
 function loadStore() {
@@ -216,12 +290,41 @@ const fmtScore = (s) => String(s).replace('.', ',');
 // Hai dòng ngắn, mỗi dòng vừa một dòng kẻ của ô nhận xét (không liệt kê từng câu).
 function teacherComment(sheet, idx, grades, score) {
   const wrong = grades.filter(g => g.score < 1).length;
-  const fix = wrong > 1 ? 'Con xem lại các câu chưa đúng.' : 'Con xem lại câu chưa đúng.';
+  const bai = reviewUnits(idx, grades);
+  const fix = bai.length ? `Con ôn lại Bài ${bai.join(', ')}.` : wrong > 1 ? 'Con xem lại các câu chưa đúng.' : 'Con xem lại câu chưa đúng.';
   if (score >= 10) return ['Bài làm rất tốt!', 'Con trình bày sạch đẹp.'];
   if (score >= 8) return ['Con làm bài tốt.', fix];
   if (score >= 6.5) return ['Con nắm được bài.', 'Cần cẩn thận hơn khi làm bài.'];
   if (score >= 5) return ['Con cần ôn lại bài.', fix];
+  if (bai.length) return ['Con cần ôn lại bài.', fix];
   return [`Con làm lại ${/^de-/.test(sheet.id) ? 'đề' : 'phiếu'} này cùng bố mẹ.`, 'Cô tin con sẽ làm được!'];
+}
+
+/** Các Bài (trường `bai` của câu) có câu làm chưa đúng, theo thứ tự Bài. */
+function reviewUnits(idx, grades) {
+  const set = new Set();
+  idx.forEach((e, i) => { if (grades[i].score < 1 && e.q.bai != null) [].concat(e.q.bai).forEach(b => set.add(b)); });
+  return [...set].sort((a, b) => a - b);
+}
+
+/** "1-8,10" → [1…8, 10]. */
+function unitList(spec) {
+  return String(spec).split(',').flatMap(part => {
+    const [a, b = a] = part.trim().split('-').map(Number);
+    return Array.from({ length: b - a + 1 }, (_, i) => a + i);
+  });
+}
+
+/** Tỉ lệ số câu đã giải (sổ sao) trong các Bài của một chặng, tính như bản đồ kiến thức. */
+function stageLearned(after, solved) {
+  let done = 0, total = 0;
+  for (const n of unitList(after.units)) {
+    const k = `${after.book}:bai-${n}`;
+    const t = UNIT_INFO[k]?.[0] || 0;
+    total += t;
+    done += Math.min(solved[k] || 0, t);
+  }
+  return total ? done / total : 0;
 }
 
 // ── màn hình ─────────────────────────────────────────────────────────────────
@@ -230,11 +333,34 @@ function teacherComment(sheet, idx, grades, score) {
  * `opts.onSignIn`: khách bấm "Đăng nhập" trên phiếu bị khoá.
  */
 export function render(app, onBack, opts = {}) {
+  renderGrade(3, app, onBack, opts);
+}
+
+/** Luyện Đề lớp 1: chỉ có bộ Kiểm tra theo lộ trình (thẻ grade1-tests). */
+export function grade1Render(app, onBack, opts = {}) {
+  renderGrade(1, app, onBack, opts);
+}
+
+/** Luyện Đề lớp 2: bộ Kiểm tra theo lộ trình (thẻ grade2-tests). */
+export function grade2Render(app, onBack, opts = {}) {
+  renderGrade(2, app, onBack, opts);
+}
+
+/** `opts.navigate`: mở một sách ở một Bài (dải Ôn lại sau khi chấm bài kiểm tra theo lộ trình). */
+function renderGrade(grade, app, onBack, opts = {}) {
+  const cfg = CONFIGS[grade];
+  const COLLECTIONS = cfg.collections;
+  const single = COLLECTIONS.length === 1;
   injectStyles();
   if (opts.open) {
     const col = COLLECTIONS.find(c => c.owns(opts.open));
-    col.load().then(list => openSheet(list.find(s => s.id === opts.open), col, () => showList(col)));
-  } else showHub();
+    col.load().then(list => {
+      const sheet = list.find(s => s.id === opts.open);
+      if (col.open) col.open(app, sheet, () => showList(col));
+      else openSheet(sheet, col, () => showList(col));
+    });
+  } else if (single) showList(COLLECTIONS[0]);
+  else showHub();
 
   function showHub() {
     const store = loadStore();
@@ -247,7 +373,7 @@ export function render(app, onBack, opts = {}) {
           </div>
           <div class="ws-hub">
             ${COLLECTIONS.map(c => {
-              const done = Object.keys(store).filter(id => c.owns(id) && store[id].best != null).length;
+              const done = c.done ? c.done() : Object.keys(store).filter(id => c.owns(id) && store[id].best != null).length;
               return `
                 <button type="button" class="ws-folder" data-col="${c.id}">
                   <span class="ws-folder-tab"></span>
@@ -278,21 +404,47 @@ export function render(app, onBack, opts = {}) {
       <div class="ws-desk">
         <div class="ws-list">
           <div class="ws-list-head">
-            <button type="button" class="ws-back" id="ws-back">← Luyện Đề</button>
+            <button type="button" class="ws-back" id="ws-back">← ${single ? 'Quay lại' : 'Luyện Đề'}</button>
             <h1 class="ws-list-title">${col.icon} ${col.name}</h1>
           </div>
+          ${col.note ? `<p class="ws-list-note">${col.note}</p>` : ''}
           <div class="ws-list-grid${col.count > 6 ? ' ws-list-many' : ''}" id="ws-grid"></div>
         </div>
       </div>`;
-    app.querySelector('#ws-back').onclick = showHub;
+    app.querySelector('#ws-back').onclick = single ? onBack : showHub;
     window.scrollTo(0, 0);
     col.load().then(list => {
       const grid = app.querySelector('#ws-grid');
       if (!grid) return;
       const store = loadStore();
+      // Cờ ▶ Làm tiếp: chặng đầu tiên đã giải ≥ 70% số câu trong vở mà chưa có lần làm nào được từ 8 điểm.
+      let nextId = null;
+      if (col.route) {
+        const solved = {};
+        for (const key of getEarnedKeys()) {
+          const [b, u] = key.split(':');
+          if (u) solved[`${b}:${u}`] = (solved[`${b}:${u}`] || 0) + 1;
+        }
+        nextId = list.find(s => s.after && stageLearned(s.after, solved) >= 0.7 && !((store[s.id]?.best ?? 0) >= 8))?.id || null;
+      }
       grid.innerHTML = list.map((s, i) => {
+        if (col.open && !lockedAt(i)) {
+          const score = col.score(s);
+          return `
+          <button type="button" class="ws-card" data-sheet="${s.id}">
+            <span class="ws-card-paper">
+              <span class="ws-card-short">${s.short}</span>
+              <span class="ws-card-desc">${s.desc}</span>
+              <span class="ws-card-lines"></span>
+            </span>
+            <span class="ws-card-score${score ? '' : ' ws-card-new'}">${score || 'Chưa làm'}</span>
+            <span class="ws-card-go">${score ? 'Làm lại ➜' : 'Làm bài ➜'}</span>
+          </button>`;
+        }
         const rec = store[s.id];
         const best = rec?.best;
+        const after = col.route && s.after ? `<span class="ws-card-after">Sau Bài ${s.after.units.replace(/-/g, '–')}</span>` : '';
+        const flag = s.id === nextId ? '<span class="ws-card-next">▶ Làm tiếp</span>' : '';
         if (lockedAt(i)) return `
           <button type="button" class="ws-card ws-card-locked" data-sheet="${s.id}" data-locked="1">
             <span class="ws-card-paper">
@@ -304,9 +456,11 @@ export function render(app, onBack, opts = {}) {
             <span class="ws-card-go">Đăng nhập để làm</span>
           </button>`;
         return `
-          <button type="button" class="ws-card" data-sheet="${s.id}">
+          <button type="button" class="ws-card${s.id === nextId ? ' ws-card-is-next' : ''}" data-sheet="${s.id}">
+            ${flag}
             <span class="ws-card-paper">
               <span class="ws-card-short">${s.short}</span>
+              ${after}
               <span class="ws-card-desc">${s.desc}</span>
               <span class="ws-card-lines"></span>
             </span>
@@ -317,7 +471,9 @@ export function render(app, onBack, opts = {}) {
       grid.querySelectorAll('.ws-card').forEach(btn => {
         btn.onclick = () => (btn.dataset.locked
           ? showLockPopup(col)
-          : openSheet(list.find(s => s.id === btn.dataset.sheet), col, () => showList(col)));
+          : col.open
+            ? col.open(app, list.find(s => s.id === btn.dataset.sheet), () => showList(col))
+            : openSheet(list.find(s => s.id === btn.dataset.sheet), col, () => showList(col)));
       });
     });
   }
@@ -359,7 +515,9 @@ export function render(app, onBack, opts = {}) {
     const date = graded ? new Date(rec.result.at) : new Date();
     const dateText = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
     const grades = graded ? idx.map(e => gradeQuestion(e, answers[e.id])) : null;
-    const noun = col.id === 'giuaki' ? 'đề' : 'phiếu';
+    const noun = nounOf(col);
+    const limitMin = col.timed && sheet.time ? sheet.time : DEFAULT_MIN;
+    const LIMIT_MS = limitMin * 60 * 1000;
     // Tấm che phần đề: đồng hồ chỉ chạy sau khi bấm Bắt đầu / Làm tiếp. Đang làm dở thì cho chọn làm tiếp hoặc làm lại.
     const doneCount = graded ? 0 : idx.filter(e => isFilled(e, answers[e.id])).length;
     const touched = !graded && (rec.elapsed > 0 || idx.some(e => JSON.stringify(answers[e.id]) !== JSON.stringify(emptyAnswer(e))));
@@ -369,12 +527,12 @@ export function render(app, onBack, opts = {}) {
           <div class="ws-cover-icon">${touched ? '📝' : '⏱️'}</div>
           ${touched
             ? `<p class="ws-cover-title">Con đang làm dở ${noun} này</p>
-               <p class="ws-cover-sub">Đã làm <b>${doneCount}/${idx.length}</b> câu, đã dùng <b>${fmtDuration(rec.elapsed || 0)}</b>.<br>${(rec.elapsed || 0) < LIMIT_MS ? `Còn <b>${fmtClock(LIMIT_MS - (rec.elapsed || 0))}</b>.` : 'Đã hết 45 phút, con vẫn làm tiếp được.'}</p>
+               <p class="ws-cover-sub">Đã làm <b>${doneCount}/${idx.length}</b> câu, đã dùng <b>${fmtDuration(rec.elapsed || 0)}</b>.<br>${(rec.elapsed || 0) < LIMIT_MS ? `Còn <b>${fmtClock(LIMIT_MS - (rec.elapsed || 0))}</b>.` : `Đã hết ${limitMin} phút, con vẫn làm tiếp được.`}</p>
                <div class="ws-cover-btns">
                  <button type="button" class="ws-start" data-act="resume">▶ Làm tiếp</button>
                  <button type="button" class="ws-start ws-start-alt" data-act="restart">🔄 Làm lại từ đầu</button>
                </div>`
-            : `<p class="ws-cover-title">Thời gian làm bài: 45 phút</p>
+            : `<p class="ws-cover-title">Thời gian làm bài: ${limitMin} phút</p>
                <p class="ws-cover-sub">Đồng hồ bắt đầu chạy khi con bấm nút.</p>
                <div class="ws-cover-btns"><button type="button" class="ws-start" data-act="start">▶ Bắt đầu làm bài</button></div>`}
           <button type="button" class="ws-cover-back" data-act="back">← Danh sách ${noun}</button>
@@ -399,7 +557,7 @@ export function render(app, onBack, opts = {}) {
           <button type="button" class="ws-prog-arrow" id="ws-prog-next" aria-label="Các câu sau">▶</button>
           </div>
         </div>
-        <article class="ws-paper${graded ? ' ws-graded' : ''}${coverHtml ? ' ws-locked' : ''}" data-vk-noscroll>
+        <article class="ws-paper${col.big ? ' ws-big' : ''}${graded ? ' ws-graded' : ''}${coverHtml ? ' ws-locked' : ''}" data-vk-noscroll>
           <header class="ws-head">
             <h1 class="ws-title">${sheet.title.toUpperCase()}</h1>
             <div class="ws-sub">${col.sub(sheet)}</div>
@@ -428,7 +586,7 @@ export function render(app, onBack, opts = {}) {
             </section>`).join('')}
           <footer class="ws-foot">
             ${graded
-              ? `<button type="button" class="ws-submit" id="ws-redo">🔄 Làm lại ${noun}</button>`
+              ? `${col.route ? reviewStripHtml() : ''}<button type="button" class="ws-submit" id="ws-redo">🔄 Làm lại ${noun}</button>`
               : '<button type="button" class="ws-submit" id="ws-submit" disabled>📮 Nộp bài</button><button type="button" class="ws-foot-note" id="ws-foot-note">&nbsp;</button>'}
           </footer>
           </div>
@@ -501,6 +659,14 @@ export function render(app, onBack, opts = {}) {
     scroller.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     onScroll();
+
+    // 🔊 đọc đề (lớp 1) và nút Ôn lại một Bài (bài đã chấm).
+    app.querySelector('.ws-paper').addEventListener('click', (ev) => {
+      const sp = ev.target.closest('.ws-say');
+      if (sp) { ev.stopPropagation(); say(sayText(idx.find(e => e.id === sp.dataset.q).q)); return; }
+      const rv = ev.target.closest('button.ws-review-btn');
+      if (rv && opts.navigate) opts.navigate(rv.dataset.card, { open: rv.dataset.open, back: cfg.id });
+    }, true);
 
     if (graded) {
       app.querySelector('#ws-count').innerHTML = `Điểm cao nhất: <b class="ws-red">${fmtScore(rec.best)}</b>`;
@@ -865,7 +1031,7 @@ export function render(app, onBack, opts = {}) {
       prog.querySelectorAll('.ws-dot').forEach(d => d.classList.toggle('ws-dot-done', !left.some(e => e.id === d.dataset.q)));
       const timeUp = rec.elapsed >= LIMIT_MS;
       note.innerHTML = timeUp && left.length
-        ? `Đã hết 45 phút. Con làm nốt ${left.length} câu còn lại rồi nộp bài!`
+        ? `Đã hết ${limitMin} phút. Con làm nốt ${left.length} câu còn lại rồi nộp bài!`
         : left.length
         ? `Còn ${left.slice(0, 3).map(refOf).join(', ')}${left.length > 3 ? '…' : ''} chưa làm xong. <u>Chạm để tới câu đó</u>`
         : 'Con đã làm hết. Kiểm tra lại rồi nộp bài!';
@@ -904,13 +1070,28 @@ export function render(app, onBack, opts = {}) {
       // Sao: mỗi Phần làm đúng hết được sao của Phần đó; Phần còn sai bớt 1 sao (như "Kiểm tra" sai).
       let delay = 2600;
       sheet.parts.forEach((part, pi) => {
-        const key = starKey(sheet, pi);
+        const key = starKey(col, sheet, pi);
         if (earnedFor(key)) return;
         const allOk = idx.every((e, i) => e.pi !== pi || gs[i].score === 1);
         const q = { wordProblem: part.questions.some(x => x.type === 'word') };
         if (allOk) { setTimeout(() => awardStars(key, q), delay); delay += 900; } else recordWrong(key, q);
       });
       openSheet(sheet, col, back);
+    }
+
+    /** Dải Ôn lại: mỗi Bài có câu làm chưa đúng là một nút mở thẳng Bài đó trong vở. */
+    function reviewStripHtml() {
+      const bai = reviewUnits(idx, grades);
+      if (!bai.length || !sheet.after) return '';
+      const btns = bai.map(n => {
+        const unit = `bai-${n}`;
+        const b = bookOf(sheet.after.book, unit);
+        const title = escapeHtml(UNIT_INFO[`${sheet.after.book}:${unit}`]?.[1] || '');
+        return b && opts.navigate
+          ? `<button type="button" class="ws-review-btn" data-card="${b.card}" data-open="${b.open}"><b>Bài ${n}</b> ${title}</button>`
+          : `<span class="ws-review-btn"><b>Bài ${n}</b> ${title}</span>`;
+      }).join('');
+      return `<div class="ws-review"><p class="ws-review-title">📒 Ôn lại trong Vở bài tập:</p><div class="ws-review-list">${btns}</div></div>`;
     }
 
     // ── HTML từng câu (làm bài) ──
@@ -921,8 +1102,9 @@ export function render(app, onBack, opts = {}) {
   // `g` = kết quả chấm (bài đã chấm) hoặc null (đang làm).
   function renderQuestion(e, a, g) {
     const { q, n } = e;
+    const speak = COLLECTIONS.some(c => c.speak && c.owns(e.sheetId)) ? `<button type="button" class="ws-say" data-q="${e.id}" aria-label="Đọc đề">🔊</button>` : '';
     const head = e.label != null
-      ? `<div class="ws-qhead"><b class="ws-qlabel">${e.label ? `${e.label} ${n}:` : `${n}.`}</b> ${q.type === 'word' ? '' : rich(q.prompt || '')}</div>`
+      ? `<div class="ws-qhead">${speak}<b class="ws-qlabel">${e.label ? `${e.label} ${n}:` : `${n}.`}</b> ${q.type === 'word' ? '' : rich(q.prompt || '')}</div>`
       : `<div class="ws-qnum">${n}.</div>`;
     const prompt = e.label == null && q.prompt ? `<p class="ws-prompt">${rich(q.prompt)}</p>` : '';
     const fig = q.fig ? `<div class="ws-fig">${q.fig}</div>` : '';
@@ -950,7 +1132,8 @@ export function render(app, onBack, opts = {}) {
     if (FILL_TYPES.has(q.type)) {
       const maxLen = Math.max(...e.norm.map(nm => plain(nm.t).length + holes(nm.t) * 3 + (q.type === 'calc' ? 4 + (nm.unit ? 3 : 0) : 0) + (nm.inv ? 6 : 0)));
       // Ý dài: tối đa 2 cột (điện thoại 1 cột), rất dài: mỗi ý một dòng.
-      const cls = q.col ? 'ws-items ws-items-col' : maxLen > 26 ? 'ws-items ws-items-1' : maxLen > 14 ? 'ws-items ws-items-2' : `ws-items ws-items-${Math.min(4, e.norm.length)}`;
+      const figs = e.norm.some(nm => nm.fig);
+      const cls = figs ? `ws-items ws-items-fig ws-items-fig-${Math.min(3, e.norm.length)}` : q.col ? 'ws-items ws-items-col' : maxLen > 26 || (q.type === 'fill' && e.norm.length === 1) ? 'ws-items ws-items-1' : maxLen > 14 ? 'ws-items ws-items-2' : `ws-items ws-items-${Math.min(4, e.norm.length)}`;
       const showLetters = q.type !== 'fill' || e.norm.every(nm => plain(nm.t).length <= 30);
       return `
         <div class="${cls}">
@@ -984,6 +1167,8 @@ export function render(app, onBack, opts = {}) {
                 return p ? `<span>${rich(p)}</span>` : '';
               }).join('');
             }
+            // Ý có hình (lớp 1: đếm rồi viết số): hình ở trên, dòng điền ở dưới.
+            if (nm.fig) return `<div class="ws-item">${showLetters ? letter(i, e.norm.length) : ''}<div class="ws-ifig">${nm.fig}</div><div class="ws-iline">${body}${g ? mark(g.items[i], g.fix[i]) : ''}</div></div>`;
             return `<div class="ws-item">${showLetters ? letter(i, e.norm.length) : ''}${body}${g ? mark(g.items[i], g.fix[i]) : ''}</div>`;
           }).join('')}
         </div>`;
@@ -1068,7 +1253,7 @@ export function render(app, onBack, opts = {}) {
 
     if (q.type === 'tf') {
       return `
-        <div class="ws-items ${q.items.some(it => typeof it === 'object') ? 'ws-items-col' : q.items.some(it => plain(it).length > 26) ? 'ws-items-1' : 'ws-items-2'}">
+        <div class="ws-items ${q.items.some(it => typeof it === 'object') ? 'ws-items-col' : q.items.some(it => plain(it).length > 22) ? 'ws-items-1' : 'ws-items-2'}">
           ${q.items.map((it, i) => {
             const body = typeof it === 'object' ? staticOpHtml(it) : `<span>${rich(stripLetter(it))}</span>`;
             return `<div class="ws-item ws-tf">${letter(i, q.items.length)}${body}${signBox(i, a[i], TF, ' ws-tfbox')}${g ? mark(g.items[i], g.fix[i]) : ''}</div>`;
@@ -1571,8 +1756,10 @@ function injectStyles() {
     .ws-mcmark { flex-shrink: 0; display: flex; align-items: center; gap: 0.3rem; }
 
     /* Khoanh một phần mấy số hình. */
-    .ws-pickwrap { display: inline-block; vertical-align: top; margin: 0.3rem 2.2rem 0.6rem 0; }
-    .ws-pickgrid { display: inline-grid; grid-template-columns: repeat(var(--cols), clamp(3rem, 11cqi, 4.6rem)); gap: 0.4rem; padding: 0.7rem; border: 2px solid #1f2937; border-radius: 0.2rem; }
+    .ws-pickwrap { display: inline-block; vertical-align: top; max-width: 100%; margin: 0.3rem 0 0.6rem; }
+    .ws-pickwrap:not(:last-child) { margin-right: 2.2rem; }
+    /* Cột co lại theo chỗ có (8 cột trên điện thoại dọc không tràn khung giấy). */
+    .ws-pickgrid { display: grid; width: max-content; max-width: 100%; box-sizing: border-box; grid-template-columns: repeat(var(--cols), minmax(0, clamp(3rem, 11cqi, 4.6rem))); gap: 0.4rem; padding: 0.7rem; border: 2px solid #1f2937; border-radius: 0.2rem; }
     .ws-pk { position: relative; aspect-ratio: 1; border: none; background: none; padding: 0.25rem; cursor: pointer; border-radius: 50%; }
     .ws-pk > svg:first-child { width: 100%; height: 100%; display: block; }
     .ws-pk .ws-ring-ink { inset: -6%; width: 112%; height: 112%; }
@@ -1754,6 +1941,32 @@ function injectStyles() {
     .ws-submit.ws-armed { background: #ea580c; box-shadow: 0 6px 0 #c2410c; }
     .ws-foot-note { border: none; background: none; font: inherit; color: #64748b; font-weight: 600; font-size: 0.9em; text-align: center; cursor: pointer; }
     .ws-foot-note:disabled { cursor: default; color: #166534; }
+    /* Kiểm tra theo lộ trình */
+    .ws-list-note { margin: -0.4rem 0 1.2rem; color: #fff; font-weight: 700; font-size: 1.05rem; text-shadow: 0 1px 0 #8a5527; }
+    .ws-card-after { align-self: flex-start; background: #ede9fe; color: #5b21b6; font-weight: 800; font-size: 0.95rem; padding: 0.15rem 0.6rem; border-radius: 999px; }
+    .ws-card-next { position: absolute; top: -0.8rem; left: 1rem; z-index: 1; background: #f97316; color: #fff; font-weight: 800; font-size: 0.95rem; padding: 0.25rem 0.8rem; border-radius: 999px; box-shadow: 0 3px 0 #c2410c; }
+    .ws-card-is-next { outline: 4px solid #fb923c; outline-offset: 3px; }
+    .ws-say { border: 2px solid #c4b5fd; background: #f5f3ff; border-radius: 999px; width: 2.3em; height: 2.3em; font-size: 0.9em; margin-right: 0.4rem; cursor: pointer; vertical-align: middle; box-shadow: 0 3px 0 #c4b5fd; }
+    .ws-say:active { transform: translateY(2px); box-shadow: 0 1px 0 #c4b5fd; }
+    .ws-big { font-size: clamp(1.2rem, 2.8vw, 1.5rem); }
+    .ws-big .ws-fig svg { width: min(100%, 26rem); }
+    .ws-big .ws-items:not(.ws-items-fig):not(.ws-items-1):not(.ws-items-2) { grid-template-columns: repeat(auto-fill, minmax(8.5em, 1fr)); }
+    .ws-big .ws-items:not(.ws-items-2) > .ws-item { flex-wrap: nowrap; }
+    .ws-big .ws-items-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ws-big .ws-items-2 > .ws-item { white-space: normal; }
+    @container (max-width: 560px) { .ws-big .ws-items-2 { grid-template-columns: 1fr; } }
+    .ws-mt svg { display: block; margin: 0 auto; }
+    .ws-items-fig { grid-template-columns: repeat(var(--fc, 3), minmax(0, 1fr)); gap: 0.8rem 1.2rem; }
+    .ws-items-fig-1 { --fc: 1; } .ws-items-fig-2 { --fc: 2; }
+    @container (max-width: 560px) { .ws-items-fig { --fc: 1; } }
+    .ws-items-fig .ws-item { flex-direction: column; align-items: flex-start; white-space: normal; gap: 0.3rem; }
+    .ws-ifig svg { display: block; width: 100%; max-width: 16rem; height: auto; }
+    .ws-iline { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; }
+    .ws-review { width: 100%; border: 2px dashed #fca5a5; border-radius: 0.8rem; padding: 0.8rem 1rem; box-sizing: border-box; margin-bottom: 0.6rem; }
+    .ws-review-title { margin: 0 0 0.5rem; color: #dc2626; font-weight: 800; }
+    .ws-review-list { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .ws-review-btn { border: none; background: #fff7ed; color: #9a3412; font: inherit; font-size: 0.95em; padding: 0.55rem 1rem; border-radius: 0.8rem; box-shadow: 0 4px 0 #fdba74; cursor: pointer; text-align: left; }
+    .ws-review-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #fdba74; }
   `;
   document.head.appendChild(style);
 }

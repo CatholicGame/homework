@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Vở BT Toán 1 Tập 2 dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" /></head>
+<body><div id="app"></div>
+<script type="module">
+// Xem một câu của Vở BT Toán 1 Tập Hai (src/games/grade1Workbook2/*.js) trong engine thật.
+//   ?unit=bai-21&q=3     mở Bài 21, câu thứ 4 (q đếm từ 0)
+//   &fill=1              điền đúng mọi ô trống (để xem dáng câu đã làm xong)
+//   ?check=1             dựng mọi câu của mọi bài; tiêu đề trang = "OK n" hoặc "ERR …"
+// Chụp: chrome --headless=new --screenshot=out.png --window-size=900,1100 --virtual-time-budget=4000 "http://localhost:5173/scripts/workbook1t2-dev.html?unit=bai-21&q=0"
+const p = new URLSearchParams(location.search);
+addEventListener('error', (e) => { document.title = 'ERR ' + e.message + ' @' + e.lineno; });
+addEventListener('unhandledrejection', (e) => { document.title = 'REJ ' + (e.reason && e.reason.stack || e.reason); });
+try { localStorage.setItem('pre1-mute', '1'); localStorage.removeItem('g1t2-dev'); } catch { /* */ }
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const { UNITS } = await import('/src/games/grade1Workbook2.js');
+const { renderWorkbook } = await import('/src/games/grade3Workbook.js');
+(await import('/src/engine/lightbox.js')).initLightbox();
+const app = document.getElementById('app');
+const cfg = (units) => ({ units, storageKey: 'g1t2-dev', starBook: 'g1t2dev', lastUnitKey: 'g1t2-dev-last', title: 'dev', subtitle: '', menuLabel: '', unitWord: 'bài', autoColumns: true, unitName: (u) => `Bài ${u.number}. ${u.title}` });
+async function show(unit, qi) {
+  renderWorkbook(app, () => {}, cfg([unit]));
+  await sleep(150);
+  document.querySelector(`[data-unit="${unit.id}"]`).click();
+  await sleep(200);
+  for (let k = 0; k < qi; k++) { document.querySelector('#gw-next')?.click(); await sleep(60); }
+  await sleep(150);
+}
+if (p.get('check')) {
+  let n = 0;
+  for (const u of UNITS) for (let i = 0; i < u.questions.length; i++) {
+    document.title = `… ${u.id} q${i}`;
+    await show(u, i); n++;
+  }
+  document.title = `OK ${n} câu, ${UNITS.length} bài`;
+} else {
+  const unit = UNITS.find((u) => u.id === (p.get('unit') || 'bai-21'));
+  if (!unit) document.title = 'ERR không có bài ' + p.get('unit');
+  else {
+    await show(unit, +(p.get('q') || 0));
+    if (p.get('fill')) {
+      const q = unit.questions[+(p.get('q') || 0)];
+      const answers = (q.blanks || []).flatMap((b) => String(b.answer ?? '').split(','));
+      [...document.querySelectorAll('#app input:not([type=hidden])')].forEach((inp, i) => { if (answers[i] != null) { inp.value = answers[i]; inp.dispatchEvent(new Event('input', { bubbles: true })); } });
+    }
+    document.title = 'READY ' + unit.id + ' q' + (p.get('q') || 0) + '/' + unit.questions.length;
+  }
+}
+</script></body></html>

@@ -1,17 +1,27 @@
 // Kiểm tra dữ liệu Phiếu bài tập / Đề ôn tập: node scripts/check-worksheets.mjs [de01 de02 …]
 // Định dạng: docs/lop_3/de-on-tap-giua-ki.md. Báo lỗi cấu trúc và đáp án tự tính không ra số nguyên.
+// Kiểm tra theo lộ trình (src/data/routeTests/g*): thêm luật ma trận của docs/kiem-tra-lo-trinh.md (mục 10).
 import { readdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { normQuestion, tablesOf, itemSlots, findVar, holes } from '../src/games/worksheetCore.js';
 
-const DIRS = ['src/data/grade3Worksheets', 'src/data/grade3Midterm'];
+const DIRS = ['src/data/grade3Worksheets', 'src/data/grade3Midterm', 'src/data/routeTests/g1', 'src/data/routeTests/g2'];
+// Kiến thức từng Bài (points) của sách chính mỗi lớp, để kiểm tra trường bai / point của đề theo lộ trình.
+const KNOWLEDGE = {
+  workbook1: async () => (await import('../src/games/grade1Knowledge/index.js')).KNOWLEDGE1,
+  workbook2: async () => (await import('../src/games/grade2Knowledge/index.js')).KNOWLEDGE2,
+};
+// tl: số câu Phần B (tự luận). Giữa kì 15 câu, cuối kì 20 câu theo đề thi thật; lớp 1 làm trước nên còn 10 câu (OLD_EXAM).
+const KINDS = { nhanh: { n: 5, lv: [3, 1, 1], review: [0, 1] }, tonghop: { n: 10, lv: [5, 3, 2], review: [2, 4] }, giuaki: { n: 15, lv: [8, 4, 3], tl: [4, 5] }, cuoiki: { n: 20, lv: [10, 6, 4], tl: [4, 5] } };
+const OLD_EXAM = { books: ['workbook1'], rule: { n: 10, lv: [5, 3, 2] } };
+const unitList = (spec) => String(spec).split(',').flatMap(p => { const [a, b = a] = p.trim().split('-').map(Number); return Array.from({ length: b - a + 1 }, (_, i) => a + i); });
 const only = process.argv.slice(2);
 const OPS = ['+', '−', '×', ':'];
 let errors = 0, files = 0, qs = 0;
 
 for (const dir of DIRS) {
   let names = [];
-  try { names = readdirSync(dir).filter(n => /^(bai|de)\d+[a-z]?\.js$/.test(n)); } catch { continue; }
+  try { names = readdirSync(dir).filter(n => /^(bai|de|nh|th|gk|ck)\d+[a-z]?\.js$/.test(n)); } catch { continue; }
   for (const name of names) {
     if (only.length && !only.some(o => name.startsWith(o))) continue;
     files++;
@@ -112,7 +122,56 @@ for (const dir of DIRS) {
         }
       });
     });
+    if (sheet.kind != null) await checkRoute(sheet, err, dir);
   }
 }
+/** Luật ma trận của một bài kiểm tra theo lộ trình (docs/kiem-tra-lo-trinh.md mục 1, 4, 10). */
+async function checkRoute(sheet, err, dir) {
+  let rule = KINDS[sheet.kind];
+  if (!rule) { err('', `kind "${sheet.kind}" lạ`); return; }
+  if (rule.tl && OLD_EXAM.books.includes(sheet.after?.book)) rule = OLD_EXAM.rule;
+  if (rule.tl) {
+    const tl = sheet.parts[1]?.questions.length ?? 0;
+    if (sheet.parts.length !== 2 || tl < rule.tl[0] || tl > rule.tl[1]) err('', `Phần tự luận: ${tl} câu, cần ${rule.tl[0]} đến ${rule.tl[1]}`);
+  }
+  const { PLAN } = await import(pathToFileURL(`${dir}/plan.js`).href);
+  const qsAll = sheet.parts.flatMap(p => p.questions);
+  if (qsAll.length !== rule.n) err('', `${sheet.kind}: cần ${rule.n} câu, có ${qsAll.length}`);
+  if (sheet.numbering !== 'continuous') err('', "numbering phải là 'continuous'");
+  if (!(sheet.time > 0)) err('', 'thiếu time');
+  const after = sheet.after;
+  if (after?.book !== PLAN.book || !PLAN[sheet.kind]?.some(x => x.units === after.units)) err('', `khoảng Bài ${after?.units} không có trong plan.js (${sheet.kind})`);
+  const know = await KNOWLEDGE[after?.book]?.();
+  if (!know) { err('', `không có kiến thức của sách ${after?.book}`); return; }
+  const units = unitList(after.units);
+  const lv = [0, 0, 0, 0];
+  let reviews = 0;
+  qsAll.forEach((q, i) => {
+    const at = `câu ${i + 1}`;
+    if (![1, 2, 3].includes(q.level)) err(at, 'level phải là 1, 2, 3'); else lv[q.level]++;
+    const bai = [].concat(q.bai ?? []);
+    if (!bai.length) err(at, 'thiếu bai');
+    bai.forEach(b => {
+      if (!know[b]?.points) err(at, `Bài ${b} không có points`);
+      else if (!(Number.isInteger(q.point) && (bai.length > 1 || q.point < know[b].points.length))) err(at, `point ${q.point} không có trong Bài ${b}`);
+      if (q.review ? b >= units[0] : !units.includes(b)) err(at, q.review ? `câu ôn dùng Bài ${b} không ở trước khoảng` : `Bài ${b} không thuộc khoảng ${after.units}`);
+    });
+    if (q.review) reviews++;
+  });
+  rule.lv.forEach((want, l) => { if (Math.abs(lv[l + 1] - want) > 1) err('', `mức ${l + 1}: ${lv[l + 1]} câu, cần ${want} (±1)`); });
+  const hit = (u) => qsAll.some(q => !q.review && [].concat(q.bai).includes(u));
+  if (rule.review) {
+    const [lo, hi] = units[0] === 1 && sheet.kind === 'tonghop' ? [0, 0] : rule.review;
+    if (sheet.kind === 'nhanh' ? reviews > hi : reviews < lo || reviews > hi) err('', `câu ôn: ${reviews}, cần ${lo} đến ${hi}`);
+    for (const u of units) if (know[u]?.points && !(PLAN.book === 'workbook1' && u === 1) && !hit(u)) err('', `Bài ${u} chưa có câu nào`);
+  } else {
+    // Giữa kì, cuối kì: mỗi nhóm nhanh trong khoảng có ít nhất 1 câu.
+    for (const g of PLAN.nhanh) {
+      const us = unitList(g.units);
+      if (us.every(u => units.includes(u)) && !us.some(hit)) err('', `nhóm Nhanh ${g.n} (Bài ${g.units}) chưa có câu nào`);
+    }
+  }
+}
+
 console.log(`${files} file, ${qs} câu, ${errors} lỗi`);
 process.exit(errors ? 1 : 0);

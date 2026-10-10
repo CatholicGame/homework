@@ -373,6 +373,9 @@ function navigate(gameId, opts = {}) {
     'pre4-math': () => import('./games/preschoolMath4.js'),
     'pre5-photo': () => import('./games/preschoolPhoto.js'),
     'grade1-workbook': () => import('./games/grade1Workbook.js'),
+    'grade1-workbook-2': () => import('./games/grade1Workbook2.js'),
+    'grade1-tests': () => import('./games/grade3Worksheet.js').then(m => ({ render: m.grade1Render })),
+    'grade2-tests': () => import('./games/grade3Worksheet.js').then(m => ({ render: m.grade2Render })),
     'grade1-photo': () => import('./games/grade1Photo.js'),
     'grade1-shark': () => import('./games/gradeShark.js').then(m => ({ render: m.sharkRender(1) })),
     'grade2-shark': () => import('./games/gradeShark.js').then(m => ({ render: m.sharkRender(2) })),
@@ -403,7 +406,7 @@ function navigate(gameId, opts = {}) {
       app.innerHTML = '';
       // Trò trong nhóm Challenge games: nút quay lại về trang danh sách trò, không về thẳng trang chủ.
       const back = opts.back || (getGrade(getProfileGrade())?.games.find(g => g.id === gameId)?.group === 'challenge' ? CHALLENGE_ID : 'home');
-      mod.render(app, () => navigate(back), { onSignIn: user.guest ? goSignIn : null, open: opts.open });
+      mod.render(app, () => navigate(back), { onSignIn: user.guest ? goSignIn : null, open: opts.open, navigate });
     }).catch(() => {
       clearTimeout(loadingTimer);
       if (token !== navToken) return;

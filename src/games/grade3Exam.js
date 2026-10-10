@@ -113,8 +113,13 @@ const EXAMS = [
   },
 ];
 
-export function render(app, onBack) {
+/**
+ * `opts.range = { from, to, title }`: mở thẳng một đề ngắn cắt từ phần Toán của Đề 1 (thư mục
+ * "Đề ôn tổng hợp" trong Luyện Đề lớp 3). Khoá sao giữ nguyên exam:de-1:math:<câu gốc>.
+ */
+export function render(app, onBack, opts = {}) {
   let activeExam = EXAMS[0];
+  const range = opts.range || null;
   let activeQuestions = [];
   let activeSectionTitle = '';
   let activeSectionColor = '#34D399';
@@ -262,7 +267,7 @@ export function render(app, onBack) {
       </div>
     `;
 
-    app.querySelector('#e3-quit').onclick = showIntro;
+    app.querySelector('#e3-quit').onclick = range ? onBack : showIntro;
     app.querySelector('#e3-list-toggle').onclick = toggleQuestionList;
     attachQuestionListHandlers();
     attachSolutionHandlers(q);
@@ -726,7 +731,7 @@ export function render(app, onBack) {
 
           <div class="e3-result-actions">
             <button class="e3-btn e3-btn-primary" id="e3-retry">🔄 Làm lại</button>
-            <button class="e3-btn e3-btn-ghost" id="e3-home-result">🏠 Chọn phần khác</button>
+            <button class="e3-btn e3-btn-ghost" id="e3-home-result">${range ? '← Danh sách đề' : '🏠 Chọn phần khác'}</button>
           </div>
         </div>
       </div>
@@ -737,10 +742,17 @@ export function render(app, onBack) {
       current = 0;
       showQuestion();
     };
-    app.querySelector('#e3-home-result').onclick = showIntro;
+    app.querySelector('#e3-home-result').onclick = range ? onBack : showIntro;
   }
 
-  showIntro();
+  if (range) {
+    const sec = activeExam.sections.find(s => s.id === 'math');
+    activeQuestions = withKeys(activeExam, sec).slice(range.from, range.to);
+    activeSectionTitle = range.title;
+    activeSectionColor = sec.color;
+    resetProgress();
+    showQuestion(0);
+  } else showIntro();
 }
 
 function getGrade(pct) {

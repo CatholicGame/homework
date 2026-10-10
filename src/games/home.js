@@ -130,7 +130,10 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
         ${userBar()}
         <div class="dashboard dashboard-top animate-fadeIn">
           <div class="dashboard-header">
-            <h1>🎓 Toán Tiểu Học</h1>
+            ${grade
+              ? `<h1 class="home-grade-title" style="--grade-color: ${grade.color}">${grade.title}</h1>`
+              : '<h1>🎓 Toán Tiểu Học</h1>'}
+            <div><button type="button" class="home-grade-change" id="home-grade-change">🔄 Đổi lớp</button></div>
           </div>
           ${greetingPanel()}
           ${reviewPrompt()}
@@ -138,8 +141,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
 
         <div class="category animate-fadeIn" style="animation-delay: 0.1s">
           <div class="home-grade-head">
-            <h2 class="section-title">📚 ${grade ? `${grade.title} — chọn bài để học` : 'Chọn bài để học'}</h2>
-            <button type="button" class="home-grade-change" id="home-grade-change">🔄 Đổi lớp</button>
+            <h2 class="section-title">📚 Chọn bài để học</h2>
           </div>
           ${games.length ? `
           <div class="game-grid">${gameCards(grade, games)}</div>` : '<p class="daily-message">Bài tập của lớp này sắp ra mắt. Hẹn gặp lại bé nhé! 🚀</p>'}

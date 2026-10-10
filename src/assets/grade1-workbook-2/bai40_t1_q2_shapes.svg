@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 400" width="760" height="400">
+<rect x="4" y="4" width="752" height="392" rx="26" fill="#FFFFFF" stroke="#3F3A40" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+<g data-tc="t"><polygon points="30,34 130,34 80,58" fill="#BFE6F7" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g data-tc="t"><polygon points="450,28 585,28 585,90" fill="#BFE6F7" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g data-tc="t"><polygon points="40,150 40,240 88,195" fill="#2C7FB0" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g data-tc="t"><polygon points="150,180 245,270 115,268" fill="#3FA8DC" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g data-tc="t"><polygon points="522,165 560,263 460,263" fill="#3FA8DC" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g data-tc="t"><polygon points="340,305 480,305 370,366" fill="#3FA8DC" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g data-tc="r"><rect x="287.5" y="45.0" width="135" height="60" fill="#7CC6E8" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" transform="rotate(28 355 75)"/></g>
+<g data-tc="r"><rect x="567.5" y="92.0" width="165" height="52" fill="#3FA8DC" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" transform="rotate(-34 650 118)"/></g>
+<g data-tc="r"><rect x="37.0" y="297.0" width="150" height="82" fill="#7CC6E8" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" transform="rotate(0 112 338)"/></g>
+<g data-tc="v"><rect x="154.0" y="77.0" width="82" height="82" fill="#2C7FB0" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" transform="rotate(45 195 118)"/></g>
+<g data-tc="v"><rect x="234.0" y="304.0" width="68" height="68" fill="#BFE6F7" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" transform="rotate(0 268 338)"/></g>
+<g data-tc="v"><rect x="627.0" y="269.0" width="86" height="86" fill="#7CC6E8" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" transform="rotate(0 670 312)"/></g>
+<g data-tc="c"><circle cx="494" cy="116" r="28" fill="#7CC6E8" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g data-tc="c"><circle cx="335" cy="200" r="58" fill="#7CC6E8" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g data-tc="c"><circle cx="682" cy="205" r="34" fill="#2C7FB0" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></g>
+<g data-tc="c"><circle cx="542" cy="345" r="40" fill="#4E7FA0" stroke="#3F3A40" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></g>
+</svg>

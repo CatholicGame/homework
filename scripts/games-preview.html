@@ -13,7 +13,8 @@ if (p.get('mute')) localStorage.setItem('pre1-mute', '1');
 // book: mở thẳng một sách / màn có render(app, onBack, { open }), vd. ?book=grade3Worksheet.js&open=de-01
 if (p.get('book')) {
   const m = await import(/* @vite-ignore */ `/src/games/${p.get('book')}`);
-  m.render(document.getElementById('app'), () => {}, { open: p.get('open') || undefined });
+  // fn: tên hàm render khác, vd. &fn=grade1Render (Luyện Đề lớp 1)
+  m[p.get('fn') || 'render'](document.getElementById('app'), () => {}, { open: p.get('open') || undefined });
   // click: bấm lần lượt các phần tử (CSS selector, lặp lại được), vd. &click=.ws-folder&click=.ws-card-locked
   // "ms@selector": chờ ms rồi mới bấm (vd. chờ thầy nói xong một bước Khám phá).
   for (const raw of p.getAll('click')) {

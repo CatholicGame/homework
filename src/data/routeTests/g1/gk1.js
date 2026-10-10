@@ -1,0 +1,58 @@
+/** Kiểm tra giữa học kì I: Bài 1–24 Vở BT Toán 1 (Nhanh 1 đến 5). Quy tắc: docs/kiem-tra-lo-trinh.md. */
+import { things, plate, shape, twoPlates } from './art.js';
+
+export default {
+  id: 'l1-gk-1',
+  kind: 'giuaki',
+  title: 'Kiểm tra giữa học kì I (Đề 1)',
+  short: 'Giữa kì I · Đề 1',
+  after: { book: 'workbook1', units: '1-24' },
+  desc: 'Hình vuông, tròn, tam giác; các số từ 0 đến 10; so sánh, dấu <, >, =; số gồm mấy và mấy',
+  time: 35,
+  numbering: 'continuous',
+  parts: [
+    { title: 'A. Phần trắc nghiệm', label: 'Câu', questions: [
+      { type: 'mc', bai: 17, point: 1, level: 1,
+        prompt: 'Có mấy con chim?', fig: things('bird', 7, { cols: 4 }),
+        options: ['6', '7', '8', '9'], ans: 1 },
+      { type: 'mc', bai: 20, point: 0, level: 1,
+        prompt: 'Đĩa nào có 0 quả táo?',
+        options: [plate('apple', 2, 120), plate('apple', 0, 120), plate('apple', 1, 120)], ans: 1 },
+      { type: 'mc', bai: 3, point: 1, level: 1,
+        prompt: 'Hình nào là hình tròn?',
+        options: [shape('square'), shape('circle'), shape('triangle')], ans: 1 },
+      { type: 'tf', bai: [10, 11], point: 1, level: 1,
+        prompt: 'Đúng ghi Đ, sai ghi S:',
+        say: 'Đúng ghi Đ, sai ghi S. 9 lớn hơn 6. 0 lớn hơn 1. 10 lớn hơn 9. 7 bé hơn 7.',
+        items: ['9 > 6', '0 > 1', '10 > 9', '7 < 7'], ans: ['Đ', 'S', 'Đ', 'S'] },
+      // Đáp án nhiễu: 5 (nhầm "gồm 5 và 5"), 14 (lấy 9 cộng 5), 3.
+      { type: 'mc', bai: 19, point: 2, level: 2,
+        prompt: '9 gồm 5 và mấy?',
+        options: ['3', '4', '5', '14'], ans: 1 },
+      { type: 'mc', bai: 20, point: 2, level: 2,
+        prompt: 'Số bé nhất trong các số 7, 10, 3, 0 là:',
+        say: 'Số bé nhất trong các số 7, 10, 3, 0 là số nào?',
+        options: ['7', '10', '3', '0'], ans: 3 },
+    ] },
+    { title: 'B. Phần tự luận', label: 'Câu', questions: [
+      { type: 'fill', bai: [8, 16, 18], point: 0, level: 1,
+        prompt: 'Đếm rồi viết số:',
+        items: [
+          { t: '… con gà con', fig: things('chick', 4, { cols: 4 }), ans: 4 },
+          { t: '… quả bóng', fig: things('ball', 6, { cols: 3 }), ans: 6 },
+          { t: '… con cá', fig: things('fish', 8, { cols: 4 }), ans: 8 },
+        ] },
+      { type: 'compare', bai: [10, 11, 13], point: 1, level: 2,
+        prompt: 'Điền dấu >, <, =:',
+        items: ['3 □ 5', '8 □ 6', '7 □ 7', '10 □ 9'] },
+      { type: 'fill', bai: [20, 21], point: 1, level: 3,
+        prompt: 'Viết số thích hợp vào chỗ chấm:',
+        say: 'Viết số thích hợp. Mấy lớn hơn 9. 6 bé hơn mấy, bé hơn 8. Mấy bé hơn 1.',
+        items: [{ t: '… > 9', ans: 10 }, { t: '6 < … < 8', ans: 7 }, { t: '… < 1', ans: 0 }] },
+      { type: 'fill', bai: 21, point: 2, level: 3,
+        prompt: 'Mẹ có 10 quả táo, bày vào hai đĩa. Đĩa thứ nhất có 6 quả. Đĩa thứ hai có mấy quả?',
+        fig: twoPlates('apple', 6),
+        items: [{ t: 'Đĩa thứ hai có … quả táo.', ans: 4 }] },
+    ] },
+  ],
+};

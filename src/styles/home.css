@@ -30,6 +30,23 @@
   margin-bottom: 6px;
 }
 
+/* Tên lớp đang học: chữ khắc chìm vào nền. Nền đậm (pha màu lớp) cắt theo chữ, bóng sáng
+   lệch xuống phủ lên trong lòng chữ → mép trên tối như rãnh khắc, mép dưới sáng. */
+.dashboard-header h1.home-grade-title {
+  font-size: 3.4rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  background: #5a4a40;
+  background: color-mix(in srgb, var(--grade-color, #60A5FA) 60%, #2a2019);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: 1px 2px 2px rgba(255, 255, 255, 0.5);
+  margin-bottom: 10px;
+}
+
 .dashboard-header p {
   font-size: 1rem;
   color: var(--text-light);
@@ -417,6 +434,7 @@
   .home { --home-pt: 20px; --home-px: 16px; }
   .dashboard-header { margin-bottom: 16px; }
   .dashboard-header h1 { font-size: 1.6rem; }
+  .dashboard-header h1.home-grade-title { font-size: 2.6rem; margin-bottom: 8px; }
   .game-grid { grid-template-columns: 1fr; gap: 12px; }
 
   /* Thẻ sách dạng hàng ngang gọn: 3 sách vừa một màn hình điện thoại */

@@ -130,6 +130,7 @@ export function bookOf(book, unit) {
   const n = +unit.replace(/\D/g, '');
   switch (book) {
     case 'workbook1': return { card: 'grade1-workbook', label: 'Vở BT Toán 1', open: unit };
+    case 'workbook1b': return { card: 'grade1-workbook-2', label: 'Vở BT Toán 1, Tập Hai', open: unit };
     case 'workbook2': return n <= 36
       ? { card: 'grade2-workbook', label: 'Vở BT Toán 2, Tập Một', open: unit }
       : { card: 'grade2-workbook-2', label: 'Vở BT Toán 2, Tập Hai', open: unit };

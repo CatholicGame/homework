@@ -1,0 +1,60 @@
+/** Kiểm tra cuối học kì I (Đề 4): Bài 1–34 Vở BT Toán 1 (Nhanh 1 đến 7). Quy tắc: docs/kiem-tra-lo-trinh.md. */
+import { things, pairRows, shape, twoPlates } from './art.js';
+
+export default {
+  id: 'l1-ck-1d',
+  kind: 'cuoiki',
+  title: 'Kiểm tra cuối học kì I (Đề 4)',
+  short: 'Cuối kì I · Đề 4',
+  after: { book: 'workbook1', units: '1-34' },
+  desc: 'Số 6; hình tam giác; số 0, số 10; dấu =; đếm xuôi, đếm ngược; phép cộng trong phạm vi 5, phép trừ trong phạm vi 3',
+  time: 35,
+  numbering: 'continuous',
+  parts: [
+    { title: 'A. Phần trắc nghiệm', label: 'Câu', questions: [
+      // Đáp án nhiễu: 5 và 7 (đếm sót, đếm lặp), 4.
+      { type: 'mc', bai: 16, point: 1, level: 1,
+        prompt: 'Có mấy con thỏ?', fig: things('rabbit', 6, { cols: 3 }),
+        options: ['5', '6', '7', '4'], ans: 1 },
+      { type: 'mc', bai: 4, point: 0, level: 1,
+        prompt: 'Hình nào có 3 cạnh?',
+        options: [shape('square'), shape('circle'), shape('triangle')], ans: 2 },
+      { type: 'tf', bai: [20, 21], point: 1, level: 1,
+        prompt: 'Đúng ghi Đ, sai ghi S:',
+        say: 'Đúng ghi Đ, sai ghi S. 0 bé hơn 1. 10 lớn hơn 9. 0 lớn hơn 2. 10 bé hơn 8.',
+        items: ['0 < 1', '10 > 9', '0 > 2', '10 < 8'], ans: ['Đ', 'Đ', 'S', 'S'] },
+      { type: 'match', bai: [25, 27, 29], point: 1, level: 2,
+        prompt: 'Nối phép tính với kết quả:',
+        say: 'Nối mỗi phép tính với kết quả. 2 cộng 2. 4 cộng 1. 1 cộng 2.',
+        left: ['2 + 2', '4 + 1', '1 + 2'],
+        right: ['3', '4', '5'], ans: [1, 2, 0] },
+      // Đáp án nhiễu: 5 (cộng thay vì trừ), 2 (lấy số bị bớt đi), 3.
+      { type: 'mc', bai: 34, point: 1, level: 1,
+        prompt: '3 − 2 = …',
+        say: '3 trừ 2 bằng mấy?',
+        options: ['1', '2', '3', '5'], ans: 0 },
+      // Đáp án nhiễu: dấu < hoặc > khi hai bên bằng nhau.
+      { type: 'mc', bai: 13, point: 1, level: 2,
+        prompt: 'Có 5 con cá và 5 con ếch. Viết thế nào?', fig: pairRows('fish', 5, 'frog', 5),
+        say: 'Có 5 con cá và 5 con ếch. Chọn cách viết đúng. 5 bé hơn 5. 5 lớn hơn 5. 5 bằng 5.',
+        options: ['5 < 5', '5 > 5', '5 = 5'], ans: 2 },
+    ] },
+    { title: 'B. Phần tự luận', label: 'Câu', questions: [
+      { type: 'fill', bai: 8, point: 2, level: 2,
+        prompt: 'Viết số còn thiếu:',
+        say: 'Viết số còn thiếu. Đếm xuôi: 1, 2, 3, mấy, 5. Đếm ngược: 5, 4, mấy, 2, 1.',
+        items: [{ t: '1, 2, 3, …, 5', ans: 4 }, { t: '5, 4, …, 2, 1', ans: 3 }] },
+      { type: 'calc', bai: [27, 29, 31, 34], point: 1, level: 1,
+        prompt: 'Tính:',
+        items: ['3 + 1', '2 + 3', '0 + 2', '4 + 0', '2 − 1', '3 − 1'] },
+      { type: 'fill', bai: 29, point: 2, level: 3,
+        prompt: 'Có 5 quả táo bày vào hai đĩa. Đĩa thứ nhất có 3 quả. Đĩa thứ hai có mấy quả?',
+        fig: twoPlates('apple', 3),
+        items: [{ t: 'Đĩa thứ hai có … quả táo.', ans: 2 }] },
+      { type: 'compare', bai: [29, 31, 34], point: 1, level: 3,
+        prompt: 'Điền dấu >, <, =:',
+        say: 'Tính hai bên rồi điền dấu lớn hơn, bé hơn hoặc bằng.',
+        items: ['3 − 1 □ 2', '2 + 3 □ 4 + 0', '3 − 2 □ 0 + 2'] },
+    ] },
+  ],
+};
