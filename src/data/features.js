@@ -15,6 +15,6 @@ export const GRADE2_GAMES = true;
 // Chỉ hiện ở bản dev; bật production khi chốt: đổi thành true.
 export const MEMORY_ISLAND = import.meta.env.DEV;
 
-// Trò chơi tăng cường Toán 4 (docs/lop_4/thiet-ke-tro-choi.md), trò đầu tiên 🛤️ Kỹ sư đường sắt.
-// Chỉ hiện ở bản dev; bật production khi chốt: đổi thành true.
-export const GRADE4_GAMES = import.meta.env.DEV;
+// Trò chơi tăng cường Toán 4 (docs/lop_4/thiet-ke-tro-choi.md): 🛤️ Kỹ sư đường sắt, 🏙️ Bản đồ dân số, 🚚 Trạm cân nông sản.
+// Đã phát hành 2026-10-11. Muốn tạm ẩn lại trên production: đổi thành import.meta.env.DEV.
+export const GRADE4_GAMES = true;
