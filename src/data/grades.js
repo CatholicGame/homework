@@ -57,7 +57,7 @@ export const GRADES = [
       { id: 'grade3-workbook-2', icon: '📕', color: '#EF4444', title: 'Vở Bài Tập Toán 3 — Tập Hai', desc: 'Bài 45–81' },
       { id: 'grade3-practice', icon: '📘', color: '#3B82F6', title: 'Luyện Tập Toán 3', desc: 'Tập Một — Luyện tập theo tuần' },
       { id: 'grade3-worksheet', icon: '✏️', color: '#8B5CF6', title: 'Luyện Đề', desc: 'Kiểm tra theo lộ trình (nhanh, tổng hợp, giữa kì, cuối kì), phiếu bài tập theo bài học, 65 đề ôn tập giữa học kì I, 8 đề ôn tổng hợp' },
-      { id: 'grade3-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Đặt tính cộng trừ nhân chia, bảng nhân chia, tìm thành phần, tính nhẩm, sơ đồ đoạn thẳng' },
+      { id: 'grade3-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Đặt tính cộng trừ nhân chia, bảng nhân chia, tìm thành phần, tính giá trị biểu thức, tính nhẩm, sơ đồ đoạn thẳng' },
       { id: 'grade3-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Bảng nhân, bảng chia 2 đến 9, cộng trừ có nhớ' },
       { id: 'grade3-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang ổ khoá "tìm x": bắn đạn mang đúng giá trị của x, số thay vào là thấy đúng sai. Cộng trừ, nhân chia, số lớn' },
       { id: 'writing', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },

@@ -294,9 +294,10 @@ function pressKey(key) {
   } else {
     // Digit — max 4 chars on the old <input type="number"> games to avoid
     // overflow, or the input's own maxlength (e.g. a one-digit "ô trống" box
-    // in the grade-3 workbook). A comma list or an expression is longer.
+    // in the grade-3 workbook). A text box without maxlength has no cap: a comma
+    // list of several calculations ("5 × 7 = 35, 7 × 5 = 35, …") runs well past 40.
     const isNum = activeInput.type === 'number';
-    const cap = isNum ? 4 : 40;
+    const cap = isNum ? 4 : Infinity;
     const maxChars = activeInput.maxLength > 0 ? Math.min(cap, activeInput.maxLength) : cap;
     const v = activeInput.value;
     const op = { '+': '+', '−': isNum ? '-' : '−', '×': '×', ':': ':', '=': '=' }[key];
@@ -315,6 +316,15 @@ function pressKey(key) {
     } else {
       activeInput.value += key;
     }
+  }
+
+  // A long answer scrolls inside its box: keep the caret and the newest characters in view
+  if (activeInput.type !== 'number') {
+    const end = activeInput.value.length;
+    if (document.activeElement === activeInput) {
+      try { activeInput.setSelectionRange(end, end); } catch { /* not a text input */ }
+    }
+    activeInput.scrollLeft = activeInput.scrollWidth;
   }
 
   // Dispatch input event so any live watchers see the change

@@ -10,6 +10,7 @@ import { DIVISION_GAME } from './grade3Drills/division.js';
 import { COLUMN_GAME } from './grade3Drills/column.js';
 import { TABLES_GAME, MENTAL_GAME } from './grade3Drills/facts.js';
 import { FINDX_GAME } from './grade3Drills/findx.js';
+import { EXPR_GAME } from './grade3Drills/expr.js';
 import { SEGMENT_GAME } from './grade3Drills/segment.js';
 import { TIME_GAME, CAL_GAME } from './grade3Drills/time.js';
 import { SHARK_GAME } from './grade3Drills/shark.js';
@@ -22,6 +23,7 @@ export const DRILL_LIST = [
   tool('col', COLUMN_GAME, 'Viết thẳng cột, tính từ hàng đơn vị, nhớ đúng số nhớ.', ['Cộng có nhớ', 'Trừ có nhớ', 'Nhân']),
   tool('tab', TABLES_GAME, 'Luyện cho thuộc. Phép nào hay sai sẽ được ra lại nhiều hơn.', ['Bảng nhân', 'Bảng chia', 'Số còn thiếu']),
   tool('x', FINDX_GAME, 'Gọi tên số cần tìm, chọn phép tính, tính rồi thử lại.', ['Số hạng', 'Thừa số', 'Số chia']),
+  tool('expr', EXPR_GAME, 'Nhân, chia kết hợp cộng, trừ: chọn phép tính làm trước, viết từng dòng như trong vở.', ['Nhân chia trước', 'Ba phép tính', 'Dấu ngoặc']),
   tool('shark', SHARK_GAME, 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng, tính chậm là bị đớp!', ['Bảng nhân', 'Bảng chia', 'Tính nhanh']),
   tool('ufo', UFO_GAME, 'Đĩa bay mang ổ khoá có số bị giấu: chọn đúng viên đạn, số thay vào ổ khoá là thấy đúng sai!', ['Tìm x', 'Thử lại', 'Số lớn']),
   tool('men', MENTAL_GAME, '3 nghìn + 5 nghìn = 8 nghìn: nhẩm nhanh với số tròn.', ['Tròn chục, trăm', 'Tròn nghìn']),
