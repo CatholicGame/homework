@@ -29,7 +29,7 @@ function taskDrill({ id, icon, title, purpose, howTo, levels }) {
     id, icon, title, purpose, unitWord: 'câu', starPrefix: 'drill5', npcs: [TEACHER],
     stallIcon: () => icon,
     summaryText: first.summaryText, againText: 'Làm lượt mới',
-    howTo: () => howTo,
+    howTo,
     levels: levels.map(({ tasks, sgk, ...lv }) => ({ missions: 5, lessons: { sgk5: [`bai-${sgk}`] }, ask: () => lv.say, ...lv })),
     makeMission(rng, level, history) { return inner.get(level.id).makeMission(rng, level, history); },
     mountMission(stage, m, level, api) { inner.get(level.id).mountMission(stage, m, level, api); },
