@@ -21,6 +21,7 @@ import { getProfile, saveProfile, markProfileSynced, NAME_MAX, CONSENT_TEXT, par
 import { castRows, makeLaunch } from './leaderboardCast.js';
 import { describeDevice } from './voiceReport.js';
 import { deviceKey } from './deviceKey.js';
+import { isStandalone, isInstalledHere } from './installApp.js';
 
 // Cấu hình web app Firebase (công khai, không phải bí mật) — Project settings → Your apps.
 const firebaseConfig = {
@@ -459,10 +460,34 @@ export async function fetchRemoteProfile() {
 }
 
 // ── Sổ đăng ký học sinh (cho trang admin) ────────────────────────────────────
-// `users/{firebaseUid}`: { email, name, grade, createdAt, lastSeenAt } — chỉ chính bé và admin đọc được.
+// `users/{firebaseUid}`: { email, name, grade, createdAt, lastSeenAt, appInstalledAt?, appOpenedAt? } — chỉ chính bé và admin đọc được.
 // Ghi tối đa một lần mỗi ngày trên mỗi máy (lastSeenAt dùng để đếm học sinh đang hoạt động).
+// App cài lên máy (engine/installApp.js), trang admin đếm số đã cài:
+//   appInstalledAt: lần đầu cài qua trình duyệt trên một máy của bé (Chrome, Edge, Android; iPhone không báo);
+//   appOpenedAt: lần gần nhất mở bằng biểu tượng app (mọi máy, kể cả iPhone/iPad).
 const USERS = 'users';
-let lastRegistered = null; // `${uid}|${dayKey}`
+let lastRegistered = null; // `${uid}|${dayKey}|${app}`
+
+// Mở bằng biểu tượng app, hay máy vừa cài mà sổ chưa ghi: thêm vào mark để ghi lại ngay cả khi hôm nay đã ghi.
+const appMark = () => `${isStandalone() ? 'a' : ''}${isInstalledHere() ? 'i' : ''}`;
+
+/** Trường app cài lên máy cho users/ và guests/ (chỉ thêm khi có, `old`: bản đang lưu). */
+function appFields(fs, old) {
+  const out = {};
+  if (isStandalone()) out.appOpenedAt = fs.serverTimestamp();
+  if (isInstalledHere() && !old?.appInstalledAt) out.appInstalledAt = fs.serverTimestamp();
+  return out;
+}
+
+// Ghi sổ kèm trường app; luật Firestore cũ (chưa deploy bản có appInstalledAt) từ chối thì ghi lại không có trường app.
+async function writeWithApp(write, entry, app) {
+  try {
+    await write({ ...entry, ...app });
+  } catch (e) {
+    if (!Object.keys(app).length || e?.code !== 'permission-denied') throw e;
+    await write(entry);
+  }
+}
 
 function todayKey() {
   const d = new Date();
@@ -474,7 +499,7 @@ async function registerNow() {
   if (!fb) return;
   const { db, fs, auth } = fb;
   const fbUser = auth.currentUser;
-  const mark = `${fbUser.uid}|${todayKey()}`;
+  const mark = `${fbUser.uid}|${todayKey()}|${appMark()}`;
   const storeKey = `tth_registered_${fbUser.uid}`;
   let stored = null;
   try { stored = localStorage.getItem(storeKey); } catch { /* storage unavailable */ }
@@ -487,14 +512,14 @@ async function registerNow() {
     grade: getProfile().grade || 0,
     lastSeenAt: fs.serverTimestamp(),
   };
-  if (snap.exists()) await fs.updateDoc(ref, entry);
-  else await fs.setDoc(ref, { ...entry, createdAt: fs.serverTimestamp() });
+  const app = appFields(fs, snap.exists() ? snap.data() : null);
+  await writeWithApp((d) => (snap.exists() ? fs.updateDoc(ref, d) : fs.setDoc(ref, { ...d, createdAt: fs.serverTimestamp() })), entry, app);
   lastRegistered = mark;
   try { localStorage.setItem(storeKey, mark); } catch { /* storage unavailable */ }
 }
 
 // ── Khách dùng thử (cho trang admin) ─────────────────────────────────────────
-// `guests/{uid ẩn danh}`: { nickname, avatar, grade, stars, device, days, createdAt, lastSeenAt, convertedAt? }
+// `guests/{uid ẩn danh}`: { nickname, avatar, grade, stars, device, days, createdAt, lastSeenAt, convertedAt?, appInstalledAt?, appOpenedAt? }
 // days: các ngày có mở app ('YYYY-MM-DD' giờ trên máy) — trang admin tính khách có quay lại không.
 // Firebase Anonymous Auth (bật trong Firebase Console → Authentication → Sign-in method → Anonymous):
 // mỗi trình duyệt một uid, giữ qua các lần mở app. Ghi tối đa một lần mỗi ngày.
@@ -521,15 +546,16 @@ async function registerGuestNow() {
   const { auth, db, fs } = fb;
   const uid = auth.currentUser.uid;
   // Ghi lại lần nữa khi bé vừa chọn xong avatar / lớp (lần đầu có thể ghi lúc còn ở màn chọn avatar).
-  const mark = `${uid}|${todayKey()}|${getProfile().setupDone ? 1 : 0}`;
+  const mark = `${uid}|${todayKey()}|${getProfile().setupDone ? 1 : 0}|${appMark()}`;
   const storeKey = 'tth_guest_seen';
   let stored = null;
   try { stored = localStorage.getItem(storeKey); } catch { /* storage unavailable */ }
   if (lastGuestMark === mark || stored === mark) return;
   const ref = fs.doc(db, GUESTS, uid);
   const snap = await fs.getDoc(ref);
-  if (snap.exists()) await fs.updateDoc(ref, guestEntry(fs));
-  else await fs.setDoc(ref, { ...guestEntry(fs), createdAt: fs.serverTimestamp() });
+  const app = appFields(fs, snap.exists() ? snap.data() : null);
+  await writeWithApp((d) => (snap.exists() ? fs.updateDoc(ref, d) : fs.setDoc(ref, { ...d, createdAt: fs.serverTimestamp() })),
+    guestEntry(fs), app);
   lastGuestMark = mark;
   try { localStorage.setItem(storeKey, mark); } catch { /* storage unavailable */ }
 }
@@ -545,6 +571,12 @@ async function markGuestConverted(fb) {
 export function registerGuest() {
   if (!isLeaderboardConfigured() || !isGuest()) return;
   registerGuestNow().catch((e) => console.warn('[guest] Không ghi được thống kê khách:', e?.code || e));
+}
+
+/** Vừa cài app qua trình duyệt (installApp.js đã nhớ dấu đã cài): ghi appInstalledAt ngay. Không bao giờ ném lỗi. */
+export function recordAppInstalled() {
+  if (isGuest()) registerGuest();
+  else registerUser();
 }
 
 /** Ghi nhận bé đã đăng ký / vừa mở app hôm nay. Không bao giờ ném lỗi. */

@@ -32,7 +32,8 @@ const toMs = (ts) => (ts?.toMillis ? ts.toMillis() : 0);
 
 /**
  * @returns {Promise<Array<{ uid, email, name, nickname, avatar, grade, stars, createdAt, lastSeenAt, registered,
- *   fake?, guest?, device?, convertedAt? }>>}
+ *   fake?, guest?, device?, convertedAt?, appInstalledAt, appOpenedAt }>>}
+ *   appInstalledAt / appOpenedAt: cài app lên máy, mở bằng biểu tượng app (0 = chưa có; engine/installApp.js).
  *   Ném lỗi 'need-connect' nếu cần bấm kết nối Firebase.
  */
 export async function fetchStudents() {
@@ -52,7 +53,7 @@ export async function fetchStudents() {
   const row = (uid) => {
     if (!byUid.has(uid)) {
       byUid.set(uid, { uid, email: '', name: '', nickname: '', avatar: '', grade: 0, stars: 0,
-        createdAt: 0, lastSeenAt: 0, registered: false });
+        createdAt: 0, lastSeenAt: 0, registered: false, appInstalledAt: 0, appOpenedAt: 0 });
     }
     return byUid.get(uid);
   };
@@ -62,6 +63,7 @@ export async function fetchStudents() {
     Object.assign(row(d.id), {
       email: u.email || '', name: u.name || '', grade: u.grade || 0,
       createdAt: toMs(u.createdAt), lastSeenAt: toMs(u.lastSeenAt), registered: true,
+      appInstalledAt: toMs(u.appInstalledAt), appOpenedAt: toMs(u.appOpenedAt),
     });
   });
   // Hồ sơ mới hơn sổ đăng ký (sổ chỉ ghi 1 lần/ngày) nên lớp lấy từ hồ sơ.
@@ -91,6 +93,7 @@ export async function fetchStudents() {
       guests.push({ uid: d.id, email: '', name: '', nickname: g.nickname || '', avatar: g.avatar || '',
         grade: g.grade || 0, stars: g.stars || 0, createdAt: toMs(g.createdAt), lastSeenAt: toMs(g.lastSeenAt),
         registered: false, guest: true, device: g.device || '', convertedAt: toMs(g.convertedAt),
+        appInstalledAt: toMs(g.appInstalledAt), appOpenedAt: toMs(g.appOpenedAt),
         days: Array.isArray(g.days) ? g.days.filter(k => typeof k === 'string') : [] });
     });
   } catch (e) { console.warn('[admin] Không đọc được guests/:', e?.code || e); }

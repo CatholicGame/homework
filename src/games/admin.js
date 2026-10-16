@@ -46,6 +46,7 @@ const KINDS = [
   { id: 'real', label: 'Học sinh đăng nhập', test: (r) => !r.fake && !r.guest },
   { id: 'guest', label: 'Khách dùng thử', test: (r) => r.guest },
   { id: 'fake', label: 'Bạn ảo', test: (r) => r.fake },
+  { id: 'app', label: '📲 Đã cài app', test: (r) => !r.fake && !!(r.appInstalledAt || r.appOpenedAt) },
 ];
 
 export function render(app, onBack) {
@@ -169,6 +170,11 @@ export function render(app, onBack) {
     const today = startOfDay(Date.now());
     const since = (days) => today - (days - 1) * DAY;
     const count = (fn) => rows.filter(fn).length;
+    // App cài lên máy: đã cài qua trình duyệt hoặc đã mở bằng biểu tượng (iPhone chỉ biết qua lần mở).
+    const hasApp = (r) => r.appInstalledAt || r.appOpenedAt;
+    const appUsers = rows.filter(hasApp).length;
+    const appGuests = guests.filter(hasApp).length;
+    const appWeek = [...rows, ...guests].filter(r => r.appOpenedAt >= since(7)).length;
     const tiles = [
       { label: 'Tổng số học sinh', value: rows.length, note: `${count(r => r.registered)} có email${fakes ? ` · +${fakes} bạn ảo` : ''}` },
       { label: 'Đăng ký hôm nay', value: count(r => r.createdAt >= today) },
@@ -176,6 +182,8 @@ export function render(app, onBack) {
       { label: 'Đăng ký 30 ngày', value: count(r => r.createdAt >= since(30)) },
       { label: 'Hoạt động hôm nay', value: count(r => r.lastSeenAt >= today) },
       { label: 'Hoạt động 7 ngày', value: count(r => r.lastSeenAt >= since(7)) },
+      { label: '📲 Đã cài app', value: appUsers + appGuests,
+        note: `${appUsers} học sinh · ${appGuests} khách · ${appWeek} mở app 7 ngày` },
       { label: 'Khách dùng thử', value: guests.length, guest: true,
         note: `${guests.filter(r => r.convertedAt).length} đã đăng nhập sau đó` },
       { label: 'Khách mới 7 ngày', value: guests.filter(r => r.createdAt >= since(7)).length, guest: true },
@@ -711,7 +719,9 @@ export function render(app, onBack) {
     const sub = r.nickname && r.name && r.nickname !== r.name ? `<small>${escapeHtml(r.name)}</small>` : '';
     const tag = r.fake ? ' <span class="adm-fake-tag">Ảo</span>'
       : r.guest ? ' <span class="adm-fake-tag adm-guest-tag">Khách</span>' : '';
-    return `<span class="adm-who">${avatar}<span><strong>${escapeHtml(label)}</strong>${tag}${sub}</span></span>`;
+    const app = r.appInstalledAt || r.appOpenedAt
+      ? ` <span class="adm-app-tag" title="${escapeHtml(appTitle(r))}">📲</span>` : '';
+    return `<span class="adm-who">${avatar}<span><strong>${escapeHtml(label)}</strong>${tag}${app}${sub}</span></span>`;
   }
 }
 
@@ -825,12 +835,18 @@ function retentionHtml(guests, today) {
     </section>`;
 }
 
+function appTitle(r) {
+  return [r.appInstalledAt ? `Cài app: ${fmtDate(r.appInstalledAt)}` : '',
+    r.appOpenedAt ? `Mở app lần cuối: ${fmtDateTime(r.appOpenedAt)}` : ''].filter(Boolean).join(' · ') || 'Đã cài app';
+}
+
 function downloadCsv(rows) {
   const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
   const lines = [
-    ['Biệt danh', 'Tên Google', 'Email', 'Lớp', 'Sao', 'Ngày đăng ký', 'Lần cuối', 'Loại', 'Máy', 'Khách đã đăng nhập', 'Số ngày dùng'],
+    ['Biệt danh', 'Tên Google', 'Email', 'Lớp', 'Sao', 'Ngày đăng ký', 'Lần cuối', 'Loại', 'Máy', 'Khách đã đăng nhập', 'Số ngày dùng', 'Cài app', 'Mở app lần cuối'],
     ...rows.map(r => [r.nickname, r.name, r.email, r.grade ? gradeLabel(r.grade) : '', r.stars, fmtDate(r.createdAt), fmtDateTime(r.lastSeenAt),
-      r.fake ? 'Ảo' : r.guest ? 'Khách' : 'Học sinh', r.device || '', r.convertedAt ? fmtDate(r.convertedAt) : '', r.guest ? activeOffsets(r).length : '']),
+      r.fake ? 'Ảo' : r.guest ? 'Khách' : 'Học sinh', r.device || '', r.convertedAt ? fmtDate(r.convertedAt) : '', r.guest ? activeOffsets(r).length : '',
+      r.appInstalledAt ? fmtDate(r.appInstalledAt) : '', r.appOpenedAt ? fmtDateTime(r.appOpenedAt) : '']),
   ].map(l => l.map(cell).join(','));
   const blob = new Blob([`﻿${lines.join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');

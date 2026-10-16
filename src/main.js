@@ -11,7 +11,7 @@ import { setLastGame } from './engine/activity.js';
 import { isSetupDone, saveProfile, adoptGuestProfile, getProfileGrade } from './engine/profile.js';
 import { getGrade } from './data/grades.js';
 import { renderProfileSetup } from './games/profileSetup.js';
-import { syncMyScore, syncMyProfile, registerUser, registerGuest, fetchRemoteProfile, signOutLeaderboard, connectLeaderboard, NEEDS_CONNECT } from './engine/leaderboard.js';
+import { syncMyScore, syncMyProfile, registerUser, registerGuest, recordAppInstalled, fetchRemoteProfile, signOutLeaderboard, connectLeaderboard, NEEDS_CONNECT } from './engine/leaderboard.js';
 import { initVirtualKeyboard } from './engine/virtualKeyboard.js';
 import { initLightbox } from './engine/lightbox.js';
 import { initKeyboardInset } from './engine/keyboardInset.js';
@@ -27,7 +27,7 @@ initCloudSync();
 initAppUpdate();
 
 // Cài lên máy như ứng dụng (PWA): service worker + mời cài ở trang chủ
-initInstallApp();
+initInstallApp({ onInstalled: recordAppInstalled });
 
 // Tiếng Anh cho Toán: dịch chữ trên màn hình khi bé chọn English (engine/i18n.js)
 initI18n();

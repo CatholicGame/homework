@@ -103,8 +103,15 @@ service cloud.firestore {
 
     // Sổ đăng ký học sinh: mỗi bé tự ghi khi mở app (tối đa 1 lần/ngày) — admin đếm số bé đã đăng ký
     // và số bé đang hoạt động. createdAt ghi một lần, không đổi được; email phải đúng tài khoản đăng nhập.
+    // App cài lên máy (src/engine/installApp.js): appInstalledAt lần đầu cài, appOpenedAt lần gần nhất mở bằng biểu tượng.
+    function validAppFields(d) {
+      return (!('appInstalledAt' in d) || d.appInstalledAt is timestamp)
+        && (!('appOpenedAt' in d) || d.appOpenedAt is timestamp);
+    }
+
     function validUser(d) {
-      return d.keys().hasOnly(['email', 'name', 'grade', 'createdAt', 'lastSeenAt'])
+      return d.keys().hasOnly(['email', 'name', 'grade', 'createdAt', 'lastSeenAt', 'appInstalledAt', 'appOpenedAt'])
+        && validAppFields(d)
         && d.email == request.auth.token.email
         && d.name is string && d.name.size() <= 100
         && d.grade is int && (d.grade == 0 || validGrade(d.grade))
@@ -124,7 +131,9 @@ service cloud.firestore {
     // mỗi trình duyệt tự ghi bản của mình tối đa 1 lần/ngày; admin đọc tất cả (thống kê trang #admin),
     // khách chỉ đọc bản của mình. convertedAt: lúc khách đó đăng nhập Google (ghi một lần).
     function validGuest(d) {
-      return d.keys().hasOnly(['nickname', 'avatar', 'grade', 'stars', 'device', 'days', 'createdAt', 'lastSeenAt', 'convertedAt'])
+      return d.keys().hasOnly(['nickname', 'avatar', 'grade', 'stars', 'device', 'days', 'createdAt', 'lastSeenAt', 'convertedAt',
+          'appInstalledAt', 'appOpenedAt'])
+        && validAppFields(d)
         && d.nickname is string && d.nickname.size() <= 20
         && d.avatar is string && d.avatar.size() <= 40
         && d.grade is int && (d.grade == 0 || validGrade(d.grade))

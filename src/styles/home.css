@@ -2014,6 +2014,7 @@
 .adm-ret-n { text-align: right; font-weight: 700; color: var(--text); }
 .adm-ret-table td, .adm-ret-table th { text-align: center; white-space: nowrap; }
 .adm-ret-table td:first-child, .adm-ret-table th:first-child { text-align: left; }
+.adm-app-tag { margin-left: 4px; cursor: help; }
 .adm-fake-tag {
   display: inline-block;
   margin-left: 4px;

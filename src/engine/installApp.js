@@ -3,10 +3,15 @@
 //   iPhone, iPad: Safari không có hộp cài, hiện hướng dẫn Chia sẻ → Thêm vào MH chính.
 //   Đã mở từ biểu tượng (display-mode: standalone) thì không mời cài nữa.
 //   Thẻ mời ở trang chủ; bấm "Để sau" thì 7 ngày sau mới mời lại. Menu người dùng luôn có mục cài.
+//   Cài xong (appinstalled): thẻ "Cài xong rồi!" dặn lần sau mở bằng biểu tượng; máy nhớ là đã cài (INSTALLED_KEY),
+//   lần sau bé vẫn vào bằng trình duyệt thì trang chủ nhắc nhẹ một dòng (✕: 7 ngày sau mới nhắc lại).
+//   iPhone, iPad không có sự kiện appinstalled; app cài ở đó có bộ nhớ riêng, tách khỏi Safari.
 
 const SNOOZE_KEY = 'tth_install_snooze';
 const SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
 const SHOW_DELAY_MS = 1500;
+const INSTALLED_KEY = 'tth_app_installed';
+const NUDGE_SNOOZE_KEY = 'tth_app_nudge_snooze';
 
 const UA = navigator.userAgent || '';
 const IS_IOS = /iPhone|iPad|iPod/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -16,34 +21,54 @@ const IN_APP = /Zalo|FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|Line\/|musical_l
 let deferred = null;
 let bannerHost = null;
 let bannerTimer = 0;
+let onInstalledCb = null;
 
 export function isStandalone() {
   return matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: window-controls-overlay)').matches
     || navigator.standalone === true;
 }
 
+/** Máy này đã cài app qua trình duyệt (Chrome, Edge, Android). */
+export function isInstalledHere() {
+  try { return localStorage.getItem(INSTALLED_KEY) === '1'; } catch { return false; }
+}
+function setInstalledHere(on) {
+  try { if (on) localStorage.setItem(INSTALLED_KEY, '1'); else localStorage.removeItem(INSTALLED_KEY); } catch { /* chế độ riêng tư */ }
+}
+
 /** Có nên hiện mục "Cài ứng dụng" trong menu không. */
 export function canOfferInstall() {
-  return !isStandalone();
+  return !isStandalone() && !isInstalledHere();
 }
 
-function snoozed() {
-  try { return Date.now() < Number(localStorage.getItem(SNOOZE_KEY) || 0); } catch { return false; }
+function snoozedUntil(key) {
+  try { return Date.now() < Number(localStorage.getItem(key) || 0); } catch { return false; }
 }
-function snooze() {
-  try { localStorage.setItem(SNOOZE_KEY, String(Date.now() + SNOOZE_MS)); } catch { /* chế độ riêng tư */ }
+function snoozeKey(key) {
+  try { localStorage.setItem(key, String(Date.now() + SNOOZE_MS)); } catch { /* chế độ riêng tư */ }
 }
+const snoozed = () => snoozedUntil(SNOOZE_KEY);
+const snooze = () => snoozeKey(SNOOZE_KEY);
 
-/** Gọi một lần lúc khởi động: đăng ký service worker, giữ sự kiện cài của trình duyệt. */
-export function initInstallApp() {
+/**
+ * Gọi một lần lúc khởi động: đăng ký service worker, giữ sự kiện cài của trình duyệt.
+ * `onInstalled`: vừa cài xong qua trình duyệt (ghi thống kê cho trang admin).
+ */
+export function initInstallApp({ onInstalled } = {}) {
+  onInstalledCb = onInstalled || null;
   addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferred = e;
+    // Trình duyệt lại mời cài: app đã bị gỡ, quên dấu đã cài.
+    setInstalledHere(false);
     if (bannerHost?.isConnected) scheduleBanner();
   });
   addEventListener('appinstalled', () => {
     deferred = null;
     removeBanner();
+    setInstalledHere(true);
+    if (!isStandalone()) showInstalledCard();
+    try { onInstalledCb?.(); } catch { /* thống kê không được làm hỏng app */ }
   });
   if (import.meta.env.PROD && 'serviceWorker' in navigator) {
     addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
@@ -74,7 +99,9 @@ export function showInstallBanner(host) {
 
 function scheduleBanner() {
   clearTimeout(bannerTimer);
-  if (isStandalone() || IN_APP || snoozed() || !(deferred || IS_IOS)) return;
+  if (isStandalone()) return;
+  if (isInstalledHere() && !deferred) { scheduleNudge(); return; }
+  if (IN_APP || snoozed() || !(deferred || IS_IOS)) return;
   bannerTimer = setTimeout(() => {
     if (!bannerHost?.isConnected || bannerHost.querySelector('.install-banner')) return;
     ensureStyle();
@@ -94,6 +121,48 @@ function scheduleBanner() {
     el.querySelector('.install-banner-x').onclick = () => { snooze(); removeBanner(); };
     bannerHost.appendChild(el);
   }, SHOW_DELAY_MS);
+}
+
+// Máy đã cài nhưng bé vẫn vào bằng trình duyệt: một dòng nhắc, không có nút mở app
+// (web không mở được app đã cài trên mọi máy).
+function scheduleNudge() {
+  if (snoozedUntil(NUDGE_SNOOZE_KEY)) return;
+  bannerTimer = setTimeout(() => {
+    if (!bannerHost?.isConnected || bannerHost.querySelector('.install-banner')) return;
+    ensureStyle();
+    const el = document.createElement('div');
+    el.className = 'install-banner is-nudge';
+    el.setAttribute('role', 'status');
+    el.innerHTML = `
+      <img class="install-banner-icon" src="/icons/icon-192.png" alt="" width="56" height="56">
+      <span class="install-banner-text">
+        <b>Máy này đã có app Toán Tiểu Học</b>
+        <small>Mở bằng biểu tượng trên màn hình chính cho nhanh hơn.</small>
+      </span>
+      <button type="button" class="install-banner-x" aria-label="Đóng" title="Đóng">✕</button>`;
+    el.querySelector('.install-banner-x').onclick = () => { snoozeKey(NUDGE_SNOOZE_KEY); removeBanner(); };
+    bannerHost.appendChild(el);
+  }, SHOW_DELAY_MS);
+}
+
+// Vừa cài xong mà vẫn đang ở tab trình duyệt (Android ở lại Chrome; máy tính mở cửa sổ app, tab cũ còn đó).
+function showInstalledCard() {
+  if (document.querySelector('.install-guide-veil')) return;
+  ensureStyle();
+  const veil = document.createElement('div');
+  veil.className = 'install-guide-veil';
+  veil.innerHTML = `
+    <div class="install-guide" role="dialog" aria-modal="true" aria-labelledby="install-done-title">
+      <img class="install-guide-icon" src="/icons/icon-192.png" alt="" width="84" height="84">
+      <b id="install-done-title">Cài xong rồi!</b>
+      <p class="install-guide-lead">Lần sau bé mở Toán Tiểu Học bằng biểu tượng này trên màn hình chính.</p>
+      <button type="button" class="install-guide-ok">Đã hiểu</button>
+    </div>`;
+  const close = () => veil.remove();
+  veil.querySelector('.install-guide-ok').onclick = close;
+  veil.addEventListener('click', (e) => { if (e.target === veil) close(); });
+  document.body.appendChild(veil);
+  veil.querySelector('.install-guide-ok').focus();
 }
 
 function removeBanner() {
@@ -118,6 +187,8 @@ function guideSteps() {
       [SHARE_ICON, 'Bấm nút Chia sẻ trên thanh của Safari.'],
       [ADD_ICON, 'Kéo xuống, chọn Thêm vào MH chính.'],
       ['✅', 'Bấm Thêm. Biểu tượng hiện trên màn hình chính.'],
+      // App trên iPhone/iPad có bộ nhớ riêng, không thấy bài đã làm trong Safari.
+      ['🔐', 'Mở app lần đầu, bé đăng nhập Google để giữ bài đã làm.', 'is-note'],
     ];
   }
   return [
@@ -136,7 +207,7 @@ function showGuide() {
       <img class="install-guide-icon" src="/icons/icon-192.png" alt="" width="84" height="84">
       <b id="install-guide-title">Cài Toán Tiểu Học lên máy</b>
       <ol class="install-guide-steps">
-        ${guideSteps().map(([icon, text]) => `<li><span class="install-guide-step-icon">${icon}</span><span>${text}</span></li>`).join('')}
+        ${guideSteps().map(([icon, text, cls]) => `<li${cls ? ` class="${cls}"` : ''}><span class="install-guide-step-icon">${icon}</span><span>${text}</span></li>`).join('')}
       </ol>
       <button type="button" class="install-guide-ok">Đã hiểu</button>
     </div>`;
@@ -168,7 +239,7 @@ const STYLE = `
   @media (max-width: 420px) {
     .install-banner { gap: 10px; padding: 10px 8px 10px 10px; }
     .install-banner-icon { width: 44px; height: 44px; }
-    .install-banner-text small { display: none; }
+    .install-banner:not(.is-nudge) .install-banner-text small { display: none; }
     .install-banner-go { padding: 10px 14px; font-size: 15px; }
   }
 
@@ -183,6 +254,9 @@ const STYLE = `
   .install-guide > b { font-size: 21px; font-weight: 800; text-align: center; }
   .install-guide-steps { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 8px; }
   .install-guide-steps li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; background: #FDF2F8; }
+  .install-guide-steps li.is-note { background: #FEF3C7; border: 2px dashed #F59E0B; }
+  .install-guide-lead { margin: 0; text-align: center; font-size: 17px; color: #334155; }
+  .install-banner.is-nudge { border-color: #BFDBFE; }
   .install-guide-step-icon { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px;
     background: #fff; font-size: 20px; font-weight: 800; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12); }
   .install-guide-ok { width: 100%; margin-top: 4px; padding: 14px 20px; border: 0; border-radius: 999px; cursor: pointer;
