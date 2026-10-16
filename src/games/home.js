@@ -12,6 +12,7 @@ import { getBoardGradeStars } from '../engine/leaderboard.js';
 import { getCloudStatus, syncNow } from '../engine/cloudSync.js';
 import { getLang, setLang, hasEnglish, LANGS } from '../engine/i18n.js';
 import { shouldPromptReview, snoozeReviewPrompt, setPendingRating } from '../engine/reviews.js';
+import { canOfferInstall, promptInstall } from '../engine/installApp.js';
 
 // Sách học tiếng Việt: luôn 100% tiếng Việt, kể cả khi chọn English (engine/i18n.js).
 const VI_BOOKS = new Set(['pre3-abc']);
@@ -376,6 +377,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
             </div>
             <button type="button" class="user-menu-item user-menu-edit" id="user-edit-profile" role="menuitem">✏️ Đổi lớp, avatar và biệt danh</button>
             <button type="button" class="user-menu-item" id="user-kmap" role="menuitem">🗺️ Bản đồ kiến thức của bé</button>
+            ${canOfferInstall() ? '<button type="button" class="user-menu-item" id="user-install" role="menuitem">📲 Cài ứng dụng lên máy</button>' : ''}
             ${guest ? `
             <button type="button" class="user-menu-item" id="user-signin" role="menuitem">🔐 Đăng nhập Google để lưu lên Drive</button>` : `
             <button type="button" class="user-menu-item" id="user-reviews" role="menuitem">⭐ Đánh giá ứng dụng</button>
@@ -411,6 +413,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
     btn.addEventListener('click', () => setOpen(menu.hidden));
     app.querySelector('#user-edit-profile').addEventListener('click', () => { setOpen(false); navigate('profile'); });
     app.querySelector('#user-kmap').addEventListener('click', () => { setOpen(false); navigate('knowledge-map'); });
+    app.querySelector('#user-install')?.addEventListener('click', () => { setOpen(false); promptInstall(); });
     app.querySelector('#user-reviews')?.addEventListener('click', () => { setOpen(false); navigate('reviews'); });
     app.querySelector('#user-admin')?.addEventListener('click', () => { setOpen(false); location.hash = 'admin'; });
     app.querySelector('#user-signout')?.addEventListener('click', () => { setOpen(false); openSignOutDialog(); });

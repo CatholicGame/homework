@@ -4,6 +4,7 @@
 
 import { signIn, preloadAuth, enterGuest } from '../engine/auth.js';
 import { startGuest, isGuestBlockedHere, isGuestEnabled } from '../engine/leaderboard.js';
+import logoUrl from '../assets/logo_2_256.webp';
 
 /**
  * Trình duyệt nhúng trong app khác (Zalo, Facebook, Messenger, Instagram, TikTok…):
@@ -31,7 +32,7 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
   app.innerHTML = `
     <div class="login-page">
       <div class="login-card animate-fadeIn">
-        <div class="login-logo">🎓</div>
+        <img class="login-logo" src="${logoUrl}" alt="" width="128" height="128">
         <h1 class="login-title">Toán Tiểu Học</h1>
         <p class="login-sub">Học toán vui mỗi ngày, từ lớp 1 đến lớp 5</p>
         <p class="login-perk">☁️ Lưu tiến trình, học tiếp trên mọi thiết bị</p>

@@ -476,9 +476,10 @@
 }
 
 .login-logo {
-  font-size: 4rem;
-  line-height: 1;
-  margin-bottom: 12px;
+  display: block;
+  width: 128px;
+  height: 128px;
+  margin: 0 auto 12px;
   animation: float 3s ease-in-out infinite;
 }
 

@@ -18,12 +18,16 @@ import { initKeyboardInset } from './engine/keyboardInset.js';
 import { initI18n, setI18nPage } from './engine/i18n.js';
 import { initWordHint } from './engine/wordHint.js';
 import { initAppUpdate, showUpdateCard } from './engine/appUpdate.js';
+import { initInstallApp, showInstallBanner } from './engine/installApp.js';
 
 // Tiến trình học ↔ Google Drive của người đăng nhập
 initCloudSync();
 
 // Quay lại trình duyệt trên điện thoại: có bản mới thì tải lại / hiện nút Cập nhật
 initAppUpdate();
+
+// Cài lên máy như ứng dụng (PWA): service worker + mời cài ở trang chủ
+initInstallApp();
 
 // Tiếng Anh cho Toán: dịch chữ trên màn hình khi bé chọn English (engine/i18n.js)
 initI18n();
@@ -340,6 +344,7 @@ function navigate(gameId, opts = {}) {
       // Đẩy nốt bài chưa lưu lên Drive trước khi thu hồi token.
       onSignOut: () => flushCloud().then(() => { signOutLeaderboard(); signOut(); navigate('home'); }),
     });
+    showInstallBanner(app);
     return;
   }
 

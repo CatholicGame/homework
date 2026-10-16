@@ -1,0 +1,19 @@
+{
+  "name": "Toán Tiểu Học",
+  "short_name": "Toán Tiểu Học",
+  "description": "Học toán vui mỗi ngày, từ lớp 1 đến lớp 5.",
+  "lang": "vi",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FFF1F5",
+  "theme_color": "#FF6B9D",
+  "categories": ["education", "kids"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
