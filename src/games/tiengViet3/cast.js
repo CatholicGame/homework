@@ -70,6 +70,9 @@ export const CAST = {
   gaiLang: { adult: true, hair: 'bun', top: 'ethnic', shirt: '#292524', trim: ['#DC2626', '#F8FAFC', '#FACC15'], bottom: 'longskirt', bottomC: '#1F2937', shoe: '#44403C' },
   hangXom: { adult: true, hair: 'bun', top: 'blouse', shirt: '#86EFAC', bottom: 'pants', bottomC: '#292524', shoe: '#57534E', hat: 'conical' }, // bà con hàng xóm
   khach: { adult: true, hair: 'ponytail', top: 'blouse', shirt: '#C4B5FD', bottom: 'pants', bottomC: '#334155', shoe: '#F5F5F4' },     // mẹ / khách khác
+  ongCu: { adult: true, old: true, hair: 'short', hairC: '#E7E5E4', top: 'blouse', shirt: '#8B7355', bottom: 'pants', bottomC: '#3F3A36', shoe: '#57534E', beard: true, moustache: true }, // ông cụ (T23 người cha già)
+  batChim: { adult: true, hair: 'short', top: 'shirt', shirt: '#A16207', bottom: 'pants', bottomC: '#57534E', shoe: '#44403C', moustache: true }, // người bẫy chim (T26)
+  irenLon: { adult: true, hair: 'bob', top: 'jacket', shirt: '#F8FAFC', inner: '#F9A8D4', bottom: 'pants', bottomC: '#475569', shoe: '#44403C', glasses: true }, // I-ren lớn, nhà khoa học (T27)
 };
 
 const KID = { sh: -80, bot: -50, waist: -56, hipY: -44, ankle: -6, cy: -101, k: 1, up: 18, fore: 17, sitDy: 24 };
