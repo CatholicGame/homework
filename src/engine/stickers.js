@@ -21,11 +21,11 @@ export function solvesPerSpin() {
   return grade == null || grade === -1 ? 5 : 10;
 }
 
-const FILES = import.meta.glob('../assets/sticker/{boy,girl}/*/*.png', { eager: true, import: 'default' });
+const FILES = import.meta.glob('../assets/sticker/{boy,girl}/*/*.webp', { eager: true, import: 'default' });
 
 export const WHEEL_IMG = {
-  boy: new URL('../assets/sticker/boy_spin.png', import.meta.url).href,
-  girl: new URL('../assets/sticker/girl_spin.png', import.meta.url).href,
+  boy: new URL('../assets/sticker/boy_spin.webp', import.meta.url).href,
+  girl: new URL('../assets/sticker/girl_spin.webp', import.meta.url).href,
 };
 export const CONFETTI_IMG = new URL('../assets/sticker/confetti_effect.svg', import.meta.url).href;
 
@@ -53,7 +53,7 @@ function listStickers(gender, folder) {
   const prefix = `../assets/sticker/${gender}/${folder}/`;
   return Object.entries(FILES)
     .filter(([path]) => path.startsWith(prefix))
-    .map(([path, url]) => ({ id: `${gender}/${folder}/${path.slice(prefix.length, -4)}`, url }))
+    .map(([path, url]) => ({ id: `${gender}/${folder}/${path.slice(prefix.length, -'.webp'.length)}`, url }))
     .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
 }
 

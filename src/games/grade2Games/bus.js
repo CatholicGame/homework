@@ -27,7 +27,7 @@ import { sfx } from '../preschool/fx.js';
 import { makeLong, mountLong, LONG_STOPS } from './busLong.js';
 
 const MINUS = '−';
-// Bác Ba tài xế xe buýt trường: cùng tên, xưng hô với bác tài lớp 3 nhưng hình riêng (src/assets/school_bus_driver.png
+// Bác Ba tài xế xe buýt trường: cùng tên, xưng hô với bác tài lớp 3 nhưng hình riêng (art/source/school_bus_driver.png
 // cắt nền, thu còn 480px cao). Chưa có mặt buồn: 'sad' dùng lại hình thường (vẫn lắc đầu).
 const DRIVER = { ...WORKER_NPCS.find(n => n.id === 'taixe'), id: 'taixe-bus', img: imgDriver, sad: imgDriver };
 const WANT = (t) => `<b class="g3f-want">${t}</b>`;

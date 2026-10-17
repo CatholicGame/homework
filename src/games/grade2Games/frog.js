@@ -31,7 +31,7 @@ const SPRITE = {
   wet: { src: imgWet, w: 501, h: 474 },
 };
 
-// Mẹ Ếch ngồi trên lá sen, gọi ếch con về: nhân vật duy nhất của trò (ảnh cắt từ src/assets/frog_mom.png, ba nét mặt).
+// Mẹ Ếch ngồi trên lá sen, gọi ếch con về: nhân vật duy nhất của trò (ảnh cắt từ art/source/frog_mom.png, ba nét mặt).
 const FROG_MOM = {
   id: 'meech', name: 'Mẹ Ếch', me: 'mẹ', you: 'con', img: imgMomWait, sad: imgMomSad,
   moods: { wait: imgMomWait, happy: imgMomHappy, sad: imgMomSad },

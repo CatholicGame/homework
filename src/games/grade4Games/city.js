@@ -18,7 +18,7 @@ import { docSo } from '../../engine/numberWords.js';
 import { stallMeta, levelMeta } from './catalog.js';
 import { WITH_POP, SOURCE, MAP_W, MAP_H, mapBaseSvg, mapDotsSvg, pinsSvg, studioSvg, cityIcon } from './art/city.js';
 
-// Chị Hà phóng viên: nhân vật duy nhất của trò (src/assets/phong_vien.png, Real-ESRGAN anime x4 làm nét). Chưa có mặt buồn: 'sad' dùng lại hình thường.
+// Chị Hà phóng viên: nhân vật duy nhất của trò (art/source/phong_vien.png, Real-ESRGAN anime x4 làm nét). Chưa có mặt buồn: 'sad' dùng lại hình thường.
 const EDITOR = { id: 'pv', name: 'Chị Hà phóng viên', me: 'chị', you: 'em', img: imgReporter, sad: imgReporter };
 const PLACES = ['đơn vị', 'chục', 'trăm', 'nghìn', 'chục nghìn', 'trăm nghìn', 'triệu', 'chục triệu', 'trăm triệu'];
 const CLASS_OF = (k) => (k < 3 ? 'đơn vị' : k < 6 ? 'nghìn' : 'triệu');

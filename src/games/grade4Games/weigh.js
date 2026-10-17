@@ -20,7 +20,7 @@ import {
   truckSvg, cargoSlotsSvg, cargoForKg, weighbridgeSvg, pileSvg, bridgeSceneSvg, BRIDGE, weighIcon,
 } from './art/weigh.js';
 
-// Chị Thảo trực trạm cân (src/assets/can_nong_san.png, làm nét bằng scripts/upscale-npc.py, giữ nguyên khổ, không cắt): nhân vật chính. Chưa có mặt buồn: mọi nét mặt dùng một hình;
+// Chị Thảo trực trạm cân (art/source/can_nong_san.png, làm nét bằng scripts/upscale-npc.py, giữ nguyên khổ, không cắt): nhân vật chính. Chưa có mặt buồn: mọi nét mặt dùng một hình;
 // khai báo moods để npcPic bỏ khung dáng đứng 21:40 (hình này rộng hơn vì có bao lúa và cân bàn hai bên).
 const THAO = { id: 'tramcan', name: 'Chị Thảo trạm cân', me: 'chị', you: 'em', img: imgThao, sad: imgThao, moods: { wait: imgThao, happy: imgThao, sad: imgThao } };
 // Người giao việc ở màn giới thiệu cấp 1, 2, 3, 4 (vòng chơi lấy npcs[n − 1]) và cũng là người đứng cạnh bé trong cấp đó.

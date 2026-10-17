@@ -9,12 +9,12 @@
 import { getCurrentUser } from './auth.js';
 
 const byNumber = (files) => Object.entries(files)
-  .map(([path, url]) => ({ id: path.match(/avatar\/(.+)\.png$/)[1], url }))
+  .map(([path, url]) => ({ id: path.match(/avatar\/(.+)\.webp$/)[1], url }))
   .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
 
 export const AVATARS = {
-  boy: byNumber(import.meta.glob('../assets/sticker/avatar/boys/*.png', { eager: true, import: 'default' })),
-  girl: byNumber(import.meta.glob('../assets/sticker/avatar/girls/*.png', { eager: true, import: 'default' })),
+  boy: byNumber(import.meta.glob('../assets/sticker/avatar/boys/*.webp', { eager: true, import: 'default' })),
+  girl: byNumber(import.meta.glob('../assets/sticker/avatar/girls/*.webp', { eager: true, import: 'default' })),
 };
 
 export const NAME_MAX = 20;

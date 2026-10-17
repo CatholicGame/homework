@@ -1,8 +1,8 @@
 """
-Làm nét một hình nhân vật nền trong suốt (vd. src/assets/can_nong_san.png → chị Thảo trạm cân) bằng Real-ESRGAN
+Làm nét một hình nhân vật nền trong suốt (vd. art/source/can_nong_san.png → chị Thảo trạm cân) bằng Real-ESRGAN
 (model realesrgan-x4plus-anime, như scripts/upscale-pre.py), lưu webp cạnh dài tối đa --max (mặc định 1600).
 
-  python scripts/upscale-npc.py --esrgan <realesrgan-ncnn-vulkan.exe> src/assets/can_nong_san.png src/assets/grade4-games/weigh/tram-can.webp
+  python scripts/upscale-npc.py --esrgan <realesrgan-ncnn-vulkan.exe> art/source/can_nong_san.png src/assets/grade4-games/weigh/tram-can.webp
 
 Màu lấy từ bản AI; kênh trong suốt KHÔNG lấy từ AI (mô hình làm viền lởm chởm chấm đen) mà phóng từ hình gốc, cắt
 ngưỡng rồi co vào 2 px (MinFilter 5) để bỏ dải chấm tối quanh viền, làm mềm lại 1 px. Không cắt khung hình.
