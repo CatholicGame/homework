@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><title>tv3 cast</title></head>
+<body style="margin:0;background:#fff">
+<div id="out"></div>
+<script type="module">
+// Tờ nhân vật (src/games/tiengViet3/cast.js): mọi nhân vật × mọi dáng.
+import { person, lying, CAST } from '/src/games/tiengViet3/cast.js';
+import { critter, CRITTERS } from '/src/games/tiengViet3/critters.js';
+// ?who=bo,me  chỉ vẽ mấy nhân vật này; ?moods=1 thêm hàng nét mặt
+const q = new URLSearchParams(location.search);
+const poses = ['stand', 'wave', 'raise', 'lookUp', 'walk', 'hold', 'point', 'clap', 'cheer', 'give', 'run', 'sit', 'dig', 'cane'];
+const PROP = { raise: 'lantern', give: 'rose', dig: 'hoe', cane: 'cane' };
+const list = q.get('who') ? q.get('who').split(',') : Object.keys(CAST);
+const rows = list.map(who => {
+  const ps = who === 'chiHang' ? ['stand', 'float', 'wave'] : poses;
+  const h = CAST[who].adult ? 190 : 140;
+  return `<svg viewBox="0 0 ${ps.length * 110} ${h}" width="${ps.length * 165}" style="display:block">
+    ${ps.map((p, i) => person(55 + i * 110, h - 8, who, p, { prop: PROP[p] })).join('')}</svg>`;
+});
+if (q.get('moods')) {
+  const moods = ['happy', 'joy', 'sad', 'cry', 'shut', 'wow', 'shy', 'sleep'];
+  for (const who of list) rows.push(`<svg viewBox="0 0 ${moods.length * 110} 170" width="${moods.length * 165}" style="display:block">
+    ${moods.map((m, i) => person(55 + i * 110, 162, who, 'stand', { mood: m })).join('')}</svg>`);
+  rows.push(`<svg viewBox="0 0 500 100" width="750" style="display:block">${lying(140, 90, 'meNgheo', { len: 120 })}${lying(380, 90, 'cun', { mood: 'sleep', blanket: '#FDE68A' })}</svg>`);
+}
+rows.push(`<svg viewBox="0 0 ${CRITTERS.length * 110} 150" width="${CRITTERS.length * 165}" style="display:block;background:#86EFAC">
+  ${CRITTERS.map((n, i) => critter(55 + i * 110, 140, n, { h: n.startsWith('worm') ? 60 : 120 })).join('')}</svg>`);
+document.getElementById('out').innerHTML = rows.join('');
+document.title = 'ready';
+</script></body></html>

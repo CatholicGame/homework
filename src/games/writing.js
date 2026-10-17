@@ -137,7 +137,8 @@ export function render(app, onBack) {
     const essays = listEssays(grade);
     const others = listOtherGradeEssays(grade);
     const body = frame({
-      back: onBack, backLabel: '← Trang chủ', title: '✍️ Luyện Viết Văn',
+      // Lớp 3: thẻ nằm trong nhóm 📚 Tiếng Việt (quay về trang nhóm); lớp khác: về trang chủ.
+      back: onBack, backLabel: grade === 3 ? '← Tiếng Việt' : '← Trang chủ', title: '✍️ Luyện Viết Văn',
       right: '<button type="button" class="btn btn-primary wr-new">＋ Bài mới</button>',
     }, `<div class="wr-cloud" aria-live="polite"></div>`
       + (essays.length ? `<div class="wr-list">${essays.map(itemHtml).join('')}</div>` : emptyHtml())

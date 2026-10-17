@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><title>tv3 critters</title></head>
+<body style="margin:0;background:#86EFAC">
+<div id="out"></div>
+<script type="module">
+// Con vật vẽ SVG (src/games/tiengViet3/critters.js): mọi dáng, khung xám = hộp tỉ lệ cũ.
+import { critter, CRITTERS, CRITTER_BOX } from '/src/games/tiengViet3/critters.js';
+let x = 0; const H = +(new URLSearchParams(location.search).get('h') || 200);
+const q = new URLSearchParams(location.search); const only = q.get('n') ? q.get('n').split(',') : CRITTERS;
+const cells = only.map(n => { const w = H * CRITTER_BOX[n]; const c = `<rect x="${x}" y="10" width="${w}" height="${H}" fill="none" stroke="#0002"/>${critter(x + w / 2, H + 10, n, { h: H })}<text x="${x + 4}" y="${H + 26}" font-size="12">${n}</text>`; x += w + 20; return c; });
+document.getElementById('out').innerHTML = `<svg viewBox="0 0 ${x} ${H + 40}" width="${x}" height="${H + 40}">${cells.join('')}</svg>`;
+document.title = 'ready';
+</script></body></html>

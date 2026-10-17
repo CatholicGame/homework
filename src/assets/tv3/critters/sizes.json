@@ -1,0 +1,42 @@
+{
+ "ant-carry": [
+  768,
+  839
+ ],
+ "ant-talk": [
+  620,
+  810
+ ],
+ "ant-think": [
+  494,
+  839
+ ],
+ "ant-wipe": [
+  551,
+  812
+ ],
+ "grasshopper-jump": [
+  532,
+  662
+ ],
+ "grasshopper-stand": [
+  802,
+  806
+ ],
+ "grasshopper-talk": [
+  635,
+  836
+ ],
+ "worm-dig": [
+  809,
+  423
+ ],
+ "worm-grumpy": [
+  825,
+  468
+ ],
+ "worm-happy": [
+  1010,
+  477
+ ]
+}

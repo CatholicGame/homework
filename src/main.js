@@ -2,7 +2,7 @@
  * Main Entry Point — Toán Tiểu Học
  */
 
-import { renderHome, renderChallengeHub, CHALLENGE_ID } from './games/home.js';
+import { renderHome, renderHub, HUB_IDS } from './games/home.js';
 import { renderLogin } from './games/login.js';
 import { getCurrentUser, signOut, isGuest, leaveGuest, completeServerLogin } from './engine/auth.js';
 import { initCloudSync, pullIfStale, flushCloud } from './engine/cloudSync.js';
@@ -91,7 +91,7 @@ initFullscreenButton();
 // tối đa một lần); đang làm bài (đồng bộ sao chạy nền cũng có thể gặp lỗi này) thì chỉ hiện nút
 // tải lại, để bé không mất phần đang làm. Mất mạng thật thì để trang tự báo lỗi.
 const RELOAD_KEY = 'tth-reload-for-update';
-const AUTO_RELOAD_PAGES = ['home', CHALLENGE_ID, 'leaderboard', 'reviews', 'stickers', 'profile', 'admin'];
+const AUTO_RELOAD_PAGES = ['home', ...HUB_IDS, 'leaderboard', 'reviews', 'stickers', 'profile', 'admin'];
 window.addEventListener('vite:preloadError', () => {
   if (navigator.onLine === false) return;
   if (currentPage && !AUTO_RELOAD_PAGES.includes(currentPage)) { showUpdateCard(); return; }
@@ -322,8 +322,8 @@ function navigate(gameId, opts = {}) {
     return;
   }
 
-  if (gameId === CHALLENGE_ID) {
-    renderChallengeHub(app, navigate);
+  if (HUB_IDS.includes(gameId)) {
+    renderHub(app, navigate, gameId);
     return;
   }
 
@@ -400,6 +400,8 @@ function navigate(gameId, opts = {}) {
     'grade5-drills': () => import('./games/grade5Drills.js'),
     'memory-island': () => import('./games/memoryIsland.js'),
     'writing': () => import('./games/writing.js'),
+    'tv3-weekly': () => import('./games/tiengViet3.js'),
+    'tv3-spell': () => import('./games/tv3Spell.js'),
   };
 
   const loader = gameModules[gameId];
@@ -411,9 +413,10 @@ function navigate(gameId, opts = {}) {
       clearTimeout(loadingTimer);
       if (token !== navToken) return;
       app.innerHTML = '';
-      // Trò trong nhóm Challenge games: nút quay lại về trang danh sách trò, không về thẳng trang chủ.
-      const back = opts.back || (getGrade(getProfileGrade())?.games.find(g => g.id === gameId)?.group === 'challenge' ? CHALLENGE_ID : 'home');
-      mod.render(app, () => navigate(back), { onSignIn: user.guest ? goSignIn : null, open: opts.open, navigate });
+      // Thẻ trong một nhóm (Challenge games, Tiếng Việt): nút quay lại về trang của nhóm, không về thẳng trang chủ.
+      const back = opts.back || getGrade(getProfileGrade())?.games.find(g => g.id === gameId)?.group || 'home';
+      // backOpen: mở lại đúng chỗ ở trang trước (vd. chữa bài Tiếng Việt → trò luyện luật → quay về câu đang chữa).
+      mod.render(app, () => navigate(back, opts.backOpen ? { open: opts.backOpen } : {}), { onSignIn: user.guest ? goSignIn : null, open: opts.open, navigate });
     }).catch(() => {
       clearTimeout(loadingTimer);
       if (token !== navToken) return;

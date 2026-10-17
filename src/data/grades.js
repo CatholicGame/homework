@@ -61,7 +61,9 @@ export const GRADES = [
       { id: 'grade3-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Đặt tính cộng trừ nhân chia, bảng nhân chia, tìm thành phần, tính giá trị biểu thức, tính nhẩm, sơ đồ đoạn thẳng' },
       { id: 'grade3-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Bảng nhân, bảng chia 2 đến 9, cộng trừ có nhớ' },
       { id: 'grade3-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang ổ khoá "tìm x": bắn đạn mang đúng giá trị của x, số thay vào là thấy đúng sai. Cộng trừ, nhân chia, số lớn' },
-      { id: 'writing', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
+      { id: 'tv3-weekly', group: 'tiengviet', icon: '📖', color: '#16A34A', title: 'Bài tập cuối tuần Tiếng Việt', desc: '35 tuần cả học kì I và II (Kết nối tri thức): đọc hiểu, chính tả, luyện từ và câu; làm xong có chữa bài từng câu' },
+      { id: 'tv3-spell', group: 'tiengviet', icon: '🔤', color: '#EA580C', title: 'Luật chính tả', desc: 'Chơi để nhớ luật c/k, g/gh, ng/ngh và mẹo s/x, ch/tr, r/d/gi, l/n, dấu hỏi/ngã' },
+      { id: 'writing', group: 'tiengviet', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
     ],
   },
   {

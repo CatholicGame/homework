@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>tv3 film</title>
+<link rel="stylesheet" href="/src/styles/global.css" /><link rel="stylesheet" href="/src/styles/tv3.css" /></head>
+<body style="margin:0;background:#334155">
+<div id="out" class="tvmv" style="position:static;display:grid;grid-template-columns:repeat(var(--cols,2),1fr);gap:8px;padding:8px;background:#334155"></div>
+<script type="module">
+// Xem thử phim tranh Tiếng Việt 3 (tiengViet3/scenes/tuanNN.js).
+//   ?w=3            mọi cảnh của Tuần 3, hiện hết hình (như lúc đọc xong cảnh), khung 4:3
+//   ?w=3&l=1        chỉ hiện hình của đoạn 1 (xem cảnh lúc mới vào)
+//   ?w=3&play=1     mở trình phát thật
+// Chụp: node scripts/tv3-film-shot.mjs 3 out.png
+addEventListener('error', e => { document.title = 'ERR ' + e.message; });
+const p = new URLSearchParams(location.search);
+const weeks = Object.values(import.meta.glob('/src/data/tv3Weekly/tuan*.js', { eager: true, import: 'default' }));
+const week = weeks.find(w => w.week === +p.get('w'));
+const { scenesFor, openPoemPlayer } = await import('/src/games/tiengViet3/poemPlayer.js');
+const film = scenesFor(week);
+if (!film) document.title = 'ERR no film';
+else if (p.get('play')) { openPoemPlayer(week); document.title = 'ready'; }
+else {
+  const out = document.getElementById('out');
+  const ar = p.get('ar') || '4/3';
+  out.innerHTML = film.scenes.map((f, i) => `<div style="aspect-ratio:${ar};position:relative;background:#fff">${f()}
+    <div style="position:absolute;left:4px;top:4px;background:#0009;color:#fff;font:700 13px sans-serif;padding:2px 6px;border-radius:6px">${i + 1}</div></div>`).join('');
+  const lim = +p.get('l') || 99;
+  out.querySelectorAll('[data-l]').forEach(g => {
+    const off = +g.dataset.off || 0;
+    g.classList.toggle('is-shown', +g.dataset.l <= lim && !(off && lim >= off));
+  });
+  out.querySelectorAll('svg').forEach(s => { s.style.width = '100%'; s.style.height = '100%'; s.style.display = 'block'; });
+  document.title = 'ready';
+}
+</script></body></html>

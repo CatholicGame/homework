@@ -15,7 +15,7 @@ import { shouldPromptReview, snoozeReviewPrompt, setPendingRating } from '../eng
 import { canOfferInstall, promptInstall } from '../engine/installApp.js';
 
 // Sách học tiếng Việt: luôn 100% tiếng Việt, kể cả khi chọn English (engine/i18n.js).
-const VI_BOOKS = new Set(['pre3-abc']);
+const VI_BOOKS = new Set(['pre3-abc', 'tv3-weekly', 'tv3-spell', 'writing']);
 
 const WEEKDAYS = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
 const WEEKDAYS_SHORT = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -70,10 +70,18 @@ function escapeHtml(str) {
 }
 
 export const CHALLENGE_ID = 'challenge';
+export const TIENGVIET_ID = 'tiengviet';
+
+// Thẻ gom nhóm ở trang chủ: các thẻ có `group` = id của nhóm → trang danh sách riêng.
+const HUBS = {
+  [TIENGVIET_ID]: { icon: '📚', color: '#DB2777', title: 'Tiếng Việt', go: 'Vào học ➜' },
+  [CHALLENGE_ID]: { icon: '🎮', color: '#E11D48', title: 'Challenge games', go: 'Chọn trò ➜' },
+};
+export const HUB_IDS = Object.keys(HUBS);
 
 // English: thẻ sách chưa có bản tiếng Anh (hoặc sách học tiếng Việt) ghi rõ là học bằng tiếng Việt.
 function langTag(gameId) {
-  if (gameId === CHALLENGE_ID || getLang() !== 'en' || hasEnglish(gameId)) return '';
+  if (HUBS[gameId] || getLang() !== 'en' || hasEnglish(gameId)) return '';
   return `<span class="card-lang">${VI_BOOKS.has(gameId) ? 'Học tiếng Việt' : 'Chưa có tiếng Anh'}</span>`;
 }
 
@@ -86,26 +94,28 @@ function gameCards(grade, list) {
         <p>${g.desc}</p>
         ${langTag(g.id)}
       </span>
-      <span class="card-go">${g.id === CHALLENGE_ID ? 'Chọn trò ➜' : 'Vào học ➜'}</span>
+      <span class="card-go">${HUBS[g.id]?.go || 'Vào học ➜'}</span>
     </button>
   `).join('');
 }
 
-function challengeCard(list) {
-  return { id: CHALLENGE_ID, icon: '🎮', color: '#E11D48', title: 'Challenge games', desc: list.map(g => `${g.icon} ${g.title}`).join(', ') };
+function hubCard(id, list) {
+  const h = HUBS[id];
+  return { id, icon: h.icon, color: h.color, title: h.title, desc: list.map(g => `${g.icon} ${g.title}`).join(', ') };
 }
 
-/** Trang "Challenge games": các trò thử thách của lớp đang học; chọn trò → danh sách cấp của trò. */
-export function renderChallengeHub(app, navigate) {
+/** Trang của một nhóm thẻ (Challenge games, Tiếng Việt): các thẻ cùng nhóm của lớp đang học. */
+export function renderHub(app, navigate, hubId) {
   const grade = getGrade(getProfileGrade());
-  const games = (grade?.games || []).filter(g => g.group === 'challenge');
+  const h = HUBS[hubId];
+  const games = (grade?.games || []).filter(g => g.group === hubId);
   app.innerHTML = `
     <div class="home challenge-hub">
       <div class="lb-top">
         <button type="button" class="btn btn-ghost" id="challenge-back">← Trang chủ</button>
       </div>
       <div class="category animate-fadeIn">
-        <h2 class="section-title">🎮 Challenge games${grade ? `: ${grade.title}` : ''}</h2>
+        <h2 class="section-title">${h.icon} ${h.title}${grade ? `: ${grade.title}` : ''}</h2>
         <div class="game-grid">${gameCards(grade, games)}</div>
       </div>
     </div>
@@ -122,10 +132,12 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
 
   function renderPage() {
     const all = grade?.games || [];
-    // Trò chơi thử thách (chụp chim, cá mập, đĩa bay) gom vào một thẻ "Challenge games" → trang danh sách riêng.
-    const challenge = all.filter(g => g.group === 'challenge');
-    const games = all.filter(g => g.group !== 'challenge');
-    if (challenge.length) games.push(challengeCard(challenge));
+    // Thẻ có nhóm (Tiếng Việt, Challenge games) gom vào một thẻ của nhóm → trang danh sách riêng.
+    const games = all.filter(g => !g.group);
+    for (const id of HUB_IDS) {
+      const list = all.filter(g => g.group === id);
+      if (list.length) games.push(hubCard(id, list));
+    }
     app.innerHTML = `
       <div class="home">
         ${userBar()}

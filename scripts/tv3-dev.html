@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>tv3 dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" /><link rel="stylesheet" href="/src/styles/home.css" /></head>
+<body style="margin:0"><div id="app" style="height:100vh;overflow:auto"></div>
+<script type="module">
+// Trang thử Bài tập cuối tuần Tiếng Việt 3 (src/games/tiengViet3.js).
+//   ?w=1                 làm bài Tuần 1 (bài nháp cũ bị xoá)
+//   ?w=1&solve=key       nộp sẵn bài đúng hết; solve=half: câu chẵn đúng, câu lẻ để trống/sai
+//   ?w=1&solve=half&r=4  mở thẳng phần chữa bài, câu thứ 5 (r đếm từ 0)
+//   ?list=1              danh sách tuần
+//   ?list=1&seed=1:key,2:half,3:draft,19:redo   nạp sẵn bài các tuần (redo = đã chấm rồi bấm Làm lại)
+//   ?check=1             kiểm tra dữ liệu mọi tuần: chấm đáp án phải trọn điểm (tiêu đề trang = OK n / lỗi)
+// Chụp: node scripts/tv3-shot.mjs "?w=1&solve=half&r=0" out.png 1100 900
+addEventListener('error', e => { document.title = 'ERR ' + e.message; });
+addEventListener('unhandledrejection', e => { document.title = 'REJ ' + (e.reason && e.reason.stack || e.reason); });
+const p = new URLSearchParams(location.search);
+const { scopedKey } = await import('/src/engine/auth.js');
+const T = await import('/src/games/tiengViet3/types.js');
+const weeks = Object.values(import.meta.glob('/src/data/tv3Weekly/tuan*.js', { eager: true, import: 'default' })).sort((a, b) => a.week - b.week);
+const { PIC_NAMES } = await import('/src/games/tiengViet3/pics.js');
+const { RULES, blankOptions } = await import('/src/games/tiengViet3/rules.js');
+const warns = [];
+const ow = console.warn; console.warn = (...a) => { warns.push(a.join(' ')); ow(...a); };
+const app = document.getElementById('app');
+
+if (p.get('hub')) {
+  // ?hub=1: trang chủ Lớp 3 và trang nhóm 📚 Tiếng Việt (hub=2)
+  const { saveProfile } = await import('/src/engine/profile.js');
+  saveProfile({ grade: 3, nickname: 'Bé thử', avatar: 'boy1' });
+  const H = await import('/src/games/home.js');
+  const nav = (g) => { document.title = 'nav ' + g; if (g === 'tiengviet') H.renderHub(app, nav, 'tiengviet'); };
+  if (p.get('hub') === '2') H.renderHub(app, nav, 'tiengviet'); else H.renderHome(app, nav, { user: { id: 'guest', guest: true } });
+  document.title = 'ready';
+} else if (p.get('check')) {
+  const errs = [];
+  let n = 0;
+  for (const w of weeks) {
+    let qn = 0;
+    for (const part of w.parts) for (const q of part.questions) {
+      qn++; n++;
+      const t = T.TYPES[q.type];
+      if (!t) { errs.push(`${w.id} c${qn}: dạng lạ ${q.type}`); continue; }
+      try {
+        const g = t.grade(q, T.keyAnswer(q));
+        if (!g.full) errs.push(`${w.id} c${qn}: đáp án không trọn điểm`);
+        const e = t.grade(q, t.empty(q));
+        if (T.isGraded(q) && e.full) errs.push(`${w.id} c${qn}: bỏ trống mà vẫn đúng`);
+      } catch (e) { errs.push(`${w.id} c${qn}: ${e.message}`); }
+      const pics = [q.pic, ...(q.items || []).map(it => it?.pic)].filter(Boolean);
+      for (const pc of pics) if (!PIC_NAMES.includes(pc)) errs.push(`${w.id} c${qn}: chưa có tranh "${pc}"`);
+      if (q.type === 'spell') {
+        if (q.rule && !RULES[q.rule]) errs.push(`${w.id} c${qn}: luật lạ ${q.rule}`);
+        for (const it of q.items) for (const m of it.matchAll(/\[([^\]]+)\]/g)) {
+          const [ans, ...alts] = m[1].split('/');
+          if (blankOptions(q.rule, ans, alts).length < 2) errs.push(`${w.id} c${qn}: chỗ trống "${m[1]}" chỉ có 1 lựa chọn`);
+        }
+      }
+      if (q.type === 'choice' && q.quote) {
+        const text = (w.read.poem ? w.read.poem.flat() : w.read.paras).join('\n').toLowerCase();
+        for (const s of q.quote) if (!text.includes(s.toLowerCase())) errs.push(`${w.id} c${qn}: không thấy trích "${s}"`);
+      }
+    }
+  }
+  for (const wn of warns) errs.push('cảnh báo: ' + wn);
+  if (weeks.some(w => w.read.pic && !PIC_NAMES.includes(w.read.pic))) errs.push('tranh bài đọc chưa có');
+  document.title = errs.length ? `LỖI ${errs.length}` : `OK ${weeks.length} tuần ${n} câu`;
+  app.innerHTML = `<pre style="padding:16px;font:14px monospace">${document.title}\n${errs.join('\n')}</pre>`;
+} else {
+  const id = `tuan-${p.get('w') || 1}`;
+  const store = {};
+  const w = weeks.find(x => x.id === id);
+  const solve = p.get('solve');
+  if (w && solve) {
+    const answers = {};
+    let n = 0;
+    for (const part of w.parts) for (const q of part.questions) {
+      n++;
+      const t = T.TYPES[q.type];
+      answers[n] = solve === 'key' || n % 2 === 0 ? T.keyAnswer(q) : t.empty(q);
+      if (solve === 'half' && n % 2 && q.type === 'choice' && !Array.isArray(q.ans)) answers[n] = (q.ans + 1) % q.opts.length;
+    }
+    store[id] = { draft: answers };
+  }
+  const V = await import('/src/games/tiengViet3.js');
+  if (w && solve) {
+    const answers = store[id].draft;
+    const { score, per } = V.gradeWeek(w, answers);
+    store[id] = { result: { answers, score, per, at: Date.now() }, best: score, attempts: 1 };
+  }
+  for (const it of (p.get('seed') || '').split(',').filter(Boolean)) {
+    const [wn, how] = it.split(':');
+    const sw = weeks.find(x => x.week === Number(wn));
+    if (!sw) continue;
+    const answers = {};
+    let n = 0;
+    for (const part of sw.parts) for (const q of part.questions) {
+      n++;
+      answers[n] = how === 'key' || n % 2 === 0 ? T.keyAnswer(q) : T.TYPES[q.type].empty(q);
+    }
+    if (how === 'draft') { store[sw.id] = { draft: { 1: answers[1] } }; continue; }
+    const { score, per } = V.gradeWeek(sw, answers);
+    store[sw.id] = how === 'redo' ? { result: null, draft: {}, best: score, attempts: 1 }
+      : { result: { answers, score, per, at: Date.now() }, best: how === 'half' ? 9 : score, attempts: 2 };
+  }
+  localStorage.setItem(scopedKey('tv3w-v1'), JSON.stringify(store));
+  const r = p.get('r');
+  const open = p.get('list') ? null : { week: id, ...(r !== null ? { review: Number(r) } : {}) };
+  V.render(app, () => { document.title = 'back'; }, { open, navigate: (g, o) => { document.title = `nav ${g} ${JSON.stringify(o)}`; } });
+  if (!document.title.startsWith('ERR')) document.title = document.title === 'tv3 dev' ? 'ready' : document.title;
+}
+</script>
+</body></html>
