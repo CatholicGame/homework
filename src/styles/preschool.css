@@ -135,6 +135,8 @@
 .pk-bunny-pop .bn { width: 100%; height: auto; display: block; overflow: visible; }
 .pk-bunny-pop.is-on { animation: bn-peek 5s linear both; }
 .pk-bunny-pop.is-stay.is-on { animation-name: bn-stay; }
+/* Sau một đáp án: đứng khoảng 2 giây rồi lặn (không che lựa chọn tiếp theo). */
+.pk-bunny-pop.is-quick.is-on { animation-duration: 2.4s; }
 /* Ló lên nhanh (0,6 giây), đứng yên khoảng 4 giây, rồi lặn xuống. */
 @keyframes bn-peek {
   0% { transform: translateY(130%); animation-timing-function: cubic-bezier(.3, 1.2, .5, 1); }
@@ -686,7 +688,7 @@
 @media (prefers-reduced-motion: reduce) {
   /* Bạn Thỏ (nút hướng dẫn và Thỏ ló lên khi đúng / sai) vẫn chạy đủ hoạt ảnh: đó là phản hồi cho bé.
      Tranh thẻ chữ cái (.fa, flash/art*.js) có bản động tác nhẹ riêng cho máy tắt hiệu ứng: không cắt. */
-  .pk *:not(.pk-bunny-pop, .bn, .bn *, .fa, .fa *, .pk6-tapme), .pk-burst *, .pk-rain * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+  .pk *:not(.pk-bunny-pop, .bn, .bn *, .fa, .fa *, .pk6-tapme, .pk6-wire *), .pk-burst *, .pk-rain * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }
 
 /* ── Tập 2: So sánh ────────────────────────────────────────────────────── */
@@ -702,6 +704,10 @@
 .pk-cmp-side .pk-pic img { max-height: 30vh; }
 .pk-cmp.is-rows .pk-pic img { max-height: 16vh; }
 .pk-cmp-side.is-on .pk-pic { box-shadow: 0 0 0 5px #F97316, 0 6px 0 rgba(14, 165, 233, 0.25); }
+/* Bên chưa tới lượt đếm: mờ, không có ngón tay gợi ý (chạm vào chỉ để Thỏ nhắc, engine.js playCompare). */
+.pk-cmp-side.is-wait .pk-pic { opacity: 0.4; filter: grayscale(0.7); transition: opacity 0.3s, filter 0.3s; }
+.pk-cmp-side.is-wait .pk-tap-hint { visibility: hidden; }
+.pk-numbox.is-wait { opacity: 0.4; }
 .pk-cmp-side.is-pickable { cursor: pointer; animation: pk-hint 1.3s ease-in-out infinite; }
 .pk-cmp-side.is-pickable .pk-pic-layer { pointer-events: none; }
 .pk-cmp-side.is-right .pk-pic { box-shadow: 0 0 0 6px #22C55E, 0 10px 20px rgba(0, 0, 0, 0.1); }

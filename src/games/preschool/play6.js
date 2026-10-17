@@ -138,7 +138,7 @@ function playSpot({ round, stage, talk, wrong, right, solve, addCleanup }) {
 }
 
 // ── Ghép chữ với hình ──────────────────────────────────────────────────
-function playPair({ round, stage, talk, wrong, right, solve }) {
+function playPair({ round, stage, talk, wrong, right, solve, addCleanup }) {
   const list = round.cards;
   const letOrder = shuffle(list.map((_, k) => k));
   const picOrder = shuffle(list.map((_, k) => k));
@@ -148,9 +148,54 @@ function playPair({ round, stage, talk, wrong, right, solve }) {
     </div>
     <div class="pk6-pics">
       ${picOrder.map(k => `<button type="button" class="pk6-opt" data-k="${k}" aria-label="Hình">${pic(list[k])}${wordHtml(list[k])}<span class="pk6-slot"></span></button>`).join('')}
-    </div>`, list.length);
+    </div>
+    <svg class="pk6-wires" aria-hidden="true"></svg>`, list.length);
   let sel = null; // nút đang chọn (chữ hoặc hình)
   let left = list.length;
+
+  // Nét nối: ghép đúng thì vẽ một nét từ chữ tới hình (vẽ dần ra); kéo từ chữ/hình thì có nét chun theo tay.
+  const play = stage.querySelector('.pk6-play');
+  const svg = stage.querySelector('.pk6-wires');
+  const NS = 'http://www.w3.org/2000/svg';
+  const wires = []; // { a, b, g } nét đã nối
+  const across = () => getComputedStyle(play).flexDirection === 'row'; // khung dọc: cột chữ trái, cột hình phải
+  /** Điểm đầu nét trên mép nút, phía quay về hàng bên kia (toạ độ trong khung chơi). */
+  const anchor = (btn) => {
+    const r = btn.getBoundingClientRect();
+    const P = play.getBoundingClientRect();
+    const isLet = btn.classList.contains('pk6-let');
+    if (across()) return { x: (isLet ? r.right : r.left) - P.left, y: r.top + r.height / 2 - P.top };
+    return { x: r.left + r.width / 2 - P.left, y: (isLet ? r.bottom : r.top) - P.top };
+  };
+  const el = (tag, attrs, parent) => {
+    const n = document.createElementNS(NS, tag);
+    Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v));
+    parent?.appendChild(n);
+    return n;
+  };
+  const wireG = (cls) => {
+    const g = el('g', { class: cls }, svg);
+    const len = cls.includes('is-new') ? { pathLength: 1 } : {}; // vẽ dần: dash theo độ dài 1; nét chun: dash theo px
+    el('line', { class: 'pk6-wire-case', ...len }, g);
+    el('line', { class: 'pk6-wire-ink', ...len }, g);
+    el('circle', { class: 'pk6-wire-dot', r: 7 }, g);
+    el('circle', { class: 'pk6-wire-dot', r: 7 }, g);
+    return g;
+  };
+  const place = (g, p, q) => {
+    g.querySelectorAll('line').forEach(l => { l.setAttribute('x1', p.x); l.setAttribute('y1', p.y); l.setAttribute('x2', q.x); l.setAttribute('y2', q.y); });
+    const [d1, d2] = g.querySelectorAll('circle');
+    d1.setAttribute('cx', p.x); d1.setAttribute('cy', p.y);
+    d2.setAttribute('cx', q.x); d2.setAttribute('cy', q.y);
+  };
+  const redraw = () => {
+    svg.setAttribute('viewBox', `0 0 ${play.clientWidth} ${play.clientHeight}`);
+    wires.forEach(w => place(w.g, anchor(w.a), anchor(w.b)));
+  };
+  const ro = new ResizeObserver(redraw);
+  ro.observe(play);
+  addCleanup(() => ro.disconnect());
+  redraw();
   const choose = (b) => {
     stage.querySelectorAll('.is-sel').forEach(x => x.classList.remove('is-sel'));
     sel = b;
@@ -167,6 +212,9 @@ function playPair({ round, stage, talk, wrong, right, solve }) {
     choose(null);
     letBtn.classList.add('is-used');
     picBtn.classList.add('is-used');
+    const g = wireG('pk6-wire is-new');
+    wires.push({ a: letBtn, b: picBtn, g });
+    place(g, anchor(letBtn), anchor(picBtn));
     const slot = picBtn.querySelector('.pk6-slot');
     flyTo(letBtn, slot, `${upper(list[k].ch)}${list[k].ch}`, () => {
       slot.textContent = `${upper(list[k].ch)}${list[k].ch}`;
@@ -177,6 +225,46 @@ function playPair({ round, stage, talk, wrong, right, solve }) {
       if (--left === 0) solve(`Giỏi quá! Bé đã ghép đúng hết các thẻ rồi!`);
     });
   };
+  // Kéo nối: nhấn giữ một chữ (hoặc hình), kéo nét chun tới hình (hoặc chữ) rồi thả.
+  let drag = null; // { from, id, g, moved }
+  let skipClick = null; // nút vừa kéo đi nơi khác: bỏ qua cú 'click' trình duyệt gửi kèm khi thả
+  const endDrag = () => { drag?.g?.remove(); drag = null; };
+  const onDown = (e) => {
+    const b = e.currentTarget;
+    if (b.classList.contains('is-used') || drag) return;
+    drag = { from: b, id: e.pointerId, g: null, moved: false, x: e.clientX, y: e.clientY };
+    try { b.setPointerCapture(e.pointerId); } catch { /* nút đã rời trang */ }
+  };
+  const onMove = (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 14) return;
+    if (!drag.moved) { drag.moved = true; drag.g = wireG('pk6-wire is-rubber'); choose(drag.from); }
+    const P = play.getBoundingClientRect();
+    place(drag.g, anchor(drag.from), { x: e.clientX - P.left, y: e.clientY - P.top });
+  };
+  const onUp = (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const { from, moved } = drag;
+    endDrag();
+    if (!moved) return; // chạm tại chỗ: để 'click' xử lý như cũ
+    skipClick = from;
+    setTimeout(() => { if (skipClick === from) skipClick = null; }, 400);
+    const isLet = from.classList.contains('pk6-let');
+    const to = document.elementFromPoint(e.clientX, e.clientY)?.closest(isLet ? '.pk6-opt' : '.pk6-let');
+    if (!to || !stage.contains(to) || to.classList.contains('is-used')) { choose(null); return; }
+    sfx.tap();
+    if (isLet) match(from, to); else { say(list[Number(to.dataset.k)].name); match(to, from); }
+  };
+  stage.querySelectorAll('.pk6-let, .pk6-opt').forEach(b => {
+    b.addEventListener('pointerdown', onDown);
+    b.addEventListener('pointermove', onMove);
+    b.addEventListener('pointerup', onUp);
+    b.addEventListener('pointercancel', endDrag);
+    b.addEventListener('lostpointercapture', (e) => { if (drag && e.pointerId === drag.id && !drag.moved) drag = null; });
+    b.addEventListener('click', (e) => { if (skipClick === b) { skipClick = null; e.stopImmediatePropagation(); } }, true);
+  });
+  addCleanup(endDrag);
+
   stage.querySelectorAll('.pk6-let').forEach(b => {
     b.onclick = () => {
       if (b.classList.contains('is-used')) return;

@@ -128,16 +128,32 @@
 }
 
 /* ── Ghép chữ với hình: hàng chữ trên, hàng hình dưới (dọc: cột chữ trái, cột hình phải) ── */
-.pk6-pair .pk6-play { flex-direction: column; }
-.pk6-lets { flex: 0 0 28%; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 3cqmin; }
+/* Khoảng giữa hai hàng rộng: chỗ cho nét nối (để sẵn từ đầu lượt). */
+.pk6-pair .pk6-play { flex-direction: column; gap: 12cqh; }
+.pk6-lets { flex: 0 0 25%; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 3cqmin; }
 .pk6-let { container-type: size; display: grid; place-items: center; background: linear-gradient(#FFFFFF, #FFF1F2) !important; }
 .pk6-let .pk6-letters { font-size: min(34cqw, 66cqh); }
-.pk6-let.is-used { opacity: .35; filter: grayscale(.6); pointer-events: none; }
+.pk6-let.is-used { border-color: #86EFAC; box-shadow: 0 6px 0 #22C55E, 0 10px 18px rgba(15, 23, 42, .12); pointer-events: none; }
 .pk6-opt.is-used { pointer-events: none; }
+.pk6-pair .pk6-let, .pk6-pair .pk6-opt { touch-action: none; } /* kéo nối không cuộn trang */
+
+/* Nét nối: viền trắng dưới nét màu, chấm tròn ở hai đầu; nằm trên các nút, không nhận chạm. */
+.pk6-wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3; }
+.pk6-wire line { stroke-linecap: round; fill: none; }
+.pk6-wire-case { stroke: #fff; stroke-width: 13; }
+.pk6-wire-ink { stroke: #22C55E; stroke-width: 7; }
+.pk6-wire-dot { fill: #22C55E; stroke: #fff; stroke-width: 4; }
+.pk6-wire.is-new line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: pk6Draw .45s ease-out forwards; }
+.pk6-wire.is-new circle:last-of-type { opacity: 0; animation: pk6Dot .2s .4s forwards; }
+.pk6-wire.is-rubber .pk6-wire-ink { stroke: #EAB308; stroke-dasharray: 14 12; }
+.pk6-wire.is-rubber .pk6-wire-case { stroke-dasharray: none; }
+.pk6-wire.is-rubber .pk6-wire-dot { fill: #EAB308; }
+@keyframes pk6Draw { to { stroke-dashoffset: 0; } }
+@keyframes pk6Dot { to { opacity: 1; } }
 
 @container pk6 (max-aspect-ratio: 1 / 1) {
-  .pk6-pair .pk6-play { flex-direction: row; }
-  .pk6-lets { flex: 0 0 34%; grid-template-columns: none; grid-template-rows: repeat(var(--n), minmax(0, 1fr)); }
+  .pk6-pair .pk6-play { flex-direction: row; gap: 14cqw; }
+  .pk6-lets { flex: 0 0 28%; grid-template-columns: none; grid-template-rows: repeat(var(--n), minmax(0, 1fr)); }
   .pk6-let .pk6-letters { font-size: min(40cqw, 56cqh); }
   .pk6-pair .pk6-pics { grid-template-columns: none; grid-template-rows: repeat(var(--n), minmax(0, 1fr)); }
 }
@@ -145,4 +161,6 @@
 @media (prefers-reduced-motion: reduce) {
   .pk6-flip { transition-duration: .7s; transition-timing-function: ease-in-out; }
   .pk6-card.is-hint .pk6-tapme { animation-duration: 2.2s; }
+  .pk6-wire.is-new line { animation-duration: .9s; animation-timing-function: ease-in-out; }
+  .pk6-wire.is-new circle:last-of-type { animation-delay: .85s; }
 }

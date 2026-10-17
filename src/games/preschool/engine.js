@@ -65,20 +65,23 @@ export function renderPreschool(app, onBack, book) {
   };
 
   // Thỏ cả người ló lên ở góc màn hình (đè lên, không đẩy gì) khi đúng / sai / xong lượt, đứng
-  // khoảng 4 giây rồi lặn xuống. Nằm ngoài `app` để không mất khi lượt sau vẽ lại màn hình; đang
+  // một lúc rồi lặn xuống. Nằm ngoài `app` để không mất khi lượt sau vẽ lại màn hình; đang
   // đứng mà bé chạm tiếp thì chỉ đổi tư thế tại chỗ (is-stay), không lặn rồi ló lại.
-  const POP_MS = 4600;
+  // Sau một đáp án (đúng / sai) Thỏ chỉ đứng khoảng 2 giây (is-quick) để không che lựa chọn tiếp theo;
+  // xong cả lượt (cheer) thì đứng lâu hơn.
+  const POP_MS = { right: 2200, wrong: 2200, cheer: 4600 };
   const pop = document.createElement('div');
   pop.className = 'pk-bunny-pop';
   pop.setAttribute('aria-hidden', 'true');
   document.body.appendChild(pop);
-  let popAt = -Infinity;
+  let popUntil = -Infinity;
   const popTurn = { right: 0, wrong: 0, cheer: 0 }; // tư thế lần lượt thay nhau
   const popBunny = (kind) => {
-    const again = performance.now() - popAt < POP_MS;
-    popAt = performance.now();
+    const now = performance.now();
+    const again = now < popUntil;
+    popUntil = now + POP_MS[kind];
     pop.innerHTML = bunnyPose(kind, popTurn[kind]++);
-    pop.className = `pk-bunny-pop${again ? ' is-stay' : ''}`;
+    pop.className = `pk-bunny-pop${again ? ' is-stay' : ''}${kind === 'cheer' ? '' : ' is-quick'}`;
     if (!again) placePop();
     void pop.offsetWidth;
     pop.classList.add('is-on');
@@ -102,7 +105,7 @@ export function renderPreschool(app, onBack, book) {
     }
     pop.style.left = `${best}px`;
   };
-  const hidePop = () => { pop.className = 'pk-bunny-pop'; popAt = -Infinity; };
+  const hidePop = () => { pop.className = 'pk-bunny-pop'; popUntil = -Infinity; };
 
   // Rời trang (về trang chủ) thì dừng đọc.
   const leave = () => { pop.remove(); runCleanup(); stopSpeaking(); stopHand(); clearTimeout(voiceTimer); stopVoiceWatch?.(); onBack(); };
@@ -975,8 +978,14 @@ export function renderPreschool(app, onBack, book) {
     let done = false;
     let flying = false; // số / dấu đang bay về ô, chưa nhận chạm tiếp
 
+    // Đếm từng bên theo thứ tự: bên chưa tới lượt mờ đi, không đếm được (chạm vào thì Thỏ nhắc đếm bên
+    // đang sáng trước), để bé không đếm hàng dưới rồi chọn số mà số lại bay vào ô hàng trên.
+    let waitFor = -1; // bên đang tới lượt đếm; -1 = hết lượt đếm, hai bên đều mở
     const highlight = (i) => {
+      waitFor = single ? -1 : i;
       sides.forEach((el, k) => el.classList.toggle('is-on', !single && k === i));
+      sides.forEach((el, k) => el.classList.toggle('is-wait', !single && i >= 0 && k > i));
+      stage.querySelectorAll('.pk-numbox').forEach(el => el.classList.toggle('is-wait', i >= 0 && Number(el.dataset.i) > i));
       stage.querySelectorAll('.pk-numbox').forEach(el => el.classList.toggle('is-on', Number(el.dataset.i) === i));
       slot.classList.toggle('is-on', i === -1 && steps[step].kind === 'sign');
     };
@@ -1045,6 +1054,14 @@ export function renderPreschool(app, onBack, book) {
         talk(rows ? 'Hàng nào nhiều hơn? Bé chạm vào hàng đó!' : stack ? 'Hình nào nhiều hơn? Bé chạm vào hình đó!' : 'Bên nào nhiều hơn? Bé chạm vào bên đó!');
       }
     };
+    sides.forEach(el => el.addEventListener('click', (e) => {
+      if (!el.classList.contains('is-wait') || waitFor < 0) return;
+      e.stopPropagation();
+      e.preventDefault();
+      sfx.tap?.();
+      shake(sides[waitFor]);
+      talk(`Bé đếm ${sideName[waitFor]} trước!`);
+    }, true));
     next();
     // Hình xếp trên dưới lấy phần cao còn lại: giữ chỗ bàn phím bằng hàng số (cao nhất) để lúc đổi
     // sang hàng dấu hình không phình ra giữa lượt.
