@@ -20,7 +20,7 @@ import UI_EN from '../i18n/en/ui.js'; // giao diện chung: nạp sẵn để tr
 const UI_EXTRA = Object.values(import.meta.glob('../i18n/en/ui/*.js', { eager: true, import: 'default' }));
 
 const LANG_KEY = 'tth-lang';
-const VI_ONLY = new Set(['pre3-abc', 'giao-ly']);
+const VI_ONLY = new Set(['pre3-abc', 'pre6-flash', 'giao-ly']);
 
 // Trang chung (luôn dịch khi chọn English) + sách Toán đã có từ điển nội dung.
 // Sách chưa dịch xong vẫn hiện tiếng Việt (thẻ ở trang chủ có nhãn 🇻🇳).

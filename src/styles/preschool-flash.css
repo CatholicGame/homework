@@ -1,0 +1,148 @@
+/* 🃏 Thẻ chữ cái (preschool/play6.js). Khung cảnh cao bằng phần trống của màn hình; mọi thứ bên trong
+   tính theo khung (cqw/cqh). Khung dọc (cao hơn rộng) thì xếp theo cột. */
+
+.pk6 { --red: #E11D48; --edge: #CBD5E1; --ink: #1E3A5F; width: 100%; }
+.pk6-scene {
+  position: relative; overflow: hidden; width: 100%;
+  height: clamp(340px, calc(var(--pk-free, calc(100dvh - 290px)) - 12px), 1000px);
+  border-radius: 24px; border: 5px solid #fff; container: pk6 / size;
+  box-shadow: 0 6px 0 rgba(14, 165, 233, .25), 0 10px 20px rgba(0, 0, 0, .08);
+  background: linear-gradient(#7DD3FC, #BAE6FD 45%, #E0F2FE 70%);
+  touch-action: manipulation; user-select: none; -webkit-user-select: none;
+}
+.pk6-scene .g3k-backdrop { position: absolute; left: 0; right: 0; bottom: 17%; width: 100%; height: 40%; display: block; }
+.pk6-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 18%; background: linear-gradient(#4ADE80, #16A34A); border-top: 3px solid #3F6212; }
+.pk6-play { position: absolute; inset: 3.5cqh 3cqw; display: flex; gap: 3cqmin; align-items: stretch; justify-content: center; }
+
+/* Nút trắng to, nhấn lún xuống. */
+.pk6 button {
+  font: inherit; color: var(--ink); cursor: pointer; padding: 0; border: 4px solid #fff; border-radius: 22px;
+  background: #fff; box-shadow: 0 6px 0 var(--edge), 0 10px 18px rgba(15, 23, 42, .12);
+  transition: transform .12s, box-shadow .12s;
+}
+.pk6 button:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--edge), 0 4px 8px rgba(15, 23, 42, .12); }
+
+.pk6-letters { display: flex; align-items: baseline; justify-content: center; gap: .18em; color: var(--red); font-family: var(--pk-font); font-weight: 800; line-height: 1; }
+.pk6-pic { display: block; min-height: 0; }
+.pk6-pic svg { display: block; width: 100%; height: 100%; overflow: visible; } /* động tác (nhảy, phun nước) được thò ra ngoài khung hình */
+.pk6-word { display: block; white-space: nowrap; font-family: var(--pk-font); font-weight: 800; color: #1F2937; line-height: 1.1; text-align: center; }
+.pk6-word em { font-style: normal; color: var(--red); }
+
+/* ── Lật thẻ ── */
+.pk6-deck { flex: 1; display: flex; gap: 3cqw; align-items: center; justify-content: center; }
+.pk6-flash .pk6-card {
+  --cw: min(calc((94cqw - (var(--n) - 1) * 3cqw) / var(--n)), calc(88cqh * .75));
+  position: relative; width: var(--cw); height: calc(var(--cw) * 4 / 3); flex: none;
+  border: 0; background: none; box-shadow: none; perspective: 1400px; container-type: size;
+}
+.pk6-flash .pk6-card:active { transform: translateY(3px); box-shadow: none; }
+.pk6-flip { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.3, 1.3, .5, 1); }
+.pk6-card.is-flipped .pk6-flip { transform: rotateY(180deg); }
+.pk6-face {
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: 24px; border: 5px solid #fff; background: #fff;
+  box-shadow: 0 7px 0 var(--edge), 0 12px 22px rgba(15, 23, 42, .14);
+}
+.pk6-front { display: grid; place-items: center; background: linear-gradient(#FFFFFF, #FFF1F2); }
+.pk6-front .pk6-letters { font-size: min(44cqw, 40cqh); }
+.pk6-tapme { position: absolute; right: 6%; bottom: 5%; font-size: min(16cqw, 12cqh); opacity: 0; }
+.pk6-card.is-hint .pk6-tapme { opacity: 1; animation: pk6Tap 1.1s ease-in-out infinite; }
+@keyframes pk6Tap { 50% { transform: translate(-10%, -12%) scale(.9); } }
+.pk6-back { transform: rotateY(180deg); display: grid; grid-template-rows: minmax(0, 1fr) auto; padding: 7cqh 5cqw 6cqh; gap: 2cqh; }
+.pk6-back .pk6-word { font-size: min(calc(150cqw / var(--len)), 13cqh); }
+.pk6-badge { position: absolute; left: 4%; top: 3%; font-family: var(--pk-font); font-weight: 800; color: var(--red); font-size: min(11cqw, 8cqh); line-height: 1; }
+.pk6-seen { position: absolute; right: -8px; top: -10px; width: 44px; height: 44px; border-radius: 50%; background: #22C55E; color: #fff; border: 4px solid #fff;
+  display: grid; place-items: center; font-weight: 900; font-size: 1.3rem; visibility: hidden; transform: translateZ(1px); }
+.pk6-card.is-seen .pk6-seen { visibility: visible; animation: pk-pop-in .35s both; }
+.pk6-card.is-hint .pk6-front { box-shadow: 0 7px 0 #FDA4AF, 0 0 0 6px rgba(251, 113, 133, .45), 0 12px 22px rgba(15, 23, 42, .14); }
+
+@container pk6 (max-aspect-ratio: 1 / 1) {
+  .pk6-deck { flex-direction: column; gap: 3cqh; }
+  /* Khung dọc: thẻ rộng hết bề ngang, chia đều chiều cao (không giữ tỉ lệ) để mặt hình có hình to. */
+  .pk6-flash .pk6-card { width: 92cqw; height: min(calc((92cqh - (var(--n) - 1) * 3cqh) / var(--n)), 69cqw); }
+  .pk6-front .pk6-letters { font-size: min(30cqw, 56cqh); }
+  .pk6-back { grid-template-rows: none; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; padding: 8cqh 3cqw 5cqh; }
+  .pk6-back .pk6-pic { height: 100%; }
+  .pk6-back .pk6-word { font-size: min(calc(90cqw / var(--len)), 18cqh); white-space: normal; }
+  .pk6-badge { font-size: min(8cqw, 14cqh); }
+}
+
+/* ── Thẻ chữ đích (spot, which) ── */
+.pk6-target {
+  position: relative; flex: 0 0 auto; width: min(30cqw, 70cqh); align-self: center; aspect-ratio: 3 / 4;
+  container-type: size; display: grid; place-items: center; background: linear-gradient(#FFFFFF, #FFF1F2) !important;
+}
+.pk6-target .pk6-letters { font-size: min(42cqw, 38cqh); }
+.pk6-say { position: absolute; right: 5%; bottom: 4%; font-size: min(14cqw, 10cqh); }
+
+/* ── Tìm chữ trong tên hình ── */
+.pk6-board {
+  flex: 1 1 0; min-width: 0; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); gap: 3cqh;
+  background: #fff; border-radius: 26px; border: 5px solid #fff; padding: 3cqh 3cqw 4cqh;
+  box-shadow: 0 7px 0 var(--edge), 0 12px 22px rgba(15, 23, 42, .12); container-type: inline-size;
+}
+.pk6-board-pic { border: 0 !important; box-shadow: none !important; background: none !important; min-height: 0; }
+.pk6-board-pic .pk6-pic { height: 100%; }
+/* Một ô chữ ≈ 0.95em (ô .78em + khe + viền): cỡ chữ theo số chữ của tên hình để cả tên vừa một hàng. */
+.pk6-tiles { display: flex; justify-content: center; gap: .1em; font-size: min(calc(96cqi / var(--len)), 16cqh, 8rem); }
+.pk6-tile {
+  min-width: .78em; height: 1.32em; padding: 0 .08em !important; border: 4px solid var(--edge) !important; border-radius: .22em !important;
+  font-family: var(--pk-font) !important; font-weight: 800; line-height: 1; color: #1F2937 !important;
+  box-shadow: 0 .08em 0 var(--edge) !important;
+}
+.pk6-tile.is-right { background: #FFE4E6; border-color: var(--red) !important; color: var(--red) !important; box-shadow: 0 .08em 0 #FDA4AF !important; animation: pk-pop-in .35s both; }
+.pk6-wgrp { display: flex; gap: .1em; white-space: nowrap; }
+.pk6-tiles { flex-wrap: wrap; column-gap: .45em; row-gap: .2em; }
+
+@container pk6 (max-aspect-ratio: 1 / 1) {
+  .pk6-spot .pk6-play, .pk6-which .pk6-play { flex-direction: column; }
+  .pk6-target { width: auto; height: min(26cqh, 60cqw); }
+  .pk6-target .pk6-letters { font-size: min(36cqw, 52cqh); }
+  .pk6-target { aspect-ratio: 4 / 3; }
+  .pk6-tiles { font-size: min(calc(96cqi / (var(--wlen) + 3)), 9cqh, 6rem); }
+}
+
+/* ── Hình chọn (pair, which): hình + ô chữ chờ sẵn + tên hình (hiện khi đúng) ── */
+.pk6-pics { flex: 1 1 0; min-width: 0; min-height: 0; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 3cqmin; }
+.pk6-opt { position: relative; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; padding: 4% 5% 3% !important; container-type: size; }
+.pk6-opt .pk6-pic { height: 100%; }
+.pk6-opt .pk6-word { visibility: hidden; font-size: min(calc(140cqw / var(--len)), 12cqh); }
+.pk6-opt.is-done .pk6-word { visibility: visible; }
+.pk6-slot {
+  position: absolute; left: 4%; top: 4%; min-width: 22cqmin; height: 16cqmin; padding: 0 .2em; border-radius: 14px;
+  border: 3px dashed #CBD5E1; display: grid; place-items: center;
+  font-family: var(--pk-font); font-weight: 800; color: var(--red); font-size: 11cqmin; line-height: 1;
+}
+.pk6-opt.is-done { border-color: #86EFAC; box-shadow: 0 6px 0 #22C55E, 0 10px 18px rgba(15, 23, 42, .12); }
+.pk6-opt.is-done .pk6-slot { border: 3px solid var(--red); background: #FFF1F2; animation: pk-pop-in .35s both; }
+.pk6-opt.is-sel, .pk6-let.is-sel { border-color: #FACC15 !important; box-shadow: 0 6px 0 #EAB308, 0 0 0 6px rgba(250, 204, 21, .45) !important; transform: translateY(-4px); }
+/* Thẻ hình gần vuông (bề ngang mỗi thẻ ≈ (94cqw − thẻ chữ) / n): hình không bị bó theo bề ngang, chừa trời phía trên. */
+.pk6-which .pk6-pics { align-self: flex-end; height: min(100%, calc((88cqw - min(30cqw, 70cqh)) / var(--n) * 1.15)); }
+
+@container pk6 (max-aspect-ratio: 1 / 1) {
+  .pk6-which .pk6-pics { grid-template-columns: none; grid-template-rows: repeat(var(--n), minmax(0, 1fr)); height: auto; width: 100%; align-self: stretch; }
+  /* Nút hình rộng, thấp: hình bên trái, tên hình bên phải (chỗ để sẵn, hiện khi đúng). */
+  .pk6-opt { grid-template-rows: none; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); align-items: center; gap: 3%; padding: 3% 4% !important; }
+  .pk6-opt .pk6-word { font-size: min(calc(80cqw / var(--len)), 22cqh); white-space: normal; }
+  .pk6-slot { min-width: 18cqw; height: 13cqw; font-size: 9cqw; }
+}
+
+/* ── Ghép chữ với hình: hàng chữ trên, hàng hình dưới (dọc: cột chữ trái, cột hình phải) ── */
+.pk6-pair .pk6-play { flex-direction: column; }
+.pk6-lets { flex: 0 0 28%; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 3cqmin; }
+.pk6-let { container-type: size; display: grid; place-items: center; background: linear-gradient(#FFFFFF, #FFF1F2) !important; }
+.pk6-let .pk6-letters { font-size: min(34cqw, 66cqh); }
+.pk6-let.is-used { opacity: .35; filter: grayscale(.6); pointer-events: none; }
+.pk6-opt.is-used { pointer-events: none; }
+
+@container pk6 (max-aspect-ratio: 1 / 1) {
+  .pk6-pair .pk6-play { flex-direction: row; }
+  .pk6-lets { flex: 0 0 34%; grid-template-columns: none; grid-template-rows: repeat(var(--n), minmax(0, 1fr)); }
+  .pk6-let .pk6-letters { font-size: min(40cqw, 56cqh); }
+  .pk6-pair .pk6-pics { grid-template-columns: none; grid-template-rows: repeat(var(--n), minmax(0, 1fr)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pk6-flip { transition-duration: .7s; transition-timing-function: ease-in-out; }
+  .pk6-card.is-hint .pk6-tapme { animation-duration: 2.2s; }
+}

@@ -377,6 +377,7 @@ function navigate(gameId, opts = {}) {
     'pre3-abc': () => import('./games/preschoolAbc.js'),
     'pre4-math': () => import('./games/preschoolMath4.js'),
     'pre5-photo': () => import('./games/preschoolPhoto.js'),
+    'pre6-flash': () => import('./games/preschoolFlash.js'),
     'grade1-workbook': () => import('./games/grade1Workbook.js'),
     'grade1-workbook-2': () => import('./games/grade1Workbook2.js'),
     'grade1-tests': () => import('./games/grade3Worksheet.js').then(m => ({ render: m.grade1Render })),

@@ -684,8 +684,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Bạn Thỏ (nút hướng dẫn và Thỏ ló lên khi đúng / sai) vẫn chạy đủ hoạt ảnh: đó là phản hồi cho bé. */
-  .pk *:not(.pk-bunny-pop, .bn, .bn *), .pk-burst *, .pk-rain * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+  /* Bạn Thỏ (nút hướng dẫn và Thỏ ló lên khi đúng / sai) vẫn chạy đủ hoạt ảnh: đó là phản hồi cho bé.
+     Tranh thẻ chữ cái (.fa, flash/art*.js) có bản động tác nhẹ riêng cho máy tắt hiệu ứng: không cắt. */
+  .pk *:not(.pk-bunny-pop, .bn, .bn *, .fa, .fa *, .pk6-tapme), .pk-burst *, .pk-rain * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }
 
 /* ── Tập 2: So sánh ────────────────────────────────────────────────────── */
