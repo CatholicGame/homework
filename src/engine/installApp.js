@@ -290,6 +290,14 @@ function setInert(on) {
 const SHARE_ICON = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12M7.5 7.5 12 3l4.5 4.5M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>';
 const ADD_ICON = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="none" stroke="#1E293B" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="#1E293B" stroke-width="2" stroke-linecap="round"/></svg>';
 
+// Hình điện thoại nhỏ: thanh trình duyệt ở trên / ở dưới, nút Chia sẻ được khoanh. Chỉ là hình, không bấm được.
+function shareWhere(spots) {
+  const bar = '<span class="share-bar"><span class="share-url"></span><span class="share-btn">' + SHARE_ICON + '</span></span>';
+  return `<span class="share-where" aria-hidden="true">${spots.map((spot) => `
+    <span class="share-phone is-${spot}">${spot === 'top' ? bar : ''}<span class="share-screen"></span>${spot === 'bottom' ? bar : ''}
+      <span class="share-cap">${spot === 'top' ? 'Ở trên' : 'Ở dưới'}</span></span>`).join('<span class="share-or">hoặc</span>')}</span>`;
+}
+
 function guideSteps() {
   if (IN_APP) {
     return [
@@ -299,7 +307,11 @@ function guideSteps() {
   }
   if (IS_IOS) {
     return [
-      [SHARE_ICON, `Bấm nút Chia sẻ (ô vuông có mũi tên lên) ${IS_IPAD ? 'ở góc trên bên phải' : 'ở thanh dưới của Safari'}.`],
+      // Thanh địa chỉ nằm trên hay dưới tuỳ máy, tuỳ trình duyệt (Safari, Chrome): không chỉ mũi tên ra mép màn hình
+      // (chỉ sai chỗ, bé tưởng mũi tên bấm được), mà vẽ hình tĩnh cả hai chỗ ngay trong hộp.
+      [SHARE_ICON, IS_IPAD
+        ? `Bấm nút Chia sẻ (ô vuông có mũi tên lên) ở góc trên bên phải. Không thấy thì bấm ⋯ trước.${shareWhere(['top'])}`
+        : `Tìm nút Chia sẻ (ô vuông có mũi tên lên) trên thanh trình duyệt: có máy ở trên, có máy ở dưới. Không thấy thì bấm ⋯ trước.${shareWhere(['top', 'bottom'])}`],
       [ADD_ICON, 'Kéo danh sách xuống, chọn <b>Thêm vào MH chính</b>.'],
       ['✅', 'Bấm <b>Thêm</b> ở góc trên bên phải. Biểu tượng hiện trên màn hình chính.'],
       // App trên iPhone/iPad có bộ nhớ riêng, không thấy bài đã làm trong Safari.
@@ -337,11 +349,7 @@ function showGuide() {
         ${guideSteps().map(([icon, text, cls], i) => `<li${cls ? ` class="${cls}"` : ''}><span class="install-guide-step-icon">${icon}</span><span>${cls ? '' : `<em class="install-step-no">Bước ${i + 1}</em>`}${text}</span></li>`).join('')}
       </ol>
       <button type="button" class="install-guide-ok">Đã hiểu</button>
-    </div>${IS_IOS && !IN_APP ? `
-    <div class="install-share-arrow${IS_IPAD ? ' is-top' : ''}" aria-hidden="true">
-      <span>Nút Chia sẻ</span>
-      <svg viewBox="0 0 40 48" width="40" height="48"><path d="M20 4v34M8 27l12 13 12-13" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>` : ''}`;
+    </div>`;
   const close = () => { veil.remove(); document.querySelector('.install-gate button')?.focus(); };
   veil.querySelector('.install-guide-ok').onclick = close;
   veil.addEventListener('click', (e) => { if (e.target === veil) close(); });
@@ -372,16 +380,19 @@ const STYLE = `
   .install-guide-ok:active { transform: translateY(4px); box-shadow: 0 1px 0 #BE185D; }
   .install-guide-ok:focus-visible, .install-gate-again:focus-visible { outline: 3px solid #1E293B; outline-offset: 3px; }
   .install-guide-veil.is-guide { z-index: 100001; }
-  .install-share-arrow { position: fixed; left: 50%; bottom: calc(6px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
-    display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none;
-    color: #fff; font: 800 15px/1.2 Quicksand, system-ui, sans-serif; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45)); animation: install-nudge-down 1s ease-in-out infinite; }
-  .install-share-arrow.is-top { left: auto; right: 64px; bottom: auto; top: calc(6px + env(safe-area-inset-top, 0px)); transform: none;
-    flex-direction: column-reverse; animation-name: install-nudge-up; }
-  .install-share-arrow svg { width: 52px; height: 62px; }
-  .install-share-arrow.is-top svg { transform: rotate(180deg); }
-  @keyframes install-nudge-down { 50% { translate: 0 10px; } }
-  @keyframes install-nudge-up { 50% { translate: 0 -10px; } }
+  .share-where { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px; }
+  .share-or { font-size: 12px; font-weight: 700; color: #64748B; }
+  .share-phone { position: relative; display: flex; flex-direction: column; width: 84px; height: 104px; margin-bottom: 18px;
+    border: 3px solid #334155; border-radius: 14px; background: #fff; overflow: visible; }
+  .share-screen { flex: 1; margin: 3px; border-radius: 6px; background: repeating-linear-gradient(#FCE7F3 0 6px, #fff 6px 12px); }
+  .share-bar { display: flex; align-items: center; gap: 4px; padding: 3px 4px; background: #E2E8F0; }
+  .share-phone.is-top .share-bar { border-radius: 10px 10px 0 0; }
+  .share-phone.is-bottom .share-bar { border-radius: 0 0 10px 10px; }
+  .share-url { flex: 1; height: 8px; border-radius: 4px; background: #fff; }
+  .share-btn { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 0 2.5px #DB2777; }
+  .share-btn svg { width: 15px; height: 15px; }
+  .share-cap { position: absolute; left: 0; right: 0; bottom: -19px; text-align: center; font-size: 11.5px; font-weight: 800; color: #DB2777; }
   .install-gate { background: rgba(15, 23, 42, 0.72); }
   .install-compact .install-guide { width: min(21rem, 100%); max-height: calc(100dvh - 32px); overflow-y: auto;
     gap: 8px; padding: 16px 14px 12px; border-radius: 24px; font-size: 13.5px; line-height: 1.35; }
@@ -421,7 +432,6 @@ const STYLE = `
   }
   @media (prefers-reduced-motion: reduce) {
     .install-guide, .install-guide-veil { animation-duration: 0.6s; animation-timing-function: ease-out; }
-    .install-share-arrow { animation-duration: 2.4s; }
   }`;
 
 function ensureStyle() {
