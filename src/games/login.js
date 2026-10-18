@@ -91,6 +91,7 @@ export function renderLogin(app, onSignedIn, { error = '' } = {}) {
           Đăng nhập: tiến trình học được lưu vào Google Drive của bạn để dùng trên mọi thiết bị.
           <span id="login-guest-note" hidden>Dùng thử: bài làm chỉ lưu trên máy này (đổi máy sẽ mất), đăng nhập sau sẽ được mang vào tài khoản.</span>
         </p>
+        <p class="login-legal"><a href="/privacy.html">Chính sách quyền riêng tư</a> · <a href="/terms.html">Điều khoản sử dụng</a></p>
       </div>
     </div>
   `;

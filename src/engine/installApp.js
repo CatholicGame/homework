@@ -1,7 +1,8 @@
 // Cài ứng dụng lên máy (PWA): biểu tượng trên màn hình chính / desktop, mở trong cửa sổ riêng.
 //   BẮT BUỘC: mở bằng trình duyệt thì mọi trang (trừ admin) bị che bởi màn cài app, không có nút bỏ qua.
 //   Chrome, Edge, Android: giữ sự kiện beforeinstallprompt, bấm "Cài đặt" thì hiện hộp cài của trình duyệt.
-//   iPhone, iPad: Safari không có hộp cài, hiện hướng dẫn Chia sẻ → Thêm vào MH chính.
+//   iPhone, iPad: Safari không có hộp cài, hiện hướng dẫn Chia sẻ → Thêm vào MH chính; có thêm nút "Học trên web"
+//   để vào học luôn bằng Safari (nhớ trong phiên).
 //   Trình duyệt trong Zalo, Facebook… (không cài được app, không đăng nhập Google được): ngay lúc mở thử tự chuyển
 //   sang Chrome (Android: intent://) hoặc Safari (iPhone: x-safari-https://, iOS 17+), mỗi phiên một lần; màn che có
 //   nút Mở bằng Safari / Chrome, sao chép đường link, và dặn bấm ⋯ → Mở bằng trình duyệt. Che cả màn đăng nhập.
@@ -122,6 +123,19 @@ const AFTER_INSTALL = IS_MOBILE
   ? 'Cài xong, về màn hình chính (cạnh Zalo), chạm biểu tượng này để học.'
   : 'Cài xong, ra màn hình desktop, bấm đúp biểu tượng này để học.';
 
+// iPhone, iPad: nhiều phụ huynh không biết cài bằng Safari, màn cài có nút "Học trên web" để vào học luôn.
+// Chỉ nhớ trong phiên (sessionStorage): lần sau mở lại đường link vẫn thấy màn cài, vẫn một chạm để vào.
+const WEB_OK_KEY = 'tth_web_ok';
+const CAN_SKIP_WEB = IS_IOS && !IN_APP;
+let webChosen = CAN_SKIP_WEB && (() => { try { return sessionStorage.getItem(WEB_OK_KEY) === '1'; } catch { return false; } })();
+
+function chooseWeb() {
+  webChosen = true;
+  try { sessionStorage.setItem(WEB_OK_KEY, '1'); } catch { /* chế độ riêng tư */ }
+  gateWanted = false;
+  renderGate();
+}
+
 const gateExempt = () => isStandalone() || import.meta.env.DEV || navigator.webdriver === true;
 // Thêm ?installgate vào địa chỉ: vẫn che khi chạy vite dev (để xem thử màn cài).
 const GATE_PREVIEW = new URLSearchParams(location.search).has('installgate');
@@ -133,7 +147,7 @@ const GATE_PREVIEW = new URLSearchParams(location.search).has('installgate');
  */
 export function requireInstall({ exempt = false } = {}) {
   if (IN_APP) exempt = false; // trong Zalo… đăng nhập Google cũng không được: luôn che
-  gateWanted = !exempt && (GATE_PREVIEW ? !isStandalone() : !gateExempt());
+  gateWanted = !exempt && !webChosen && (GATE_PREVIEW ? !isStandalone() : !gateExempt());
   renderGate();
 }
 
@@ -216,6 +230,8 @@ function renderGate() {
     veil.querySelector('[data-open]').focus();
     return;
   }
+  const webBtn = CAN_SKIP_WEB ? '<button type="button" class="install-gate-alt" data-web>Học trên web</button>' : '';
+  const legal = '<p class="install-gate-legal"><a href="/privacy.html">Chính sách quyền riêng tư</a> · <a href="/terms.html">Điều khoản</a></p>';
   veil.innerHTML = installed ? `
     <div class="install-guide" role="dialog" aria-modal="true" aria-labelledby="install-gate-title">
       <b id="install-gate-title">Máy này đã có app Toán Tiểu Học</b>
@@ -225,6 +241,8 @@ function renderGate() {
       </figure>
       <ol class="install-guide-steps">${listHtml(OPEN_STEPS)}</ol>
       <button type="button" class="install-gate-again">Không thấy biểu tượng? Cài lại</button>
+      ${webBtn}
+      ${legal}
     </div>` : `
     <div class="install-guide" role="dialog" aria-modal="true" aria-labelledby="install-gate-title">
       <b id="install-gate-title">Cài Toán Tiểu Học lên máy để học</b>
@@ -235,9 +253,13 @@ function renderGate() {
       <p class="install-guide-lead">Tiện hơn mở bằng trình duyệt:</p>
       <ul class="install-guide-steps">${listHtml(BENEFITS)}</ul>
       <button type="button" class="install-guide-ok">Cài đặt</button>
+      ${webBtn}
+      ${legal}
     </div>`;
   const btn = veil.querySelector('.install-guide-ok, .install-gate-again');
   btn.onclick = () => promptInstall();
+  const web = veil.querySelector('[data-web]');
+  if (web) web.onclick = chooseWeb;
   setInert(true);
   btn.focus();
 }
@@ -264,9 +286,9 @@ function guideSteps() {
   }
   if (IS_IOS) {
     return [
-      [SHARE_ICON, IS_IPAD ? 'Bấm nút Chia sẻ ở góc trên bên phải.' : 'Bấm nút Chia sẻ ở thanh dưới của Safari.'],
-      [ADD_ICON, 'Kéo xuống, chọn Thêm vào MH chính.'],
-      ['✅', 'Bấm Thêm. Biểu tượng hiện trên màn hình chính.'],
+      [SHARE_ICON, `Bấm nút Chia sẻ (ô vuông có mũi tên lên) ${IS_IPAD ? 'ở góc trên bên phải' : 'ở thanh dưới của Safari'}.`],
+      [ADD_ICON, 'Kéo danh sách xuống, chọn <b>Thêm vào MH chính</b>.'],
+      ['✅', 'Bấm <b>Thêm</b> ở góc trên bên phải. Biểu tượng hiện trên màn hình chính.'],
       // App trên iPhone/iPad có bộ nhớ riêng, không thấy bài đã làm trong Safari.
       ['🔐', 'Mở app lần đầu, bé đăng nhập Google để giữ bài đã làm.', 'is-note'],
     ];
@@ -299,7 +321,7 @@ function showGuide() {
       <img class="install-guide-icon" src="/icons/icon-192.png" alt="" width="84" height="84">
       <b id="install-guide-title">Cài Toán Tiểu Học lên máy</b>
       <ol class="install-guide-steps">
-        ${guideSteps().map(([icon, text, cls]) => `<li${cls ? ` class="${cls}"` : ''}><span class="install-guide-step-icon">${icon}</span><span>${text}</span></li>`).join('')}
+        ${guideSteps().map(([icon, text, cls], i) => `<li${cls ? ` class="${cls}"` : ''}><span class="install-guide-step-icon">${icon}</span><span>${cls ? '' : `<em class="install-step-no">Bước ${i + 1}</em>`}${text}</span></li>`).join('')}
       </ol>
       <button type="button" class="install-guide-ok">Đã hiểu</button>
     </div>${IS_IOS && !IN_APP ? `
@@ -327,6 +349,8 @@ const STYLE = `
   .install-guide-steps { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 8px; }
   .install-guide-steps li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; background: #FDF2F8; }
   .install-guide-steps li.is-note { background: #FEF3C7; border: 2px dashed #F59E0B; }
+  .install-step-no { display: block; font-style: normal; font-size: 13px; font-weight: 800; color: #DB2777; letter-spacing: 0.02em; }
+  .install-guide-steps b { font-weight: 800; color: #0F172A; }
   .install-guide-lead { margin: 0; text-align: center; font-size: 17px; color: #334155; }
   .install-guide-step-icon { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px;
     background: #fff; font-size: 20px; font-weight: 800; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12); }
@@ -363,6 +387,9 @@ const STYLE = `
   .install-gate-shot img { display: block; width: min(100%, 220px); height: auto; border-radius: 14px;
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.22); }
   .install-gate-shot figcaption { font-size: 12.5px; font-weight: 700; color: #475569; text-align: center; }
+  .install-gate-legal { margin: 0; font-size: 11.5px; font-weight: 600; color: #94A3B8; text-align: center; }
+  .install-gate-legal a { color: inherit; }
+  .install-compact .install-guide > .install-gate-legal { grid-column: 1 / -1; }
   .install-gate-again { border: 0; background: none; padding: 4px 10px; border-radius: 999px; cursor: pointer;
     font: inherit; font-size: 13.5px; font-weight: 700; color: #64748B; text-decoration: underline; }
   @media (max-height: 560px) {

@@ -628,6 +628,16 @@
   color: var(--text-light);
 }
 
+.login-legal {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.login-legal a {
+  color: inherit;
+}
+
 /* ====== USER BAR (home) ====== */
 /* Dải chứa thanh nút: dính ở mép trên khi cuộn, phủ hết bề ngang trang (kéo ra lấp phần đệm của .home). */
 .user-bar-dock {
