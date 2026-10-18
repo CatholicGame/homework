@@ -30,9 +30,10 @@ let deferred = null;
 let onInstalledCb = null;
 let gateWanted = false;
 
+const STANDALONE_QUERIES = ['(display-mode: standalone)', '(display-mode: window-controls-overlay)', '(display-mode: minimal-ui)'];
+
 export function isStandalone() {
-  return matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: window-controls-overlay)').matches
-    || navigator.standalone === true;
+  return STANDALONE_QUERIES.some((q) => matchMedia(q).matches) || navigator.standalone === true;
 }
 
 /** Máy này đã cài app qua trình duyệt (Chrome, Edge, Android). */
@@ -67,6 +68,10 @@ export function initInstallApp({ onInstalled } = {}) {
     renderGate();
     try { onInstalledCb?.(); } catch { /* thống kê không được làm hỏng app */ }
   });
+  // Chrome máy tính cài xong thì chuyển luôn tab này vào cửa sổ app (không tải lại trang): display-mode đổi sau
+  // appinstalled, phải vẽ lại để gỡ màn che, không thì màn "Máy này đã có app" nằm lại trong app.
+  for (const q of STANDALONE_QUERIES) matchMedia(q).addEventListener?.('change', renderGate);
+  addEventListener('visibilitychange', () => { if (!document.hidden) renderGate(); });
   // Mở trong Zalo, Facebook…: che ngay từ màn đăng nhập và thử tự chuyển sang trình duyệt.
   if (IN_APP && (GATE_PREVIEW || !gateExempt())) {
     gateWanted = true;
@@ -170,6 +175,7 @@ function renderGate() {
   let veil = document.querySelector('.install-gate');
   if (!gateWanted || isStandalone()) {
     if (veil) { veil.remove(); setInert(false); }
+    if (isStandalone()) document.querySelector('.install-guide-veil.is-guide')?.remove();
     return;
   }
   ensureStyle();
