@@ -12,7 +12,7 @@ import { getBoardGradeStars } from '../engine/leaderboard.js';
 import { getCloudStatus, syncNow } from '../engine/cloudSync.js';
 import { getLang, setLang, hasEnglish, LANGS } from '../engine/i18n.js';
 import { shouldPromptReview, snoozeReviewPrompt, setPendingRating } from '../engine/reviews.js';
-import { canOfferInstall, promptInstall } from '../engine/installApp.js';
+import { canOfferInstall, promptInstall, shouldNudgeInstall, snoozeInstallNudge } from '../engine/installApp.js';
 
 // Sách học tiếng Việt: luôn 100% tiếng Việt, kể cả khi chọn English (engine/i18n.js).
 const VI_BOOKS = new Set(['pre3-abc', 'tv3-weekly', 'tv3-spell', 'writing']);
@@ -149,7 +149,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
             <div><button type="button" class="home-grade-change" id="home-grade-change">🔄 Đổi lớp</button></div>
           </div>
           ${greetingPanel()}
-          ${reviewPrompt()}
+          ${installPrompt() || reviewPrompt()}
         </div>
 
         <div class="category animate-fadeIn" style="animation-delay: 0.1s">
@@ -169,6 +169,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
     bindUserBar();
     bindDailyPanel();
     bindReviewPrompt();
+    bindInstallPrompt();
     app.querySelector('#home-grade-change').addEventListener('click', () => navigate('profile'));
     app.querySelectorAll('.game-card').forEach(card => {
       card.addEventListener('click', () => navigate(card.dataset.game));
@@ -193,6 +194,25 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
         ${stickerPanel()}
       </section>
     `;
+  }
+
+  // ── Dải nhắc cài app (iPhone, iPad đã chọn "Học trên web" ở màn cài) ─────
+  function installPrompt() {
+    if (!shouldNudgeInstall()) return '';
+    return `
+      <section class="rv-prompt install-prompt" id="install-prompt" aria-label="Cài ứng dụng lên máy">
+        <img class="install-prompt-icon" src="/icons/icon-192.png" alt="" width="44" height="44">
+        <p class="rv-prompt-text"><strong>Cài app lên màn hình chính</strong> để bé mở bằng một chạm, toàn màn hình.</p>
+        <button type="button" class="install-prompt-btn" id="install-prompt-btn">📲 Cài app</button>
+        <button type="button" class="rv-prompt-later" id="install-prompt-later">Để sau</button>
+      </section>`;
+  }
+
+  function bindInstallPrompt() {
+    const box = app.querySelector('#install-prompt');
+    if (!box) return;
+    box.querySelector('#install-prompt-btn').addEventListener('click', () => promptInstall());
+    box.querySelector('#install-prompt-later').addEventListener('click', () => { snoozeInstallNudge(); box.remove(); });
   }
 
   // ── Dải mời phụ huynh đánh giá (mục trong menu tài khoản ít ai thấy) ─────

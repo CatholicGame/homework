@@ -2,7 +2,7 @@
 //   BẮT BUỘC: mở bằng trình duyệt thì mọi trang (trừ admin) bị che bởi màn cài app, không có nút bỏ qua.
 //   Chrome, Edge, Android: giữ sự kiện beforeinstallprompt, bấm "Cài đặt" thì hiện hộp cài của trình duyệt.
 //   iPhone, iPad: Safari không có hộp cài, hiện hướng dẫn Chia sẻ → Thêm vào MH chính; có thêm nút "Học trên web"
-//   để vào học luôn bằng Safari (nhớ trong phiên).
+//   để vào học luôn bằng Safari (nhớ trên máy, trang chủ nhắc cài lại).
 //   Trình duyệt trong Zalo, Facebook… (không cài được app, không đăng nhập Google được): ngay lúc mở thử tự chuyển
 //   sang Chrome (Android: intent://) hoặc Safari (iPhone: x-safari-https://, iOS 17+), mỗi phiên một lần; màn che có
 //   nút Mở bằng Safari / Chrome, sao chép đường link, và dặn bấm ⋯ → Mở bằng trình duyệt. Che cả màn đăng nhập.
@@ -124,16 +124,29 @@ const AFTER_INSTALL = IS_MOBILE
   : 'Cài xong, ra màn hình desktop, bấm đúp biểu tượng này để học.';
 
 // iPhone, iPad: nhiều phụ huynh không biết cài bằng Safari, màn cài có nút "Học trên web" để vào học luôn.
-// Chỉ nhớ trong phiên (sessionStorage): lần sau mở lại đường link vẫn thấy màn cài, vẫn một chạm để vào.
+// Nhớ luôn trên máy (localStorage); muốn cài sau thì trang chủ có dải nhắc cài (shouldNudgeInstall, "Để sau" 7 ngày)
+// và menu tài khoản có mục 📲 Cài ứng dụng lên máy, cả hai mở hướng dẫn Chia sẻ → Thêm vào MH chính.
 const WEB_OK_KEY = 'tth_web_ok';
+const NUDGE_KEY = 'tth_install_nudge_until';
+const NUDGE_SNOOZE_MS = 7 * 24 * 3600 * 1000;
 const CAN_SKIP_WEB = IS_IOS && !IN_APP;
-let webChosen = CAN_SKIP_WEB && (() => { try { return sessionStorage.getItem(WEB_OK_KEY) === '1'; } catch { return false; } })();
+let webChosen = CAN_SKIP_WEB && (() => { try { return localStorage.getItem(WEB_OK_KEY) === '1'; } catch { return false; } })();
 
 function chooseWeb() {
   webChosen = true;
-  try { sessionStorage.setItem(WEB_OK_KEY, '1'); } catch { /* chế độ riêng tư */ }
+  try { localStorage.setItem(WEB_OK_KEY, '1'); } catch { /* chế độ riêng tư */ }
   gateWanted = false;
   renderGate();
+}
+
+/** Trang chủ: bé đang học bằng Safari vì đã chọn "Học trên web", nhắc cài app (trừ khi vừa bấm Để sau). */
+export function shouldNudgeInstall() {
+  if (!webChosen || isStandalone()) return false;
+  try { return Date.now() >= Number(localStorage.getItem(NUDGE_KEY) || 0); } catch { return true; }
+}
+
+export function snoozeInstallNudge() {
+  try { localStorage.setItem(NUDGE_KEY, String(Date.now() + NUDGE_SNOOZE_MS)); } catch { /* chế độ riêng tư */ }
 }
 
 const gateExempt = () => isStandalone() || import.meta.env.DEV || navigator.webdriver === true;
