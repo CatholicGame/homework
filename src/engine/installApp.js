@@ -32,8 +32,18 @@ let gateWanted = false;
 
 const STANDALONE_QUERIES = ['(display-mode: standalone)', '(display-mode: window-controls-overlay)', '(display-mode: minimal-ui)'];
 
+// Đã một lần thấy là app thì nhớ suốt cửa sổ này: bấm ⛶ toàn màn hình (nút của app, trò chơi) thì display-mode
+// thành fullscreen, không còn standalone, nếu không nhớ thì sang trang khác lại bị che bởi màn "đã có app".
+// Lưu cả sessionStorage (riêng cửa sổ app) để tải lại trang lúc đang toàn màn hình vẫn nhớ.
+const STANDALONE_KEY = 'tth_standalone';
+let standaloneSeen = (() => { try { return sessionStorage.getItem(STANDALONE_KEY) === '1'; } catch { return false; } })();
+
 export function isStandalone() {
-  return STANDALONE_QUERIES.some((q) => matchMedia(q).matches) || navigator.standalone === true;
+  if (!standaloneSeen && (STANDALONE_QUERIES.some((q) => matchMedia(q).matches) || navigator.standalone === true)) {
+    standaloneSeen = true;
+    try { sessionStorage.setItem(STANDALONE_KEY, '1'); } catch { /* chế độ riêng tư */ }
+  }
+  return standaloneSeen;
 }
 
 /** Máy này đã cài app qua trình duyệt (Chrome, Edge, Android). */
