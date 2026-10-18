@@ -15,7 +15,8 @@ function isInAppBrowser() {
   const ua = navigator.userAgent || '';
   if (/Zalo|FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|Line\/|musical_ly|BytedanceWebview|TikTok|MicroMessenger|KAKAOTALK|Snapchat|Twitter|; wv\)/i.test(ua)) return true;
   // iOS: Safari và các trình duyệt thật (Chrome, Firefox, Edge) đều có "Safari" trong UA; webview thì không.
-  return /iPhone|iPad|iPod/.test(ua) && !/Safari\//.test(ua);
+  // Ứng dụng Google (GSA) giả UA Safari nhưng không cài được app: cũng bắt mở bằng Safari.
+  return /iPhone|iPad|iPod/.test(ua) && (!/Safari\//.test(ua) || /GSA\//.test(ua));
 }
 
 const IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent)

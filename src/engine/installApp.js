@@ -3,7 +3,7 @@
 //   Chrome, Edge, Android: giữ sự kiện beforeinstallprompt, bấm "Cài đặt" thì hiện hộp cài của trình duyệt.
 //   iPhone, iPad: Safari không có hộp cài, hiện hướng dẫn Chia sẻ → Thêm vào MH chính; có thêm nút "Học trên web"
 //   để vào học luôn bằng Safari (nhớ trên máy, trang chủ nhắc cài lại).
-//   Trình duyệt trong Zalo, Facebook… (không cài được app, không đăng nhập Google được): ngay lúc mở thử tự chuyển
+//   Trình duyệt trong Zalo, Facebook, ứng dụng Google (iPhone)… (không cài được app, không đăng nhập Google được): ngay lúc mở thử tự chuyển
 //   sang Chrome (Android: intent://) hoặc Safari (iPhone: x-safari-https://, iOS 17+), mỗi phiên một lần; màn che có
 //   nút Mở bằng Safari / Chrome, sao chép đường link, và dặn bấm ⋯ → Mở bằng trình duyệt. Che cả màn đăng nhập.
 //   Firefox máy tính: dặn mở bằng Chrome/Edge.
@@ -21,8 +21,12 @@ const IS_IPAD = /iPad/.test(UA) || (navigator.platform === 'MacIntel' && navigat
 const IS_IOS = IS_IPAD || /iPhone|iPod/.test(UA);
 const IS_ANDROID = /Android/i.test(UA);
 const IS_MOBILE = IS_IOS || IS_ANDROID || /Mobi/i.test(UA);
+const IS_GOOGLE_APP = IS_IOS && /GSA\//.test(UA);
 const IN_APP = /Zalo|FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|Line\/|musical_ly|BytedanceWebview|TikTok|MicroMessenger|KAKAOTALK|Snapchat|Twitter|; wv\)/i.test(UA)
-  || (/iPhone|iPad|iPod/.test(UA) && !/Safari\//.test(UA));
+  || (/iPhone|iPad|iPod/.test(UA) && !/Safari\//.test(UA))
+  // Ứng dụng Google trên iPhone (mở link share.google, kết quả tìm kiếm): UA có "Safari/" như Safari thật nhưng
+  // nút Chia sẻ không có Thêm vào MH chính, chỉ có Mở bằng Safari.
+  || IS_GOOGLE_APP;
 // Máy tính không cài được app web: Firefox; Safari trên Mac dùng Tệp → Thêm vào Dock.
 const DESKTOP_FIREFOX = !IS_MOBILE && /Firefox\//.test(UA);
 const MAC_SAFARI = !IS_MOBILE && /Macintosh/.test(UA) && /Safari\//.test(UA) && !/Chrome|Chromium|Edg\//.test(UA);
@@ -231,10 +235,10 @@ function renderGate() {
     <div class="install-guide" role="dialog" aria-modal="true" aria-labelledby="install-gate-title">
       <img class="install-guide-icon" src="/icons/icon-192.png" alt="" width="64" height="64">
       <b id="install-gate-title">Mở bằng trình duyệt để học</b>
-      <p class="install-guide-lead">Trong Zalo, Facebook không cài được app. Bấm nút dưới để mở bằng trình duyệt.</p>
+      <p class="install-guide-lead">Trong ${IS_GOOGLE_APP ? 'ứng dụng Google' : 'Zalo, Facebook'} không cài được app. Bấm nút dưới để mở bằng trình duyệt.</p>
       ${IS_IOS ? '<button type="button" class="install-guide-ok" data-open="safari">Mở bằng Safari</button>' : ''}
       <button type="button" class="${IS_IOS ? 'install-gate-alt' : 'install-guide-ok'}" data-open="chrome">Mở bằng Chrome</button>
-      <ol class="install-guide-steps"><li><span class="install-guide-step-icon">⋯</span><span>Không mở được? Bấm nút ⋯ ở góc trên, chọn Mở bằng trình duyệt.</span></li></ol>
+      <ol class="install-guide-steps"><li><span class="install-guide-step-icon">⋯</span><span>${IS_IOS ? 'Không mở được? Bấm nút Chia sẻ hoặc nút ⋯, chọn Mở bằng Safari.' : 'Không mở được? Bấm nút ⋯ ở góc trên, chọn Mở bằng trình duyệt.'}</span></li></ol>
       <button type="button" class="install-gate-again" data-copy>Sao chép đường link</button>
     </div>`;
     veil.querySelectorAll('[data-open]').forEach((b) => { b.onclick = () => openExternal(b.dataset.open); });

@@ -37,6 +37,7 @@ export function describeDevice(ua = navigator.userAgent) {
   let browser = 'Khác';
   if (/Zalo/i.test(ua)) browser = 'Zalo (trong app)';
   else if (/FBAN|FBAV|FB_IAB/.test(ua)) browser = 'Facebook (trong app)';
+  else if (/GSA\//.test(ua)) browser = `Ứng dụng Google (trong app) ${v(/GSA\/([\d.]+)/)}`;
   else if (/coc_coc|CocCoc/i.test(ua)) browser = `Cốc Cốc ${v(/coc_coc_browser\/([\d.]+)/i)}`;
   else if (/SamsungBrowser/.test(ua)) browser = `Samsung Internet ${v(/SamsungBrowser\/([\d.]+)/)}`;
   else if (/EdgA?\/|EdgiOS/.test(ua)) browser = `Edge ${v(/Edg(?:A|iOS)?\/([\d.]+)/)}`;
