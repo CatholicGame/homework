@@ -16,7 +16,8 @@ import installResultUrl from '../assets/install-result.webp';
 const INSTALLED_KEY = 'tth_app_installed';
 
 const UA = navigator.userAgent || '';
-const IS_IOS = /iPhone|iPad|iPod/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const IS_IPAD = /iPad/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const IS_IOS = IS_IPAD || /iPhone|iPod/.test(UA);
 const IS_ANDROID = /Android/i.test(UA);
 const IS_MOBILE = IS_IOS || IS_ANDROID || /Mobi/i.test(UA);
 const IN_APP = /Zalo|FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|Line\/|musical_ly|BytedanceWebview|TikTok|MicroMessenger|KAKAOTALK|Snapchat|Twitter|; wv\)/i.test(UA)
@@ -178,7 +179,7 @@ function renderGate() {
   if (veil?.dataset.mode === mode) return;
   if (!veil) {
     veil = document.createElement('div');
-    veil.className = 'install-guide-veil install-gate';
+    veil.className = 'install-guide-veil install-compact install-gate';
     document.body.appendChild(veil);
   }
   veil.dataset.mode = mode;
@@ -247,7 +248,7 @@ function guideSteps() {
   }
   if (IS_IOS) {
     return [
-      [SHARE_ICON, 'Bấm nút Chia sẻ trên thanh của Safari.'],
+      [SHARE_ICON, IS_IPAD ? 'Bấm nút Chia sẻ ở góc trên bên phải.' : 'Bấm nút Chia sẻ ở thanh dưới của Safari.'],
       [ADD_ICON, 'Kéo xuống, chọn Thêm vào MH chính.'],
       ['✅', 'Bấm Thêm. Biểu tượng hiện trên màn hình chính.'],
       // App trên iPhone/iPad có bộ nhớ riêng, không thấy bài đã làm trong Safari.
@@ -276,7 +277,7 @@ function showGuide() {
   if (document.querySelector('.install-guide-veil.is-guide')) return;
   ensureStyle();
   const veil = document.createElement('div');
-  veil.className = 'install-guide-veil is-guide';
+  veil.className = 'install-guide-veil install-compact is-guide';
   veil.innerHTML = `
     <div class="install-guide" role="dialog" aria-modal="true" aria-labelledby="install-guide-title">
       <img class="install-guide-icon" src="/icons/icon-192.png" alt="" width="84" height="84">
@@ -285,7 +286,11 @@ function showGuide() {
         ${guideSteps().map(([icon, text, cls]) => `<li${cls ? ` class="${cls}"` : ''}><span class="install-guide-step-icon">${icon}</span><span>${text}</span></li>`).join('')}
       </ol>
       <button type="button" class="install-guide-ok">Đã hiểu</button>
-    </div>`;
+    </div>${IS_IOS && !IN_APP ? `
+    <div class="install-share-arrow${IS_IPAD ? ' is-top' : ''}" aria-hidden="true">
+      <span>Nút Chia sẻ</span>
+      <svg viewBox="0 0 40 48" width="40" height="48"><path d="M20 4v34M8 27l12 13 12-13" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>` : ''}`;
   const close = () => { veil.remove(); document.querySelector('.install-gate button')?.focus(); };
   veil.querySelector('.install-guide-ok').onclick = close;
   veil.addEventListener('click', (e) => { if (e.target === veil) close(); });
@@ -314,17 +319,27 @@ const STYLE = `
   .install-guide-ok:active { transform: translateY(4px); box-shadow: 0 1px 0 #BE185D; }
   .install-guide-ok:focus-visible, .install-gate-again:focus-visible { outline: 3px solid #1E293B; outline-offset: 3px; }
   .install-guide-veil.is-guide { z-index: 100001; }
+  .install-share-arrow { position: fixed; left: 50%; bottom: calc(6px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none;
+    color: #fff; font: 800 15px/1.2 Quicksand, system-ui, sans-serif; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45)); animation: install-nudge-down 1s ease-in-out infinite; }
+  .install-share-arrow.is-top { left: auto; right: 64px; bottom: auto; top: calc(6px + env(safe-area-inset-top, 0px)); transform: none;
+    flex-direction: column-reverse; animation-name: install-nudge-up; }
+  .install-share-arrow svg { width: 52px; height: 62px; }
+  .install-share-arrow.is-top svg { transform: rotate(180deg); }
+  @keyframes install-nudge-down { 50% { translate: 0 10px; } }
+  @keyframes install-nudge-up { 50% { translate: 0 -10px; } }
   .install-gate { background: rgba(15, 23, 42, 0.72); }
-  .install-gate .install-guide { width: min(21rem, 100%); max-height: calc(100dvh - 32px); overflow-y: auto;
+  .install-compact .install-guide { width: min(21rem, 100%); max-height: calc(100dvh - 32px); overflow-y: auto;
     gap: 8px; padding: 16px 14px 12px; border-radius: 24px; font-size: 13.5px; line-height: 1.35; }
-  .install-gate .install-guide > b { font-size: 18px; }
-  .install-gate .install-guide-icon { width: 56px; height: 56px; }
-  .install-gate .install-guide-lead { font-size: 13.5px; color: #64748B; }
+  .install-compact .install-guide > b { font-size: 18px; }
+  .install-compact .install-guide-icon { width: 56px; height: 56px; }
+  .install-compact .install-guide-lead { font-size: 13.5px; color: #64748B; }
   .install-gate[data-mode="install"] .install-guide-lead { display: none; }
-  .install-gate .install-guide-steps { gap: 6px; }
-  .install-gate .install-guide-steps li { text-align: left; gap: 10px; padding: 6px 10px; border-radius: 12px; }
-  .install-gate .install-guide-step-icon { width: 30px; height: 30px; border-radius: 9px; font-size: 16px; }
-  .install-gate .install-guide-ok { padding: 11px 18px; font-size: 16px; box-shadow: 0 4px 0 #BE185D; }
+  .install-compact .install-guide-steps { gap: 6px; }
+  .install-compact .install-guide-steps li { text-align: left; gap: 10px; padding: 6px 10px; border-radius: 12px; }
+  .install-compact .install-guide-step-icon { width: 30px; height: 30px; border-radius: 9px; font-size: 16px; }
+  .install-compact .install-guide-ok { padding: 11px 18px; font-size: 16px; box-shadow: 0 4px 0 #BE185D; }
   .install-gate-alt { width: 100%; padding: 10px 18px; border: 2px solid #E2E8F0; border-radius: 999px; cursor: pointer;
     font: inherit; font-size: 15px; font-weight: 800; color: #334155; background: #fff; }
   .install-gate-alt:focus-visible { outline: 3px solid #1E293B; outline-offset: 3px; }
@@ -335,21 +350,22 @@ const STYLE = `
   .install-gate-again { border: 0; background: none; padding: 4px 10px; border-radius: 999px; cursor: pointer;
     font: inherit; font-size: 13.5px; font-weight: 700; color: #64748B; text-decoration: underline; }
   @media (max-height: 560px) {
-    .install-gate .install-guide { gap: 6px; padding: 12px 14px 10px; }
-    .install-gate .install-guide-steps li { padding: 4px 10px; }
-    .install-gate .install-guide-icon { display: none; }
+    .install-compact .install-guide { gap: 6px; padding: 12px 14px 10px; }
+    .install-compact .install-guide-steps li { padding: 4px 10px; }
+    .install-compact .install-guide-icon { display: none; }
     .install-gate-shot img { width: auto; max-height: 28dvh; }
-    .install-gate .install-guide-lead { display: none; }
+    .install-compact .install-guide-lead { display: none; }
   }
   @media (max-height: 560px) and (min-width: 600px) {
     .install-gate:not([data-mode="inapp"]) .install-guide { width: min(36rem, 100%); display: grid; grid-template-columns: 0.85fr 1fr; align-items: center;
       column-gap: 16px; }
-    .install-gate .install-guide > b, .install-gate .install-guide > button { grid-column: 1 / -1; }
-    .install-gate .install-guide > button.install-gate-again { justify-self: center; }
+    .install-compact .install-guide > b, .install-compact .install-guide > button { grid-column: 1 / -1; }
+    .install-compact .install-guide > button.install-gate-again { justify-self: center; }
     .install-gate-shot img { width: 100%; max-height: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .install-guide, .install-guide-veil { animation-duration: 0.6s; animation-timing-function: ease-out; }
+    .install-share-arrow { animation-duration: 2.4s; }
   }`;
 
 function ensureStyle() {
