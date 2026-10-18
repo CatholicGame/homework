@@ -264,7 +264,7 @@ export function renderGamesHub(app, ctx, start = null, {
             <button type="button" class="g3g-tile g3g-level" data-level="${lv.id}">
               <span class="g3g-level-num">${lv.n}</span>
               <span class="g3g-tile-info"><strong>${lv.title}</strong><span>${lv.desc}</span>
-                <span class="g3g-tags"><i>📚 ${lessonText(lv, ctx, { short: true }) || lv.knowledge}</i>${done ? '<i class="g3g-tag-done">✓ Đã học</i>' : ''}${best ? `<i class="g3g-tag-best">🏆 ${best.ok}/${best.total}</i>` : ''}</span></span>
+                <span class="g3g-tags"><i>📚 ${lessonText(lv, ctx, { short: true }) || lv.knowledge}</i>${done ? '<i class="g3g-tag-done">✓ Đã học</i>' : ''}${best ? `<i class="g3g-tag-best">🏆 ${best.ok}/${best.total}</i>` : ''}${game.tests?.(lv)?.length ? `<i>📝 ${game.tests(lv).length} đề</i>` : ''}</span></span>
               <span class="g3g-go">▶</span>
             </button>`;
         }).join('')}
@@ -303,6 +303,7 @@ export function renderGamesHub(app, ctx, start = null, {
             ${best ? `<span class="g3g-goal-best">🏆 ${best.ok}/${best.total}</span>` : ''}
           </div>
           <button type="button" class="g3g-btn g3g-btn-primary g3g-btn-big" data-act="play">▶ Chơi ngay!</button>
+          ${testsRow(game, lv)}
           <div class="g3g-need-row">
             <span class="g3g-need-label">🎒 Cần biết:</span>
             ${knowledgeChips(lv.knowledge).map(k => `<i>${k}</i>`).join('')}
@@ -314,6 +315,20 @@ export function renderGamesHub(app, ctx, start = null, {
     app.querySelector('[data-act="back"]').onclick = fromLesson ? ctx.onBack : () => showLevels(g, game);
     app.querySelector('[data-act="lesson"]')?.addEventListener('click', () => ctx.openUnit(lastUnit.id));
     app.querySelector('[data-act="play"]').onclick = () => play(g, game, baseLv, lv);
+    app.querySelectorAll('[data-test]').forEach(b => {
+      b.onclick = () => game.openTest(app, lv, +b.dataset.test, () => showIntro(g, game, baseLv));
+    });
+  }
+
+  // 📝 Đề luyện cố định của cấp (game.tests(level) → [{ best, draft }], vd. Luật chính tả: 3 đề × 30 từ).
+  function testsRow(game, lv) {
+    const tests = game.tests?.(lv);
+    if (!tests?.length) return '';
+    return `
+      <div class="g3g-tests">
+        <span class="g3g-tests-label">📝 Làm đề:</span>
+        ${tests.map((t, i) => `<button type="button" class="g3g-test-btn${t.best != null ? ' is-done' : ''}" data-test="${i}">Đề ${i + 1}<small>${t.best != null ? `${String(t.best).replace('.', ',')} điểm` : t.draft ? 'Làm tiếp' : '30 từ'}</small></button>`).join('')}
+      </div>`;
   }
 
   function play(g, game, baseLv, lv) {

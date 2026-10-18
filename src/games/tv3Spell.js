@@ -5,11 +5,13 @@
  * Luật chắc chắn: chữ quyết định (i, e, ê sau chỗ trống) được gạch chân cam và thầy nói vì sao.
  * Sai: nút rung, thầy nhắc luật. Khung lớp học, thầy giáo, vòng chơi: grade3Drills/kit.js, grade3Games/loop.js.
  * Mở từ phần chữa bài Bài tập cuối tuần: ctx.open = { rule } → vào thẳng cấp của luật đó.
+ * Mỗi cấp còn có 3 đề luyện 30 từ (📝, tv3SpellTest.js), mở từ màn giới thiệu cấp.
  */
 
 import { renderGamesHub } from './grade3Games.js';
 import { mountDrill, shake, setActive, calmMotion, fresh, sfx, sleep, how, TEACHER, INK, EDGE } from './grade3Drills/kit.js';
-import { RULES, blankOptions, explainBlank } from './tiengViet3/rules.js';
+import { RULES, explainBlank, parseBlanks as parse } from './tiengViet3/rules.js';
+import { renderSpellTest, testStatus } from './tv3SpellTest.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const plain = (html) => html.replace(/<[^>]*>/g, '');
@@ -17,7 +19,7 @@ const plain = (html) => html.replace(/<[^>]*>/g, '');
 const LV = (rule, n, desc, extra = {}) => {
   const r = RULES[rule];
   return {
-    id: `spell-${rule}`, n, title: r.title, rules: [rule], missions: 8, desc, knowledge: plain(r.tips[0]),
+    id: `spell-${rule}`, n, title: r.title, rules: [rule], testKey: rule, missions: 8, desc, knowledge: plain(r.tips[0]),
     ask: () => plain(r.tips.join(' ')),
     ...extra,
   };
@@ -28,7 +30,7 @@ export const SPELL_LEVELS = [
   LV('ggh', 2, 'Vd. ghế gỗ, gồ ghề, ghi nhớ.'),
   LV('ngngh', 3, 'Vd. nghỉ ngơi, nghe ngóng.'),
   {
-    id: 'spell-front-mix', n: 4, title: 'Trộn c/k, g/gh, ng/ngh', rules: ['ck', 'ggh', 'ngngh'], missions: 9,
+    id: 'spell-front-mix', n: 4, title: 'Trộn c/k, g/gh, ng/ngh', rules: ['ck', 'ggh', 'ngngh'], testKey: 'front', missions: 9,
     desc: 'Ba luật cùng một ý: trước i, e, ê thì viết k, gh, ngh.', knowledge: 'k, gh, ngh đứng trước i, e, ê',
     ask: () => 'Trước i, e, ê thì viết k, gh, ngh. Còn lại viết c, g, ng!',
   },
@@ -42,27 +44,6 @@ export const SPELL_LEVELS = [
   LV('anang', 12, 'Vd. hòn than, bắc thang.'),
   LV('songxong', 13, 'Vd. song ca, xong việc.'),
 ];
-
-/** '[k]im [c]ương' → đoạn chữ và chỗ trống { ans, opts, after }. */
-function parse(item, rule) {
-  const segs = [];
-  let at = 0;
-  const re = /\[([^\]]+)\]/g;
-  let m;
-  while ((m = re.exec(item))) {
-    if (m.index > at) segs.push({ t: item.slice(at, m.index) });
-    segs.push({ ans: m[1] });
-    at = m.index + m[0].length;
-  }
-  if (at < item.length) segs.push({ t: item.slice(at) });
-  const word = segs.map(s => s.t ?? s.ans).join('');
-  segs.forEach((s, k) => {
-    if (s.ans === undefined) return;
-    s.opts = blankOptions(rule, s.ans);
-    s.after = segs.slice(k + 1).map(x => x.t ?? x.ans).join('').split(/\s/)[0];
-  });
-  return { segs, word };
-}
 
 export const SPELL_GAME = {
   id: 'spell3', icon: '🔤', title: 'Luật chính tả',
@@ -83,6 +64,10 @@ export const SPELL_GAME = {
     injectSpellStyles();
     mountSpell(stage, m, api);
   },
+
+  // 📝 Đề luyện 30 từ của cấp (tv3SpellTest.js): hub hiện hàng nút Đề 1, 2, 3 ở màn giới thiệu cấp.
+  tests: (level) => (level.testKey ? testStatus(level.testKey) : null),
+  openTest: (app, level, i, back) => renderSpellTest(app, { key: level.testKey, idx: i, title: level.title, onBack: back }),
 };
 
 function mountSpell(stage, m, api) {

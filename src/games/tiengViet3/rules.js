@@ -36,7 +36,7 @@ export const RULES = {
   ck: {
     ...frontRule('ck', 'c', 'k', 'c hay k?'),
     bank: ['[k]im [c]ương', '[k]ính [c]ận', '[c]ánh [c]ửa', '[k]ì nhông', '[k]iềm chế', '[k]ì [c]ọ', '[c]ảm [c]úm', '[k]èm [c]ặp',
-      '[c]on [k]iến', '[c]ái [k]éo', '[k]ể chuyện', '[c]ây [c]au', '[k]ênh rạch', '[c]ô giáo', '[c]ủ [k]hoai', '[k]iên nhẫn',
+      '[c]on [k]iến', '[c]ái [k]éo', '[k]ể chuyện', '[c]ây [c]au', '[k]ênh rạch', '[c]ô giáo', '[c]ủ khoai', '[k]iên nhẫn',
       '[c]ơm nắm', '[c]ặp sách', '[k]ẹo dừa', '[c]ầu thang', '[k]ính lúp', '[c]ua đồng', '[k]ì lân', '[c]ánh diều',
       '[c]on [c]á', '[c]ái [k]ẻng', '[k]ỉ niệm', '[c]ổng trường', '[k]ia kìa', '[c]ằm', '[k]ê bàn', '[c]ò trắng'],
   },
@@ -44,7 +44,7 @@ export const RULES = {
     ...frontRule('ggh', 'g', 'gh', 'g hay gh?'),
     bank: ['[g]à [g]áy', '[gh]i nhớ', '[gh]ế [g]ỗ', '[g]ọn [g]àng', '[gh]é thăm', '[g]ồ [gh]ề', '[g]ạo nếp', '[gh]en tị',
       '[g]ói quà', '[gh]i chép', '[g]ương mẫu', '[gh]ềnh thác', '[g]ừng', '[g]ấu bông', '[gh]ẹ biển', '[g]ác chuông',
-      '[gh]ép hình', '[g]ió mát', '[g]ặp [g]ỡ', '[gh]i-ta'],
+      '[gh]ép hình', '[g]ạch ngói', '[g]ặp [g]ỡ', '[gh]i-ta'],
   },
   ngngh: {
     ...frontRule('ngngh', 'ng', 'ngh', 'ng hay ngh?'),
@@ -204,6 +204,27 @@ export function blankOptions(ruleId, ans, explicit) {
   if (r.opts) return r.opts.includes(ans) ? r.opts : [...r.opts, ans];
   const v = r.variants?.(ans) || [ans];
   return [...new Set(v.includes(ans) ? v : [ans, ...v])].sort((x, y) => x.localeCompare(y, 'vi'));
+}
+
+/** '[k]im [c]ương' → { segs: đoạn chữ { t } và chỗ trống { ans, opts, after }, word } (trò 🔤 và 📝 đề luyện). */
+export function parseBlanks(item, rule) {
+  const segs = [];
+  let at = 0;
+  const re = /\[([^\]]+)\]/g;
+  let m;
+  while ((m = re.exec(item))) {
+    if (m.index > at) segs.push({ t: item.slice(at, m.index) });
+    segs.push({ ans: m[1] });
+    at = m.index + m[0].length;
+  }
+  if (at < item.length) segs.push({ t: item.slice(at) });
+  const word = segs.map(s => s.t ?? s.ans).join('');
+  segs.forEach((s, k) => {
+    if (s.ans === undefined) return;
+    s.opts = blankOptions(rule, s.ans);
+    s.after = segs.slice(k + 1).map(x => x.t ?? x.ans).join('').split(/\s/)[0];
+  });
+  return { segs, word };
 }
 
 /** Lời giải thích một chỗ trống: theo luật chắc chắn, theo mẹo, hoặc "từ cần nhớ". */
