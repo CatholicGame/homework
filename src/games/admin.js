@@ -46,7 +46,7 @@ const KINDS = [
   { id: 'real', label: 'Học sinh đăng nhập', test: (r) => !r.fake && !r.guest },
   { id: 'guest', label: 'Khách dùng thử', test: (r) => r.guest },
   { id: 'fake', label: 'Bạn ảo', test: (r) => r.fake },
-  { id: 'app', label: '📲 Đã cài app', test: (r) => !r.fake && !!(r.appInstalledAt || r.appOpenedAt) },
+  { id: 'app', label: '📲 Đã cài app', test: (r) => !r.fake && r.appCount > 0 },
 ];
 
 export function render(app, onBack) {
@@ -171,10 +171,11 @@ export function render(app, onBack) {
     const since = (days) => today - (days - 1) * DAY;
     const count = (fn) => rows.filter(fn).length;
     // App cài lên máy: đã cài qua trình duyệt hoặc đã mở bằng biểu tượng (iPhone chỉ biết qua lần mở).
-    const hasApp = (r) => r.appInstalledAt || r.appOpenedAt;
+    const hasApp = (r) => r.appCount > 0;
     const appUsers = rows.filter(hasApp).length;
     const appGuests = guests.filter(hasApp).length;
     const appWeek = [...rows, ...guests].filter(r => r.appOpenedAt >= since(7)).length;
+    const appDevices = [...rows, ...guests].reduce((n, r) => n + (r.appCount || 0), 0);
     const tiles = [
       { label: 'Tổng số học sinh', value: rows.length, note: `${count(r => r.registered)} có email${fakes ? ` · +${fakes} bạn ảo` : ''}` },
       { label: 'Đăng ký hôm nay', value: count(r => r.createdAt >= today) },
@@ -183,7 +184,7 @@ export function render(app, onBack) {
       { label: 'Hoạt động hôm nay', value: count(r => r.lastSeenAt >= today) },
       { label: 'Hoạt động 7 ngày', value: count(r => r.lastSeenAt >= since(7)) },
       { label: '📲 Đã cài app', value: appUsers + appGuests,
-        note: `${appUsers} học sinh · ${appGuests} khách · ${appWeek} mở app 7 ngày` },
+        note: `${appUsers} học sinh · ${appGuests} khách · ${appDevices} máy · ${appWeek} mở app 7 ngày` },
       { label: 'Khách dùng thử', value: guests.length, guest: true,
         note: `${guests.filter(r => r.convertedAt).length} đã đăng nhập sau đó` },
       { label: 'Khách mới 7 ngày', value: guests.filter(r => r.createdAt >= since(7)).length, guest: true },
@@ -719,8 +720,8 @@ export function render(app, onBack) {
     const sub = r.nickname && r.name && r.nickname !== r.name ? `<small>${escapeHtml(r.name)}</small>` : '';
     const tag = r.fake ? ' <span class="adm-fake-tag">Ảo</span>'
       : r.guest ? ' <span class="adm-fake-tag adm-guest-tag">Khách</span>' : '';
-    const app = r.appInstalledAt || r.appOpenedAt
-      ? ` <span class="adm-app-tag" title="${escapeHtml(appTitle(r))}">📲</span>` : '';
+    const app = r.appCount
+      ? ` <span class="adm-app-tag" title="${escapeHtml(appTitle(r))}">📲${r.appCount > 1 ? ` ${r.appCount} máy` : ''}</span>` : '';
     return `<span class="adm-who">${avatar}<span><strong>${escapeHtml(label)}</strong>${tag}${app}${sub}</span></span>`;
   }
 }
@@ -836,6 +837,11 @@ function retentionHtml(guests, today) {
 }
 
 function appTitle(r) {
+  if (r.appDevices?.length) {
+    return r.appDevices.map((d) => [d.name || 'Máy không rõ',
+      d.installedAt ? `cài ${fmtDate(d.installedAt)}` : '',
+      d.openedAt ? `mở lần cuối ${fmtDateTime(d.openedAt)}` : ''].filter(Boolean).join(', ')).join('\n');
+  }
   return [r.appInstalledAt ? `Cài app: ${fmtDate(r.appInstalledAt)}` : '',
     r.appOpenedAt ? `Mở app lần cuối: ${fmtDateTime(r.appOpenedAt)}` : ''].filter(Boolean).join(' · ') || 'Đã cài app';
 }
@@ -843,10 +849,11 @@ function appTitle(r) {
 function downloadCsv(rows) {
   const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
   const lines = [
-    ['Biệt danh', 'Tên Google', 'Email', 'Lớp', 'Sao', 'Ngày đăng ký', 'Lần cuối', 'Loại', 'Máy', 'Khách đã đăng nhập', 'Số ngày dùng', 'Cài app', 'Mở app lần cuối'],
+    ['Biệt danh', 'Tên Google', 'Email', 'Lớp', 'Sao', 'Ngày đăng ký', 'Lần cuối', 'Loại', 'Máy', 'Khách đã đăng nhập', 'Số ngày dùng', 'Cài app', 'Mở app lần cuối', 'Số máy cài app', 'Các máy cài app'],
     ...rows.map(r => [r.nickname, r.name, r.email, r.grade ? gradeLabel(r.grade) : '', r.stars, fmtDate(r.createdAt), fmtDateTime(r.lastSeenAt),
       r.fake ? 'Ảo' : r.guest ? 'Khách' : 'Học sinh', r.device || '', r.convertedAt ? fmtDate(r.convertedAt) : '', r.guest ? activeOffsets(r).length : '',
-      r.appInstalledAt ? fmtDate(r.appInstalledAt) : '', r.appOpenedAt ? fmtDateTime(r.appOpenedAt) : '']),
+      r.appInstalledAt ? fmtDate(r.appInstalledAt) : '', r.appOpenedAt ? fmtDateTime(r.appOpenedAt) : '',
+      r.fake ? '' : r.appCount || 0, r.appDevices?.map(d => d.name).join('; ') || '']),
   ].map(l => l.map(cell).join(','));
   const blob = new Blob([`﻿${lines.join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');

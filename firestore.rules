@@ -103,14 +103,16 @@ service cloud.firestore {
 
     // Sổ đăng ký học sinh: mỗi bé tự ghi khi mở app (tối đa 1 lần/ngày) — admin đếm số bé đã đăng ký
     // và số bé đang hoạt động. createdAt ghi một lần, không đổi được; email phải đúng tài khoản đăng nhập.
-    // App cài lên máy (src/engine/installApp.js): appInstalledAt lần đầu cài, appOpenedAt lần gần nhất mở bằng biểu tượng.
+    // App cài lên máy (src/engine/installApp.js): appInstalledAt lần đầu cài, appOpenedAt lần gần nhất mở bằng biểu tượng,
+    // appDevices: mỗi máy đã cài của tài khoản một mục { name, installedAt?, openedAt? } (chỉ users/).
     function validAppFields(d) {
       return (!('appInstalledAt' in d) || d.appInstalledAt is timestamp)
-        && (!('appOpenedAt' in d) || d.appOpenedAt is timestamp);
+        && (!('appOpenedAt' in d) || d.appOpenedAt is timestamp)
+        && (!('appDevices' in d) || (d.appDevices is map && d.appDevices.size() <= 20));
     }
 
     function validUser(d) {
-      return d.keys().hasOnly(['email', 'name', 'grade', 'createdAt', 'lastSeenAt', 'appInstalledAt', 'appOpenedAt'])
+      return d.keys().hasOnly(['email', 'name', 'grade', 'createdAt', 'lastSeenAt', 'appInstalledAt', 'appOpenedAt', 'appDevices'])
         && validAppFields(d)
         && d.email == request.auth.token.email
         && d.name is string && d.name.size() <= 100

@@ -18,7 +18,8 @@ import { initKeyboardInset } from './engine/keyboardInset.js';
 import { initI18n, setI18nPage } from './engine/i18n.js';
 import { initWordHint } from './engine/wordHint.js';
 import { initAppUpdate, showUpdateCard } from './engine/appUpdate.js';
-import { initInstallApp, showInstallBanner } from './engine/installApp.js';
+import { initInstallApp, requireInstall } from './engine/installApp.js';
+import { isAdminUser } from './engine/admin.js';
 
 // Tiến trình học ↔ Google Drive của người đăng nhập
 initCloudSync();
@@ -238,6 +239,7 @@ function navigate(gameId, opts = {}) {
   // Zalo… lần hai): coi như chưa chọn, hiện lại màn đăng nhập / dùng thử thay vì nhảy thẳng vào avatar.
   if (!user || (user.guest && !guestChosenNow && !isSetupDone())) {
     setI18nPage('login');
+    requireInstall({ exempt: true });
     renderLogin(app, (u) => { if (!u) guestChosenNow = true; navigate(gameId || 'home'); }, { error: loginError });
     loginError = '';
     return;
@@ -245,6 +247,7 @@ function navigate(gameId, opts = {}) {
 
   // Trang admin (#admin) không cần hồ sơ bé; trang tự kiểm tra quyền.
   if (gameId === 'admin') {
+    requireInstall({ exempt: true });
     import('./games/admin.js').then(mod => {
       if (token !== navToken) return;
       mod.render(app, () => { history.replaceState(null, '', location.pathname + location.search); navigate('home'); });
@@ -268,9 +271,13 @@ function navigate(gameId, opts = {}) {
     }
     if (user.guest) registerGuest(); // khách dừng ở màn chọn avatar vẫn được đếm ở trang admin
     setI18nPage('profile');
+    requireInstall({ exempt: true });
     renderProfileSetup(app, { mode: 'onboard', onDone: () => navigate(gameId || 'home') });
     return;
   }
+
+  // Bắt buộc học trong app đã cài: mở bằng trình duyệt thì che mọi trang bằng màn cài app (engine/installApp.js).
+  requireInstall({ exempt: isAdminUser() });
 
   if (gameId === 'profile') {
     const back = profileReturn;
@@ -344,7 +351,6 @@ function navigate(gameId, opts = {}) {
       // Đẩy nốt bài chưa lưu lên Drive trước khi thu hồi token.
       onSignOut: () => flushCloud().then(() => { signOutLeaderboard(); signOut(); navigate('home'); }),
     });
-    showInstallBanner(app);
     return;
   }
 

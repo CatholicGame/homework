@@ -29,11 +29,16 @@ export function isAdminUser() {
 }
 
 const toMs = (ts) => (ts?.toMillis ? ts.toMillis() : 0);
+const appDevicesOf = (u) => Object.values(u.appDevices || {})
+  .map((v) => ({ name: String(v?.name || ''), installedAt: toMs(v?.installedAt), openedAt: toMs(v?.openedAt) }))
+  .sort((a, b) => Math.max(b.openedAt, b.installedAt) - Math.max(a.openedAt, a.installedAt));
 
 /**
  * @returns {Promise<Array<{ uid, email, name, nickname, avatar, grade, stars, createdAt, lastSeenAt, registered,
  *   fake?, guest?, device?, convertedAt?, appInstalledAt, appOpenedAt }>>}
  *   appInstalledAt / appOpenedAt: cài app lên máy, mở bằng biểu tượng app (0 = chưa có; engine/installApp.js).
+ *   appDevices: [{ name, installedAt, openedAt }] các máy đã cài của tài khoản (sổ cũ chưa có thì rỗng).
+ *   appCount: số máy đã cài (sổ cũ chỉ có appInstalledAt / appOpenedAt thì tính 1).
  *   Ném lỗi 'need-connect' nếu cần bấm kết nối Firebase.
  */
 export async function fetchStudents() {
@@ -53,7 +58,7 @@ export async function fetchStudents() {
   const row = (uid) => {
     if (!byUid.has(uid)) {
       byUid.set(uid, { uid, email: '', name: '', nickname: '', avatar: '', grade: 0, stars: 0,
-        createdAt: 0, lastSeenAt: 0, registered: false, appInstalledAt: 0, appOpenedAt: 0 });
+        createdAt: 0, lastSeenAt: 0, registered: false, appInstalledAt: 0, appOpenedAt: 0, appDevices: [], appCount: 0 });
     }
     return byUid.get(uid);
   };
@@ -64,7 +69,10 @@ export async function fetchStudents() {
       email: u.email || '', name: u.name || '', grade: u.grade || 0,
       createdAt: toMs(u.createdAt), lastSeenAt: toMs(u.lastSeenAt), registered: true,
       appInstalledAt: toMs(u.appInstalledAt), appOpenedAt: toMs(u.appOpenedAt),
+      appDevices: appDevicesOf(u),
     });
+    const r = row(d.id);
+    r.appCount = r.appDevices.length || (r.appInstalledAt || r.appOpenedAt ? 1 : 0);
   });
   // Hồ sơ mới hơn sổ đăng ký (sổ chỉ ghi 1 lần/ngày) nên lớp lấy từ hồ sơ.
   profiles.forEach((d) => {
@@ -94,6 +102,7 @@ export async function fetchStudents() {
         grade: g.grade || 0, stars: g.stars || 0, createdAt: toMs(g.createdAt), lastSeenAt: toMs(g.lastSeenAt),
         registered: false, guest: true, device: g.device || '', convertedAt: toMs(g.convertedAt),
         appInstalledAt: toMs(g.appInstalledAt), appOpenedAt: toMs(g.appOpenedAt),
+        appDevices: [], appCount: g.appInstalledAt || g.appOpenedAt ? 1 : 0,
         days: Array.isArray(g.days) ? g.days.filter(k => typeof k === 'string') : [] });
     });
   } catch (e) { console.warn('[admin] Không đọc được guests/:', e?.code || e); }

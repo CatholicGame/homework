@@ -465,6 +465,8 @@ export async function fetchRemoteProfile() {
 // App cài lên máy (engine/installApp.js), trang admin đếm số đã cài:
 //   appInstalledAt: lần đầu cài qua trình duyệt trên một máy của bé (Chrome, Edge, Android; iPhone không báo);
 //   appOpenedAt: lần gần nhất mở bằng biểu tượng app (mọi máy, kể cả iPhone/iPad).
+//   appDevices: { [mã máy]: { name, installedAt?, openedAt? } } — một tài khoản đăng nhập nhiều máy, mỗi máy cài một mục
+//     (mã ngẫu nhiên giữ trong bộ nhớ máy, không đồng bộ Drive; tối đa APP_DEVICES_MAX máy).
 const USERS = 'users';
 let lastRegistered = null; // `${uid}|${dayKey}|${app}`
 
@@ -476,6 +478,37 @@ function appFields(fs, old) {
   const out = {};
   if (isStandalone()) out.appOpenedAt = fs.serverTimestamp();
   if (isInstalledHere() && !old?.appInstalledAt) out.appInstalledAt = fs.serverTimestamp();
+  return out;
+}
+
+const APP_DEVICE_ID_KEY = 'tth_app_device_id';
+const APP_DEVICES_MAX = 20;
+
+function appDeviceId() {
+  try {
+    let id = localStorage.getItem(APP_DEVICE_ID_KEY);
+    if (!id) {
+      id = [...crypto.getRandomValues(new Uint8Array(8))].map(b => b.toString(16).padStart(2, '0')).join('');
+      localStorage.setItem(APP_DEVICE_ID_KEY, id);
+    }
+    return id;
+  } catch { return ''; }
+}
+
+/** Như appFields, thêm mục của máy này trong appDevices (chỉ users/: khách chỉ có một máy). `create`: tài liệu chưa có. */
+function userAppFields(fs, old, create) {
+  const out = appFields(fs, old);
+  const id = (isStandalone() || isInstalledHere()) && appDeviceId();
+  if (!id) return out;
+  const devices = old?.appDevices || {};
+  const prev = devices[id];
+  if (!prev && Object.keys(devices).length >= APP_DEVICES_MAX) return out;
+  const d = describeDevice();
+  const dev = { name: [d.device, d.model, d.os].filter(Boolean).join(' · ').slice(0, 60) };
+  if (isStandalone()) dev.openedAt = fs.serverTimestamp();
+  if (isInstalledHere() && !prev?.installedAt) dev.installedAt = fs.serverTimestamp();
+  if (create) out.appDevices = { [id]: dev };
+  else for (const [k, v] of Object.entries(dev)) out[`appDevices.${id}.${k}`] = v;
   return out;
 }
 
@@ -512,7 +545,7 @@ async function registerNow() {
     grade: getProfile().grade || 0,
     lastSeenAt: fs.serverTimestamp(),
   };
-  const app = appFields(fs, snap.exists() ? snap.data() : null);
+  const app = userAppFields(fs, snap.exists() ? snap.data() : null, !snap.exists());
   await writeWithApp((d) => (snap.exists() ? fs.updateDoc(ref, d) : fs.setDoc(ref, { ...d, createdAt: fs.serverTimestamp() })), entry, app);
   lastRegistered = mark;
   try { localStorage.setItem(storeKey, mark); } catch { /* storage unavailable */ }
