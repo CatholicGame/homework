@@ -19,7 +19,6 @@ import { initI18n, setI18nPage } from './engine/i18n.js';
 import { initWordHint } from './engine/wordHint.js';
 import { initAppUpdate, showUpdateCard } from './engine/appUpdate.js';
 import { initInstallApp, requireInstall } from './engine/installApp.js';
-import { isAdminUser } from './engine/admin.js';
 
 // Tiến trình học ↔ Google Drive của người đăng nhập
 initCloudSync();
@@ -277,7 +276,7 @@ function navigate(gameId, opts = {}) {
   }
 
   // Bắt buộc học trong app đã cài: mở bằng trình duyệt thì che mọi trang bằng màn cài app (engine/installApp.js).
-  requireInstall({ exempt: isAdminUser() });
+  requireInstall();
 
   if (gameId === 'profile') {
     const back = profileReturn;

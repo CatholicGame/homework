@@ -5,7 +5,7 @@
 //   Trình duyệt trong Zalo, Facebook…: dặn mở bằng Safari/Chrome; Firefox máy tính: dặn mở bằng Chrome/Edge.
 //   Cài xong (appinstalled) hoặc máy đã cài (INSTALLED_KEY) mà vẫn vào bằng trình duyệt: màn che đổi thành
 //   "ra màn hình desktop" (máy tính) / "về màn hình chính" (điện thoại) để mở app; có nút cài lại nếu đã gỡ.
-//   Mở từ biểu tượng (display-mode: standalone), vite dev, trình duyệt tự động (navigator.webdriver), admin: không che.
+//   Mở từ biểu tượng (display-mode: standalone), vite dev, trình duyệt tự động (navigator.webdriver), trang #admin: không che.
 //   iPhone, iPad không có sự kiện appinstalled; app cài ở đó có bộ nhớ riêng, tách khỏi Safari.
 
 import installResultUrl from '../assets/install-result.webp';
@@ -97,16 +97,16 @@ const AFTER_INSTALL = IS_MOBILE
   : 'Cài xong, ra màn hình desktop, bấm đúp biểu tượng này để học.';
 
 const gateExempt = () => isStandalone() || import.meta.env.DEV || navigator.webdriver === true;
-// Thêm ?installgate vào địa chỉ: vẫn che khi chạy vite dev hay đăng nhập admin (để xem thử màn cài).
+// Thêm ?installgate vào địa chỉ: vẫn che khi chạy vite dev (để xem thử màn cài).
 const GATE_PREVIEW = new URLSearchParams(location.search).has('installgate');
 
 /**
  * main.js gọi ở mỗi trang khi bé đã vào app (sau đăng nhập và chọn hồ sơ).
- * Mở bằng trình duyệt thì che cả trang bằng màn cài app; `exempt` (đăng nhập, chọn hồ sơ, trang admin) thì gỡ màn che,
- * `admin` (tài khoản admin) không che trừ khi xem thử bằng ?installgate.
+ * Mở bằng trình duyệt thì che cả trang bằng màn cài app; `exempt` (đăng nhập, chọn hồ sơ, trang #admin) thì gỡ màn che.
+ * Tài khoản admin cũng bị che như học sinh, chỉ trang #admin mở được bằng trình duyệt.
  */
-export function requireInstall({ exempt = false, admin = false } = {}) {
-  gateWanted = !exempt && (GATE_PREVIEW ? !isStandalone() : !admin && !gateExempt());
+export function requireInstall({ exempt = false } = {}) {
+  gateWanted = !exempt && (GATE_PREVIEW ? !isStandalone() : !gateExempt());
   renderGate();
 }
 
