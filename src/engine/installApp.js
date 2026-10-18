@@ -2,7 +2,10 @@
 //   BẮT BUỘC: mở bằng trình duyệt thì mọi trang (trừ admin) bị che bởi màn cài app, không có nút bỏ qua.
 //   Chrome, Edge, Android: giữ sự kiện beforeinstallprompt, bấm "Cài đặt" thì hiện hộp cài của trình duyệt.
 //   iPhone, iPad: Safari không có hộp cài, hiện hướng dẫn Chia sẻ → Thêm vào MH chính.
-//   Trình duyệt trong Zalo, Facebook…: dặn mở bằng Safari/Chrome; Firefox máy tính: dặn mở bằng Chrome/Edge.
+//   Trình duyệt trong Zalo, Facebook… (không cài được app, không đăng nhập Google được): ngay lúc mở thử tự chuyển
+//   sang Chrome (Android: intent://) hoặc Safari (iPhone: x-safari-https://, iOS 17+), mỗi phiên một lần; màn che có
+//   nút Mở bằng Safari / Chrome, sao chép đường link, và dặn bấm ⋯ → Mở bằng trình duyệt. Che cả màn đăng nhập.
+//   Firefox máy tính: dặn mở bằng Chrome/Edge.
 //   Cài xong (appinstalled) hoặc máy đã cài (INSTALLED_KEY) mà vẫn vào bằng trình duyệt: màn che đổi thành
 //   "ra màn hình desktop" (máy tính) / "về màn hình chính" (điện thoại) để mở app; có nút cài lại nếu đã gỡ.
 //   Mở từ biểu tượng (display-mode: standalone), vite dev, trình duyệt tự động (navigator.webdriver), trang #admin: không che.
@@ -14,7 +17,8 @@ const INSTALLED_KEY = 'tth_app_installed';
 
 const UA = navigator.userAgent || '';
 const IS_IOS = /iPhone|iPad|iPod/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const IS_MOBILE = IS_IOS || /Android|Mobi/i.test(UA);
+const IS_ANDROID = /Android/i.test(UA);
+const IS_MOBILE = IS_IOS || IS_ANDROID || /Mobi/i.test(UA);
 const IN_APP = /Zalo|FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|Line\/|musical_ly|BytedanceWebview|TikTok|MicroMessenger|KAKAOTALK|Snapchat|Twitter|; wv\)/i.test(UA)
   || (/iPhone|iPad|iPod/.test(UA) && !/Safari\//.test(UA));
 // Máy tính không cài được app web: Firefox; Safari trên Mac dùng Tệp → Thêm vào Dock.
@@ -62,6 +66,12 @@ export function initInstallApp({ onInstalled } = {}) {
     renderGate();
     try { onInstalledCb?.(); } catch { /* thống kê không được làm hỏng app */ }
   });
+  // Mở trong Zalo, Facebook…: che ngay từ màn đăng nhập và thử tự chuyển sang trình duyệt.
+  if (IN_APP && (GATE_PREVIEW || !gateExempt())) {
+    gateWanted = true;
+    renderGate();
+    tryEscapeOnce();
+  }
   if (import.meta.env.PROD && 'serviceWorker' in navigator) {
     addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
   }
@@ -106,8 +116,51 @@ const GATE_PREVIEW = new URLSearchParams(location.search).has('installgate');
  * Tài khoản admin cũng bị che như học sinh, chỉ trang #admin mở được bằng trình duyệt.
  */
 export function requireInstall({ exempt = false } = {}) {
+  if (IN_APP) exempt = false; // trong Zalo… đăng nhập Google cũng không được: luôn che
   gateWanted = !exempt && (GATE_PREVIEW ? !isStandalone() : !gateExempt());
   renderGate();
+}
+
+// ── Mở bằng trình duyệt thật khi đang ở trong Zalo, Facebook… ──
+
+const ESCAPE_KEY = 'tth_inapp_escape';
+// Không kèm #trang: intent:// dùng # cho phần Intent; mở lại từ trang chủ.
+const pageUrl = () => location.origin + location.pathname + location.search;
+
+function externalUrl(browser) {
+  const u = new URL(pageUrl());
+  if (browser === 'safari') return `x-safari-${u.href}`;
+  if (IS_IOS) return `googlechromes://${u.host}${u.pathname}${u.search}`;
+  return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=com.android.chrome;end`;
+}
+
+function openExternal(browser) {
+  location.href = externalUrl(browser);
+}
+
+// Mỗi phiên thử một lần (quay lại Zalo không bị đẩy đi liên tục); không mở được thì màn che vẫn có nút.
+function tryEscapeOnce() {
+  try {
+    if (sessionStorage.getItem(ESCAPE_KEY)) return;
+    sessionStorage.setItem(ESCAPE_KEY, '1');
+  } catch { return; }
+  setTimeout(() => openExternal(IS_IOS ? 'safari' : 'chrome'), 400);
+}
+
+async function copyLink(btn) {
+  const url = pageUrl();
+  let ok = false;
+  try { await navigator.clipboard.writeText(url); ok = true; } catch {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { ok = document.execCommand('copy'); } catch { /* không chép được */ }
+    ta.remove();
+  }
+  btn.textContent = ok ? 'Đã chép, dán vào Safari hoặc Chrome' : url;
 }
 
 const listHtml = (items) => items.map(([icon, text]) => `<li><span class="install-guide-step-icon">${icon}</span><span>${text}</span></li>`).join('');
@@ -121,7 +174,7 @@ function renderGate() {
   ensureStyle();
   // Máy đã cài mà vẫn mở bằng trình duyệt (trình duyệt lại mời cài thì app đã bị gỡ: quay về màn cài).
   const installed = isInstalledHere() && !deferred;
-  const mode = installed ? 'open' : 'install';
+  const mode = IN_APP ? 'inapp' : installed ? 'open' : 'install';
   if (veil?.dataset.mode === mode) return;
   if (!veil) {
     veil = document.createElement('div');
@@ -129,6 +182,23 @@ function renderGate() {
     document.body.appendChild(veil);
   }
   veil.dataset.mode = mode;
+  if (IN_APP) {
+    veil.innerHTML = `
+    <div class="install-guide" role="dialog" aria-modal="true" aria-labelledby="install-gate-title">
+      <img class="install-guide-icon" src="/icons/icon-192.png" alt="" width="64" height="64">
+      <b id="install-gate-title">Mở bằng trình duyệt để học</b>
+      <p class="install-guide-lead">Trong Zalo, Facebook không cài được app. Bấm nút dưới để mở bằng trình duyệt.</p>
+      ${IS_IOS ? '<button type="button" class="install-guide-ok" data-open="safari">Mở bằng Safari</button>' : ''}
+      <button type="button" class="${IS_IOS ? 'install-gate-alt' : 'install-guide-ok'}" data-open="chrome">Mở bằng Chrome</button>
+      <ol class="install-guide-steps"><li><span class="install-guide-step-icon">⋯</span><span>Không mở được? Bấm nút ⋯ ở góc trên, chọn Mở bằng trình duyệt.</span></li></ol>
+      <button type="button" class="install-gate-again" data-copy>Sao chép đường link</button>
+    </div>`;
+    veil.querySelectorAll('[data-open]').forEach((b) => { b.onclick = () => openExternal(b.dataset.open); });
+    veil.querySelector('[data-copy]').onclick = (e) => copyLink(e.currentTarget);
+    setInert(true);
+    veil.querySelector('[data-open]').focus();
+    return;
+  }
   veil.innerHTML = installed ? `
     <div class="install-guide" role="dialog" aria-modal="true" aria-labelledby="install-gate-title">
       <b id="install-gate-title">Máy này đã có app Toán Tiểu Học</b>
@@ -245,23 +315,34 @@ const STYLE = `
   .install-guide-ok:focus-visible, .install-gate-again:focus-visible { outline: 3px solid #1E293B; outline-offset: 3px; }
   .install-guide-veil.is-guide { z-index: 100001; }
   .install-gate { background: rgba(15, 23, 42, 0.72); }
-  .install-gate .install-guide { width: min(28rem, 100%); max-height: calc(100dvh - 32px); overflow-y: auto; }
-  .install-gate .install-guide-lead { font-size: 15px; color: #64748B; }
-  .install-gate .install-guide-steps li { text-align: left; }
-  .install-gate-shot { margin: 0; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .install-gate-shot img { display: block; width: min(100%, 316px); height: auto; border-radius: 18px;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.25); }
-  .install-gate-shot figcaption { font-size: 14px; font-weight: 700; color: #475569; text-align: center; }
-  .install-gate-again { border: 0; background: none; padding: 8px 12px; border-radius: 999px; cursor: pointer;
-    font: inherit; font-size: 15px; font-weight: 700; color: #64748B; text-decoration: underline; }
+  .install-gate .install-guide { width: min(21rem, 100%); max-height: calc(100dvh - 32px); overflow-y: auto;
+    gap: 8px; padding: 16px 14px 12px; border-radius: 24px; font-size: 13.5px; line-height: 1.35; }
+  .install-gate .install-guide > b { font-size: 18px; }
+  .install-gate .install-guide-icon { width: 56px; height: 56px; }
+  .install-gate .install-guide-lead { font-size: 13.5px; color: #64748B; }
+  .install-gate[data-mode="install"] .install-guide-lead { display: none; }
+  .install-gate .install-guide-steps { gap: 6px; }
+  .install-gate .install-guide-steps li { text-align: left; gap: 10px; padding: 6px 10px; border-radius: 12px; }
+  .install-gate .install-guide-step-icon { width: 30px; height: 30px; border-radius: 9px; font-size: 16px; }
+  .install-gate .install-guide-ok { padding: 11px 18px; font-size: 16px; box-shadow: 0 4px 0 #BE185D; }
+  .install-gate-alt { width: 100%; padding: 10px 18px; border: 2px solid #E2E8F0; border-radius: 999px; cursor: pointer;
+    font: inherit; font-size: 15px; font-weight: 800; color: #334155; background: #fff; }
+  .install-gate-alt:focus-visible { outline: 3px solid #1E293B; outline-offset: 3px; }
+  .install-gate-shot { margin: 0; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .install-gate-shot img { display: block; width: min(100%, 220px); height: auto; border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.22); }
+  .install-gate-shot figcaption { font-size: 12.5px; font-weight: 700; color: #475569; text-align: center; }
+  .install-gate-again { border: 0; background: none; padding: 4px 10px; border-radius: 999px; cursor: pointer;
+    font: inherit; font-size: 13.5px; font-weight: 700; color: #64748B; text-decoration: underline; }
   @media (max-height: 560px) {
-    .install-gate .install-guide { gap: 8px; padding: 14px 16px 12px; }
-    .install-gate .install-guide-steps li { padding: 6px 10px; }
-    .install-gate-shot img { width: auto; max-height: 30dvh; }
+    .install-gate .install-guide { gap: 6px; padding: 12px 14px 10px; }
+    .install-gate .install-guide-steps li { padding: 4px 10px; }
+    .install-gate .install-guide-icon { display: none; }
+    .install-gate-shot img { width: auto; max-height: 28dvh; }
     .install-gate .install-guide-lead { display: none; }
   }
   @media (max-height: 560px) and (min-width: 600px) {
-    .install-gate .install-guide { width: min(46rem, 100%); display: grid; grid-template-columns: 0.85fr 1fr; align-items: center;
+    .install-gate:not([data-mode="inapp"]) .install-guide { width: min(36rem, 100%); display: grid; grid-template-columns: 0.85fr 1fr; align-items: center;
       column-gap: 16px; }
     .install-gate .install-guide > b, .install-gate .install-guide > button { grid-column: 1 / -1; }
     .install-gate .install-guide > button.install-gate-again { justify-self: center; }
