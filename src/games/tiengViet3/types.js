@@ -147,7 +147,7 @@ const spell = {
       return `<li class="${allOk ? 'is-ok' : 'is-no'}">${mark(allOk)} <b>${esc(bl[0]?.word || '')}</b>: ${parts.map(p => p.why.replace(/\.$/, '')).join('; ')}.</li>`;
     });
     return `
-      ${r ? `<div class="tv-rule"><div class="tv-rule-h">📏 Quy luật: ${esc(r.title)}</div><p>${r.rule}</p>
+      ${r ? `<div class="tv-rule"><div class="tv-rule-h">📏 ${r.sure ? 'Quy luật' : 'Mẹo nhớ'}: ${esc(r.title)}</div><p>${r.rule}</p>
         <button type="button" class="btn tv-play" data-rule="${r.id}">🎮 Chơi luyện luật này</button></div>` : ''}
       <ul class="tv-why-list">${rows.join('')}</ul>`;
   },

@@ -6,10 +6,16 @@
  *  - opts: các lựa chọn điền vào chỗ trống (vd. ['c', 'k']); luật đổi cả tiếng (hỏi/ngã, iêu/ươu)
  *    thì có variants(syllable) → các cách viết để bé chọn.
  *  - explain: lời giải thích cho đúng một từ (luật chắc chắn như c/k); null = từ phải ghi nhớ.
+ *  - memo: luật không có quy luật chắc chắn (ch/tr, s/x, r/d/gi, l/n, an/ang): luyện để nhớ mặt chữ.
+ *    Từ không theo mẹo nào được giải thích bằng memoHint: nhóm nghĩa (groups), hai tiếng cùng âm đầu,
+ *    hoặc một từ quen có cùng tiếng trong kho từ và đề luyện.
  *  - bank: từ để luyện trong trò chơi, chỗ cần điền đặt trong [ ] (vd. '[k]im [c]ương').
  */
 
-const strip = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').normalize('NFC').toLowerCase();
+import { SPELL_TESTS } from './spellTests.js';
+
+/** Bỏ dấu thanh, giữ â ă ê ô ơ ư (để "uâ" không lẫn với "ua", "ưa": lúa, nửa không theo mẹo của luật). */
+const toneless = (s) => (s || '').normalize('NFD').replace(/[̣̀́̃̉]/g, '').normalize('NFC').toLowerCase();
 const FRONT = new Set(['i', 'e', 'ê', 'y']);
 /** Chữ cái đầu của phần sau chỗ trống (bỏ dấu thanh, giữ ê). */
 function nextLetter(after) {
@@ -52,11 +58,15 @@ export const RULES = {
       '[ngh]ĩ [ng]ợi', '[ng]ã ba', '[ngh]é [ng]ọ', '[ng]ựa', '[ngh]ệ sĩ', '[ng]ọn [ng]ành', '[ngh]iên cứu', '[ng]ỗng', '[ngh]ịch [ng]ợm'],
   },
   chtr: {
-    id: 'chtr', title: 'ch hay tr?', opts: ['ch', 'tr'],
+    id: 'chtr', title: 'ch hay tr?', opts: ['ch', 'tr'], memo: true,
+    groups: [
+      { ans: 'ch', say: 'đồ dùng trong nhà', words: ['chén bát', 'chạn bát', 'chạn chén', 'chén đũa', 'chổi quét', 'chổi rơm', 'chiếc chiếu', 'chăn bông', 'chăn màn', 'chậu hoa'] },
+      { ans: 'ch', say: 'người thân trong nhà', words: ['chị gái', 'chị em'] },
+    ],
     rule: `Không có luật chắc chắn, phải nhớ từng từ. Mẹo: chỉ ${b('ch')} đứng trước ${b('oa, oă, oe, uê')} (choàng, choắt, choé, chuệch choạc). Tên đồ dùng trong nhà, tên người thân thường viết ${b('ch')}: chén, chổi, chiếu, chăn, cha, chú, chị, cháu.`,
     tips: [`Trước ${b('oa, oă, oe, uê')} chỉ có ${b('ch')}.`, `Đồ dùng trong nhà, người thân thường là ${b('ch')}: chén, chạn, chum, chõng, cha, chú.`],
     explain(after, ans) {
-      if (/^(oa|oă|oe|uê)/.test(strip(after || ''))) return `viết ${b('ch')} vì đứng trước vần ${b(after.slice(0, 2))}, chỉ ch đi được với vần này.`;
+      if (/^(oa|oă|oe|uê)/.test(toneless(after))) return `viết ${b('ch')} vì đứng trước vần ${b(after.slice(0, 2))}, chỉ ch đi được với vần này.`;
       return null;
     },
     bank: ['[ch]ăm [ch]ỉ', '[tr]ung thực', '[tr]ường học', '[ch]ổi quét', '[tr]ăng sáng', '[ch]ú [ch]im', '[tr]ời mưa', '[ch]oàng tỉnh',
@@ -64,11 +74,15 @@ export const RULES = {
       '[tr]ứng gà', '[ch]ữa bài', '[tr]ưa hè', '[ch]ạy nhảy'],
   },
   sx: {
-    id: 'sx', title: 's hay x?', opts: ['s', 'x'],
+    id: 'sx', title: 's hay x?', opts: ['s', 'x'], memo: true,
+    groups: [
+      { ans: 's', say: 'tên cây, hoa', words: ['sen hồng', 'sen trắng', 'sen vàng', 'sim tím', 'sim rừng', 'sung chín'] },
+      { ans: 's', say: 'con vật dưới nước', words: ['sò huyết', 'sò điệp', 'sò biển', 'sứa biển'] },
+    ],
     rule: `Không có luật chắc chắn, phải nhớ từng từ. Mẹo: chỉ ${b('x')} đứng trước ${b('oa, oă, oe, uê')} (xoa, xoăn, xoè, xuề xoà). Tên cây cối, con vật dưới nước thường viết ${b('s')}: sen, sim, sung, sò, sứa, sam.`,
     tips: [`Trước ${b('oa, oă, oe, uê')} chỉ có ${b('x')}.`, `Cây cối, con vật dưới nước hay viết ${b('s')}: sen, sung, sim, sò, sứa.`],
     explain(after) {
-      if (/^(oa|oă|oe|uê)/.test(strip(after || ''))) return `viết ${b('x')} vì đứng trước vần ${b(after.slice(0, 2))}, chỉ x đi được với vần này.`;
+      if (/^(oa|oă|oe|uê)/.test(toneless(after))) return `viết ${b('x')} vì đứng trước vần ${b(after.slice(0, 2))}, chỉ x đi được với vần này.`;
       return null;
     },
     bank: ['[s]ản [x]uất', '[x]ơ dừa', '[s]ơ lược', '[x]e máy', '[s]úc [s]ích', '[x]inh đẹp', '[s]ông [s]âu', '[x]oè ô',
@@ -76,11 +90,14 @@ export const RULES = {
       '[s]ao [s]áng', '[x]ếp hàng', '[s]ữa chua', '[x]uất [s]ắc'],
   },
   rdgi: {
-    id: 'rdgi', title: 'r, d hay gi?', opts: ['r', 'd', 'gi'],
+    id: 'rdgi', title: 'r, d hay gi?', opts: ['r', 'd', 'gi'], memo: true,
+    groups: [
+      { ans: 'r', say: 'từ tả âm thanh', words: ['róc rách', 'rì rào', 'rì rầm', 'rả rích', 'rổn rảng', 'reo hò', 'rộn ràng', 'rộn rã'] },
+    ],
     rule: `Không có luật chắc chắn, phải nhớ từng từ. Mẹo: ${b('r')} hay gặp ở từ tả âm thanh, từ láy (róc rách, rì rào, rung rinh). Chỉ ${b('d')} đứng trước ${b('oa, oă, oe, uy')} (doạ, doãng, duy). Từ Hán Việt mang dấu ngã, dấu nặng hay viết ${b('d')} (dũng cảm, diễn, dự), mang dấu sắc, dấu hỏi hay viết ${b('gi')} (giải, giản, giáo).`,
     tips: [`Từ tả âm thanh, từ láy hay viết ${b('r')}: róc rách, rì rào.`, `Trước ${b('oa, oă, oe, uy')} chỉ có ${b('d')}.`],
     explain(after) {
-      if (/^(oa|oă|oe|uy)/.test(strip(after || ''))) return `viết ${b('d')} vì đứng trước vần ${b(after.slice(0, 2))}, chỉ d đi được với vần này.`;
+      if (/^(oa|oă|oe|uy)/.test(toneless(after))) return `viết ${b('d')} vì đứng trước vần ${b(after.slice(0, 2))}, chỉ d đi được với vần này.`;
       return null;
     },
     bank: ['[d]ây mơ [r]ễ má', '[gi]ấy trắng', '[gi]eo hạt', '[d]ãi gió [d]ầm mưa', '[r]óc [r]ách', '[gi]ương buồm', '[d]ũng cảm',
@@ -88,11 +105,11 @@ export const RULES = {
       '[r]ừng [r]ậm', '[gi]ờ ra chơi', '[d]ạy học', '[r]a vào'],
   },
   ln: {
-    id: 'ln', title: 'l hay n?', opts: ['l', 'n'],
+    id: 'ln', title: 'l hay n?', opts: ['l', 'n'], memo: true,
     rule: `Không có luật chắc chắn, phải nhớ từng từ. Mẹo: ${b('l')} đứng được trước ${b('oa, oe, uâ, uy')} (loa, loè, luật, luỹ), ${b('n')} gần như không. Trong từ láy, ${b('n')} chỉ láy với ${b('n')} (nắn nót, nao núng), còn ${b('l')} láy với nhiều âm (lấp lánh, long lanh, lo lắng).`,
     tips: [`Trước ${b('oa, oe, uâ, uy')} viết ${b('l')}: loa, loè, luật.`, `Từ láy có ${b('n')} thì cả hai tiếng đều ${b('n')}: nắn nót, nết na.`],
     explain(after) {
-      if (/^(oa|oe|ua|uy)/.test(strip(after || ''))) return `viết ${b('l')} vì đứng trước vần ${b(after.slice(0, 2))}, chỉ l đi được với vần này.`;
+      if (/^(oa|oe|uâ|uy)/.test(toneless(after))) return `viết ${b('l')} vì đứng trước vần ${b(after.slice(0, 2))}, chỉ l đi được với vần này.`;
       return null;
     },
     bank: ['[l]ấp [l]ánh', '[n]ắn [n]ót', '[l]o [l]ắng', '[n]ết [n]a', '[n]ón [l]á', '[l]àng quê', '[n]ước [n]on', '[l]oa phát thanh',
@@ -100,10 +117,10 @@ export const RULES = {
   },
   hoinga: {
     id: 'hoinga', title: 'Dấu hỏi hay dấu ngã?', tone: true,
-    rule: `Mẹo với từ láy: ${b('“Chị Huyền mang nặng ngã đau, anh Sắc khoẻ (không) hỏi”')}. Tiếng kia mang dấu huyền, nặng, ngã thì tiếng này dấu ${b('ngã')} (vội vã, mạnh mẽ, lững thững). Tiếng kia mang dấu sắc, không dấu, dấu hỏi thì tiếng này dấu ${b('hỏi')} (vui vẻ, nhỏ nhắn, hổn hển).`,
+    rule: `Mẹo với từ láy: ${b('“Chị Huyền mang nặng ngã đau, anh Sắc khoẻ (không) hỏi”')}. Tiếng kia mang dấu huyền, nặng, ngã thì tiếng này dấu ${b('ngã')} (vội vã, mạnh mẽ, lững thững). Tiếng kia mang dấu sắc, không dấu, dấu hỏi thì tiếng này dấu ${b('hỏi')} (vui vẻ, nhỏ nhắn, hổn hển). Mẹo với từ Hán Việt (vũ trụ, lễ hội, thể thao): ${b('“Mình Nên Nhớ Viết Là Dấu Ngã”')}, tiếng mở đầu bằng ${b('m, n, nh, v, l, d, ng')} thường mang dấu ngã, các âm khác thường mang dấu hỏi. Nhiều từ khác không theo mẹo nào, phải nhớ.`,
     tips: [`Láy với tiếng ${b('huyền, nặng, ngã')} → dấu ${b('ngã')}: vội vã, mạnh mẽ.`, `Láy với tiếng ${b('sắc, không dấu, hỏi')} → dấu ${b('hỏi')}: vui vẻ, nhỏ nhắn.`],
     variants: (syl) => toneVariants(syl, ['̉', '̃']),
-    explain(after, ans, word) { return laybExplain(word, ans); },
+    explain(after, ans, word) { return laybExplain(word, ans) || hanVietExplain(ans); },
     bank: ['vui [vẻ]', 'vội [vã]', 'mạnh [mẽ]', '[nhỏ] nhắn', 'lặng [lẽ]', 'sạch [sẽ]', '[nghỉ] ngơi', '[mãi] mãi', 'hổn [hển]',
       'nhõng [nhẽo]', 'đầy [đủ]', 'gần [gũi]', '[rõ] ràng', '[lững] thững', 'kĩ [lưỡng]', 'thỉnh [thoảng]', '[nghĩ] ngợi', '[vẻ] vang',
       'bãi [biển]', 'cửa [sổ]', '[sẵn] sàng', '[mỏi] mệt', 'vất [vả]', 'nhẹ [nhõm]', '[bỡ] ngỡ', 'ngẫm [nghĩ]'],
@@ -127,7 +144,7 @@ export const RULES = {
     bank: ['con [cừu]', 'cái [rìu]', 'quả [lựu]', '[địu] em', '[bưu] điện', '[chịu] khó', 'cấp [cứu]', 'nhỏ [xíu]', 'nghỉ [hưu]', '[trĩu] quả', '[sưu] tầm', '[níu] tay'],
   },
   anang: {
-    id: 'anang', title: 'an hay ang?', swap: [['an', 'ang']],
+    id: 'anang', title: 'an hay ang?', swap: [['an', 'ang']], memo: true,
     rule: `Vần ${b('an')} và ${b('ang')} không có luật, phải nhớ từng từ. Đọc to, nghe kĩ âm cuối: ${b('an')} kết thúc bằng n (lưỡi chạm răng), ${b('ang')} kết thúc bằng ng (miệng mở).`,
     tips: ['Đọc to để nghe âm cuối n hay ng.'],
     variants: (syl) => swapVariants(syl, 'an', 'ang'),
@@ -182,7 +199,22 @@ const TONE_OF = (syl) => {
 export const LAY_WORDS = new Set(['vui vẻ', 'vội vã', 'mạnh mẽ', 'nhỏ nhắn', 'lặng lẽ', 'sạch sẽ', 'nghỉ ngơi', 'mãi mãi', 'hổn hển',
   'nhõng nhẽo', 'gần gũi', 'rõ ràng', 'lững thững', 'thỉnh thoảng', 'nghĩ ngợi', 'vẻ vang', 'sẵn sàng', 'vất vả', 'nhẹ nhõm', 'ngẫm nghĩ',
   'lẻ loi', 'bẽn lẽn', 'lỏng lẻo', 'nhỏ nhẻ', 'ngỡ ngàng', 'đẹp đẽ', 'mỡ màng', 'dễ dàng', 'rộn rã', 'vững vàng', 'gọn ghẽ',
-  'đủng đỉnh', 'lủng lẳng', 'hối hả', 'lạnh lẽo', 'nhanh nhảu']);
+  'đủng đỉnh', 'lủng lẳng', 'hối hả', 'lạnh lẽo', 'nhanh nhảu', 'hỏi han', 'bỡ ngỡ', 'giữ gìn']);
+
+// Tiếng Hán Việt hay gặp, đã kiểm tra đúng mẹo "Mình Nên Nhớ Viết Là Dấu Ngã". Mẹo có ngoại lệ (kĩ, hữu, tiễn…)
+// nên chỉ giải thích theo mẹo khi tiếng nằm trong danh sách này.
+const HV_NGA = new Set(['vũ', 'lễ', 'ngũ', 'dũng', 'diễn', 'nghĩa', 'ngữ', 'lĩnh', 'mãnh', 'vĩ', 'vĩnh', 'nhẫn', 'mĩ', 'dĩ', 'lãnh', 'ngẫu', 'nhã']);
+const HV_HOI = new Set(['kỉ', 'thể', 'bảo', 'hiểm', 'tưởng', 'giả', 'hải', 'cảnh', 'khổ', 'phổ', 'thủ', 'chủ', 'tỉnh', 'điểm', 'giải', 'giản', 'thưởng', 'trưởng', 'thảo', 'tổng', 'cửu', 'ảnh']);
+const INITIAL = /^(ngh|ng|nh|th|tr|ch|kh|ph|gi|qu|gh|[bcdđghklmnpqrstvx])/;
+
+/** Giải thích dấu hỏi/ngã của tiếng Hán Việt theo mẹo "Mình Nên Nhớ Viết Là Dấu Ngã". */
+function hanVietExplain(ans) {
+  const syl = (ans || '').toLowerCase();
+  const init = (syl.match(INITIAL) || [''])[0];
+  if (HV_NGA.has(syl)) return `${b(syl)} là tiếng Hán Việt mở đầu bằng ${b(init)}. Mẹo “Mình Nên Nhớ Viết Là Dấu Ngã”: tiếng Hán Việt mở đầu bằng m, n, nh, v, l, d, ng thì mang dấu ${b('ngã')}.`;
+  if (HV_HOI.has(syl)) return `${b(syl)} là tiếng Hán Việt mở đầu bằng ${init ? b(init) : 'nguyên âm'}, không thuộc “Mình Nên Nhớ Viết Là Dấu Ngã” (m, n, nh, v, l, d, ng) nên mang dấu ${b('hỏi')}.`;
+  return null;
+}
 
 /** Giải thích dấu hỏi/ngã theo tiếng láy đứng cạnh (chỉ với từ láy trong LAY_WORDS). */
 function laybExplain(word, ans) {
@@ -234,7 +266,51 @@ export function explainBlank(ruleId, { ans, after, word, note }) {
   if (!r) return '';
   const e = r.explain?.(after, ans, word);
   if (e) return e;
-  return `viết ${b(ans)}: từ này cần ghi nhớ cách viết.`;
+  return memoHint(r, { ans, after, word });
+}
+
+/** Tiếng chứa chỗ trống: luật điền âm đầu thì chữ điền + phần sau, luật đổi cả tiếng thì chính chữ điền. */
+const sylOf = (r, ans, after) => (r.opts ? ans + (after || '') : ans).toLowerCase();
+
+/** Từ của mỗi luật (kho từ trò chơi + đề luyện) theo tiếng có chỗ trống: để tìm từ quen có cùng tiếng. */
+let SYL_INDEX = null;
+function sylIndex() {
+  if (SYL_INDEX) return SYL_INDEX;
+  SYL_INDEX = {};
+  for (const id of Object.keys(RULES)) {
+    const map = SYL_INDEX[id] = new Map();
+    for (const raw of [...RULES[id].bank, ...(SPELL_TESTS[id] || []).flat()]) {
+      const { segs, word } = parseBlanks(raw, id);
+      const w = word.trim().toLowerCase();
+      segs.forEach(s => {
+        if (s.ans === undefined) return;
+        const syl = sylOf(RULES[id], s.ans, s.after);
+        const list = map.get(syl) || [];
+        if (!list.includes(w)) list.push(w);
+        map.set(syl, list);
+      });
+    }
+  }
+  return SYL_INDEX;
+}
+
+/**
+ * Lời giải thích cho từ không theo luật hay mẹo nào: nói thật là không có luật, rồi cho một cách nhớ.
+ * Thứ tự: nhóm nghĩa của luật (đồ dùng trong nhà hay viết ch…), hai tiếng cùng âm đầu, từ quen có cùng tiếng.
+ */
+function memoHint(r, { ans, after, word }) {
+  const w = (word || '').trim().toLowerCase();
+  const syl = sylOf(r, ans, after);
+  const g = r.groups?.find(x => x.ans === ans && x.words.includes(w));
+  if (g) return `${b(word)} là ${g.say}. Không có luật, nhưng ${g.say} hay viết ${b(ans)}.`;
+  // hai tiếng cùng âm đầu (g không tính là gi: "giày dép" không cùng âm đầu)
+  const initialOf = (p) => (r.opts || []).filter(o => p.startsWith(o)).sort((x, y) => y.length - x.length)[0];
+  const parts = w.split(/\s+/);
+  if (r.opts && parts.length === 2 && parts.every(p => initialOf(p) === ans))
+    return `Không có luật. Hai tiếng của ${b(word)} cùng mở đầu bằng ${b(ans)}: nhớ cả từ.`;
+  const other = (sylIndex()[r.id]?.get(syl) || []).filter(x => x !== w && x.split(/\s+/).includes(syl)).sort((x, y) => x.length - y.length)[0];
+  if (other) return `Không có luật. Nhớ mặt chữ ${b(syl)} như trong ${b(other)}.`;
+  return `Không có luật. Đọc to và nhớ mặt chữ ${b(syl)}.`;
 }
 
 // ── Nhóm từ (gạch chân, xếp nhóm): định nghĩa ngắn + câu hỏi để nhận ra ─────

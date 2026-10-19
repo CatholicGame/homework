@@ -19,7 +19,8 @@ const plain = (html) => html.replace(/<[^>]*>/g, '');
 const LV = (rule, n, desc, extra = {}) => {
   const r = RULES[rule];
   return {
-    id: `spell-${rule}`, n, title: r.title, rules: [rule], testKey: rule, missions: 8, desc, knowledge: plain(r.tips[0]),
+    // luật không có quy luật (memo): nói thật ngay ở màn giới thiệu cấp
+    id: `spell-${rule}`, n, title: r.title, rules: [rule], testKey: rule, missions: 8, desc: r.memo ? `Không có luật, luyện để nhớ mặt chữ. ${desc}` : desc, knowledge: plain(r.tips[0]),
     ask: () => plain(r.tips.join(' ')),
     ...extra,
   };

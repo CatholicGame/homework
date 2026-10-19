@@ -89,7 +89,7 @@ export function renderSpellTest(app, { key, idx, title, onBack }) {
         </div>
         <article class="spt-paper">
           <header class="spt-head">
-            <div class="spt-rule"><b>📏 Nhớ luật</b>${tips.map(t => `<span>${t}</span>`).join('')}</div>
+            <div class="spt-rule"><b>📏 ${rules.every(r => RULES[r].sure) ? 'Nhớ luật' : RULES[rules[0]].memo ? 'Không có luật, nhớ mặt chữ' : 'Mẹo nhớ'}</b>${tips.map(t => `<span>${t}</span>`).join('')}</div>
             <div class="spt-scorebox"><span class="spt-score-label">Điểm</span><span class="spt-score"></span><span class="spt-comment">&nbsp;</span></div>
           </header>
           <p class="spt-ask">Chạm chọn chữ đúng cho mỗi chỗ trống (${total} từ).</p>
