@@ -18,3 +18,7 @@ export const MEMORY_ISLAND = import.meta.env.DEV;
 // Trò chơi tăng cường Toán 4 (docs/lop_4/thiet-ke-tro-choi.md): 🛤️ Kỹ sư đường sắt, 🏙️ Bản đồ dân số, 🚚 Trạm cân nông sản.
 // Đã phát hành 2026-10-11. Muốn tạm ẩn lại trên production: đổi thành import.meta.env.DEV.
 export const GRADE4_GAMES = true;
+
+// 🏘️ Phố Kỹ Năng (docs/ky-nang-song/thiet-ke.md): truyện tương tác kỹ năng sống, một thẻ chung cho mọi lớp.
+// Đợt 1 (3 truyện) chỉ hiện ở bản dev; bật production khi chốt: đổi thành true.
+export const LIFE_SKILLS = import.meta.env.DEV;

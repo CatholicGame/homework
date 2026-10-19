@@ -11,6 +11,11 @@ import { COLUMN_GAME } from './grade3Drills/column.js';
 import { TABLES_GAME, MENTAL_GAME } from './grade3Drills/facts.js';
 import { FINDX_GAME } from './grade3Drills/findx.js';
 import { EXPR_GAME } from './grade3Drills/expr.js';
+import { WORD2_GAME } from './grade3Drills/word2.js';
+import { NUMBERS_GAME } from './grade3Drills/numbers.js';
+import { AREA_GAME } from './grade3Drills/area.js';
+import { ROMAN_GAME } from './grade3Drills/roman.js';
+import { UNITS_GAME } from './grade3Drills/units.js';
 import { SEGMENT_GAME } from './grade3Drills/segment.js';
 import { TIME_GAME, CAL_GAME } from './grade3Drills/time.js';
 import { SHARK_GAME } from './grade3Drills/shark.js';
@@ -24,10 +29,15 @@ export const DRILL_LIST = [
   tool('tab', TABLES_GAME, 'Luyện cho thuộc. Phép nào hay sai sẽ được ra lại nhiều hơn.', ['Bảng nhân', 'Bảng chia', 'Số còn thiếu']),
   tool('x', FINDX_GAME, 'Gọi tên số cần tìm, chọn phép tính, tính rồi thử lại.', ['Số hạng', 'Thừa số', 'Số chia']),
   tool('expr', EXPR_GAME, 'Nhân, chia kết hợp cộng, trừ: chọn phép tính làm trước, viết từng dòng như trong vở.', ['Nhân chia trước', 'Ba phép tính', 'Dấu ngoặc']),
+  tool('w2', WORD2_GAME, 'Bước 1 tìm số chưa biết, bước 2 dùng số đó trả lời câu hỏi, viết bài giải như trong vở.', ['Hơn kém rồi tổng', 'Gấp, giảm', 'Mỗi … có …']),
   tool('shark', SHARK_GAME, 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng, tính chậm là bị đớp!', ['Bảng nhân', 'Bảng chia', 'Tính nhanh']),
   tool('ufo', UFO_GAME, 'Đĩa bay mang ổ khoá có số bị giấu: chọn đúng viên đạn, số thay vào ổ khoá là thấy đúng sai!', ['Tìm x', 'Thử lại', 'Số lớn']),
   tool('men', MENTAL_GAME, '3 nghìn + 5 nghìn = 8 nghìn: nhẩm nhanh với số tròn.', ['Tròn chục, trăm', 'Tròn nghìn']),
   tool('seg', SEGMENT_GAME, 'Gấp lên, giảm đi, gấp mấy lần, một phần mấy bằng sơ đồ.', ['Gấp, giảm', 'Gấp mấy lần', 'Một phần mấy']),
+  tool('num', NUMBERS_GAME, 'Đọc, viết, phân tích, so sánh và làm tròn số có bốn, năm chữ số như trong sách.', ['Đọc viết số', 'So sánh', 'Làm tròn']),
+  tool('unit', UNITS_GAME, 'Đổi m, dm, cm, mm, kg, g, l, ml, tính và so sánh số đo, rồi tự kiểm tra trên thước, cân, ca đo.', ['Đổi đơn vị', 'Tính với số đo', 'So sánh số đo']),
+  tool('area', AREA_GAME, 'Chu vi tam giác, tứ giác, hình chữ nhật, hình vuông; đếm ô vuông 1 cm² và tính diện tích, không nhầm chu vi với diện tích.', ['Chu vi', 'Diện tích', 'cm²']),
+  tool('roman', ROMAN_GAME, 'Đọc, viết số La Mã từ I đến XX, xem đồng hồ số La Mã, giải đố que diêm.', ['Đọc, viết số', 'Đồng hồ', 'Que diêm']),
   tool('time', TIME_GAME, 'Xem giờ đến từng phút, tính giờ xong, giờ bắt đầu, kéo dài bao lâu.', ['Xem giờ', 'Chỉnh kim', 'Đổi giờ', 'Tính giờ']),
   tool('cal', CAL_GAME, 'Tháng có mấy ngày, ngày ... là thứ mấy, kéo dài mấy ngày.', ['Xem lịch', 'Thứ trong tuần', 'Đếm ngày']),
 ];

@@ -388,6 +388,7 @@ function navigate(gameId, opts = {}) {
     'grade1-tests': () => import('./games/grade3Worksheet.js').then(m => ({ render: m.grade1Render })),
     'grade2-tests': () => import('./games/grade3Worksheet.js').then(m => ({ render: m.grade2Render })),
     'grade4-tests': () => import('./games/grade3Worksheet.js').then(m => ({ render: m.grade4Render })),
+    'grade5-tests': () => import('./games/grade3Worksheet.js').then(m => ({ render: m.grade5Render })),
     'grade1-photo': () => import('./games/grade1Photo.js'),
     'grade1-shark': () => import('./games/gradeShark.js').then(m => ({ render: m.sharkRender(1) })),
     'grade2-shark': () => import('./games/gradeShark.js').then(m => ({ render: m.sharkRender(2) })),
@@ -407,6 +408,7 @@ function navigate(gameId, opts = {}) {
     'writing': () => import('./games/writing.js'),
     'tv3-weekly': () => import('./games/tiengViet3.js'),
     'tv3-spell': () => import('./games/tv3Spell.js'),
+    'life-skills': () => import('./games/lifeSkills.js'),
   };
 
   const loader = gameModules[gameId];

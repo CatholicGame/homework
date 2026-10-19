@@ -15,7 +15,7 @@ import { flyOne } from './grade3Games/fly.js';
 import { say } from './preschool/fx.js';
 import { UNIT_INFO } from '../data/knowledgeUnits.js';
 import { bookOf } from '../data/knowledgeMap.js';
-import { normQuestion, tablesOf, NORM_TYPES, itemSlots, gradeSlots, isTextSlot, isWordsSlot, columnParts, holes } from './worksheetCore.js';
+import { normQuestion, tablesOf, NORM_TYPES, itemSlots, gradeSlots, isTextSlot, isWordsSlot, columnParts, holes, toNum, fmtNum } from './worksheetCore.js';
 
 // bai01.js, bai01b.js… (cùng số bài, nhiều phiếu: thêm chữ cái), de01.js… de65.js. Nạp khi mở thư mục.
 const SHEETS = import.meta.glob('../data/grade3Worksheets/bai*.js');
@@ -134,13 +134,29 @@ const ROUTE_GLOBS = {
       ck: import.meta.glob('../data/routeTests/g4/hk2/ck*.js'),
     },
   },
+  5: {
+    1: {
+      nh: import.meta.glob('../data/routeTests/g5/nh*.js'),
+      th: import.meta.glob('../data/routeTests/g5/th*.js'),
+      gk: import.meta.glob('../data/routeTests/g5/gk*.js'),
+      ck: import.meta.glob('../data/routeTests/g5/ck*.js'),
+    },
+    2: {
+      nh: import.meta.glob('../data/routeTests/g5/hk2/nh*.js'),
+      th: import.meta.glob('../data/routeTests/g5/hk2/th*.js'),
+      gk: import.meta.glob('../data/routeTests/g5/hk2/gk*.js'),
+      ck: import.meta.glob('../data/routeTests/g5/hk2/ck*.js'),
+    },
+  },
 };
 // Id đề: học kì I l{lớp}-nh-01…, học kì II l{lớp}k2-nh-01… (cùng khoá sao route{lớp}).
 const routeCollections = (grade, term) => ROUTE_KINDS.map(k => {
   const mods = ROUTE_GLOBS[grade][term][k.kind];
   const pre = `l${grade}${term === 2 ? 'k2' : ''}-${k.kind}-`;
+  // Lớp 5: bài nhanh 10 câu (người dùng chọn, 2026-10-10), vẫn chỉ 3 Bài mới.
+  const desc = k.kind === 'nh' && grade === 5 ? k.desc.replace('5 câu', '10 câu') : k.desc;
   return {
-    ...k, id: `route${grade}${term === 2 ? 'k2' : ''}-${k.kind}`, term, unit: 'bài', noun: 'bài kiểm tra',
+    ...k, desc, id: `route${grade}${term === 2 ? 'k2' : ''}-${k.kind}`, term, unit: 'bài', noun: 'bài kiểm tra',
     sub: (s) => `Môn: Toán | Lớp ${grade} | Thời gian: ${s.time} phút`,
     count: Object.keys(mods).length, owns: (id) => id.startsWith(pre), load: loader(mods),
     starPrefix: `route${grade}`, timed: true, route: true, ...(grade === 1 ? { speak: true, big: true } : {}),
@@ -157,6 +173,7 @@ const CONFIGS = {
   1: { id: 'grade1-tests', collections: [...routeCollections(1, 1), ...routeCollections(1, 2)] },
   2: { id: 'grade2-tests', collections: [...routeCollections(2, 1), ...routeCollections(2, 2)] },
   4: { id: 'grade4-tests', collections: [...routeCollections(4, 1), ...routeCollections(4, 2)] },
+  5: { id: 'grade5-tests', collections: [...routeCollections(5, 1), ...routeCollections(5, 2)] },
 };
 const termOf = (c) => c.term || 1;
 // Tab đang chọn (mỗi lớp một tab, chỉ trên máy này). Chưa chọn: tháng 2–7 là học kì II, nhưng học kì đó chưa có đề thì về học kì I.
@@ -178,7 +195,7 @@ const OPT_LETTERS = 'ABCDEFGH';
 const FILL_TYPES = new Set(['calc', 'fill', 'findx', 'compare']);
 
 // Số lớn viết tách lớp ("7 500") vẫn đọc được.
-const num = (v) => { const t = String(v ?? '').replace(/\s+/g, ''); return t === '' ? NaN : Number(t); };
+const num = (v) => { const t = String(v ?? '').replace(/\s+/g, ''); return t === '' ? NaN : toNum(t); };
 const subs = (q) => q.items || [q];
 const plain = (s) => String(s).replace(/<[^>]*>/g, '').replace(/\{(\d+)\/(\d+)\}/g, '$1/$2');
 
@@ -189,6 +206,9 @@ function sayText(q) {
 }
 
 /** Chữ trong đề: {1/6} → phân số chồng. */
+/** Lời sửa viết tay: font Dancing Script vẽ dấu phẩy giống dấu chấm, nên dấu phẩy thập phân (12,5) dùng font thường. */
+const decComma = (h) => String(h).replace(/(\d),(?=\d)/g, '$1<span class="ws-dc">,</span>');
+
 function rich(s) {
   return String(s ?? '').replace(/\{(\d+)\/(\d+)\}/g, '<span class="ws-frac"><span>$1</span><span>$2</span></span>');
 }
@@ -296,9 +316,14 @@ function relationInfo(numbers) {
 
 /** Đáp án đúng của một ý để cô ghi bên cạnh ý sai. */
 function fixText(type, n) {
-  const first = (v) => String(v).split('|')[0];
-  if (type === 'calc') return n.rem ? `${n.ans[0]} dư ${n.ans[1]}` : `${n.ans[0]}${n.unit ? ` ${n.unit}` : ''}`;
-  if (type === 'findx') return n.inv ? `${n.v} = ${n.inv.join(' ')}, ${n.v} = ${n.ans[0]}` : `${n.v} = ${n.ans[0]}`;
+  const first = (v) => fmtNum(v).split('|')[0];
+  if (type === 'calc') return n.rem ? `${n.ans[0]} dư ${n.ans[1]}` : `${fmtNum(n.ans[0])}${n.unit ? ` ${n.unit}` : ''}`;
+  if (type === 'findx') return n.inv ? `${n.v} = ${n.inv.map(fmtNum).join(' ')}, ${n.v} = ${fmtNum(n.ans[0])}` : `${n.v} = ${fmtNum(n.ans[0])}`;
+  // Ô phân số {…/…} chiếm hai đáp án (tử, mẫu): ghi lại thành phân số {7/10}.
+  if (/\{…\/…\}/.test(n.t || '')) {
+    let k = 0;
+    return (n.t.match(/\{…\/…\}|□|…/g) || []).map(h => (h.length > 1 ? `{${first(n.ans[k++])}/${first(n.ans[k++])}}` : first(n.ans[k++]))).join(', ');
+  }
   return n.ans.map(first).join(', ');
 }
 
@@ -412,10 +437,16 @@ export function grade4Render(app, onBack, opts = {}) {
   renderGrade(4, app, onBack, opts);
 }
 
+/** Luyện Đề lớp 5: bộ Kiểm tra theo lộ trình theo Toán 5 Kết nối tri thức (thẻ grade5-tests), ô số nhận số thập phân. */
+export function grade5Render(app, onBack, opts = {}) {
+  renderGrade(5, app, onBack, opts);
+}
+
 /** `opts.navigate`: mở một sách ở một Bài (dải Ôn lại sau khi chấm bài kiểm tra theo lộ trình). */
 function renderGrade(grade, app, onBack, opts = {}) {
   const cfg = CONFIGS[grade];
   const COLLECTIONS = cfg.collections;
+  const DEC = grade >= 5; // số thập phân: ô số nhận dấu phẩy, bàn phím có phím ","
   const single = COLLECTIONS.length === 1;
   const hasTerm = (t) => COLLECTIONS.some(c => termOf(c) === t && c.count);
   const month = new Date().getMonth() + 1;
@@ -875,7 +906,12 @@ function renderGrade(grade, app, onBack, opts = {}) {
         const s = inp.value.replace(/-/g, '−').replace(/[*xX]/g, '×').replace(/\//g, ':');
         inp.value = [...s].filter(c => OPS.includes(c)).pop() || '';
       } else if (inp.dataset.text) inp.value = inp.value.slice(0, 60);
-      else inp.value = inp.value.replace(/\D/g, '').slice(0, 5);
+      // Ô số: chữ số, dấu cách tách lớp ("345 678", số lớn lớp 4, 5 tới 9 chữ số); lớp 5 thêm một dấu phẩy thập phân (phím . trên bàn phím máy tính thành dấu phẩy).
+      else {
+        let v = (DEC ? inp.value.replace(/\./g, ',') : inp.value).replace(DEC ? /[^\d ,]/g : /[^\d ]/g, '').replace(/^[ ,]+/, '');
+        if (DEC) { const c = v.indexOf(','); if (c >= 0) v = v.slice(0, c + 1) + v.slice(c + 1).replace(/,/g, ''); }
+        inp.value = v.slice(0, 14);
+      }
       setPath(inp.dataset.k, inp.value);
       persist();
       refreshWordGate(inp.dataset.k.split('|')[0]);
@@ -1192,7 +1228,7 @@ function renderGrade(grade, app, onBack, opts = {}) {
 
   function bodyHtml(e, a, g) {
     const { q, id } = e;
-    const mark = (ok, fix) => (ok ? '<span class="ws-tick">✓</span>' : `<span class="ws-cross">✗</span>${fix != null ? `<span class="ws-fix">${rich(fix)}</span>` : ''}`);
+    const mark = (ok, fix) => (ok ? '<span class="ws-tick">✓</span>' : `<span class="ws-cross">✗</span>${fix != null ? `<span class="ws-fix">${decComma(rich(fix))}</span>` : ''}`);
     const field = (k, v, cls = '', right) => {
       const text = right != null && isTextSlot(right);
       if (g) return `<span class="ws-filled ${cls}">${escapeHtml(v)}</span>`;
@@ -1201,7 +1237,7 @@ function renderGrade(grade, app, onBack, opts = {}) {
         : typeof right === 'number' && String(right).length > 4 ? ` style="width:${(String(right).length * 0.72 + 0.6).toFixed(1)}em"` : '';
       return text
         ? `<input class="ws-in ws-in-text ${cls}" data-k="${id}|${k}" data-text="1"${isWordsSlot(right) ? ' data-vk-words="1"' : ''} value="${escapeHtml(v)}"${w} autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Chỗ trống">`
-        : `<input class="ws-in ${cls}" data-k="${id}|${k}" value="${escapeHtml(v)}"${w} inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Ô trống">`;
+        : `<input class="ws-in ${cls}" data-k="${id}|${k}" value="${escapeHtml(v)}"${w} inputmode="numeric"${DEC ? ' data-vk-dec="1"' : ' pattern="[0-9]*"'} autocomplete="off" aria-label="Ô trống">`;
     };
     const signBox = (k, v, choices, extra = '') => (g
       ? `<span class="ws-filled ws-cmp ws-cmp-set${extra}">${rich(v)}</span>`
@@ -1237,9 +1273,14 @@ function renderGrade(grade, app, onBack, opts = {}) {
               const [l, r] = t.split(/□|…/);
               body = `<span>${rich(l)}</span>${signBox(`${i}|0`, v[0], CMP)}<span>${rich(r)}</span>`;
             } else {
-              const pieces = t.split(/(□|…)/);
+              // {…/…}: ô phân số (lớp 5), tử số trên, mẫu số dưới, hai ô liền nhau trong đáp án.
+              const pieces = t.split(/(\{…\/…\}|□|…)/);
               let j = 0;
               body = pieces.map(p => {
+                if (p === '{…/…}') {
+                  const k = j; j += 2;
+                  return `<span class="ws-frac ws-frac-in"><span>${field(`${i}|${k}`, v[k], 'ws-in-box', nm.ans[k])}</span><span>${field(`${i}|${k + 1}`, v[k + 1], 'ws-in-box', nm.ans[k + 1])}</span></span>`;
+                }
                 if (p === '□' || p === '…') {
                   const k = j++;
                   if (nm.choices && typeof nm.ans[k] === 'string') return signBox(`${i}|${k}`, v[k], nm.choices, ' ws-cmp-wide');
@@ -1384,7 +1425,7 @@ function renderGrade(grade, app, onBack, opts = {}) {
     const lineCls = (k) => (g ? '' : step < k ? ' ws-dim' : step === k ? ' ws-now' : '');
     const placed = a.tiles.map(t => `<button type="button" class="ws-tile ws-tile-on" data-t="${t}" data-where="line"${g || step !== 2 ? ' tabindex="-1"' : ''}>${e.pool[t]}</button>`).join('');
     const sentenceRight = q.sentence.join(' ');
-    const lineMark = (k, fixText2) => (g ? (g.items[k] ? '<span class="ws-tick">✓</span>' : `<span class="ws-cross">✗</span><div class="ws-fixline">${fixText2}</div>`) : '');
+    const lineMark = (k, fixText2) => (g ? (g.items[k] ? '<span class="ws-tick">✓</span>' : `<span class="ws-cross">✗</span><div class="ws-fixline">${decComma(fixText2)}</div>`) : '');
     const ready = (s) => stepReady(a, s);
     // Nút sang bước sau nằm ngay cuối dòng đang viết.
     const NEXT_LABELS = { 2: 'Tiếp: viết phép tính', 3: 'Tiếp: viết đáp số', 4: 'Xong bài giải' };
@@ -1434,12 +1475,12 @@ function renderGrade(grade, app, onBack, opts = {}) {
               ${g ? field('op', a.op, 'ws-in-op') : `<input class="ws-in ws-in-op" data-k="${id}|op" value="${escapeHtml(a.op)}" maxlength="1" inputmode="numeric" placeholder="?" autocomplete="off" aria-label="Dấu phép tính">`}
               ${field('b', a.b, 'ws-in-n', wide)}<span>=</span>${field('r', a.r, 'ws-in-n', wide)}
               <span class="ws-keep">(<span class="ws-slot ws-unitbox${a.unit ? '' : ' ws-empty'}">${a.unit || 'đơn vị'}</span>)</span>
-              ${lineMark('line2', `${x.a} ${x.op} ${x.b} = ${x.result} (${x.unit})`)}${nextBtn(3)}
+              ${lineMark('line2', `${fmtNum(x.a)} ${x.op} ${fmtNum(x.b)} = ${fmtNum(x.result)} (${x.unit})`)}${nextBtn(3)}
             </div>
             <div class="ws-line ws-l3${lineCls(4)}">
               <span class="ws-u">Đáp số:</span>${field('ans', a.ans, 'ws-in-n', wide)}
               <span class="ws-keep"><span class="ws-slot ws-ansunitbox${a.ansUnit ? '' : ' ws-empty'}">${a.ansUnit || 'đơn vị'}</span>.</span>
-              ${lineMark('line3', `Đáp số: ${x.result} ${x.unit}.`)}${nextBtn(4)}
+              ${lineMark('line3', `Đáp số: ${fmtNum(x.result)} ${x.unit}.`)}${nextBtn(4)}
             </div>
           </div>
           ${panels}
@@ -1511,12 +1552,22 @@ function columnHtml(p, nm, slot) {
         <span class="ws-ld-work">${nm.rem ? `<span class="ws-ld-rem">dư ${slot(1, 'ws-in-col')}</span>` : ''}</span><span class="ws-ld-q">${slot(0, 'ws-in-col')}</span>
       </span>`;
   }
+  const [a, b] = decAlign(p);
   return `
     <span class="ws-col">
-      <span class="ws-col-op">${p.op}</span><span class="ws-col-n">${p.a}</span>
-      <span class="ws-col-n ws-col-under">${p.b}</span>
+      <span class="ws-col-op">${p.op}</span><span class="ws-col-n">${a}</span>
+      <span class="ws-col-n ws-col-under">${b}</span>
       <span class="ws-col-n">${slot(0, 'ws-in-col')}</span>
     </span>`;
+}
+
+/** Cộng, trừ số thập phân: dấu phẩy thẳng cột như vở (thêm chữ số 0 ẩn sau số có ít chữ số thập phân hơn). */
+function decAlign(p) {
+  if (p.op !== '+' && p.op !== '−') return [p.a, p.b];
+  const decs = (s) => (String(s).split(',')[1] || '').length;
+  const d = Math.max(decs(p.a), decs(p.b));
+  const pad = (s) => (decs(s) < d ? `${s}<span class="ws-col-pad">${String(s).includes(',') ? '' : ','}${'0'.repeat(d - decs(s))}</span>` : s);
+  return [pad(p.a), pad(p.b)];
 }
 
 /** Phép tính in sẵn trong câu Đúng/Sai: { col: '527 + 145', res: '662' } hoặc { div: '80 : 4', q: '2', work: ['8', '0'] }. */
@@ -1530,10 +1581,11 @@ function staticOpHtml(it) {
       </span>`;
   }
   const p = columnParts(it.col);
+  const [a, b] = decAlign(p);
   return `
     <span class="ws-col">
-      <span class="ws-col-op">${p.op}</span><span class="ws-col-n">${p.a}</span>
-      <span class="ws-col-n ws-col-under">${p.b}</span>
+      <span class="ws-col-op">${p.op}</span><span class="ws-col-n">${a}</span>
+      <span class="ws-col-n ws-col-under">${b}</span>
       <span class="ws-col-n">${it.res}</span>
     </span>`;
 }
@@ -1773,6 +1825,10 @@ function injectStyles() {
     @keyframes wsFlash { 0%, 40% { background: #fef3c7; } 100% { background: transparent; } }
     .ws-frac { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; font-size: 0.82em; line-height: 1.05; margin: 0 0.15em; }
     .ws-frac span:first-child { border-bottom: 1.5px solid currentColor; padding: 0 0.15em; }
+    .ws-frac-in { font-size: 1em; margin: 0 0.25em; }
+    .ws-frac-in > span { display: flex; justify-content: center; padding: 0.15em 0.1em; }
+    .ws-frac-in > span:first-child { border-bottom: 2.5px solid currentColor; }
+    .ws-frac-in .ws-in, .ws-frac-in .ws-filled { margin: 0; }
     .ws-fig { margin: 0.3rem 0 0.5rem; }
     .ws-fig svg, .ws-optt svg { max-width: 100%; height: auto; }
     .ws-fig svg + svg { margin-left: 1.5rem; } /* nhiều hình ghép trong một fig (hai nhiệt kế…) */
@@ -1799,6 +1855,7 @@ function injectStyles() {
     .ws-filled { display: inline-block; min-width: 2.2em; text-align: center; font-weight: 800; color: var(--ink); border-bottom: 2px dotted #94a3b8; }
     .ws-filled.ws-cmp { border: 2px solid #1f2937; }
     .ws-tick, .ws-cross { font-family: 'Dancing Script', cursive; color: var(--red); font-weight: 700; font-size: 1.45em; line-height: 1; margin-left: 0.15rem; }
+    .ws-dc { font-family: 'Quicksand', system-ui, sans-serif; font-weight: 800; }
     .ws-fix { font-family: 'Dancing Script', cursive; color: var(--red); font-weight: 700; font-size: 1.25em; }
     .ws-pick { position: fixed; z-index: 50; display: flex; gap: 0.5rem; background: #fff; padding: 0.5rem; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
     .ws-pick button { width: 3.6rem; height: 3.6rem; border-radius: 0.8rem; border: 2px solid #c4b5fd; background: #f5f3ff; font: inherit; font-size: 2rem; font-weight: 800; color: var(--ink); cursor: pointer; box-shadow: 0 4px 0 #a78bfa; }
@@ -1815,6 +1872,7 @@ function injectStyles() {
     .ws-col-op { grid-column: 1; grid-row: 1 / span 2; align-self: center; font-weight: 800; }
     .ws-col-n { grid-column: 2; text-align: right; letter-spacing: 0.08em; min-width: 3.4em; padding-right: 0.15em; }
     .ws-col-n .ws-in-col { margin-right: -0.15em; }
+    .ws-col-pad { visibility: hidden; }
     .ws-col-under { border-bottom: 2px solid #1f2937; }
     .ws-in-col { width: 3.4em; text-align: right; padding-right: 0.15em; letter-spacing: 0.08em; }
     .ws-ld { display: inline-grid; grid-template-columns: auto auto; font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: 0.08em; }

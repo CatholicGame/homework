@@ -3,6 +3,8 @@
  *   touch : chạm màn hình như cũ
  *   hand  : giao diện như cũ, camera nhỏ ở góc, bàn tay điều khiển con trỏ
  *   ar    : bé thấy chính mình phía sau (camera soi gương phủ cả màn hình)
+ *   mirror: chạm màn hình như cũ, camera soi gương phủ cả màn hình chỉ để bé thấy mình
+ *           (không nhận diện bàn tay, không tải MediaPipe)
  *
  * Bàn tay là một "ngón tay ảo" phát sự kiện pointer/click thật vào trang, nên mọi lượt
  * chơi có sẵn (chạm đếm, chọn đáp án, kéo số, tô số) chạy luôn, không phải sửa từng loại.
@@ -27,6 +29,7 @@ const CLICKABLE = 'button, a[href], [role="button"], input, label, select';
 
 export const HAND_MODES = [
   { id: 'touch', icon: '👆', label: 'Chạm màn hình', note: 'Bé chạm ngón tay vào màn hình.' },
+  { id: 'mirror', icon: '🧒', label: 'Chạm màn hình, thấy mình', note: 'Bé chạm màn hình, camera chỉ để bé thấy mình phía sau.' },
   { id: 'hand', icon: '🖐️', label: 'Dùng bàn tay', note: 'Đưa tay tới hình, chụm ngón cái và ngón trỏ để chọn.' },
   { id: 'ar', icon: '🪞', label: 'Bàn tay, thấy mình', note: 'Như trên, bé thấy chính mình phía sau.' },
 ];
@@ -67,20 +70,27 @@ function openMenu() {
   const sheet = document.createElement('div');
   sheet.className = 'pk-hand-sheet';
   // Hai nhóm: chạm màn hình, hoặc bàn tay trước camera (chọn nền: màn chơi như cũ / thấy mình).
-  const handOn = cur !== 'touch';
+  // Mỗi nhóm chọn thêm nền: màn chơi như cũ / camera (bé thấy mình phía sau cho có động lực).
+  const handOn = cur === 'hand' || cur === 'ar';
   const lock = noCam ? ' disabled' : '';
-  const bg = (id, pic, label, note) => `
-        <button type="button" class="pk-hand-bg${id === cur ? ' is-on' : ''}" data-mode="${id}"${lock}>
-          <span class="pk-hand-bg-pic pic-${id}" aria-hidden="true">${pic}</span>
-          <b>${label}</b><small>${note}</small>
-        </button>`;
+  const bg = (id, pic, label, note, cam = true) => `
+          <button type="button" class="pk-hand-bg${id === cur ? ' is-on' : ''}" data-mode="${id}"${cam ? lock : ''}>
+            <span class="pk-hand-bg-pic pic-${id}" aria-hidden="true">${pic}</span>
+            <b>${label}</b><small>${note}</small>
+          </button>`;
   sheet.innerHTML = `
     <div class="pk-hand-menu" role="dialog" aria-label="Cách chơi">
       <h2>Bé chơi bằng cách nào?</h2>
-      <button type="button" class="pk-hand-opt${handOn ? '' : ' is-on'}" data-mode="touch">
-        <span class="pk-hand-opt-icon">👆</span>
-        <span class="pk-hand-opt-text"><b>Chạm màn hình</b><small>Bé chạm ngón tay vào màn hình.</small></span>
-      </button>
+      <div class="pk-hand-group${handOn ? '' : ' is-on'}">
+        <button type="button" class="pk-hand-opt" data-mode="${cur === 'mirror' ? 'mirror' : 'touch'}">
+          <span class="pk-hand-opt-icon">👆</span>
+          <span class="pk-hand-opt-text"><b>Chạm màn hình</b><small>Bé chạm ngón tay vào màn hình.</small></span>
+        </button>
+        <div class="pk-hand-bgs" role="group" aria-label="Nền màn hình">
+          ${bg('touch', '<i>🐰</i>', 'Nền trò chơi', 'Không bật camera', false)}
+          ${bg('mirror', '<i>🧒</i>', 'Nền camera', 'Bé thấy mình phía sau')}
+        </div>
+      </div>
       <div class="pk-hand-group${handOn ? ' is-on' : ''}${noCam ? ' is-off' : ''}">
         <button type="button" class="pk-hand-opt" data-mode="${cur === 'ar' ? 'ar' : 'hand'}"${lock}>
           <span class="pk-hand-opt-icon">🖐️</span>
@@ -107,7 +117,9 @@ function openMenu() {
 export function setHandMode(id, { greet = false } = {}) {
   saveMode(id);
   refreshButtons();
+  if (id !== 'mirror') stopMirror();
   if (id === 'touch') { stopHand(); return; }
+  if (id === 'mirror') { if (!M) { stopHand(); startMirror(); } return; }
   startHand(id, { greet });
 }
 
@@ -115,8 +127,56 @@ export function setHandMode(id, { greet = false } = {}) {
 export function resumeHand() {
   const id = getHandMode();
   if (id === 'touch') return;
-  if (canUseCamera()) startHand(id);
-  else { saveMode('touch'); refreshButtons(); }
+  if (!canUseCamera()) { saveMode('touch'); refreshButtons(); return; }
+  if (id === 'mirror') startMirror();
+  else startHand(id);
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// Chỉ soi gương: camera phủ nền, bé vẫn chạm màn hình
+// ════════════════════════════════════════════════════════════════════════
+let M = null;
+
+function startMirror() {
+  if (M) return;
+  const video = document.createElement('video');
+  video.className = 'pk-hand-video';
+  video.setAttribute('playsinline', '');
+  video.muted = true;
+  const veil = document.createElement('div');
+  veil.className = 'pk-hand-veil';
+  document.body.append(video, veil);
+  document.body.classList.add('pk-ar');
+  const mine = M = { video, veil, stream: null, timer: 0 };
+  // Rời Tiền tiểu học (về trang chủ, đổi trang) thì tắt camera.
+  mine.timer = setInterval(() => { if (!document.querySelector('.pk')) stopMirror(); }, 700);
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+    audio: false,
+  }).then((stream) => {
+    if (M !== mine) { stream.getTracks().forEach(t => t.stop()); return; }
+    mine.stream = stream;
+    video.srcObject = stream;
+    video.play().catch(() => {});
+  }).catch((err) => {
+    if (M !== mine) return;
+    console.warn('[mirror] không bật được camera:', err);
+    const denied = err?.name === 'NotAllowedError' || err?.name === 'SecurityError';
+    stopMirror();
+    saveMode('touch');
+    refreshButtons();
+    flash(denied ? 'Chưa được phép dùng camera. Bé chơi bằng cách chạm màn hình.' : 'Không mở được camera. Bé chơi bằng cách chạm màn hình.');
+  });
+}
+
+function stopMirror() {
+  if (!M) return;
+  clearInterval(M.timer);
+  M.stream?.getTracks().forEach(t => t.stop());
+  M.video.srcObject = null;
+  M.video.remove(); M.veil.remove();
+  if (!S) document.body.classList.remove('pk-ar');
+  M = null;
 }
 
 // ════════════════════════════════════════════════════════════════════════
@@ -191,6 +251,7 @@ function startHand(mode, { greet = false } = {}) {
 const GREETING = 'Bé đưa tay tới hình. Chụm ngón cái và ngón trỏ lại để chọn!';
 
 export function stopHand() {
+  stopMirror();
   if (!S) return;
   if (S.pressed) release();
   setHover(null);

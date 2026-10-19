@@ -16,6 +16,7 @@ import { preloadNpcs } from './grade3Games/npc.js';
 import { getTotalStars, hasEarned } from '../engine/stars.js';
 import { css } from './grade4Tools/frame.js';
 import { KNOWLEDGE5 } from './grade5Tools/knowledge.js';
+import './grade5Tools/knowledgeDemos.js'; // đăng kí ví dụ 'g5-…' cho nút 📘 Kiến thức
 import { knowledgeBais, knowledgeItem, openLayer } from './lessonHelp.js';
 
 /** Sách cho phần Thực hành chung (practice.js): sao 'tool5', bàn phím có dấu phẩy. */

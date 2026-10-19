@@ -130,18 +130,189 @@ function showPad(ctx, host, spec, onPick) {
  * Hình minh hoạ. Hình có khung từng đồ vật (items.json) thì bé chạm vào đồ vật để đếm, mỗi đồ vật
  * một số, chạm ra ngoài không đánh số; hình không có đồ vật để đếm (con vật, bảng giá…) là hình tĩnh.
  */
-function mountPicture(ctx, host, src) {
+function mountPicture(ctx, host, src, { fold = true } = {}) {
   if (!src || !host) return null;
   const items = itemsOf(src);
-  let pic;
-  if (items) pic = ctx.countingPicture(src, items).el;
-  else {
-    pic = document.createElement('div');
-    pic.className = 'pk-pic';
-    pic.innerHTML = `<img src="${src}" alt="" draggable="false">`;
+  const build = (plan) => {
+    let pic;
+    if (items) pic = ctx.countingPicture(src, items, { split: plan || false }).el;
+    else {
+      pic = document.createElement('div');
+      pic.className = 'pk-pic';
+      pic.innerHTML = `<img src="${src}" alt="" draggable="false">`;
+    }
+    host.append(pic);
+    return pic;
+  };
+  // Màn hình dọc, hình có đồ vật: đợi biết cỡ hình để quyết định gập hai hàng hay không (hình chưa tải
+  // thì chưa hiện gì, nên dựng sau cũng không làm màn chơi nhảy).
+  if (portrait() && fold && items) {
+    fillPortrait(ctx, host, src, items, (plan) => build(plan));
+    return null;
   }
-  host.append(pic);
+  const pic = build(null);
+  if (portrait()) fillPortrait(ctx, host, src, null, () => pic);
   return pic;
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// Màn hình dọc: hình lấp phần cao còn trống của vùng chơi. Hình dải dài (kẹo hai hàng tám cái, sáu con
+// vật xếp ngang) thì bề ngang màn hình giới hạn cỡ hình, phần cao còn trống bỏ phí: cắt hình ở khe giữa
+// hai đồ vật thành hai nửa xếp chồng (cùng tỉ lệ), đồ vật to gần gấp đôi. Cỡ tính một lần khi hình tải
+// xong (và khi xoay máy), rồi giữ nguyên trong lượt: bàn phím đổi, lời khen hiện ra cũng không làm hình nhảy.
+// ════════════════════════════════════════════════════════════════════════
+const portrait = () => innerHeight > innerWidth;
+const FOLD_GAP = 6; // khe giữa hai nửa (px), như .pk-pic.is-split
+const FOLD_OVERLAP = 3; // % bề ngang hình
+const MAX_CROSS = 1; // số hàng điểm ảnh đường cắt được lướt qua nét vẽ (đầu lá ngô chạm nhau); đường kẻ, khung, vòng khoanh cắt qua nhiều hơn
+
+/** Chỗ cắt dọc không đi qua đồ vật nào, chia hai nửa dài gần bằng nhau. rects [x%, y%, w%, h%]. */
+function foldCut(rects) {
+  if (!rects || rects.length < 2) return null;
+  const start = Math.max(0, Math.min(...rects.map(r => r[0])) - 2) / 100;
+  const end = Math.min(100, Math.max(...rects.map(r => r[0] + r[2])) + 2) / 100;
+  const spans = rects.map(r => [r[0], r[0] + r[2]]).sort((a, b) => a[0] - b[0]);
+  let best = null;
+  let reach = spans[0][1];
+  for (let i = 1; i < spans.length; i++) {
+    // Khung đồ vật có chừa lề quanh hình vẽ: hai khung chồng lên nhau chút ít (kẹo xếp sát nhau) vẫn cắt được ở giữa.
+    if (spans[i][0] > reach - FOLD_OVERLAP) {
+      const cut = (reach + spans[i][0]) / 200;
+      const longer = Math.max(cut - start, end - cut);
+      if (!best || longer < best.longer) best = { cut, longer };
+    }
+    reach = Math.max(reach, spans[i][1]);
+  }
+  if (!best) return null;
+  return Object.assign([{ x: start, w: best.cut - start }, { x: best.cut, w: end - best.cut }], { max: best.longer, start, end, cut: best.cut });
+}
+
+/**
+ * Đồ vật vẽ chéo, sát nhau (kẹo: đuôi giấy gói đan vào nhau) thì đường cắt thẳng nào cũng lẹm vào mép
+ * đồ vật bên cạnh. Dò trên điểm ảnh một đường cắt đi qua chỗ trắng gần `cut` nhất (quy hoạch động, mỗi
+ * hàng điểm ảnh lệch tối đa 2 điểm) và cắt hai nửa theo đường đó. Trả về hai nửa mới kèm `seam`
+ * ([x 0–1] cho mỗi hàng), hoặc null (không gập) khi đường cắt phải đi qua nét vẽ / không đọc được điểm ảnh.
+ */
+function seamFold(im, plan) {
+  try {
+    const k = Math.min(1, 480 / im.naturalWidth);
+    const w = Math.round(im.naturalWidth * k), h = Math.round(im.naturalHeight * k);
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    const g = cv.getContext('2d', { willReadFrequently: true });
+    g.fillStyle = '#fff';
+    g.fillRect(0, 0, w, h);
+    g.drawImage(im, 0, 0, w, h);
+    const px = g.getImageData(0, 0, w, h).data;
+    const band = 0.05;
+    const x0 = Math.max(1, Math.floor((plan.cut - band) * w)), x1 = Math.min(w - 2, Math.ceil((plan.cut + band) * w));
+    const mid = plan.cut * w;
+    const n = x1 - x0 + 1;
+    // Điểm có nét (cả viền mờ khử răng cưa), nới rộng 2 điểm: đường cắt chừa lề, không sát mép nét vẽ.
+    const raw = new Uint8Array(w * h);
+    for (let i = 0; i < w * h; i++) raw[i] = px[i * 4] + px[i * 4 + 1] + px[i * 4 + 2] < 3 * 240 ? 1 : 0;
+    const R = 2;
+    const wide = new Uint8Array(w * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (raw[y * w + x]) {
+      for (let yy = Math.max(0, y - R); yy <= Math.min(h - 1, y + R); yy++) wide.fill(1, yy * w + Math.max(0, x - R), yy * w + Math.min(w - 1, x + R) + 1);
+    }
+    const ink = (x, y) => wide[y * w + x] + raw[y * w + x];
+    const cost = new Float32Array(n * h), from = new Int8Array(n * h);
+    for (let y = 0; y < h; y++) {
+      for (let j = 0; j < n; j++) {
+        const own = ink(x0 + j, y) + Math.abs(x0 + j - mid) / (w * 4); // gần chỗ cắt thẳng hơn thì tốt hơn chút
+        if (!y) { cost[j] = own; continue; }
+        let bestC = Infinity, bestD = 0;
+        for (let d = -2; d <= 2; d++) {
+          const jj = j + d;
+          if (jj < 0 || jj >= n) continue;
+          const c = cost[(y - 1) * n + jj] + Math.abs(d) * 0.01;
+          if (c < bestC) { bestC = c; bestD = d; }
+        }
+        cost[y * n + j] = own + bestC;
+        from[y * n + j] = bestD;
+      }
+    }
+    let j = 0;
+    for (let q = 1; q < n; q++) if (cost[(h - 1) * n + q] < cost[(h - 1) * n + j]) j = q;
+    const seam = new Array(h);
+    for (let y = h - 1; y >= 0; y--) { seam[y] = (x0 + j + 0.5) / w; j += from[y * n + j]; }
+    // Số hàng điểm ảnh đường cắt đi qua nét vẽ: khung, đường kẻ chia nhóm, vòng khoanh, chữ… thì không gập.
+    let crossed = 0;
+    for (let y = 0; y < h; y++) { const x = Math.floor(seam[y] * w); if (raw[y * w + x] || raw[y * w + x - 1] || raw[y * w + x + 1]) crossed++; }
+    if (crossed > MAX_CROSS) return null;
+    const lo = Math.min(...seam), hi = Math.max(...seam);
+    const halves = [{ x: plan.start, w: hi - plan.start }, { x: lo, w: plan.end - lo }];
+    return Object.assign(halves, { max: Math.max(hi - plan.start, plan.end - lo), seam, cut: plan.cut });
+  } catch {
+    return null; // không đọc được điểm ảnh: không gập
+  }
+}
+
+/** Cắt ảnh trong từng nửa theo đường dò được (clip-path tính theo % của cả ảnh). */
+function clipSeam(pic, plan) {
+  if (!plan.seam) return;
+  const imgs = pic.querySelectorAll('.pk-half-clip > img');
+  const h = plan.seam.length;
+  const pts = [];
+  for (let y = 0; y < h; y += 2) pts.push(`${(plan.seam[y] * 100).toFixed(2)}% ${((y / (h - 1)) * 100).toFixed(2)}%`);
+  pts.push(`${(plan.seam[h - 1] * 100).toFixed(2)}% 100%`);
+  pts[0] = `${(plan.seam[0] * 100).toFixed(2)}% 0%`;
+  if (imgs[0]) imgs[0].style.clipPath = `polygon(0% 0%, ${pts.join(', ')}, 0% 100%)`;
+  if (imgs[1]) imgs[1].style.clipPath = `polygon(${pts.join(', ')}, 100% 100%, 100% 0%)`;
+}
+
+/**
+ * Đợi hình `src` tải xong, đo phần cao còn trống của `host`, chọn gập hay không (gập khi đồ vật to hơn
+ * hẳn), gọi `build(plan)` (plan = hai nửa hoặc null) để dựng khung hình rồi đặt cỡ khung theo pixel.
+ * `rects` = khung đồ vật / chỗ chạm (null: không gập).
+ */
+function fillPortrait(ctx, host, src, rects, build) {
+  host.classList.add('is-fill');
+  const im = new Image();
+  im.src = src;
+  let pic = null, plan = null;
+  const size = () => {
+    if (!host.isConnected || !im.naturalWidth) return;
+    if (!portrait()) { // xoay ngang: bỏ cỡ cố định, theo bố cục ngang (fit.js)
+      host.classList.remove('is-fill');
+      host.style.height = host.style.flex = '';
+      if (pic) pic.style.width = pic.style.maxWidth = '';
+      pic?.querySelectorAll(':scope > img, :scope > .pk-scene-in > img').forEach(i => { i.style.width = i.style.maxWidth = i.style.maxHeight = ''; });
+      return;
+    }
+    host.classList.add('is-fill');
+    host.style.height = host.style.flex = '';
+    const pad = pic?.classList.contains('pk-scene') ? 8 : 10;
+    const W = im.naturalWidth, H = im.naturalHeight;
+    const aw = host.clientWidth - 2 * pad - 4, ah = host.clientHeight - 2 * pad - 10;
+    if (aw <= 0 || ah <= 0) return;
+    const flat = Math.min(aw / W, ah / H);
+    if (!pic) {
+      const halves = rects ? foldCut(rects) : null;
+      const folded = halves ? Math.min(aw / (halves.max * W), (ah - FOLD_GAP) / (2 * H)) : 0;
+      plan = folded > flat * 1.15 ? seamFold(im, halves) : null;
+      pic = build(plan);
+      if (plan) clipSeam(pic, plan);
+    }
+    // Giữ nguyên phần cao đã đo: phần dưới (bàn phím, lời khen) đổi cỡ sau đó không kéo hình đi.
+    host.style.height = `${host.clientHeight}px`;
+    host.style.flex = 'none';
+    if (plan) {
+      const s = Math.min(aw / (plan.max * W), (ah - FOLD_GAP) / (2 * H));
+      pic.style.maxWidth = 'none';
+      pic.style.width = `${plan.max * W * s + 2 * pad}px`;
+    } else {
+      const img = pic.querySelector(':scope > img, :scope > .pk-scene-in > img');
+      if (img) Object.assign(img.style, { width: `${W * flat}px`, maxWidth: 'none', maxHeight: 'none' });
+    }
+  };
+  const ready = () => requestAnimationFrame(size);
+  if (im.complete && im.naturalWidth) ready(); else im.addEventListener('load', ready, { once: true });
+  let t = 0;
+  const onResize = () => { clearTimeout(t); t = setTimeout(size, 150); };
+  addEventListener('resize', onResize);
+  ctx.addCleanup?.(() => { removeEventListener('resize', onResize); clearTimeout(t); });
 }
 
 /** Khung sáng chỉ vào một vùng của hình ([x%, y%, w%, h%]); null thì ẩn. */
@@ -300,7 +471,7 @@ function playAsk(ctx) {
       </div>
       <div class="pk4-pad"></div>
     </div>`;
-  const mark = highlighter(mountPicture(ctx, stage.querySelector('.pk4-pic'), round.img));
+  const mark = highlighter(mountPicture(ctx, stage.querySelector('.pk4-pic'), round.img, { fold: false }));
   const padHost = stage.querySelector('.pk4-pad');
   const rows = [...stage.querySelectorAll('.pk4-ask')];
   let current = null;
@@ -364,26 +535,29 @@ function playSpot(ctx) {
   const answers = new Set(round.answer);
   stage.innerHTML = `
     <div class="pk4-wrap">
-      <div class="pk-scene pk4-spot"><div class="pk-scene-in">
-        <img src="${round.img}" alt="" draggable="false">
-        ${round.zones.map(([x, y, w, h], k) => `<button type="button" class="pk4-zone" data-k="${k}" style="left:${x}%;top:${y}%;width:${w}%;height:${h}%" aria-label="Chỗ ${k + 1}"></button>`).join('')}
-      </div></div>
+      <div class="pk4-pic"></div>
       <div class="pk4-dots">${[...answers].map(() => '<span></span>').join('')}</div>
     </div>`;
+  const host = stage.querySelector('.pk4-pic');
+  const zone = ([x, y, w, h], k) => `<button type="button" class="pk4-zone" data-k="${k}" style="left:${x}%;top:${y}%;width:${w}%;height:${h}%" aria-label="Chỗ ${k + 1}"></button>`;
+  // plan = hai nửa (màn hình dọc, hình dài): mỗi nửa một khung cắt từ cùng hình, chỗ chạm đổi sang toạ độ trong nửa chứa nó.
+  const buildScene = (plan) => {
+    const scene = document.createElement('div');
+    scene.className = `pk-scene pk4-spot${plan ? ' is-split' : ''}`;
+    scene.innerHTML = plan
+      ? plan.map((hf, i) => `<div class="pk-half" style="width:${(hf.w / plan.max) * 100}%"><div class="pk-half-clip"><img src="${round.img}" alt="" draggable="false" style="width:${100 / hf.w}%;margin-left:${(-hf.x / hf.w) * 100}%"></div><div class="pk4-zones">${
+        round.zones.map((z, k) => [z, k]).filter(([[x, , w]]) => ((x + w / 2) >= plan.cut * 100 ? 1 : 0) === i)
+          .map(([[x, y, w, h], k]) => zone([(x - hf.x * 100) / hf.w, y, w / hf.w, h], k)).join('')}</div></div>`).join('')
+      : `<div class="pk-scene-in"><img src="${round.img}" alt="" draggable="false">${round.zones.map(zone).join('')}</div>`;
+    host.append(scene);
+    bindZones(scene);
+    return scene;
+  };
   const dots = [...stage.querySelectorAll('.pk4-dots span')];
   const extra = new Set(round.extra || []);
   const circle = '<svg class="pk-circle" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 6 C80 4 96 26 94 52 C92 80 70 96 46 94 C20 92 4 72 6 46 C8 22 28 8 56 8"/></svg>';
-  // Hình cắt nhỏ vẫn hiện đủ to để bé dễ chạm: phóng theo bề ngang còn trống, không quá 60% chiều cao màn hình.
-  const pic = stage.querySelector('.pk4-spot img');
-  const fit = () => {
-    if (!pic.naturalWidth) return;
-    const room = stage.clientWidth - 24;
-    pic.style.width = `${Math.min(room, 900, (window.innerHeight * 0.6 * pic.naturalWidth) / pic.naturalHeight)}px`;
-    pic.style.maxHeight = 'none';
-  };
-  if (pic.complete) fit(); else pic.onload = fit;
   let found = 0;
-  stage.querySelectorAll('.pk4-zone').forEach(z => {
+  const bindZones = (scene) => scene.querySelectorAll('.pk4-zone').forEach(z => {
     z.onclick = () => {
       if (z.classList.contains('is-right') || found === answers.size) return;
       const k = Number(z.dataset.k);
@@ -401,6 +575,18 @@ function playSpot(ctx) {
       right(z, `${pick(PRAISE)} Còn ${numberWord(answers.size - found)} chỗ nữa!`);
     };
   });
+  if (portrait()) fillPortrait(ctx, host, round.img, round.zones, buildScene);
+  else {
+    // Hình cắt nhỏ vẫn hiện đủ to để bé dễ chạm: phóng theo bề ngang còn trống, không quá 60% chiều cao màn hình.
+    const pic = buildScene(null).querySelector('img');
+    const fit = () => {
+      if (!pic.naturalWidth) return;
+      const room = stage.clientWidth - 24;
+      pic.style.width = `${Math.min(room, 900, (window.innerHeight * 0.6 * pic.naturalWidth) / pic.naturalHeight)}px`;
+      pic.style.maxHeight = 'none';
+    };
+    if (pic.complete) fit(); else pic.onload = fit;
+  }
   talk(round.say);
 }
 

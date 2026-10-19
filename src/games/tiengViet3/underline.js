@@ -1,5 +1,5 @@
 /**
- * ✏️ Gạch chân bằng thước: bé kéo thước 📏 tới dưới một hàng chữ, rồi kéo bút chì dọc thước để kẻ.
+ * ✏️ Gạch chân bằng thước: mỗi hàng chữ có sẵn một thước 📏 bên dưới, bé kéo bút chì dọc thước để kẻ.
  * Các chữ có tâm nằm trong đoạn vừa kẻ được gạch (1 gạch hoặc 2 gạch theo bút đang chọn).
  * Chạm vào chữ đã gạch → xoá nét gạch đó.
  *
@@ -90,7 +90,6 @@ export function mountUnderline(el, q, { a = {}, set, mode = 'do', hint } = {}) {
   const { toks, expect, ok } = expectedMarks(q);
   let state = { ...a };
   let pen = marks[0].n;
-  let rulerRow = -1; // hàng đang đặt thước
   const editable = mode === 'do';
 
   let i = 0;
@@ -105,22 +104,18 @@ export function mountUnderline(el, q, { a = {}, set, mode = 'do', hint } = {}) {
       <div class="tvu-tools">
         ${marks.map(m => `<button type="button" class="tvu-pen${m.n === pen ? ' is-on' : ''}" data-pen="${m.n}" style="--pen:${PEN_COLOR[m.n]}">
           <span class="tvu-pen-ico">✏️</span><span class="tvu-pen-sample n${m.n}"></span><span>${esc(penLabel(m))}</span></button>`).join('')}
-        <div class="tvu-dock" title="Kéo thước tới dưới hàng chữ">
-          <div class="tvu-ruler-chip"><span class="tvu-grip">⋮⋮</span><span class="tvu-ticks"></span></div>
-          <span class="tvu-dock-label">Kéo thước 📏 tới dưới hàng chữ</span>
-        </div>
         <button type="button" class="tvu-clear">↺ Xoá hết</button>
       </div>` : ''}
       <div class="tvu-text">
         ${linesHtml}
         <div class="tvu-layer"></div>
-        ${editable ? '<div class="tvu-ruler" hidden><span class="tvu-grip">⋮⋮</span><span class="tvu-ticks"></span></div><div class="tvu-pencil" hidden>✏️</div>' : ''}
+        ${editable ? '<div class="tvu-rulers"></div><div class="tvu-pencil" hidden>✏️</div>' : ''}
       </div>
     </div>`;
 
   const text = el.querySelector('.tvu-text');
   const layer = el.querySelector('.tvu-layer');
-  const ruler = el.querySelector('.tvu-ruler');
+  const rulers = el.querySelector('.tvu-rulers');
   const pencil = el.querySelector('.tvu-pencil');
   const spans = [...el.querySelectorAll('.tvu-w')];
 
@@ -184,19 +179,10 @@ export function mountUnderline(el, q, { a = {}, set, mode = 'do', hint } = {}) {
       }
     }
     layer.innerHTML = html;
-    if (ruler && rulerRow >= 0) placeRuler(rulerRow, false);
-  }
-
-  function placeRuler(r, animate = true) {
-    const row = rows[r];
-    if (!row) return;
-    rulerRow = r;
-    ruler.hidden = false;
-    ruler.classList.toggle('is-anim', animate);
-    ruler.style.left = `${Math.max(0, row.l - 10)}px`;
-    ruler.style.width = `${row.r - row.l + 20}px`;
-    ruler.style.top = `${row.b + 10}px`; // nét gạch (kể cả gạch đôi) nằm ngay trên mép thước
-    el.querySelector('.tvu-dock')?.classList.add('is-used');
+    // mỗi hàng chữ một thước đặt sẵn; nét gạch (kể cả gạch đôi) nằm ngay trên mép thước
+    if (rulers) {
+      rulers.innerHTML = rows.map(row => `<div class="tvu-ruler" style="left:${Math.max(0, row.l - 10)}px;width:${row.r - row.l + 20}px;top:${row.b + 10}px"><span class="tvu-ticks"></span></div>`).join('');
+    }
   }
 
   const ro = new ResizeObserver(() => paint());
@@ -212,73 +198,16 @@ export function mountUnderline(el, q, { a = {}, set, mode = 'do', hint } = {}) {
   }));
   el.querySelector('.tvu-clear').addEventListener('click', () => { state = {}; save(); });
 
-  // ── Kéo thước từ khay (hoặc kéo thước đang đặt sang hàng khác) ──
-  function dragRuler(e) {
-    e.preventDefault();
-    measure();
-    const ghost = document.createElement('div');
-    ghost.className = 'tvu-ruler tvu-ghost';
-    ghost.innerHTML = '<span class="tvu-grip">⋮⋮</span><span class="tvu-ticks"></span>';
-    const w = Math.min(320, text.clientWidth);
-    ghost.style.width = `${w}px`;
-    document.body.appendChild(ghost);
-    const move = (ev) => {
-      ghost.style.left = `${ev.clientX - 18}px`;
-      ghost.style.top = `${ev.clientY - 10}px`;
-      const box = text.getBoundingClientRect();
-      const y = ev.clientY - box.top;
-      text.querySelectorAll('.tvu-line').forEach(l => l.classList.remove('is-target'));
-      const r = nearestRow(y, box, ev.clientX);
-      if (r >= 0) spans[rows[r].idx[0]].closest('.tvu-line').classList.add('is-target');
-    };
-    const up = (ev) => {
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-      ghost.remove();
-      text.querySelectorAll('.tvu-line').forEach(l => l.classList.remove('is-target'));
-      const box = text.getBoundingClientRect();
-      const r = nearestRow(ev.clientY - box.top, box, ev.clientX);
-      if (r >= 0) { placeRuler(r); hint?.('Giờ kéo bút chì ✏️ dọc theo thước, từ đầu đến cuối từ cần gạch.'); }
-    };
-    move(e);
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-  }
-  function nearestRow(y, box, x) {
-    if (x < box.left - 40 || x > box.right + 40) return -1;
-    let best = -1;
-    let dist = 40;
-    rows.forEach((row, k) => {
-      const d = Math.abs(y - (row.b + 4));
-      if (d < dist) { dist = d; best = k; }
-    });
-    return best;
-  }
-  el.querySelector('.tvu-dock').addEventListener('pointerdown', dragRuler);
-  ruler.querySelector('.tvu-grip').addEventListener('pointerdown', (e) => { e.stopPropagation(); dragRuler(e); });
-
   // ── Kẻ bằng bút chì dọc thước ──
   text.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('.tvu-grip')) return;
     measure();
     const box = text.getBoundingClientRect();
     const y = e.clientY - box.top;
     const x0 = e.clientX - box.left;
-    // hàng bé chạm vào: theo chữ (hoặc theo thước)
-    let r = rows.findIndex(row => y >= row.t - 4 && y <= row.b + 14);
+    // hàng bé chạm vào: theo chữ hoặc theo thước của hàng
+    const r = rows.findIndex(row => y >= row.t - 4 && y <= row.b + 22);
     if (r < 0) return;
     const word = e.target.closest('.tvu-w');
-    if (r !== rulerRow) {
-      // chạm vào chữ đã gạch thì vẫn xoá được, không cần thước
-      if (word && state[word.dataset.i]) { eraseAt(Number(word.dataset.i)); return; }
-      const dock = el.querySelector('.tvu-dock');
-      dock.classList.remove('is-nudge');
-      void dock.offsetWidth;
-      dock.classList.add('is-nudge');
-      dock.addEventListener('animationend', () => dock.classList.remove('is-nudge'), { once: true });
-      hint?.('Kéo thước 📏 tới dưới hàng chữ này trước, rồi mới kẻ.');
-      return;
-    }
     e.preventDefault();
     text.setPointerCapture?.(e.pointerId);
     const row = rows[r];

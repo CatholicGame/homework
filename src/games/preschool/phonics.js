@@ -18,7 +18,7 @@ const ONSETS = ['ngh', 'ng', 'gh', 'gi', 'ch', 'kh', 'nh', 'ph', 'qu', 'th', 'tr
 const NAMES = {
   a: 'a', ă: 'á', â: 'ớ', e: 'e', ê: 'ê', i: 'i', o: 'o', ô: 'ô', ơ: 'ơ', u: 'u', ư: 'ư', y: 'i',
   b: 'bờ', c: 'cờ', d: 'dờ', đ: 'đờ', g: 'gờ', h: 'hờ', k: 'ca', l: 'lờ', m: 'mờ', n: 'nờ', p: 'pờ',
-  q: 'quờ', r: 'rờ', s: 'sờ', t: 'tờ', v: 'vờ', x: 'xờ',
+  q: 'cu', r: 'rờ', s: 'sờ', t: 'tờ', v: 'vờ', x: 'xờ',
   ch: 'chờ', gh: 'gờ', gi: 'di', kh: 'khờ', ng: 'ngờ', ngh: 'ngờ', nh: 'nhờ', ph: 'phờ', qu: 'quờ', th: 'thờ', tr: 'trờ',
 };
 

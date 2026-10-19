@@ -302,7 +302,11 @@ function pressKey(key) {
     const v = activeInput.value;
     const op = { '+': '+', '−': isNum ? '-' : '−', '×': '×', ':': ':', '=': '=' }[key];
     if (v.length >= maxChars) return;
-    if (key === ',') {
+    if (key === ',' && activeInput.dataset.vkDec) {
+      // Decimal comma (Lớp 5 "12,5"): one per number, never first, no space after it
+      if (!v || v.includes(',')) return;
+      activeInput.value = v + ',';
+    } else if (key === ',') {
       // No leading or doubled comma; add the space the book writes after it
       if (!v || v.endsWith(', ')) return;
       activeInput.value = v + ', ';

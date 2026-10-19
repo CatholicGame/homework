@@ -2,12 +2,12 @@
  * Kiến thức từng bài Toán 5 Tập Một (SGK Kết nối tri thức) cho nút 📘 Kiến thức của "Học bằng công cụ"
  * (grade5Tools.js). Định dạng mục: lessonHelp.js. Bài trộn (catalog mix) dùng { see: [...] }.
  * Nguồn: docs/lop_5/kien-thuc-toan5-tap1.md (tóm tắt SGK, trang sách = trang PDF − 1).
- * Ví dụ từng bước: loại của Toán 4 (board, frac, geo) và loại 'g5-…' trong knowledgeDemos.js.
+ * Ví dụ từng bước: loại của Toán 4 (board, frac, geo) và loại 'g5-…' trong knowledgeDemos.js (grade5Tools.js nạp).
+ * File này chỉ có dữ liệu để node đọc được (Kiểm tra theo lộ trình lớp 5, scripts/check-worksheets.mjs).
  */
 
 import { fr } from '../grade4Textbook/demos/util.js';
 import { TOPICS } from './catalog.js';
-import './knowledgeDemos.js';
 
 const pg = (p) => `SGK Toán 5 Tập Một, trang ${p}`;
 const mx = (w, a, b) => `<span class="k5-mx">${w}${fr(a, b)}</span>`;

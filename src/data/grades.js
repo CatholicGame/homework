@@ -3,7 +3,7 @@
  * Bé chọn lớp trong hồ sơ; trang chủ chỉ hiện card của lớp đó.
  */
 
-import { MEMORY_ISLAND } from './features.js';
+import { MEMORY_ISLAND, LIFE_SKILLS } from './features.js';
 
 // Mã lớp của Tiền tiểu học. Không dùng 0: 0 / thiếu nghĩa là "chưa chọn lớp" (hồ sơ, bảng xếp hạng,
 // firestore.rules). Mã này phải khớp với firestore.rules và BOOK_GRADE trong engine/stars.js.
@@ -11,6 +11,9 @@ export const PRESCHOOL = -1;
 
 // 🗺️ Bản đồ kiến thức (games/knowledgeMap.js): cùng một thẻ cho lớp 1–5, trang tự lấy lớp trong hồ sơ.
 const KNOWLEDGE_MAP = { id: 'knowledge-map', icon: '🗺️', color: '#16A34A', title: 'Bản đồ kiến thức', desc: 'Các kiến thức quan trọng của lớp: em đã vững, đang học hay chưa học, chạm để học tiếp' };
+
+// 🏘️ Phố Kỹ Năng (games/lifeSkills.js): trang riêng, cùng một thẻ cho mọi lớp (kể cả Tiền tiểu học).
+const LIFE = LIFE_SKILLS ? [{ id: 'life-skills', icon: '🏘️', color: '#F97316', title: 'Phố Kỹ Năng', desc: 'Truyện kỹ năng sống: em nhập vai, chọn cách xử lý khi qua đường, đi lạc, ở nhà một mình… và xem chuyện gì xảy ra' }] : [];
 
 export const GRADES = [
   {
@@ -22,6 +25,7 @@ export const GRADES = [
       { id: 'pre2-math', icon: '🐊', color: '#7C3AED', title: 'Bé Học Vui Toán — Tập 2', desc: 'So sánh: bằng nhau, nhiều hơn – ít hơn, dấu > < =' },
       { id: 'pre4-math', icon: '🧮', color: '#F59E0B', title: 'Bé Tập Làm Toán', desc: '99 đề toán chuẩn bị vào lớp 1: cộng trừ, số đến 100, hình, quy luật, giờ, tiền' },
       { id: 'pre5-photo', group: 'challenge', icon: '📷', color: '#0EA5E9', title: 'Bé Chụp Ảnh Chim', desc: 'Chụp ảnh đàn chim rồi chạm đếm: đến 5, 10, 20' },
+      ...LIFE,
     ],
   },
   {
@@ -34,6 +38,7 @@ export const GRADES = [
       { id: 'grade1-photo', group: 'challenge', icon: '📷', color: '#0EA5E9', title: 'Bé Chụp Ảnh Chim', desc: 'Chụp ảnh đàn chim rồi chạm đếm: đến 20, đếm theo chục đến 100' },
       { id: 'grade1-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Cộng, trừ trong phạm vi 10, 20, 100' },
       { id: 'grade1-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Con Zíp trốn trong phép tính: chọn viên đạn mang đúng số bị giấu. Phạm vi 10, 20, số tròn chục' },
+      ...LIFE,
     ],
   },
   {
@@ -47,6 +52,7 @@ export const GRADES = [
       { id: 'grade2-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Cộng, trừ qua 10, có nhớ; bảng nhân, chia 2 và 5' },
       { id: 'grade2-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang ổ khoá có số còn thiếu: chọn đúng viên đạn để phá khiên. Cộng, trừ qua 10, có nhớ; nhân, chia 2 và 5' },
       { id: 'writing', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết vài câu theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
+      ...LIFE,
     ],
   },
   {
@@ -58,12 +64,13 @@ export const GRADES = [
       { id: 'grade3-workbook-2', icon: '📕', color: '#EF4444', title: 'Vở Bài Tập Toán 3 — Tập Hai', desc: 'Bài 45–81' },
       { id: 'grade3-practice', icon: '📘', color: '#3B82F6', title: 'Luyện Tập Toán 3', desc: 'Tập Một — Luyện tập theo tuần' },
       { id: 'grade3-worksheet', icon: '✏️', color: '#8B5CF6', title: 'Luyện Đề', desc: 'Kiểm tra theo lộ trình (nhanh, tổng hợp, giữa kì, cuối kì), phiếu bài tập theo bài học, 65 đề ôn tập giữa học kì I, 8 đề ôn tổng hợp' },
-      { id: 'grade3-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Đặt tính cộng trừ nhân chia, bảng nhân chia, tìm thành phần, tính giá trị biểu thức, tính nhẩm, sơ đồ đoạn thẳng' },
+      { id: 'grade3-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Đặt tính cộng trừ nhân chia, bảng nhân chia, tìm thành phần, biểu thức, lời văn hai bước, số đến 100 000, đổi đơn vị đo, chu vi diện tích, số La Mã' },
       { id: 'grade3-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Bảng nhân, bảng chia 2 đến 9, cộng trừ có nhớ' },
       { id: 'grade3-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang ổ khoá "tìm x": bắn đạn mang đúng giá trị của x, số thay vào là thấy đúng sai. Cộng trừ, nhân chia, số lớn' },
       { id: 'tv3-weekly', group: 'tiengviet', icon: '📖', color: '#16A34A', title: 'Bài tập cuối tuần Tiếng Việt', desc: '35 tuần cả học kì I và II (Kết nối tri thức): đọc hiểu, chính tả, luyện từ và câu; làm xong có chữa bài từng câu' },
       { id: 'tv3-spell', group: 'tiengviet', icon: '🔤', color: '#EA580C', title: 'Luật chính tả', desc: 'Chơi để nhớ luật c/k, g/gh, ng/ngh và mẹo s/x, ch/tr, r/d/gi, l/n, dấu hỏi/ngã' },
       { id: 'writing', group: 'tiengviet', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
+      ...LIFE,
     ],
   },
   {
@@ -77,6 +84,7 @@ export const GRADES = [
       { id: 'grade4-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Tính nhẩm số tới ba chữ số, nhân chia với 10, 100' },
       { id: 'grade4-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang biểu thức chứa chữ: theo mật mã a, b tính giá trị rồi bắn; tìm x với số lớn' },
       { id: 'writing', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
+      ...LIFE,
     ],
   },
   {
@@ -84,10 +92,12 @@ export const GRADES = [
     games: [
       KNOWLEDGE_MAP,
       { id: 'grade5-tools', icon: '🧰', color: '#F59E0B', title: 'Toán 5: Học bằng công cụ', desc: 'Tập Một, Bài 1–35: băng phân số, số thập phân, bảng đơn vị đo, cắt ghép hình… em tự tay khám phá rồi thực hành' },
+      { id: 'grade5-tests', icon: '✏️', color: '#8B5CF6', title: 'Luyện Đề', desc: 'Kiểm tra theo lộ trình: cứ vài Bài trong sách làm một bài kiểm tra, cô chỉ Bài cần ôn lại' },
       { id: 'grade5-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Cộng, trừ, nhân, chia số thập phân đặt tính; nhân chia nhẩm với 10, 100, 0,1; phân số' },
       { id: 'grade5-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Bảng nhân chia, nhân chia số tròn chục, tròn trăm' },
       { id: 'grade5-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang ổ khoá tìm x với số thập phân, nhân chia với 10, 100; công thức chu vi, diện tích' },
       { id: 'writing', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
+      ...LIFE,
     ],
   },
 ];

@@ -6,23 +6,30 @@
 
 import { isNumberWords, sameReading } from '../engine/numberWords.js';
 
-/** Giá trị biểu thức "3 × 2", "27 ÷ 3", "4 + 5 × 2", "20 : 4 × 5" (nhân chia trước, trái sang phải). */
+/** Số viết kiểu Việt Nam: "12,5" (dấu phẩy thập phân), "345 678" (tách lớp). */
+export const toNum = (s) => Number(String(s).replace(/\s+/g, '').replace(',', '.'));
+/** Bỏ sai số dấu phẩy động: 0,1 + 0,2 = 0,3. */
+const tidy = (x) => (Number.isFinite(x) ? Math.round(x * 1e9) / 1e9 : x);
+/** Số in ra kiểu Việt Nam: 12.5 → "12,5". */
+export const fmtNum = (v) => (typeof v === 'number' ? String(tidy(v)).replace('.', ',') : String(v));
+
+/** Giá trị biểu thức "3 × 2", "27 ÷ 3", "4 + 5 × 2", "20 : 4 × 5", "12,5 + 3,75" (nhân chia trước, trái sang phải). */
 export function evalExpr(s) {
   // Ngoặc: tính ngoặc trong cùng trước, thay bằng kết quả: "(70 000 − 25 000) : 9".
   let str = String(s).replace(/\s+/g, '');
   while (/\([^()]*\)/.test(str)) str = str.replace(/\(([^()]*)\)/, (_, e) => String(evalExpr(e)));
-  const toks = str.match(/\d+|[×÷:+−\-*/]/g) || [];
+  const toks = str.match(/\d+(?:[.,]\d+)?|[×÷:+−\-*/]/g) || [];
   const terms = [];
   let sign = 1, cur = null, op = null;
   for (const t of toks) {
     if (/\d/.test(t)) {
-      const n = +t;
+      const n = toNum(t);
       cur = cur == null ? n : (op === '×' || op === '*' ? cur * n : cur / n);
     } else if ('×÷:*/'.includes(t)) op = t;
     else { terms.push(sign * cur); cur = null; sign = t === '+' ? 1 : -1; }
   }
   terms.push(sign * cur);
-  return terms.reduce((a, b) => a + b, 0);
+  return tidy(terms.reduce((a, b) => a + b, 0));
 }
 
 /** Biến cần tìm trong "x × 4 = 32", "X : 6 = 12", "y - 35 = 46". */
@@ -51,9 +58,9 @@ export function remDivision(t) {
   return a % b ? { q: Math.floor(a / b), r: a % b } : null;
 }
 
-/** Hai số và dấu của "48 × 6" để đặt tính dọc, hoặc null. */
+/** Hai số và dấu của "48 × 6" (cả số thập phân "12,5 + 3,75") để đặt tính dọc, hoặc null. */
 export function columnParts(t) {
-  const m = String(t).replace(/\s+/g, '').match(/^(\d+)([+−\-×÷:])(\d+)$/);
+  const m = String(t).replace(/\s+/g, '').match(/^(\d+(?:,\d+)?)([+−\-×÷:])(\d+(?:,\d+)?)$/);
   if (!m) return null;
   const op = m[2] === '-' ? '−' : m[2] === ':' ? '÷' : m[2];
   return { a: m[1], op, b: m[3] };
@@ -68,13 +75,13 @@ const OP_N = { '-': '−', '÷': ':', '*': '×', 'x': '×' };
 export function findxSteps(t, v, x) {
   const [l, r] = String(t).split('=').map(s => s.trim());
   if (r == null || !l.includes(v)) return null;
-  const m = l.replace(/\s+/g, '').match(new RegExp(`^(?:(\\d+)([+−\\-×÷:*])${v}|${v}([+−\\-×÷:*])(\\d+))$`));
+  const m = l.replace(/\s+/g, '').match(new RegExp(`^(?:(\\d+(?:,\\d+)?)([+−\\-×÷:*])${v}|${v}([+−\\-×÷:*])(\\d+(?:,\\d+)?))$`));
   if (!m) return null;
   const c = evalExpr(r);
-  if (!Number.isInteger(c)) return null;
-  const pre = !/^\d+$/.test(r.replace(/\s+/g, ''));
+  if (!Number.isFinite(c)) return null;
+  const pre = !/^\d+(,\d+)?$/.test(r.replace(/\s+/g, ''));
   const left = m[1] != null;
-  const n = +(left ? m[1] : m[4]);
+  const n = toNum(left ? m[1] : m[4]);
   const op = OP_N[left ? m[2] : m[3]] || (left ? m[2] : m[3]);
   // Số hạng = tổng − số hạng kia; số bị trừ = hiệu + số trừ; số trừ = số bị trừ − hiệu;
   // thừa số = tích : thừa số kia; số bị chia = thương × số chia; số chia = số bị chia : thương.
@@ -82,7 +89,7 @@ export function findxSteps(t, v, x) {
     : op === '×' ? [c, ':', n]
       : op === '−' ? (left ? [n, '−', c] : [c, '+', n])
         : (left ? [n, ':', c] : [c, '×', n]);
-  if (evalExpr(inv.join(' ')) !== x) return null;
+  if (evalExpr(inv.map(fmtNum).join(' ')) !== x) return null;
   return { lhs: l, rhs: c, pre, inv, comm: inv[1] === '+' || inv[1] === '×' };
 }
 
@@ -177,8 +184,8 @@ const norm = (v) => String(v ?? '').normalize('NFC').trim().toLowerCase().replac
 /** So một ô: đáp án số, chữ (nhiều cách viết ngăn bằng |), dấu. Ô đọc số nhận
  *  mọi cách đọc đúng: "linh tư" = "linh bốn", "mươi lăm" = "mươi năm" (numberWords.js). */
 export function matchSlot(given, right) {
-  // Số lớn viết tách lớp ("345 678") vẫn đúng.
-  if (typeof right === 'number') { const v = String(given ?? '').replace(/\s+/g, ''); return v !== '' && Number(v) === right; }
+  // Số lớn viết tách lớp ("345 678") vẫn đúng; số thập phân viết dấu phẩy ("12,5", cả "12,50").
+  if (typeof right === 'number') { const v = String(given ?? '').replace(/\s+/g, ''); return /^\d+(,\d+)?$/.test(v) && Math.abs(toNum(v) - right) < 1e-9; }
   return String(right).split('|').some(r => norm(r) === norm(given) || (isNumberWords(r) && sameReading(r, given)));
 }
 

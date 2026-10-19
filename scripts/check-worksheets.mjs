@@ -5,23 +5,27 @@ import { readdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { normQuestion, tablesOf, itemSlots, findVar, holes } from '../src/games/worksheetCore.js';
 
-const DIRS = ['src/data/grade3Worksheets', 'src/data/grade3Midterm', 'src/data/routeTests/g1', 'src/data/routeTests/g2', 'src/data/routeTests/g3', 'src/data/routeTests/g4',
-  'src/data/routeTests/g1/hk2', 'src/data/routeTests/g2/hk2', 'src/data/routeTests/g3/hk2', 'src/data/routeTests/g4/hk2']; // hk2: Học kì II, có plan.js riêng
+const DIRS = ['src/data/grade3Worksheets', 'src/data/grade3Midterm', 'src/data/routeTests/g1', 'src/data/routeTests/g2', 'src/data/routeTests/g3', 'src/data/routeTests/g4', 'src/data/routeTests/g5',
+  'src/data/routeTests/g1/hk2', 'src/data/routeTests/g2/hk2', 'src/data/routeTests/g3/hk2', 'src/data/routeTests/g4/hk2', 'src/data/routeTests/g5/hk2']; // hk2: Học kì II, có plan.js riêng
 // Kiến thức từng Bài (points) của sách chính mỗi lớp, để kiểm tra trường bai / point của đề theo lộ trình.
 const KNOWLEDGE = {
   workbook1: async () => (await import('../src/games/grade1Knowledge/index.js')).KNOWLEDGE1,
   workbook2: async () => (await import('../src/games/grade2Knowledge/index.js')).KNOWLEDGE2,
   workbook: async () => (await import('../src/games/grade3Knowledge/index.js')).KNOWLEDGE3,
   tool4: async () => (await import('../src/games/grade4Tools/knowledge.js')).KNOWLEDGE4,
+  tool5: async () => (await import('../src/games/grade5Tools/knowledge.js')).KNOWLEDGE5,
 };
 // tl: số câu Phần B (tự luận). Giữa kì 15 câu, cuối kì 20 câu theo đề thi thật; lớp 1 làm trước nên còn 10 câu (OLD_EXAM).
 const KINDS = { nhanh: { n: 5, lv: [3, 1, 1], review: [0, 1] }, tonghop: { n: 10, lv: [5, 3, 2], review: [2, 4] }, giuaki: { n: 15, lv: [8, 4, 3], tl: [4, 5] }, cuoiki: { n: 20, lv: [10, 6, 4], tl: [4, 5] } };
 const OLD_EXAM = { books: ['workbook1'], rule: { n: 10, lv: [5, 3, 2] } };
 // Lớp 3: người dùng chọn giữa kì, cuối kì khoảng 12–15 câu (2026-10-10): giữa kì 14, cuối kì 15.
-const BOOK_KINDS = { workbook: { giuaki: { n: 14, lv: [7, 4, 3], tl: [4, 5] }, cuoiki: { n: 15, lv: [7, 5, 3], tl: [4, 5] } } };
+// Lớp 5: bài nhanh ít nhất 10 câu, phạm vi vẫn khoảng 3 Bài mới (người dùng chọn, 2026-10-10).
+const BOOK_KINDS = { tool5: { nhanh: { n: 10, lv: [5, 3, 2], review: [0, 1] } }, workbook: { giuaki: { n: 14, lv: [7, 4, 3], tl: [4, 5] }, cuoiki: { n: 15, lv: [7, 5, 3], tl: [4, 5] } } };
 const unitList = (spec) => String(spec).split(',').flatMap(p => { const [a, b = a] = p.trim().split('-').map(Number); return Array.from({ length: b - a + 1 }, (_, i) => a + i); });
 const only = process.argv.slice(2);
 const OPS = ['+', '−', '×', ':'];
+// Sách có số thập phân (lớp 5): đáp án số được là số thập phân.
+const DEC_BOOKS = ['tool5'];
 let errors = 0, files = 0, qs = 0;
 
 for (const dir of DIRS) {
@@ -32,6 +36,7 @@ for (const dir of DIRS) {
     files++;
     const sheet = (await import(pathToFileURL(`${dir}/${name}`).href)).default;
     const err = (where, msg) => { errors++; console.log(`✗ ${name} ${where}: ${msg}`); };
+    const okNum = (a) => (DEC_BOOKS.includes(sheet?.after?.book) ? Number.isFinite(a) : Number.isInteger(a)) && a >= 0;
     if (!sheet?.id || !sheet.title || !sheet.short || !sheet.desc || !Array.isArray(sheet.parts)) { err('', 'thiếu id/title/short/desc/parts'); continue; }
     sheet.parts.forEach((part, pi) => {
       if (!part.title || !Array.isArray(part.questions) || !part.questions.length) err(`Phần ${pi}`, 'thiếu title/questions');
@@ -71,7 +76,7 @@ for (const dir of DIRS) {
               if (n.ans.length !== want) err(at, `ý ${i} "${n.t}": cần ${want} đáp án, có ${n.ans.length}`);
               n.ans.forEach(a => {
                 if (q.type === 'compare') { if (!['>', '<', '='].includes(a)) err(at, `ý ${i}: dấu "${a}"`); }
-                else if (typeof a === 'number' ? !(Number.isInteger(a) && a >= 0) : !String(a).trim()) err(at, `ý ${i} "${n.t}": đáp án ${a}`);
+                else if (typeof a === 'number' ? !okNum(a) : !String(a).trim()) err(at, `ý ${i} "${n.t}": đáp án ${a}`);
               });
             });
             break;
@@ -114,7 +119,7 @@ for (const dir of DIRS) {
             for (const k of ['text', 'given', 'ask', 'hint', 'sentence', 'units']) if (!q[k]) err(at, `thiếu ${k}`);
             if (!OPS.includes(x.op)) err(at, `op "${x.op}" phải là + − × :`);
             const r = x.op === '+' ? x.a + x.b : x.op === '−' ? x.a - x.b : x.op === '×' ? x.a * x.b : x.a / x.b;
-            if (r !== x.result) err(at, `${x.a} ${x.op} ${x.b} = ${r}, không phải ${x.result}`);
+            if (!(Math.abs(r - x.result) < 1e-9)) err(at, `${x.a} ${x.op} ${x.b} = ${r}, không phải ${x.result}`);
             if (!q.units?.includes(x.unit)) err(at, 'units phải có đơn vị đúng');
             if (new Set(q.units || []).size !== (q.units || []).length) err(at, 'units trùng nhau');
             if (!String(q.sentence?.at(-1)).endsWith(':')) err(at, 'mảnh cuối câu lời giải phải kết thúc bằng ":"');

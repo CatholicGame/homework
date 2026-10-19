@@ -16,11 +16,22 @@ function menuZoom(max = 1.8) {
 let fitListening = false;
 export function fitMenu(root) {
   // data-zmax trên .g3g-menu: trần zoom riêng (vd. Toán 4 nhiều chữ, 1,8 thì quá khổ).
-  const apply = (el) => el.style.setProperty('--z', menuZoom(+el.dataset.zmax || undefined));
+  // Đoán theo cỡ cửa sổ chưa đủ (thẻ trong .g3g-screen zoom chồng hai lần): nếu màn bị tràn chiều cao
+  // mà thu nhỏ thì vừa, chọn zoom lớn nhất còn vừa. Danh sách dài, zoom 1 vẫn phải cuộn: giữ zoom đoán.
+  const apply = (el) => {
+    const zMax = menuZoom(+el.dataset.zmax || undefined);
+    const fits = (z) => { el.style.setProperty('--z', z); return el.getBoundingClientRect().height <= window.innerHeight + 1; };
+    if (zMax <= 1 || fits(zMax) || !fits(1)) { el.style.setProperty('--z', zMax); return; }
+    let lo = 1, hi = zMax;
+    while (hi - lo > 0.02) { const mid = (lo + hi) / 2; if (fits(mid)) lo = mid; else hi = mid; }
+    el.style.setProperty('--z', Math.floor(lo * 100) / 100);
+  };
   root.querySelectorAll('.g3g-menu').forEach(apply);
   if (!fitListening) {
     fitListening = true;
-    window.addEventListener('resize', () => document.querySelectorAll('.g3g-menu').forEach(apply));
+    const refit = () => document.querySelectorAll('.g3g-menu').forEach(apply);
+    window.addEventListener('resize', refit);
+    document.fonts?.addEventListener?.('loadingdone', refit); // Baloo tải xong đổi chiều cao chữ
   }
 }
 
@@ -180,6 +191,14 @@ export function injectGameStyles() {
     .g3g-link-btn { border: none; background: none; padding: 0.1rem 0.3rem; color: #0369A1; font-weight: 800; font-size: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 
     .g3g-actions { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem; }
+    .g3g-tests { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem 0.6rem; }
+    .g3g-tests-label { font-weight: 800; color: #0f3d5e; }
+    .g3g-test-btn { display: flex; flex-direction: column; align-items: center; min-width: 5.6rem; padding: 0.35rem 0.9rem; border: 3px solid #fff; border-radius: 1rem; cursor: pointer;
+      font: 800 1.15rem/1.15 'Baloo 2', 'Quicksand', sans-serif; color: #0f3d5e; background: #e0f2fe; box-shadow: 0 4px 0 #7dd3fc; }
+    .g3g-test-btn small { font-size: 0.8rem; font-weight: 700; color: #0369a1; }
+    .g3g-test-btn.is-done { background: #dcfce7; box-shadow: 0 4px 0 #86efac; }
+    .g3g-test-btn.is-done small { color: #dc2626; }
+    .g3g-test-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #7dd3fc; }
     .g3g-btn-big { font-size: clamp(1.4rem, 5vw, 1.7rem); padding: 0.75rem 1.3rem; border: 4px solid #fff; border-radius: 1.3rem; animation: g3gPulse 1.8s ease-in-out infinite; }
     .g3g-btn-big:active { animation: none; }
     @keyframes g3gPulse { 0%, 100% { scale: 1; } 50% { scale: 1.03; } }
@@ -191,14 +210,6 @@ export function injectGameStyles() {
 
     /* Màn chơi: phủ kín #app (fixed inset 0), không cuộn; các phần co giãn theo chiều cao màn hình */
     body.g3g-playing #global-fullscreen-btn { display: none; }
-    .g3g-tests { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem 0.6rem; }
-    .g3g-tests-label { font-weight: 800; color: #0f3d5e; }
-    .g3g-test-btn { display: flex; flex-direction: column; align-items: center; min-width: 5.6rem; padding: 0.35rem 0.9rem; border: 3px solid #fff; border-radius: 1rem; cursor: pointer;
-      font: 800 1.15rem/1.15 'Baloo 2', 'Quicksand', sans-serif; color: #0f3d5e; background: #e0f2fe; box-shadow: 0 4px 0 #7dd3fc; }
-    .g3g-test-btn small { font-size: 0.8rem; font-weight: 700; color: #0369a1; }
-    .g3g-test-btn.is-done { background: #dcfce7; box-shadow: 0 4px 0 #86efac; }
-    .g3g-test-btn.is-done small { color: #dc2626; }
-    .g3g-test-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #7dd3fc; }
     .g3g-play { position: relative; height: 100%; min-height: 0; padding: 0.5rem; gap: 0.4rem; align-items: stretch; overflow: hidden; font-family: 'Baloo 2', 'Quicksand', sans-serif; background: linear-gradient(180deg, #BAE6FD 0%, #E0F7FF 40%, #FFF7ED 100%); -webkit-tap-highlight-color: transparent; }
     .g3g-play button { font-family: inherit; }
     .g3g-topbar { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }

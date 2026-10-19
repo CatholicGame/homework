@@ -1427,9 +1427,15 @@ body.pk-hand-on:not(.pk-ar) .pk-hand-status {
 /* Bảng chọn cách chơi */
 .pk-hand-sheet { position: fixed; inset: 0; z-index: 9000; display: grid; place-items: center; padding: 16px; background: rgba(15, 23, 42, 0.45); }
 .pk-hand-menu {
-  width: min(460px, 100%); padding: 1.2rem; border-radius: 28px; background: #fff; color: #1E3A5F;
+  width: min(460px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto;
+  padding: 1.2rem; border-radius: 28px; background: #fff; color: #1E3A5F;
   font-family: 'Baloo 2', 'Quicksand', sans-serif; box-shadow: 0 8px 0 #38BDF8, 0 16px 40px rgba(0, 0, 0, 0.3);
   display: flex; flex-direction: column; gap: 0.6rem;
+}
+/* Màn hình ngang thấp (điện thoại xoay ngang): hai nhóm cạnh nhau cho khỏi phải cuộn. */
+@media (orientation: landscape) and (max-height: 640px) {
+  .pk-hand-menu { width: min(820px, 100%); display: grid; grid-template-columns: 1fr 1fr; align-items: start; }
+  .pk-hand-menu > h2, .pk-hand-menu > p { grid-column: 1 / -1; }
 }
 .pk-hand-menu h2 { text-align: center; font-size: 1.5rem; font-weight: 800; color: #0369A1; }
 .pk-hand-opt {
@@ -1465,8 +1471,9 @@ body.pk-hand-on:not(.pk-ar) .pk-hand-status {
 .pk-hand-bg-pic i { font-style: normal; }
 .pk-hand-bg-pic.pic-hand { background: linear-gradient(#7DD3FC, #E0F2FE); }
 .pk-hand-bg-pic.pic-hand em { position: absolute; left: 4px; bottom: 4px; width: 22px; height: 15px; border-radius: 4px; background: #475569; border: 2px solid #fff; }
-.pk-hand-bg-pic.pic-ar { background: linear-gradient(135deg, #A8A29E, #57534E); font-size: 2.1rem; align-items: end; }
-.pk-hand-bg-pic.pic-ar i { translate: 0 4px; }
+.pk-hand-bg-pic.pic-touch { background: linear-gradient(#7DD3FC, #E0F2FE); }
+.pk-hand-bg-pic.pic-ar, .pk-hand-bg-pic.pic-mirror { background: linear-gradient(135deg, #A8A29E, #57534E); font-size: 2.1rem; align-items: end; }
+.pk-hand-bg-pic.pic-ar i, .pk-hand-bg-pic.pic-mirror i { translate: 0 4px; }
 .pk-hand-nocam { padding: 0.5rem 0.8rem; border-radius: 14px; background: #FEF3C7; color: #92400E; font-size: 1rem; font-weight: 700; text-align: center; }
 /* Nút cách chơi: có chữ nhỏ bên dưới để bố mẹ biết chỗ bật camera. */
 .pk-hand-btn { position: relative; }
@@ -1493,6 +1500,21 @@ body.pk-hand-on:not(.pk-ar) .pk-hand-status {
 .pk-pic.is-split .pk-half-clip { overflow: hidden; border-radius: 12px; }
 .pk-pic.is-split .pk-half-clip > img { display: block; max-width: none; max-height: none; height: auto; border-radius: 0; }
 .pk-pic.is-split .pk-half > .pk-pic-layer { inset: 0; }
+
+/* Bé Tập Làm Toán, chạm đúng chỗ: hình dài gập hai nửa (play4.js foldCut), chỗ chạm nằm trên từng nửa. */
+.pk4-spot.is-split { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; width: 100%; }
+.pk4-spot.is-split .pk-half { position: relative; }
+.pk4-spot.is-split .pk-half-clip { overflow: hidden; border-radius: 12px; }
+.pk4-spot.is-split .pk-half-clip > img { display: block; max-width: none; max-height: none; height: auto; border-radius: 0; }
+.pk4-zones { position: absolute; inset: 0; }
+
+/* Màn hình dọc, Bé Tập Làm Toán: ô hình giãn lấy hết phần cao còn trống (play4.js fillPortrait đo ô này
+   một lần rồi đặt cỡ hình / gập hai hàng theo nó). */
+@media (orientation: portrait) {
+  .pk-play-page .pk-stage > .pk4-wrap:has(> .pk4-pic.is-fill) { flex: 1 1 auto; }
+  .pk4-wrap > .pk4-pic.is-fill { flex: 1 1 0; min-height: 30svh; display: flex; align-items: center; justify-content: center; }
+  .pk4-wrap > .pk4-pic.is-small.is-fill { min-height: 22svh; }
+}
 
 /* Màn hình dọc, bàn phím 1–10: hai hàng năm số, nút rộng theo bề ngang (to hẳn, không rớt lẻ 9, 10 xuống hàng). */
 @media (orientation: portrait) {

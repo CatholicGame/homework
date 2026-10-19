@@ -56,6 +56,17 @@ const starQ = (q) => ({ stars: q.stars || DEFAULT_STARS[q.type] || 2 });
 /** Điểm 10, làm tròn 0,5 như cô chấm. */
 const roundHalf = (x) => Math.round(x * 2) / 2;
 const fmtScore = (score) => String(score).replace('.', ',');
+
+// Học kì I: tuần 1–18, Học kì II: tuần 19–35. Tab đang chọn nhớ trên máy (như Luyện Đề).
+const TERMS = [{ n: 1, name: 'Học kì I' }, { n: 2, name: 'Học kì II' }];
+const termOfWeek = (w) => (w.week <= 18 ? 1 : 2);
+const TERM_KEY = 'tv3w-term';
+function savedTerm() {
+  try { const v = Number(localStorage.getItem(TERM_KEY)); return v === 1 || v === 2 ? v : 0; } catch { return 0; }
+}
+function saveTerm(t) {
+  try { localStorage.setItem(TERM_KEY, String(t)); } catch { /* chế độ riêng tư */ }
+}
 function teacherComment(score) {
   if (score >= 10) return 'Tuyệt vời! Em đọc kĩ và làm đúng hết.';
   if (score >= 9) return 'Giỏi lắm! Em xem lại câu còn sai cho thật nhớ.';
@@ -131,6 +142,10 @@ export function render(app, onBack, ctx = {}) {
   loadHandFont();
   let mounted = []; // widget cần huỷ (ResizeObserver) khi đổi màn
 
+  // tab học kì: lần trước con chọn, chưa chọn thì tháng 2–7 mở Học kì II
+  const month = new Date().getMonth() + 1;
+  let term = savedTerm() || (month >= 2 && month <= 7 && WEEKS.some(w => termOfWeek(w) === 2) ? 2 : 1);
+
   const open = ctx.open;
   if (open?.week) {
     const w = WEEKS.find(x => x.id === open.week);
@@ -157,15 +172,15 @@ export function render(app, onBack, ctx = {}) {
     return app.querySelector('.tv-body');
   }
 
-  // ── 1. Danh sách tuần ──────────────────────────────────────────────────
+  // ── 1. Danh sách tuần: hai tab Học kì I / Học kì II như Luyện Đề ──────
   function showList() {
     const store = loadStore();
-    const body = frame({ back: onBack, backLabel: '← Tiếng Việt', title: '📖 Bài tập cuối tuần', cls: 'tv-list-page' }, `
+    const list = WEEKS.filter(w => termOfWeek(w) === term);
+    const doneN = list.filter(w => store[w.id]?.result || store[w.id]?.best != null).length;
+    const tabs = `<div class="tv-terms" role="tablist">${TERMS.map(t => `<button type="button" role="tab" class="tv-term-tab${t.n === term ? ' is-on' : ''}" data-term="${t.n}" aria-selected="${t.n === term}">${t.name}</button>`).join('')}</div>`;
+    const body = frame({ back: onBack, backLabel: '← Tiếng Việt', title: '📖 Bài tập cuối tuần', right: tabs, cls: 'tv-list-page' }, `
       <p class="tv-lead">Tiếng Việt 3, Kết nối tri thức. Mỗi tuần: đọc bài, trả lời câu hỏi, luyện chính tả và luyện từ và câu. Nộp bài xong em chữa từng câu với cô.</p>
-      ${[['Học kì I', w => w.week <= 18], ['Học kì II', w => w.week > 18]].map(([name, inTerm]) => {
-        const list = WEEKS.filter(inTerm);
-        const doneN = list.filter(w => store[w.id]?.result || store[w.id]?.best != null).length;
-        return list.length ? `<h2 class="tv-term">${name}<span class="tv-term-sum">${doneN ? `Đã nộp ${doneN}/${list.length} tuần` : ''}</span></h2>
+      ${doneN ? `<p class="tv-term-sum">Đã nộp ${doneN}/${list.length} tuần</p>` : ''}
       <div class="tv-weeks">${list.map(w => {
         const rec = store[w.id];
         const done = rec?.result;
@@ -183,13 +198,16 @@ export function render(app, onBack, ctx = {}) {
           <span class="tv-week-topic">${esc(w.topic)}</span>
           <span class="tv-week-st">${st}</span>
         </button>`;
-      }).join('')}</div>` : '';
-      }).join('')}`);
+      }).join('')}</div>`);
+    app.querySelectorAll('.tv-term-tab').forEach(btn => {
+      btn.onclick = () => { term = +btn.dataset.term; saveTerm(term); showList(); };
+    });
     body.querySelectorAll('.tv-week').forEach(b => b.onclick = () => showSheet(WEEKS.find(w => w.id === b.dataset.id)));
   }
 
   // ── 2. Làm bài / xem bài đã nộp ────────────────────────────────────────
   function showSheet(week, { scrollTo } = {}) {
+    term = termOfWeek(week); // quay lại danh sách đúng tab của tuần này
     const store = loadStore();
     const rec = store[week.id] || {};
     const graded = !!rec.result;

@@ -427,8 +427,8 @@ export function renderPreschool(app, onBack, book) {
     // một chỗ để đồ vật thẳng cột). Nửa không có đồ vật thì bỏ.
     let halves = split === true ? splitRow(items) : split || null;
     if (halves && items?.length) {
-      const used = halves.filter(hf => hf === halves[0] || items.some(([x, , w]) => x + w / 2 >= hf.x * 100));
-      halves = Object.assign(used, { max: halves.max });
+      const used = halves.filter(hf => hf === halves[0] || items.some(([x, , w]) => x + w / 2 >= (halves.cut ?? hf.x) * 100));
+      halves = Object.assign(used, { max: halves.max, cut: halves.cut });
     }
     wrap.innerHTML = halves
       ? halves.map(hf => `<div class="pk-half" style="width:${(hf.w / halves.max) * 100}%"><div class="pk-half-clip"><img src="${src}" alt="${alt}" draggable="false" style="width:${100 / hf.w}%;margin-left:${(-hf.x / hf.w) * 100}%"></div><div class="pk-pic-layer"></div></div>`).join('')
@@ -478,7 +478,8 @@ export function renderPreschool(app, onBack, book) {
     if (items?.length) {
       // Khung đồ vật tính theo cả hình; hình gập hai hàng thì đổi sang toạ độ trong nửa chứa nó.
       const place = ([x, y, w, h]) => {
-        const k = halves?.[1] && x + w / 2 >= halves[1].x * 100 ? 1 : 0;
+        // Chỗ chia đồ vật: `cut` (đường cắt dò theo điểm ảnh, play4.js seamFold: hai nửa chồng lên nhau chút ít).
+        const k = halves?.[1] && x + w / 2 >= (halves.cut ?? halves[1].x) * 100 ? 1 : 0;
         const hf = halves?.[k] || { x: 0, w: 1 };
         return { host: layers[k], x: (x - hf.x * 100) / hf.w, y, w: w / hf.w, h };
       };

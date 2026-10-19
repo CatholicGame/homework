@@ -131,6 +131,36 @@ ghi trong `src/data/routeTests/g4/plan.js`. Lớp 4 không có vở bài tập t
 
 Lớp 4 có 4 chặng tổng hợp, mỗi chặng 2 đề (8 đề). Giữa kì 15 câu, cuối kì 20 câu như mục 4.
 Số lớn viết tách lớp như sách (`'345 678'`); ô số tự rộng theo số chữ số, bé gõ có hay không có dấu cách đều được.
+Lộ trình lớp 5, Học kì I (SGK Toán 5 Kết nối tri thức Tập Một, Bài 1–35, trong app là Toán 5 công cụ `tool5`),
+ghi trong `src/data/routeTests/g5/plan.js`. Điểm cốt lõi từng Bài lấy từ `src/games/grade5Tools/knowledge.js`
+(`KNOWLEDGE5`, file chỉ có dữ liệu để node đọc được; ví dụ từng bước do `grade5Tools.js` nạp).
+
+| Bài kiểm tra | Bài | Bài mới |
+|---|---|---|
+| ⚡ Nhanh 1 | 1–3 | 1 Ôn tập số tự nhiên · 2 Ôn tập các phép tính với số tự nhiên · 3 Ôn tập phân số |
+| ⚡ Nhanh 2 | 4–6 | 4 Phân số thập phân · 5 Các phép tính với phân số · 6 Cộng, trừ hai phân số khác mẫu số |
+| 🧭 Tổng hợp 1 | 1–6 | Nhanh 1 + Nhanh 2 |
+| ⚡ Nhanh 3 | 7–9 | 7 Hỗn số · 8 Ôn tập hình học và đo lường |
+| ⚡ Nhanh 4 | 10–12 | 10 Khái niệm số thập phân · 11 So sánh các số thập phân · 12 Viết số đo đại lượng dưới dạng số thập phân |
+| 🧭 Tổng hợp 2 | 7–12 | Nhanh 3 + Nhanh 4, ôn Bài 1–6 |
+| ⚡ Nhanh 5 | 13–18 | 13 Làm tròn số thập phân · 15 Ki-lô-mét vuông, héc-ta · 16 Các đơn vị đo diện tích |
+| 📝 Giữa kì I | 1–18 | Nhanh 1 đến 5 |
+| ⚡ Nhanh 6 | 19–21 | 19 Phép cộng · 20 Phép trừ · 21 Phép nhân số thập phân |
+| 🧭 Tổng hợp 3 | 13–21 | Nhanh 5 + Nhanh 6, ôn Bài 1–12 |
+| ⚡ Nhanh 7 | 22–24 | 22 Phép chia số thập phân · 23 Nhân, chia với 10; 100; 1 000 hoặc 0,1; 0,01; 0,001 |
+| ⚡ Nhanh 8 | 25–29 | 25 Hình tam giác, diện tích · 26 Hình thang, diện tích · 27 Đường tròn, chu vi và diện tích hình tròn |
+| 🧭 Tổng hợp 4 | 22–29 | Nhanh 7 + Nhanh 8, ôn Bài 1–21 |
+| 🏆 Cuối kì I | 1–35 | Nhanh 1 đến 8 (Bài 30–35 là Ôn tập học kì 1) |
+
+Lớp 5 có 4 chặng tổng hợp, mỗi chặng 2 đề (8 đề). Giữa kì 15 câu, cuối kì 20 câu như mục 4.
+Số thập phân viết dấu phẩy (`'12,5'`), đáp án trong `ans` là số JS (`12.5`); bé gõ `12,5` hoặc `12,50` đều đúng,
+ô số lớp 5 có phím `,` (`data-vk-dec`). Phân số trong chữ viết `{3/5}`, hỗn số `2{1/4}`; ô điền phân số là
+`{…/…}` (hai ô tử, mẫu, `ans: [tử, mẫu]`). Câu `fill` có số thập phân luôn ghi `ans` (tự tính chỉ ra số nguyên).
+Đặt tính cộng, trừ số thập phân tự căn dấu phẩy thẳng cột; nhân căn phải như vở.
+
+**Lớp 5 kiểm tra nhanh 10 câu** (mỗi câu 1 điểm, 30 phút; 5 câu mức 1, 3 câu mức 2, 2 câu mức 3), phạm vi vẫn chỉ
+khoảng 3 Bài mới (người dùng chọn, 2026-10-10).
+
 **Lớp 3 giữa kì 14 câu, cuối kì 15 câu** (người dùng chọn "khoảng 12–15 câu", 2026-10-10), Phần B 4–5 câu.
 
 ---
