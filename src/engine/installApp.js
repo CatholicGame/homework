@@ -1,8 +1,8 @@
 // Cài ứng dụng lên máy (PWA): biểu tượng trên màn hình chính / desktop, mở trong cửa sổ riêng.
-//   BẮT BUỘC: mở bằng trình duyệt thì mọi trang (trừ admin) bị che bởi màn cài app, không có nút bỏ qua.
+//   Mở bằng trình duyệt thì mọi trang (trừ admin) bị che bởi màn cài app; mọi máy đều có nút "Bỏ qua, học trên web"
+//   (nhớ trên máy), cài sau từ dải nhắc ở trang chủ hoặc mục 📲 Cài ứng dụng lên máy trong menu tài khoản.
 //   Chrome, Edge, Android: giữ sự kiện beforeinstallprompt, bấm "Cài đặt" thì hiện hộp cài của trình duyệt.
-//   iPhone, iPad: Safari không có hộp cài, hiện hướng dẫn Chia sẻ → Thêm vào MH chính; có thêm nút "Học trên web"
-//   để vào học luôn bằng Safari (nhớ trên máy, trang chủ nhắc cài lại).
+//   iPhone, iPad: Safari không có hộp cài, hiện hướng dẫn Chia sẻ → Thêm vào MH chính.
 //   Trình duyệt trong Zalo, Facebook, ứng dụng Google (iPhone)… (không cài được app, không đăng nhập Google được): ngay lúc mở thử tự chuyển
 //   sang Chrome (Android: intent://) hoặc Safari (iPhone: x-safari-https://, iOS 17+), mỗi phiên một lần; màn che có
 //   nút Mở bằng Safari / Chrome, sao chép đường link, và dặn bấm ⋯ → Mở bằng trình duyệt. Che cả màn đăng nhập.
@@ -127,13 +127,13 @@ const AFTER_INSTALL = IS_MOBILE
   ? 'Cài xong, về màn hình chính (cạnh Zalo), chạm biểu tượng này để học.'
   : 'Cài xong, ra màn hình desktop, bấm đúp biểu tượng này để học.';
 
-// iPhone, iPad: nhiều phụ huynh không biết cài bằng Safari, màn cài có nút "Học trên web" để vào học luôn.
+// Mọi máy (trừ Zalo, Facebook…: ở đó đăng nhập Google cũng không được): màn cài có nút "Bỏ qua, học trên web" để vào học luôn.
 // Nhớ luôn trên máy (localStorage); muốn cài sau thì trang chủ có dải nhắc cài (shouldNudgeInstall, "Để sau" 7 ngày)
-// và menu tài khoản có mục 📲 Cài ứng dụng lên máy, cả hai mở hướng dẫn Chia sẻ → Thêm vào MH chính.
+// và menu tài khoản có mục 📲 Cài ứng dụng lên máy, cả hai mở hộp cài của trình duyệt hoặc hướng dẫn cài.
 const WEB_OK_KEY = 'tth_web_ok';
 const NUDGE_KEY = 'tth_install_nudge_until';
 const NUDGE_SNOOZE_MS = 7 * 24 * 3600 * 1000;
-const CAN_SKIP_WEB = IS_IOS && !IN_APP;
+const CAN_SKIP_WEB = !IN_APP;
 let webChosen = CAN_SKIP_WEB && (() => { try { return localStorage.getItem(WEB_OK_KEY) === '1'; } catch { return false; } })();
 
 function chooseWeb() {
@@ -143,9 +143,9 @@ function chooseWeb() {
   renderGate();
 }
 
-/** Trang chủ: bé đang học bằng Safari vì đã chọn "Học trên web", nhắc cài app (trừ khi vừa bấm Để sau). */
+/** Trang chủ: bé đang học trên trình duyệt vì đã bấm bỏ qua, nhắc cài app (trừ khi vừa bấm Để sau hoặc máy đã cài). */
 export function shouldNudgeInstall() {
-  if (!webChosen || isStandalone()) return false;
+  if (!webChosen || !canOfferInstall()) return false;
   try { return Date.now() >= Number(localStorage.getItem(NUDGE_KEY) || 0); } catch { return true; }
 }
 
@@ -247,7 +247,7 @@ function renderGate() {
     veil.querySelector('[data-open]').focus();
     return;
   }
-  const webBtn = CAN_SKIP_WEB ? '<button type="button" class="install-gate-alt" data-web>Học trên web</button>' : '';
+  const webBtn = CAN_SKIP_WEB ? '<button type="button" class="install-gate-alt" data-web>Bỏ qua, học trên web</button>' : '';
   const legal = '<p class="install-gate-legal"><a href="/privacy.html">Chính sách quyền riêng tư</a> · <a href="/terms.html">Điều khoản</a></p>';
   veil.innerHTML = installed ? `
     <div class="install-guide" role="dialog" aria-modal="true" aria-labelledby="install-gate-title">

@@ -196,7 +196,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
     `;
   }
 
-  // ── Dải nhắc cài app (iPhone, iPad đã chọn "Học trên web" ở màn cài) ─────
+  // ── Dải nhắc cài app (đã bấm "Bỏ qua, học trên web" ở màn cài) ─────
   function installPrompt() {
     if (!shouldNudgeInstall()) return '';
     return `
