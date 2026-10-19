@@ -460,6 +460,7 @@ export function injectDrillStyles() {
 
     /* Dòng đề trên đầu tờ vở: "Đặt tính rồi tính: 457 + 368 = ?" */
     .g3c-head { flex: none; padding: 1.2cqh 2cqi 0 calc(clamp(1.4rem, 4cqi, 3rem) + 1.2cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #334155; font-size: min(6.5cqh, 4.2cqi, 2.6rem); line-height: 1.3; }
+    @container (aspect-ratio < 1) { .g3c-head { font-size: min(4.4cqh, 5.8cqi); } }
     .g3c-head span { font-weight: 600; color: #64748B; }
     .g3c-expr { color: #1E293B; }
     .g3c-eq { color: #94A3B8; }

@@ -299,7 +299,11 @@ function diagram(p) {
     const xs = [X0];
     r.parts.forEach(pt => xs.push(xs[xs.length - 1] + pt.v * k));
     xsOf.push(xs);
-    svg += `<text x="${X0 - 20}" y="${y + 11}" text-anchor="end" class="w2-name">${r.name}</text>`;
+    // Tên dài ("Số người") xuống hai dòng, không tràn khỏi mép trái khi chữ to (màn dọc).
+    const cut = r.name.length > 6 ? r.name.lastIndexOf(' ') : -1;
+    svg += cut > 0
+      ? `<text x="${X0 - 20}" y="${y - 6}" text-anchor="end" class="w2-name"><tspan>${r.name.slice(0, cut)}</tspan><tspan x="${X0 - 20}" dy="1em">${r.name.slice(cut + 1)}</tspan></text>`
+      : `<text x="${X0 - 20}" y="${y + 11}" text-anchor="end" class="w2-name">${r.name}</text>`;
     r.parts.forEach((pt, i) => {
       svg += `<rect x="${xs[i]}" y="${y - 16}" width="${xs[i + 1] - xs[i]}" height="32" fill="${pt.c}" ${pt.ghost ? 'stroke-dasharray="9 7" ' : ''}stroke="${INK}" stroke-width="4"/>`;
     });
@@ -548,9 +552,12 @@ function injectWord2Styles() {
     /* Tờ vở đứng / hẹp (màn dọc): như vở, lời giải một dòng, phép tính xuống dòng dưới, lùi vào */
     @container (aspect-ratio < 1.25) {
       .w2 { grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.55fr) auto; gap: 1cqh; }
-      .w2-story { font-size: min(3.9cqh, 4.3cqi); }
+      .w2-story { font-size: min(4.2cqh, 5.2cqi); }
       .w2-btn { font-size: min(6cqh, 6.6cqi); max-width: 42cqi; }
-      .w2-sol { font-size: min(3.6cqh, 4.1cqi); }
+      .w2-sol { font-size: min(4.4cqh, 5.4cqi); }
+      .w2-name, .w2-val { font-size: 48px; }
+      .w2-mid { font-size: 50px; }
+      .w2-q { font-size: 60px; }
       .w2-lines { grid-template-columns: max-content; justify-content: start; row-gap: 0.1em; }
       .w2-calc { padding-left: 2.2em; margin-bottom: 0.25em; }
       .w2-dap { display: flex; gap: 0.4em; align-items: center; }

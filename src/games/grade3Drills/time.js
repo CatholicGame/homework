@@ -1191,6 +1191,14 @@ function injectTimeStyles() {
     .g3t-line .g3d-box { min-width: var(--boxw); vertical-align: middle; margin: 0 0.12em; }
     .g3t-picks { flex: 1.6 1 0; min-height: 0; max-height: 40cqh; display: grid; grid-template-columns: repeat(min(var(--n), 4), minmax(0, 1fr)); gap: 1.4cqh 1.6cqi; align-content: center; }
     .g3t-pick { font-size: min(calc(26cqh / var(--rows)), 4.6cqi, 2rem); padding: 0.25em 0.2em; min-height: 0; white-space: nowrap; }
+    /* Tờ vở đứng (màn dọc): đề, dòng trả lời, nút chọn to theo bề ngang tờ vở. */
+    .g3t-scene .g3d-paper { container-name: g3tpaper; }
+    @container g3tpaper (aspect-ratio < 1) {
+      .g3t-head { font-size: min(4.4cqh, 5.6cqi); }
+      .g3t-line { font-size: min(calc(40cqh / var(--rows)), 6.6cqi); }
+      .g3t-picks { max-height: 52cqh; }
+      .g3t-pick { font-size: min(calc(38cqh / var(--rows)), 5.3cqi); padding: 0.25em 0.05em; }
+    }
     @media (prefers-reduced-motion: reduce) { .g3t-mk { animation: none; } }
   `;
   document.head.appendChild(st);

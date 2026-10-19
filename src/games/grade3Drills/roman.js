@@ -716,6 +716,11 @@ function injectRomanStyles() {
     .g3r-line { display: flex; align-items: center; justify-content: center; gap: 0.3em; font-size: min(12cqh, 6.4cqi); line-height: 1; white-space: nowrap; }
     .g3r-rm { font-family: ${SERIF}; color: #44403C; }
     .g3r-box.g3d-box { --boxw: 2em; height: 1.25em; }
+    /* Tờ vở đứng: hàng tách số và dòng "IV = 4" to theo bề ngang (--ng: số nhóm chữ). */
+    @container (aspect-ratio < 1) {
+      .g3r-break { font-size: min(11cqh, calc(84cqi / (var(--ng, 3) * 2.1 + 1.6))); }
+      .g3r-line { font-size: min(10cqh, 9cqi); }
+    }
 
     /* Viết số: 5 ô chữ */
     .g3r-slots { display: flex; align-items: center; justify-content: center; gap: 1.4cqi; }
@@ -745,6 +750,7 @@ function injectRomanStyles() {
     /* Que diêm */
     .g3r-stick { grid-template-rows: auto minmax(0, 1fr) auto; }
     .g3r-task { text-align: center; font-size: min(6.5cqh, 3.6cqi); line-height: 1.25; }
+    @container (aspect-ratio < 1) { .g3r-task { font-size: min(4.6cqh, 5.8cqi); } }
     .g3r-task b { color: #C2410C; }
     .g3r-target { font-size: 1.3em; }
     .g3r-hl { background: #FEF08A; border-radius: 0.3em; padding: 0 0.2em; }

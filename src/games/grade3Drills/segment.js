@@ -317,12 +317,17 @@ function injectSegStyles() {
       .g3s { grid-template-rows: auto auto minmax(0, 1fr) auto; }
       .g3s-svg { height: auto; aspect-ratio: 1000 / 320; }
       .g3s-btn { font-size: min(8cqh, 8cqi); max-width: 42cqi; }
-      .g3s-ans { font-size: min(6cqh, 5.2cqi); }
+      .g3s-story { font-size: min(4.6cqh, 5.6cqi); line-height: 1.3; }
+      .g3s-name { font-size: 58px; }
+      .g3s-val { font-size: 52px; }
+      .g3s-q { font-size: 70px; }
+      .g3s-count { font-size: 44px; }
     }
     .g3s-ans { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.3em; font-size: min(5.6cqh, 3.4cqi); line-height: 1.2; }
     .g3s-label { color: #475569; font-weight: 600; }
     .g3s-expr { display: inline-grid; place-items: center; min-width: 4.2em; height: 1.3em; border: 3px dashed #93C5FD; border-radius: 0.2em; color: #1D4ED8; }
     .g3s-unit { color: #475569; }
+    @container (aspect-ratio < 1.1) { .g3s-ans { font-size: min(6cqh, 6.6cqi); } }
   `;
   document.head.appendChild(st);
 }

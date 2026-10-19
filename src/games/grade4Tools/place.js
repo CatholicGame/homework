@@ -397,12 +397,12 @@ function injectPlaceStyles() {
 
     .g4c { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 3cqh; padding: 3cqh 3cqi; font-family: 'Baloo 2', sans-serif; justify-content: center; }
     .g4c-grid { position: relative; display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 1cqh 0.6cqi; }
-    .g4c-head { text-align: center; font-weight: 800; color: var(--ink); background: var(--bg); border-radius: 0.5em; font-size: min(3.4cqh, calc(15cqi / var(--cols))); line-height: 1.05; padding: 0.2em 0.1em; min-height: 2.2em; display: grid; place-items: center; }
-    .g4c-d { position: relative; z-index: 1; text-align: center; font-weight: 800; color: var(--ink); font-size: min(15cqh, calc(60cqi / var(--cols))); line-height: 1.1; border: 2px solid #E2E8F0; border-radius: 0.3em; background: #fff; min-height: 1.15em; transition: background .25s, border-color .25s; }
+    .g4c-head { text-align: center; font-weight: 800; color: var(--ink); background: var(--bg); border-radius: 0.5em; font-size: min(3.4cqh, calc(26cqi / var(--cols))); line-height: 1.05; padding: 0.2em 0.1em; min-height: 2.2em; display: grid; place-items: center; }
+    .g4c-d { position: relative; z-index: 1; text-align: center; font-weight: 800; color: var(--ink); font-size: min(15cqh, calc(76cqi / var(--cols))); line-height: 1.1; border: 2px solid #E2E8F0; border-radius: 0.3em; background: #fff; min-height: 1.15em; transition: background .25s, border-color .25s; }
     .g4c-same { background: #F1F5F9; color: #94A3B8; }
     .g4c-hit { background: #FEF08A; border-color: #F59E0B; }
     .g4c-scan { position: absolute; z-index: 2; left: 0; top: 0; bottom: 0; border: 3px solid #EF4444; border-radius: 0.6em; opacity: 0; transition: transform .45s ease, opacity .2s; pointer-events: none; box-sizing: border-box; }
-    .g4c-line { display: flex; align-items: center; justify-content: center; gap: 0.5em; font-weight: 800; font-size: min(9cqh, 5.6cqi); }
+    .g4c-line { display: flex; align-items: center; justify-content: center; gap: 0.5em; font-weight: 800; font-size: min(9cqh, calc(88cqi / (var(--cols) * 1.3 + 2.4))); white-space: nowrap; }
     ${SLOT_CSS('.g4c-sign')}
     .g4c-sign { width: 1.4em; height: 1.3em; border-width: 3px; }
   `);

@@ -176,7 +176,11 @@ function injectPracticeStyles() {
     .g4-ref .g4-ref-t { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     /* Màn dọc (tờ giấy hẹp): câu hỏi to hơn theo bề ngang; dòng SGK gọn còn "📖 SGK · Bài 1 · trang 6–8" */
     @container (orientation: portrait) {
-      .g4-q { font-size: min(7cqh, 6.2cqi); text-wrap: balance; }
+      .g4-q { font-size: min(7cqh, 8cqi); text-wrap: balance; }
+      /* chuỗi phân số Toán 5 (5/12 − 1/6 = …): giữ một hàng, không bẻ giữa phân số */
+      .g4-q:has(.g5f-ql) { font-size: min(7cqh, 6.2cqi); }
+      .g4-pboard .g4-choice { font-size: min(6.4cqh, 6.4cqi); }
+      .g4-pboard .g4-choice-big { font-size: min(8cqh, 10cqi); }
       .g4-q small { font-size: 0.74em; }
       .g4-pboard:has(.g4-tool:empty) .g4-q { font-size: min(8.5cqh, 7.6cqi); }
       .g4-pboard:has(.g4-tool:empty):has(.g4-choices:empty) .g4-q { font-size: min(10cqh, 9cqi); }

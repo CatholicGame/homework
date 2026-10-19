@@ -17,6 +17,8 @@ const NAMES = {
   ':': ['Số bị chia', 'Số chia', 'Thương'],
 };
 const SIGNS = ['+', '−', '×', ':'];
+/** Bề ngang ước lượng (em, chữ Baloo 2 đậm) của một đoạn chữ số, dấu, chữ. */
+const textEm = (s) => [...String(s)].reduce((w, ch) => w + (/\d/.test(ch) ? 0.56 : /\s/.test(ch) ? 0.26 : /[+−×:=]/.test(ch) ? 0.62 : 0.52), 0);
 const calc = (x, op, y) => (op === '+' ? x + y : op === '−' ? x - y : op === '×' ? x * y : x / y);
 
 /** Cách tìm "?" ở vị trí pos (0 hoặc 2) của phép a op b = c: { x, op, y, rule }. */
@@ -95,12 +97,22 @@ export const FINDX_GAME = {
     const want = names[pos === 0 ? 0 : 1];
     const choices = [...new Set(names)].concat(op === '+' ? ['Hiệu'] : op === '×' ? ['Thương'] : []);
     const term = (v, i) => `<span class="g3x-term"><span class="g3x-num" data-t="${i}">${(i === 0 && pos === 0) || (i === 1 && pos === 2) ? '<b class="g3x-q">?</b>' : fmt(v)}</span><span class="g3x-name" data-n="${i}">${names[i]}</span></span>`;
-    const ansW = `${String(fmt(ans)).length * 0.6 + 0.8}em`;
+    const ansEm = textEm(fmt(ans)) + 0.9;
+    const ansW = `${ansEm}em`;
+    // Bề ngang (em) của từng dòng: cỡ chữ lấy theo bề ngang tờ giấy chia cho độ dài dòng, phép tính ngắn thì chữ to.
+    const termEm = (v, i) => Math.max((i === 0 && pos === 0) || (i === 1 && pos === 2) ? 1.4 : textEm(fmt(v)), names[i].length * 0.16 + 0.36);
+    const eqEm = termEm(a, 0) + termEm(b, 1) + termEm(c, 2) + 2 * 0.62 + 4 * 0.3;
+    // Dòng tính dài (số lớn): xuống hai hàng "? = x − y" / "= ô", chữ to gấp đôi thay vì một hàng nhỏ xíu.
+    const head = 1.4 + textEm(`= ${fmt(sol.x)}`) + 1.1 + textEm(fmt(sol.y)) + 3 * 0.3;
+    const long = head + textEm(' =') + ansEm + 0.3 > 11;
+    const oneEm = head + textEm(' =') + ansEm + 0.3;
+    const solveEm = long ? Math.max(head, textEm('=') + ansEm + 0.3) : oneEm;
+    const checkEm = textEm(`Thử lại: ${fmt(a)} ${op} ${fmt(b)} = ${fmt(c)}`) + 1.6;
     const board = `
-      <div class="g3x">
+      <div class="g3x" style="--eqw:${eqEm.toFixed(2)};--sw:${solveEm.toFixed(2)};--sw1:${oneEm.toFixed(2)};--cw:${checkEm.toFixed(2)}">
         <div class="g3x-eq">${term(a, 0)}<span class="g3x-op">${op}</span>${term(b, 1)}<span class="g3x-op">=</span>${term(c, 2)}</div>
         <div class="g3x-choices" data-ch></div>
-        <div class="g3x-line g3x-solve"><b class="g3x-q">?</b> = ${fmt(sol.x)} <span class="g3x-sign" data-sign>…</span> ${fmt(sol.y)} = <span class="g3d-box" style="--boxw:${ansW}" data-ans></span></div>
+        <div class="g3x-line g3x-solve${long ? ' g3x-long' : ''}"><b class="g3x-q">?</b> = ${fmt(sol.x)} <span class="g3x-sign" data-sign>…</span> ${fmt(sol.y)} ${long ? '<i class="g3x-br"></i>' : ''}= <span class="g3d-box" style="--boxw:${ansW}" data-ans></span></div>
         <div class="g3x-line g3x-check" data-check>Thử lại: <span data-ck></span></div>
       </div>`;
     const { paper, say, hint, pad, done } = mountDrill(stage, { api, board, cls: 'g3x-scene' });
@@ -195,21 +207,27 @@ function injectFindxStyles() {
   st.textContent = `
     .g3x { flex: 1; min-height: 0; display: grid; grid-template-rows: 1.5fr 1fr 0.8fr 0.7fr; gap: 2cqh; padding: 2cqh 3cqi 2cqh calc(clamp(1.4rem, 4cqi, 3rem) + 2cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .g3x > * { min-height: 0; }
-    .g3x-eq { display: flex; align-items: center; justify-content: center; gap: 0.3em; font-size: min(15cqh, 7cqi); line-height: 1; }
+    .g3x-eq { display: flex; align-items: center; justify-content: center; gap: 0.3em; font-size: min(15cqh, calc(84cqi / var(--eqw))); line-height: 1; }
     .g3x-term { display: inline-flex; flex-direction: column; align-items: center; gap: 0.12em; }
     .g3x-num { height: 1.2em; display: inline-grid; place-items: center; }
     .g3x-op { padding-bottom: 0.5em; }
-    .g3x-name { font-size: 0.3em; color: #7C3AED; background: #F3E8FF; border-radius: 999px; padding: 0.1em 0.6em; visibility: hidden; white-space: nowrap; }
+    .g3x-name { font-size: max(0.3em, min(0.85rem, 3.6cqi)); color: #7C3AED; background: #F3E8FF; border-radius: 999px; padding: 0.1em 0.6em; visibility: hidden; white-space: nowrap; }
     .g3x-named .g3x-name { visibility: visible; }
     .g3x-q { display: inline-grid; place-items: center; min-width: 1.4em; height: 1.15em; border: 0.07em solid #F97316; border-radius: 0.2em; color: #EA580C; background: #FFF7ED; }
     .g3x-found { color: #15803D; }
     .g3x-choices { display: flex; gap: 2cqi; justify-content: center; align-items: stretch; }
-    .g3x-name-btn { max-width: 28cqi; font-size: min(7cqh, 4.6cqi); }
-    .g3x-sign-btn { font-size: min(12cqh, 7cqi); max-width: 18cqi; }
-    .g3x-line { display: flex; align-items: center; justify-content: center; gap: 0.3em; font-size: min(10cqh, 5.4cqi); line-height: 1; visibility: hidden; white-space: nowrap; }
+    .g3x-name-btn { max-width: 28cqi; font-size: min(7cqh, 6cqi); white-space: normal; line-height: 1.1; padding-inline: 0.3em; }
+    .g3x-sign-btn { font-size: min(14cqh, 14cqi); max-width: 18cqi; }
+    .g3x-line { display: flex; align-items: center; justify-content: center; gap: 0.3em; font-size: min(11cqh, calc(84cqi / var(--sw))); line-height: 1; visibility: hidden; white-space: nowrap; }
     .g3x-show { visibility: visible; }
+    .g3x-long { flex-wrap: wrap; align-content: center; row-gap: 0.25em; font-size: min(5.5cqh, calc(84cqi / var(--sw))); }
+    .g3x-br { flex-basis: 100%; height: 0; }
+    @container (min-aspect-ratio: 1/1) {
+      .g3x-long { flex-wrap: nowrap; font-size: min(11cqh, calc(84cqi / var(--sw1))); }
+      .g3x-br { display: none; }
+    }
     .g3x-sign { display: inline-grid; place-items: center; min-width: 1.1em; height: 1.15em; border: 3px dashed #93C5FD; border-radius: 0.2em; color: #1D4ED8; }
-    .g3x-check { color: #15803D; font-size: min(8cqh, 4.6cqi); }
+    .g3x-check { color: #15803D; font-size: min(8cqh, calc(84cqi / var(--cw))); }
   `;
   document.head.appendChild(st);
 }

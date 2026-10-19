@@ -678,9 +678,11 @@ function injectAreaStyles() {
       .g3a { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1.3fr) minmax(0, 0.34fr) minmax(0, 0.72fr);
         grid-template-areas: "head" "fig" "ch" "lines"; }
       .g3a-choices { flex-direction: row; gap: 3cqi; padding: 0 0 1.6cqh; }
+      .g3a-head { font-size: min(4.4cqh, 5.6cqi); }
+      .g3a-label { font-size: 0.75em; }
     }
     @container g3ach (aspect-ratio > 2.5) {
-      .g3a-btn { font-size: min(44cqh, calc(26cqi / (var(--n, 8) * 0.58)), 3rem); }
+      .g3a-btn { font-size: min(44cqh, calc(29cqi / (var(--n, 8) * 0.56)), 3rem); padding-inline: 0.15em; }
     }
     @media (prefers-reduced-motion: reduce) {
       .g3a-num { animation: g3aPop .4s ease; }

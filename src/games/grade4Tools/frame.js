@@ -316,6 +316,9 @@ export function injectFrameStyles() {
       /* Bốn nút trở lên trên màn dọc: hai hàng, chữ to (một hàng bốn nút chữ chỉ còn ~13px). */
       .g4-choices:has(> .g4-choice:nth-child(4)) { flex-wrap: wrap; row-gap: 1.6cqh; }
       .g4-choices:has(> .g4-choice:nth-child(4)) > .g4-choice { flex: 1 1 calc(50% - 1.2cqi); font-size: min(6cqh, 6.2cqi); }
+      /* nút xếp dọc (chọn số lớn nhất…): vẫn một cột, không gói thành cột mới tràn sang phải */
+      .g4-choices.g4-choices-col:has(> .g4-choice:nth-child(4)) { flex-wrap: nowrap; }
+      .g4-choices.g4-choices-col:has(> .g4-choice:nth-child(4)) > .g4-choice { flex: 1 1 0; }
       .g3d-scene.g4-scene { grid-template-rows: auto minmax(0, 1fr) clamp(84px, 10%, 140px); }
       .g4-nav { flex-direction: row; align-items: stretch; }
       .g4-nav-row { flex-direction: column; gap: 0.35rem; }
