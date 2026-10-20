@@ -1,6 +1,6 @@
 /**
  * POST /api/writing/review → cô giáo DeepSeek chấm đoạn văn của bé (Luyện Viết Văn, src/games/writing.js).
- * Vào: { prompt: đề bài, text: bài làm (≤ 300 từ), grade: 2–5 }, header Authorization: Bearer <Firebase ID token>.
+ * Vào: { prompt: đề bài, text: bài làm (≤ 300 từ), grade: 1–5 }, header Authorization: Bearer <Firebase ID token>.
  * Ra: { review: { scores, summary, strengths, issues[], vocab[], tips[] } } — xem sanitize() bên dưới.
  * Vào { mode: 'vocab', prompt, grade } → { vocab: { groups: [{ title, words[] }] } }: bộ từ ngữ gợi ý cho đề,
  *   bé bấm khi chưa biết dùng từ gì (trước hoặc trong khi viết).
@@ -49,6 +49,8 @@ const ISSUE_TYPES = ['chinh_ta', 'dung_tu', 'cau', 'dau_cau'];
  * Số lượng được cắt lại trong sanitize() dù AI trả nhiều hơn.
  */
 const LEVELS = {
+  1: { issues: 3, strengths: 1, vocab: 2, tips: 1, explainWords: 8, summary: 'một câu thật ngắn (dưới 12 từ)',
+    style: 'Em mới học lớp 1, vừa biết đọc biết viết: viết thật ngắn, từ ngữ quen thuộc như khi nói chuyện với em bé, khen nhiều. Chỉ nêu vài lỗi quan trọng nhất (chính tả, viết hoa đầu câu, dấu chấm cuối câu); không bắt lỗi dùng từ hay câu văn chưa hay.' },
   2: { issues: 5, strengths: 1, vocab: 2, tips: 1, explainWords: 10, summary: 'một câu ngắn (dưới 15 từ)',
     style: 'Em mới học lớp 2, đọc còn chậm: viết thật ngắn, câu đơn giản, từ ngữ quen thuộc như khi nói chuyện với em bé. Chỉ nêu những lỗi quan trọng nhất (ưu tiên chính tả, viết hoa đầu câu, dấu chấm cuối câu); bỏ qua lỗi nhỏ về cách dùng từ hay câu văn chưa hay.' },
   3: { issues: 8, strengths: 2, vocab: 3, tips: 2, explainWords: 15, summary: '1-2 câu ngắn',
@@ -134,7 +136,7 @@ function sanitize(raw, text, grade) {
 }
 
 /** Bộ từ ngữ gợi ý theo lớp: số nhóm × số từ mỗi nhóm. */
-const VOCAB_LEVELS = { 2: [3, 4], 3: [4, 5], 4: [4, 6], 5: [5, 6] };
+const VOCAB_LEVELS = { 1: [2, 3], 2: [3, 4], 3: [4, 5], 4: [4, 6], 5: [5, 6] };
 
 function vocabPrompt(grade) {
   const [groups, words] = VOCAB_LEVELS[grade];
@@ -209,7 +211,7 @@ export default async function handler(req, res) {
   try { body = await readJson(req); } catch { return sendJson(res, 400, { error: 'body' }); }
   const prompt = String(body?.prompt || '').trim();
   const text = String(body?.text || '').trim();
-  const grade = [2, 3, 4, 5].includes(Number(body?.grade)) ? Number(body.grade) : 3;
+  const grade = [1, 2, 3, 4, 5].includes(Number(body?.grade)) ? Number(body.grade) : 3;
   const vocab = body?.mode === 'vocab';
   if (!prompt || (!vocab && !text)) return sendJson(res, 400, { error: 'empty' });
   if (prompt.length > MAX_PROMPT || countWords(text) > MAX_WORDS) return sendJson(res, 413, { error: 'too-long' });

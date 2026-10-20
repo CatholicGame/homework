@@ -13,6 +13,11 @@ export const PRESCHOOL = -1;
 const KNOWLEDGE_MAP = { id: 'knowledge-map', icon: '🗺️', color: '#16A34A', title: 'Bản đồ kiến thức', desc: 'Các kiến thức quan trọng của lớp: em đã vững, đang học hay chưa học, chạm để học tiếp' };
 
 // 🏘️ Phố Kỹ Năng (games/lifeSkills.js): trang riêng, cùng một thẻ cho mọi lớp (kể cả Tiền tiểu học).
+// 📚 Tiếng Việt: thẻ có group 'tiengviet' gom vào một thẻ ở trang chủ (home.js renderHub).
+// Luật chính tả dùng chung cho lớp 1–5; Luyện Viết Văn tự lấy lớp trong hồ sơ (cô chấm theo lớp).
+const SPELL = { id: 'tv3-spell', group: 'tiengviet', icon: '🔤', color: '#EA580C', title: 'Luật chính tả', desc: 'Chơi để nhớ luật c/k, g/gh, ng/ngh và mẹo s/x, ch/tr, r/d/gi, l/n, dấu hỏi/ngã; mỗi luật có 3 đề luyện 30 từ' };
+const writing = (desc) => ({ id: 'writing', group: 'tiengviet', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc });
+
 const LIFE = LIFE_SKILLS ? [{ id: 'life-skills', icon: '🏘️', color: '#F97316', title: 'Phố Kỹ Năng', desc: 'Truyện kỹ năng sống: em nhập vai, chọn cách xử lý khi qua đường, đi lạc, ở nhà một mình… và xem chuyện gì xảy ra' }] : [];
 
 export const GRADES = [
@@ -38,6 +43,8 @@ export const GRADES = [
       { id: 'grade1-photo', group: 'challenge', icon: '📷', color: '#0EA5E9', title: 'Bé Chụp Ảnh Chim', desc: 'Chụp ảnh đàn chim rồi chạm đếm: đến 20, đếm theo chục đến 100' },
       { id: 'grade1-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Cộng, trừ trong phạm vi 10, 20, 100' },
       { id: 'grade1-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Con Zíp trốn trong phép tính: chọn viên đạn mang đúng số bị giấu. Phạm vi 10, 20, số tròn chục' },
+      SPELL,
+      writing('Viết 1 đến 3 câu theo đề, cô giáo chấm, chỉ lỗi chính tả, nhắc viết hoa đầu câu và dấu chấm cuối câu'),
       ...LIFE,
     ],
   },
@@ -51,7 +58,8 @@ export const GRADES = [
       { id: 'grade2-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Làm tròn 10, bảng cộng trừ, đặt tính, bảng nhân chia 2 và 5, tính nhẩm, bài toán có lời văn' },
       { id: 'grade2-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Cộng, trừ qua 10, có nhớ; bảng nhân, chia 2 và 5' },
       { id: 'grade2-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang ổ khoá có số còn thiếu: chọn đúng viên đạn để phá khiên. Cộng, trừ qua 10, có nhớ; nhân, chia 2 và 5' },
-      { id: 'writing', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết vài câu theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
+      SPELL,
+      writing('Viết vài câu theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
       ...LIFE,
     ],
   },
@@ -68,8 +76,8 @@ export const GRADES = [
       { id: 'grade3-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Bảng nhân, bảng chia 2 đến 9, cộng trừ có nhớ' },
       { id: 'grade3-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang ổ khoá "tìm x": bắn đạn mang đúng giá trị của x, số thay vào là thấy đúng sai. Cộng trừ, nhân chia, số lớn' },
       { id: 'tv3-weekly', group: 'tiengviet', icon: '📖', color: '#16A34A', title: 'Bài tập cuối tuần Tiếng Việt', desc: '35 tuần cả học kì I và II (Kết nối tri thức): đọc hiểu, chính tả, luyện từ và câu; làm xong có chữa bài từng câu' },
-      { id: 'tv3-spell', group: 'tiengviet', icon: '🔤', color: '#EA580C', title: 'Luật chính tả', desc: 'Chơi để nhớ luật c/k, g/gh, ng/ngh và mẹo s/x, ch/tr, r/d/gi, l/n, dấu hỏi/ngã' },
-      { id: 'writing', group: 'tiengviet', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
+      SPELL,
+      writing('Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
       ...LIFE,
     ],
   },
@@ -83,7 +91,8 @@ export const GRADES = [
       { id: 'grade4-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Nhân, chia đặt tính với số có một, hai, ba chữ số: tích riêng, ước lượng thương' },
       { id: 'grade4-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Tính nhẩm số tới ba chữ số, nhân chia với 10, 100' },
       { id: 'grade4-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang biểu thức chứa chữ: theo mật mã a, b tính giá trị rồi bắn; tìm x với số lớn' },
-      { id: 'writing', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
+      SPELL,
+      writing('Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
       ...LIFE,
     ],
   },
@@ -96,7 +105,8 @@ export const GRADES = [
       { id: 'grade5-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Cộng, trừ, nhân, chia số thập phân đặt tính; nhân chia nhẩm với 10, 100, 0,1; phân số' },
       { id: 'grade5-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Bảng nhân chia, nhân chia số tròn chục, tròn trăm' },
       { id: 'grade5-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang ổ khoá tìm x với số thập phân, nhân chia với 10, 100; công thức chu vi, diện tích' },
-      { id: 'writing', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc: 'Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài' },
+      SPELL,
+      writing('Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
       ...LIFE,
     ],
   },

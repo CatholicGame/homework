@@ -257,7 +257,7 @@ export function render(app, onBack, ctx = {}) {
   renderGamesHub(app, {
     book: 'tv3', units: [], unitName: () => '', storageKey: 'tv3spell-v1', openUnit() {}, onBack,
   }, level ? { stall: SPELL_GAME.id, level: level.id } : null, {
-    games: [TOOL], kicker: '📚 Tiếng Việt 3', title: 'Luật chính tả', icon: '🔤', unitFocus: null,
+    games: [TOOL], kicker: '📚 Tiếng Việt', title: 'Luật chính tả', icon: '🔤', unitFocus: null,
     lead: 'Mỗi cấp một luật. Mỗi lượt là từ mới!',
     levelLead: 'Chọn luật muốn luyện.',
   });

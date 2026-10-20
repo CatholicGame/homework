@@ -1,5 +1,5 @@
 /**
- * ✍️ Luyện Viết Văn (lớp 2–5): bé tạo bài, nhập yêu cầu (đề) và viết đoạn văn ≤ 300 từ, nộp để cô giáo
+ * ✍️ Luyện Viết Văn (lớp 1–5): bé tạo bài, nhập yêu cầu (đề) và viết đoạn văn ≤ 300 từ, nộp để cô giáo
  * DeepSeek chấm (api/writing/review.js): điểm theo 4 tiêu chí, lỗi chính tả gạch chân đỏ, từ dùng chưa hay,
  * câu, dấu câu kèm gợi ý sửa, từ ngữ hay nên dùng, gợi ý viết hay hơn. Bé tự sửa bài rồi nộp lại.
  * Ba màn: danh sách bài · viết / sửa bài · cô nhận xét. Dữ liệu: engine/writing.js.
@@ -32,10 +32,13 @@ const CRITERIA = [
   ['chinh_ta', 'Chính tả, dấu câu', 2],
 ];
 
-/** Đề mẫu hiện mờ trong ô yêu cầu: lớp 2 viết 3 đến 4 câu, theo kiểu bài sách Tiếng Việt 2. */
+/** Đề mẫu hiện mờ trong ô yêu cầu, theo kiểu bài sách Tiếng Việt từng lớp (lớp 1 viết 1 đến 2 câu, lớp 2 viết 3 đến 4 câu). */
 const PROMPT_EXAMPLE = {
+  1: 'Viết 1 đến 2 câu về con vật mà em yêu thích.',
   2: 'Viết 3 đến 4 câu tả một đồ chơi mà em thích.',
   3: 'Viết đoạn văn (4 đến 5 câu) kể về một buổi đi chơi cùng gia đình em.',
+  4: 'Viết đoạn văn tả một cây bóng mát ở sân trường em.',
+  5: 'Viết đoạn văn tả cảnh trường em vào buổi sáng.',
 };
 
 const ERRORS = {
@@ -72,7 +75,7 @@ function loadHandFont() {
 export function render(app, onBack) {
   app.setAttribute('data-no-i18n', ''); // văn tiếng Việt, không dịch
   loadHandFont();
-  const grade = Math.min(5, Math.max(2, getProfileGrade() || 3));
+  const grade = Math.min(5, Math.max(1, getProfileGrade() || 3));
   let saveTimer = null;
   let busy = false; // đang chờ cô chấm
   let view = null; // màn đang mở, để vẽ lại khi bài từ máy khác vừa tải về
@@ -137,8 +140,8 @@ export function render(app, onBack) {
     const essays = listEssays(grade);
     const others = listOtherGradeEssays(grade);
     const body = frame({
-      // Lớp 3: thẻ nằm trong nhóm 📚 Tiếng Việt (quay về trang nhóm); lớp khác: về trang chủ.
-      back: onBack, backLabel: grade === 3 ? '← Tiếng Việt' : '← Trang chủ', title: '✍️ Luyện Viết Văn',
+      // Thẻ nằm trong nhóm 📚 Tiếng Việt của mọi lớp: quay về trang nhóm.
+      back: onBack, backLabel: '← Tiếng Việt', title: '✍️ Luyện Viết Văn',
       right: '<button type="button" class="btn btn-primary wr-new">＋ Bài mới</button>',
     }, `<div class="wr-cloud" aria-live="polite"></div>`
       + (essays.length ? `<div class="wr-list">${essays.map(itemHtml).join('')}</div>` : emptyHtml())
