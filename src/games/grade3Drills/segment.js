@@ -289,7 +289,7 @@ export const SEGMENT_GAME = {
 };
 
 let segStyles = false;
-function injectSegStyles() {
+export function injectSegStyles() {
   if (segStyles) return;
   segStyles = true;
   const st = document.createElement('style');

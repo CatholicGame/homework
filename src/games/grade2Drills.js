@@ -11,6 +11,7 @@ import { COLUMN_GAME, columnSteps } from './grade3Drills/column.js';
 import { SEGMENT_GAME, makeProblem } from './grade3Drills/segment.js';
 import { how } from './grade3Drills/kit.js';
 import { TEN_GAME } from './grade2Drills/tenframe.js';
+import { makeGive, mountGive, GIVE_SAMPLE } from './grade2Drills/give.js';
 import { ADD_GAME, TAB_GAME, MEN_GAME } from './grade2Drills/facts.js';
 import { TIME2_GAME, CAL2_GAME } from './grade3Drills/time.js';
 import { SHARK2_GAME } from './grade3Drills/shark.js';
@@ -85,11 +86,22 @@ export const WORD_LEVELS = [
   SEG('d2-seg-2', 2, 'Nhiều hơn, ít hơn', 'Mai có 9 bông hoa, Lan có nhiều hơn Mai 4 bông.', 'cộng, trừ qua 10', ['bai-13'], ['hon', 'kem'], 'Nhiều hơn thì cộng, ít hơn thì trừ!'),
   SEG('d2-seg-3', 3, 'Hơn, kém nhau bao nhiêu', 'Mai có 15 quyển vở, Lan có 8 quyển. Mai có nhiều hơn Lan bao nhiêu quyển?', 'phép trừ', ['bai-4'], ['hk'], 'Hơn nhau bao nhiêu thì lấy số lớn trừ số bé!'),
   SEG('d2-seg-4', 4, 'Trộn, số có nhớ', 'Trộn các dạng toán với số đến 100, có nhớ.', 'cộng, trừ có nhớ trong phạm vi 100', ['bai-21', 'bai-24'], ['them', 'kem', 'hk', 'hon', 'bot'], 'Đọc kĩ đề: thêm hay bớt, nhiều hơn hay ít hơn?', true),
+  // 🎁 Cho nhau (grade2Drills/give.js): giải hai bước trên sơ đồ, rồi thử bằng số
+  ...[
+    ['d2-seg-5', 5, 'Cho bạn thì còn hơn bao nhiêu?', 'Hoàng có nhiều hơn Nam 15 viên bi, Hoàng cho Nam 6 viên. Hoàng còn nhiều hơn Nam bao nhiêu viên bi?', ['give'], 'Người cho bớt đi, người nhận thêm vào: khoảng hơn bớt hai lần!'],
+    ['d2-seg-6', 6, 'Ai cho ai?', 'Trộn: bạn nhiều hơn cho bạn ít, hoặc bạn ít hơn cho bạn nhiều.', ['give', 'take', 'give', 'take'], 'Đọc kĩ: ai cho ai? Khoảng hơn bớt đi hay thêm vào?'],
+  ].map(([id, n, title, desc, kinds, ask]) => ({
+    id, n, title, desc, knowledge: 'nhiều hơn, ít hơn, cộng trừ qua 10', lessons: { g2: ['bai-13', 'bai-24'] }, missions: 4,
+    ask: () => ask, gen: (rng, k) => (n === 5 && k === 0 ? { ...GIVE_SAMPLE } : makeGive(rng, kinds[k % kinds.length])),
+  })),
 ];
 
 export const WORD_GAME = {
   ...SEGMENT_GAME, id: 'd2-seg', title: 'Bài toán có lời văn', starPrefix: 'drill2', levels: WORD_LEVELS,
-  purpose: 'Giúp em giải bài toán thêm, bớt, nhiều hơn, ít hơn, hơn kém nhau bao nhiêu: đọc đề, nhìn sơ đồ, chọn đúng phép cộng hay phép trừ rồi tính.',
+  mountMission(stage, p, level, api) {
+    return ['give', 'take'].includes(p.kind) ? mountGive(stage, p, level, api) : SEGMENT_GAME.mountMission(stage, p, level, api);
+  },
+  purpose: 'Giúp em giải bài toán thêm, bớt, nhiều hơn, ít hơn, hơn kém nhau bao nhiêu, cho nhau thì còn hơn bao nhiêu: đọc đề, nhìn sơ đồ, chọn đúng phép cộng hay phép trừ rồi tính.',
   howTo: how(['📖', 'Đọc đề'], ['📏', 'Nhìn sơ đồ'], ['➕', 'Cộng hay trừ?'], ['⌨️', 'Tính']),
 };
 
@@ -104,7 +116,7 @@ export const DRILL2_LIST = [
   tool('col', COL_GAME, 'Viết thẳng cột, tính từ hàng đơn vị, nhớ đúng số nhớ.', ['Có nhớ', 'Phạm vi 100', 'Phạm vi 1 000']),
   tool('tab', TAB_GAME, 'Thuộc bảng nhân, bảng chia 2 và 5.', ['Bảng nhân 2, 5', 'Bảng chia 2, 5']),
   tool('men', MEN_GAME, '30 + 50: 3 chục cộng 5 chục bằng 8 chục.', ['Tròn chục', 'Tròn trăm', 'Không nhớ']),
-  tool('word', WORD_GAME, 'Đọc đề, nhìn sơ đồ, chọn phép cộng hay phép trừ.', ['Thêm, bớt', 'Nhiều hơn, ít hơn', 'Hơn kém']),
+  tool('word', WORD_GAME, 'Đọc đề, nhìn sơ đồ, chọn phép cộng hay phép trừ.', ['Thêm, bớt', 'Nhiều hơn, ít hơn', 'Hơn kém', 'Cho nhau']),
   tool('time', TIME2_GAME, 'Xem giờ, đổi giờ chiều tối, tính giờ bắt đầu, giờ xong.', ['Xem giờ', 'Chỉnh kim', 'Giờ chiều, tối', 'Tính giờ']),
   tool('cal', CAL2_GAME, 'Ngày ... là thứ mấy, tuần sau, còn mấy ngày nữa.', ['Xem lịch', 'Ngày, thứ', 'Đếm ngày']),
 ];

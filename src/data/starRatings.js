@@ -3954,6 +3954,8 @@ export const STAR_RATINGS = {
   'drill2:d2-seg-2': 2,
   'drill2:d2-seg-3': 2,
   'drill2:d2-seg-4': 3,
+  'drill2:d2-seg-5': 3,
+  'drill2:d2-seg-6': 4,
   'drill2:d2-time-1': 1,
   'drill2:d2-time-2': 2,
   'drill2:d2-time-3': 2,
