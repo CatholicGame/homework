@@ -1,21 +1,19 @@
 /**
  * 🔍 Tìm một số, biết số đó … thì bằng tổng / hiệu / tích / thương của hai số (vd. "biết số đó nhân với 6 thì bằng
- * tích của 9 và 4"). Các dòng bài giải có sẵn trên tờ vở, chỉ chưa có phép tính; mỗi dòng có lời bám vào đề,
- * hai cụm của đề tô hai màu (vế trái cam, vế phải xanh) trùng màu với dòng phép tính của nó:
+ * tích của 9 và 4"). Lời bài giải có sẵn từng dòng; phép tính thì em tự viết hết (x, dấu, số, dấu =) bằng bàn phím số
+ * và hàng nút x + − × : = trên tờ vở, chấm từng dòng khi bấm OK:
  *   Gọi số cần tìm là x.
- *   số đó nhân với 6:  x × 6          1. chọn dấu (số bay từ đề xuống)
- *   tích của 9 và 4:   9 × 4          2. chọn dấu
- *   Ta có:             x × 6 = 9 × 4  3. hai vế bay xuống ghép lại ("thì bằng"),
- *   Tính vế phải:      x × 6 = 36        rồi em tính vế phải
- *   x là thừa số:      x = 36 : 6     4. chọn phép tính (sai thì thầy đọc quy tắc của findx.js)
- *                      x = 6          5. tính
+ *   Ta có:          x × 6 = 9 × 4   hai cụm của đề tô cam / xanh, vế em viết cũng tô cam / xanh theo
+ *   Tính vế phải:   x × 6 = 36
+ *   x là thừa số:   x = 36 : 6      (sai thì thầy đọc quy tắc của findx.js)
+ *                   x = 6
  *   Vậy số cần tìm là 6.
+ * Đổi chỗ hai số của phép cộng, phép nhân vẫn tính là đúng.
  */
 
-import { mountDrill, shake, setActive, flyDigit, fmt, fresh, sfx, sleep, how, TEACHER } from './kit.js';
+import { mountDrill, shake, setActive, fmt, fresh, sfx, sleep, how, TEACHER } from './kit.js';
 import { solveRule, textEm } from './findx.js';
 
-const SIGNS = ['+', '−', '×', ':'];
 const OPNAME = { '+': 'cộng', '−': 'trừ', '×': 'nhân', ':': 'chia' };
 const calc = (x, op, y) => (op === '+' ? x + y : op === '−' ? x - y : op === '×' ? x * y : x / y);
 
@@ -102,7 +100,7 @@ export const FINDNUM_GAME = {
   stallIcon: () => '🔍',
   summaryText: (ok, total) => `Em làm đúng ngay <strong>${ok}/${total}</strong> bài.`,
   againText: 'Làm lượt mới',
-  howTo: how(['📖', 'Đọc đề'], ['✍️', 'Viết phép tính'], ['🧮', 'Tính vế phải'], ['❓', 'Tìm số']),
+  howTo: how(['📖', 'Đọc đề'], ['✍️', 'Tự viết phép tính'], ['🧮', 'Tính vế phải'], ['❓', 'Tìm x']),
 
   makeMission(rng, level, history) {
     const k = history.length;
@@ -116,172 +114,177 @@ export const FINDNUM_GAME = {
     const sol = solveRule(L.op, L.xFirst ? 0 : 2, A, B, p.v);
     const xName = L.op === '+' ? 'số hạng' : L.op === '×' ? 'thừa số' : L.op === '−' ? (L.xFirst ? 'số bị trừ' : 'số trừ') : (L.xFirst ? 'số bị chia' : 'số chia');
 
-    // Ô số rộng sẵn theo số sẽ điền: điền vào không xô dòng nào.
-    const slot = (v, attr) => `<span class="g3d-box fn-n" style="--boxw:${(textEm(fmt(v)) + 0.4).toFixed(2)}em" ${attr}></span>`;
-    const sign = (attr) => `<span class="fn-s" ${attr}>…</span>`;
-    const X = '<b class="fn-x">x</b>';
-    const exprHtml = (parts) => parts.map(t => (t === 'x' ? X : `<span>${t}</span>`)).join('');
-    const leftParts = L.xFirst ? ['x', L.op, fmt(p.a)] : [fmt(p.a), L.op, 'x'];
-    const rightParts = [fmt(p.m), R.op, fmt(p.n)];
-    const emOf = (parts) => parts.reduce((w, t) => w + (t === 'x' ? 0.7 : textEm(t)) + 0.3, 0);
-    // Ô chứa cả một vế (dòng "Ta có", "Tính vế phải") rộng sẵn bằng vế đó.
-    const exBox = (parts, attr, cls) => `<span class="fn-ex ${cls}" style="min-width:${emOf(parts).toFixed(2)}em" ${attr}></span>`;
-    const src = (v, k) => `<b class="fn-src" data-src="${k}">${fmt(v)}</b>`;
-    const leftText = L.text('@').replace('@', src(p.a, 'a'));
-    const rightText = `${R.name} của ${src(p.m, 'm')} và ${src(p.n, 'n')}`;
+    const leftS = L.xFirst ? `x${L.op}${p.a}` : `${p.a}${L.op}x`;
+    const rightS = `${p.m}${R.op}${p.n}`;
     const plain = (h) => h.replace(/<[^>]*>/g, '');
-    const row = (label, math, attr = '') => `<div class="fn-lab" ${attr}>${label}</div><div class="fn-math" ${attr}>${math}</div>`;
-    const rows = [
-      `<div class="fn-full">Gọi số cần tìm là ${X}.</div>`,
-      row(`<span class="fn-ph fn-a">${plain(leftText)}</span>`, `<span class="fn-ul fn-ula">${L.xFirst ? `${X}${sign('data-ls')}${slot(p.a, 'data-la')}` : `${slot(p.a, 'data-la')}${sign('data-ls')}${X}`}</span>`),
-      row(`<span class="fn-ph fn-b">${plain(rightText)}</span>`, `<span class="fn-ul fn-ulb">${slot(p.m, 'data-rm')}${sign('data-rs')}${slot(p.n, 'data-rn')}</span>`),
-      row('Ta có:', `${exBox(leftParts, 'data-e3l', 'fn-ul fn-ula')}<i>=</i>${exBox(rightParts, 'data-e3r', 'fn-ul fn-ulb')}`),
-      row('Tính vế phải:', `${exBox(leftParts, 'data-e4l', '')}<i>=</i>${slot(p.v, 'data-v4')}`),
-      row(`${X} là ${xName}:`, `${X}<i>=</i>${slot(sol.x, 'data-sx')}${sign('data-ss')}${slot(sol.y, 'data-sy')}`, 'data-r5'),
-      row('', `${X}<i>=</i>${slot(p.x, 'data-x6')}`),
-      `<div class="fn-full fn-end">Vậy số cần tìm là ${slot(p.x, 'data-end')}.</div>`,
+    const src = (v) => `<b class="fn-src">${fmt(v)}</b>`;
+    const leftText = L.text('@').replace('@', src(p.a));
+    const rightText = `${R.name} của ${src(p.m)} và ${src(p.n)}`;
+    // Mỗi dòng: lời có sẵn + chỗ để em tự viết cả phép tính (x, dấu, số, dấu =).
+    // want: các cách viết đúng (đổi chỗ hai số của phép cộng, phép nhân cũng đúng).
+    const swap = (s) => s.replace(/^(\w+)([+×])(\w+)$/, '$3$2$1');
+    const lines = [
+      { label: 'Ta có:', want: [`${leftS}=${rightS}`], split: true },
+      { label: 'Tính vế phải:', want: [`${leftS}=${p.v}`, `${swap(leftS)}=${p.v}`] },
+      { label: `<b class="fn-x">x</b> là ${xName}:`, want: [`x=${sol.x}${sol.op}${sol.y}`], late: true },
+      { label: '', want: [`x=${p.x}`] },
     ];
-    // Bề ngang (em) của bảng bài giải: cột lời (chữ nhỏ 0.62) + cột phép tính.
-    const labEm = Math.max(textEm(plain(leftText)), textEm(plain(rightText)), textEm(`x là ${xName}:`)) * 0.62 + 0.8;
-    const mathEm = Math.max(emOf(leftParts) + emOf(rightParts) + 1, emOf(leftParts) + textEm(fmt(p.v)) + 1.4, textEm(`${fmt(sol.x)}${fmt(sol.y)}`) + 3.2);
-    const lw = labEm + mathEm + 0.6;
+    lines[2].want.push(`x=${swap(`${sol.x}${sol.op}${sol.y}`)}`);
+    lines[0].want.push(`${swap(leftS)}=${rightS}`, `${leftS}=${swap(rightS)}`, `${swap(leftS)}=${swap(rightS)}`);
+    // Bề ngang (em) để sẵn cho chỗ viết của từng dòng: đủ cho câu trả lời đúng dài nhất, không xô khi gõ.
+    const textOf = (s) => s.replace(/\d+/g, (d) => fmt(d)).replace(/([+−×:=])/g, ' $1 ');
+    const wEm = Math.max(...lines.map(l => textEm(textOf(l.want[0])))) + 1.2;
+    const labEm = Math.max(textEm(`x là ${xName}:`), textEm('Tính vế phải:')) * 0.62 + 0.6;
+    const endEm = textEm('Vậy số cần tìm là') + textEm(fmt(p.x)) + 1.6;
+    const lw = Math.max(labEm + wEm + 0.5, endEm * 0.8);
     const board = `
-      <div class="fn" style="--lw:${lw.toFixed(2)}">
+      <div class="fn" style="--lw:${lw.toFixed(2)};--ww:${wEm.toFixed(2)}em">
         <div class="fn-prob">Tìm một số, biết <span class="fn-ph fn-a" data-pl>${leftText}</span> <span class="fn-eq" data-peq>thì bằng</span> <span class="fn-ph fn-b" data-pr>${rightText}</span>.</div>
         <div class="fn-sol">
           <div class="fn-head">Bài giải</div>
-          <div class="fn-grid">${rows.join('')}</div>
+          <div class="fn-grid">
+            <div class="fn-full">Gọi số cần tìm là <b class="fn-x">x</b>.</div>
+            ${lines.map((l, i) => `<div class="fn-lab${l.late ? ' fn-late' : ''}" data-lab="${i}">${l.label}</div><div class="fn-w" data-w="${i}"></div>`).join('')}
+            <div class="fn-full fn-end">Vậy số cần tìm là <span class="fn-w fn-wend" data-w="end" style="--ww:${(textEm(fmt(p.x)) + 0.8).toFixed(2)}em"></span>.</div>
+          </div>
         </div>
-        <div class="fn-choices" data-ch></div>
+        <div class="fn-ops" data-ops>${['x', '+', '−', '×', ':', '='].map(k => `<button type="button" class="g3g-btn g3d-choice fn-op${k === 'x' ? ' fn-opx' : ''}" data-op="${k}">${k}</button>`).join('')}</div>
       </div>`;
-    const { paper, say, hint, pad, done } = mountDrill(stage, { api, board, cls: 'fn-scene' });
+    const { scene, paper, say, hint, done } = mountDrill(stage, { api, board, cls: 'fn-scene' });
     injectFindnumStyles();
     const $ = (s) => paper.querySelector(s);
-    const ch = $('[data-ch]');
+    const keys = scene.querySelector('.g3d-keys');
+    const okKey = keys.querySelector('[data-k="ok"]');
+    const opBtns = [...paper.querySelectorAll('[data-op]')];
     let mistakes = 0;
     let tip = '';
-    let busy = false;
+    let row = 0;          // dòng đang viết (0–3), 4 = câu trả lời
+    let typed = '';
+    let el = null;
 
-    const wrong = (el, text, shown) => { mistakes++; tip ||= text; shake(el); hint(text, shown); };
-    const buttons = (onPick) => {
-      ch.innerHTML = SIGNS.map(t => `<button type="button" class="g3g-btn g3d-choice fn-sign-btn" data-v="${t}">${t}</button>`).join('');
-      ch.querySelectorAll('[data-v]').forEach(btn => { btn.onclick = () => { if (busy) return; sfx.tap(); onPick(btn.dataset.v, btn); }; });
+    /** Chuỗi em gõ → HTML: số tách lớp nghìn, x màu cam; dòng "Ta có" tô vế trái cam, vế phải xanh như hai cụm của đề. */
+    const toHtml = (s, split) => {
+      const tok = (t) => (t === 'x' ? '<b class="fn-x">x</b>' : /\d/.test(t) ? `<span>${fmt(t)}</span>` : `<span class="fn-o">${t}</span>`);
+      const part = (str) => (str.match(/\d+|[x+−×:=]/g) || []).map(tok).join('');
+      if (!split) return part(s);
+      const k = s.indexOf('=');
+      if (k < 0) return `<span class="fn-side fn-a">${part(s)}</span>`;
+      return `<span class="fn-side fn-a">${part(s.slice(0, k))}</span>${tok('=')}<span class="fn-side fn-b">${part(s.slice(k + 1))}</span>`;
     };
-    const noButtons = () => ch.querySelectorAll('button').forEach(x => { x.disabled = true; });
-    const fly = (html, from, to) => sleep(flyDigit(html, from, to, { onLand: () => { to.innerHTML = html; to.classList.add('g3d-box-ok'); sfx.pop(2); } }));
-    const setSign = (el, s) => { el.textContent = s; el.classList.add('fn-s-ok'); };
-    const lit = (el) => { paper.querySelectorAll('.fn-lit').forEach(e => e.classList.remove('fn-lit')); el?.classList.add('fn-lit'); };
-    /** Ô gõ số: đúng → onOk; sai → thầy nhắc, gõ lại. */
-    const typeInto = (el, want, wrongText, onOk) => {
-      setActive(paper, el);
-      const opts = {
-        max: String(want).length + 1,
-        onType: (t) => { el.textContent = t ? fmt(t) : ''; },
-        onSubmit: (t) => {
-          if (Number(t) !== want) { el.textContent = ''; wrong(el, wrongText); pad.want(opts); return; }
-          pad.off();
-          setActive(paper, null);
-          el.classList.add('g3d-box-ok');
-          onOk();
-        },
-      };
-      pad.want(opts);
+    const paint = () => {
+      // Dòng "Tính vế phải" còn trống: hiện mờ khuôn "x : 4 = …" để em không viết riêng phép tính 21 : 7 = 3.
+      el.innerHTML = !typed && row === 1 ? `<span class="fn-ghost">${toHtml(`${leftS}=`)}<span>…</span></span>` : toHtml(typed, row === 0);
+      okKey.disabled = !typed;
+      if (row === 0) lit(typed.includes('=') ? $('[data-pr]') : $('[data-pl]'));
     };
-    const Rname = R.name[0].toUpperCase() + R.name.slice(1);
-    let stepNow = 'left';
+    const lit = (e) => { paper.querySelectorAll('.fn-lit').forEach(x => x.classList.remove('fn-lit')); e?.classList.add('fn-lit'); };
+    const maxLen = () => (row < 4 ? lines[row].want[0].length + 3 : String(p.x).length + 1);
+    const press = (k) => {
+      if (!el) return;
+      if (k === 'del') typed = typed.slice(0, -1);
+      else if (k === 'ok') { if (typed) { sfx.tap(); submit(); } return; }
+      else if (row === 4 && !/\d/.test(k)) return;
+      else if (typed.length >= maxLen()) return;
+      else if (/[+−×:=]/.test(k) && (!typed || /[+−×:=]$/.test(typed))) return;   // không hai dấu liền nhau
+      else if (k === 'x' && /[x\d]$/.test(typed)) return;
+      else if (/\d/.test(k) && /x$/.test(typed)) return;
+      else typed += k;
+      sfx.tap();
+      paint();
+    };
 
-    // 1. Vế trái: "số đó nhân với 6" viết thành x × 6.
-    lit($('[data-pl]'));
-    setActive(paper, $('[data-ls]'));
-    say(`Gọi số cần tìm là x. ${plain(leftText)}: viết dấu gì?`, `"<b>${L.verb}</b>" viết dấu gì?`);
-    buttons(async (v, btn) => {
-      if (v !== L.op) { wrong(btn, `"${L.verb[0].toUpperCase()}${L.verb.slice(1)}" là phép ${OPNAME[L.op]}, viết dấu ${L.op}.`); return; }
-      busy = true;
-      btn.classList.add('g3d-choice-ok');
-      setSign($('[data-ls]'), v);
+    /** Vì sao dòng chưa đúng: nhắc đúng chỗ sai, không đọc cả đáp án ngay. */
+    function why(s) {
+      const [l, r] = s.split('=');
+      if (row === 0) {
+        if (r === undefined) return ['Đề nói "thì bằng": viết dấu = giữa hai vế.', 'Viết đủ hai vế: … <b>=</b> …'];
+        if (l !== leftS && l !== swap(leftS)) return [`${plain(leftText)}: viết ${textOf(leftS)}.`, `"${plain(leftText)}" viết là <b>${textOf(leftS)}</b>.`];
+        return [`${R.name[0].toUpperCase()}${R.name.slice(1)} là kết quả của phép ${OPNAME[R.op]}: ${textOf(rightS)}.`, `"${plain(rightText)}" viết là <b>${textOf(rightS)}</b>.`];
+      }
+      if (row === 1) {
+        if (l !== leftS && l !== swap(leftS)) return ['Vế trái chép lại như dòng trên.', `Vế trái chép lại: <b>${textOf(leftS)}</b> = …`];
+        return [`${textOf(rightS)} = ${fmt(p.v)}.`, `<b>${textOf(rightS)} = ${fmt(p.v)}</b>`];
+      }
+      if (row === 2) return [sol.rule, `${sol.rule} <b>x = ${textOf(`${sol.x}${sol.op}${sol.y}`)}</b>`];
+      if (row === 3) return [`${textOf(`${sol.x}${sol.op}${sol.y}`)} = ${fmt(p.x)}.`, `<b>${textOf(`${sol.x}${sol.op}${sol.y}`)} = ${fmt(p.x)}</b>`];
+      return [`Số cần tìm là x, x = ${fmt(p.x)}.`];
+    }
+
+    function submit() {
+      const ok = row < 4 ? lines[row].want.includes(typed) : Number(typed) === p.x;
+      if (!ok && row === 1 && [rightS, swap(rightS)].some(r => typed === `${r}=${p.v}`)) {
+        // Em viết phép tính nháp "21 : 7 = 3": tính đúng rồi, chỉ chưa viết lại cả dòng. Không trừ lượt.
+        typed = '';
+        paint();
+        shake(el);
+        hint(`Đúng, ${textOf(rightS)} = ${fmt(p.v)}. Nhưng dòng này viết lại cả phép tính: vế trái giữ nguyên ${textOf(leftS)}, vế phải thay bằng ${fmt(p.v)}.`,
+          `Đúng, ${textOf(rightS)} = ${fmt(p.v)}. Viết lại cả dòng: <b>${textOf(leftS)} = ${fmt(p.v)}</b>`);
+        return;
+      }
+      if (!ok) {
+        mistakes++;
+        const [text, shown] = why(typed);
+        tip ||= text;
+        shake(el);
+        hint(text, shown);
+        return;
+      }
+      sfx.pop(2);
+      el.classList.add('fn-done');
       setActive(paper, null);
-      await fly(fmt(p.a), $('[data-src="a"]'), $('[data-la]'));
-      stepRight();
-    });
-
-    // 2. Vế phải: "tích của 9 và 4" viết thành 9 × 4.
-    function stepRight() {
-      stepNow = 'right';
-      busy = false;
-      lit($('[data-pr]'));
-      ch.querySelectorAll('button').forEach(b => b.classList.remove('g3d-choice-ok'));
-      setActive(paper, $('[data-rs]'));
-      say(`${Rname} của ${p.m} và ${p.n}: viết dấu gì?`, `<b>${Rname}</b> viết dấu gì?`);
-      buttons(async (v, btn) => {
-        if (v !== R.op) { wrong(btn, `${Rname} là kết quả của phép ${OPNAME[R.op]}: ${fmt(p.m)} ${R.op} ${fmt(p.n)}.`); return; }
-        busy = true;
-        btn.classList.add('g3d-choice-ok');
-        setSign($('[data-rs]'), v);
-        setActive(paper, null);
-        await fly(fmt(p.m), $('[data-src="m"]'), $('[data-rm]'));
-        await fly(fmt(p.n), $('[data-src="n"]'), $('[data-rn]'));
-        stepEq();
-      });
+      row++;
+      startRow();
     }
 
-    // 3. Ghép hai vế theo chữ "thì bằng" của đề, rồi tính vế phải.
-    async function stepEq() {
-      stepNow = 'eq';
-      noButtons();
-      lit($('[data-peq]'));
-      say(`${plain(leftText)} thì bằng ${plain(rightText)}. Ta có phép tính:`, `Đề nói "<b>thì bằng</b>", nên ta có:`);
-      await fly(exprHtml(leftParts), $('[data-la]').parentElement, $('[data-e3l]'));
-      await fly(exprHtml(rightParts), $('[data-rm]').parentElement, $('[data-e3r]'));
-      await sleep(500);
+    function startRow() {
+      typed = '';
+      if (row > 4) { finish(); return; }
+      el = $(`[data-w="${row < 4 ? row : 'end'}"]`);
+      setActive(paper, el);
+      paint();
+      opBtns.forEach(b => { b.disabled = row === 4; });
       lit(null);
-      await fly(exprHtml(leftParts), $('[data-e3l]'), $('[data-e4l]'));
-      stepNow = 'value';
-      say(`Tính ${R.name} trước: ${p.m} ${OPNAME[R.op]} ${p.n}.`, `Tính <b>${fmt(p.m)} ${R.op} ${fmt(p.n)}</b> trước.`);
-      typeInto($('[data-v4]'), p.v, `${fmt(p.m)} ${R.op} ${fmt(p.n)} = ${fmt(p.v)}.`, stepSolve);
+      if (row === 0) {
+        lit($('[data-pl]'));
+        say(`Gọi số cần tìm là x. Viết đề thành phép tính: ${plain(leftText)} thì bằng ${plain(rightText)}.`, 'Viết đề thành phép tính: <b>… = …</b>');
+      } else if (row === 1) say(`Tính ${R.name} trước. Vế trái giữ nguyên ${textOf(leftS)}, vế phải thay bằng kết quả của ${textOf(rightS)}.`, `Vế trái giữ nguyên, vế phải thay bằng kết quả của <b>${textOf(rightS)}</b>.`);
+      else if (row === 2) {
+        $('[data-lab="2"]').classList.add('fn-show');
+        say(`x là ${xName}. Muốn tìm ${xName}, ta làm thế nào? Viết x bằng phép tính.`, `x là <b>${xName}</b>. Viết <b>x = …</b>`);
+      } else if (row === 3) say('Tính ra x.', 'Tính ra <b>x</b>.');
+      else say('Vậy số cần tìm là mấy?', 'Số cần tìm là mấy?');
     }
 
-    // 4. Tìm x: x là thành phần gì, chọn phép tính, hai số bay xuống.
-    function stepSolve() {
-      stepNow = 'solve';
-      busy = false;
-      paper.querySelectorAll('[data-r5]').forEach(e => e.classList.add('fn-show'));
-      setActive(paper, $('[data-ss]'));
-      say(`x là ${xName}. Muốn tìm ${xName}, ta làm phép tính gì?`, `x là <b>${xName}</b>. Làm phép tính gì?`);
-      buttons(async (v, btn) => {
-        if (v !== sol.op) { wrong(btn, sol.rule); return; }
-        busy = true;
-        btn.classList.add('g3d-choice-ok');
-        setSign($('[data-ss]'), v);
-        setActive(paper, null);
-        const fromOf = (n) => (n === p.v ? $('[data-v4]') : $('[data-e4l]'));
-        await fly(fmt(sol.x), fromOf(sol.x), $('[data-sx]'));
-        await fly(fmt(sol.y), sol.y === sol.x ? $('[data-e4l]') : fromOf(sol.y), $('[data-sy]'));
-        stepCalc();
-      });
+    async function finish() {
+      el = null;
+      keys.classList.add('g3d-keys-off');
+      opBtns.forEach(b => { b.disabled = true; });
+      await sleep(300);
+      const check = `${L.xFirst ? fmt(p.x) : fmt(p.a)} ${L.op} ${L.xFirst ? fmt(p.a) : fmt(p.x)} = ${fmt(calc(A, L.op, B))}`;
+      done(mistakes, { ok: `Số cần tìm là ${fmt(p.x)}. Thử lại: ${check}.`, tip: tip ? `Nhớ: viết đề thành phép tính, tính ${R.name} trước, rồi ${sol.rule.charAt(0).toLowerCase()}${sol.rule.slice(1)}` : '' });
     }
 
-    // 5. Tính x, rồi viết câu trả lời.
-    function stepCalc() {
-      stepNow = 'calc';
-      noButtons();
-      say(`Tính ${sol.x} ${OPNAME[sol.op]} ${sol.y}.`, `Tính <b>${fmt(sol.x)} ${sol.op} ${fmt(sol.y)}</b>.`);
-      typeInto($('[data-x6]'), p.x, `${fmt(sol.x)} ${sol.op} ${fmt(sol.y)} = ${fmt(p.x)}.`, async () => {
-        stepNow = 'end';
-        await fly(fmt(p.x), $('[data-x6]'), $('[data-end]'));
-        await sleep(400);
-        const check = `${L.xFirst ? fmt(p.x) : fmt(p.a)} ${L.op} ${L.xFirst ? fmt(p.a) : fmt(p.x)} = ${fmt(calc(A, L.op, B))}`;
-        done(mistakes, { ok: `Số cần tìm là ${fmt(p.x)}. Thử lại: ${check}.`, tip: tip ? `Nhớ: tính ${R.name} trước, rồi ${sol.rule.charAt(0).toLowerCase()}${sol.rule.slice(1)}` : '' });
-      });
-    }
+    // Bàn phím số của khung chung (không dùng pad.want: em gõ cả số lẫn dấu vào cùng một dòng) + hàng nút dấu trên tờ vở.
+    keys.classList.remove('g3d-keys-off');
+    keys.querySelector('[data-k="ok"]').hidden = false;
+    keys.addEventListener('click', (e) => { const b = e.target.closest('[data-k]'); if (b && !b.disabled) press(b.dataset.k); });
+    opBtns.forEach(b => { b.onclick = () => press(b.dataset.op); });
+    const KEYMAP = { '*': '×', '/': ':', '-': '−', '+': '+', ':': ':', '=': '=', x: 'x', X: 'x' };
+    const onKey = (e) => {
+      if (!scene.isConnected) { document.removeEventListener('keydown', onKey); return; }
+      if (scene.closest('.g3g-has-result') || !el) return;
+      if (/^[0-9]$/.test(e.key)) press(e.key);
+      else if (KEYMAP[e.key]) press(KEYMAP[e.key]);
+      else if (e.key === 'Backspace') press('del');
+      else if (e.key === 'Enter') press('ok');
+      else return;
+      e.preventDefault();
+    };
+    document.addEventListener('keydown', onKey);
+    startRow();
 
     if (import.meta.env.DEV) {
-      window.__g3drill = { p, step: () => {
-        if (stepNow === 'left') ch.querySelector(`[data-v="${L.op}"]`)?.click();
-        else if (stepNow === 'right') ch.querySelector(`[data-v="${R.op}"]`)?.click();
-        else if (stepNow === 'solve') ch.querySelector(`[data-v="${sol.op}"]`)?.click();
-        else if (stepNow === 'value') pad.type(String(p.v));
-        else if (stepNow === 'calc') pad.type(String(p.x));
-      } };
+      window.__g3drill = { p, step: () => { for (const ch of row < 4 ? lines[row].want[0] : String(p.x)) press(ch); press('ok'); } };
     }
   },
 };
@@ -292,41 +295,39 @@ function injectFindnumStyles() {
   fnStyles = true;
   const st = document.createElement('style');
   st.textContent = `
-    .fn { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) 14cqh; gap: 1.6cqh; padding: 2.5cqh 3cqi 2.5cqh calc(clamp(1.4rem, 4cqi, 3rem) + 2cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
-    .fn-prob { font-size: min(5.4cqh, 5cqi); line-height: 1.45; text-wrap: balance; }
-    /* Hai cụm của đề: vế trái cam, vế phải xanh, cùng màu với dòng phép tính của nó. Không ngắt giữa cụm. */
+    .fn { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) 13cqh; gap: 1.6cqh; padding: 2.5cqh 3cqi 2.5cqh calc(clamp(1.4rem, 4cqi, 3rem) + 2cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
+    .fn-prob { font-size: min(5.6cqh, 5cqi); line-height: 1.45; text-wrap: balance; }
+    /* Hai cụm của đề: vế trái cam, vế phải xanh; dòng "Ta có" tô hai vế cùng màu. Không ngắt giữa cụm. */
     .fn-ph { white-space: nowrap; border-radius: 0.3em; padding: 0 0.12em; }
     .fn-a { background: #FFEDD5; }
     .fn-b { background: #E0F2FE; }
     .fn-prob .fn-a.fn-lit { box-shadow: 0 0 0 0.1em #F97316; }
     .fn-prob .fn-b.fn-lit { box-shadow: 0 0 0 0.1em #0EA5E9; }
     .fn-eq { border-radius: 0.3em; }
-    .fn-eq.fn-lit { background: #FEF08A; }
     .fn-src { color: #1D4ED8; }
-    .fn-sol { min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); font-size: min(6.4cqh, calc(84cqi / var(--lw))); line-height: 1; }
-    .fn-head { font-size: 0.62em; color: #B45309; text-decoration: underline; text-underline-offset: 0.2em; text-align: center; padding-bottom: 0.25em; }
-    .fn-grid { min-height: 0; display: grid; grid-template-columns: auto auto; grid-template-rows: repeat(8, minmax(0, 1fr)); gap: 0.12em 0.5em; justify-content: center; align-items: center; }
-    .fn-full { grid-column: 1 / -1; font-size: 0.78em; }
-    .fn-lab { justify-self: end; font-size: 0.62em; color: #475569; white-space: nowrap; }
-    .fn-math { display: flex; align-items: center; gap: 0.3em; white-space: nowrap; }
-    .fn-math i { font-style: normal; }
-    [data-r5] { visibility: hidden; }
-    [data-r5].fn-show { visibility: visible; }
-    .fn-ul, .fn-ex { display: inline-flex; align-items: center; gap: 0.3em; height: 1.2em; box-sizing: border-box; }
-    .fn-ul { padding: 0 0.2em; border-radius: 0.25em; }
-    .fn-ula { background: #FFEDD5; }
-    .fn-ulb { background: #E0F2FE; }
-    .fn-x { color: #EA580C; min-width: 0.7em; text-align: center; }
-    /* Ô trống: chấm chấm như chỗ để viết trong vở; ô đã điền chỉ còn số. */
-    .fn .g3d-box { border: 0; border-bottom: 0.07em dotted #94A3B8; border-radius: 0.15em; }
-    .fn .g3d-box.g3d-on { border-bottom: 0; }
-    .fn .g3d-box-ok { border-color: transparent; }
-    .fn .g3d-box-ok:not(.fn-ul) { background: none; }
-    .fn-end .g3d-box-ok { min-width: 0; }
-    .fn-s { display: inline-grid; place-items: center; min-width: 0.9em; height: 1.1em; border-bottom: 0.07em dotted #94A3B8; color: #94A3B8; font-size: 0.9em; box-sizing: border-box; }
-    .fn-s-ok { border-bottom-color: transparent; color: #1D4ED8; }
-    .fn-choices { display: flex; gap: 2cqi; justify-content: center; align-items: stretch; }
-    .fn-sign-btn { font-size: min(10cqh, 11cqi); max-width: 18cqi; display: grid; place-items: center; line-height: 1; padding: 0; }
+    .fn-sol { min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); font-size: min(7.2cqh, calc(84cqi / var(--lw))); line-height: 1; }
+    .fn-head { font-size: 0.6em; color: #B45309; text-decoration: underline; text-underline-offset: 0.2em; text-align: center; padding-bottom: 0.2em; }
+    .fn-grid { min-height: 0; display: grid; grid-template-columns: auto auto; grid-template-rows: repeat(6, minmax(0, 1fr)); gap: 0.1em 0.45em; justify-content: center; align-items: center; }
+    .fn-full { grid-column: 1 / -1; font-size: 0.8em; white-space: nowrap; }
+    .fn-full .fn-w { vertical-align: middle; }
+    .fn-wend.fn-done { min-width: 0; }
+    .fn-lab { justify-self: end; font-size: 0.6em; color: #475569; white-space: nowrap; }
+    .fn-late { visibility: hidden; }
+    .fn-late.fn-show { visibility: visible; }
+    .fn-x { color: #EA580C; }
+    /* Chỗ để em viết: dòng chấm chấm như trong vở, rộng sẵn đủ cho cả phép tính. */
+    .fn-w { display: inline-flex; align-items: center; gap: 0.22em; min-width: var(--ww); height: 1.25em; padding: 0 0.2em; box-sizing: border-box; border-bottom: 0.06em dotted #94A3B8; border-radius: 0.2em; color: #1D4ED8; white-space: nowrap; }
+    .fn-w.g3d-on { border-bottom-color: transparent; }
+    .fn-w.g3d-on::after { content: ''; width: 0.07em; height: 0.9em; background: #F59E0B; animation: fnCaret 1s steps(1) infinite; }
+    @keyframes fnCaret { 50% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .fn-w.g3d-on::after { animation: none; } }
+    .fn-done { border-bottom-color: transparent; }
+    .fn-o { color: #1E293B; }
+    .fn-ghost { display: inline-flex; align-items: center; gap: 0.22em; opacity: 0.28; filter: grayscale(1); }
+    .fn-side { display: inline-flex; align-items: center; gap: 0.22em; border-radius: 0.2em; padding: 0 0.12em; }
+    .fn-ops { display: flex; gap: 1.6cqi; justify-content: center; align-items: stretch; }
+    .fn-op { font-size: min(9cqh, 8cqi); max-width: 15cqi; display: grid; place-items: center; line-height: 1; padding: 0; }
+    .fn-opx { color: #EA580C; }
   `;
   document.head.appendChild(st);
 }
