@@ -10,6 +10,7 @@ import { DIVISION_GAME } from './grade3Drills/division.js';
 import { COLUMN_GAME } from './grade3Drills/column.js';
 import { TABLES_GAME, MENTAL_GAME } from './grade3Drills/facts.js';
 import { FINDX_GAME } from './grade3Drills/findx.js';
+import { FINDNUM_GAME } from './grade3Drills/findnum.js';
 import { EXPR_GAME } from './grade3Drills/expr.js';
 import { WORD2_GAME } from './grade3Drills/word2.js';
 import { NUMBERS_GAME } from './grade3Drills/numbers.js';
@@ -28,6 +29,7 @@ export const DRILL_LIST = [
   tool('col', COLUMN_GAME, 'Viết thẳng cột, tính từ hàng đơn vị, nhớ đúng số nhớ.', ['Cộng có nhớ', 'Trừ có nhớ', 'Nhân']),
   tool('tab', TABLES_GAME, 'Luyện cho thuộc. Phép nào hay sai sẽ được ra lại nhiều hơn.', ['Bảng nhân', 'Bảng chia', 'Số còn thiếu']),
   tool('x', FINDX_GAME, 'Gọi tên số cần tìm, chọn phép tính, tính rồi thử lại.', ['Số hạng', 'Thừa số', 'Số chia']),
+  tool('fn', FINDNUM_GAME, 'Biết số đó nhân với 6 thì bằng tích của 9 và 4: viết phép tính, tính vế phải trước, rồi tìm số.', ['Tổng, hiệu', 'Tích, thương', 'Bài giải sẵn dòng']),
   tool('expr', EXPR_GAME, 'Nhân, chia kết hợp cộng, trừ: chọn phép tính làm trước, viết từng dòng như trong vở.', ['Nhân chia trước', 'Ba phép tính', 'Dấu ngoặc']),
   tool('w2', WORD2_GAME, 'Bước 1 tìm số chưa biết, bước 2 dùng số đó trả lời câu hỏi, viết bài giải như trong vở.', ['Hơn kém rồi tổng', 'Gấp, giảm', 'Mỗi … có …']),
   tool('shark', SHARK_GAME, 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng, tính chậm là bị đớp!', ['Bảng nhân', 'Bảng chia', 'Tính nhanh']),

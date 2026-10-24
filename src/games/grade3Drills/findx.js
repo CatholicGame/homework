@@ -18,7 +18,7 @@ const NAMES = {
 };
 const SIGNS = ['+', '−', '×', ':'];
 /** Bề ngang ước lượng (em, chữ Baloo 2 đậm) của một đoạn chữ số, dấu, chữ. */
-const textEm = (s) => [...String(s)].reduce((w, ch) => w + (/\d/.test(ch) ? 0.56 : /\s/.test(ch) ? 0.26 : /[+−×:=]/.test(ch) ? 0.62 : 0.52), 0);
+export const textEm = (s) => [...String(s)].reduce((w, ch) => w + (/\d/.test(ch) ? 0.56 : /\s/.test(ch) ? 0.26 : /[+−×:=]/.test(ch) ? 0.62 : 0.52), 0);
 const calc = (x, op, y) => (op === '+' ? x + y : op === '−' ? x - y : op === '×' ? x * y : x / y);
 
 /** Cách tìm "?" ở vị trí pos (0 hoặc 2) của phép a op b = c: { x, op, y, rule }. */
