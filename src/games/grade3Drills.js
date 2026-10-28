@@ -19,6 +19,14 @@ import { ROMAN_GAME } from './grade3Drills/roman.js';
 import { UNITS_GAME } from './grade3Drills/units.js';
 import { SEGMENT_GAME } from './grade3Drills/segment.js';
 import { TIME_GAME, CAL_GAME } from './grade3Drills/time.js';
+import { SOLIDS_GAME } from './grade3Drills/solids.js';
+import { DATA_GAME } from './grade3Drills/data.js';
+import { SHAPES_GAME } from './grade3Drills/shapes.js';
+import { MIDPOINT_GAME } from './grade3Drills/midpoint.js';
+import { ANGLE_GAME } from './grade3Drills/angle.js';
+import { CIRCLE_GAME } from './grade3Drills/circle.js';
+import { TEMP_GAME } from './grade3Drills/temp.js';
+import { MONEY_GAME } from './grade3Drills/money.js';
 import { SHARK_GAME } from './grade3Drills/shark.js';
 import { UFO_GAME } from './grade3Drills/ufo.js';
 
@@ -38,10 +46,18 @@ export const DRILL_LIST = [
   tool('seg', SEGMENT_GAME, 'Gấp lên, giảm đi, gấp mấy lần, một phần mấy bằng sơ đồ.', ['Gấp, giảm', 'Gấp mấy lần', 'Một phần mấy']),
   tool('num', NUMBERS_GAME, 'Đọc, viết, phân tích, so sánh và làm tròn số có bốn, năm chữ số như trong sách.', ['Đọc viết số', 'So sánh', 'Làm tròn']),
   tool('unit', UNITS_GAME, 'Đổi m, dm, cm, mm, kg, g, l, ml, tính và so sánh số đo, rồi tự kiểm tra trên thước, cân, ca đo.', ['Đổi đơn vị', 'Tính với số đo', 'So sánh số đo']),
+  tool('temp', TEMP_GAME, 'Đọc nhiệt kế, kéo cột đỏ tới đúng nhiệt độ, so sánh nơi nào nóng hơn và hơn bao nhiêu độ C, chọn nhiệt độ hợp lí.', ['Đọc nhiệt kế', 'So sánh nhiệt độ', '°C']),
   tool('area', AREA_GAME, 'Chu vi tam giác, tứ giác, hình chữ nhật, hình vuông; đếm ô vuông 1 cm² và tính diện tích, không nhầm chu vi với diện tích.', ['Chu vi', 'Diện tích', 'cm²']),
+  tool('mid', MIDPOINT_GAME, 'Điểm ở giữa phải thẳng hàng; trung điểm chia đôi đoạn thẳng: đo bằng thước, tính một nửa, gấp đôi để kiểm tra.', ['Điểm ở giữa', 'Trung điểm', 'Tính độ dài']),
+  tool('circle', CIRCLE_GAME, 'Chạm vào tâm, bán kính, đường kính; đường kính gấp 2 lần bán kính; mở com-pa đúng bán kính rồi quay một vòng.', ['Tâm, bán kính', 'Đường kính', 'Com-pa']),
+  tool('ang', ANGLE_GAME, 'Gọi tên đỉnh, cạnh của góc; đặt ê ke kiểm tra góc vuông, góc không vuông; đếm góc vuông trong hình; vẽ góc vuông trên giấy ô vuông.', ['Gọi tên góc', 'Ê ke', 'Vẽ góc vuông']),
+  tool('shape', SHAPES_GAME, 'Gọi tên đỉnh, cạnh, góc; dùng ê ke và thước nhận ra hình chữ nhật, hình vuông; đếm hình; vẽ trên lưới ô vuông.', ['Đỉnh, cạnh, góc', 'Ê ke, thước', 'Đếm hình', 'Vẽ hình']),
+  tool('solid', SOLIDS_GAME, 'Nhận dạng khối lập phương, khối hộp chữ nhật; chạm đếm 8 đỉnh, 12 cạnh, 6 mặt, kể cả phần bị khuất; đếm khối lập phương nhỏ xếp chồng.', ['Nhận dạng khối', 'Đỉnh, cạnh, mặt', 'Đếm khối nhỏ']),
   tool('roman', ROMAN_GAME, 'Đọc, viết số La Mã từ I đến XX, xem đồng hồ số La Mã, giải đố que diêm.', ['Đọc, viết số', 'Đồng hồ', 'Que diêm']),
   tool('time', TIME_GAME, 'Xem giờ đến từng phút, tính giờ xong, giờ bắt đầu, kéo dài bao lâu.', ['Xem giờ', 'Chỉnh kim', 'Đổi giờ', 'Tính giờ']),
+  tool('money', MONEY_GAME, 'Đếm tiền, lấy đủ tiền để trả, tính tiền trả lại và đổi tiền với các tờ từ 1 000 đến 100 000 đồng.', ['Đếm tiền', 'Trả tiền', 'Tiền trả lại', 'Đổi tiền']),
   tool('cal', CAL_GAME, 'Tháng có mấy ngày, ngày ... là thứ mấy, kéo dài mấy ngày.', ['Xem lịch', 'Thứ trong tuần', 'Đếm ngày']),
+  tool('data', DATA_GAME, 'Kiểm đếm rồi ghi vào bảng số liệu, đọc bảng (nhiều nhất, ít nhất, hơn kém, tất cả), chắc chắn, có thể hay không thể lấy được bi, quay nón, lấy bút.', ['Kiểm đếm', 'Bảng số liệu', 'Khả năng xảy ra']),
 ];
 
 export function render(app, onBack) {
