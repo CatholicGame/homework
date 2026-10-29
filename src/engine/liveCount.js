@@ -15,8 +15,11 @@ const PEAKS = {
   weekend: [[9, 22, 50, 100]],
 };
 const WEEKEND = [6, 0];   // thứ Bảy, Chúa Nhật
-const QUIET = [7, 20];    // ngoài giờ đông người
+// Ngoài giờ đông người. Ngày thường bé đi học nên chủ yếu số thật, chỉ đệm vài người như có khách ghé.
+const QUIET = { weekday: [3, 10], weekend: [7, 20] };
 const RAMP = 0.75;        // giờ lên / xuống dần trước giờ bắt đầu và sau giờ kết thúc
+const NIGHT = [22.5, 6];  // ban đêm: không cộng số đệm, chỉ hiện số thật
+const FADE = 0.5;         // giờ giảm dần về số thật trước NIGHT[0] (22h → 22h30)
 
 const BEAT = 4 * 60e3;        // ghi presence
 const WINDOW = 6 * 60e3;      // ai ghi trong khoảng này thì đang học
@@ -55,16 +58,20 @@ export function buffer(t = Date.now()) {
   const at = (lo, hi) => lo + (hi - lo) * u;
   const vn = new Date(t + VN);
   const h = vn.getUTCHours() + vn.getUTCMinutes() / 60 + vn.getUTCSeconds() / 3600;
+  if (h >= NIGHT[0] || h < NIGHT[1]) return 0;
+  const fade = ease(clamp01((NIGHT[0] - h) / FADE));
   // Giờ vắng: sóng riêng (40 phút, 15 phút).
   const nq = 0.75 * smooth(t, 40 * 60e3, 5) + 0.25 * smooth(t, 15 * 60e3, 6);
-  const quiet = QUIET[0] + (QUIET[1] - QUIET[0]) * clamp01((nq * 1.6 + 1) / 2);
+  const day = WEEKEND.includes(vn.getUTCDay()) ? 'weekend' : 'weekday';
+  const [qlo, qhi] = QUIET[day];
+  const quiet = qlo + (qhi - qlo) * clamp01((nq * 1.6 + 1) / 2);
   let v = quiet;
-  for (const [start, end, lo, hi] of PEAKS[WEEKEND.includes(vn.getUTCDay()) ? 'weekend' : 'weekday']) {
+  for (const [start, end, lo, hi] of PEAKS[day]) {
     const k = level(h, start, end);
     v = Math.max(v, quiet * (1 - k) + at(lo, hi) * k);
   }
   // Người ra người vào: mỗi phút một hệ số ngẫu nhiên ±12% quanh mức.
-  return Math.round(v * (1 + hash(Math.floor(t / 60e3) * 13 + 9) * 0.12));
+  return Math.round(v * fade * (1 + hash(Math.floor(t / 60e3) * 13 + 9) * 0.12));
 }
 
 // ── Số thật ──────────────────────────────────────────────────────────────────
