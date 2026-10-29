@@ -4,8 +4,8 @@
  *   cấp 1  gọi tên hình, đếm đỉnh, chạm từng cạnh, tìm góc đỉnh … và hai cạnh của góc;
  *   cấp 2  bốn hình tứ giác (có hình bình hành, hình thoi, hình thang, hình gần vuông): chạm hình nào thì ê ke kiểm tra
  *          4 góc, thước đo 4 cạnh ngay trên hình, rồi em xếp: hình vuông / hình chữ nhật / không phải;
- *   cấp 3  "Có bao nhiêu hình tam giác?": chạm các mảnh ghép thành một hình, hình tìm được ghi vào bảng đếm;
- *   cấp 4  vẽ trên lưới ô vuông: chạm các điểm còn thiếu, nét kẻ chạy theo, rồi thước và ê ke kiểm tra.
+ *   cấp 3  "Có bao nhiêu hình tam giác?": chạm 3 (4) đỉnh của một hình, nét nối chạy theo, hình tìm được ghi vào bảng đếm;
+ *   cấp 4  vẽ trên lưới ô vuông: kéo nét từ đỉnh cuối, thả đâu đặt đỉnh ở đó; vẽ xong thước và ê ke đo, đánh ✓/✗ từng cạnh, góc.
  * Mọi vùng (hình, cột bên phải, các dòng ghi) có chỗ từ đầu lượt, chỉ hiện dần, không xô gì.
  */
 
@@ -139,6 +139,9 @@ async function ekeAt(tools, marks, P, i, size = 1.5) {
   return right;
 }
 
+/** "5 cm"; nét xiên không tròn số thì đọc một chữ số lẻ: "3,2 cm". */
+const cmText = (L) => (Math.abs(L - Math.round(L)) < 0.05 ? `${Math.round(L)} cm` : `${L.toFixed(1).replace('.', ',')} cm`);
+
 /** Thước đặt dọc cạnh i (phía ngoài hình), đọc số đo, nhãn "5 cm" ở lại trên hình. */
 async function rulerAt(tools, marks, P, i, cls = 'g3sh-len') {
   const n = P.length, p = P[i], q = P[(i + 1) % n];
@@ -154,7 +157,7 @@ async function rulerAt(tools, marks, P, i, cls = 'g3sh-len') {
   sfx.tick();
   await sleep(calmMotion() ? 520 : 380);
   await fadeOut(g);
-  const t = `${Math.round(L)} cm`;
+  const t = cmText(L);
   const lab = sideLabel(P, i, t);
   svgAdd(marks, `<text class="${cls} g3sh-pop" x="${f2(lab.x)}" y="${f2(lab.y)}" text-anchor="middle" dominant-baseline="central">${t}</text>`);
   sfx.pop(i + 2);
@@ -346,14 +349,14 @@ export const SHAPES_LEVELS = [
   LEVEL('drill-shape-2', 2, 'Hình nào là hình chữ nhật, hình vuông?', 'Ê ke kiểm tra 4 góc vuông, thước đo các cạnh, rồi xếp từng hình.',
     'hình chữ nhật có 4 góc vuông, hai cạnh dài bằng nhau, hai cạnh ngắn bằng nhau; hình vuông có 4 góc vuông, 4 cạnh bằng nhau', ['bai-19'],
     ['easy', 'easy', 'hard', 'hard'], 'Dùng ê ke và thước để kiểm tra!'),
-  LEVEL('drill-shape-3', 3, 'Đếm hình', 'Vd. Có bao nhiêu hình tam giác? Ghép các mảnh để tìm đủ từng hình.',
+  LEVEL('drill-shape-3', 3, 'Đếm hình', 'Vd. Có bao nhiêu hình tam giác? Chạm các đỉnh để tìm đủ từng hình.',
     'đếm hình tam giác, hình tứ giác, hình chữ nhật, hình vuông trong hình ghép', ['bai-19'],
     [['fan', 1, 'tri'], ['strip', 1, 'rect'], ['grid', 0, 'sq'], ['fan', 2, 'tri'], ['cut', 0, 'quad'], ['diag', 0, 'tri'], ['strip', 2, 'quad'], ['cut', 0, 'tri']],
     'Đếm cả hình nhỏ lẫn hình to, không bỏ sót!', { box: [10, 8] }),
   LEVEL('drill-shape-4', 4, 'Vẽ trên lưới ô vuông', 'Vd. Vẽ hình chữ nhật ABCD có chiều dài 5 cm, chiều rộng 3 cm.',
     'vẽ hình chữ nhật, hình vuông trên giấy ô vuông', ['bai-20'],
     [[false, 3], [true, 2], [false, 2], [true, 1], [false, 1]],
-    'Kẻ theo đường kẻ của lưới, mỗi ô dài 1 cm!', { box: [13, 9] }),
+    'Kẻ theo đường kẻ của lưới, mỗi ô dài 1 cm!', { box: [14.2, 10.2] }),
 ];
 
 let uid = 0;
@@ -743,13 +746,16 @@ function lv2(m, id) {
 function lv3(m, id) {
   const S = struct3(m);
   const ask = ASK[m.ask];
+  const need = m.ask === 'tri' ? 3 : 4;
   let s = gridDefs(id);
   S.pieces.forEach((pc, i) => { s += `<polygon class="g3sh-pc" data-p="${i}" points="${pts(pc.map(n => S.pt[n]))}"/>`; });
   s += '<g class="g3sh-found"></g>';
   S.segs.forEach(([a, b]) => { s += `<line class="g3sh-seg" x1="${S.pt[a][0]}" y1="${S.pt[a][1]}" x2="${S.pt[b][0]}" y2="${S.pt[b][1]}"/>`; });
+  s += '<g class="g3sh-pick"></g>';
   Object.entries(S.pt).forEach(([n, p]) => {
-    s += `<circle class="g3sh-dot g3sh-dot-on" cx="${p[0]}" cy="${p[1]}" r="0.13"/>`;
-    s += `<text class="g3sh-vx" x="${f2(p[0] + S.lab[n][0])}" y="${f2(p[1] + S.lab[n][1])}" text-anchor="middle" dominant-baseline="central">${n}</text>`;
+    s += `<circle class="g3sh-vring" data-vr="${n}" cx="${p[0]}" cy="${p[1]}" r="0.42"/>`;
+    s += `<circle class="g3sh-dot g3sh-dot-on" data-vd="${n}" cx="${p[0]}" cy="${p[1]}" r="0.16"/>`;
+    s += `<text class="g3sh-vx" data-vl="${n}" x="${f2(p[0] + S.lab[n][0])}" y="${f2(p[1] + S.lab[n][1])}" text-anchor="middle" dominant-baseline="central">${n}</text>`;
   });
   const all = Object.values(S.pt);
   const xs = all.map(p => p[0]), ys = all.map(p => p[1]);
@@ -765,23 +771,84 @@ function lv3(m, id) {
     run(env) {
       const { paper, svg, say, show } = env;
       const q = (sel) => paper.querySelector(sel);
-      const key = (arr) => [...arr].sort((a, b) => a - b).join(',');
-      const byKey = new Map(S.targets.map(t => [key(t.pcs), t]));
+      const key = (arr) => [...arr].sort().join('');
+      const byKey = new Map(S.targets.map(t => [key(t.poly), t]));
       const found = [];
-      let sel = new Set();
+      let sel = []; // tên các đỉnh em đã chạm, theo thứ tự chạm
       let stepNow = 'find';
-      const foundG = q('.g3sh-found');
+      const foundG = q('.g3sh-found'), pickG = q('.g3sh-pick');
       const enough = q('[data-enough]');
-      say(`Có bao nhiêu ${ask}? Chạm vào các mảnh để ghép thành một ${ask}.`, `👆 Chạm các mảnh ghép thành <b>một ${ask}</b>.`);
+      say(`Có bao nhiêu ${ask}? Chạm vào ${need} đỉnh của một ${ask}.`, `👆 Chạm vào <b>${need} đỉnh</b> của một ${ask}.`);
 
-      const paintSel = () => svg.querySelectorAll('.g3sh-pc').forEach(el => el.classList.toggle('g3sh-pc-sel', sel.has(+el.dataset.p)));
       const outline = (t, color, cls = '') => svgAdd(foundG, `<polygon class="g3sh-fpoly ${cls}" points="${pts(t.poly.map(n => S.pt[n]))}" stroke="${color}" fill="${color}"/>`);
+      /** Nét nối các đỉnh đã chạm; đủ đỉnh thì khép lại (đỏ khi sai). */
+      function paintSel(bad = false) {
+        Object.keys(S.pt).forEach(n => {
+          const on = sel.includes(n);
+          q(`[data-vr="${n}"]`).classList.toggle('g3sh-vring-on', on);
+          q(`[data-vl="${n}"]`).classList.toggle('g3sh-vx-sel', on);
+        });
+        const P = sel.map(n => S.pt[n]);
+        pickG.innerHTML = P.length < 2 ? ''
+          : `<${P.length === need ? 'polygon' : 'polyline'} class="g3sh-pline${bad ? ' g3sh-pline-bad' : ''}" points="${pts(P)}"/>`;
+      }
+
+      // Vì sao mấy đỉnh này không phải là một hình cần tìm
+      const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+      const onSeg = (a, b, p) => Math.abs(cross(a, b, p)) < 1e-6 && Math.min(a[0], b[0]) - 1e-6 <= p[0] && p[0] <= Math.max(a[0], b[0]) + 1e-6
+        && Math.min(a[1], b[1]) - 1e-6 <= p[1] && p[1] <= Math.max(a[1], b[1]) + 1e-6;
+      const drawn = (x, y) => S.segs.some(([a, b]) => onSeg(S.pt[a], S.pt[b], S.pt[x]) && onSeg(S.pt[a], S.pt[b], S.pt[y]));
+      function whyNot(names) {
+        for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) for (let k = j + 1; k < names.length; k++) {
+          const [a, b, c] = [names[i], names[j], names[k]];
+          if (Math.abs(cross(S.pt[a], S.pt[b], S.pt[c])) < 1e-6) {
+            return [`Ba điểm ${a}, ${b}, ${c} nằm trên một đường thẳng, không làm thành ${ask}.`, 'Ba điểm thẳng hàng không phải là ba đỉnh của một hình.'];
+          }
+        }
+        const c = centroid(names.map(n => S.pt[n]));
+        const ring = [...names].sort((a, b) => Math.atan2(S.pt[a][1] - c[1], S.pt[a][0] - c[0]) - Math.atan2(S.pt[b][1] - c[1], S.pt[b][0] - c[0]));
+        for (let i = 0; i < ring.length; i++) {
+          const a = ring[i], b = ring[(i + 1) % ring.length];
+          if (!drawn(a, b)) return [`Không có đường kẻ nối ${a} với ${b}, nên ${ring.join('')} không phải là một hình trong hình vẽ.`, 'Các cạnh của hình phải là đường kẻ có sẵn trong hình vẽ.'];
+        }
+        if (m.ask === 'sq') return [`${ring.join('')} là hình chữ nhật: cạnh dài, cạnh ngắn không bằng nhau.`, 'Hình vuông có 4 cạnh bằng nhau.'];
+        return [`${ring.join('')} không phải là ${ask}.`, ''];
+      }
+
+      async function pickVertex(n) {
+        if (stepNow !== 'find') return;
+        sfx.tap();
+        if (sel.includes(n)) { sel = sel.filter(x => x !== n); paintSel(); return; }
+        sel.push(n);
+        paintSel();
+        if (sel.length < need) { show(`Đã chọn <b>${sel.join(', ')}</b>. Chạm thêm ${need - sel.length} đỉnh.`); return; }
+        const t = byKey.get(key(sel));
+        if (t && found.includes(t)) {
+          stepNow = 'busy';
+          show(`<b>${t.name}</b>: em tìm rồi. Tìm ${ask} khác.`);
+          sfx.boing();
+          await sleep(700);
+        } else if (t) {
+          register(t);
+        } else {
+          stepNow = 'busy';
+          paintSel(true);
+          const [text, rule] = whyNot(sel);
+          env.wrong(null, text, '', rule);
+          await sleep(1100);
+        }
+        sel = [];
+        paintSel();
+        if (stepNow === 'busy' && found.length < S.targets.length) stepNow = 'find';
+      }
 
       async function register(t) {
         const idx = found.length;
         found.push(t);
         const color = COL.found[idx % COL.found.length];
         foundG.innerHTML = '';
+        sel = [];
+        paintSel();
         const o = outline(t, color, 'g3sh-fpoly-new');
         q('[data-found]').textContent = found.length;
         const chip = q(`[data-chip="${idx}"]`);
@@ -794,18 +861,6 @@ function lv3(m, id) {
           recap();
         }
       }
-      function tapPiece(p) {
-        if (stepNow !== 'find') return;
-        sfx.tap();
-        if (sel.has(p)) sel.delete(p); else sel.add(p);
-        const k = key(sel);
-        if (sel.size && !S.targets.some(t => [...sel].every(x => t.pcs.includes(x)))) sel = new Set([p]);
-        paintSel();
-        const t = byKey.get(key(sel));
-        if (!t) { if (sel.size) show(`Đang chọn ${sel.size} mảnh.`); return; }
-        if (found.includes(t)) { show(`<b>${t.name}</b>: em tìm rồi. Chạm thêm mảnh để ghép hình to hơn.`); return; }
-        register(t);
-      }
       enough.onclick = () => {
         if (stepNow !== 'find') return;
         sfx.tap();
@@ -814,12 +869,18 @@ function lv3(m, id) {
         const c = Math.min(...miss.map(t => t.pcs.length));
         env.wrong(enough, c === 1
           ? `Chưa hết đâu, còn ${miss.length} ${ask} nữa. Mỗi mảnh nhỏ cũng là một hình.`
-          : `Chưa hết đâu, còn ${miss.length} ${ask} nữa. Thử ghép ${c} mảnh liền nhau.`, '', 'Đếm hình đơn trước, rồi ghép 2 mảnh, 3 mảnh… thành hình to hơn.');
+          : `Chưa hết đâu, còn ${miss.length} ${ask} nữa. Tìm hình to gồm ${c} mảnh liền nhau.`, '', 'Đếm hình đơn trước, rồi hình gồm 2 mảnh, 3 mảnh… to hơn.');
       };
-      svg.addEventListener('click', (e) => { const el = e.target.closest('[data-p]'); if (el) tapPiece(+el.dataset.p); });
+      svg.addEventListener('click', (e) => {
+        const p = svgPoint(svg, e);
+        if (!p) return;
+        let best = null, bd = 1.1; // chạm gần đỉnh nào nhất (trong 1,1 cm) là chọn đỉnh đó
+        Object.entries(S.pt).forEach(([n, v]) => { const d = dist(p, v); if (d < bd) { bd = d; best = n; } });
+        if (best) pickVertex(best);
+      });
 
       async function recap() {
-        sel = new Set(); paintSel();
+        sel = []; paintSel();
         enough.disabled = true;
         say(`Cùng đếm lại các ${ask}!`, `Đếm lại từng ${ask}.`);
         const order = [...found].sort((a, b) => a.pcs.length - b.pcs.length || S.targets.indexOf(a) - S.targets.indexOf(b));
@@ -844,9 +905,8 @@ function lv3(m, id) {
         step() {
           if (stepNow !== 'find') return;
           const t = S.targets.find(x => !found.includes(x));
-          sel = new Set(t.pcs);
-          paintSel();
-          register(t);
+          sel = t.poly.slice(0, -1);
+          pickVertex(t.poly[need - 1]);
         },
       };
     },
@@ -862,8 +922,8 @@ function lv4(m, id) {
   let s = gridDefs(id);
   s += `<rect x="0" y="0" width="12" height="8" fill="none" stroke="#93C5FD" stroke-width="0.05"/>`;
   s += `<polygon class="g3sh-dfill" points="" />`;
-  s += '<g class="g3sh-dlines"></g><g class="g3sh-marks"></g><g class="g3sh-tools"></g><g class="g3sh-dpts"></g>';
-  s += '<circle class="g3sh-ghost" r="0.3" cx="-9" cy="-9"/>';
+  s += '<g class="g3sh-dlines"></g><line class="g3sh-rub" x1="-9" y1="-9" x2="-9" y2="-9"/><g class="g3sh-marks"></g><g class="g3sh-tools"></g>';
+  s += '<circle class="g3sh-go" r="0.55" cx="-9" cy="-9"/><g class="g3sh-dpts"></g><circle class="g3sh-rub-end" r="0.2" cx="-9" cy="-9"/>';
   const head = m.sq
     ? `Vẽ hình vuông ABCD có cạnh ${m.w} cm.`
     : `Vẽ hình chữ nhật ABCD có chiều dài ${m.w} cm, chiều rộng ${m.h} cm.`;
@@ -873,7 +933,7 @@ function lv4(m, id) {
     fig: `<svg class="g3sh-svg g3sh-draw" viewBox="0 0 13 9" preserveAspectRatio="xMidYMid meet">${s}</svg>`,
     side: `<div class="g3sh-plan"><div class="g3sh-plan-h">1 ô = 1 cm</div>${rows}<div class="g3sh-row" data-row="4"><b>∟</b><span>4 góc vuông</span><i data-st="4">&nbsp;</i></div></div>`,
     lines: '',
-    bb: { x0: -0.6, y0: -0.6, x1: 12.6, y1: 8.6 },
+    bb: { x0: -1.1, y0: -1.1, x1: 13.1, y1: 9.1 }, // chừa chỗ cho chữ đỉnh, số đo khi em vẽ sát mép
     run(env) {
       const { paper, svg, say, show } = env;
       const q = (sel) => paper.querySelector(sel);
@@ -895,83 +955,145 @@ function lv4(m, id) {
       const addLine = (a, b, anim) => svgAdd(lineG, `<line class="g3sh-dl${anim ? ' g3sh-dl-in' : ''}" pathLength="1" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`);
       const rowOk = (i) => { const st = q(`[data-st="${i}"]`); st.textContent = '✓'; q(`[data-row="${i}"]`).classList.add('g3sh-row-ok'); };
 
-      for (let i = 0; i < m.given; i++) {
-        P.push(m.corners[i]);
-        addPoint(m.corners[i], i, false);
-        if (i) { addLine(m.corners[i - 1], m.corners[i], false); rowOk(i - 1); }
-      }
-      const askNext = () => {
-        stepNow = 'tap';
-        const k = P.length;
-        q(`[data-row="${k - 1}"]`).classList.add('g3sh-row-cur');
-        if (k === 1) say(`Từ A, kẻ cạnh AB dài ${m.w} xăng-ti-mét theo đường kẻ. Chạm vào chỗ đặt điểm B.`, `👆 Chạm chỗ đặt <b>điểm B</b>: AB dài ${m.w} ô.`);
-        else if (k === 2) say(`Từ B, kẻ cạnh BC dài ${m.h} xăng-ti-mét, tạo với AB một góc vuông. Chạm vào chỗ đặt điểm C.`, `👆 Chạm chỗ đặt <b>điểm C</b>: BC dài ${m.h} ô, góc đỉnh B vuông.`);
-        else say(`Chạm vào chỗ đặt điểm D để được ${what} ABCD.`, `👆 Chạm chỗ đặt <b>điểm D</b>.`);
+      const rowMark = (i, ok) => {
+        q(`[data-st="${i}"]`).textContent = ok ? '✓' : '✗';
+        q(`[data-row="${i}"]`).classList.add(ok ? 'g3sh-row-ok' : 'g3sh-row-bad');
       };
-      const ghost = q('.g3sh-ghost');
-      const flashGhost = (p, ok) => {
-        ghost.setAttribute('cx', p[0]); ghost.setAttribute('cy', p[1]);
-        ghost.classList.remove('g3sh-ghost-bad'); void ghost.getBBox();
-        if (!ok) { ghost.classList.add('g3sh-ghost-bad'); setTimeout(() => ghost.classList.remove('g3sh-ghost-bad'), 700); }
-      };
+      const go = q('.g3sh-go'), rub = q('.g3sh-rub'), rubEnd = q('.g3sh-rub-end');
 
-      async function tapAt(p) {
-        if (stepNow !== 'tap') return;
-        const k = P.length, prev = P[k - 1];
-        const d = [p[0] - prev[0], p[1] - prev[1]];
-        if (!d[0] && !d[1]) return;
-        if (P.some(x => x[0] === p[0] && x[1] === p[1])) return;
-        const L = Math.abs(d[0]) + Math.abs(d[1]);
-        const nm = sideN(k - 1);
-        let err = '';
-        if (k < 3) {
-          if (d[0] && d[1]) err = `${nm} phải kẻ theo đường kẻ của lưới (ngang hoặc dọc), không kẻ xiên.`;
-          else if (k === 2 && (d[0] * (P[1][0] - P[0][0]) + d[1] * (P[1][1] - P[0][1])) !== 0) err = `Góc đỉnh B phải là góc vuông: từ B kẻ theo đường kẻ ${P[1][1] === P[0][1] ? 'dọc' : 'ngang'}.`;
-          else if (L !== len[k - 1]) err = `${nm} đang dài ${L} ô. ${k === 1 ? (m.sq ? 'Cạnh hình vuông' : 'Chiều dài') : (m.sq ? 'Hình vuông có 4 cạnh bằng nhau, cạnh' : 'Chiều rộng')} là ${len[k - 1]} ô.`;
-        } else {
-          const want = [P[0][0] + P[2][0] - P[1][0], P[0][1] + P[2][1] - P[1][1]];
-          if (p[0] !== want[0] || p[1] !== want[1]) err = `CD phải dài bằng AB (${m.w} ô), DA dài bằng BC (${m.h} ô), kẻ theo đường kẻ.`;
+      // Các đỉnh có sẵn (đề cho), vẽ lại từ đầu mỗi lần em vẽ lại
+      function init() {
+        P.length = 0;
+        lineG.innerHTML = ''; ptG.innerHTML = ''; marks.innerHTML = '';
+        fillEl.classList.remove('g3sh-dfill-on');
+        for (let i = 0; i < 5; i++) {
+          const r = q(`[data-row="${i}"]`);
+          r.classList.remove('g3sh-row-ok', 'g3sh-row-bad', 'g3sh-row-cur');
+          q(`[data-st="${i}"]`).innerHTML = '&nbsp;';
         }
-        if (err) { flashGhost(p, false); env.wrong(null, err, err, rule); shake(q(`[data-row="${k - 1}"]`)); return; }
+        for (let i = 0; i < m.given; i++) {
+          P.push(m.corners[i]);
+          addPoint(m.corners[i], i, false);
+          if (i) { addLine(m.corners[i - 1], m.corners[i], false); rowOk(i - 1); }
+        }
+      }
+      init();
+      // Trong lúc vẽ không chấm: em kéo từ đỉnh cuối tới đâu thì đặt đỉnh tiếp theo ở đó. Vẽ xong mới đo, kiểm tra.
+      const askNext = () => {
+        stepNow = 'draw';
+        const k = P.length, last = P[k - 1];
+        q(`[data-row="${k - 1}"]`).classList.add('g3sh-row-cur');
+        go.setAttribute('cx', last[0]); go.setAttribute('cy', last[1]);
+        go.classList.add('g3sh-go-on');
+        if (k === 1) say(`Từ A, kéo một nét để vẽ cạnh AB dài ${m.w} xăng-ti-mét.`, `✏️ Kéo từ <b>A</b> để vẽ cạnh AB.`);
+        else if (k === 2) say(`Từ B, kéo một nét để vẽ cạnh BC dài ${m.h} xăng-ti-mét.`, `✏️ Kéo từ <b>B</b> để vẽ cạnh BC.`);
+        else say(`Từ C, kéo một nét để đặt điểm D, vẽ xong ${what} ABCD.`, `✏️ Kéo từ <b>C</b> để đặt điểm D.`);
+      };
+      const same = (a, b) => a[0] === b[0] && a[1] === b[1];
+
+      async function place(p) {
+        if (stepNow !== 'draw') return;
+        const k = P.length, prev = P[k - 1];
+        if (P.some(x => same(x, p))) return;
         stepNow = 'busy';
+        go.classList.remove('g3sh-go-on');
         P.push(p);
         sfx.pop(k + 1);
         addLine(prev, p, true);
         q(`[data-row="${k - 1}"]`).classList.remove('g3sh-row-cur');
         await sleep(calmMotion() ? 520 : 420);
         addPoint(p, k, true);
-        rowOk(k - 1);
-        if (P.length < 4) { await sleep(250); askNext(); return; }
+        if (P.length < 4) { await sleep(150); askNext(); return; }
         // Nối D với A
         await sleep(250);
         addLine(P[3], P[0], true);
         await sleep(calmMotion() ? 520 : 420);
-        rowOk(3);
         fillEl.setAttribute('points', pts(P));
         fillEl.classList.add('g3sh-dfill-on');
         check();
       }
-      async function check() {
-        say('Kiểm tra lại bằng thước và ê ke!', '📏 <b>Thước</b> đo cạnh, 📐 <b>ê ke</b> kiểm tra góc.');
-        const n = P.length;
-        // thứ tự ABCD theo chiều kim đồng hồ để thước, nhãn nằm phía ngoài
-        for (let i = 0; i < n; i++) await rulerAt(tools, marks, P, i);
-        for (let i = 0; i < n; i++) await ekeAt(tools, marks, P, i, 1.4);
-        rowOk(4);
-        sfx.ding();
-        env.finish(m.sq ? `Hình vuông ABCD có 4 góc vuông, 4 cạnh đều dài ${m.w} cm.` : `Hình chữ nhật ABCD có 4 góc vuông, chiều dài ${m.w} cm, chiều rộng ${m.h} cm.`);
+      /** Em chạm lại đỉnh vừa vẽ: xoá đỉnh đó và nét tới nó. */
+      function undo() {
+        if (stepNow !== 'draw' || P.length <= m.given) return;
+        sfx.tap();
+        q(`[data-row="${P.length - 1}"]`).classList.remove('g3sh-row-cur');
+        P.pop();
+        lineG.lastElementChild?.remove(); ptG.lastElementChild?.remove();
+        askNext();
       }
+      async function check() {
+        say('Kiểm tra bằng thước và ê ke!', '📏 <b>Thước</b> đo cạnh, 📐 <b>ê ke</b> kiểm tra góc.');
+        const errs = [];
+        for (let i = 0; i < 4; i++) {
+          const L = dist(P[i], P[(i + 1) % 4]);
+          await rulerAt(tools, marks, P, i);
+          const ok = Math.abs(L - len[i]) < 0.05;
+          rowMark(i, ok);
+          if (!ok) errs.push(`${sideN(i)} đo được ${cmText(L)}, cần ${len[i]} cm.`);
+        }
+        const bent = [];
+        for (let i = 0; i < 4; i++) if (!(await ekeAt(tools, marks, P, i, 1.4))) bent.push(V[i]);
+        rowMark(4, !bent.length);
+        if (bent.length) errs.push(`Góc đỉnh ${bent.join(', ')} không vuông.`);
+        if (!errs.length) {
+          sfx.ding();
+          env.finish(m.sq ? `Hình vuông ABCD có 4 góc vuông, 4 cạnh đều dài ${m.w} cm.` : `Hình chữ nhật ABCD có 4 góc vuông, chiều dài ${m.w} cm, chiều rộng ${m.h} cm.`);
+          return;
+        }
+        const t = errs.slice(0, 2).join(' ');
+        env.wrong(null, `${t} Em vẽ lại.`, t, rule);
+        await sleep(calmMotion() ? 3600 : 3000);
+        init();
+        askNext();
+      }
+
+      // Kéo từ đỉnh cuối: nét cao su bám theo nút lưới gần nhất, thả ra là đặt đỉnh
+      const node = (p) => [Math.max(0, Math.min(12, Math.round(p[0]))), Math.max(0, Math.min(8, Math.round(p[1])))];
+      let drag = null, dragged = false;
+      svg.addEventListener('pointerdown', (e) => {
+        if (stepNow !== 'draw') return;
+        const p = svgPoint(svg, e), last = P[P.length - 1];
+        if (!p || dist(p, last) > 0.9) return;
+        drag = { id: e.pointerId, end: last };
+        try { svg.setPointerCapture(e.pointerId); } catch { /* bút giả lập */ }
+        rub.setAttribute('x1', last[0]); rub.setAttribute('y1', last[1]);
+      });
+      svg.addEventListener('pointermove', (e) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const p = svgPoint(svg, e);
+        if (!p) return;
+        const g = node(p);
+        if (same(g, drag.end)) return;
+        drag.end = g;
+        const vis = !same(g, P[P.length - 1]);
+        rub.classList.toggle('g3sh-rub-on', vis); rubEnd.classList.toggle('g3sh-rub-on', vis);
+        rub.setAttribute('x2', g[0]); rub.setAttribute('y2', g[1]);
+        rubEnd.setAttribute('cx', g[0]); rubEnd.setAttribute('cy', g[1]);
+        sfx.tick();
+      });
+      const endDrag = (e) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const end = drag.end;
+        drag = null;
+        rub.classList.remove('g3sh-rub-on'); rubEnd.classList.remove('g3sh-rub-on');
+        if (!same(end, P[P.length - 1])) { dragged = true; place(end); }
+      };
+      svg.addEventListener('pointerup', endDrag);
+      svg.addEventListener('pointercancel', endDrag);
+      // Chạm một nút lưới cũng vẽ được (nối thẳng từ đỉnh cuối); chạm lại đỉnh vừa vẽ là xoá
       svg.addEventListener('click', (e) => {
+        if (dragged) { dragged = false; return; }
         const p = svgPoint(svg, e);
         if (!p) return;
         const g = [Math.round(p[0]), Math.round(p[1])];
         if (g[0] < 0 || g[0] > 12 || g[1] < 0 || g[1] > 8 || Math.hypot(p[0] - g[0], p[1] - g[1]) > 0.48) return;
-        tapAt(g);
+        if (same(g, P[P.length - 1])) { undo(); return; }
+        place(g);
       });
       setTimeout(askNext, 50);
       return {
-        step() { if (stepNow === 'tap') tapAt(m.corners[P.length]); },
-        wrong() { if (stepNow === 'tap') { const c = m.corners[P.length]; tapAt([c[0] + (c[0] < 11 ? 1 : -1), c[1]]); } },
+        step() { if (stepNow === 'draw') place(m.corners[P.length]); },
+        wrong() { if (stepNow === 'draw') { const c = m.corners[P.length]; place([c[0] + (c[0] < 11 ? 1 : -1), c[1]]); } },
       };
     },
   };
@@ -1067,8 +1189,15 @@ function injectShapeStyles() {
     .g3sh-nudge { animation: g3dShake .4s ease; }
 
     /* Cấp 3: mảnh ghép, bảng đếm */
-    .g3sh-pc { fill: ${COL.fill}; stroke: none; cursor: pointer; transition: fill .2s; }
-    .g3sh-pc-sel { fill: ${COL.sel}; }
+    .g3sh-pc { fill: ${COL.fill}; stroke: none; }
+    .g3sh-L3 .g3sh-svg { cursor: pointer; }
+    .g3sh-vring { fill: ${COL.sel}; fill-opacity: 0.45; stroke: #F59E0B; stroke-opacity: 0.5; stroke-width: 0.04; pointer-events: none; transition: fill .2s, fill-opacity .2s; }
+    .g3sh-vring-on { fill: ${COL.side}; fill-opacity: 0.85; stroke: #C2410C; stroke-opacity: 1; }
+    .g3sh-vx-sel { fill: #C2410C; }
+    .g3sh-pick { pointer-events: none; }
+    polyline.g3sh-pline { fill: none; }
+    .g3sh-pline { fill: ${COL.side}; fill-opacity: 0.15; stroke: ${COL.side}; stroke-width: 0.14; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 0.3 0.18; }
+    .g3sh-pline-bad { fill: ${COL.bad}; stroke: ${COL.bad}; }
     .g3sh-seg { stroke: ${COL.line}; stroke-width: 0.09; stroke-linecap: round; pointer-events: none; }
     .g3sh-found { pointer-events: none; }
     .g3sh-fpoly { stroke-width: 0.16; stroke-linejoin: round; fill-opacity: 0.18; }
@@ -1084,15 +1213,21 @@ function injectShapeStyles() {
     .g3sh-enough:active { box-shadow: 0 2px 0 #F97316; }
 
     /* Cấp 4: vẽ trên lưới */
-    .g3sh-draw { cursor: crosshair; }
+    .g3sh-draw { cursor: crosshair; touch-action: none; }
+    .g3sh-go { fill: ${COL.sel}; fill-opacity: 0; stroke: #F59E0B; stroke-width: 0.06; stroke-opacity: 0; pointer-events: none; }
+    .g3sh-go-on { fill-opacity: 0.5; stroke-opacity: 1; animation: g3shGo 1.3s ease-in-out infinite; }
+    @keyframes g3shGo { 50% { fill-opacity: 0.12; stroke-opacity: 0.35; } }
+    .g3sh-rub, .g3sh-rub-end { opacity: 0; pointer-events: none; }
+    .g3sh-rub { stroke: ${COL.side}; stroke-width: 0.12; stroke-linecap: round; stroke-dasharray: 0.3 0.18; }
+    .g3sh-rub-end { fill: ${COL.side}; }
+    .g3sh-rub-on { opacity: 1; }
+    .g3sh-row.g3sh-row-bad { border-color: #FCA5A5; background: #FEF2F2; }
+    .g3sh-row.g3sh-row-bad i { color: ${COL.bad}; }
     .g3sh-dl { stroke: ${COL.line}; stroke-width: 0.12; stroke-linecap: round; pointer-events: none; }
     .g3sh-dl-in { stroke-dasharray: 1; stroke-dashoffset: 1; animation: g3shDraw .42s ease-out forwards; }
     @keyframes g3shDraw { to { stroke-dashoffset: 0; } }
     .g3sh-dfill { fill: #DBEAFE; fill-opacity: 0; transition: fill-opacity .5s; pointer-events: none; }
     .g3sh-dfill-on { fill-opacity: 0.7; }
-    .g3sh-ghost { fill: transparent; pointer-events: none; }
-    .g3sh-ghost-bad { fill: ${COL.bad}; fill-opacity: 0.55; animation: g3shGhost .7s ease-out forwards; }
-    @keyframes g3shGhost { to { fill-opacity: 0; } }
     .g3sh-plan { flex: 1; min-height: 0; display: grid; grid-template-rows: auto repeat(5, minmax(0, 1fr)); gap: 1.6cqh; background: #fff; border: 2px solid ${EDGE}; border-radius: 0.8rem; padding: 2cqh 3cqi; box-sizing: border-box; }
     .g3sh-plan-h { text-align: center; color: #64748B; font-size: min(6cqh, 9cqi); }
     .g3sh-row { display: grid; grid-template-columns: 1.6em minmax(0, 1fr) 1.1em; align-items: center; gap: 0.4em; padding: 0 0.4em; border-radius: 0.5em; background: #F8FAFC; border: 2px solid #E2E8F0; font-size: min(7.5cqh, 10cqi); white-space: nowrap; }
