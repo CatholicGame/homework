@@ -28,18 +28,17 @@ function headerStars() {
   return g ? getBoardGradeStars(g) : getTotalStars();
 }
 
-/** Nút ☁️: trạng thái lưu tiến trình lên Google Drive. */
+/** Nút ☁️: trạng thái lưu tiến trình vào tài khoản (cloudSync.js, Firestore). */
 function cloudButton() {
   const { state, lastSync } = getCloudStatus();
   const time = lastSync ? new Date(lastSync).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
   const view = {
-    ok: ['☁️', '', `Đã lưu lên Google Drive lúc ${time}`],
-    syncing: ['☁️', '…', 'Đang lưu lên Google Drive…'],
-    'needs-auth': ['☁️', 'Lưu', 'Bài làm mới chưa lưu lên Google Drive — bấm để lưu'],
-    'needs-permission': ['☁️', 'Cho phép', 'Cần cho phép app lưu tiến trình vào Google Drive — bấm để cấp quyền'],
-    offline: ['☁️', 'Lưu', 'Mất mạng — bài làm vẫn lưu trên máy, có mạng sẽ lưu lên Drive'],
-    error: ['☁️', 'Lưu', 'Chưa lưu được lên Google Drive — bấm để thử lại'],
-    idle: ['☁️', '', 'Tiến trình học được lưu vào Google Drive của bạn'],
+    ok: ['☁️', '', `Đã lưu lúc ${time}`],
+    syncing: ['☁️', '…', 'Đang lưu bài làm…'],
+    'needs-auth': ['☁️', 'Lưu', 'Bài làm mới chưa lưu, bấm để lưu'],
+    offline: ['☁️', 'Lưu', 'Mất mạng: bài làm vẫn lưu trên máy, có mạng sẽ tự lưu'],
+    error: ['☁️', 'Lưu', 'Chưa lưu được bài làm, bấm để thử lại'],
+    idle: ['☁️', '', 'Tiến trình học được lưu vào tài khoản của bạn'],
   }[state] || ['☁️', '', ''];
   const warn = !['ok', 'syncing', 'idle'].includes(state);
   return { html: `${view[0]}${view[1] ? `<span>${view[1]}</span>` : state === 'ok' ? '<b class="user-cloud-ok">✓</b>' : ''}`, title: view[2], warn, state };
@@ -51,9 +50,24 @@ function paintCloudButton(btn) {
   btn.setAttribute('aria-label', v.title);
   btn.classList.toggle('is-warn', v.warn);
   btn.classList.toggle('is-busy', v.state === 'syncing');
+  // Lưu chạy ngầm: chỉ hiện nút khi cần bấm (chưa có phiên đăng nhập, lỗi). Mất mạng thì có mạng tự lưu lại.
+  btn.hidden = !v.warn || v.state === 'offline';
+}
+/** Dải nhắc dưới lời chào: nút ☁️ nhỏ bé không để ý, nên khi chưa lưu được thì nói rõ, nhờ bố mẹ bấm. */
+function paintCloudBanner(el) {
+  const text = {
+    'needs-auth': ['Bài làm mới chưa lưu vào tài khoản', 'Nhờ bố mẹ bấm một lần, từ đó bài làm tự lưu.', 'Lưu ngay'],
+    error: ['Chưa lưu được bài làm', 'Bấm để thử lưu lại.', 'Thử lại'],
+  }[getCloudStatus().state];
+  el.hidden = !text;
+  if (text) el.innerHTML = `
+    <span class="stk-banner-icon">☁️</span>
+    <span class="stk-banner-text"><strong>${text[0]}</strong><span class="stk-banner-sub">${text[1]}</span></span>
+    <span class="stk-banner-go">${text[2]} ➜</span>`;
 }
 window.addEventListener('tth:cloud-status', () => {
   document.querySelectorAll('#user-cloud-btn').forEach(paintCloudButton);
+  document.querySelectorAll('#cloud-banner').forEach(paintCloudBanner);
 });
 
 // Máy khác đã có thêm sao (biết được sau khi đồng bộ bảng xếp hạng) → cập nhật số trên header.
@@ -194,6 +208,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
           </div>
           ${last ? `<button type="button" class="daily-continue" id="daily-continue" data-game="${last.id}">▶ Tiếp tục: <strong>${escapeHtml(last.title)}</strong></button>` : ''}
         </div>
+        ${user && !user.guest ? '<button type="button" class="stk-banner cloud-banner" id="cloud-banner" hidden></button>' : ''}
         ${stickerPanel()}
       </section>
     `;
@@ -349,6 +364,12 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
 
   function bindDailyPanel() {
     app.querySelector('#stk-banner')?.addEventListener('click', () => navigate('stickers'));
+    const cloudBanner = app.querySelector('#cloud-banner');
+    if (cloudBanner) {
+      paintCloudBanner(cloudBanner);
+      // Gọi ngay trong click (như nút ☁️): mở trang Google xin quyền.
+      cloudBanner.addEventListener('click', () => { syncNow({ interactive: true }); });
+    }
     app.querySelector('#daily-continue')?.addEventListener('click', (e) => navigate(e.currentTarget.dataset.game));
 
     // Tooltip cho từng cột (chuột: rê vào; iPad: chạm).
@@ -393,7 +414,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
       <div class="user-bar-dock">
       <div class="user-bar animate-fadeIn">
         ${guest
-          ? '<button type="button" class="user-cloud-btn is-warn" id="user-login-btn" title="Đăng nhập Google để lưu bài làm lên Google Drive">🔐<span>Đăng nhập</span></button>'
+          ? '<button type="button" class="user-cloud-btn is-warn" id="user-login-btn" title="Đăng nhập Google để lưu bài làm vào tài khoản">🔐<span>Đăng nhập</span></button>'
           : '<button type="button" class="user-cloud-btn" id="user-cloud-btn"></button>'}
         ${langButton()}
         <button type="button" class="user-rank-btn" id="user-sticker-btn" title="Vòng quay sticker">🎁 <span>Sticker</span>${getSpinStatus().spins ? `<b class="user-badge">${getSpinStatus().spins}</b>` : ''}</button>
@@ -414,7 +435,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
             <button type="button" class="user-menu-item" id="user-kmap" role="menuitem">🗺️ Bản đồ kiến thức của bé</button>
             ${canOfferInstall() ? '<button type="button" class="user-menu-item" id="user-install" role="menuitem">📲 Cài ứng dụng lên máy</button>' : ''}
             ${guest ? `
-            <button type="button" class="user-menu-item" id="user-signin" role="menuitem">🔐 Đăng nhập Google để lưu lên Drive</button>` : `
+            <button type="button" class="user-menu-item" id="user-signin" role="menuitem">🔐 Đăng nhập Google để lưu bài làm</button>` : `
             <button type="button" class="user-menu-item" id="user-reviews" role="menuitem">⭐ Đánh giá ứng dụng</button>
             ${isAdminUser() ? '<button type="button" class="user-menu-item" id="user-admin" role="menuitem">📊 Trang quản lý</button>' : ''}
             <button type="button" class="user-menu-item" id="user-signout" role="menuitem">🚪 Đăng xuất</button>`}

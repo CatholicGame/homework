@@ -1,28 +1,34 @@
 /**
- * Đồng bộ tiến trình học với Google Drive của người đăng nhập (thư mục ẩn appDataFolder —
- * chỉ app này đọc được, không hiện trong Drive của bạn).
+ * Đồng bộ tiến trình học của người đăng nhập lên Firestore (luôn tự động: phiên Firebase tự làm mới
+ * mãi, không phụ thuộc token Google ~1 giờ như khi còn lưu Google Drive).
  *
  * Mọi thứ vẫn lưu trên máy (localStorage) như cũ; module này gom các khoá của người đang
- * đăng nhập thành một tệp `tien-trinh.json` trên Drive và gộp hai chiều:
+ * đăng nhập và gộp hai chiều:
  *   - sổ sao, nhật ký học, sticker (khoá `tth_*_${id}`)
  *   - đáp án các sách, tô màu, điểm cao trò chơi, lịch sử thi (khoá `…@${id}`, xem auth.scopedKey)
  * Hồ sơ (tên, avatar, lớp) đã đồng bộ qua Firebase (leaderboard.js) nên không nằm ở đây.
  *
- * Gộp 3 chiều với bản đã đồng bộ lần trước (`tth_cloudbase_${id}`): phần chỉ một bên đổi thì
+ * Trên Firestore (firestore.rules, chỉ chính chủ đọc/ghi):
+ *   progress/{firebaseUid}             { h: { tên: mã băm giá trị }, drive?, updatedAt }
+ *   progress/{firebaseUid}/items/{tên} { v: JSON của giá trị, updatedAt }
+ * Mỗi lần đồng bộ đọc 1 tài liệu `h`, chỉ tải / ghi những mục có mã băm đổi (giữ trong hạn mức miễn phí).
+ *
+ * Gộp 3 chiều với bản đã đồng bộ lần trước (`tth_fsbase_${id}`): phần chỉ một bên đổi thì
  * lấy bên đó (kể cả xoá — "làm lại bài" không bị máy khác kéo về), hai bên cùng đổi thì cộng
  * dồn (số lấy lớn hơn, đúng/sai lấy "đã đúng", danh sách hợp lại).
  *
- * Token Google sống ~1 giờ: đăng nhập qua máy chủ (api/auth, refresh token) thì tự lấy token mới,
- * lưu hoàn toàn tự động. Đăng nhập kiểu cũ (popup) thì hết hạn phải bấm nút ☁️ ở trang chủ —
- * bấm một lần sẽ chuyển sang đăng nhập qua máy chủ.
+ * Trước đây lưu ở Google Drive (`tien-trinh.json` trong appDataFolder): lần đầu một máy còn token
+ * Drive đồng bộ, bản trên Drive được gộp vào rồi đánh dấu `drive: true`, từ đó không đọc Drive nữa.
  */
 
-import { getCurrentUser, getStoredAccessToken, getStoredTokenScope, getAccessToken, getFreshAccessToken, hasServerSession, requestDriveAccess, userScope, scopedKey } from './auth.js';
+import { getCurrentUser, getStoredTokenScope, getFreshAccessToken, userScope, scopedKey } from './auth.js';
+import { firebaseSession, connectLeaderboard, isLeaderboardConfigured } from './leaderboard.js';
 
 const FILE_NAME = 'tien-trinh.json';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
 const FILES_API = 'https://www.googleapis.com/drive/v3/files';
-const UPLOAD_API = 'https://www.googleapis.com/upload/drive/v3/files';
+const PROGRESS = 'progress';
+const MAX_ITEM_CHARS = 900_000; // tài liệu Firestore tối đa 1 MiB
 
 // Khoá đặt theo tài khoản từ trước: `${tên}_${id}`.
 const PER_USER = ['tth_stars', 'tth_activity', 'tth_stickers'];
@@ -146,13 +152,14 @@ function mergeBundle(base = {}, local, remote = {}, { fresh = false } = {}) {
 
 // ── trạng thái đồng bộ của từng người trên máy ───────────────────────────────
 const metaKey = (scope) => `tth_cloud_${scope}`;
-const baseKey = (scope) => `tth_cloudbase_${scope}`;
+const baseKey = (scope) => `tth_fsbase_${scope}`;
+const DRIVE_BASE_KEY = (scope) => `tth_cloudbase_${scope}`; // bản gộp thời còn lưu Drive, xoá sau lần đồng bộ đầu
 function readJSON(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
 function writeJSON(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch { /* storage full */ } }
 const loadMeta = (scope) => readJSON(metaKey(scope)) || {};
 const saveMeta = (scope, patch) => writeJSON(metaKey(scope), { ...loadMeta(scope), ...patch });
 
-let state = 'idle'; // idle | syncing | ok | needs-auth | needs-permission | offline | error
+let state = 'idle'; // idle | syncing | ok | needs-auth (chưa có phiên Firebase) | offline | error
 function setState(s) {
   if (s === state) return;
   state = s;
@@ -164,19 +171,15 @@ export function getCloudStatus() {
   const user = getCurrentUser();
   if (!user) return { state: 'guest', dirty: false, lastSync: 0 };
   const m = loadMeta(user.id);
-  const needsAuth = !hasDriveToken() && !hasServerSession();
   let s = state;
-  if (s === 'idle' || s === 'ok') s = needsAuth && m.dirty ? 'needs-auth' : (m.lastSync ? 'ok' : s);
+  if ((s === 'idle' || s === 'ok') && m.lastSync) s = 'ok';
   return { state: s, dirty: !!m.dirty, lastSync: m.lastSync || 0 };
 }
 
-function hasDriveToken() {
-  return !!getStoredAccessToken() && (getStoredTokenScope() || '').includes(DRIVE_SCOPE);
-}
 
-// ── Google Drive ─────────────────────────────────────────────────────────────
-async function drive(token, url, opts = {}) {
-  const res = await fetch(url, { ...opts, headers: { Authorization: `Bearer ${token}`, ...opts.headers } });
+// ── Google Drive (chỉ để mang bài cũ sang Firestore) ─────────────────────────
+async function drive(token, url) {
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) {
     const e = new Error(`Drive ${res.status}`);
     e.status = res.status;
@@ -185,33 +188,44 @@ async function drive(token, url, opts = {}) {
   return res;
 }
 
-async function findFileId(token) {
+/** Dữ liệu trong `tien-trinh.json` trên Drive; null nếu không lấy được token mà không bấm. */
+async function pullDrive() {
+  const token = await getFreshAccessToken();
+  if (!token || !(getStoredTokenScope() || '').includes(DRIVE_SCOPE)) return null;
   const q = encodeURIComponent(`name='${FILE_NAME}'`);
-  const res = await drive(token, `${FILES_API}?spaces=appDataFolder&q=${q}&fields=files(id,modifiedTime)&orderBy=modifiedTime desc&pageSize=10`);
-  return (await res.json()).files?.[0]?.id || null;
+  const list = await (await drive(token, `${FILES_API}?spaces=appDataFolder&q=${q}&fields=files(id)&orderBy=modifiedTime desc&pageSize=1`)).json();
+  const id = list.files?.[0]?.id;
+  return id ? ((await (await drive(token, `${FILES_API}/${id}?alt=media`)).json())?.data || {}) : {};
 }
 
-async function download(token, id) {
-  const res = await drive(token, `${FILES_API}/${id}?alt=media`);
-  return res.json();
-}
-
-async function upload(token, id, bundle) {
-  const json = JSON.stringify(bundle);
-  if (id) {
-    await drive(token, `${UPLOAD_API}/${id}?uploadType=media`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: json,
-    });
-    return id;
+// ── Firestore ────────────────────────────────────────────────────────────────
+/** Mã băm ngắn của một giá trị (hai lần FNV-1a 32 bit trên JSON ổn định). */
+function hashOf(v) {
+  const str = stable(v);
+  let a = 0x811c9dc5, b = 0x01000193 ^ str.length;
+  for (let i = 0; i < str.length; i++) {
+    const c = str.charCodeAt(i);
+    a = Math.imul(a ^ c, 0x01000193);
+    b = Math.imul(b ^ c, 0x5bd1e995);
   }
-  const b = `tth${Math.random().toString(36).slice(2)}`;
-  const body = `--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`
-    + `${JSON.stringify({ name: FILE_NAME, parents: ['appDataFolder'], mimeType: 'application/json' })}\r\n`
-    + `--${b}\r\nContent-Type: application/json\r\n\r\n${json}\r\n--${b}--`;
-  const res = await drive(token, `${UPLOAD_API}?uploadType=multipart&fields=id`, {
-    method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${b}` }, body,
-  });
-  return (await res.json()).id;
+  return (a >>> 0).toString(16).padStart(8, '0') + (b >>> 0).toString(16).padStart(8, '0');
+}
+// Tên khoá có thể chứa "/" (gw-paint:…) → mã hoá thành id tài liệu hợp lệ.
+const itemRef = (fb, uid, name) => fb.fs.doc(fb.db, PROGRESS, uid, 'items', encodeURIComponent(name));
+
+/** Ghi nhiều thao tác, chia lô (tối đa 500 thao tác, ~10 MiB một lô). */
+async function commitAll(fb, ops) {
+  let batch = fb.fs.writeBatch(fb.db), count = 0, bytes = 0;
+  for (const op of ops) {
+    const size = op.data?.v?.length || 0;
+    if (count && (count >= 400 || bytes + size > 8_000_000)) {
+      await batch.commit();
+      batch = fb.fs.writeBatch(fb.db); count = 0; bytes = 0;
+    }
+    if (op.data) batch.set(op.ref, op.data); else batch.delete(op.ref);
+    count++; bytes += size;
+  }
+  if (count) await batch.commit();
 }
 
 // ── đồng bộ ──────────────────────────────────────────────────────────────────
@@ -219,71 +233,97 @@ let running = null;
 let changeSeq = 0;
 let timer = null;
 
-async function run(token) {
+async function run(fb) {
   const scope = getCurrentUser()?.id;
-  if (!scope) return;
+  const uid = fb.auth.currentUser?.uid;
+  if (!scope || !uid) return;
   const seq = changeSeq;
   setState('syncing');
   try {
-    let fileId = loadMeta(scope).fileId || await findFileId(token);
-    let remote = null;
-    if (fileId) {
-      try { remote = await download(token, fileId); } catch (e) {
-        if (e.status !== 404) throw e;
-        fileId = await findFileId(token); // tệp đã bị xoá (gỡ quyền app trong Google) → tạo lại
-        remote = fileId ? await download(token, fileId) : null;
-      }
+    const { fs } = fb;
+    const metaRef = fs.doc(fb.db, PROGRESS, uid);
+    const metaSnap = await fs.getDoc(metaRef);
+    const meta = metaSnap.exists() ? metaSnap.data() : null;
+    const remoteHashes = meta?.h || {};
+    const base = readJSON(baseKey(scope)) || undefined;
+
+    // Mục nào mã băm khớp bản đã đồng bộ lần trước thì khỏi tải.
+    const remoteData = {};
+    const need = [];
+    for (const [name, h] of Object.entries(remoteHashes)) {
+      if (base && name in base && hashOf(base[name]) === h) remoteData[name] = base[name];
+      else need.push(name);
     }
+    const snaps = await Promise.all(need.map(n => fs.getDoc(itemRef(fb, uid, n))));
+    snaps.forEach((d, i) => {
+      if (!d.exists()) return;
+      try { remoteData[need[i]] = JSON.parse(d.data().v); } catch { /* hỏng thì bỏ */ }
+    });
+
+    // Một lần cho mỗi tài khoản: gộp bài cũ trên Google Drive (nếu máy này còn token Drive).
+    const fromDrive = meta?.drive ? null : await pullDrive().catch(() => null);
     if (getCurrentUser()?.id !== scope) return; // đã đổi tài khoản trong lúc tải
 
     // Đọc–gộp–ghi liền nhau (không await ở giữa) để không mất bài bé vừa làm.
     const local = readLocal(scope);
-    const base = readJSON(baseKey(scope)) || undefined;
-    const remoteData = remote?.data || {};
-    const merged = mergeBundle(base, local, remoteData, { fresh: !base });
+    const withDrive = fromDrive ? mergeBundle(undefined, local, fromDrive, { fresh: true }) : local;
+    const merged = mergeBundle(base, withDrive, remoteData, { fresh: !base });
     const pulled = writeLocal(scope, merged, local);
 
-    if (!fileId || !same(merged, remoteData)) {
-      fileId = await upload(token, fileId, { v: 1, savedAt: new Date().toISOString(), data: merged });
+    const ops = [];
+    const hashes = {};
+    for (const [name, v] of Object.entries(merged)) {
+      const json = JSON.stringify(v);
+      if (json.length > MAX_ITEM_CHARS) { // quá lớn cho một tài liệu: chỉ giữ trên máy
+        console.warn('[cloud] Bỏ qua mục quá lớn:', name, json.length);
+        if (remoteHashes[name]) hashes[name] = remoteHashes[name];
+        continue;
+      }
+      hashes[name] = hashOf(v);
+      if (hashes[name] !== remoteHashes[name]) ops.push({ ref: itemRef(fb, uid, name), data: { v: json, updatedAt: fs.serverTimestamp() } });
+    }
+    for (const name of Object.keys(remoteHashes)) if (!(name in hashes)) ops.push({ ref: itemRef(fb, uid, name) });
+    const driveDone = !!meta?.drive || fromDrive !== null;
+    if (ops.length || !meta || (driveDone && !meta.drive)) {
+      // Tài liệu `h` ghi sau cùng: máy khác chỉ thấy mã băm mới khi các mục đã lên.
+      ops.push({ ref: metaRef, data: { h: hashes, ...(driveDone ? { drive: true } : {}), updatedAt: fs.serverTimestamp() } });
+      await commitAll(fb, ops);
     }
     writeJSON(baseKey(scope), merged);
-    saveMeta(scope, { fileId, lastSync: Date.now(), ...(changeSeq === seq ? { dirty: false } : {}) });
+    try { localStorage.removeItem(DRIVE_BASE_KEY(scope)); } catch { /* ignore */ }
+    saveMeta(scope, { lastSync: Date.now(), ...(changeSeq === seq ? { dirty: false } : {}) });
     setState('ok');
-    if (changeSeq !== seq) syncSoon(1000); // bé làm thêm trong lúc đang tải lên → lưu nốt
+    if (changeSeq !== seq) syncSoon(); // bé làm thêm trong lúc đang tải lên → lưu nốt
     if (pulled) window.dispatchEvent(new CustomEvent('tth:cloud-pulled'));
   } catch (e) {
-    console.warn('[cloud] Đồng bộ Google Drive lỗi:', e?.status || e);
-    if (e?.status === 401) setState('needs-auth');
-    else if (e?.status === 403) setState('needs-permission');
-    else setState(navigator.onLine === false ? 'offline' : 'error');
+    console.warn('[cloud] Đồng bộ Firestore lỗi:', e?.code || e);
+    setState(navigator.onLine === false || e?.code === 'unavailable' ? 'offline' : 'error');
   }
 }
 
 /**
- * Đồng bộ ngay. Không `interactive` thì chỉ chạy khi còn token (không mở popup).
- * `interactive` PHẢI gọi trực tiếp trong click: có thể mở popup Google xin lại token/quyền Drive.
+ * Đồng bộ ngay. Phiên Firebase tự làm mới nên không cần bấm gì; chỉ khi máy chưa từng đăng nhập
+ * Firebase mà token Google đã hết hạn thì `interactive` (PHẢI gọi trong click) mở popup Google.
  */
 export function syncNow({ interactive = false } = {}) {
-  if (!getCurrentUser()) return Promise.resolve();
+  if (!getCurrentUser() || !isLeaderboardConfigured()) return Promise.resolve();
   clearTimeout(timer);
   timer = null;
   if (running) return running;
-  let tokenP;
-  if (hasDriveToken()) tokenP = Promise.resolve(getStoredAccessToken());
-  else if (!interactive) tokenP = getFreshAccessToken(); // qua máy chủ, không popup; không có phiên → null
-  else if (getStoredAccessToken() || state === 'needs-permission') tokenP = requestDriveAccess();
-  else tokenP = getAccessToken();
-  running = tokenP.then((t) => {
-    if (!t) return setState(loadMeta(userScope()).dirty ? 'needs-auth' : 'idle');
-    return hasDriveToken() ? run(t) : setState('needs-permission');
+  const fbP = interactive && state === 'needs-auth' ? connectLeaderboard() : firebaseSession();
+  running = fbP.then((fb) => {
+    if (!fb) return setState(loadMeta(userScope()).dirty ? 'needs-auth' : 'idle');
+    return run(fb);
   })
-    .catch((e) => { console.warn('[cloud] Chưa lấy được quyền Google Drive:', e?.message || e); setState('needs-auth'); })
+    .catch((e) => { console.warn('[cloud] Chưa đăng nhập được Firebase:', e?.code || e?.message || e); setState(navigator.onLine === false ? 'offline' : 'error'); })
     .finally(() => { running = null; });
   return running;
 }
 
-let dueAt = 0; // muộn nhất phải đồng bộ: bé gõ liên tục (bài văn tự lưu) thì không hoãn mãi
-function syncSoon(ms = 5000, maxWait = 20_000) {
+// Gom lưu: bé làm liên tục thì tối đa ~3 phút một lần (mỗi lần lưu tốn lượt ghi Firestore, gói miễn phí
+// 20 000 lượt/ngày); rời app / tắt màn hình thì lưu ngay (visibilitychange).
+let dueAt = 0;
+function syncSoon(ms = 60_000, maxWait = 180_000) {
   const now = Date.now();
   if (!timer) dueAt = now + maxWait;
   clearTimeout(timer);
@@ -293,7 +333,7 @@ function syncSoon(ms = 5000, maxWait = 20_000) {
 /** Trước khi đăng xuất: đẩy nốt phần chưa lưu (tối đa vài giây). */
 export function flushCloud(timeoutMs = 5000) {
   const user = getCurrentUser();
-  if (!user || !loadMeta(user.id).dirty || !(hasDriveToken() || hasServerSession())) return Promise.resolve();
+  if (!user || !loadMeta(user.id).dirty) return Promise.resolve();
   return Promise.race([syncNow(), new Promise(r => setTimeout(r, timeoutMs))]);
 }
 
@@ -318,8 +358,7 @@ export function initCloudSync() {
     if (!user) return;
     changeSeq++;
     if (!loadMeta(user.id).dirty) saveMeta(user.id, { dirty: true });
-    if (hasDriveToken() || hasServerSession()) syncSoon();
-    else setState('needs-auth');
+    syncSoon();
   });
   window.addEventListener('tth:signed-in', (e) => {
     const uid = e.detail?.user?.id;

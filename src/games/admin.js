@@ -450,7 +450,7 @@ export function render(app, onBack) {
     const what = [real && `${real} học sinh đăng nhập`, guests && `${guests} khách`].filter(Boolean).join(' và ');
     const name = targets.length === 1 ? ` "${targets[0].nickname || targets[0].name || targets[0].email || 'Khách'}"` : '';
     const note = real
-      ? '\nHọc sinh: xoá sổ đăng ký, hồ sơ và dòng bảng xếp hạng (bài làm trên Drive của bé vẫn còn). Bé mở app lại sẽ hiện lại.'
+      ? '\nHọc sinh: xoá sổ đăng ký, hồ sơ và dòng bảng xếp hạng (bài làm đã lưu của bé vẫn còn). Bé mở app lại sẽ hiện lại.'
       : '';
     if (!confirm(`Xoá ${what}${name}? Không khôi phục được.${note}`)) return;
     btn.disabled = true;

@@ -318,6 +318,15 @@
 /* Đầu trang (lời chào + sticker) nằm trên danh sách sách */
 .dashboard-top { margin-bottom: 24px; }
 .daily-greet .stk-banner { margin-bottom: 0; }
+/* Dải nhắc lưu Google Drive (chỉ hiện khi chưa lưu được), nằm trên dải sticker */
+.daily-greet .cloud-banner {
+  margin-bottom: 10px;
+  border: 2px solid #F59E0B;
+  background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+  box-shadow: 0 6px 18px -8px #F59E0B;
+}
+.cloud-banner .stk-banner-go { background: linear-gradient(135deg, #F59E0B, #EA580C); }
+.cloud-banner[hidden] { display: none; }
 .daily-greet .daily-head { margin-bottom: 14px; }
 
 /* Dải mời phụ huynh đánh giá (dưới lời chào) */
@@ -682,7 +691,8 @@
 
 /* Nút và ô sao giữ nguyên cỡ; chỉ ô tên co lại (cắt "…") khi thiếu chỗ. */
 .user-bar > * { flex: none; }
-.user-bar > .user-menu-wrap { flex: 0 1 auto; min-width: 0; }
+/* Ô tên co đến đâu cũng còn nguyên avatar (36px + viền + đệm). */
+.user-bar > .user-menu-wrap { flex: 0 1 auto; min-width: 46px; }
 
 .user-avatar {
   width: 36px;
@@ -721,6 +731,7 @@
   align-items: center;
   gap: 8px;
   max-width: 100%;
+  overflow: hidden;
   padding: 2px 10px 2px 2px;
   border: 2px solid #CBD5E1;
   border-radius: var(--radius-full);
@@ -1466,6 +1477,7 @@
 }
 .user-cloud-btn.is-warn { border-color: #F59E0B; background: #FFFBEB; color: #92400E; box-shadow: 0 0 0 3px rgba(252, 211, 77, 0.35), 0 2px 8px rgba(245, 158, 11, 0.3); }
 .user-cloud-btn.is-busy { opacity: 0.7; }
+.user-cloud-btn[hidden] { display: none; }
 .user-cloud-ok { color: #16A34A; font-size: 0.8rem; }
 
 .login-guest-btn {
@@ -1488,10 +1500,13 @@
 @media (max-width: 520px) {
   .user-rank-btn span { display: none; }
   .user-cloud-btn { padding: 4px 8px; }
-  .user-bar { gap: 8px; }
+  .user-bar { gap: 6px; }
   .user-rank-btn { padding: 4px 8px; }
   .user-stars { padding: 3px 10px 3px 6px; font-size: 0.95rem; }
-  .user-menu-btn { gap: 6px; padding-right: 8px; }
+  /* Màn hẹp: nút hồ sơ chỉ còn avatar tròn (tên và ▾ có trong menu). */
+  .user-menu-btn { padding: 2px; }
+  .user-menu-btn .user-name,
+  .user-menu-btn .user-caret { display: none; }
 }
 
 .lb-page {

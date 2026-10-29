@@ -204,6 +204,27 @@ service cloud.firestore {
         && r.updatedAt == request.time;
     }
 
+    // Tiến trình học (src/engine/cloudSync.js): `progress/{uid}` = { h: mã băm từng mục, drive?, updatedAt },
+    // `progress/{uid}/items/{tên}` = { v: JSON của mục, updatedAt }. Chỉ chính bé đọc/ghi; admin xoá được.
+    match /progress/{uid} {
+      allow read: if isOwner(uid);
+      allow delete: if isOwner(uid) || isAdmin();
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['h', 'drive', 'updatedAt'])
+        && request.resource.data.h is map && request.resource.data.h.size() <= 2000
+        && (!('drive' in request.resource.data) || request.resource.data.drive is bool)
+        && request.resource.data.updatedAt == request.time;
+
+      match /items/{name} {
+        allow read: if isOwner(uid);
+        allow delete: if isOwner(uid) || isAdmin();
+        allow create, update: if isOwner(uid)
+          && request.resource.data.keys().hasOnly(['v', 'updatedAt'])
+          && request.resource.data.v is string
+          && request.resource.data.updatedAt == request.time;
+      }
+    }
+
     // "N người đang xem" ở trang chủ (src/engine/liveCount.js): mỗi máy chỉ ghi mốc giờ của mình.
     match /presence/{uid} {
       allow read: if request.auth != null;

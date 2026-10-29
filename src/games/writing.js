@@ -82,14 +82,14 @@ export function render(app, onBack) {
 
   showList();
 
-  // Bài viết ở máy khác vừa tải về từ Drive → vẽ lại danh sách / lời nhận xét (không đụng màn bé đang gõ).
+  // Bài viết ở máy khác vừa tải về (cloudSync) → vẽ lại danh sách / lời nhận xét (không đụng màn bé đang gõ).
   const onPulled = () => {
     if (!app.querySelector('.wr-page')) return window.removeEventListener('tth:cloud-pulled', onPulled); // đã rời trang
     if (view === 'list') showList();
     else if (view?.startsWith('review:')) showReview(view.slice(7));
   };
   window.addEventListener('tth:cloud-pulled', onPulled);
-  // Trạng thái lưu lên Google Drive ở danh sách bài (bố mẹ xem bài đã sang máy khác chưa).
+  // Trạng thái lưu vào tài khoản ở danh sách bài (bố mẹ xem bài đã sang máy khác chưa).
   const onCloud = () => {
     const el = app.querySelector('.wr-cloud');
     if (!el) return window.removeEventListener('tth:cloud-status', onCloud);
@@ -103,13 +103,12 @@ export function render(app, onBack) {
     const time = lastSync ? new Date(lastSync).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
     const [text, action] = {
       guest: ['Đăng nhập Google để mở bài viết trên máy khác.', ''],
-      syncing: ['☁️ Đang đồng bộ với Google Drive…', ''],
-      ok: [`☁️ Đã đồng bộ với Google Drive lúc ${time}.`, 'Đồng bộ lại'],
-      idle: ['☁️ Bài viết được lưu vào Google Drive của bạn.', 'Đồng bộ ngay'],
-      'needs-auth': ['⚠️ Bài mới chưa lưu lên Google Drive.', 'Lưu lên Drive'],
-      'needs-permission': ['⚠️ Cần cho phép app lưu vào Google Drive.', 'Cho phép'],
-      offline: ['⚠️ Mất mạng: bài vẫn lưu trên máy, có mạng sẽ lưu lên Drive.', ''],
-      error: ['⚠️ Chưa lưu được lên Google Drive.', 'Thử lại'],
+      syncing: ['☁️ Đang đồng bộ bài viết…', ''],
+      ok: [`☁️ Đã đồng bộ lúc ${time}.`, 'Đồng bộ lại'],
+      idle: ['☁️ Bài viết được lưu vào tài khoản của bạn.', 'Đồng bộ ngay'],
+      'needs-auth': ['⚠️ Bài mới chưa lưu vào tài khoản.', 'Lưu ngay'],
+      offline: ['⚠️ Mất mạng: bài vẫn lưu trên máy, có mạng sẽ tự lưu.', ''],
+      error: ['⚠️ Chưa lưu được bài viết.', 'Thử lại'],
     }[state] || ['', ''];
     el.classList.toggle('is-warn', text.startsWith('⚠️'));
     el.innerHTML = `<span>${text}</span>${action ? `<button type="button" class="wr-cloud-btn">${action}</button>` : ''}`;
@@ -210,7 +209,7 @@ export function render(app, onBack) {
       const e = getEssay(id);
       if (e && !e.prompt.trim() && !e.text.trim() && !e.review) deleteEssay(id); // bài mới bỏ trống
       showList();
-      syncNow(); // rời bài: đưa lên Drive ngay, không chờ
+      syncNow(); // rời bài: lưu lên tài khoản ngay, không chờ
     };
     const body = frame({
       back: leave, backLabel: '← Danh sách', title: '✏️ Bài viết',
