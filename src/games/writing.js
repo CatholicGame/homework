@@ -7,7 +7,7 @@
 
 import {
   MAX_WORDS, MAX_PROMPT, countWords, listEssays, listOtherGradeEssays, getEssay, createEssay, updateEssay, deleteEssay,
-  isStale, requestReview, requestVocab, markRanges,
+  isStale, requestReview, requestVocab, markRanges, usedSuggestedWords,
 } from '../engine/writing.js';
 import { getProfileGrade } from '../engine/profile.js';
 import { connectLeaderboard } from '../engine/leaderboard.js';
@@ -446,7 +446,7 @@ export function render(app, onBack) {
         <p>Cô đang đọc bài của em…</p>
       </div>`);
     try {
-      const review = await requestReview({ prompt: essay.prompt.trim(), text: essay.text, grade: essay.grade || grade });
+      const review = await requestReview({ prompt: essay.prompt.trim(), text: essay.text, grade: essay.grade || grade, words: usedSuggestedWords(essay) });
       if (!busy) return; // bé đã quay lại
       const history = [...(essay.history || []), { at: Date.now(), total: review.total }].slice(-10);
       updateEssay(id, { review: { ...review, at: Date.now(), text: essay.text }, history });

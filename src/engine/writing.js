@@ -81,10 +81,25 @@ export function deleteEssay(id) {
 export const isStale = (essay) => !!essay.review && essay.review.text !== essay.text;
 
 /**
+ * Từ ngữ cô đã gợi ý mà bé đã dùng trong bài: bộ từ ngữ gợi ý, "từ ngữ hay" và từ thay thế ở lần chấm trước.
+ * Gửi kèm khi chấm để cô không bắt bé đổi đúng những từ cô đã gợi ý (bé sửa mãi không xong).
+ */
+export function usedSuggestedWords(essay) {
+  const rv = essay.review;
+  const words = [
+    ...(essay.wordBank?.groups || []).flatMap(g => g.words || []),
+    ...(rv?.vocab || []).map(v => v.word),
+    ...(rv?.issues || []).filter(i => i.type === 'dung_tu').flatMap(i => i.suggestions || []),
+  ];
+  const t = String(essay.text || '').toLowerCase();
+  return [...new Set(words.map(w => String(w || '').trim()).filter(w => w && w.length <= 60 && t.includes(w.toLowerCase())))].slice(0, 40);
+}
+
+/**
  * Gửi bài cho cô chấm. Lỗi: Error với .code = 'auth' | 'limit' | 'too-long' | 'ai' | 'net' | …
  */
-export async function requestReview({ prompt, text, grade }) {
-  return askTeacher({ prompt, text, grade }, 'review');
+export async function requestReview({ prompt, text, grade, words = [] }) {
+  return askTeacher({ prompt, text, grade, words }, 'review');
 }
 
 /** Bộ từ ngữ gợi ý cho đề: { groups: [{ title, words[] }] }. Lỗi như requestReview. */
