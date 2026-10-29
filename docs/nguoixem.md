@@ -14,10 +14,12 @@ Số đệm được tính từ đồng hồ theo giờ Việt Nam (UTC+7), khô
 |---|---|---|
 | Giờ học | 17h30–22h: 100–200 | 9h–22h: 100–200 |
 | Buổi trưa (phụ huynh vào xem) | 11h30–12h30: 30–60 | nằm trong giờ học |
-| Giờ khác | 4–14 | 4–14 |
+| Giờ khác | 7–20 | 7–20 |
 
 - **Lên xuống dần:** số tăng dần trong 45 phút trước giờ bắt đầu (vd. 16h45–17h30, 10h45–11h30, 8h15–9h) và giảm dần trong 45 phút sau giờ kết thúc (`RAMP`), không nhảy bậc.
-- **Dao động:** trong mỗi khung số đi lên đi xuống trong khoảng của khung (vd. 100–200), cộng thêm ±1–2. Dao động dùng "nhiễu trơn" có hạt giống là mốc thời gian (một nút mỗi 40 giây, 90 giây, 7 phút và 25 phút; sóng 25 phút quyết định mức). Mỗi 5 giây số đổi nhiều nhất 2, không giật, và mọi máy nhích giống nhau.
+- **Dao động:** trong mỗi khung số đi lên đi xuống trong khoảng của khung (vd. 100–200), Dao động dùng "nhiễu trơn" có hạt giống là mốc thời gian (một nút mỗi 90 giây, 7 phút và 25 phút; sóng 25 phút quyết định mức), mọi máy nhích giống nhau.
+- **Người ra người vào:** trên mức đó còn một sóng nhanh (2,5 phút và 40 giây) nhân số lên hoặc xuống tới 20% (thường 10–15%). Vd. buổi trưa trong 5 phút số đi 40 → 29 → 39; buổi tối trong 1 phút có thể 176 → 147. Vì vậy số thực tế có thể vượt hai đầu khoảng của khung khoảng 20%.
+- **Giờ vắng lên xuống nhanh hơn:** khung "Giờ khác" dùng sóng riêng (10 phút, 3 phút, 45 giây) thay cho sóng 25 phút, nên trong vài phút số có thể đi từ 8 lên 19 rồi xuống lại, như người ra người vào. Đứng yên một chỗ thì trông giả.
 - **Lệch giờ:** máy lệch giờ vài giây thì số chỉ lệch vài giây.
 
 ### Đổi mức số đệm
@@ -31,7 +33,7 @@ const PEAKS = {
   weekend: [[9, 22, 100, 200]],
 };
 const WEEKEND = [6, 0];   // thứ Bảy, Chúa Nhật
-const QUIET = [4, 14];    // ngoài giờ đông người
+const QUIET = [7, 20];    // ngoài giờ đông người
 const RAMP = 0.75;        // giờ lên / xuống dần
 ```
 

@@ -15,7 +15,7 @@ const PEAKS = {
   weekend: [[9, 22, 100, 200]],
 };
 const WEEKEND = [6, 0];   // thứ Bảy, Chúa Nhật
-const QUIET = [4, 14];    // ngoài giờ đông người
+const QUIET = [7, 20];    // ngoài giờ đông người
 const RAMP = 0.75;        // giờ lên / xuống dần trước giờ bắt đầu và sau giờ kết thúc
 
 const BEAT = 4 * 60e3;        // ghi presence
@@ -53,13 +53,17 @@ export function buffer(t = Date.now()) {
   const at = (lo, hi) => lo + (hi - lo) * u;
   const vn = new Date(t + VN);
   const h = vn.getUTCHours() + vn.getUTCMinutes() / 60 + vn.getUTCSeconds() / 3600;
-  const quiet = at(...QUIET);
+  // Giờ vắng: sóng riêng, nhanh hơn (10 phút, 3 phút, 45 giây) để số lên xuống rõ như người ra người vào.
+  const nq = 0.5 * smooth(t, 10 * 60e3, 5) + 0.35 * smooth(t, 3 * 60e3, 6) + 0.15 * smooth(t, 45e3, 7);
+  const quiet = QUIET[0] + (QUIET[1] - QUIET[0]) * clamp01((nq * 1.6 + 1) / 2);
   let v = quiet;
   for (const [start, end, lo, hi] of PEAKS[WEEKEND.includes(vn.getUTCDay()) ? 'weekend' : 'weekday']) {
     const k = level(h, start, end);
     v = Math.max(v, quiet * (1 - k) + at(lo, hi) * k);
   }
-  return Math.round(v + smooth(t, 40e3, 4) * 2);
+  // Người ra người vào: sóng nhanh (2,5 phút, 40 giây) đẩy số lên xuống 10–20% quanh mức trong vài phút.
+  const swing = 0.65 * smooth(t, 150e3, 8) + 0.35 * smooth(t, 40e3, 9);
+  return Math.round(v * (1 + Math.max(-0.2, Math.min(0.2, swing * 0.25))));
 }
 
 // ── Số thật ──────────────────────────────────────────────────────────────────
