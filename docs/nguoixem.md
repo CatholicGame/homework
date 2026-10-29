@@ -1,6 +1,6 @@
-# Người đang xem
+# Người đang học
 
-Dòng "🟢 N người đang xem" ở đầu trang chủ, ngay dưới nút "Đổi lớp".
+Dòng "🟢 N người đang học" ở đầu trang chủ, ngay dưới nút "Đổi lớp".
 
 **N = số thật + số đệm.**
 
@@ -17,10 +17,10 @@ Số đệm được tính từ đồng hồ theo giờ Việt Nam (UTC+7), khô
 | Giờ khác | 7–20 | 7–20 |
 
 - **Lên xuống dần:** số tăng dần trong 45 phút trước giờ bắt đầu (vd. 16h45–17h30, 10h45–11h30, 8h15–9h) và giảm dần trong 45 phút sau giờ kết thúc (`RAMP`), không nhảy bậc.
-- **Dao động:** trong mỗi khung số đi lên đi xuống trong khoảng của khung (vd. 100–200), Dao động dùng "nhiễu trơn" có hạt giống là mốc thời gian (một nút mỗi 90 giây, 7 phút và 25 phút; sóng 25 phút quyết định mức), mọi máy nhích giống nhau.
-- **Người ra người vào:** trên mức đó còn một sóng nhanh (2,5 phút và 40 giây) nhân số lên hoặc xuống tới 20% (thường 10–15%). Vd. buổi trưa trong 5 phút số đi 40 → 29 → 39; buổi tối trong 1 phút có thể 176 → 147. Vì vậy số thực tế có thể vượt hai đầu khoảng của khung khoảng 20%.
-- **Giờ vắng lên xuống nhanh hơn:** khung "Giờ khác" dùng sóng riêng (10 phút, 3 phút, 45 giây) thay cho sóng 25 phút, nên trong vài phút số có thể đi từ 8 lên 19 rồi xuống lại, như người ra người vào. Đứng yên một chỗ thì trông giả.
-- **Mọi máy cùng số:** số đệm tính tại mốc 5 giây (`TICK`) làm tròn xuống, và màn hình vẽ lại ngay khi qua mốc, nên hai máy đổi số cùng lúc. Lúc mở trang chủ, app hỏi giờ máy chủ (header `Date` của `HEAD /`); máy lệch giờ quá 1,5 giây thì được bù.
+- **Đứng yên 5–10 phút:** số đệm chỉ đổi ở mốc chung của mọi máy, 5 phút một mốc (`HOLD`); cặp mốc liền nhau có lúc gộp làm một, nên số đứng yên lúc 5, lúc 10 phút rồi mới đổi. Giữa hai mốc, số trên màn hình chỉ đổi khi số thật đổi (có người thật vào ra).
+- **Mức trong khung:** số đi lên đi xuống trong khoảng của khung (vd. 100–200) theo "nhiễu trơn" có hạt giống là mốc thời gian (sóng 50 phút quyết định mức, sóng 20 phút làm lệch; giờ vắng dùng sóng riêng 40 phút và 15 phút).
+- **Người ra người vào:** mỗi lần đổi, số còn được nhân một hệ số ngẫu nhiên ±12% (mỗi phút một hệ số). Thường mỗi bước đổi khoảng 7–18%, vd. tối thứ Năm: 17h30 99 → 17h35 91 → 17h40 96 → 17h45 106 … 18h10 120 → 18h20 137. Giờ vắng mỗi bước chỉ ±1–3 người.
+- **Mọi máy cùng số:** mốc tính theo giờ máy chủ: lúc mở trang chủ, app hỏi giờ máy chủ (header `Date` của `HEAD /`); máy lệch giờ quá 1,5 giây thì được bù.
 - **Số thật vẫn có thể khác:** máy chưa đăng nhập hoặc đếm lỗi chỉ tính số thật là 1, máy đã đăng nhập thì cộng số người thật. Bản mở từ trước khi phát hành (tab chưa tải lại) vẫn chạy công thức cũ.
 
 ### Đổi mức số đệm
@@ -48,7 +48,7 @@ Muốn thêm một khung giờ đông người thì thêm một dòng vào `PEAK
 - **Đếm:** dùng `getCountFromServer`, đếm các bản ghi có `at` trong 6 phút gần nhất (`WINDOW`).
 - **Thời điểm đếm:** cứ 2 phút một lần (`COUNT_EVERY`), vào mốc chung của mọi máy (mốc chia hết cho 2 phút, cộng 3 giây), nên các máy cập nhật cùng lúc.
 - **Khi không đếm được** (chưa đăng nhập, lỗi mạng, chạy webdriver): chỉ tính chính máy này là 1.
-- **Màn hình** vẽ lại số mỗi 5 giây (`TICK`).
+- **Màn hình** xem lại số mỗi 5 giây (`TICK`); số chỉ đổi khi qua mốc `HOLD` hoặc lần đếm số thật ra số khác.
 
 ### Luật Firestore
 
@@ -75,7 +75,7 @@ Bản ghi `presence` cũ không tự xoá. Chúng không làm sai số (đã l�
 - **Con số:** to, đậm, màu xanh lá. Mỗi lần số đổi, nó loé vàng rồi thu về.
 - **Chấm xanh:** nhấp nháy, có vòng sáng lan ra.
 - **Khi máy bật giảm chuyển động:** chấm chỉ sáng lên mờ đi chậm (2,4 giây một nhịp), số đổi không phóng to.
-- **Tiếng Anh:** "N watching now" (`src/i18n/en/ui.js`).
+- **Tiếng Anh:** "N learning now" (`src/i18n/en/ui.js`).
 
 ## Kiểm tra nhanh
 

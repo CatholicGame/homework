@@ -1,5 +1,5 @@
 /**
- * "🟢 N người đang xem" ở trang chủ. N = số thật + số đệm (docs/nguoixem.md).
+ * "🟢 N người đang học" ở trang chủ. N = số thật + số đệm (docs/nguoixem.md).
  *
  * Số đệm tính từ đồng hồ theo giờ Việt Nam (UTC+7), không cần máy chủ: mọi máy cùng lúc thấy cùng số.
  * Số thật: mỗi máy đã đăng nhập ghi `presence/{uid}` = { at } mỗi 4 phút khi tab đang hiện,
@@ -19,9 +19,10 @@ const QUIET = [7, 20];    // ngoài giờ đông người
 const RAMP = 0.75;        // giờ lên / xuống dần trước giờ bắt đầu và sau giờ kết thúc
 
 const BEAT = 4 * 60e3;        // ghi presence
-const WINDOW = 6 * 60e3;      // ai ghi trong khoảng này thì đang xem
+const WINDOW = 6 * 60e3;      // ai ghi trong khoảng này thì đang học
 const COUNT_EVERY = 2 * 60e3; // đếm số thật, vào mốc chung của mọi máy
 const TICK = 5e3;             // vẽ lại số
+const HOLD = 5 * 60e3;        // số đệm đứng yên ít nhất chừng này
 
 const VN = 7 * 3600e3;
 
@@ -47,23 +48,23 @@ const level = (h, start, end) => ease(clamp01(Math.min((h - start + RAMP) / RAMP
 
 /** Số đệm lúc t (ms). */
 export function buffer(t = Date.now()) {
-  // Sóng chậm (25 phút) quyết định mức, sóng nhanh hơn làm số nhích; giãn ×1.5 để chạm gần hai đầu khoảng.
-  const n = 0.6 * smooth(t, 25 * 60e3, 1) + 0.3 * smooth(t, 7 * 60e3, 2) + 0.1 * smooth(t, 90e3, 3);
+  // Hiển thị chỉ lấy số đệm ở mốc slot() (5–10 phút một lần), nên dùng sóng chậm (50 phút quyết định mức,
+  // 20 phút làm lệch) cho hai mốc liền nhau không cách xa; giãn ×1.5 để chạm gần hai đầu khoảng.
+  const n = 0.75 * smooth(t, 50 * 60e3, 1) + 0.25 * smooth(t, 20 * 60e3, 2);
   const u = clamp01((n * 1.5 + 1) / 2);
   const at = (lo, hi) => lo + (hi - lo) * u;
   const vn = new Date(t + VN);
   const h = vn.getUTCHours() + vn.getUTCMinutes() / 60 + vn.getUTCSeconds() / 3600;
-  // Giờ vắng: sóng riêng, nhanh hơn (10 phút, 3 phút, 45 giây) để số lên xuống rõ như người ra người vào.
-  const nq = 0.5 * smooth(t, 10 * 60e3, 5) + 0.35 * smooth(t, 3 * 60e3, 6) + 0.15 * smooth(t, 45e3, 7);
+  // Giờ vắng: sóng riêng (40 phút, 15 phút).
+  const nq = 0.75 * smooth(t, 40 * 60e3, 5) + 0.25 * smooth(t, 15 * 60e3, 6);
   const quiet = QUIET[0] + (QUIET[1] - QUIET[0]) * clamp01((nq * 1.6 + 1) / 2);
   let v = quiet;
   for (const [start, end, lo, hi] of PEAKS[WEEKEND.includes(vn.getUTCDay()) ? 'weekend' : 'weekday']) {
     const k = level(h, start, end);
     v = Math.max(v, quiet * (1 - k) + at(lo, hi) * k);
   }
-  // Người ra người vào: sóng nhanh (2,5 phút, 40 giây) đẩy số lên xuống 10–20% quanh mức trong vài phút.
-  const swing = 0.65 * smooth(t, 150e3, 8) + 0.35 * smooth(t, 40e3, 9);
-  return Math.round(v * (1 + Math.max(-0.2, Math.min(0.2, swing * 0.25))));
+  // Người ra người vào: mỗi phút một hệ số ngẫu nhiên ±12% quanh mức.
+  return Math.round(v * (1 + hash(Math.floor(t / 60e3) * 13 + 9) * 0.12));
 }
 
 // ── Số thật ──────────────────────────────────────────────────────────────────
@@ -71,11 +72,16 @@ let real = 1;          // chưa đếm được: chỉ tính máy này
 let started = false;
 
 // ── Đồng hồ chung ────────────────────────────────────────────────────────────
-// Số đệm đổi vài đơn vị mỗi 5 giây, nên hai máy phải lấy cùng một mốc: giờ máy chủ (lệch giờ máy được bù)
-// làm tròn xuống mốc TICK, và màn hình vẽ lại đúng lúc qua mốc.
+// Số đệm đứng yên 5 hoặc 10 phút rồi mới đổi (người ra vào thật thì số thật đổi ngay lần đếm sau).
+// Mọi máy lấy cùng một mốc: giờ máy chủ (lệch giờ máy được bù) làm tròn xuống mốc HOLD; cặp mốc chẵn–lẻ
+// có lúc gộp làm một (giả ngẫu nhiên theo chỉ số mốc) nên khoảng đứng yên lúc 5, lúc 10 phút.
 let skew = 0;
 const now = () => Date.now() + skew;
-const slot = () => Math.floor(now() / TICK) * TICK;
+function slot() {
+  let k = Math.floor(now() / HOLD);
+  if (k % 2 && hash(k * 17 + 11) < 0) k -= 1;
+  return k * HOLD;
+}
 
 async function syncClock() {
   try {
@@ -128,7 +134,7 @@ function startSync() {
 export const liveCountHtml = () => `
   <p class="home-live" id="home-live" aria-live="off">
     <span class="home-live-dot" aria-hidden="true"></span>
-    <span><strong class="home-live-n">${real + buffer(slot())}</strong> người đang xem</span>
+    <span><strong class="home-live-n">${real + buffer(slot())}</strong> người đang học</span>
   </p>`;
 
 /** Gắn vào phần tử .home-live; tự dừng khi trang chủ bị thay. */
@@ -145,7 +151,7 @@ export function startLiveCount(el) {
       void num.offsetWidth;
       num.classList.add('is-bump');
     }
-    // Vẽ lại ngay sau mốc TICK kế tiếp, mọi máy cùng lúc.
+    // Xem lại mỗi TICK: số chỉ đổi khi qua mốc HOLD hoặc số thật vừa đếm khác.
     setTimeout(draw, TICK - (now() % TICK) + 50);
   };
   draw();

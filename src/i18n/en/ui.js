@@ -234,7 +234,7 @@ export default {
     '🏆 Bảng xếp hạng Lớp {0}': '🏆 Grade {0} leaderboard',
     'Các bạn cùng học lớp {0} ·': 'Classmates in grade {0} ·',
     'Đổi lớp': 'Change grade',
-    'người đang xem': 'watching now',
+    'người đang học': 'learning now',
     'Mọi lúc': 'All time',
     'Hôm nay ': 'Today',
     'Tuần này': 'This week',
