@@ -12,14 +12,14 @@ Số đệm được tính từ đồng hồ theo giờ Việt Nam (UTC+7), khô
 
 | Khung giờ | Ngày thường (T2–T6) | Thứ Bảy, Chúa Nhật |
 |---|---|---|
-| Giờ học | 17h30–22h: 100–200 | 9h–22h: 100–200 |
+| Giờ học | 17h30–22h: 50–100 | 9h–22h: 50–100 |
 | Buổi trưa (phụ huynh vào xem) | 11h30–12h30: 30–60 | nằm trong giờ học |
 | Giờ khác | 7–20 | 7–20 |
 
 - **Lên xuống dần:** số tăng dần trong 45 phút trước giờ bắt đầu (vd. 16h45–17h30, 10h45–11h30, 8h15–9h) và giảm dần trong 45 phút sau giờ kết thúc (`RAMP`), không nhảy bậc.
 - **Đứng yên 5–10 phút:** số đệm chỉ đổi ở mốc chung của mọi máy, 5 phút một mốc (`HOLD`); cặp mốc liền nhau có lúc gộp làm một, nên số đứng yên lúc 5, lúc 10 phút rồi mới đổi. Giữa hai mốc, số trên màn hình chỉ đổi khi số thật đổi (có người thật vào ra).
-- **Mức trong khung:** số đi lên đi xuống trong khoảng của khung (vd. 100–200) theo "nhiễu trơn" có hạt giống là mốc thời gian (sóng 50 phút quyết định mức, sóng 20 phút làm lệch; giờ vắng dùng sóng riêng 40 phút và 15 phút).
-- **Người ra người vào:** mỗi lần đổi, số còn được nhân một hệ số ngẫu nhiên ±12% (mỗi phút một hệ số). Thường mỗi bước đổi khoảng 7–18%, vd. tối thứ Năm: 17h30 99 → 17h35 91 → 17h40 96 → 17h45 106 … 18h10 120 → 18h20 137. Giờ vắng mỗi bước chỉ ±1–3 người.
+- **Mức trong khung:** số đi lên đi xuống trong khoảng của khung (vd. 50–100) theo "nhiễu trơn" có hạt giống là mốc thời gian (sóng 50 phút quyết định mức, sóng 20 phút làm lệch; giờ vắng dùng sóng riêng 40 phút và 15 phút).
+- **Người ra người vào:** mỗi lần đổi, số còn được nhân một hệ số ngẫu nhiên ±12% (mỗi phút một hệ số). Thường mỗi bước đổi khoảng 7–18%, vd. tối thứ Năm: 17h30 49 → 17h35 45 → 17h40 48 → 17h45 53 … 19h20 97 → 19h30 102 → 19h35 96. Giờ vắng mỗi bước chỉ ±1–3 người.
 - **Mọi máy cùng số:** mốc tính theo giờ máy chủ: lúc mở trang chủ, app hỏi giờ máy chủ (header `Date` của `HEAD /`); máy lệch giờ quá 1,5 giây thì được bù.
 - **Số thật vẫn có thể khác:** máy chưa đăng nhập hoặc đếm lỗi chỉ tính số thật là 1, máy đã đăng nhập thì cộng số người thật. Bản mở từ trước khi phát hành (tab chưa tải lại) vẫn chạy công thức cũ.
 
@@ -30,8 +30,8 @@ Sửa các hằng ở đầu `liveCount.js`:
 ```js
 // [giờ bắt đầu, giờ kết thúc, số đệm thấp, cao] (17.5 = 17h30)
 const PEAKS = {
-  weekday: [[17.5, 22, 100, 200], [11.5, 12.5, 30, 60]],
-  weekend: [[9, 22, 100, 200]],
+  weekday: [[17.5, 22, 50, 100], [11.5, 12.5, 30, 60]],
+  weekend: [[9, 22, 50, 100]],
 };
 const WEEKEND = [6, 0];   // thứ Bảy, Chúa Nhật
 const QUIET = [7, 20];    // ngoài giờ đông người

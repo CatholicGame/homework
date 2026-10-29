@@ -11,8 +11,8 @@ import { firebaseSession } from './leaderboard.js';
 // Giờ đông người, theo giờ Việt Nam: [giờ bắt đầu, giờ kết thúc, số đệm thấp, cao] (17.5 = 17h30).
 // Buổi trưa là giờ phụ huynh nghỉ trưa vào xem app, nên chỉ tăng nhẹ.
 const PEAKS = {
-  weekday: [[17.5, 22, 100, 200], [11.5, 12.5, 30, 60]],
-  weekend: [[9, 22, 100, 200]],
+  weekday: [[17.5, 22, 50, 100], [11.5, 12.5, 30, 60]],
+  weekend: [[9, 22, 50, 100]],
 };
 const WEEKEND = [6, 0];   // thứ Bảy, Chúa Nhật
 const QUIET = [7, 20];    // ngoài giờ đông người
