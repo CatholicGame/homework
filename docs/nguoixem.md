@@ -20,7 +20,8 @@ Số đệm được tính từ đồng hồ theo giờ Việt Nam (UTC+7), khô
 - **Dao động:** trong mỗi khung số đi lên đi xuống trong khoảng của khung (vd. 100–200), Dao động dùng "nhiễu trơn" có hạt giống là mốc thời gian (một nút mỗi 90 giây, 7 phút và 25 phút; sóng 25 phút quyết định mức), mọi máy nhích giống nhau.
 - **Người ra người vào:** trên mức đó còn một sóng nhanh (2,5 phút và 40 giây) nhân số lên hoặc xuống tới 20% (thường 10–15%). Vd. buổi trưa trong 5 phút số đi 40 → 29 → 39; buổi tối trong 1 phút có thể 176 → 147. Vì vậy số thực tế có thể vượt hai đầu khoảng của khung khoảng 20%.
 - **Giờ vắng lên xuống nhanh hơn:** khung "Giờ khác" dùng sóng riêng (10 phút, 3 phút, 45 giây) thay cho sóng 25 phút, nên trong vài phút số có thể đi từ 8 lên 19 rồi xuống lại, như người ra người vào. Đứng yên một chỗ thì trông giả.
-- **Lệch giờ:** máy lệch giờ vài giây thì số chỉ lệch vài giây.
+- **Mọi máy cùng số:** số đệm tính tại mốc 5 giây (`TICK`) làm tròn xuống, và màn hình vẽ lại ngay khi qua mốc, nên hai máy đổi số cùng lúc. Lúc mở trang chủ, app hỏi giờ máy chủ (header `Date` của `HEAD /`); máy lệch giờ quá 1,5 giây thì được bù.
+- **Số thật vẫn có thể khác:** máy chưa đăng nhập hoặc đếm lỗi chỉ tính số thật là 1, máy đã đăng nhập thì cộng số người thật. Bản mở từ trước khi phát hành (tab chưa tải lại) vẫn chạy công thức cũ.
 
 ### Đổi mức số đệm
 

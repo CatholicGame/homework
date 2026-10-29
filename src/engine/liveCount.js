@@ -70,6 +70,25 @@ export function buffer(t = Date.now()) {
 let real = 1;          // chưa đếm được: chỉ tính máy này
 let started = false;
 
+// ── Đồng hồ chung ────────────────────────────────────────────────────────────
+// Số đệm đổi vài đơn vị mỗi 5 giây, nên hai máy phải lấy cùng một mốc: giờ máy chủ (lệch giờ máy được bù)
+// làm tròn xuống mốc TICK, và màn hình vẽ lại đúng lúc qua mốc.
+let skew = 0;
+const now = () => Date.now() + skew;
+const slot = () => Math.floor(now() / TICK) * TICK;
+
+async function syncClock() {
+  try {
+    const t0 = Date.now();
+    const res = await fetch('/', { method: 'HEAD', cache: 'no-store' });
+    const t1 = Date.now();
+    const server = Date.parse(res.headers.get('date'));
+    // Header Date chỉ tới giây: lấy giữa giây, bỏ qua lệch dưới 1,5 giây.
+    const d = server + 500 - (t0 + t1) / 2;
+    if (Number.isFinite(d) && Math.abs(d) > 1500) skew = d;
+  } catch { /* không lấy được: dùng giờ máy */ }
+}
+
 async function beat() {
   if (document.visibilityState !== 'visible') return;
   try {
@@ -86,7 +105,7 @@ async function count() {
     const fb = await firebaseSession();
     if (!fb?.auth.currentUser) { real = 1; return; }
     const { fs, db } = fb;
-    const since = fs.Timestamp.fromMillis(Date.now() - WINDOW);
+    const since = fs.Timestamp.fromMillis(now() - WINDOW);
     const snap = await fs.getCountFromServer(fs.query(fs.collection(db, 'presence'), fs.where('at', '>=', since)));
     real = Math.max(1, snap.data().count);
   } catch { real = 1; }
@@ -95,12 +114,13 @@ async function count() {
 function startSync() {
   if (started) return;
   started = true;
+  syncClock();
   beat();
   count();
   setInterval(beat, BEAT);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') beat(); });
   // Mốc chung: chia hết cho COUNT_EVERY, cộng 3 giây (để các lần ghi vừa xong kịp vào).
-  const next = () => setTimeout(() => { count(); next(); }, COUNT_EVERY - (Date.now() % COUNT_EVERY) + 3e3);
+  const next = () => setTimeout(() => { count(); next(); }, COUNT_EVERY - (now() % COUNT_EVERY) + 3e3);
   next();
 }
 
@@ -108,7 +128,7 @@ function startSync() {
 export const liveCountHtml = () => `
   <p class="home-live" id="home-live" aria-live="off">
     <span class="home-live-dot" aria-hidden="true"></span>
-    <span><strong class="home-live-n">${real + buffer()}</strong> người đang xem</span>
+    <span><strong class="home-live-n">${real + buffer(slot())}</strong> người đang xem</span>
   </p>`;
 
 /** Gắn vào phần tử .home-live; tự dừng khi trang chủ bị thay. */
@@ -116,13 +136,17 @@ export function startLiveCount(el) {
   if (!el) return;
   startSync();
   const num = el.querySelector('.home-live-n');
-  const timer = setInterval(() => {
-    if (!el.isConnected) { clearInterval(timer); return; }
-    const n = String(real + buffer());
-    if (num.textContent === n) return;
-    num.textContent = n;
-    num.classList.remove('is-bump');
-    void num.offsetWidth;
-    num.classList.add('is-bump');
-  }, TICK);
+  const draw = () => {
+    if (!el.isConnected) return;
+    const n = String(real + buffer(slot()));
+    if (num.textContent !== n) {
+      num.textContent = n;
+      num.classList.remove('is-bump');
+      void num.offsetWidth;
+      num.classList.add('is-bump');
+    }
+    // Vẽ lại ngay sau mốc TICK kế tiếp, mọi máy cùng lúc.
+    setTimeout(draw, TICK - (now() % TICK) + 50);
+  };
+  draw();
 }
