@@ -13,6 +13,7 @@ import { getCloudStatus, syncNow } from '../engine/cloudSync.js';
 import { getLang, setLang, hasEnglish, LANGS } from '../engine/i18n.js';
 import { shouldPromptReview, snoozeReviewPrompt, setPendingRating } from '../engine/reviews.js';
 import { canOfferInstall, promptInstall, shouldNudgeInstall, snoozeInstallNudge } from '../engine/installApp.js';
+import { liveCountHtml, startLiveCount } from '../engine/liveCount.js';
 
 // Sách học tiếng Việt: luôn 100% tiếng Việt, kể cả khi chọn English (engine/i18n.js).
 const VI_BOOKS = new Set(['pre3-abc', 'tv3-weekly', 'tv3-spell', 'writing']);
@@ -147,6 +148,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
               ? `<h1 class="home-grade-title" style="--grade-color: ${grade.color}">${grade.title}</h1>`
               : '<h1>🎓 Toán Tiểu Học</h1>'}
             <div><button type="button" class="home-grade-change" id="home-grade-change">🔄 Đổi lớp</button></div>
+            ${liveCountHtml()}
           </div>
           ${greetingPanel()}
           ${installPrompt() || reviewPrompt()}
@@ -170,6 +172,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
     bindDailyPanel();
     bindReviewPrompt();
     bindInstallPrompt();
+    startLiveCount(app.querySelector('#home-live'));
     app.querySelector('#home-grade-change').addEventListener('click', () => navigate('profile'));
     app.querySelectorAll('.game-card').forEach(card => {
       card.addEventListener('click', () => navigate(card.dataset.game));
