@@ -18,7 +18,7 @@
 import { getCurrentUser, getAccessToken, getFreshAccessToken, isGuest, leaveGuest } from './auth.js';
 import { getTotalStars, getStarsByGrade, getGradePeriodStars } from './stars.js';
 import { getProfile, saveProfile, markProfileSynced, NAME_MAX, CONSENT_TEXT, parentConsentAt } from './profile.js';
-import { castRows, makeLaunch } from './leaderboardCast.js';
+import { castRows, chaseStep, makeLaunch } from './leaderboardCast.js';
 import { describeDevice } from './voiceReport.js';
 import { deviceKey } from './deviceKey.js';
 import { isStandalone, isInstalledHere } from './installApp.js';
@@ -629,7 +629,7 @@ let cache = null; // { at, grade, data }
 export async function fetchLeaderboard({ force = false } = {}) {
   const grade = getProfile().grade || 0;
   if (!force && cache && cache.grade === grade && Date.now() - cache.at < CACHE_MS) {
-    return { ...cache.data, rows: [...cache.data.rows, ...castRows(grade, cache.launch)] };
+    return { ...cache.data, rows: [...cache.data.rows, ...castRows(grade, cache.launch, new Date(), cache.chase)] };
   }
   clearTimeout(pushTimer);
   const myUid = await pushNow(); // đảm bảo điểm mới nhất của mình có trên bảng
@@ -644,9 +644,43 @@ export async function fetchLeaderboard({ force = false } = {}) {
   const rows = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
   const data = { myUid, grade, rows };
   const launch = await castLaunch(grade, rows);
-  cache = { at: Date.now(), grade, data, launch };
+  const chase = await castChase(grade, rows, launch);
+  cache = { at: Date.now(), grade, data, launch, chase };
   // Các bạn ảo tính lại mỗi lần (sao hôm nay tăng dần), không nằm trong cache Firestore.
-  return { ...data, rows: [...rows, ...castRows(grade, launch)] };
+  return { ...data, rows: [...rows, ...castRows(grade, launch, new Date(), chase)] };
+}
+
+// ── Bạn ảo vượt bé thật đứng đầu ────────────────────────────────────────────
+// `castChase/g{lớp}`: { leader, since, boost, updatedAt } — xem chaseStep trong engine/leaderboardCast.js.
+// Máy nào mở bảng cũng xét một bước (trong transaction, nên hai máy cùng lúc không cộng sao hai lần).
+// Không đọc/ghi được thì dùng bản đã lưu trên máy (sao cộng thêm chỉ tăng nên bản cũ không làm tụt).
+const CAST_CHASE = 'castChase';
+const chaseStoreKey = (grade) => `tth_castchase_g${grade}`;
+
+async function castChase(grade, rows, launch) {
+  let chase = null;
+  try {
+    const { db, fs } = await loadFirebase();
+    const ref = fs.doc(db, CAST_CHASE, `g${grade}`);
+    chase = await fs.runTransaction(db, async (tx) => {
+      const cur = await tx.get(ref);
+      const { leader = '', since = 0, boost = {} } = cur.exists() ? cur.data() : {};
+      const now = new Date();
+      const next = chaseStep({ leader, since, boost },
+        [...rows, ...castRows(grade, launch, now, { boost })], grade, now.getTime());
+      if (!next) return { leader, since, boost };
+      tx.set(ref, { ...next, updatedAt: fs.serverTimestamp() });
+      return next;
+    });
+  } catch (e) {
+    console.warn('[leaderboard] Không đồng bộ được phần vượt của bạn ảo:', e?.code || e);
+  }
+  if (!chase) {
+    try { chase = JSON.parse(localStorage.getItem(chaseStoreKey(grade))); } catch { /* ignore */ }
+  }
+  if (!chase) return null;
+  try { localStorage.setItem(chaseStoreKey(grade), JSON.stringify(chase)); } catch { /* storage unavailable */ }
+  return chase;
 }
 
 // ── Ảnh chụp khởi động của các bạn ảo ───────────────────────────────────────

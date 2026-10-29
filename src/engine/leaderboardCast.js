@@ -17,6 +17,10 @@
  *   - CHỈ TĂNG, MỌI MÁY THẤY NHƯ NHAU: sao mỗi ngày tính tất định từ (bạn, ngày) bằng hàm băm,
  *     tổng = sao khởi động + các ngày đã qua; hôm nay tăng dần qua 1–3 buổi học (sáng sớm, trưa, chiều, tối).
  * Bé học 15–30 sao/ngày sẽ leo dần lên đầu; bé nghỉ vài ngày sẽ bị các bạn vượt.
+ *
+ * VƯỢT LÊN (castChase/g{lớp}, xem chaseStep): một bé thật đứng đầu bảng "Mọi lúc" liền 1–2 ngày mà
+ * không bé thật nào vượt thì bạn ảo cao nhất được cộng thêm sao, tăng dần trong CHASE_RAMP, tới khi
+ * hơn bé đó vài sao. Sau đó bạn ấy lại học theo nhịp hằng ngày; phần sao cộng thêm chỉ tính vào tổng.
  */
 
 import { CAST } from '../data/leaderboardCast.js';
@@ -45,6 +49,11 @@ const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const parseDay = (k) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+
+// Vượt lên: bé thật đứng đầu bao lâu thì bị vượt (1–2 ngày, tuỳ bé), cộng dần trong bao lâu, hơn bao nhiêu sao.
+const CHASE_HOLD = [24, 48];      // giờ
+const CHASE_RAMP = 3 * 3_600_000; // ms
+const CHASE_LEAD = [3, 15];       // sao
 
 // ── Ảnh chụp ngày khởi động ─────────────────────────────────────────────────
 /** @typedef {{ start: string, top: number }} Launch start = ngày khởi động 'YYYY-MM-DD'; top = sao bé thật cao nhất lớp lúc đó. */
@@ -130,7 +139,7 @@ function todayProgress(id, now) {
 const atHour = (date, h) => startOfDay(date).getTime() + Math.round(h * 3_600_000);
 
 /** Sao của một bạn ảo: tổng, tháng, tuần, hôm nay — chỉ đếm từ ngày khởi động. */
-function scores(m, launch, n, now) {
+function scores(m, launch, n, now, chase) {
   const today = startOfDay(now);
   const todayKey = dayKey(today);
   const monday = addDays(today, -((today.getDay() + 6) % 7));
@@ -148,6 +157,7 @@ function scores(m, launch, n, now) {
     if (d >= first) s.month += k;
     if (d >= monday) s.week += k;
   }
+  s.total += boostAt(chase?.boost?.[m.id], now.getTime());
   return s;
 }
 
@@ -179,11 +189,12 @@ function ratchet(rows, now) {
  * @param {number} grade
  * @param {Launch} launch ảnh chụp khởi động của lớp
  * @param {Date} [now]
+ * @param {Chase} [chase] phần sao cộng thêm khi vượt bé đứng đầu
  */
-export function castRows(grade, launch, now = new Date()) {
+export function castRows(grade, launch, now = new Date(), chase = null) {
   const list = members(grade);
   return ratchet(list.map((m) => {
-    const s = scores(m, launch, list.length, now);
+    const s = scores(m, launch, list.length, now, chase);
     const [nickname, avatar] = m.cast;
     return {
       uid: m.id, nickname, avatar, grade,
@@ -212,14 +223,16 @@ function lastSeen(m, now, fallback) {
  * Tất cả bạn ảo cho trang admin (đánh dấu fake: true), cùng số sao như trên bảng xếp hạng.
  * Ngày "đăng ký" lùi trước ngày khởi động theo số sao khởi động, lần cuối = buổi học gần nhất.
  * @param {(grade: number) => Launch} launchOf ảnh chụp khởi động của từng lớp
+ * @param {Date} [now]
+ * @param {(grade: number) => Chase|null} [chaseOf] phần sao cộng thêm của từng lớp
  */
-export function castStudents(launchOf, now = new Date()) {
+export function castStudents(launchOf, now = new Date(), chaseOf = () => null) {
   const grades = [...new Set(CAST.map(c => c[2]))];
   return grades.flatMap((g) => {
     const launch = launchOf(g);
     const list = members(g);
     return list.map((m) => {
-      const s = scores(m, launch, list.length, now);
+      const s = scores(m, launch, list.length, now, chaseOf(g));
       const days = Math.round(launchStars(m, launch, list.length) / 10 + 3 + 20 * rand(m.id, 'reg'));
       const createdAt = atHour(addDays(parseDay(launch.start), -days), 7 + 13 * rand(m.id, 'regh'));
       return {
@@ -229,4 +242,47 @@ export function castStudents(launchOf, now = new Date()) {
       };
     });
   });
+}
+
+// ── Vượt bé thật đứng đầu ───────────────────────────────────────────────────
+/**
+ * @typedef {{ leader: string, since: number, boost: Object<string, { from: number, to: number, at: number }> }} Chase
+ *   leader: uid bé thật đang đứng đầu "Mọi lúc" ('' = bạn ảo đứng đầu); since: lúc thấy bé đó lên đầu (ms);
+ *   boost: sao cộng thêm của từng bạn ảo, tăng dần từ `from` lên `to` trong CHASE_RAMP kể từ `at` (ms).
+ */
+
+/** Sao cộng thêm của một bạn ảo lúc `t` (ms): chỉ tăng. */
+function boostAt(b, t) {
+  if (!b) return 0;
+  return Math.round(b.from + (b.to - b.from) * clamp((t - b.at) / CHASE_RAMP, 0, 1));
+}
+
+/**
+ * Bước tiếp theo của việc vượt, từ bảng "Mọi lúc" vừa trộn (bé thật + bạn ảo đã tính `chase`).
+ * Trả về Chase mới cần ghi, hoặc null nếu không đổi gì.
+ * @param {Chase} chase
+ * @param {Array} rows các hàng của lớp (bạn ảo có uid 'cast-…')
+ */
+export function chaseStep(chase, rows, grade, now = Date.now()) {
+  const score = r => r.gradeStars?.[`g${grade}`] || 0;
+  const top = rows.reduce((a, r) => (!a || score(r) > score(a) ? r : a), null);
+  if (!top) return null;
+  const isCast = top.uid.startsWith('cast-');
+  if (isCast) return chase.leader ? { ...chase, leader: '', since: now } : null;
+  if (chase.leader !== top.uid) return { ...chase, leader: top.uid, since: now };
+  const hold = (CHASE_HOLD[0] + (CHASE_HOLD[1] - CHASE_HOLD[0]) * rand(top.uid, 'hold', chase.since)) * 3_600_000;
+  if (now - chase.since < hold) return null;
+  // Bạn ảo cao nhất (tính cả phần cộng thêm còn đang tăng dở) đuổi tới hơn bé vài sao.
+  const casts = rows.filter(r => r.uid.startsWith('cast-'));
+  if (!casts.length) return null;
+  const best = casts.reduce((a, r) => (score(r) > score(a) ? r : a));
+  const old = chase.boost[best.uid];
+  const pending = old ? old.to - boostAt(old, now) : 0;
+  const lead = CHASE_LEAD[0] + Math.floor(rand(top.uid, 'lead', chase.since) * (CHASE_LEAD[1] - CHASE_LEAD[0] + 1));
+  const add = Math.max(0, score(top) + lead - (score(best) + pending));
+  const from = boostAt(old, now);
+  return {
+    leader: '', since: now,
+    boost: { ...chase.boost, [best.uid]: { from, to: from + pending + add, at: now } },
+  };
 }

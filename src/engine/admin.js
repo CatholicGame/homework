@@ -53,6 +53,11 @@ export async function fetchStudents() {
   try {
     (await fs.getDocs(fs.collection(db, 'castLaunch'))).forEach(d => launches.set(d.id, d.data()));
   } catch { /* luật chưa deploy — dùng ảnh chụp tạm */ }
+  // Sao cộng thêm khi bạn ảo vượt bé đứng đầu (castChase/g{lớp}).
+  const chases = new Map();
+  try {
+    (await fs.getDocs(fs.collection(db, 'castChase'))).forEach(d => chases.set(d.id, d.data()));
+  } catch { /* luật chưa deploy */ }
 
   const byUid = new Map();
   const row = (uid) => {
@@ -117,7 +122,7 @@ export async function fetchStudents() {
 
   const realRows = board.docs.map(d => d.data());
   const launchOf = (g) => launches.get(`g${g}`) || makeLaunch(realRows.filter(r => r.grade === g), g);
-  return [...byUid.values(), ...guests, ...castStudents(launchOf)];
+  return [...byUid.values(), ...guests, ...castStudents(launchOf, new Date(), (g) => chases.get(`g${g}`) || null)];
 }
 
 /**
