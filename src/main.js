@@ -408,6 +408,8 @@ function navigate(gameId, opts = {}) {
     'writing': () => import('./games/writing.js'),
     'tv3-weekly': () => import('./games/tiengViet3.js'),
     'tv3-spell': () => import('./games/tv3Spell.js'),
+    'tv3-tools': () => import('./games/tv3Tools.js'),
+    'tv2-tools': () => import('./games/tv2Tools.js'),
     'life-skills': () => import('./games/lifeSkills.js'),
   };
 

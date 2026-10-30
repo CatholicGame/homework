@@ -16,7 +16,7 @@ import { canOfferInstall, promptInstall, shouldNudgeInstall, snoozeInstallNudge 
 import { liveCountHtml, startLiveCount } from '../engine/liveCount.js';
 
 // Sách học tiếng Việt: luôn 100% tiếng Việt, kể cả khi chọn English (engine/i18n.js).
-const VI_BOOKS = new Set(['pre3-abc', 'tv3-weekly', 'tv3-spell', 'writing']);
+const VI_BOOKS = new Set(['pre3-abc', 'tv3-weekly', 'tv3-spell', 'tv3-tools', 'tv2-tools', 'writing']);
 
 const WEEKDAYS = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
 const WEEKDAYS_SHORT = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
