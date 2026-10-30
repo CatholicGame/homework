@@ -1,8 +1,10 @@
 // Cài ứng dụng lên máy (PWA): biểu tượng trên màn hình chính / desktop, mở trong cửa sổ riêng.
-//   Mở bằng trình duyệt thì mọi trang (trừ admin) bị che bởi màn cài app; mọi máy đều có nút "Bỏ qua, học trên web"
-//   (nhớ trên máy), cài sau từ dải nhắc ở trang chủ hoặc mục 📲 Cài ứng dụng lên máy trong menu tài khoản.
-//   Chrome, Edge, Android: giữ sự kiện beforeinstallprompt, bấm "Cài đặt" thì hiện hộp cài của trình duyệt.
-//   iPhone, iPad: Safari không có hộp cài, hiện hướng dẫn Chia sẻ → Thêm vào MH chính.
+//   Mở bằng trình duyệt thì mọi trang (trừ admin) bị che bởi màn cài app; mọi máy đều có nút "Tiếp tục học trên web"
+//   (chỉ cho lần mở trang đó, mở lại thì hỏi lại), cài sau từ dải nhắc ở trang chủ hoặc mục 📲 Cài ứng dụng lên máy trong menu tài khoản.
+//   Chrome, Edge, Android: giữ sự kiện beforeinstallprompt, bấm "📲 Cài đặt" là hộp cài của trình duyệt hiện ra, cài luôn.
+//   Android chưa có hộp cài (Firefox…): màn che có sẵn các bước menu ⋮ và nút "Tôi đã cài rồi".
+//   iPhone, iPad: Safari không có hộp cài, màn che có sẵn video YouTube + các bước Chia sẻ → Thêm vào MH chính,
+//   nút "Tôi đã cài rồi" (Safari không biết app đã cài) và "Tiếp tục học trên web".
 //   Trình duyệt trong Zalo, Facebook, ứng dụng Google (iPhone)… (không cài được app, không đăng nhập Google được): ngay lúc mở thử tự chuyển
 //   sang Chrome (Android: intent://) hoặc Safari (iPhone: x-safari-https://, iOS 17+), mỗi phiên một lần; màn che có
 //   nút Mở bằng Safari / Chrome, sao chép đường link, và dặn bấm ⋯ → Mở bằng trình duyệt. Che cả màn đăng nhập.
@@ -86,6 +88,10 @@ export function initInstallApp({ onInstalled } = {}) {
   // Chrome máy tính cài xong thì chuyển luôn tab này vào cửa sổ app (không tải lại trang): display-mode đổi sau
   // appinstalled, phải vẽ lại để gỡ màn che, không thì màn "Máy này đã có app" nằm lại trong app.
   for (const q of STANDALONE_QUERIES) matchMedia(q).addEventListener?.('change', renderGate);
+  // Chrome Android: hỏi máy app này đã cài chưa (manifest related_applications trỏ về chính nó).
+  navigator.getInstalledRelatedApps?.().then((apps) => {
+    if (apps?.length && !deferred) { setInstalledHere(true); renderGate(); }
+  }).catch(() => {});
   addEventListener('visibilitychange', () => { if (!document.hidden) renderGate(); });
   // Mở trong Zalo, Facebook…: che ngay từ màn đăng nhập và thử tự chuyển sang trình duyệt.
   if (IN_APP && (GATE_PREVIEW || !gateExempt())) {
@@ -102,9 +108,13 @@ export function initInstallApp({ onInstalled } = {}) {
 export async function promptInstall() {
   if (deferred) {
     const ev = deferred;
-    deferred = null;
-    ev.prompt();
-    await ev.userChoice.catch(() => ({ outcome: 'dismissed' }));
+    deferred = null; // mỗi sự kiện chỉ prompt() được một lần; Chrome bắn sự kiện mới nếu vẫn chưa cài
+    try {
+      ev.prompt();
+      const { outcome } = await ev.userChoice;
+      if (outcome === 'accepted') setInstalledHere(true);
+    } catch { /* trình duyệt từ chối: màn che đổi sang hướng dẫn tay */ }
+    renderGate();
     return;
   }
   showGuide();
@@ -127,18 +137,17 @@ const AFTER_INSTALL = IS_MOBILE
   ? 'Cài xong, về màn hình chính (cạnh Zalo), chạm biểu tượng này để học.'
   : 'Cài xong, ra màn hình desktop, bấm đúp biểu tượng này để học.';
 
-// Mọi máy (trừ Zalo, Facebook…: ở đó đăng nhập Google cũng không được): màn cài có nút "Bỏ qua, học trên web" để vào học luôn.
-// Nhớ luôn trên máy (localStorage); muốn cài sau thì trang chủ có dải nhắc cài (shouldNudgeInstall, "Để sau" 7 ngày)
+// Mọi máy (trừ Zalo, Facebook…: ở đó đăng nhập Google cũng không được): màn cài có nút "Tiếp tục học trên web" để vào học luôn.
+// Chỉ áp dụng cho lần mở trang này (không lưu): mở lại hay tải lại trang mà chưa cài thì lại mời cài.
+// Trong lần đó trang chủ có dải nhắc cài (shouldNudgeInstall, "Để sau" 7 ngày)
 // và menu tài khoản có mục 📲 Cài ứng dụng lên máy, cả hai mở hộp cài của trình duyệt hoặc hướng dẫn cài.
-const WEB_OK_KEY = 'tth_web_ok';
 const NUDGE_KEY = 'tth_install_nudge_until';
 const NUDGE_SNOOZE_MS = 7 * 24 * 3600 * 1000;
 const CAN_SKIP_WEB = !IN_APP;
-let webChosen = CAN_SKIP_WEB && (() => { try { return localStorage.getItem(WEB_OK_KEY) === '1'; } catch { return false; } })();
+let webChosen = false;
 
 function chooseWeb() {
   webChosen = true;
-  try { localStorage.setItem(WEB_OK_KEY, '1'); } catch { /* chế độ riêng tư */ }
   gateWanted = false;
   renderGate();
 }
@@ -222,7 +231,12 @@ function renderGate() {
   ensureStyle();
   // Máy đã cài mà vẫn mở bằng trình duyệt (trình duyệt lại mời cài thì app đã bị gỡ: quay về màn cài).
   const installed = isInstalledHere() && !deferred;
-  const mode = IN_APP ? 'inapp' : installed ? 'open' : 'install';
+  // Chưa cài: prompt = trình duyệt có hộp cài (Chrome, Edge, Android), bấm Cài đặt là cài luôn;
+  // ios = video + các bước Chia sẻ → Thêm vào MH chính ngay trên màn che; android = Android chưa có hộp cài
+  // (Firefox, Chrome chưa sẵn sàng): các bước menu ⋮; install = máy tính khác, Cài đặt mở hướng dẫn.
+  // beforeinstallprompt tới muộn thì vẽ lại sang prompt.
+  // iPhone xét trước hộp cài: giả lập iPhone trong DevTools của Chrome vẫn có beforeinstallprompt, phải hiện như máy thật.
+  const mode = IN_APP ? 'inapp' : installed ? 'open' : IS_IOS ? 'ios' : deferred ? 'prompt' : IS_ANDROID ? 'android' : 'install';
   if (veil?.dataset.mode === mode) return;
   if (!veil) {
     veil = document.createElement('div');
@@ -247,9 +261,22 @@ function renderGate() {
     veil.querySelector('[data-open]').focus();
     return;
   }
-  const webBtn = CAN_SKIP_WEB ? '<button type="button" class="install-gate-alt" data-web>Bỏ qua, học trên web</button>' : '';
+  const webBtn = CAN_SKIP_WEB ? '<button type="button" class="install-gate-alt" data-web>Tiếp tục học trên web</button>' : '';
   const legal = '<p class="install-gate-legal"><a href="/privacy.html">Chính sách quyền riêng tư</a> · <a href="/terms.html">Điều khoản</a></p>';
-  veil.innerHTML = installed ? `
+  // Safari, Firefox Android không biết app đã cài: bé tự báo, màn che đổi sang "Máy này đã có app".
+  const doneBtn = '<button type="button" class="install-gate-again" data-done>Tôi đã cài rồi</button>';
+  veil.innerHTML = mode === 'ios' || mode === 'android' ? `
+    <div class="install-guide" role="dialog" aria-modal="true" aria-labelledby="install-gate-title">
+      <b id="install-gate-title">Cài Toán Tiểu Học lên máy để học</b>
+      ${mode === 'ios' ? iosVideoHtml() : `<figure class="install-gate-shot">
+        <img src="${installResultUrl}" alt="" width="316" height="172">
+        <figcaption>${AFTER_INSTALL}</figcaption>
+      </figure>`}
+      <ol class="install-guide-steps">${stepsHtml(guideSteps({ pictures: false }))}</ol>
+      ${webBtn.replace('install-gate-alt', 'install-guide-ok')}
+      ${doneBtn}
+      ${legal}
+    </div>` : installed ? `
     <div class="install-guide" role="dialog" aria-modal="true" aria-labelledby="install-gate-title">
       <b id="install-gate-title">Máy này đã có app Toán Tiểu Học</b>
       <figure class="install-gate-shot">
@@ -269,16 +296,18 @@ function renderGate() {
       </figure>
       <p class="install-guide-lead">Tiện hơn mở bằng trình duyệt:</p>
       <ul class="install-guide-steps">${listHtml(BENEFITS)}</ul>
-      <button type="button" class="install-guide-ok">Cài đặt</button>
+      <button type="button" class="install-guide-ok" data-install>${mode === 'prompt' ? '📲 ' : ''}Cài đặt</button>
       ${webBtn}
       ${legal}
     </div>`;
-  const btn = veil.querySelector('.install-guide-ok, .install-gate-again');
-  btn.onclick = () => promptInstall();
+  const btn = veil.querySelector('[data-install], .install-gate-again:not([data-done])');
+  if (btn) btn.onclick = () => promptInstall();
   const web = veil.querySelector('[data-web]');
   if (web) web.onclick = chooseWeb;
+  const done = veil.querySelector('[data-done]');
+  if (done) done.onclick = () => { setInstalledHere(true); renderGate(); };
   setInert(true);
-  btn.focus();
+  (btn || web)?.focus();
 }
 
 // Trang phía sau màn che không bấm, không Tab tới được.
@@ -302,7 +331,8 @@ function shareWhere(spots) {
       <span class="share-cap">${spot === 'top' ? 'Ở trên' : 'Ở dưới'}</span></span>`).join('<span class="share-or">hoặc</span>')}</span>`;
 }
 
-function guideSteps() {
+/** `pictures: false`: màn che đã có video / ảnh, bỏ hình điện thoại nhỏ chỉ chỗ nút Chia sẻ cho gọn. */
+function guideSteps({ pictures = true } = {}) {
   if (IN_APP) {
     return [
       ['🧭', 'Mở trang này bằng Safari hoặc Chrome.'],
@@ -314,8 +344,8 @@ function guideSteps() {
       // Thanh địa chỉ nằm trên hay dưới tuỳ máy, tuỳ trình duyệt (Safari, Chrome): không chỉ mũi tên ra mép màn hình
       // (chỉ sai chỗ, bé tưởng mũi tên bấm được), mà vẽ hình tĩnh cả hai chỗ ngay trong hộp.
       [SHARE_ICON, IS_IPAD
-        ? `Bấm nút Chia sẻ (ô vuông có mũi tên lên) ở góc trên bên phải. Không thấy thì bấm ⋯ trước.${shareWhere(['top'])}`
-        : `Tìm nút Chia sẻ (ô vuông có mũi tên lên) trên thanh trình duyệt: có máy ở trên, có máy ở dưới. Không thấy thì bấm ⋯ trước.${shareWhere(['top', 'bottom'])}`],
+        ? `Bấm nút Chia sẻ (ô vuông có mũi tên lên) ở góc trên bên phải. Không thấy thì bấm ⋯ trước.${pictures ? shareWhere(['top']) : ''}`
+        : `Tìm nút Chia sẻ (ô vuông có mũi tên lên) trên thanh trình duyệt: có máy ở trên, có máy ở dưới. Không thấy thì bấm ⋯ trước.${pictures ? shareWhere(['top', 'bottom']) : ''}`],
       [ADD_ICON, 'Kéo danh sách xuống, chọn <b>Thêm vào MH chính</b>.'],
       ['✅', 'Bấm <b>Thêm</b> ở góc trên bên phải. Biểu tượng hiện trên màn hình chính.'],
       // App trên iPhone/iPad có bộ nhớ riêng, không thấy bài đã làm trong Safari.
@@ -340,6 +370,19 @@ function guideSteps() {
   ];
 }
 
+const stepsHtml = (steps) => steps.map(([icon, text, cls], i) => `<li${cls ? ` class="${cls}"` : ''}><span class="install-guide-step-icon">${icon}</span><span>${cls ? '' : `<em class="install-step-no">Bước ${i + 1}</em>`}${text}</span></li>`).join('');
+
+// Video hướng dẫn Thêm vào MH chính trên iPhone (YouTube, từ giây 33), phát ngay trong hộp hướng dẫn.
+const IOS_VIDEO_ID = 'lKbsY8hLVaw';
+const IOS_VIDEO_START = 33;
+const iosVideoHtml = () => `
+      <figure class="install-guide-video">
+        <iframe src="https://www.youtube-nocookie.com/embed/${IOS_VIDEO_ID}?start=${IOS_VIDEO_START}&playsinline=1&rel=0&modestbranding=1"
+          title="Video hướng dẫn cài lên iPhone" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen
+          referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <figcaption>▶ Xem video hướng dẫn, hoặc làm theo các bước dưới.</figcaption>
+      </figure>`;
+
 function showGuide() {
   if (document.querySelector('.install-guide-veil.is-guide')) return;
   ensureStyle();
@@ -349,9 +392,8 @@ function showGuide() {
     <div class="install-guide" role="dialog" aria-modal="true" aria-labelledby="install-guide-title">
       <img class="install-guide-icon" src="/icons/icon-192.png" alt="" width="84" height="84">
       <b id="install-guide-title">Cài Toán Tiểu Học lên máy</b>
-      <ol class="install-guide-steps">
-        ${guideSteps().map(([icon, text, cls], i) => `<li${cls ? ` class="${cls}"` : ''}><span class="install-guide-step-icon">${icon}</span><span>${cls ? '' : `<em class="install-step-no">Bước ${i + 1}</em>`}${text}</span></li>`).join('')}
-      </ol>
+      ${IS_IOS && !IN_APP ? iosVideoHtml() : ''}
+      <ol class="install-guide-steps">${stepsHtml(guideSteps())}</ol>
       <button type="button" class="install-guide-ok">Đã hiểu</button>
     </div>`;
   const close = () => { veil.remove(); document.querySelector('.install-gate button')?.focus(); };
@@ -384,6 +426,11 @@ const STYLE = `
   .install-guide-ok:active { transform: translateY(4px); box-shadow: 0 1px 0 #BE185D; }
   .install-guide-ok:focus-visible, .install-gate-again:focus-visible { outline: 3px solid #1E293B; outline-offset: 3px; }
   .install-guide-veil.is-guide { z-index: 100001; }
+  .install-guide-video { margin: 0; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .install-guide-video iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 14px;
+    background: #0F172A; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.22); }
+  .install-guide-video figcaption { font-size: 12.5px; font-weight: 700; color: #475569; text-align: center; }
+  .install-guide-veil.is-guide:has(.install-guide-video) .install-guide-icon { display: none; }
   .share-where { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px; }
   .share-or { font-size: 12px; font-weight: 700; color: #64748B; }
   .share-phone { position: relative; display: flex; flex-direction: column; width: 84px; height: 104px; margin-bottom: 18px;
@@ -403,7 +450,7 @@ const STYLE = `
   .install-compact .install-guide > b { font-size: 18px; }
   .install-compact .install-guide-icon { width: 56px; height: 56px; }
   .install-compact .install-guide-lead { font-size: 13.5px; color: #64748B; }
-  .install-gate[data-mode="install"] .install-guide-lead { display: none; }
+  .install-gate[data-mode="install"] .install-guide-lead, .install-gate[data-mode="prompt"] .install-guide-lead { display: none; }
   .install-compact .install-guide-steps { gap: 6px; }
   .install-compact .install-guide-steps li { text-align: left; gap: 10px; padding: 6px 10px; border-radius: 12px; }
   .install-compact .install-guide-step-icon { width: 30px; height: 30px; border-radius: 9px; font-size: 16px; }
