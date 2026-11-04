@@ -227,39 +227,134 @@ const match = {
     return { score: good / ok.length, full: good === ok.length, items: ok };
   },
   mount(el, q, { a, set, mode }) {
+    // Nối như trên giấy: mỗi ô có một chấm ở mép trong, đường nối màu vẽ giữa hai cột.
+    // Bé kéo từ ô này sang ô kia, hoặc chạm ô này rồi chạm ô kia (bắt đầu từ cột nào cũng được).
     a = [...(a || q.left.map(() => null))];
-    let pick = null;
-    const pairOf = (j) => (mode === 'key' ? q.ans : a).indexOf(j);
+    const has = (v) => v !== null && v !== undefined;
+    const src = () => (mode === 'key' ? q.ans : a);
+    let pick = null; // { side: 'l' | 'r', k }
+    let rubber = ''; // đường đang kéo
+    const item = (side, k, text) => {
+      const i = side === 'l' ? k : src().indexOf(k);
+      const paired = side === 'l' ? has(src()[k]) : i >= 0;
+      let cls = paired ? ' is-paired' : '';
+      if (pick && pick.side === side && pick.k === k) cls += ' is-picked';
+      if (mode === 'show' && side === 'l') cls += a[k] === q.ans[k] ? ' is-right' : ' is-wrong';
+      const c = paired ? PAIR_COLORS[i % 8] : (side === 'l' ? PAIR_COLORS[k % 8] : '#64748B');
+      return `<button type="button" class="tvm-item is-${side}${cls}" data-side="${side}" data-k="${k}" style="--c:${c}" ${mode === 'do' ? '' : 'disabled'}>
+        <span class="tvm-t">${esc(text)}</span><i class="tvm-dot"></i></button>`;
+    };
+    const hint = () => {
+      if (pick) {
+        const t = pick.side === 'l' ? q.left[pick.k] : q.right[pick.k];
+        return `👉 Chạm ô <b>bên ${pick.side === 'l' ? 'phải' : 'trái'}</b> hợp với <b>"${esc(t)}"</b>.`;
+      }
+      if (q.left.every((_, i) => has(a[i]))) return '✅ Đã nối xong. Muốn đổi thì nối lại.';
+      return '✏️ Kéo từ một ô bên trái sang ô bên phải hợp với nó.';
+    };
     const draw = () => {
-      const src = mode === 'key' ? q.ans : a;
       el.innerHTML = `
-        <div class="tvm">
-          <div class="tvm-col">${q.left.map((t, i) => {
-            const j = src[i];
-            let cls = j !== null && j !== undefined ? ' is-paired' : '';
-            if (pick === i) cls += ' is-picked';
-            if (mode === 'show') cls += a[i] === q.ans[i] ? ' is-right' : ' is-wrong';
-            return `<button type="button" class="tvm-item" data-side="l" data-i="${i}" style="--c:${PAIR_COLORS[i % 8]}" ${mode === 'do' ? '' : 'disabled'}>
-              <span>${esc(t)}</span>${j !== null && j !== undefined ? `<b class="tvm-tag">${i + 1}</b>` : ''}</button>`;
-          }).join('')}</div>
-          <div class="tvm-col">${q.right.map((t, j) => {
-            const i = pairOf(j);
-            return `<button type="button" class="tvm-item${i >= 0 ? ' is-paired' : ''}" data-side="r" data-j="${j}" style="--c:${i >= 0 ? PAIR_COLORS[i % 8] : '#CBD5E1'}" ${mode === 'do' ? '' : 'disabled'}>
-              ${i >= 0 ? `<b class="tvm-tag">${i + 1}</b>` : ''}<span>${esc(t)}</span></button>`;
-          }).join('')}</div>
+        ${mode === 'do' ? `<p class="tvm-hint${pick ? ' is-step2' : ''}">${hint()}</p>` : ''}
+        <div class="tvm${pick ? ` is-pick-${pick.side}` : ''}">
+          <svg class="tvm-lines" aria-hidden="true"></svg>
+          <div class="tvm-col">${q.left.map((t, i) => item('l', i, t)).join('')}</div>
+          <div class="tvm-col">${q.right.map((t, j) => item('r', j, t)).join('')}</div>
         </div>
         ${mode === 'show' ? `<p class="tv-note">Nối đúng: ${q.left.map((t, i) => `${esc(t)} → ${esc(q.right[q.ans[i]])}`).join('; ')}</p>` : ''}`;
-      if (mode !== 'do') return;
-      el.querySelectorAll('.tvm-item').forEach(btn => btn.addEventListener('click', () => {
-        if (btn.dataset.side === 'l') { pick = pick === Number(btn.dataset.i) ? null : Number(btn.dataset.i); draw(); return; }
-        if (pick === null) { el.querySelector('.tvm').classList.add('is-nudge'); return; }
-        const j = Number(btn.dataset.j);
-        a = a.map(x => (x === j ? null : x));
-        a[pick] = j;
-        pick = null;
-        set([...a]);
+      lines();
+      if (mode === 'do') wire();
+    };
+    const dotAt = (side, k) => {
+      const box = el.querySelector('.tvm');
+      const d = el.querySelector(`.tvm-item[data-side="${side}"][data-k="${k}"] .tvm-dot`);
+      if (!box || !d) return null;
+      const b = box.getBoundingClientRect(), r = d.getBoundingClientRect();
+      return { x: r.left + r.width / 2 - b.left, y: r.top + r.height / 2 - b.top };
+    };
+    const curve = (p, e, color, cls = '') => {
+      const mx = (p.x + e.x) / 2;
+      return `<path class="${cls}" d="M${p.x},${p.y} C${mx},${p.y} ${mx},${e.y} ${e.x},${e.y}" stroke="${color}"/>`;
+    };
+    const lines = () => {
+      const svg = el.querySelector('.tvm-lines');
+      if (!svg) return;
+      const out = [];
+      src().forEach((j, i) => {
+        if (!has(j)) return;
+        const p = dotAt('l', i), r = dotAt('r', j);
+        if (!p || !r) return;
+        const ok = a[i] === q.ans[i];
+        const color = mode === 'show' ? (ok ? 'var(--tv-green)' : 'var(--tv-red)') : PAIR_COLORS[i % 8];
+        out.push(curve(p, r, color, mode === 'show' && !ok ? 'is-wrong' : ''));
+      });
+      svg.innerHTML = out.join('') + rubber;
+    };
+    const ro = new ResizeObserver(() => { if (!el.isConnected) { ro.disconnect(); return; } lines(); });
+    ro.observe(el);
+
+    const link = (i, j) => {
+      a = a.map(x => (x === j ? null : x));
+      a[i] = j;
+      pick = null;
+      set([...a]);
+      draw();
+    };
+    const choose = (side, k) => {
+      if (!pick || pick.side === side) {
+        pick = pick && pick.side === side && pick.k === k ? null : { side, k };
         draw();
-      }));
+        return;
+      }
+      if (side === 'r') link(pick.k, k); else link(k, pick.k);
+    };
+    const wire = () => {
+      const box = el.querySelector('.tvm');
+      el.querySelectorAll('.tvm-item').forEach(btn => {
+        const side = btn.dataset.side, k = Number(btn.dataset.k);
+        btn.addEventListener('pointerdown', (e) => {
+          if (e.button > 0) return;
+          const start = dotAt(side, k);
+          const x0 = e.clientX, y0 = e.clientY;
+          let dragging = false;
+          const overAt = (ev) => {
+            const o = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.tvm-item');
+            return o && box.contains(o) && o.dataset.side !== side ? o : null;
+          };
+          const move = (ev) => {
+            if (!dragging && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 10) return;
+            if (!dragging) {
+              dragging = true;
+              btn.classList.add('is-picked');
+              box.classList.add(`is-pick-${side}`);
+            }
+            ev.preventDefault();
+            const b = box.getBoundingClientRect();
+            rubber = curve(start, { x: ev.clientX - b.left, y: ev.clientY - b.top }, side === 'l' ? PAIR_COLORS[k % 8] : '#64748B', 'is-rubber');
+            lines();
+            const over = overAt(ev);
+            box.querySelectorAll('.tvm-item').forEach(x => x.classList.toggle('is-over', x === over));
+          };
+          const up = (ev) => {
+            window.removeEventListener('pointermove', move);
+            window.removeEventListener('pointerup', up);
+            window.removeEventListener('pointercancel', up);
+            if (!dragging) return; // chạm thường: sự kiện click lo
+            rubber = '';
+            btn.dataset.dragged = '1';
+            const over = ev.type === 'pointerup' ? overAt(ev) : null;
+            if (!over) { pick = null; draw(); return; }
+            const k2 = Number(over.dataset.k);
+            if (side === 'l') link(k, k2); else link(k2, k);
+          };
+          window.addEventListener('pointermove', move, { passive: false });
+          window.addEventListener('pointerup', up);
+          window.addEventListener('pointercancel', up);
+        });
+        btn.addEventListener('click', () => {
+          if (btn.dataset.dragged) { delete btn.dataset.dragged; return; }
+          choose(side, k);
+        });
+      });
     };
     draw();
   },
