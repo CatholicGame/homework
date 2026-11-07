@@ -11,6 +11,9 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
+/** Tên chương trình trên màn LED (tên tạm, chủ dự án chốt; '\n' = xuống dòng). Không dùng tên chương trình truyền hình có thật. */
+const SHOW_NAME = 'Đấu Trường Nhí';
+
 const CSS = `
 .dt-stage { position: fixed; inset: 0; z-index: 60; background: #050a24; overflow: hidden; color: #eaf2ff; font-family: 'Segoe UI', system-ui, sans-serif; touch-action: none; }
 .dt-stage canvas { display: block; }
@@ -324,6 +327,31 @@ export function render(app, onBack) {
     let mode = 'idle', timer = null, phase = 'none', t0 = 0, revealAt = 0;
 
     function rr(c, x, y, w, h, r) { c.beginPath(); c.roundRect(x, y, w, h, r); }
+    /* Ảnh màn chờ (của chủ dự án, public/dautruong/screen.jpg 1600 × 900): chữ tên cũ trong ảnh đã được phủ bằng một băng tên
+       trống (PLATE), tên chương trình vẽ lúc chạy từ SHOW_NAME để đổi tên không phải sửa ảnh. */
+    const PLATE = { cx: 808, top: 245, bottom: 508, w: 840 };
+    const poster = new Image();
+    poster.src = `${import.meta.env.BASE_URL}dautruong/screen.jpg`;
+    function drawPoster(c, W, H, sub) {
+      c.drawImage(poster, 0, 0, W, H);
+      const lines = SHOW_NAME.split('\n');
+      const size = lines.length > 1 ? 104 : 132;
+      c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.lineJoin = 'round';
+      lines.forEach((t, k) => {
+        let fs = size;
+        c.font = `900 ${fs}px "Segoe UI", system-ui, sans-serif`;
+        while (c.measureText(t).width > PLATE.w && fs > 48) { fs -= 4; c.font = `900 ${fs}px "Segoe UI", system-ui, sans-serif`; }
+        const y = lines.length > 1 ? PLATE.top + 120 + k * 118 : PLATE.top + 170;
+        const gold = c.createLinearGradient(0, y - fs, 0, y);
+        gold.addColorStop(0, '#fff6c2'); gold.addColorStop(0.55, '#ffd23f'); gold.addColorStop(1, '#f59e0b');
+        c.lineWidth = 16; c.strokeStyle = '#0b2a8a'; c.strokeText(t, PLATE.cx, y);
+        c.lineWidth = 6; c.strokeStyle = '#ffffff'; c.strokeText(t, PLATE.cx, y);
+        c.fillStyle = k === 0 && lines.length > 1 ? '#ffffff' : gold; c.fillText(t, PLATE.cx, y);
+      });
+      c.font = '700 40px "Segoe UI", system-ui, sans-serif';
+      c.lineWidth = 6; c.strokeStyle = '#0b2a8a'; c.strokeText(sub, PLATE.cx, PLATE.bottom);
+      c.fillStyle = '#ffffff'; c.fillText(sub, PLATE.cx, PLATE.bottom);
+    }
     function drawScreen(now) {
       const c = scrCanvas.getContext('2d'); const W = 1600, H = 900; const R = ROUNDS[mode];
       const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#071653'); g.addColorStop(1, '#1a0b52');
@@ -337,6 +365,10 @@ export function render(app, onBack) {
       }
       c.restore();
       c.textAlign = 'center';
+      if ((mode === 'idle' || mode === 'open') && poster.complete && poster.naturalWidth) {
+        drawPoster(c, W, H, mode === 'open' ? 'Chào mừng 4 nhà thông thái nhí!' : R.sub);
+        scrTex.needsUpdate = true; return;
+      }
       if (!R.sec || phase === 'none') {
         c.shadowColor = R.a; c.shadowBlur = 40; c.fillStyle = '#fff'; c.font = '900 170px Segoe UI'; c.fillText(R.title, W / 2, 430);
         c.shadowBlur = 0; c.fillStyle = R.a; c.font = '600 60px Segoe UI'; c.fillText(R.sub, W / 2, 540);
