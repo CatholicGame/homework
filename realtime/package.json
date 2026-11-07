@@ -1,0 +1,13 @@
+{
+  "name": "thandong-rooms",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node dev.mjs",
+    "test": "node test-show.mjs && node test.mjs && node test-arena.mjs",
+    "deploy": "npx wrangler deploy"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

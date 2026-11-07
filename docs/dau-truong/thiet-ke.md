@@ -68,11 +68,11 @@ Bản mẫu chỉ dùng hình khối đơn giản để duyệt bố cục.
 | 0:00–2:00 | **Mở màn** | | Nhạc hiệu, đèn quét, hai MC chào cả phòng, giới thiệu môn và lớp |
 | 2:00–7:00 | **Vòng Chọn** | Cả phòng | 8 câu (4 Toán, 4 TV), 12 giây/câu; 4 bạn cao điểm nhất lên bục |
 | 7:00–9:00 | Mời lên bục | 4 thí sinh | MC gọi tên từng bạn, bạn ấy đi từ ghế lên bục, khán phòng vỗ tay |
-| 9:00–17:00 | **Khởi động** | 4 thí sinh + khán giả | 12 câu, 15 giây/câu |
+| 9:00–17:00 | **Khởi động** | 4 thí sinh + khán giả | Lượt cá nhân + lượt chung bấm chuông, 20 giây/câu |
 | 17:00–19:00 | Khán phòng giữa giờ | Khán giả | Bảng điểm thí sinh + top 5 khán giả, 2 câu chớp nhoáng cho khán giả |
-| 19:00–28:00 | **Tăng tốc** | 4 thí sinh + khán giả | 8 câu, 30 giây/câu, nhanh hơn nhiều điểm hơn |
+| 19:00–28:00 | **Tăng tốc** | 4 thí sinh + khán giả | 4 câu tư duy, 30 giây/câu, nhanh hơn nhiều điểm hơn |
 | 28:00–30:00 | Giải lao | Khán giả | 3 câu chớp nhoáng, nhạc nhẹ, thí sinh nghỉ |
-| 30:00–41:00 | **Về đích** | Từng thí sinh | Mỗi bạn 3 câu tự chọn độ khó, bạn khác bấm chuông giành quyền |
+| 30:00–41:00 | **Về đích** | Từng thí sinh | Mỗi bạn chọn gói 3 câu, Ngôi sao hy vọng, bạn khác bấm chuông giành quyền |
 | 41:00–42:00 | Câu hỏi phụ | Thí sinh hòa điểm | Chỉ khi hòa hạng nhất |
 | 42:00–45:00 | **Trao giải** | | Bục vinh danh, pháo giấy, Khán giả xuất sắc, sao thưởng |
 
@@ -99,36 +99,66 @@ thì chạm là chốt). Bục đã chốt: viền trắng, màn điểm "Đã c
 máy chủ khoá và **công bố kết quả**: màn lớn lật đáp án đúng, từng bục xanh / đỏ, điểm chạy số, MC đọc đáp án và lời giải thích ngắn.
 Khán giả cũng có hạn chót như thí sinh.
 
-### 5.1 Khởi động (làm nóng, dễ)
+### 5.0 Thời gian theo lớp và MC chủ trì
+
+Trẻ đọc chậm nên **câu nào cũng từ 30 giây**; lớp càng nhỏ càng nhiều giờ (hệ số lớp 1 ×1,5, lớp 2 ×1,3, lớp 3 ×1,15, lớp 4–5 ×1,
+làm tròn 5 giây; `TIME`, `SLOW`, `secs()` trong `games/dauTruong.js`). Đồng hồ chỉ chạy **sau khi MC đọc xong câu hỏi và bốn phương án**.
+
+| Giây | Lớp 1 | Lớp 2 | Lớp 3 | Lớp 4–5 |
+|---|---|---|---|---|
+| Khởi động | 45 | 40 | 35 | 30 |
+| Tăng tốc | 60 | 50 | 45 | 40 |
+| Về đích câu 10 / 20 / 30 điểm | 45 / 55 / 70 | 40 / 45 / 60 | 35 / 40 / 50 | 30 / 35 / 45 |
+| Bấm chuông được quyền, chọn đáp án | 25 | 20 | 15 | 15 |
+| Cửa sổ bấm chuông giành quyền | 8 | 7 | 6 | 5 |
+| Chọn gói / đặt Ngôi sao | 25 / 15 | 20 / 15 | 15 / 10 | 15 / 10 |
+
+**MC chủ trì mọi bước** (lời trong `src/dauTruong/mc.js`, từ [kich-ban-mc.md](kich-ban-mc.md) sửa theo luật mới): chào vòng và nêu luật,
+mời từng bạn vào lượt, trao lời khi đổi môn (anh Minh Toán, chị Mai Tiếng Việt), đọc số câu, câu hỏi và từng phương án (ô đáp án
+bật ra đúng lúc MC đọc tới), "Mời … trả lời!" rồi mới đếm giờ; ai chốt / bấm chuông / hết giờ thì MC nói rồi mới lật; lật xong MC
+đọc đáp án, kết quả, gọi tên khán giả dẫn đầu, tổng kết lượt và vòng, rồi mới sang câu sau. Chương trình chạy theo lời MC, không
+theo hẹn giờ cố định. Giọng: **giọng đọc của trình duyệt** (`src/dauTruong/mcVoice.js`: anh Minh giọng nam, chị Mai giọng nữ của
+máy; chỉ một giọng thì khác cao độ; lớp 1–2 đọc chậm hơn), sau này thay bằng Azure giữ nguyên cách gọi `mcSpeak(text, mc)`.
+Lời MC hiện **phụ đề** trên thanh trên cùng; nút 🔊 tắt tiếng (nhớ ở `dt-mute`): tắt tiếng hay máy không có giọng tiếng Việt thì
+chương trình vẫn chạy theo phụ đề, chờ đủ thời gian đọc.
+
+### 5.1 Khởi động (làm nóng, tích điểm ban đầu)
 
 | | |
 |---|---|
-| Câu | 12 câu xen kẽ Toán / TV, độ khó tăng dần 1 → 3 |
-| Thời gian | 15 giây (lớp 1–2: 20 giây vì các em đọc chậm hơn) |
-| Dạng | Chọn 1 trong 4, Đúng / Sai, So sánh (> < =) |
-| Điểm | Đúng +10, sai / không trả lời 0 |
-| Hiệu ứng | Màu **xanh ngọc + lam**, đèn quét chậm, neon thở theo nhịp; 5 giây cuối vòng đồng hồ đỏ, tích tắc |
+| Lượt cá nhân | Mỗi thí sinh lần lượt trả lời **câu riêng** của mình (bản mẫu: 2 câu mỗi bạn), ba bục kia mờ đèn. Đúng +10, sai / hết giờ 0 |
+| Lượt chung | Sau lượt cá nhân (bản mẫu: 4 câu): cả 4 bạn thấy câu, **bấm chuông giành quyền**; ai bấm trước được MC gọi tên rồi chọn đáp án. Đúng +10, **sai −5**. Không ai bấm thì qua câu |
+| Thời gian | Theo lớp (mục 5.0, lớp 4–5: 30 giây). Người phải trả lời đã chốt (lượt cá nhân) hoặc người giành quyền đã chọn thì **lật ngay**, bỏ thời gian còn lại |
+| Câu | Xen kẽ Toán / Tiếng Việt theo tiến độ học (mục 7). Dạng chọn 1 trong 4 |
+| Hiệu ứng | Màu **xanh ngọc + lam**; bục đến lượt viền vàng, đèn rọi mạnh; bấm chuông: chuông và vòng bục nháy màu của bạn ấy, màn LED ghi "🔔 … giành quyền trả lời" |
 
-### 5.2 Tăng tốc (nhiều bước, ai nhanh hơn)
-
-| | |
-|---|---|
-| Câu | 8 câu (4 Toán, 4 TV), độ khó 2 → 4 |
-| Thời gian | 30 giây |
-| Dạng | Sắp xếp, Ghép đôi, Chọn nhiều, Điền thẻ, Chạm vào hình / từ |
-| Điểm | Đúng theo **thứ tự thời gian chốt**: nhanh nhất +40, rồi +30, +20, +10. Sai 0 |
-| Công bố | Màn lớn hiện 4 thanh thời gian bay vào theo thứ tự (5,2 giây, 7,8 giây…), thanh đúng xanh kèm điểm, thanh sai xám |
-| Hiệu ứng | Màu **cam + hồng**, đèn quét nhanh gấp 3, nhạc nền nhịp nhanh dần theo đồng hồ |
-
-### 5.3 Về đích (chiến thuật, từng bạn một)
+### 5.2 Tăng tốc (4 câu tư duy, ai nhanh hơn)
 
 | | |
 |---|---|
-| Thứ tự | Bạn **ít điểm nhất đi trước** (có cơ hội đuổi kịp) |
-| Chọn mức | Trước mỗi câu, bạn đang chơi chạm một trong ba **độ cao**: Dễ 10 điểm (15 giây), Vừa 20 (20 giây), Khó 30 (25 giây). 3 câu, mức tự chọn từng câu |
-| Thẻ Nhân đôi | Mỗi bạn một thẻ cho cả vòng, dùng trước một câu: đúng được ×2, **sai bị trừ bằng điểm câu** (rủi ro có chủ ý). Không dùng thẻ thì sai không bị trừ |
-| Giành quyền | Bạn đang chơi sai hoặc hết giờ: 3 bạn kia có **5 giây bấm chuông**. Ai bấm trước được trả lời trong 10 giây: đúng +điểm câu, sai không bị trừ |
-| Hiệu ứng | Màu **vàng + tím**; đèn rọi tập trung một bục, ba bục kia mờ; bấm chuông: chuông và khung đèn bục ấy nháy màu của bạn ấy, tiếng chuông riêng; thẻ Nhân đôi: chữ ×2 vàng bay lên trên bục |
+| Câu | **4 câu**, mỗi câu một dạng: **dãy số** (số tiếp theo), **dãy hình** (hình màu lặp / tăng dần), **sắp xếp dữ kiện** (ví dụ "Lan cao hơn Mai… xếp từ thấp đến cao", hoặc xếp số / ghép câu), **tư duy / suy luận hình ảnh** (thứ trong tuần, ai cao nhất, đếm chân, tuổi, phép tính bằng hình quả 🍎 + 🍌). Sinh theo lớp (`speedQ` trong `src/dauTruong/questions.js`) |
+| Thời gian | Theo lớp (mục 5.0, lớp 4–5: 40 giây); cả 4 bạn đã chốt thì lật ngay |
+| Ai chơi | **Cả 4 thí sinh cùng trả lời** |
+| Điểm | Đúng xếp theo **thời gian chốt**: nhanh nhất +40, rồi +30, +20, +10. Sai 0 |
+| Hiệu ứng | Màu **cam + hồng**, đèn quét nhanh; màn LED ghi dạng câu ("DÃY HÌNH · CÂU 2/4"); lật: từng tiếng "ting" theo thứ tự chốt |
+
+### 5.3 Về đích (chọn gói, Ngôi sao hy vọng, giành quyền)
+
+| | |
+|---|---|
+| Thứ tự | Bạn **ít điểm nhất đi trước** |
+| Chọn gói | Đầu lượt, bạn đang chơi chọn một **gói 3 câu** (15 giây): **30** (10 · 10 · 10), **50** (10 · 20 · 20), **70** (20 · 20 · 30), **90** (30 · 30 · 30). Thời gian câu theo điểm và lớp (mục 5.0); câu 20, 30 lấy mức khó |
+| Ngôi sao hy vọng | Mỗi lượt **một lần**: trước mỗi câu hỏi "Có đặt Ngôi sao hy vọng không?" Đặt sao: đúng **×2**, sai **trừ bằng điểm câu**. Không đặt: sai không bị trừ |
+| Giành quyền | Bạn đang chơi sai hoặc hết giờ: đáp án sai tô đỏ, chưa lộ đáp án đúng; 3 bạn kia có **5 giây bấm chuông** (lớp nhỏ lâu hơn). Ai bấm trước, MC gọi tên, rồi bạn ấy chọn: đúng **+điểm câu**, sai không bị trừ |
+| Hiệu ứng | Màu **vàng + tím**; đèn rọi tập trung bục đang chơi, ba bục kia mờ; màn LED hiện bốn ô gói, ngôi sao sáng khi đặt; bục đặt sao có ⭐ cạnh tên |
+
+### 5.5 Khán giả cũng thi
+
+- Khán giả trả lời **mọi câu** của cả ba vòng (cả lượt cá nhân của thí sinh), không cần bấm chuông, có **điểm riêng**: đúng +10
+  (Khởi động), +20 (Tăng tốc), Về đích bằng điểm câu. Khán giả không làm câu lật sớm: thí sinh chốt xong là lật.
+- Điểm hiện **trên đầu từng bạn**: thẻ nổi, điểm (to, vàng) ở trên, tên ở dưới; vừa đúng thì nền xanh, thẻ của mình viền vàng.
+  Thẻ chỉ hiện khi camera nhìn về phía khán phòng (sau mỗi câu camera lướt sang Khán phòng), để không chồng lên sân khấu.
+- Trên dải trả lời của khán giả: "Điểm của bạn …". Trao giải ghi 3 **Khán giả xuất sắc** trên màn LED.
 
 ### 5.4 Câu hỏi phụ và Trao giải
 
@@ -168,6 +198,18 @@ Mọi nút tối thiểu 64 px, chữ lớn, lớp 1 có hình minh họa. Kết
 ---
 
 ## 7. Ngân hàng câu hỏi
+
+**Đang dùng ở bản mẫu (2026-11-07): `src/dauTruong/questions.js`, chỉ hỏi bài đã học tới hôm nay.**
+- Tiến độ: năm học bắt đầu thứ Hai đầu tiên từ 5/9, đếm số tuần trọn; HK I = 18 tuần. Toán đến Bài ≈ số bài HK I
+  (`routeTests/g<lớp>/plan.js`, cuối kì) × tuần / 18 (lớp 3 ngày 07/11/2026: Bài 19). Tiếng Việt: bài có `week` ≤ số tuần.
+- Toán: câu trắc nghiệm 4 phương án (`type: 'mc'`, có `bai`, không hình) trong đề Kiểm tra theo lộ trình lớp 1–5; Tăng tốc sinh
+  câu xếp 4 số trong phạm vi số của lớp. Tiếng Việt: sinh từ dữ liệu 🧰 Công cụ Tiếng Việt 2 / 3 (nhóm từ, tìm từ, nối vế câu,
+  dấu câu, ghép câu 4 mảnh). Lớp 1, 4, 5 chưa có dữ liệu Tiếng Việt theo bài nên tạm chỉ có Toán.
+- Số câu mỗi vòng (`KD`, `TT`, `VD` trong `games/dauTruong.js`): Khởi động 4 × 2 cá nhân + 4 chung = 12, Tăng tốc 4, Về đích 4 × 3 = 12;
+  câu Khởi động / Về đích xen kẽ Toán / Tiếng Việt;
+  hết câu thì "Hết vòng" rồi tự sang vòng sau. Mỗi câu: bạn đúng có cột đèn rọi + pháo giấy trên bục trước khi sang câu mới.
+
+Kế hoạch đầy đủ (chưa làm):
 
 ```
 src/dauTruong/bank/g3/tv.json      // Tiếng Việt: soạn tay, mỗi câu một dòng
@@ -299,8 +341,14 @@ Chỉ màn ngang (như trường quay). Nửa trên là cảnh 3D, **dải trả
    thí sinh, clip nói cho MC.
 4. Ngân hàng **lớp 3** trước: khuôn Toán + 300 câu Tiếng Việt, `scripts/dautruong-check.mjs`.
 5. `realtime/arena.js` + `src/dauTruong/rules.js` + test chạy cả lượt.
+   **Đã làm phần vào phòng (2026-11-07):** sảnh ngoài `src/dauTruong/lobby.js` (giờ lượt tới, đếm ngược, số bạn trong phòng),
+   `src/dauTruong/flow.js` (chọn 1 trong 7 nhân vật + tên MC gọi dùng chung túi đồ với Ai tài năng nhất, sơ đồ ghế 5 × 10 có mặt bạn
+   đang ngồi, thẻ chờ giờ + "Em muốn lên bục", báo mất kết nối / nối lại giữ ghế / Thử lại / phòng ngoài giờ, chơi thử một mình khi
+   chưa có máy chủ), phòng `arena-g<lớp>` trong `realtime/room.js` (lịch tạm `SLOTS` 19:30 mỗi ngày trong rules.js, chờ tab 📅 Lịch;
+   máy dev và phòng thử bắt đầu 90 giây sau người đầu tiên, nút Bắt đầu ngay), kiểm thử `realtime/test-arena.mjs`.
+   Tới giờ: tạm chạy bản mẫu vòng thi; còn lại là máy chủ cầm chương trình (Vòng Chọn, mời lên bục, ba vòng, trao giải).
 6. Trình duyệt `src/dauTruong/`: vẽ theo trạng thái, dải trả lời 8 dạng, màn bục, hiệu ứng, hai MC; tab 📅 Lịch, thẻ trang chủ.
-7. Âm thanh, nhạc hiệu, kịch bản MC đầy đủ.
+7. Âm thanh, nhạc hiệu, kịch bản MC đầy đủ (lời đã soạn: [kich-ban-mc.md](kich-ban-mc.md)).
 8. Lớp 1, 2, 4, 5.
 
 ## 14. Đã quyết (2026-11-07)

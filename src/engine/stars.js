@@ -116,7 +116,7 @@ export function getEarnedKeys() {
 
 // Tiền tố khoá sao của từng sách → lớp (1–5; -1 = Tiền tiểu học, xem PRESCHOOL trong data/grades.js).
 // Thêm sách mới thì thêm một dòng.
-const BOOK_GRADE = { exam: 3, worksheet: 3, workbook: 3, practice: 3, g3games: 3, drill: 3, workbook2: 2, workbook1: 1, workbook1b: 1, drill2: 2, g2games: 2, pre1: -1, pre2: -1, pre3: -1, pre4: -1, pre5: -1, pre6: -1, g1bird: 1, shark1: 1, ufo1: 1, tool4: 4, drill4: 4, g4games: 4, textbook4: 4, tool5: 5, drill5: 5, memory3: 3, route1: 1, route2: 2, route3: 3, route4: 4, route5: 5, lifep: -1, life1: 1, life2: 2, life3: 3, life4: 4, life5: 5, tv3: 3, spell3: 3, tvtool3: 3, tvtool2: 2 };
+const BOOK_GRADE = { exam: 3, worksheet: 3, workbook: 3, practice: 3, g3games: 3, drill: 3, workbook2: 2, workbook1: 1, workbook1b: 1, drill2: 2, g2games: 2, pre1: -1, pre2: -1, pre3: -1, pre4: -1, pre5: -1, pre6: -1, g1bird: 1, shark1: 1, ufo1: 1, tool4: 4, drill4: 4, g4games: 4, textbook4: 4, tool5: 5, drill5: 5, memory3: 3, route1: 1, route2: 2, route3: 3, route4: 4, route5: 5, lifep: -1, life1: 1, life2: 2, life3: 3, life4: 4, life5: 5, tv3: 3, spell3: 3, tvtool3: 3, tvtool2: 2, thandong1: 1, thandong2: 2, thandong3: 3, thandong4: 4, thandong5: 5 };
 
 /**
  * Sao của một lớp theo từng khoảng thời gian (giờ máy):
@@ -173,6 +173,24 @@ export function awardStars(key, q, { silent = false } = {}) {
     // Cứ đủ số bài (solvesPerSpin) thì được 1 lượt quay sticker (báo sau khi hiệu ứng sao bay xong).
     if (recordSolveForSpin()) setTimeout(showSpinToast, 1200);
   }
+  return n;
+}
+
+/**
+ * Trao đúng `n` sao (không theo bảng độ khó) một lần cho khoá `key`: trò chơi thưởng theo kết quả, vd. ghế nóng "Ai tài năng nhất?"
+ * (src/thanDong/engine/seeds.js, khoá thandong<lớp>:…). Trả số sao vừa nhận (0 nếu khoá đã nhận). toast: hiện hiệu ứng sao của app.
+ */
+export function awardFixedStars(key, n, { toast = true } = {}) {
+  n = Math.round(n);
+  if (!(n > 0)) return 0;
+  const d = loadLedger();
+  if (key in d.earned) return 0;
+  d.earned[key] = n;
+  d.at[key] = dayKey();
+  saveLedger(d);
+  window.dispatchEvent(new CustomEvent('tth:stars-changed'));
+  recordSolve(n);
+  if (toast) showStarToast(n);
   return n;
 }
 

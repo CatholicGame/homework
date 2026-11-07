@@ -224,7 +224,11 @@ let loginError = ''; // lỗi đăng nhập qua máy chủ, hiện một lần t
 let profileReturn = 'home'; // màn quay về sau khi sửa hồ sơ
 let currentPage = null;
 // opts (mở từ 🗺️ Bản đồ kiến thức): { open: 'bai-N' mở thẳng một bài của sách, back: trang quay về thay trang chủ }.
+// Trang đang mở trả về hàm dọn (render(...) trả function, vd. trường quay 3D Ai tài năng nhất: dừng vòng vẽ, đóng kết nối phòng)
+let pageDispose = null;
 function navigate(gameId, opts = {}) {
+  try { pageDispose?.(); } catch (e) { console.warn('[nav] dispose', e); }
+  pageDispose = null;
   currentPage = gameId || 'home';
   const app = document.getElementById('app');
   app.innerHTML = '';
@@ -401,6 +405,11 @@ function navigate(gameId, opts = {}) {
     'grade4-ufo': () => import('./games/gradeUfo.js').then(m => ({ render: m.ufoRender(4) })),
     'grade5-ufo': () => import('./games/gradeUfo.js').then(m => ({ render: m.ufoRender(5) })),
     'dautruong-preview': () => import('./games/dauTruong.js'),
+    'grade1-thandong': () => import('./games/thanDong.js').then(m => ({ render: m.thanDongRender(1) })),
+    'grade2-thandong': () => import('./games/thanDong.js').then(m => ({ render: m.thanDongRender(2) })),
+    'grade3-thandong': () => import('./games/thanDong.js').then(m => ({ render: m.thanDongRender(3) })),
+    'grade4-thandong': () => import('./games/thanDong.js').then(m => ({ render: m.thanDongRender(4) })),
+    'grade5-thandong': () => import('./games/thanDong.js').then(m => ({ render: m.thanDongRender(5) })),
     'grade4-tools': () => import('./games/grade4Tools.js'),
     'grade4-textbook': () => import('./games/grade4Textbook.js'),
     'grade5-tools': () => import('./games/grade5Tools.js'),
@@ -426,7 +435,8 @@ function navigate(gameId, opts = {}) {
       // Thẻ trong một nhóm (Challenge games, Tiếng Việt): nút quay lại về trang của nhóm, không về thẳng trang chủ.
       const back = opts.back || getGrade(getProfileGrade())?.games.find(g => g.id === gameId)?.group || 'home';
       // backOpen: mở lại đúng chỗ ở trang trước (vd. chữa bài Tiếng Việt → trò luyện luật → quay về câu đang chữa).
-      mod.render(app, () => navigate(back, opts.backOpen ? { open: opts.backOpen } : {}), { onSignIn: user.guest ? goSignIn : null, open: opts.open, navigate });
+      const d = mod.render(app, () => navigate(back, opts.backOpen ? { open: opts.backOpen } : {}), { onSignIn: user.guest ? goSignIn : null, open: opts.open, navigate });
+      if (typeof d === 'function') pageDispose = d;
     }).catch(() => {
       clearTimeout(loadingTimer);
       if (token !== navToken) return;

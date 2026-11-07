@@ -1,0 +1,129 @@
+/* Gặp gỡ online ở giao diện "Tươi sáng" (người dùng 2026-11-06: khắp nơi theo kiểu tươi sáng cho trẻ, trừ phần câu hỏi của
+   game show). Kính trắng sáng, chữ nâu tím, cam nắng làm màu nhấn, chữ tròn Nunito, góc bo to. Phần câu hỏi trường quay
+   (dải câu hỏi .ch-qov với đồng hồ / trợ giúp / bình chọn, thang hạt giống, thẻ kết quả, tấm séc, nút bỏ qua luật) giữ kiểu
+   truyền hình tối của church.css. Nạp sau church.css (world.js). Bản Tối / Sáng không đổi gì.
+   Ai tài năng nhất (homework): luôn bật, như giao diện mặc định của kinh-thanh. `:root:not([data-td-dark])` giữ đúng độ ưu tiên
+   của `:root[data-theme="sunny"]` gốc. */
+:root:not([data-td-dark]) .ch {
+  --ch-bg: #0b0d0b;
+  --ch-glass: rgba(255, 255, 255, 0.88); --ch-glass2: rgba(255, 160, 60, 0.1); --ch-glass3: rgba(255, 160, 60, 0.2);
+  --ch-line: rgba(196, 128, 60, 0.24); --ch-line2: rgba(196, 128, 60, 0.42);
+  --ch-text: #3a2e48; --ch-muted: rgba(58, 46, 72, 0.72); --ch-faint: rgba(58, 46, 72, 0.52);
+  --ch-gold: #c45a08; --ch-gold-bg: rgba(255, 170, 60, 0.24); --ch-gold-line: rgba(214, 110, 20, 0.5);
+  --ch-r: 16px; --ch-blur: blur(12px) saturate(1.3);
+  --ch-sans: 'Nunito', 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ch-shadow: 0 6px 20px rgba(40, 20, 0, 0.22);
+  font-weight: 600;
+}
+:root:not([data-td-dark]) :is(.ch-ic, .ch-chip, .ch-card, .ch-acts, .ch-go, .ch-time, .ch-msg, .ch-saint-in, .ch-views, .ch-camset,
+  .ch-quizdev, .ch-qjoin, .ch-qask, .ch-qwait, .ch-qstat, .ch-closet, .ch-shop, .ch-chat, .ch-leave-box, .ch-load-box) {
+  box-shadow: var(--ch-shadow);
+}
+:root:not([data-td-dark]) .ch :is(h2, b, strong) { font-weight: 800; }
+
+/* thanh trên, nút icon, thanh góc nhìn, thanh nút */
+:root:not([data-td-dark]) .ch-ic:hover { background: #fff; }
+:root:not([data-td-dark]) .ch-title { font-weight: 800; }
+:root:not([data-td-dark]) .ch-view[aria-pressed="true"] { background: rgba(64, 162, 240, 0.16); border-color: rgba(27, 118, 192, 0.45); color: #1b76c0; }
+:root:not([data-td-dark]) .ch-act.is-on { color: var(--ch-text); }
+:root:not([data-td-dark]) .ch-stick { background: rgba(255, 255, 255, 0.35); }
+:root:not([data-td-dark]) .ch-stick-knob { background: #fff; box-shadow: 0 2px 10px rgba(40, 20, 0, 0.35); }
+:root:not([data-td-dark]) .ch-load-credit { color: rgba(255, 255, 255, 0.6); }
+
+/* nút chữ chính (vàng) đậm hơn để nổi trên kính trắng */
+:root:not([data-td-dark]) :is(.ch-card-b button.is-go, .ch-do.is-go, .ch-sm-ok, .ch-qd-foot button[data-go="next"], .ch-qj-btn.is-go,
+  .ch-qw-btns .ch-qw-share, .ch-sh-btn.is-main, .ch-chat-form button) {
+  background: linear-gradient(180deg, #ffb547, #f08a1c); border-color: #e07b10; color: #fff;
+}
+:root:not([data-td-dark]) :is(.ch-card-b button.is-go, .ch-do.is-go) svg.i { color: #fff; }
+:root:not([data-td-dark]) :is(.ch-card-b button.is-go, .ch-do.is-go):hover { background: linear-gradient(180deg, #ffc067, #f39a35); }
+:root:not([data-td-dark]) .ch-lcol .ch-quizdev.is-online .ch-qd-foot button[data-go="next"] { background: linear-gradient(180deg, #ffb547, #f08a1c); color: #fff; border-color: #e07b10; }
+:root:not([data-td-dark]) .ch-lcol .ch-quizdev.is-online .ch-qd-foot button[data-go="off"]:hover { border-color: rgba(208, 48, 60, 0.6); color: #d0303c; }
+
+/* hộp thông tin chỗ thánh */
+:root:not([data-td-dark]) .ch-saint { background: rgba(40, 25, 10, 0.3); }
+:root:not([data-td-dark]) .ch-saint-in { background: rgba(255, 253, 248, 0.97); }
+:root:not([data-td-dark]) .ch-saint img { background: #f3ece0; }
+:root:not([data-td-dark]) .ch-saint p { color: var(--ch-text); font-weight: 500; }
+
+/* sơ đồ chọn ghế */
+:root:not([data-td-dark]) .ch-seatmap { background: rgba(40, 25, 10, 0.3); }
+:root:not([data-td-dark]) .ch-seatmap.is-entry { background: rgba(40, 25, 10, 0.45); }
+:root:not([data-td-dark]) .ch-sm-box { background: rgba(255, 253, 248, 0.97); }
+:root:not([data-td-dark]) :is(.ch-sm-seat, .ch-sm-legend i) { background: rgba(58, 46, 72, 0.07); border-color: rgba(58, 46, 72, 0.22); }
+:root:not([data-td-dark]) .ch-sm-seat.is-free:hover { background: rgba(64, 162, 240, 0.25); }
+:root:not([data-td-dark]) :is(.ch-sm-seat, .ch-sm-legend i).is-taken { background: #f1b8c4; border-color: transparent; }
+:root:not([data-td-dark]) :is(.ch-sm-seat, .ch-sm-legend i).is-mine { background: #3fbf7f; border-color: #2a9d63; }
+:root:not([data-td-dark]) :is(.ch-sm-seat, .ch-sm-legend i).is-pick { background: #f59e0b; border-color: #d97706; }
+:root:not([data-td-dark]) .ch-sm-ok { color: #fff; }
+
+/* bảng thử Đố vui, đăng ký chơi, chờ người, lời mời trả lời, thống kê khán phòng */
+:root:not([data-td-dark]) :is(.ch-qd-jump select, .ch-qd-setup select, .ch-qd-friend input, .ch-qd-opts button, .ch-qd-foot button,
+  .ch-qj-btn, .ch-qw-btns button) {
+  background: #fff; border-color: var(--ch-line2); color: var(--ch-text);
+}
+:root:not([data-td-dark]) .ch-qd-opts button:not(:disabled):hover { border-color: #f08a1c; color: #c45a08; }
+:root:not([data-td-dark]) .ch-qd-opts button.is-pick { background: #f08a1c; border-color: #e07b10; color: #fff; }
+:root:not([data-td-dark]) :is(.ch-qd-helps button, .ch-qd-friend button) { background: #f4ebff; border-color: #c9a7f2; color: #6b2fb3; }
+:root:not([data-td-dark]) .ch-qd-helps button.is-active { background: #f59e0b; border-color: #d97706; color: #fff; box-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
+:root:not([data-td-dark]) .ch-qask .ch-qa-ok:hover { background: rgba(255, 170, 60, 0.14); }
+:root:not([data-td-dark]) .ch-qw-dots i.is-on { box-shadow: 0 0 6px rgba(240, 138, 28, 0.6); }
+:root:not([data-td-dark]) .ch-qstat-bar i { background: linear-gradient(90deg, #7f93c4, #c9d6f2 45%, #8a9dcc); }
+:root:not([data-td-dark]) .ch-qstat-bar.is-right i { background: linear-gradient(90deg, #189a52, #5fdc98 45%, #1fae5f); }
+:root:not([data-td-dark]) .ch-qstat-bar.is-mine b { color: #0a84c6; }
+
+/* Tủ đồ, Vật phẩm, nhân vật xem trước */
+:root:not([data-td-dark]) .ch-cl-apply { background: linear-gradient(0deg, rgba(255, 170, 60, 0.24), rgba(255, 255, 255, 0.7)); }
+:root:not([data-td-dark]) .ch-pv { background: radial-gradient(ellipse 60% 70% at 50% 58%, rgba(255, 236, 205, 0.35), rgba(50, 30, 15, 0.7)); }
+:root:not([data-td-dark]) :is(.ch-pv-hint, .ch-sh-card > i, .ch-sh-turn) { background: rgba(255, 255, 255, 0.92); }
+:root:not([data-td-dark]) .ch-seg { background: rgba(255, 255, 255, 0.7); }
+:root:not([data-td-dark]) .ch-seg > button { font-weight: 700; }
+:root:not([data-td-dark]) .ch-seg > button[aria-selected="true"] { color: #fff; background: linear-gradient(180deg, #5bb3f5, #2a86d4); box-shadow: none; }
+:root:not([data-td-dark]) .ch-seg-dot { color: #fff; background: #f08a1c; }
+:root:not([data-td-dark]) :is(.ch-cl-nick input, .ch-chat-form input) { background: #fff; }
+:root:not([data-td-dark]) .ch-cl-nickmsg { color: #c0392b; }
+:root:not([data-td-dark]) .ch-cl-bpic, :root:not([data-td-dark]) :is(.ch-sh-pic, .ch-sh-big) { background-color: rgba(58, 46, 72, 0.06); }
+:root:not([data-td-dark]) :is(.ch-sh-pic, .ch-sh-big) { box-shadow: inset 0 -30px 40px -24px rgba(58, 46, 72, 0.18); }
+:root:not([data-td-dark]) .ch-cl-pack { background: color-mix(in srgb, var(--tc) 14%, #fff); }
+:root:not([data-td-dark]) .ch-cl-sw button { border-color: rgba(58, 46, 72, 0.2); }
+/* thẻ món (người dùng 2026-11-06: thẻ màu be đục, chữ chìm): bảng gần như đặc màu kem, thẻ trắng có bóng, chữ đậm tối,
+   viền trái / mép dưới theo màu hạng đậm, nhãn hạng đậm lại để đọc được trên nền sáng */
+:root:not([data-td-dark]) :is(.ch-closet, .ch-shop) { background: rgba(255, 250, 242, 0.97); }
+:root:not([data-td-dark]) :is(.ch-cl-item, .ch-sh-card) {
+  background: #fff; border-color: rgba(58, 46, 72, 0.13); color: #2a2036;
+  box-shadow: 0 1px 3px rgba(60, 35, 10, 0.1);
+}
+:root:not([data-td-dark]) .ch-cl-item { border-left: 4px solid var(--tc, rgba(58, 46, 72, 0.13)) !important; }
+:root:not([data-td-dark]) .ch-sh-card { box-shadow: 0 1px 3px rgba(60, 35, 10, 0.1), inset 0 -3px 0 var(--tc, transparent); }
+:root:not([data-td-dark]) :is(.ch-cl-item > span, .ch-sh-name) { font-weight: 800; font-size: 13.5px; color: #2a2036; }
+:root:not([data-td-dark]) :is(.ch-cl-item, .ch-sh-card) small { color: #6b5a78; font-weight: 600; }
+:root:not([data-td-dark]) :is(.ch-cl-item:hover, .ch-sh-card:hover) { border-color: #f0a24a; box-shadow: 0 3px 10px rgba(240, 138, 28, 0.22); }
+:root:not([data-td-dark]) .ch-cl-item.is-locked > span { color: #5d4f6a; }
+:root:not([data-td-dark]) .ch-tier { color: color-mix(in srgb, var(--tc) 62%, #241a30); font-weight: 800; }
+:root:not([data-td-dark]) .ch-tier::before { box-shadow: none; }
+:root:not([data-td-dark]) :is(.ch-cl-price, .ch-sh-card > i.ch-cl-price) { color: #c45a08; font-weight: 800; }
+:root:not([data-td-dark]) :is(.ch-cl-price.is-short, .ch-sh-card > i.ch-cl-price.is-short) { color: #8a7a96; }
+:root:not([data-td-dark]) .ch-cl-item.is-worn { background: #fff1dc; border-color: #f08a1c; }
+:root:not([data-td-dark]) .ch-sh-card.is-pick { border-color: #f08a1c; box-shadow: 0 0 0 2px rgba(240, 138, 28, 0.35); }
+:root:not([data-td-dark]) .ch-msg { background: rgba(255, 255, 255, 0.97); color: #2a2036; font-weight: 700; }
+:root:not([data-td-dark]) .ch-cl-card.is-got .ch-cl-pic { box-shadow: 0 2px 10px rgba(120, 70, 20, 0.2); }
+:root:not([data-td-dark]) .ch-sh-detail { background: linear-gradient(135deg, rgba(255, 170, 60, 0.18), rgba(255, 255, 255, 0.75)); }
+:root:not([data-td-dark]) .ch-badge { box-shadow: 0 0 0 2px #fff; }
+
+/* hỏi lại khi rời, chat, bong bóng */
+:root:not([data-td-dark]) .ch-leave { background: rgba(40, 25, 10, 0.35); }
+:root:not([data-td-dark]) .ch-chat-log li b { color: #2f8a3e; }
+:root:not([data-td-dark]) .ch-bub { color: var(--ch-text); background: rgba(255, 255, 255, 0.96); font-weight: 600; }
+:root:not([data-td-dark]) .ch-bub::after { border-top-color: rgba(255, 255, 255, 0.96); }
+
+/* Phần câu hỏi của game show: giữ kiểu truyền hình tối và chữ Be Vietnam Pro như bản gốc */
+:root:not([data-td-dark]) :is(.ch-qov, .ch-ladder, .ch-result, .ch-cheque, .ch-skiprules) {
+  --ch-glass: rgba(20, 25, 21, 0.72); --ch-glass2: rgba(200, 225, 190, 0.06); --ch-glass3: rgba(200, 225, 190, 0.12);
+  --ch-line: rgba(170, 200, 160, 0.14); --ch-line2: rgba(170, 200, 160, 0.28);
+  --ch-text: #e9efe6; --ch-muted: rgba(233, 239, 230, 0.64); --ch-faint: rgba(233, 239, 230, 0.42);
+  --ch-gold: #e2bd6b; --ch-gold-bg: rgba(150, 108, 40, 0.42); --ch-gold-line: rgba(226, 189, 107, 0.55);
+  --text: #e9efe6; --muted: rgba(233, 239, 230, 0.64); --line: rgba(170, 200, 160, 0.14); --line2: rgba(170, 200, 160, 0.28);
+  --ch-r: 12px;
+  --ch-sans: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--ch-sans); font-weight: 400; color: var(--ch-text);
+}
