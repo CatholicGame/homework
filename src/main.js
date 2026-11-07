@@ -400,6 +400,7 @@ function navigate(gameId, opts = {}) {
     'grade3-ufo': () => import('./games/gradeUfo.js').then(m => ({ render: m.ufoRender(3) })),
     'grade4-ufo': () => import('./games/gradeUfo.js').then(m => ({ render: m.ufoRender(4) })),
     'grade5-ufo': () => import('./games/gradeUfo.js').then(m => ({ render: m.ufoRender(5) })),
+    'dautruong-preview': () => import('./games/dauTruong.js'),
     'grade4-tools': () => import('./games/grade4Tools.js'),
     'grade4-textbook': () => import('./games/grade4Textbook.js'),
     'grade5-tools': () => import('./games/grade5Tools.js'),

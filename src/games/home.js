@@ -8,6 +8,9 @@ import { getProfile, getProfileGrade, avatarUrl, displayName } from '../engine/p
 import { getGrade } from '../data/grades.js';
 import { getSpinStatus, countOwned, getSets } from '../engine/stickers.js';
 import { isAdminUser } from '../engine/admin.js';
+
+/** Thẻ `admin: true` (bản mẫu chờ duyệt) chỉ hiện với tài khoản admin. */
+const visible = (g) => !g.admin || isAdminUser();
 import { getBoardGradeStars } from '../engine/leaderboard.js';
 import { getCloudStatus, syncNow } from '../engine/cloudSync.js';
 import { getLang, setLang, hasEnglish, LANGS } from '../engine/i18n.js';
@@ -123,7 +126,7 @@ function hubCard(id, list) {
 export function renderHub(app, navigate, hubId) {
   const grade = getGrade(getProfileGrade());
   const h = HUBS[hubId];
-  const games = (grade?.games || []).filter(g => g.group === hubId);
+  const games = (grade?.games || []).filter(g => g.group === hubId && visible(g));
   app.innerHTML = `
     <div class="home challenge-hub">
       <div class="lb-top">
@@ -146,7 +149,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
   renderPage();
 
   function renderPage() {
-    const all = grade?.games || [];
+    const all = (grade?.games || []).filter(visible);
     // Thẻ có nhóm (Tiếng Việt, Challenge games) gom vào một thẻ của nhóm → trang danh sách riêng.
     const games = all.filter(g => !g.group);
     for (const id of HUB_IDS) {

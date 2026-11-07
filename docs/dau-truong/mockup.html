@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đấu Trường Nhí: bản mẫu sân khấu</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #050a24; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; color: #eaf2ff; }
+  canvas { display: block; }
+  .bar { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: calc(100% - 32px); }
+  .bar button { border: 1px solid rgba(140,190,255,.35); background: rgba(10,25,70,.78); color: #eaf2ff; padding: 9px 14px; border-radius: 10px; font-size: 14px; cursor: pointer; }
+  .bar button.on { background: #2a6cff; border-color: #8fb8ff; }
+  .cams { position: fixed; right: 14px; top: 14px; display: flex; flex-direction: column; gap: 6px; }
+  .cams button { border: 1px solid rgba(140,190,255,.35); background: rgba(10,25,70,.78); color: #eaf2ff; padding: 7px 12px; border-radius: 8px; cursor: pointer; }
+  .tag { position: fixed; left: 14px; top: 14px; background: rgba(10,25,70,.7); border-radius: 10px; padding: 8px 12px; font-size: 13px; line-height: 1.5; max-width: 320px; }
+  .tag b { color: #ffd45c; }
+</style>
+</head>
+<body>
+<div class="tag"><b>Đấu Trường Nhí</b>, bản mẫu sân khấu 3D<br>Kéo để xoay, cuộn để phóng to. Bấm các vòng thi bên dưới để xem đèn, đồng hồ và lật kết quả.</div>
+<div class="cams">
+  <button data-cam="wide">Toàn cảnh</button>
+  <button data-cam="front">Trực diện</button>
+  <button data-cam="players">Bục thí sinh</button>
+  <button data-cam="mc">MC</button>
+  <button data-cam="crowd">Khán phòng</button>
+</div>
+<div class="bar">
+  <button data-mode="idle" class="on">Chờ</button>
+  <button data-mode="open">Mở màn</button>
+  <button data-mode="khoidong">Khởi động</button>
+  <button data-mode="tangtoc">Tăng tốc</button>
+  <button data-mode="vedich">Về đích</button>
+  <button data-mode="win">Trao giải</button>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+/* ---------- Khung cảnh ----------
+   Hệ trục: x ngang (phải +), y lên, khán phòng ở phía +z nhìn về -z (sân khấu).
+   Sân khấu: đĩa r 8.5 tâm (0, 0, -3), cao 0.6. Màn LED lớn ở tường sau z = -11.
+   4 bục thí sinh trên một cung trước màn hình, quay ra khán phòng; bục MC bên trái phía trước.
+   Khán phòng: 5 bậc × 10 ghế (50 chỗ), lối đi giữa. */
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#040820');
+scene.fog = new THREE.Fog('#040820', 30, 60);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, 0.1, 200);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.maxPolarAngle = Math.PI * 0.49;
+controls.minDistance = 3; controls.maxDistance = 45;
+
+const CAMS = {
+  wide:    [[0, 9.5, 21], [0, 2.4, -3]],
+  front:   [[0, 3.2, 9.5], [0, 2.6, -3]],
+  players: [[1.2, 2.3, 6.2], [0, 1.5, -1.6]],
+  mc:      [[-2.9, 2.2, 4.8], [-6.3, 1.6, 0.4]],
+  crowd:   [[0, 5.5, -1.5], [0, 1.5, 12]],
+};
+let camTo = null;
+function cam(k, now = false) {
+  const [p, t] = CAMS[k];
+  if (now || reduce) { camera.position.set(...p); controls.target.set(...t); camTo = null; }
+  else camTo = { p: new THREE.Vector3(...p), t: new THREE.Vector3(...t) };
+}
+cam('wide', true);
+
+/* ---------- Vật liệu ---------- */
+const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: .45, metalness: .2, ...o });
+const glow = (c, i = 2) => new THREE.MeshStandardMaterial({ color: '#000', emissive: c, emissiveIntensity: i });
+const mat = {
+  floor: M('#0b1650', { roughness: .18, metalness: .55 }),
+  stage: M('#14237a', { roughness: .15, metalness: .6 }),
+  stageTop: M('#1b2f9c', { roughness: .12, metalness: .55 }),
+  wall: M('#0a1240', { roughness: .6 }),
+  panel: M('#16267e', { roughness: .3, metalness: .5 }),
+  white: M('#e9eefc', { roughness: .25, metalness: .3 }),
+  silver: M('#b8c4e6', { roughness: .2, metalness: .9 }),
+  seat: M('#2348c9', { roughness: .5 }),
+  tier: M('#101c5c', { roughness: .4, metalness: .3 }),
+  truss: M('#3a4366', { roughness: .4, metalness: .8 }),
+};
+/* Đèn neon theo vòng thi: mọi vật "neon" đổi màu cùng lúc. */
+const neon = { a: glow('#2fc8ff', 2.2), b: glow('#7b5cff', 2.2), gold: glow('#ffc93c', 1.6) };
+
+const add = (geo, m, x = 0, y = 0, z = 0, parent = scene) => {
+  const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; parent.add(o); return o;
+};
+
+/* ---------- Sàn, tường, màn hình ---------- */
+add(new THREE.PlaneGeometry(60, 60).rotateX(-Math.PI / 2), mat.floor);
+const STAGE_Z = -3;
+add(new THREE.CylinderGeometry(8.5, 8.8, 0.6, 96), mat.stage, 0, 0.3, STAGE_Z);
+add(new THREE.CylinderGeometry(6.2, 6.2, 0.04, 96), mat.stageTop, 0, 0.62, STAGE_Z);
+// vòng LED mép sân khấu + vòng trong
+add(new THREE.TorusGeometry(8.62, 0.05, 8, 160).rotateX(Math.PI / 2), neon.a, 0, 0.6, STAGE_Z);
+add(new THREE.TorusGeometry(6.2, 0.045, 8, 160).rotateX(Math.PI / 2), neon.b, 0, 0.65, STAGE_Z);
+add(new THREE.TorusGeometry(8.8, 0.04, 8, 160).rotateX(Math.PI / 2), neon.b, 0, 0.05, STAGE_Z);
+// tia sáng trên mặt sân khấu (hoa văn ngôi sao 8 cánh của riêng chương trình)
+for (let i = 0; i < 16; i++) {
+  const a = (i / 16) * Math.PI * 2;
+  const len = i % 2 ? 2.2 : 3.4;
+  const ray = add(new THREE.BoxGeometry(0.06, 0.02, len), i % 2 ? neon.b : neon.a, 0, 0.65, STAGE_Z);
+  ray.position.x = Math.sin(a) * (6.2 - len / 2 - 0.15); ray.position.z = STAGE_Z + Math.cos(a) * (6.2 - len / 2 - 0.15);
+  ray.rotation.y = a;
+}
+// bậc lên sân khấu phía trước
+for (let s = 0; s < 2; s++) add(new THREE.BoxGeometry(5, 0.3, 0.6), mat.stage, 0, 0.15 + s * 0.15 - 0.15 * s, 5.95 - s * 0.45).scale.y = 1 - s * 0;
+
+// tường sau: dải tấm lục giác nổi (khác hẳn khung trường quay truyền hình thật)
+const wall = add(new THREE.BoxGeometry(34, 14, 0.4), mat.wall, 0, 7, -11.6);
+const hexGeo = new THREE.CylinderGeometry(0.95, 0.95, 0.12, 6).rotateX(Math.PI / 2);
+const hexes = [];
+for (let r = 0; r < 7; r++) for (let c = -9; c <= 9; c++) {
+  const x = c * 1.7 + (r % 2) * 0.85, y = 1.4 + r * 1.48;
+  if (Math.abs(x) < 7.2 && y > 1.6 && y < 10.2) continue; // chừa chỗ màn hình
+  const h = add(hexGeo, mat.panel, x, y, -11.3);
+  h.rotation.z = Math.PI / 6;
+  const rim = add(new THREE.TorusGeometry(0.88, 0.025, 4, 6), (r + c) % 3 ? neon.b : neon.a, x, y, -11.22);
+  rim.rotation.z = Math.PI / 6;
+  hexes.push({ rim, x, y });
+}
+// màn LED lớn
+const SCR = { w: 13, h: 7.3 };
+const scrCanvas = document.createElement('canvas'); scrCanvas.width = 1600; scrCanvas.height = 900;
+const scrTex = new THREE.CanvasTexture(scrCanvas); scrTex.colorSpace = THREE.SRGBColorSpace; scrTex.anisotropy = 8;
+add(new THREE.BoxGeometry(SCR.w + 0.5, SCR.h + 0.5, 0.2), mat.silver, 0, 5.9, -11.25);
+const scr = add(new THREE.PlaneGeometry(SCR.w, SCR.h), new THREE.MeshBasicMaterial({ map: scrTex, toneMapped: false }), 0, 5.9, -11.1);
+add(new THREE.BoxGeometry(SCR.w + 0.9, 0.08, 0.08), neon.gold, 0, 5.9 + SCR.h / 2 + 0.38, -11.05);
+add(new THREE.BoxGeometry(SCR.w + 0.9, 0.08, 0.08), neon.gold, 0, 5.9 - SCR.h / 2 - 0.38, -11.05);
+
+// cột LED hai bên (lăng trụ lục giác)
+const pillars = [];
+for (const x of [-11, -8.4, 8.4, 11]) {
+  const p = add(new THREE.CylinderGeometry(0.55, 0.65, 11, 6), mat.panel, x, 5.5, -9.6);
+  for (let k = 0; k < 6; k++) {
+    const a = (k / 6) * Math.PI * 2 + Math.PI / 6;
+    const e = add(new THREE.BoxGeometry(0.05, 10.6, 0.05), Math.abs(x) > 9 ? neon.b : neon.a, x + Math.cos(a) * 0.6, 5.5, -9.6 + Math.sin(a) * 0.6);
+    pillars.push(e);
+  }
+}
+
+/* ---------- Giàn đèn và đèn quét ---------- */
+const truss = new THREE.Group(); scene.add(truss);
+for (const z of [-7, 1]) add(new THREE.BoxGeometry(22, 0.35, 0.35), mat.truss, 0, 11, z, truss);
+for (const x of [-10.8, 10.8]) add(new THREE.BoxGeometry(0.35, 0.35, 8.4), mat.truss, x, 11, -3, truss);
+const beams = [];
+const beamGeo = new THREE.ConeGeometry(1.1, 11, 24, 1, true).translate(0, -5.5, 0);
+for (let i = 0; i < 8; i++) {
+  const x = -9 + i * (18 / 7), z = i % 2 ? -7 : 1;
+  const head = add(new THREE.CylinderGeometry(0.22, 0.28, 0.45, 12), mat.truss, x, 10.6, z);
+  const m = new THREE.MeshBasicMaterial({ color: '#4fd2ff', transparent: true, opacity: 0.08, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+  const cone = new THREE.Mesh(beamGeo, m); cone.position.set(x, 10.5, z); scene.add(cone);
+  beams.push({ cone, ph: i * 0.8, x });
+}
+
+/* ---------- Nhân vật đơn giản (thay bằng mô hình đất sét của game khi dựng thật) ---------- */
+const SKIN = ['#f2c7a1', '#e8b48c', '#d9a07a'];
+const SHIRTS = ['#ff6b6b', '#ffd166', '#06d6a0', '#4dabf7', '#b197fc', '#ff922b', '#f783ac', '#63e6be', '#ffffff'];
+function person({ h = 1.35, shirt = '#4dabf7', seated = false, suit = false, girl = false } = {}) {
+  const g = new THREE.Group();
+  const body = add(new THREE.CapsuleGeometry(h * 0.16, h * (seated ? 0.22 : 0.36), 6, 12), M(shirt, { roughness: .7, metalness: 0 }), 0, 0, 0, g);
+  body.position.y = seated ? h * 0.42 : h * 0.55;
+  if (!seated) add(new THREE.CapsuleGeometry(h * 0.1, h * 0.28, 4, 8), M(suit ? '#1c1f2e' : '#2b3a67', { roughness: .8, metalness: 0 }), 0, h * 0.2, 0, g).scale.x = 1.5;
+  const head = add(new THREE.SphereGeometry(h * 0.13, 20, 16), M(SKIN[(Math.random() * 3) | 0], { roughness: .8, metalness: 0 }), 0, body.position.y + h * 0.36, 0, g);
+  add(new THREE.SphereGeometry(h * 0.135, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), M('#1a1410', { roughness: .9, metalness: 0 }), 0, head.position.y + 0.02, -0.015, g);
+  if (girl) add(new THREE.CapsuleGeometry(h * 0.12, h * 0.2, 4, 10), M('#1a1410', { roughness: .9, metalness: 0 }), 0, head.position.y - h * 0.12, -h * 0.07, g);
+  if (suit) add(new THREE.BoxGeometry(0.06, 0.32, 0.02), M('#d6336c'), 0, body.position.y + 0.08, h * 0.16, g); // cà vạt
+  return g;
+}
+
+/* ---------- 4 bục thí sinh ---------- */
+const NAMES = ['Minh Anh', 'Gia Bảo', 'Khánh Linh', 'Đức Huy'];
+const COLORS = ['#ff5d73', '#ffb020', '#27d17f', '#3fa9ff']; // màu riêng mỗi thí sinh (bục, chuông, thẻ điểm)
+const pods = [];
+function podCanvas() { const c = document.createElement('canvas'); c.width = 512; c.height = 300; return c; }
+for (let i = 0; i < 4; i++) {
+  const x = -4.8 + i * 3.2, z = -1.2 - Math.abs(x) * 0.18;
+  const g = new THREE.Group(); g.position.set(x, 0.62, z); g.rotation.y = -x * 0.045; scene.add(g);
+  const col = new THREE.Color(COLORS[i]);
+  const ringM = glow(col, 2.4);
+  add(new THREE.CylinderGeometry(1.05, 1.1, 0.12, 48), mat.silver, 0, 0.06, 0, g);
+  const ring = add(new THREE.TorusGeometry(1.08, 0.04, 8, 64).rotateX(Math.PI / 2), ringM, 0, 0.12, 0, g);
+  // thân bục: khối vát, mặt trước có màn điểm
+  const shape = new THREE.Shape(); shape.moveTo(-0.62, 0); shape.lineTo(0.62, 0); shape.lineTo(0.74, 0.74); shape.lineTo(-0.74, 0.74); shape.closePath();
+  const bodyGeo = new THREE.ExtrudeGeometry(shape, { depth: 0.7, bevelEnabled: true, bevelSize: 0.03, bevelThickness: 0.03, bevelSegments: 2 }).translate(0, 0, -0.35);
+  add(bodyGeo, mat.white, 0, 0.12, 0, g);
+  add(new THREE.BoxGeometry(1.6, 0.07, 0.8), mat.silver, 0, 0.9, -0.02, g);           // mặt bàn
+  const strip = add(new THREE.BoxGeometry(1.62, 0.05, 0.05), ringM, 0, 0.86, 0.4, g);  // viền đèn mép bàn
+  const canv = podCanvas(); const tex = new THREE.CanvasTexture(canv); tex.colorSpace = THREE.SRGBColorSpace;
+  add(new THREE.PlaneGeometry(0.98, 0.575), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }), 0, 0.5, 0.385, g);
+  // máy tính bảng trả lời (quay về thí sinh) + chuông
+  const tab = add(new THREE.BoxGeometry(0.62, 0.03, 0.42), M('#0d1330', { roughness: .2, metalness: .6 }), -0.25, 0.96, -0.12, g);
+  tab.rotation.x = -0.35;
+  const tabScr = add(new THREE.PlaneGeometry(0.56, 0.36), glow('#2f6bff', 1.2), -0.25, 0.982, -0.115, g);
+  tabScr.rotation.x = -Math.PI / 2 - 0.35;
+  add(new THREE.CylinderGeometry(0.13, 0.15, 0.06, 24), mat.silver, 0.5, 0.96, -0.1, g);
+  const bell = add(new THREE.SphereGeometry(0.11, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), glow(col, 1.6), 0.5, 0.99, -0.1, g);
+  // cột đèn sau lưng thí sinh
+  const haloM = glow(col, 0.9);
+  add(new THREE.BoxGeometry(0.06, 2.4, 0.06), haloM, -0.95, 1.2, -1.0, g);
+  add(new THREE.BoxGeometry(0.06, 2.4, 0.06), haloM, 0.95, 1.2, -1.0, g);
+  add(new THREE.BoxGeometry(1.96, 0.06, 0.06), haloM, 0, 2.4, -1.0, g);
+  const kid = person({ h: 1.45, shirt: ['#ffffff', '#ffffff', '#ffffff', '#ffffff'][i] });
+  kid.position.set(0, 0.12, -0.62); g.add(kid);
+  add(new THREE.BoxGeometry(0.34, 0.22, 0.02), M(COLORS[i]), 0, 0.98, 0.18, kid);  // khăn / thẻ màu đội
+  const spot = new THREE.SpotLight(col, 60, 14, 0.32, 0.6, 1.4);
+  spot.position.set(x * 1.05, 10.5, z + 3); spot.target = kid; spot.castShadow = i === 1 || i === 2; scene.add(spot);
+  pods.push({ g, col, ringM, canv, tex, tabScr, bell, spot, score: 0, shown: 0, state: 'idle', lockAt: 0, kid, name: NAMES[i] });
+}
+
+function drawPod(p, sec) {
+  const c = p.canv.getContext('2d'); const W = c.canvas.width, H = c.canvas.height;
+  const st = p.state;
+  const bg = st === 'right' ? '#0f9d58' : st === 'wrong' ? '#c62828' : st === 'locked' ? '#1d3fbf' : '#0a1550';
+  const grd = c.createLinearGradient(0, 0, 0, H); grd.addColorStop(0, bg); grd.addColorStop(1, '#050b2e');
+  c.fillStyle = grd; c.fillRect(0, 0, W, H);
+  c.fillStyle = p.col.getStyle(); c.fillRect(0, 0, W, 16);
+  c.fillStyle = '#fff'; c.font = '600 46px Segoe UI'; c.textAlign = 'center'; c.fillText(p.name, W / 2, 72);
+  c.font = '800 130px Segoe UI'; c.fillStyle = '#ffd45c'; c.fillText(String(Math.round(p.shown)), W / 2, 210);
+  c.font = '600 34px Segoe UI'; c.fillStyle = '#cfe0ff';
+  const label = st === 'locked' ? `Đã chốt ${p.lockAt.toFixed(1)} giây` : st === 'right' ? 'Đúng!' : st === 'wrong' ? 'Chưa đúng' : st === 'think' ? 'Đang suy nghĩ…' : '';
+  c.fillText(label, W / 2, 272);
+  if (st === 'think' && sec != null) { c.fillStyle = p.col.getStyle(); c.fillRect(30, 285, (W - 60) * sec, 8); }
+  p.tex.needsUpdate = true;
+}
+
+/* ---------- Bục MC đôi: 2 MC đứng chung một bục, thay phiên nhau nói ---------- */
+const mcG = new THREE.Group(); mcG.position.set(-6.3, 0.62, 0.4); mcG.rotation.y = 0.7; scene.add(mcG);
+add(new THREE.CylinderGeometry(1.45, 1.5, 0.1, 48), mat.silver, 0, 0.05, 0, mcG);
+add(new THREE.TorusGeometry(1.47, 0.035, 8, 64).rotateX(Math.PI / 2), neon.gold, 0, 0.1, 0, mcG);
+const mcShape = new THREE.Shape(); mcShape.moveTo(-0.85, 0); mcShape.lineTo(0.85, 0); mcShape.lineTo(1.0, 0.95); mcShape.lineTo(-1.0, 0.95); mcShape.closePath();
+add(new THREE.ExtrudeGeometry(mcShape, { depth: 0.45, bevelEnabled: false }).translate(0, 0, -0.22), mat.white, 0, 0.1, 0.25, mcG);
+add(new THREE.BoxGeometry(2.1, 0.06, 0.6), mat.silver, 0, 1.08, 0.25, mcG).rotation.x = 0.25;
+for (const x of [-0.5, 0.5]) add(new THREE.BoxGeometry(0.06, 0.8, 0.04), neon.gold, x, 0.6, 0.49, mcG);
+const mcs = [
+  { fig: person({ h: 1.75, shirt: '#1c1f2e', suit: true }), x: -0.5, name: 'MC nam' },
+  { fig: person({ h: 1.65, shirt: '#c2255c', girl: true }), x: 0.5, name: 'MC nữ' },
+];
+mcs.forEach(m => {
+  m.fig.position.set(m.x, 0.1, -0.35); mcG.add(m.fig);
+  m.spot = new THREE.SpotLight('#fff3d6', 50, 14, 0.18, 0.6, 1.4);
+  m.spot.position.set(-4.6 + m.x, 10.5, 4); m.spot.target = m.fig; scene.add(m.spot);
+  // vòng sáng dưới chân: sáng khi MC này đang nói
+  m.ring = add(new THREE.TorusGeometry(0.38, 0.03, 8, 40).rotateX(Math.PI / 2), glow('#ffc93c', 0.2), m.x, 0.12, -0.35, mcG);
+});
+
+/* ---------- Khán phòng 50 chỗ ---------- */
+const seats = [];
+for (let r = 0; r < 5; r++) {
+  const z = 8.2 + r * 1.35, y = r * 0.42;
+  if (r) add(new THREE.BoxGeometry(17, 0.42 * r, 1.35), mat.tier, 0, (0.42 * r) / 2, z);
+  add(new THREE.BoxGeometry(17, 0.04, 0.04), neon.b, 0, y + 0.02, z - 0.68);
+  for (let c = 0; c < 10; c++) {
+    const x = (c < 5 ? -1 : 1) * (1.0 + (c % 5) * 1.25) * (c < 5 ? 1 : 1) * 1;
+    const sx = c < 5 ? -(1.0 + (4 - c) * 1.25) : 1.0 + (c - 5) * 1.25;
+    const sg = new THREE.Group(); sg.position.set(sx, y, z); scene.add(sg);
+    add(new THREE.BoxGeometry(0.85, 0.42, 0.6), mat.seat, 0, 0.21, 0.05, sg);
+    add(new THREE.BoxGeometry(0.85, 0.75, 0.12), mat.seat, 0, 0.6, 0.38, sg);
+    const lamp = add(new THREE.BoxGeometry(0.5, 0.04, 0.02), glow('#2fc8ff', 0.4), 0, 0.98, 0.45, sg); // đèn lưng ghế: sáng khi khán giả đó trả lời đúng
+    let kid = null;
+    if (Math.random() < 0.88) { kid = person({ h: 1.25, shirt: SHIRTS[(Math.random() * SHIRTS.length) | 0], seated: true }); kid.position.set(0, 0.25, 0.1); kid.rotation.y = Math.PI; sg.add(kid); }
+    seats.push({ sg, lamp, kid, ph: Math.random() * 6 });
+  }
+}
+add(new THREE.BoxGeometry(1.2, 0.02, 7), M('#0d1a63'), 0, 0.01, 10.9); // lối đi giữa
+
+/* ---------- Đèn chung ---------- */
+scene.add(new THREE.HemisphereLight('#6b8cff', '#0a0f30', 0.35));
+const wash = new THREE.DirectionalLight('#9fc3ff', 0.6); wash.position.set(4, 14, 14); scene.add(wash);
+const stageWash = new THREE.PointLight('#5a8cff', 30, 20, 1.5); stageWash.position.set(0, 6, 3); scene.add(stageWash);
+
+/* ---------- Màn hình lớn ---------- */
+const ROUNDS = {
+  idle:     { title: 'ĐẤU TRƯỜNG NHÍ', sub: 'Toán · Tiếng Việt · Lớp 3', a: '#2fc8ff', b: '#7b5cff' },
+  open:     { title: 'MỞ MÀN', sub: 'Chào mừng 4 nhà thông thái nhí', a: '#ffc93c', b: '#2fc8ff' },
+  khoidong: { title: 'KHỞI ĐỘNG', sub: '12 câu · 15 giây · đúng +10', a: '#21e6a3', b: '#2fc8ff', sec: 15, kind: 'abcd' },
+  tangtoc:  { title: 'TĂNG TỐC', sub: 'Nhanh nhất +40 · +30 · +20 · +10', a: '#ff8a2a', b: '#ff3d9a', sec: 30, kind: 'order' },
+  vedich:   { title: 'VỀ ĐÍCH', sub: 'Chọn độ cao · bấm chuông giành quyền', a: '#ffc93c', b: '#a35cff', sec: 20, kind: 'abcd' },
+  win:      { title: 'TRAO GIẢI', sub: 'Nhà thông thái nhí của buổi hôm nay', a: '#ffd45c', b: '#ff5d73' },
+};
+const SAMPLE = {
+  abcd:  { q: '36 : 4 + 15 = ?', o: ['A. 24', 'B. 21', 'C. 9', 'D. 51'], a: 0 },
+  order: { q: 'Xếp thành câu đúng:', o: ['đàn chim', 'bay về', 'tổ', 'Chiều chiều,'], a: [3, 0, 1, 2] },
+};
+let mode = 'idle', timer = null, phase = 'none', t0 = 0, revealAt = 0;
+
+function rr(c, x, y, w, h, r) { c.beginPath(); c.roundRect(x, y, w, h, r); }
+function drawScreen(now) {
+  const c = scrCanvas.getContext('2d'); const W = 1600, H = 900; const R = ROUNDS[mode];
+  const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#071653'); g.addColorStop(1, '#1a0b52');
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  // hoa văn lục giác mờ chạy
+  c.save(); c.globalAlpha = 0.12; c.strokeStyle = R.a; c.lineWidth = 3;
+  const off = reduce ? 0 : (now * 0.03) % 104;
+  for (let y = -104; y < H + 104; y += 90) for (let x = -120; x < W + 120; x += 104) {
+    const cx = x + ((y / 90) % 2 ? 52 : 0) + off, cy = y;
+    c.beginPath(); for (let k = 0; k < 6; k++) { const a = Math.PI / 3 * k + Math.PI / 6; c.lineTo(cx + Math.cos(a) * 46, cy + Math.sin(a) * 46); } c.closePath(); c.stroke();
+  }
+  c.restore();
+  c.textAlign = 'center';
+  if (!R.sec || phase === 'none') {
+    c.shadowColor = R.a; c.shadowBlur = 40; c.fillStyle = '#fff'; c.font = '900 170px Segoe UI'; c.fillText(R.title, W / 2, 430);
+    c.shadowBlur = 0; c.fillStyle = R.a; c.font = '600 60px Segoe UI'; c.fillText(R.sub, W / 2, 540);
+    if (mode === 'win') {
+      const best = [...pods].sort((a, b) => b.score - a.score);
+      c.font = '700 54px Segoe UI'; c.fillStyle = '#ffd45c';
+      best.forEach((p, k) => c.fillText(`${k + 1}. ${p.name}  ${p.score}`, W / 2, 640 + k * 62));
+    }
+    scrTex.needsUpdate = true; return;
+  }
+  // thanh tiêu đề vòng
+  c.fillStyle = R.a; rr(c, 60, 40, 520, 90, 45); c.fill();
+  c.fillStyle = '#061033'; c.font = '900 56px Segoe UI'; c.fillText(R.title, 320, 106);
+  // đồng hồ vòng tròn
+  const S = SAMPLE[R.kind];
+  const left = timer ? Math.max(0, timer.end - now) / 1000 : 0;
+  const frac = timer ? left / timer.total : 0;
+  const cx = W - 150, cy = 120, rad = 82;
+  c.lineWidth = 18; c.strokeStyle = 'rgba(255,255,255,.15)'; c.beginPath(); c.arc(cx, cy, rad, 0, Math.PI * 2); c.stroke();
+  c.strokeStyle = left <= 5 && phase === 'think' ? '#ff4d5e' : R.a;
+  c.beginPath(); c.arc(cx, cy, rad, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * frac); c.stroke();
+  c.fillStyle = '#fff'; c.font = '800 80px Segoe UI'; c.fillText(phase === 'think' ? Math.ceil(left) : '0', cx, cy + 28);
+  // câu hỏi
+  c.fillStyle = 'rgba(8,20,80,.85)'; rr(c, 80, 230, W - 160, 170, 30); c.fill();
+  c.strokeStyle = R.a; c.lineWidth = 5; c.stroke();
+  c.fillStyle = '#fff'; c.font = '700 82px Segoe UI'; c.fillText(S.q, W / 2, 345);
+  // phương án
+  const rev = phase === 'reveal';
+  S.o.forEach((o, k) => {
+    const x = 80 + (k % 2) * ((W - 160) / 2 + 10), y = 440 + Math.floor(k / 2) * 190, w = (W - 160) / 2 - 10, h = 160;
+    let fill = 'rgba(15,35,120,.9)';
+    if (rev && R.kind === 'abcd' && k === S.a) fill = '#0f9d58';
+    if (rev && R.kind === 'order') fill = '#0f9d58';
+    c.fillStyle = fill; rr(c, x, y, w, h, 28); c.fill(); c.strokeStyle = R.b; c.lineWidth = 4; c.stroke();
+    c.fillStyle = '#fff'; c.font = '700 70px Segoe UI';
+    const txt = R.kind === 'order' && rev ? `${S.a.indexOf(k) + 1}. ${o}` : o;
+    c.fillText(txt, x + w / 2, y + 104);
+  });
+  scrTex.needsUpdate = true;
+}
+
+/* ---------- Diễn một câu: hỏi → đếm giờ → các bục chốt → hết giờ / đủ 4 người → lật ---------- */
+function runQuestion() {
+  const R = ROUNDS[mode];
+  phase = 'think'; t0 = performance.now();
+  timer = { total: R.sec, end: t0 + R.sec * 1000 };
+  pods.forEach(p => { p.state = 'think'; p.lockAt = 0; p.plan = 2 + Math.random() * (R.sec * 0.9); p.ok = Math.random() < 0.7; });
+}
+function reveal() {
+  phase = 'reveal'; revealAt = performance.now();
+  const R = ROUNDS[mode];
+  const order = pods.filter(p => p.state === 'locked' && p.ok).sort((a, b) => a.lockAt - b.lockAt);
+  pods.forEach(p => {
+    const right = p.state === 'locked' && p.ok;
+    p.state = right ? 'right' : 'wrong';
+    if (right) p.score += R.kind === 'order' ? [40, 30, 20, 10][order.indexOf(p)] : mode === 'vedich' ? 20 : 10;
+  });
+  seats.forEach(s => { s.right = Math.random() < 0.65; });
+  setTimeout(() => { if (ROUNDS[mode].sec) runQuestion(); }, 5200);
+}
+function setMode(m) {
+  mode = m; phase = 'none'; timer = null;
+  document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  const R = ROUNDS[m];
+  neon.a.emissive.set(R.a); neon.b.emissive.set(R.b);
+  beams.forEach((b, i) => b.cone.material.color.set(i % 2 ? R.b : R.a));
+  pods.forEach(p => { p.state = 'idle'; });
+  seats.forEach(s => { s.right = false; });
+  if (m === 'open' || m === 'idle') pods.forEach(p => { p.score = 0; p.shown = 0; });
+  if (R.sec) setTimeout(() => { if (mode === m) runQuestion(); }, 2200); // tiêu đề vòng hiện 2,2 giây rồi vào câu
+  if (m === 'win') cam('front');
+}
+
+/* ---------- Vòng lặp ---------- */
+const clock = new THREE.Clock();
+function frame() {
+  const now = performance.now(); const t = clock.getElapsedTime();
+  if (camTo) {
+    camera.position.lerp(camTo.p, 0.06); controls.target.lerp(camTo.t, 0.06);
+    if (camera.position.distanceTo(camTo.p) < 0.02) camTo = null;
+  }
+  controls.update();
+  const R = ROUNDS[mode];
+  // các bục chốt đáp án giả lập; đủ 4 người hoặc hết giờ thì lật
+  if (phase === 'think') {
+    const el = (now - t0) / 1000;
+    pods.forEach(p => { if (p.state === 'think' && el >= p.plan) { p.state = 'locked'; p.lockAt = el; } });
+    if (pods.every(p => p.state === 'locked') || now >= timer.end) reveal();
+  }
+  // đèn quét
+  const speed = mode === 'tangtoc' ? 2.2 : mode === 'win' ? 1.6 : 0.6;
+  beams.forEach(b => {
+    const s = reduce ? 0 : Math.sin(t * speed + b.ph);
+    b.cone.rotation.z = s * 0.45; b.cone.rotation.x = 0.25 + (reduce ? 0 : Math.cos(t * speed * 0.7 + b.ph)) * 0.25;
+    b.cone.material.opacity = phase === 'reveal' ? 0.13 : 0.07;
+  });
+  // nhịp neon
+  const pulse = reduce ? 1 : 0.8 + 0.4 * Math.sin(t * (phase === 'think' ? 6 : 2));
+  neon.a.emissiveIntensity = 2.2 * pulse; neon.b.emissiveIntensity = 2.0 * (reduce ? 1 : 1.2 - 0.4 * Math.sin(t * 2));
+  hexes.forEach(h => {
+    const w = reduce ? 1 : 0.5 + 0.5 * Math.sin(t * 2.5 - h.x * 0.25 + h.y * 0.1);
+    h.rim.scale.setScalar(1);
+    h.rim.material = w > 0.75 ? neon.a : neon.b;
+  });
+  // bục
+  pods.forEach(p => {
+    const st = p.state;
+    const col = st === 'right' ? '#21e67a' : st === 'wrong' ? '#ff3b4d' : st === 'locked' ? '#ffffff' : p.col;
+    p.ringM.emissive.set(col);
+    p.ringM.emissiveIntensity = st === 'right' && !reduce ? 2 + 2 * Math.abs(Math.sin(t * 10)) : st === 'wrong' ? 1.2 : 2.4;
+    p.spot.color.set(st === 'wrong' ? '#8a93b8' : col); p.spot.intensity = st === 'wrong' ? 15 : 60;
+    p.tabScr.material.emissive.set(st === 'locked' ? '#ffffff' : '#2f6bff');
+    if (p.shown < p.score) p.shown = Math.min(p.score, p.shown + 0.6); // điểm chạy số
+    if (st === 'right' && !reduce) p.kid.position.y = 0.12 + Math.abs(Math.sin(t * 7)) * 0.12; else p.kid.position.y = 0.12;
+    drawPod(p, phase === 'think' && timer ? Math.max(0, timer.end - now) / (timer.total * 1000) : null);
+  });
+  // khán phòng: đèn lưng ghế sáng cho ai đúng, vỗ tay lúc lật đáp án
+  seats.forEach(s => {
+    s.lamp.material.emissive.set(s.right ? '#21e67a' : R.a);
+    s.lamp.material.emissiveIntensity = s.right ? 2.5 : 0.35;
+    if (s.kid) s.kid.position.y = 0.25 + ((phase === 'reveal' || mode === 'win') && !reduce ? Math.abs(Math.sin(t * 9 + s.ph)) * 0.08 : 0);
+  });
+  // 2 MC thay phiên: lúc đọc / lật thì một người nói (vòng chân sáng, đèn rọi mạnh, nhún nhẹ), lúc thí sinh suy nghĩ cả hai im
+  const talker = phase === 'think' ? -1 : Math.floor(t / 3.2) % 2;
+  mcs.forEach((m, k) => {
+    const on = k === talker;
+    m.ring.material.emissiveIntensity = on ? 2.4 : 0.2;
+    m.spot.intensity = on ? 75 : 30;
+    m.fig.position.y = 0.1 + (on && !reduce ? Math.abs(Math.sin(t * 6)) * 0.02 : 0);
+  });
+  drawScreen(now);
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+frame();
+
+document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+document.querySelectorAll('[data-cam]').forEach(b => b.onclick = () => cam(b.dataset.cam));
+addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+window.__arena = { setMode, cam };
+const q = new URLSearchParams(location.search);
+if (q.get('mode')) setMode(q.get('mode'));
+if (q.get('cam')) cam(q.get('cam'), true);
+</script>
+</body>
+</html>
