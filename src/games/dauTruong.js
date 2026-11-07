@@ -14,6 +14,16 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 /** Tên chương trình trên màn LED (tên tạm, chủ dự án chốt; '\n' = xuống dòng). Không dùng tên chương trình truyền hình có thật. */
 const SHOW_NAME = 'Đấu Trường Nhí';
 
+/** Hàng nút giữ để dời camera: [trục, nhãn, phím, [hướng, ký hiệu], [hướng, ký hiệu]]. */
+const CAM_ROWS = [
+  ['fb', 'Tiến / lùi', 'W S', [1, '▲'], [-1, '▼']],
+  ['lr', 'Trái / phải', 'A D', [-1, '◀'], [1, '▶']],
+  ['ud', 'Lên / xuống', 'R F', [1, '⤒'], [-1, '⤓']],
+  ['yaw', 'Xoay', 'Q E', [-1, '↺'], [1, '↻']],
+  ['pitch', 'Ngước / cúi', 'T G', [1, '⌃'], [-1, '⌄']],
+  ['fov', 'Phóng / thu', 'Z X', [-1, '＋'], [1, '－']],
+];
+
 const CSS = `
 .dt-stage { position: fixed; inset: 0; z-index: 60; background: #050a24; overflow: hidden; color: #eaf2ff; font-family: 'Segoe UI', system-ui, sans-serif; touch-action: none; }
 .dt-stage canvas { display: block; }
@@ -28,6 +38,29 @@ const CSS = `
 .dt-stage .dt-tag { background: rgba(10,25,70,.7); border-radius: 10px; padding: 8px 12px; font-size: 13px; line-height: 1.5; max-width: 320px; }
 .dt-stage .dt-tag b { color: #ffd45c; }
 @media (max-height: 520px), (max-width: 640px) { .dt-stage .dt-tag { display: none; } }
+.dt-stage .dt-cams button[aria-pressed="true"] { background: #2a6cff; border-color: #8fb8ff; }
+.dt-stage .dt-cams .dt-cam-tool { margin-top: 4px; background: rgba(255,200,60,.16); border-color: rgba(255,210,90,.5); }
+.dt-stage .dt-camset { position: absolute; right: 150px; top: max(14px, env(safe-area-inset-top)); width: 300px; max-width: calc(100% - 28px); max-height: calc(100% - 90px); overflow: auto; background: rgba(8,18,60,.94); border: 1px solid rgba(140,190,255,.3); border-radius: 14px; padding: 10px 12px; font-size: 13px; z-index: 2; touch-action: auto; }
+.dt-stage .dt-camset[hidden] { display: none; }
+@media (max-width: 700px) { .dt-stage .dt-camset { right: 14px; } }
+.dt-stage .dt-cs-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.dt-stage .dt-cs-top b { font-size: 14px; }
+.dt-stage .dt-cs-kind { color: #9fb8e8; font-size: 12px; flex: 1; }
+.dt-stage .dt-cs-top button { width: 30px; height: 30px; padding: 0; }
+.dt-stage .dt-cs-row { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+.dt-stage .dt-cs-row span { flex: 1; }
+.dt-stage .dt-cs-row i, .dt-stage .dt-cs-grid i { font-style: normal; font-size: 11px; color: #9fb8e8; margin-left: 4px; }
+.dt-stage .dt-cs-row button { width: 40px; height: 36px; padding: 0; font-size: 16px; touch-action: none; -webkit-user-select: none; user-select: none; }
+.dt-stage .dt-cs-row button:active { background: #2a6cff; }
+.dt-stage .dt-cs-grid { display: grid; grid-template-columns: 64px 1fr 1fr 1fr; gap: 4px; align-items: center; margin: 8px 0; }
+.dt-stage .dt-cs-grid input, .dt-stage .dt-cs-which select { width: 100%; box-sizing: border-box; font: inherit; color: #eaf2ff; background: rgba(255,255,255,.06); border: 1px solid rgba(140,190,255,.3); border-radius: 6px; padding: 4px 5px; font-variant-numeric: tabular-nums; }
+.dt-stage .dt-cs-which { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.dt-stage .dt-cs-which select option { color: #111; }
+.dt-stage .dt-cs-foot { display: flex; flex-wrap: wrap; gap: 6px; }
+.dt-stage .dt-cs-foot button { padding: 6px 9px; font-size: 12.5px; }
+.dt-stage .dt-cs-foot button[hidden] { display: none; }
+.dt-stage .dt-cs-help { margin: 8px 0 0; font-size: 11.5px; color: #9fb8e8; line-height: 1.45; }
+.dt-stage .dt-cs-note { margin: 4px 0 0; min-height: 1em; font-size: 12px; color: #7ff0b0; }
 `;
 
 export function render(app, onBack) {
@@ -39,12 +72,27 @@ export function render(app, onBack) {
       <button type="button" class="dt-back">← Quay lại</button>
       <div class="dt-tag"><b>Đấu Trường Nhí</b> (tên tạm), bản mẫu sân khấu 3D để duyệt.<br>Kéo để xoay, cuộn hoặc chụm để phóng to. Bấm các vòng thi bên dưới để xem đèn, đồng hồ và lật kết quả.</div>
     </div>
-    <div class="dt-cams">
-      <button type="button" data-cam="wide">Toàn cảnh</button>
-      <button type="button" data-cam="front">Trực diện</button>
-      <button type="button" data-cam="players">Bục thí sinh</button>
-      <button type="button" data-cam="mc">MC</button>
-      <button type="button" data-cam="crowd">Khán phòng</button>
+    <div class="dt-cams"></div>
+    <div class="dt-camset" hidden>
+      <div class="dt-cs-top"><b>🎥 Chỉnh góc máy</b> <span class="dt-cs-kind"></span><button type="button" data-cs="close" aria-label="Đóng">✕</button></div>
+      ${CAM_ROWS.map(([ax, label, keys, a, b]) => `<div class="dt-cs-row"><span>${label} <i>${keys}</i></span>
+        <button type="button" data-ax="${ax}" data-d="${a[0]}" aria-label="${label} ${a[1]}">${a[1]}</button>
+        <button type="button" data-ax="${ax}" data-d="${b[0]}" aria-label="${label} ${b[1]}">${b[1]}</button></div>`).join('')}
+      <div class="dt-cs-grid">
+        <span>Vị trí</span><input data-f="px" type="text" inputmode="decimal" autocomplete="off" aria-label="Vị trí x"><input data-f="py" type="text" inputmode="decimal" autocomplete="off" aria-label="Vị trí cao"><input data-f="pz" type="text" inputmode="decimal" autocomplete="off" aria-label="Vị trí z">
+        <span>Nhìn tới</span><input data-f="tx" type="text" inputmode="decimal" autocomplete="off" aria-label="Nhìn tới x"><input data-f="ty" type="text" inputmode="decimal" autocomplete="off" aria-label="Nhìn tới cao"><input data-f="tz" type="text" inputmode="decimal" autocomplete="off" aria-label="Nhìn tới z">
+        <span>Góc nhìn</span><input data-f="fov" type="text" inputmode="decimal" autocomplete="off" aria-label="Góc nhìn (độ)"><i>độ</i><i>x · cao · z</i>
+      </div>
+      <label class="dt-cs-which">Góc <select data-cs="which"></select></label>
+      <div class="dt-cs-foot">
+        <button type="button" data-cs="save">💾 Lưu vào góc này</button>
+        <button type="button" data-cs="add">➕ Thêm góc mới</button>
+        <button type="button" data-cs="reset">↺ Về mặc định</button>
+        <button type="button" data-cs="del" hidden>🗑 Xoá góc</button>
+        <button type="button" data-cs="copy">📋 Sao chép</button>
+      </div>
+      <p class="dt-cs-help">Phím 1–9 chọn góc. Lưu trên máy này, riêng màn ngang và màn dọc. Sao chép rồi gửi để đặt làm mặc định cho mọi người.</p>
+      <p class="dt-cs-note" aria-live="polite"></p>
     </div>
     <div class="dt-bar">
       <button type="button" data-mode="idle" class="on">Chờ</button>
@@ -83,28 +131,48 @@ export function render(app, onBack) {
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
     scene.environmentIntensity = 0.45; // three r183 sáng hơn bản mẫu (r160): giữ sân khấu xanh đậm
 
-    const fovFor = (a) => (a < 1 ? 72 : 48); // màn dọc: góc rộng để thấy đủ 4 bục
     const camera = new THREE.PerspectiveCamera(48, (root.clientWidth || innerWidth) / (root.clientHeight || innerHeight), 0.1, 200);
-    camera.fov = fovFor(camera.aspect); camera.updateProjectionMatrix();
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.maxPolarAngle = Math.PI * 0.49;
-    controls.minDistance = 3; controls.maxDistance = 45;
+    controls.minDistance = 0.5; controls.maxDistance = 60;
 
-    const CAMS = {
-      wide:    [[0, 9.5, 21], [0, 2.4, -3]],
-      front:   [[0, 3.2, 9.5], [0, 2.6, -3]],
-      players: [[1.2, 2.3, 6.2], [0, 1.5, -1.6]],
-      mc:      [[-2.9, 2.2, 4.8], [-6.3, 1.6, 0.4]],
-      crowd:   [[0, 5.5, -1.5], [0, 1.5, 12]],
-    };
-    let camTo = null;
-    function cam(k, now = false) {
-      const [p, t] = CAMS[k];
-      if (now || reduce) { camera.position.set(...p); controls.target.set(...t); camTo = null; }
-      else camTo = { p: new THREE.Vector3(...p), t: new THREE.Vector3(...t) };
+    /* ---------- Góc máy cài sẵn ----------
+       Mỗi góc: land (màn ngang) và port (màn dọc, chưa cài thì lấy land với góc nhìn rộng hơn 24°). Bảng 🎥 Chỉnh góc (camPanel)
+       sửa và lưu góc trên máy này (CAM_KEY); "Sao chép" cho chuỗi JSON để đặt làm mặc định ở PRESETS cho mọi người. */
+    const PRESETS = [
+      { id: 'wide', name: 'Toàn cảnh', land: { pos: [0, 9.5, 21], target: [0, 2.4, -3], fov: 48 } },
+      { id: 'front', name: 'Trực diện', land: { pos: [0, 3.2, 9.5], target: [0, 2.6, -3], fov: 48 } },
+      { id: 'players', name: 'Bục thí sinh', land: { pos: [1.2, 2.3, 6.2], target: [0, 1.5, -1.6], fov: 48 } },
+      { id: 'mc', name: 'MC', land: { pos: [-2.9, 2.2, 4.8], target: [-6.3, 1.6, 0.4], fov: 48 } },
+      { id: 'crowd', name: 'Khán phòng', land: { pos: [0, 5.5, -1.5], target: [0, 1.5, 12], fov: 48 } },
+    ];
+    const CAM_KEY = 'dt-cam-v1';
+    let camStore = { set: {}, extra: [] };   // set[id][kind] = góc đã cài; extra = góc thêm { id, name, land?, port? }
+    try { camStore = { set: {}, extra: [], ...JSON.parse(localStorage.getItem(CAM_KEY)) }; } catch { /* không đọc được: mặc định */ }
+    const camSaveStore = () => { try { localStorage.setItem(CAM_KEY, JSON.stringify(camStore)); } catch { /* bộ nhớ bị chặn */ } };
+    const camKind = () => (camera.aspect < 1 ? 'port' : 'land');
+    const allCams = () => [...PRESETS, ...camStore.extra];
+    const findCam = (id) => allCams().find(p => p.id === id);
+    const cloneView = (v) => ({ pos: [...v.pos], target: [...v.target], fov: v.fov });
+    function viewOf(p, kind = camKind()) {
+      const v = camStore.set[p.id]?.[kind] || p[kind];
+      if (v) return v;
+      const land = camStore.set[p.id]?.land || p.land || p.port;
+      return kind === 'port' ? { ...land, fov: Math.min(95, land.fov + 24) } : land;
     }
-    cam('wide', true);
+    const nowView = () => ({ pos: camera.position.toArray(), target: controls.target.toArray(), fov: camera.fov });
+    let camTo = null, camCur = 'wide';
+    function cam(k, now = false) {
+      const p = findCam(k);
+      if (!p) return;
+      camCur = k;
+      const v = viewOf(p);
+      if (now || reduce) {
+        camera.position.set(...v.pos); controls.target.set(...v.target); camera.fov = v.fov; camera.updateProjectionMatrix(); camTo = null;
+      } else camTo = { p: new THREE.Vector3(...v.pos), t: new THREE.Vector3(...v.target), fov: v.fov };
+      paintCams();
+    }
 
     /* ---------- Vật liệu ---------- */
     const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: .45, metalness: .2, ...o });
@@ -447,11 +515,17 @@ export function render(app, onBack) {
     function frame() {
       if (!root.isConnected) { dispose(); return; } // rời trang bằng đường khác (nút Back của trình duyệt, đổi trang)
       const now = performance.now(); const t = clock.getElapsedTime();
+      const dt = Math.min(0.1, (now - (frame.last || now)) / 1000); frame.last = now;
       if (camTo) {
         camera.position.lerp(camTo.p, 0.06); controls.target.lerp(camTo.t, 0.06);
-        if (camera.position.distanceTo(camTo.p) < 0.02) camTo = null;
+        camera.fov += (camTo.fov - camera.fov) * 0.06; camera.updateProjectionMatrix();
+        if (camera.position.distanceTo(camTo.p) < 0.02 && controls.target.distanceTo(camTo.t) < 0.02) {
+          camera.fov = camTo.fov; camera.updateProjectionMatrix(); camTo = null;
+        }
       }
+      camMove(dt);
       controls.update();
+      camRead();
       const R = ROUNDS[mode];
       // các bục chốt đáp án giả lập; đủ 4 người hoặc hết giờ thì lật
       if (phase === 'think') {
@@ -504,13 +578,119 @@ export function render(app, onBack) {
       renderer.render(scene, camera);
       raf = requestAnimationFrame(frame);
     }
-    frame();
 
     root.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => setMode(b.dataset.mode));
-    root.querySelectorAll('[data-cam]').forEach(b => b.onclick = () => cam(b.dataset.cam));
+    /* ---------- 🎥 Bảng chỉnh góc máy ----------
+       Giữ nút (hoặc phím) để dời camera: W S tiến lùi, A D trái phải, R F lên xuống, Q E xoay, T G ngước cúi, Z X phóng thu.
+       Ô số sửa thẳng vị trí, điểm nhìn, góc nhìn. "Lưu vào góc" ghi đè góc đang chọn (theo màn ngang / dọc đang xem),
+       "Thêm góc mới" tạo thêm nút góc. Lưu trên máy này; "Sao chép" lấy JSON mọi góc (cả ngang và dọc) để đặt làm mặc định. */
+    const camsEl = root.querySelector('.dt-cams'), panel = root.querySelector('.dt-camset');
+    const fields = [...panel.querySelectorAll('[data-f]')];
+    const camHold = new Map();
+    function paintCams() {
+      camsEl.innerHTML = allCams().map((p, i) => `<button type="button" data-cam="${p.id}" aria-pressed="${p.id === camCur}" title="Phím ${i + 1}">${p.name}</button>`).join('')
+        + `<button type="button" class="dt-cam-tool" aria-expanded="${!panel.hidden}">🎥 Chỉnh góc</button>`;
+      const sel = panel.querySelector('[data-cs="which"]');
+      sel.innerHTML = allCams().map(p => `<option value="${p.id}"${p.id === camCur ? ' selected' : ''}>${p.name}</option>`).join('');
+      panel.querySelector('[data-cs="del"]').hidden = !camStore.extra.some(p => p.id === camCur);
+      panel.querySelector('.dt-cs-kind').textContent = camKind() === 'port' ? 'màn dọc' : 'màn ngang';
+    }
+    camsEl.addEventListener('click', (e) => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      if (b.classList.contains('dt-cam-tool')) { panel.hidden = !panel.hidden; paintCams(); camRead(); return; }
+      cam(b.dataset.cam);
+    });
+    const r2 = (n) => Math.round(n * 100) / 100;
+    function camRead() {
+      if (panel.hidden) return;
+      const v = nowView(), vals = { px: v.pos[0], py: v.pos[1], pz: v.pos[2], tx: v.target[0], ty: v.target[1], tz: v.target[2], fov: v.fov };
+      for (const f of fields) if (document.activeElement !== f) f.value = r2(vals[f.dataset.f]);
+    }
+    panel.addEventListener('input', (e) => {
+      const f = e.target.closest('[data-f]');
+      if (!f || f.value === '' || isNaN(+f.value)) return;
+      camTo = null;
+      const n = +f.value, k = f.dataset.f;
+      if (k === 'fov') { camera.fov = THREE.MathUtils.clamp(n, 15, 100); camera.updateProjectionMatrix(); }
+      else (k[0] === 'p' ? camera.position : controls.target)[k[1]] = n;
+    });
+    function camMove(dt) {
+      if (!camHold.size) return;
+      camTo = null;
+      const a = (k) => camHold.get(k) || 0, sp = 4 * dt;
+      const dir = controls.target.clone().sub(camera.position);
+      const flat = new THREE.Vector3(dir.x, 0, dir.z).normalize(), right = new THREE.Vector3(-flat.z, 0, flat.x);
+      const move = flat.multiplyScalar(a('fb') * sp).add(right.multiplyScalar(a('lr') * sp)).add(new THREE.Vector3(0, a('ud') * sp, 0));
+      camera.position.add(move); controls.target.add(move);
+      if (a('yaw')) { dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), -a('yaw') * 0.8 * dt); controls.target.copy(camera.position).add(dir); }
+      if (a('pitch')) {
+        const len = dir.length(), pitch = THREE.MathUtils.clamp(Math.asin(dir.y / len) + a('pitch') * 0.6 * dt, -1.4, 1.2);
+        const h = Math.cos(pitch) * len, f2 = new THREE.Vector3(dir.x, 0, dir.z).normalize().multiplyScalar(h);
+        controls.target.copy(camera.position).add(f2.setY(Math.sin(pitch) * len));
+      }
+      if (a('fov')) { camera.fov = THREE.MathUtils.clamp(camera.fov + a('fov') * 20 * dt, 15, 100); camera.updateProjectionMatrix(); }
+    }
+    for (const b of panel.querySelectorAll('[data-ax]')) {
+      const ax = b.dataset.ax, d = +b.dataset.d;
+      b.addEventListener('pointerdown', (e) => { camHold.set(ax, d); try { b.setPointerCapture(e.pointerId); } catch { /* đã nhả */ } });
+      for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) b.addEventListener(ev, () => { if (camHold.get(ax) === d) camHold.delete(ax); });
+      b.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
+    const KEYS = { KeyW: ['fb', 1], KeyS: ['fb', -1], KeyA: ['lr', -1], KeyD: ['lr', 1], KeyR: ['ud', 1], KeyF: ['ud', -1],
+      KeyQ: ['yaw', -1], KeyE: ['yaw', 1], KeyT: ['pitch', 1], KeyG: ['pitch', -1], KeyZ: ['fov', -1], KeyX: ['fov', 1] };
+    function onKey(e) {
+      if (e.target.closest?.('input, select, textarea')) return;
+      const num = /^Digit([1-9])$/.exec(e.code);
+      if (num && e.type === 'keydown') { const p = allCams()[num[1] - 1]; if (p) cam(p.id); return; }
+      const m = KEYS[e.code];
+      if (!m) return;
+      e.preventDefault();
+      if (e.type === 'keydown') camHold.set(m[0], m[1]);
+      else if (camHold.get(m[0]) === m[1]) camHold.delete(m[0]);
+    }
+    addEventListener('keydown', onKey); addEventListener('keyup', onKey);
+    const note = (t) => { const el = panel.querySelector('.dt-cs-note'); el.textContent = t; clearTimeout(note.tm); note.tm = setTimeout(() => { el.textContent = ''; }, 4000); };
+    panel.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-cs]');
+      if (!b) return;
+      const which = panel.querySelector('[data-cs="which"]').value, kind = camKind();
+      if (b.dataset.cs === 'close') { panel.hidden = true; paintCams(); }
+      else if (b.dataset.cs === 'save') {
+        (camStore.set[which] ||= {})[kind] = cloneView(nowView());
+        camSaveStore(); camCur = which; paintCams();
+        note(`Đã lưu góc "${findCam(which).name}" cho ${kind === 'port' ? 'màn dọc' : 'màn ngang'}.`);
+      } else if (b.dataset.cs === 'add') {
+        let k = 1;
+        while (allCams().some(p => p.name === `Góc ${k}`)) k++;
+        const id = `x${Date.now().toString(36)}`;
+        camStore.extra.push({ id, name: `Góc ${k}`, [kind]: cloneView(nowView()) });
+        camSaveStore(); camCur = id; paintCams();
+        note(`Đã thêm "Góc ${k}".`);
+      } else if (b.dataset.cs === 'reset') {
+        if (camStore.set[which]) delete camStore.set[which][kind];
+        camSaveStore(); cam(which);
+        note('Đã về góc mặc định.');
+      } else if (b.dataset.cs === 'del') {
+        camStore.extra = camStore.extra.filter(p => p.id !== camCur);
+        delete camStore.set[camCur];
+        camSaveStore(); cam('wide');
+      } else if (b.dataset.cs === 'copy') {
+        const out = allCams().map(p => ({ id: p.id, name: p.name, land: viewOf(p, 'land'), port: viewOf(p, 'port') }));
+        const txt = JSON.stringify(out, (k, v) => (typeof v === 'number' ? r2(v) : v));
+        const done = () => note('Đã sao chép thông số mọi góc. Dán gửi để đặt làm mặc định.');
+        if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, () => prompt('Sao chép chuỗi này:', txt)); else prompt('Sao chép chuỗi này:', txt);
+      }
+    });
+    panel.querySelector('[data-cs="which"]').addEventListener('change', (e) => cam(e.target.value));
+    cam('wide', true);
+    frame();
+
     const ro = new ResizeObserver(() => {
       const w = root.clientWidth, h = root.clientHeight; if (!w || !h) return;
-      camera.aspect = w / h; camera.fov = fovFor(w / h); camera.updateProjectionMatrix(); renderer.setSize(w, h);
+      const was = camKind();
+      camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h);
+      if (camKind() !== was) cam(camCur, true); // xoay màn: dùng góc ngang / dọc tương ứng
     });
     ro.observe(root);
     window.__arena = { setMode, cam };
@@ -522,6 +702,7 @@ export function render(app, onBack) {
       gone = true;
       cancelAnimationFrame(raf);
       ro.disconnect();
+      removeEventListener('keydown', onKey); removeEventListener('keyup', onKey);
       controls.dispose();
       scene.traverse(o => {
         o.geometry?.dispose?.();
