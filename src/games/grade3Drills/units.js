@@ -978,7 +978,7 @@ function injectUnitStyles() {
   unitStyles = true;
   const st = document.createElement('style');
   st.textContent = `
-    .g3u { flex: 1; min-height: 0; display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 1.2cqh; padding: 1.6cqh 2.4cqi 1.6cqh calc(clamp(1.4rem, 4cqi, 3rem) + 1.6cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
+    .g3u { flex: 1; min-height: 0; display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 1.2cqh; padding: 1.6cqh 2.4cqi 1.6cqh calc(1.6cqi + 1rem); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .g3u-cmp { grid-template-rows: auto auto minmax(0, 1fr) auto; }
     .g3u > * { min-height: 0; }
     .g3u-prob { display: flex; align-items: center; justify-content: center; gap: 0.3em; font-size: min(12cqh, 6.6cqi, calc(88cqi / var(--pl, 14))); line-height: 1.2; white-space: nowrap; }

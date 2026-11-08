@@ -294,7 +294,7 @@ export function injectSegStyles() {
   segStyles = true;
   const st = document.createElement('style');
   st.textContent = `
-    .g3s { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1.7fr) minmax(0, 0.8fr) minmax(0, 0.6fr); gap: 1.6cqh; padding: 1.6cqh 3cqi 2cqh calc(clamp(1.4rem, 4cqi, 3rem) + 2cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
+    .g3s { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1.7fr) minmax(0, 0.8fr) minmax(0, 0.6fr); gap: 1.6cqh; padding: 1.6cqh 3cqi 2cqh calc(2cqi + 1rem); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .g3s > * { min-height: 0; }
     .g3s-story { font-size: min(5.6cqh, 3.3cqi, 2.4rem); line-height: 1.35; font-weight: 600; }
     .g3s-story b { color: #C2410C; }

@@ -898,7 +898,7 @@ function injectSolidStyles() {
   const st = document.createElement('style');
   st.textContent = `
     .g3s-ink, .g3s-ink * { vector-effect: non-scaling-stroke; }
-    .g3s { flex: 1; min-height: 0; display: grid; gap: 1.4cqh 2cqi; padding: 1.4cqh 2.4cqi 2cqh calc(clamp(1.4rem, 4cqi, 3rem) + 1.6cqi);
+    .g3s { flex: 1; min-height: 0; display: grid; gap: 1.4cqh 2cqi; padding: 1.4cqh 2.4cqi 2cqh calc(1.6cqi + 1rem);
       grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr);
       grid-template-areas: "head head" "fig side"; font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .g3s > * { min-height: 0; min-width: 0; }

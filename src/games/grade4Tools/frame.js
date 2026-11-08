@@ -267,13 +267,13 @@ export function injectFrameStyles() {
   if (framed) return;
   framed = true;
   css('g4-frame', `
-    .g4-scene .g3d-paper::before { display: none; }
     .g4n-sp { display: inline-block; width: 0.22em; }
     .g4-choices { flex: none; display: flex; gap: 1.2cqi; min-height: 0; }
     .g4-choices:not(.g4-choices-on) { display: none; }
-    .g4-choice { flex: 1 1 0; min-width: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: min(6.4cqh, 3.6cqi); line-height: 1.2; padding: 0.35em 0.4em; background: #fff; color: #1E3A8A;
-      border: 2px solid #93C5FD; box-shadow: 0 5px 0 #60A5FA; border-radius: 0.7em; cursor: pointer; touch-action: manipulation; }
-    .g4-choice:active { transform: translateY(4px); box-shadow: 0 2px 0 #60A5FA; }
+    .g4-choice { flex: 1 1 0; min-width: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: min(6.4cqh, 3.6cqi); line-height: 1.2; padding: 0.35em 0.4em; background: #fff; color: #1E293B;
+      border: 2px solid ${EDGE}; box-shadow: 0 5px 0 ${EDGE}; border-radius: 0.7em; cursor: pointer; touch-action: manipulation; }
+    @media (hover: hover) { .g4-choice:not(:disabled):hover { border-color: #93C5FD; } }
+    .g4-choice:active { transform: translateY(4px); box-shadow: 0 2px 0 ${EDGE}; }
     .g4-choice-ok, .g4-choice-ok:disabled { background: #DCFCE7; border-color: #22C55E; box-shadow: 0 6px 0 #16A34A; color: #166534; }
     .g4-choice-bad, .g4-choice-bad:disabled { background: #FEE2E2; border-color: #FCA5A5; box-shadow: 0 6px 0 #F87171; color: #B91C1C; opacity: 0.8; }
     .g4-choice:disabled { cursor: default; }

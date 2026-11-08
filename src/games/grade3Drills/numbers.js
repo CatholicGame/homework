@@ -714,7 +714,7 @@ function injectNumStyles() {
   numStyles = true;
   const st = document.createElement('style');
   st.textContent = `
-    .g3n { flex: 1; min-height: 0; display: grid; gap: 2.2cqh; padding: 2.4cqh 3cqi 2.6cqh calc(clamp(1.4rem, 4cqi, 3rem) + 2cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
+    .g3n { flex: 1; min-height: 0; display: grid; gap: 2.2cqh; padding: 2.4cqh 3cqi 2.6cqh calc(2cqi + 1rem); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .g3n > * { min-height: 0; min-width: 0; }
     .g3n-z { overflow: hidden; display: flex; align-items: center; justify-content: center; line-height: 1.15; }
     .g3n-in { max-width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.15em 0.28em; text-align: center; }

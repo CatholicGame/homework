@@ -659,7 +659,7 @@ export function injectDdivStyles() {
   st.textContent = `
     .dd-host { flex: 1; min-height: 0; display: flex; flex-direction: column; }
     .dd-root { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-    .dd-area { flex: 1; min-height: 0; display: flex; container-type: size; padding: 0.4rem 0.6rem 0.6rem calc(clamp(1.4rem, 4cqi, 3rem) + 0.4rem); }
+    .dd-area { flex: 1; min-height: 0; display: flex; container-type: size; padding: 0.4rem 0.6rem 0.6rem 0.6rem; }
     .dd-reserve .dd-area { margin-bottom: 22cqh; }
     .dd-grid { --cell: min(calc(100cqi / (var(--cols) + 0.8)), calc(100cqh / (var(--rows) + 0.7)), 170px);
       grid-template-columns: repeat(var(--cols), var(--cell)); grid-template-rows: repeat(var(--rows), var(--cell)); }

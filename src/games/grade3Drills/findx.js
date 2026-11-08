@@ -205,7 +205,7 @@ function injectFindxStyles() {
   fxStyles = true;
   const st = document.createElement('style');
   st.textContent = `
-    .g3x { flex: 1; min-height: 0; display: grid; grid-template-rows: 1.5fr 1fr 0.8fr 0.7fr; gap: 2cqh; padding: 2cqh 3cqi 2cqh calc(clamp(1.4rem, 4cqi, 3rem) + 2cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
+    .g3x { flex: 1; min-height: 0; display: grid; grid-template-rows: 1.5fr 1fr 0.8fr 0.7fr; gap: 2cqh; padding: 2cqh 3cqi 2cqh calc(2cqi + 1rem); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .g3x > * { min-height: 0; }
     .g3x-eq { display: flex; align-items: center; justify-content: center; gap: 0.3em; font-size: min(15cqh, calc(84cqi / var(--eqw))); line-height: 1; }
     .g3x-term { display: inline-flex; flex-direction: column; align-items: center; gap: 0.12em; }

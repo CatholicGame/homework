@@ -256,7 +256,7 @@ function injectExprStyles() {
   exStyles = true;
   const st = document.createElement('style');
   st.textContent = `
-    .g3e { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 3cqh 3cqi 3cqh calc(clamp(1.4rem, 4cqi, 3rem) + 2cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; line-height: 1; }
+    .g3e { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 3cqh 3cqi 3cqh calc(2cqi + 1rem); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; line-height: 1; }
     .g3e-grid { display: grid; grid-template-columns: auto auto auto; grid-auto-rows: 1.9em; align-items: center; column-gap: 0.25em; width: max-content; }
     .g3e-grid > * { display: flex; align-items: center; gap: 0.15em; white-space: nowrap; }
     .g3e-left { justify-content: flex-end; }

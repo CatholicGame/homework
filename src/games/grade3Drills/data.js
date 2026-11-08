@@ -798,7 +798,7 @@ function injectDataStyles() {
   const st = document.createElement('style');
   st.textContent = `
     .gd-scene .g3d-paper { container-name: gdpaper; }
-    .gd { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 1.4cqh; padding: 1.4cqh 2.2cqi 2cqh calc(clamp(1.4rem, 4cqi, 3rem) + 1.4cqi);
+    .gd { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 1.4cqh; padding: 1.4cqh 2.2cqi 2cqh calc(1.4cqi + 1rem);
       font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .gd > * { min-width: 0; min-height: 0; }
     .gd svg { display: block; overflow: visible; }

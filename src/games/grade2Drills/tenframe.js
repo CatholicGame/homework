@@ -233,7 +233,7 @@ function injectTenStyles() {
   st.textContent = `
     /* Tờ vở ngang: cột trái = phép tính + hai dòng tính, cột phải = hai khung 10 chấm chồng lên nhau (to hết cỡ) */
     .g2t { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-      grid-template-areas: "head frames" "lines frames"; gap: 3cqh 3cqi; padding: 3cqh 3cqi 3cqh calc(clamp(1.4rem, 4cqi, 3rem) + 2cqi);
+      grid-template-areas: "head frames" "lines frames"; gap: 3cqh 3cqi; padding: 3cqh 3cqi 3cqh calc(2cqi + 1rem);
       font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; line-height: 1; }
     .g2t > * { min-height: 0; min-width: 0; }
     .g2t-head { grid-area: head; place-self: center; display: grid; grid-template-columns: auto auto minmax(2.7em, auto) auto auto; grid-template-rows: 1.15em 0.55em auto; column-gap: 0.3em; align-items: center; justify-items: center;

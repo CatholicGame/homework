@@ -661,7 +661,7 @@ function injectMoneyStyles() {
   moneyStyles = true;
   const st = document.createElement('style');
   st.textContent = `
-    .mny { flex: 1; min-height: 0; display: grid; gap: 1.4cqh; padding: 1.6cqh 2.4cqi 1.6cqh calc(clamp(1.4rem, 4cqi, 3rem) + 1.6cqi);
+    .mny { flex: 1; min-height: 0; display: grid; gap: 1.4cqh; padding: 1.6cqh 2.4cqi 1.6cqh calc(1.6cqi + 1rem);
       font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .mny > * { min-height: 0; min-width: 0; }
     .mny b { color: #C2410C; }

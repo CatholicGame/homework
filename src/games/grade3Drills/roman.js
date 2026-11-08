@@ -689,7 +689,7 @@ function injectRomanStyles() {
   romanStyles = true;
   const st = document.createElement('style');
   st.textContent = `
-    .g3r { flex: 1; min-height: 0; display: grid; gap: 2cqh; padding: 2.4cqh 3cqi 2.4cqh calc(clamp(1.4rem, 4cqi, 3rem) + 2cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
+    .g3r { flex: 1; min-height: 0; display: grid; gap: 2cqh; padding: 2.4cqh 3cqi 2.4cqh calc(2cqi + 1rem); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .g3r > * { min-height: 0; min-width: 0; }
     .g3r-wait { visibility: hidden; }
     .g3r-rows { grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 0.7fr); }

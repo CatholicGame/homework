@@ -627,7 +627,7 @@ function injectAreaStyles() {
   arStyles = true;
   const st = document.createElement('style');
   st.textContent = `
-    .g3a { flex: 1; min-height: 0; display: grid; gap: 1.4cqh 2cqi; padding: 1.4cqh 2.4cqi 2cqh calc(clamp(1.4rem, 4cqi, 3rem) + 1.6cqi);
+    .g3a { flex: 1; min-height: 0; display: grid; gap: 1.4cqh 2cqi; padding: 1.4cqh 2.4cqi 2cqh calc(1.6cqi + 1rem);
       grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.48fr);
       grid-template-areas: "head head" "fig ch" "lines lines"; font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .g3a > * { min-height: 0; min-width: 0; }

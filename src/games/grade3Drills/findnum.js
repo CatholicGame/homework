@@ -295,7 +295,7 @@ function injectFindnumStyles() {
   fnStyles = true;
   const st = document.createElement('style');
   st.textContent = `
-    .fn { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) 13cqh; gap: 1.6cqh; padding: 2.5cqh 3cqi 2.5cqh calc(clamp(1.4rem, 4cqi, 3rem) + 2cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
+    .fn { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) 13cqh; gap: 1.6cqh; padding: 2.5cqh 3cqi 2.5cqh calc(2cqi + 1rem); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .fn-prob { font-size: min(5.6cqh, 5cqi); line-height: 1.45; text-wrap: balance; }
     /* Hai cụm của đề: vế trái cam, vế phải xanh; dòng "Ta có" tô hai vế cùng màu. Không ngắt giữa cụm. */
     .fn-ph { white-space: nowrap; border-radius: 0.3em; padding: 0 0.12em; }

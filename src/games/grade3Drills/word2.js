@@ -510,7 +510,7 @@ function injectWord2Styles() {
   const st = document.createElement('style');
   st.textContent = `
     .w2 { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.42fr) auto; gap: 1.2cqh;
-      padding: 1.4cqh 2.5cqi 1.6cqh calc(clamp(1.4rem, 4cqi, 3rem) + 1.8cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
+      padding: 1.4cqh 2.5cqi 1.6cqh calc(1.8cqi + 1rem); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .w2 > * { min-height: 0; min-width: 0; }
     .w2-story { font-size: min(4.6cqh, 2.7cqi, 2.2rem); line-height: 1.32; font-weight: 600; }
     .w2-story b { color: #C2410C; }

@@ -3,9 +3,9 @@
  * Mỗi công cụ (column.js, division.js…) là một "trò" của vòng chơi chung grade3Games/loop.js:
  * makeMission(rng, level, history) → đề, mountMission(stage, đề, level, api) → vẽ và chấm.
  *
- * Bố cục (không đổi trong một lượt): ngang = cột trái (thầy giáo + bàn phím) | tờ vở; dọc = thầy giáo / tờ vở / bàn phím.
- * Bàn phím luôn giữ chỗ từ đầu lượt (mờ khi chưa cần gõ). Thẻ kết quả của loop.js đè lên cột trái (ngang) hoặc
- * vùng bàn phím (dọc), không đẩy gì.
+ * Bố cục (không đổi trong một lượt): ngang = tờ vở | cột phải (thầy giáo + bàn phím); dọc = thầy giáo / tờ vở / bàn phím.
+ * Nền một màu dịu (không vẽ cảnh) cho bé tập trung; khung viền mảnh nhạt. Bàn phím luôn giữ chỗ từ đầu lượt (mờ khi chưa
+ * cần gõ). Hết lượt, thẻ kết quả của loop.js nằm ở góc dưới bên phải, đè lên vùng bàn phím (đã nghỉ), không đẩy gì.
  */
 
 import { LAB_NPCS, npcPic, cap } from '../grade3Games/npc.js';
@@ -18,7 +18,7 @@ export { cap, flyOne, calmMotion, sfx };
 
 export const INK = '#3F3A40';
 // Viền mảnh, nhạt cho khung (tờ vở, bong bóng lời, nút): nét đậm màu mực làm màn hình nặng nề.
-export const EDGE = '#D8CBB1';
+export const EDGE = '#D6E2F0';
 export const MINUS = '−';
 export const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
@@ -63,39 +63,6 @@ export function noteFact(id, ok) {
   window.dispatchEvent(new CustomEvent('tth:data-changed')); // → cloudSync.js
 }
 
-// ── Cảnh lớp học (SVG riêng, nét mực dày, màu tươi) ────────────────────────────────────────────────
-const ST = `stroke="${INK}" stroke-width="4" stroke-linejoin="round"`;
-const windowPic = (x) => `<g transform="translate(${x} 150)">
-  <rect x="0" y="0" width="190" height="230" rx="8" fill="#7DD3FC" ${ST}/>
-  <path d="M0 175 Q50 140 95 160 Q140 135 190 165 V230 H0 Z" fill="#86EFAC"/>
-  <circle cx="140" cy="52" r="22" fill="#FDE047" stroke="${INK}" stroke-width="3"/>
-  <g fill="#fff"><ellipse cx="55" cy="60" rx="30" ry="13"/><ellipse cx="72" cy="50" rx="20" ry="13"/></g>
-  <rect x="38" y="120" width="12" height="60" fill="#92400E" stroke="${INK}" stroke-width="3"/>
-  <circle cx="44" cy="110" r="32" fill="#22C55E" stroke="${INK}" stroke-width="3"/>
-  <path d="M95 0 V230 M0 115 H190" stroke="${INK}" stroke-width="7"/><path d="M95 0 V230 M0 115 H190" stroke="#fff" stroke-width="3"/>
-  <rect x="-10" y="226" width="210" height="16" rx="4" fill="#F5F5F4" ${ST}/></g>`;
-const flag = (x, y, c, t) => `<g transform="translate(${x} ${y})"><path d="M-26 0 H26 L0 44 Z" fill="${c}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-  <text x="0" y="24" text-anchor="middle" font-size="24" font-weight="900" fill="#fff" stroke="${INK}" stroke-width="1.2" font-family="'Baloo 2', sans-serif">${t}</text></g>`;
-const books = (x, y) => ['#EF4444', '#3B82F6', '#22C55E', '#F59E0B', '#A855F7', '#EC4899'].map((c, i) =>
-  `<rect x="${x + i * 22}" y="${y - 70 + (i % 3) * 8}" width="20" height="${70 - (i % 3) * 8}" rx="3" fill="${c}" stroke="${INK}" stroke-width="2.5"/>`).join('');
-export const CLASSROOM = `<svg class="g3d-backdrop" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-  <rect width="1600" height="900" fill="#FEF3C7"/>
-  <rect y="0" width="1600" height="40" fill="#FDE68A"/>
-  <path d="M0 40 Q200 95 400 40 Q600 95 800 40 Q1000 95 1200 40 Q1400 95 1600 40" stroke="${INK}" stroke-width="3" fill="none"/>
-  ${[['#EF4444', '1'], ['#3B82F6', '+'], ['#22C55E', '2'], ['#F59E0B', '×'], ['#A855F7', '3'], ['#EC4899', '−'], ['#0EA5E9', '4'], ['#EF4444', ':'], ['#22C55E', '5']]
-    .map(([c, t], i) => { const x = 100 + i * 175; const y = 40 + Math.abs(Math.sin(((x % 400) / 400) * Math.PI)) * 50; return flag(x, y, c, t); }).join('')}
-  ${windowPic(70)}${windowPic(1340)}
-  <g transform="translate(800 120)"><circle r="44" fill="#fff" ${ST}/><path d="M0 0 V-28 M0 0 L20 10" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><circle r="4" fill="${INK}"/></g>
-  <rect x="0" y="700" width="1600" height="200" fill="#D6A15B"/>
-  <path d="M0 700 H1600" stroke="${INK}" stroke-width="5"/>
-  ${Array.from({ length: 9 }, (_, i) => `<path d="M${i * 200} 700 L${i * 200 - 80} 900" stroke="#B7803F" stroke-width="4"/>`).join('')}
-  <rect x="60" y="560" width="200" height="140" rx="6" fill="#B45309" ${ST}/><path d="M60 630 H260" stroke="${INK}" stroke-width="4"/>
-  ${books(72, 626)}${books(72, 696)}
-  <g transform="translate(1450 700)"><path d="M-40 0 L-30 -70 H30 L40 0 Z" fill="#F97316" ${ST}/>
-    <path d="M0 -70 Q-60 -150 -20 -190 M0 -70 Q10 -170 50 -200 M0 -70 Q50 -120 80 -140" stroke="#16A34A" stroke-width="10" fill="none" stroke-linecap="round"/>
-    <circle cx="-20" cy="-190" r="20" fill="#22C55E" stroke="${INK}" stroke-width="3"/><circle cx="50" cy="-200" r="22" fill="#22C55E" stroke="${INK}" stroke-width="3"/><circle cx="80" cy="-140" r="18" fill="#22C55E" stroke="${INK}" stroke-width="3"/></g>
-</svg>`;
-
 // ── Bàn phím số ────────────────────────────────────────────────────────────────────────────────────
 // Phím to chia đều vùng bàn phím. Gõ bằng bàn phím máy tính cũng được (số, Backspace, Enter).
 // comma: thêm phím dấu phẩy (số thập phân, lớp 5): 1–9 / , 0 ⌫ / OK.
@@ -119,7 +86,6 @@ export function mountDrill(stage, { api, board, cls = '', comma = false }) {
   injectDrillStyles();
   stage.innerHTML = `
     <div class="g3d-scene ${cls} animate-fadeIn" data-result-host>
-      ${CLASSROOM}
       <div class="g3d-teach">
         <div class="g3d-npc">${npcPic(TEACHER, 'wait')}</div>
         <div class="g3d-bubble"><span class="g3d-name">${TEACHER.name}</span><span class="g3d-say">&nbsp;</span></div>
@@ -131,6 +97,7 @@ export function mountDrill(stage, { api, board, cls = '', comma = false }) {
   const sayBox = scene.querySelector('.g3d-say');
   const bubble = scene.querySelector('.g3d-bubble');
   const npcBox = scene.querySelector('.g3d-npc');
+  fitSay(bubble);
   const keys = scene.querySelector('.g3d-keys');
   const okKey = keys.querySelector('[data-k="ok"]');
 
@@ -205,6 +172,21 @@ export function mountDrill(stage, { api, board, cls = '', comma = false }) {
   };
 
   return { scene, paper: scene.querySelector('.g3d-paper'), say, show, hint, pad, done };
+}
+
+/**
+ * Hàng thầy cao cố định: lời dài (lời nhắc) thì thu nhỏ chữ trong bong bóng cho vừa, tờ vở không bị đẩy.
+ * Đo lại mỗi lần đổi lời và khi đổi khung (xoay màn).
+ */
+export function fitSay(bubble) {
+  const say = bubble.querySelector('.g3d-say');
+  const fit = () => {
+    say.style.fontSize = '';
+    let fs = parseFloat(getComputedStyle(say).fontSize);
+    while (bubble.scrollHeight > bubble.clientHeight + 1 && fs > 11) say.style.fontSize = `${--fs}px`;
+  };
+  new MutationObserver(fit).observe(say, { childList: true, characterData: true, subtree: true });
+  new ResizeObserver(fit).observe(bubble.parentElement);
 }
 
 /** Ô vừa gõ sai: rung đỏ một nhịp. */
@@ -407,37 +389,42 @@ export function injectDrillStyles() {
   const style = document.createElement('style');
   style.id = 'g3d-styles';
   style.textContent = `
-    .g3d-scene { position: relative; box-sizing: border-box; display: grid; overflow: hidden; border-radius: 1.4rem; background: #FEF3C7;
-      grid-template-columns: clamp(240px, 29%, 420px) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr);
-      grid-template-areas: "teach board" "pad board"; gap: 0.7rem; padding: 0.7rem; box-shadow: 0 6px 0 #FCD34D, 0 10px 24px rgba(180,83,9,0.12); }
-    .g3d-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
-    .g3d-scene > :not(.g3d-backdrop) { position: relative; z-index: 1; min-width: 0; min-height: 0; }
-    .g3d-teach { grid-area: teach; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); align-items: end; gap: 0.4rem; }
-    .g3d-npc { height: clamp(110px, 24vh, 250px); display: flex; justify-content: center; align-items: flex-end; }
+    /* Nền một màu dịu; tờ vở bên trái, cột phải = thầy + bàn phím (tay phải bấm, nút "tiếp theo" ở góc dưới bên phải) */
+    .g3d-scene { --d-teach: clamp(110px, 24vh, 250px); position: relative; box-sizing: border-box; display: grid; overflow: hidden; border-radius: 1.4rem; background: #EAF2FB;
+      grid-template-columns: minmax(0, 1fr) clamp(240px, 29%, 420px); grid-template-rows: auto minmax(0, 1fr);
+      grid-template-areas: "board teach" "board pad"; gap: 0.8rem; padding: 0.8rem; }
+    .g3d-scene > * { position: relative; z-index: 1; min-width: 0; min-height: 0; }
+    /* hàng thầy cao cố định (--d-teach): lời dài thì chữ bong bóng thu nhỏ (fitSay), không đẩy tờ vở / bàn phím */
+    .g3d-teach { grid-area: teach; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); grid-template-rows: minmax(0, 1fr); align-items: center; gap: 0.5rem;
+      height: var(--d-teach); }
+    .g3d-npc { height: 100%; display: flex; justify-content: center; align-items: flex-end; }
     .g3d-npc .g3-npc-img { height: 100%; width: auto; max-width: 100%; object-fit: contain; filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff); }
-    .g3d-bubble { align-self: center; position: relative; background: #fff; border: 2px solid ${EDGE}; border-radius: 1rem; padding: 0.45rem 0.65rem; font-weight: 700; color: #1E293B; line-height: 1.35;
-      font-size: clamp(0.95rem, 1.3vh + 0.55rem, 1.35rem); min-height: 4.2em; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 3px 0 rgba(63,58,64,0.1), 0 6px 14px rgba(63,58,64,0.08); }
+    .g3d-bubble { align-self: center; position: relative; background: #fff; border: 2px solid ${EDGE}; border-radius: 1.2rem; padding: 0.45rem 0.8rem; font-weight: 700; color: #1E293B; line-height: 1.35;
+      font-size: clamp(0.95rem, 1.3vh + 0.55rem, 1.35rem); max-height: 100%; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: center;
+      box-shadow: 0 4px 0 ${EDGE}; }
     .g3d-bubble::before { content: ''; position: absolute; left: -13px; bottom: 1.2rem; border: 8px solid transparent; border-right: 12px solid ${EDGE}; border-left: 0; }
     .g3d-bubble::after { content: ''; position: absolute; left: -10px; bottom: calc(1.2rem + 2px); border: 6px solid transparent; border-right: 9px solid #fff; border-left: 0; }
-    .g3d-bubble-hint { background: #FFFBEB; border-color: #D97706; }
+    .g3d-bubble-hint { background: #FFFBEB; border-color: #FCD34D; box-shadow: 0 4px 0 #FCD34D; }
     .g3d-bubble-hint::after { border-right-color: #FFFBEB; }
-    .g3d-name { font-size: 0.72em; color: #BE185D; font-weight: 800; }
-    .g3d-say b { color: #C2410C; }
+    .g3d-name { font-size: 0.72em; color: #B45309; font-weight: 800; }
+    .g3d-say b { color: #2563EB; }
 
     .g3d-padzone { grid-area: pad; container-type: size; }
+    /* Bàn phím: phím là thẻ trắng viền mảnh, bóng nổi cùng tông (không khung tối) */
     .g3d-keys { height: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: min(2.4cqh, 3cqi);
-      background: #334155; border-radius: 1.1rem; padding: min(2.4cqh, 3cqi); box-sizing: border-box; transition: opacity .25s, filter .25s; }
+      padding: 0.1rem 0.1rem 0.45rem; box-sizing: border-box; transition: opacity .25s, filter .25s; }
     @container (aspect-ratio > 1.7) {
       .g3d-keys { grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
     }
-    .g3d-key { border: none; border-radius: 0.7rem; background: #F8FAFC; color: #1E293B; font-weight: 800; font-family: inherit; cursor: pointer; touch-action: manipulation;
-      font-size: min(11cqh, 12cqi, 3rem); box-shadow: 0 4px 0 #94A3B8; min-height: 0; padding: 0; }
+    .g3d-key { border: 2px solid ${EDGE}; border-radius: 1rem; background: #fff; color: #1E293B; font-weight: 700; font-family: 'Baloo 2', inherit; cursor: pointer; touch-action: manipulation;
+      font-size: min(11cqh, 12cqi, 3rem); box-shadow: 0 4px 0 ${EDGE}; min-height: 0; padding: 0; transition: border-color .15s, background .15s; }
+    @media (hover: hover) { .g3d-key:not(:disabled):hover { border-color: #93C5FD; } }
     @container (aspect-ratio > 1.7) { .g3d-key { font-size: min(26cqh, 6.5cqi, 3rem); } }
-    .g3d-key:active { transform: translateY(3px); box-shadow: 0 1px 0 #94A3B8; }
+    .g3d-key:active { transform: translateY(3px); box-shadow: 0 1px 0 ${EDGE}; }
     /* Có phím dấu phẩy: 3 cột × 5 hàng (OK cả hàng cuối); khung dẹt: 7 cột × 2 hàng (1–6 ⌫ / 7 8 9 , 0 OK). */
     .g3d-keys-comma { grid-template-rows: repeat(5, minmax(0, 1fr)); }
     .g3d-keys-comma .g3d-key-ok { grid-column: span 3; }
-    .g3d-key-comma { background: #E0F2FE; color: #0369A1; box-shadow: 0 4px 0 #7DD3FC; }
+    .g3d-key-comma { background: #F0F9FF; border-color: #BAE6FD; color: #0369A1; box-shadow: 0 4px 0 #BAE6FD; }
     @container (aspect-ratio > 1.7) {
       .g3d-keys-comma { grid-template-columns: repeat(7, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
       .g3d-keys-comma .g3d-key { order: 2; }
@@ -445,21 +432,20 @@ export function injectDrillStyles() {
       .g3d-keys-comma .g3d-key-del { order: 1; }
       .g3d-keys-comma .g3d-key-ok { order: 3; grid-column: span 2; }
     }
-    .g3d-key-del { background: #FEE2E2; color: #B91C1C; box-shadow: 0 4px 0 #FCA5A5; }
-    .g3d-key-ok { background: #22C55E; color: #fff; box-shadow: 0 4px 0 #15803D; }
+    .g3d-key-del { background: #FEF2F2; border-color: #FECACA; color: #DC2626; box-shadow: 0 4px 0 #FECACA; }
+    .g3d-key-ok { background: #22C55E; border-color: #22C55E; color: #fff; box-shadow: 0 4px 0 #15803D; }
     .g3d-key-ok[hidden] { display: block; visibility: hidden; }
     .g3d-key:disabled { opacity: 0.45; cursor: default; }
     .g3d-keys-off { pointer-events: none; }
-    .g3d-keys-off .g3d-key { background: #CBD5E1; color: #94A3B8; box-shadow: 0 4px 0 #64748B; }
+    .g3d-keys-off .g3d-key { background: #F8FAFC; border-color: #E2E8F0; color: #CBD5E1; box-shadow: 0 4px 0 #E2E8F0; }
     .g3g-has-result .g3d-keys { visibility: hidden; }
 
     .g3d-board { grid-area: board; display: flex; }
-    .g3d-paper { flex: 1; min-width: 0; min-height: 0; position: relative; background: #fff; border: 2px solid ${EDGE}; border-radius: 1rem; box-shadow: 0 4px 0 rgba(63,58,64,0.1), 0 8px 18px rgba(63,58,64,0.08);
+    .g3d-paper { flex: 1; min-width: 0; min-height: 0; position: relative; background: #fff; border: 2px solid ${EDGE}; border-radius: 1.4rem; box-shadow: 0 6px 0 ${EDGE}, 0 14px 30px rgba(30,58,138,0.07);
       container-type: size; display: flex; flex-direction: column; overflow: hidden; }
-    .g3d-paper::before { content: ''; position: absolute; top: 0; bottom: 0; left: clamp(1.4rem, 4cqi, 3rem); border-left: 2px solid #FCA5A5; pointer-events: none; }
 
     /* Dòng đề trên đầu tờ vở: "Đặt tính rồi tính: 457 + 368 = ?" */
-    .g3c-head { flex: none; padding: 1.2cqh 2cqi 0 calc(clamp(1.4rem, 4cqi, 3rem) + 1.2cqi); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #334155; font-size: min(6.5cqh, 4.2cqi, 2.6rem); line-height: 1.3; }
+    .g3c-head { flex: none; padding: 1.2cqh 2cqi 0 calc(1.2cqi + 1rem); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #334155; font-size: min(6.5cqh, 4.2cqi, 2.6rem); line-height: 1.3; }
     @container (aspect-ratio < 1) { .g3c-head { font-size: min(4.4cqh, 5.8cqi); } }
     .g3c-head span { font-weight: 600; color: #64748B; }
     .g3c-expr { color: #1E293B; }
@@ -551,10 +537,14 @@ export function injectDrillStyles() {
     }
     .g3d-flyd { width: 100%; height: 100%; display: grid; place-items: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #DC2626; line-height: 1; }
 
-    /* Thẻ kết quả: đè lên cột thầy giáo + bàn phím (ngang) / vùng bàn phím (dọc) */
-    .g3d-scene > .g3g-result { position: absolute; z-index: 5; left: 0.7rem; top: 0.7rem; bottom: 0.7rem; width: clamp(240px, 29%, 420px); overflow-y: auto; justify-content: center; text-align: center;
-      border-width: 2px; border-radius: 1.3rem; box-shadow: 0 6px 0 rgba(0,0,0,0.1), 0 16px 36px rgba(0,0,0,0.25);
-      transform-origin: 50% 100%; animation: g3dCard .35s cubic-bezier(.2,1.4,.4,1); }
+    /* Thẻ kết quả: góc dưới bên phải, đè lên vùng bàn phím (đã nghỉ); tờ vở vẫn hiện để bé xem lại bài */
+    .g3d-scene > .g3g-result { position: absolute; z-index: 5; right: 0.8rem; bottom: 0.8rem; width: clamp(240px, 29%, 420px); max-height: calc(100% - 1.6rem - var(--d-teach)); overflow-y: auto;
+      text-align: center; align-items: stretch; border-width: 2px; border-radius: 1.2rem; box-shadow: 0 5px 0 rgba(0,0,0,0.08), 0 14px 30px rgba(0,0,0,0.18);
+      transform-origin: 100% 100%; animation: g3dCard .35s cubic-bezier(.2,1.4,.4,1); }
+    /* đúng: thầy đã khen trong bong bóng, thẻ chỉ còn nút "tiếp theo" */
+    .g3d-scene > .g3g-result-ok { padding: 0.2rem; background: transparent; border-color: transparent; box-shadow: none; }
+    .g3d-scene > .g3g-result-ok .g3g-result-text { display: none; }
+    .g3d-scene > .g3g-result-ok .g3g-btn { padding-block: 0.7em; box-shadow: 0 5px 0 #15803D, 0 10px 22px rgba(21,128,61,0.3); }
     /* Hiệu ứng riêng: g3fPop của Chợ phiên có translateX(-50%) cho thẻ căn giữa bằng left: 50% — thẻ ở đây đặt theo
        left / right nên dùng g3fPop sẽ lệch nửa thẻ rồi giật về chỗ. */
     @keyframes g3dCard { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: none; } }
@@ -564,26 +554,25 @@ export function injectDrillStyles() {
     .g3d-scene > .g3g-result .g3g-btn { font-size: clamp(1rem, 1.6vh + 0.6rem, 1.3rem); white-space: normal; }
 
     @media (orientation: portrait) {
-      .g3d-scene { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) clamp(140px, 23%, 270px); grid-template-areas: "teach" "board" "pad"; }
+      .g3d-scene { --d-teach: clamp(84px, 12vh, 160px); grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) clamp(140px, 23%, 270px); grid-template-areas: "teach" "board" "pad"; }
       .g3d-teach { grid-template-columns: auto minmax(0, 1fr); }
-      .g3d-npc { height: clamp(90px, 13vh, 180px); }
-      .g3d-scene > .g3g-result { left: 0.7rem; right: 0.7rem; top: auto; bottom: 0.7rem; width: auto; max-height: 48%; }
+      .g3d-scene > .g3g-result { width: min(420px, calc(100% - 1.6rem)); max-height: 48%; }
     }
     @media (orientation: landscape) and (max-height: 500px) {
-      .g3d-scene { gap: 0.4rem; padding: 0.4rem; grid-template-columns: clamp(220px, 32%, 320px) minmax(0, 1fr); }
-      .g3d-npc { height: 70px; }
-      .g3d-bubble { font-size: 0.85rem; min-height: 3.6em; padding: 0.3rem 0.5rem; }
-      .g3d-scene > .g3g-result { left: 0.4rem; top: 0.4rem; bottom: 0.4rem; width: clamp(220px, 32%, 320px); padding: 0.5rem; }
+      .g3d-scene { --d-teach: 70px; gap: 0.4rem; padding: 0.4rem; grid-template-columns: minmax(0, 1fr) clamp(220px, 32%, 320px); }
+      .g3d-bubble { font-size: 0.85rem; padding: 0.3rem 0.5rem; }
+      .g3d-scene > .g3g-result { right: 0.4rem; bottom: 0.4rem; width: clamp(220px, 32%, 320px); padding: 0.5rem; }
     }
 
     /* Nút chọn to trên tờ vở (tên thành phần, dấu phép tính, phép tính của bài toán) */
-    .g3d-choice { flex: 1 1 0; min-width: 0; padding: 0.2em 0.4em; background: #fff; color: #1E3A8A; border: 2px solid #93C5FD; box-shadow: 0 5px 0 #60A5FA; border-radius: 0.6em; font-family: 'Baloo 2', sans-serif; }
-    .g3d-choice:active { box-shadow: 0 2px 0 #60A5FA; }
-    .g3d-choice:disabled { opacity: 1; color: #94A3B8; border-color: #E2E8F0; box-shadow: 0 6px 0 #CBD5E1; cursor: default; }
-    .g3d-choice-ok, .g3d-choice-ok:disabled { background: #DCFCE7; border-color: #22C55E; box-shadow: 0 6px 0 #16A34A; color: #166534; }
+    .g3d-choice { flex: 1 1 0; min-width: 0; padding: 0.2em 0.4em; background: #fff; color: #1E293B; border: 2px solid ${EDGE}; box-shadow: 0 5px 0 ${EDGE}; border-radius: 0.7em; font-family: 'Baloo 2', sans-serif; }
+    @media (hover: hover) { .g3d-choice:not(:disabled):hover { border-color: #93C5FD; } }
+    .g3d-choice:active { box-shadow: 0 2px 0 ${EDGE}; }
+    .g3d-choice:disabled { opacity: 1; color: #94A3B8; background: #F8FAFC; border-color: #E2E8F0; box-shadow: 0 5px 0 #E2E8F0; cursor: default; }
+    .g3d-choice-ok, .g3d-choice-ok:disabled { background: #F0FDF4; border-color: #4ADE80; box-shadow: 0 5px 0 #86EFAC; color: #15803D; }
 
     /* Hàng phép tính (bảng nhân chia, tính nhẩm): mỗi phép một dòng to chia đều tờ vở */
-    .g3d-rows { flex: 1; display: flex; flex-direction: column; padding: 2cqh 3cqi 2cqh calc(clamp(1.4rem, 4cqi, 3rem) + 2cqi); gap: 1.6cqh; min-height: 0; }
+    .g3d-rows { flex: 1; display: flex; flex-direction: column; padding: 2cqh 3cqi 2cqh calc(2cqi + 1rem); gap: 1.6cqh; min-height: 0; }
     .g3d-row { flex: 1 1 0; min-height: 0; display: flex; align-items: center; gap: 0.25em; border-bottom: 2px dashed #BFDBFE; font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B;
       font-size: min(var(--rowfs, 15cqh), 9cqi); line-height: 1; white-space: nowrap; position: relative; }
     .g3d-row:last-child { border-bottom: none; }

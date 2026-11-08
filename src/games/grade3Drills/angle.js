@@ -858,7 +858,7 @@ function injectAngStyles() {
   angStyles = true;
   const st = document.createElement('style');
   st.textContent = `
-    .ang { flex: 1; min-height: 0; display: grid; gap: 1.2cqh 2cqi; padding: 1.4cqh 2.4cqi 1.6cqh calc(clamp(1.4rem, 4cqi, 3rem) + 1.6cqi);
+    .ang { flex: 1; min-height: 0; display: grid; gap: 1.2cqh 2cqi; padding: 1.4cqh 2.4cqi 1.6cqh calc(1.6cqi + 1rem);
       grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.2fr); font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .ang-noline { grid-template-rows: auto minmax(0, 1fr); }
     .ang > * { min-width: 0; min-height: 0; }

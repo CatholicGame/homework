@@ -1083,7 +1083,7 @@ function injectTimeStyles() {
     .g3t-head { font-size: min(5.4cqh, 3.3cqi, 2.2rem); padding-right: 2.5cqi; }
     .g3t-head b { color: #C2410C; }
     .g3t-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 2cqi;
-      padding: 1.5cqh 2.5cqi 2cqh calc(clamp(1.4rem, 4cqi, 3rem) + 1.2cqi); }
+      padding: 1.5cqh 2.5cqi 2cqh calc(1.2cqi + 1rem); }
     .g3t-body > * { min-width: 0; min-height: 0; }
     @container (aspect-ratio < 1.25) {
       .g3t-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1.15fr) minmax(0, 1fr); }

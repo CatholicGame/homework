@@ -630,7 +630,7 @@ function injectTempStyles() {
   tempStyles = true;
   const st = document.createElement('style');
   st.textContent = `
-    .g3n { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 1cqh; padding: 1.4cqh 2cqi 1.8cqh calc(clamp(1.4rem, 4cqi, 3rem) + 1.2cqi);
+    .g3n { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 1cqh; padding: 1.4cqh 2cqi 1.8cqh calc(1.2cqi + 1rem);
       font-family: 'Baloo 2', sans-serif; font-weight: 700; color: #1E293B; }
     .g3n > * { min-height: 0; min-width: 0; }
     .g3n-head { text-align: center; white-space: nowrap; line-height: 1.25; color: #334155; font-size: min(6.4cqh, 5.2cqi, calc(150cqi / var(--pl, 30))); }

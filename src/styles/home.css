@@ -1500,7 +1500,9 @@
 @media (max-width: 520px) {
   .user-rank-btn span { display: none; }
   .user-cloud-btn { padding: 4px 8px; }
-  .user-bar { gap: 6px; }
+  .user-bar { gap: 8px; }
+  /* Màn hẹp: avatar giữ mép phải, các nút còn lại giãn đều phủ hết phần trái (không chừa khoảng trống). */
+  .user-bar > :not(.user-menu-wrap) { flex: 1 1 0; min-width: 0; justify-content: center; }
   .user-rank-btn { padding: 4px 8px; }
   .user-stars { padding: 3px 10px 3px 6px; font-size: 0.95rem; }
   /* Màn hẹp: nút hồ sơ chỉ còn avatar tròn (tên và ▾ có trong menu). */
