@@ -1,0 +1,456 @@
+/**
+ * 🏆 Đấu Trường Nhí: ngân hàng câu soạn tay lớp 3 (Toán + Tiếng Việt, chương trình 2018, bám sách Kết nối tri thức).
+ * w: tuần học (1–35; HK I 1–18, HK II 19–35), chỉ hỏi khi lớp đã học tới tuần đó. abcd: o[0] đúng. order: o theo thứ tự đúng.
+ * Tuần Tiếng Việt theo 🧰 Công cụ Tiếng Việt 3 (tv3Tools/data, HK I); Toán HK I theo routeTests/g3/plan.js (Bài 1–44 trong 18 tuần),
+ * HK II ước theo thứ tự Bài 45–81 của Tập Hai.
+ * Kiểm tra: node scripts/dautruong-check.mjs 3
+ */
+export default [
+  // ── Tiếng Việt · Chính tả âm đầu ──
+  { w: 1, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Từ nào viết đúng chính tả?', o: ['cái kéo', 'cái céo', 'kái kéo', 'kái céo'], ex: 'Viết k trước e, ê, i: cái kéo.' },
+  { w: 1, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Chọn chữ đúng điền vào chỗ trống: thước …ẻ', o: ['k', 'c', 'q', 'g'], ex: 'Trước e viết k: thước kẻ.' },
+  { w: 2, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Từ nào viết đúng chính tả?', o: ['ghế gỗ', 'gế gỗ', 'ghế ghỗ', 'gế ghỗ'], ex: 'Viết gh trước e, ê, i: ghế. Viết g trước ô: gỗ.' },
+  { w: 2, m: 'tv', lv: 2, t: 'Chính tả âm đầu', q: 'Chọn chữ đúng điền vào chỗ trống: đường gồ …ề', o: ['gh', 'g', 'ng', 'ngh'], ex: 'Trước ê viết gh: gồ ghề.' },
+  { w: 3, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Từ nào viết đúng chính tả?', o: ['nghỉ ngơi', 'ngỉ ngơi', 'nghỉ nghơi', 'ngỉ nghơi'], ex: 'Viết ngh trước e, ê, i; viết ng trước ơ: nghỉ ngơi.' },
+  { w: 3, m: 'tv', lv: 2, t: 'Chính tả âm đầu', q: 'Chọn chữ đúng điền vào chỗ trống: suy …ĩ', o: ['ngh', 'ng', 'gh', 'g'], ex: 'Trước i viết ngh: suy nghĩ.' },
+  { w: 4, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Từ nào viết đúng chính tả?', o: ['trang trại', 'chang trại', 'trang chại', 'chang chại'], ex: 'Viết là "trang trại".' },
+  { w: 4, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Chọn chữ đúng điền vào chỗ trống: …ui vẻ', o: ['v', 'd', 'gi', 'r'], ex: 'Viết là "vui vẻ".' },
+  { w: 5, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Từ nào viết đúng chính tả?', o: ['sân trường', 'xân trường', 'sân chường', 'xân chường'], ex: 'Viết là "sân trường".' },
+  { w: 5, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Chọn chữ đúng điền vào chỗ trống: dòng …ông', o: ['s', 'x', 'd', 'r'], ex: 'Viết là "dòng sông".' },
+  { w: 6, m: 'tv', lv: 2, t: 'Chính tả âm đầu', q: 'Từ nào viết đúng chính tả?', o: ['giọt mưa', 'dọt mưa', 'rọt mưa', 'giọt mứa'], ex: 'Viết là "giọt mưa".' },
+  { w: 6, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Chọn chữ đúng điền vào chỗ trống: cơn …ó thổi mạnh', o: ['gi', 'd', 'r', 'v'], ex: 'Viết là "cơn gió".' },
+  { w: 7, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Từ nào viết đúng chính tả?', o: ['nắng nóng', 'lắng nóng', 'nắng lóng', 'lắng lóng'], ex: 'Viết là "nắng nóng".' },
+  { w: 7, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Chọn chữ đúng điền vào chỗ trống: quả …a chín thơm', o: ['n', 'l', 'nh', 'ng'], ex: 'Viết là "quả na".' },
+  { w: 8, m: 'tv', lv: 2, t: 'Chính tả âm đầu', q: 'Chọn chữ đúng điền vào chỗ trống: Thư viện có nhiều …uyện tranh.', o: ['tr', 'ch', 'gi', 'd'], ex: 'Viết là "truyện tranh".' },
+  { w: 12, m: 'tv', lv: 2, t: 'Chính tả âm đầu', q: 'Từ nào viết đúng chính tả?', o: ['xinh xắn', 'sinh sắn', 'xinh sắn', 'sinh xắn'], ex: 'Viết là "xinh xắn".' },
+  { w: 13, m: 'tv', lv: 2, t: 'Chính tả âm đầu', q: 'Từ nào viết đúng chính tả?', o: ['dạy dỗ', 'rạy rỗ', 'giạy giỗ', 'dạy rỗ'], ex: 'Viết là "dạy dỗ".' },
+  { w: 14, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Từ nào viết đúng chính tả?', o: ['chăm chỉ', 'trăm chỉ', 'chăm trỉ', 'trăm trỉ'], ex: 'Viết là "chăm chỉ".' },
+  { w: 15, m: 'tv', lv: 2, t: 'Chính tả âm đầu', q: 'Câu nào viết đúng chính tả?', o: ['Nước suối trong lành.', 'Lước suối trong lành.', 'Nước suối trong nành.', 'Lước suối trong nành.'], ex: 'Viết là "nước", "trong lành".' },
+  { w: 16, m: 'tv', lv: 2, t: 'Chính tả âm đầu', q: 'Chọn chữ đúng điền vào chỗ trống: cây …ương rồng', o: ['x', 's', 'd', 'r'], ex: 'Viết là "cây xương rồng".' },
+  { w: 22, m: 'tv', lv: 1, t: 'Chính tả âm đầu', q: 'Chọn chữ đúng điền vào chỗ trống: con …âu kéo cày', o: ['tr', 'ch', 'gi', 'd'], ex: 'Viết là "con trâu".' },
+  { w: 25, m: 'tv', lv: 2, t: 'Chính tả âm đầu', q: 'Chọn chữ đúng điền vào chỗ trống: …òng sông quê em uốn lượn.', o: ['d', 'r', 'gi', 'v'], ex: 'Viết là "dòng sông".' },
+
+  // ── Tiếng Việt · Chính tả vần, dấu thanh ──
+  { w: 5, m: 'tv', lv: 1, t: 'Chính tả vần, dấu thanh', q: 'Từ nào viết đúng chính tả?', o: ['vẽ tranh', 'vẻ tranh', 'vẽ trang', 'vẻ trang'], ex: '"Vẽ" có dấu ngã: vẽ tranh.' },
+  { w: 5, m: 'tv', lv: 2, t: 'Chính tả vần, dấu thanh', q: 'Từ nào viết đúng chính tả?', o: ['sạch sẽ', 'sạch sẻ', 'xạch sẽ', 'sạch xẽ'], ex: 'Viết là "sạch sẽ", chữ "sẽ" có dấu ngã.' },
+  { w: 6, m: 'tv', lv: 1, t: 'Chính tả vần, dấu thanh', q: 'Từ nào viết đúng chính tả?', o: ['buổi sáng', 'buổi sán', 'buổi xáng', 'buỗi sáng'], ex: 'Viết là "buổi sáng".' },
+  { w: 6, m: 'tv', lv: 1, t: 'Chính tả vần, dấu thanh', q: 'Chọn vần đúng điền vào chỗ trống: cái b… học', o: ['àn', 'àng', 'ành', 'ằn'], ex: 'Viết là "cái bàn học".' },
+  { w: 7, m: 'tv', lv: 2, t: 'Chính tả vần, dấu thanh', q: 'Chọn vần đúng điền vào chỗ trống: trời n… chang chang', o: ['ắng', 'ắn', 'ấng', 'ánh'], ex: 'Viết là "trời nắng chang chang".' },
+  { w: 8, m: 'tv', lv: 2, t: 'Chính tả vần, dấu thanh', q: 'Chọn vần đúng điền vào chỗ trống: n… niu từng trang sách', o: ['âng', 'ân', 'ăng', 'ang'], ex: 'Viết là "nâng niu".' },
+  { w: 10, m: 'tv', lv: 2, t: 'Chính tả vần, dấu thanh', q: 'Từ nào viết đúng chính tả?', o: ['con hươu', 'con hiêu', 'con hưu', 'con hươi'], ex: 'Viết là "con hươu" (vần ươu).' },
+  { w: 10, m: 'tv', lv: 2, t: 'Chính tả vần, dấu thanh', q: 'Chọn vần đúng điền vào chỗ trống: cái x… xúc đất', o: ['ẻng', 'ẻn', 'ẽng', 'ẻnh'], ex: 'Viết là "cái xẻng".' },
+  { w: 11, m: 'tv', lv: 2, t: 'Chính tả vần, dấu thanh', q: 'Từ nào viết đúng chính tả?', o: ['cây lựu', 'cây lịu', 'cây lụi', 'cây lượu'], ex: 'Viết là "cây lựu" (vần ưu).' },
+  { w: 11, m: 'tv', lv: 3, t: 'Chính tả vần, dấu thanh', q: 'Chọn vần đúng điền vào chỗ trống: cái k… ba chân', o: ['iềng', 'iền', 'ìng', 'uềng'], ex: 'Viết là "cái kiềng".' },
+  { w: 12, m: 'tv', lv: 2, t: 'Chính tả vần, dấu thanh', q: 'Chọn vần đúng điền vào chỗ trống: tiếng ch… reo vang', o: ['uông', 'uôn', 'ông', 'ương'], ex: 'Viết là "tiếng chuông".' },
+  { w: 13, m: 'tv', lv: 2, t: 'Chính tả vần, dấu thanh', q: 'Từ nào viết đúng chính tả?', o: ['vườn rau', 'vường rau', 'vừn rau', 'vờn rau'], ex: 'Viết là "vườn rau" (vần ươn).' },
+  { w: 14, m: 'tv', lv: 1, t: 'Chính tả vần, dấu thanh', q: 'Chọn vần đúng điền vào chỗ trống: mặt tr… sáng tỏ', o: ['ăng', 'ăn', 'ang', 'âng'], ex: 'Viết là "mặt trăng".' },
+  { w: 15, m: 'tv', lv: 3, t: 'Chính tả vần, dấu thanh', q: 'Từ nào viết đúng chính tả?', o: ['nghĩ ngợi', 'nghỉ ngợi', 'nghĩ ngởi', 'nghỉ ngởi'], ex: '"Nghĩ" (suy nghĩ) có dấu ngã: nghĩ ngợi.' },
+  { w: 16, m: 'tv', lv: 1, t: 'Chính tả vần, dấu thanh', q: 'Chọn vần đúng điền vào chỗ trống: ngôi s… lấp lánh', o: ['ao', 'au', 'âu', 'eo'], ex: 'Viết là "ngôi sao".' },
+  { w: 16, m: 'tv', lv: 2, t: 'Chính tả vần, dấu thanh', q: 'Từ nào viết đúng chính tả?', o: ['rau cải', 'rao cải', 'râu cải', 'rau cãi'], ex: 'Viết là "rau cải".' },
+  { w: 20, m: 'tv', lv: 2, t: 'Chính tả vần, dấu thanh', q: 'Câu nào viết đúng chính tả?', o: ['Em đã vẽ xong bức tranh.', 'Em đả vẽ xong bức tranh.', 'Em đã vẻ xong bức tranh.', 'Em đả vẻ xong bức tranh.'], ex: '"Đã" và "vẽ" đều có dấu ngã.' },
+  { w: 23, m: 'tv', lv: 1, t: 'Chính tả vần, dấu thanh', q: 'Chọn vần đúng điền vào chỗ trống: mùa thu, lá v… rơi đầy sân', o: ['àng', 'àn', 'ành', 'ằng'], ex: 'Viết là "lá vàng".' },
+  { w: 26, m: 'tv', lv: 3, t: 'Chính tả vần, dấu thanh', q: 'Từ nào viết đúng chính tả?', o: ['vững chãi', 'vững chải', 'vửng chãi', 'vửng chải'], ex: 'Viết là "vững chãi", hai chữ đều dấu ngã.' },
+  { w: 30, m: 'tv', lv: 2, t: 'Chính tả vần, dấu thanh', q: 'Chọn vần đúng điền vào chỗ trống: dòng s… chảy róc rách', o: ['uối', 'ối', 'ui', 'uổi'], ex: 'Viết là "dòng suối".' },
+
+  // ── Tiếng Việt · Từ chỉ sự vật ──
+  { w: 1, m: 'tv', lv: 1, t: 'Từ chỉ sự vật', q: 'Từ nào là từ chỉ sự vật?', o: ['quyển vở', 'chạy nhảy', 'xanh biếc', 'vui vẻ'], ex: 'Quyển vở là đồ vật nên là từ chỉ sự vật.' },
+  { w: 1, m: 'tv', lv: 1, t: 'Từ chỉ sự vật', q: 'Trong câu "Chú mèo nằm ngủ say sưa.", từ nào chỉ sự vật?', o: ['chú mèo', 'nằm', 'ngủ', 'say sưa'], ex: 'Chú mèo là con vật, là từ chỉ sự vật.' },
+  { w: 1, m: 'tv', lv: 1, t: 'Từ chỉ sự vật', q: 'Từ nào chỉ con vật?', o: ['con sóc', 'cây bàng', 'cái bát', 'hoa hồng'] },
+  { w: 9, m: 'tv', lv: 2, t: 'Từ chỉ sự vật', q: 'Trong câu "Bầu trời mùa thu trong xanh.", từ nào chỉ sự vật?', o: ['bầu trời', 'trong xanh', 'cao vút', 'bay lượn'], ex: 'Bầu trời là sự vật; trong xanh là đặc điểm.' },
+  { w: 9, m: 'tv', lv: 2, t: 'Từ chỉ sự vật', q: 'Từ nào chỉ hiện tượng tự nhiên?', o: ['cơn mưa', 'cái ô', 'tưới cây', 'mát mẻ'] },
+  { w: 16, m: 'tv', lv: 2, t: 'Từ chỉ sự vật', q: 'Nhóm nào gồm toàn từ chỉ sự vật?', o: ['bàn, ghế, bảng', 'bàn, viết, đọc', 'xanh, đỏ, ghế', 'hát, múa, cây'], ex: 'Bàn, ghế, bảng đều là đồ vật.' },
+  { w: 16, m: 'tv', lv: 1, t: 'Từ chỉ sự vật', q: 'Từ nào chỉ người?', o: ['bác sĩ', 'ngôi nhà', 'con đường', 'cái cây'] },
+  { w: 24, m: 'tv', lv: 2, t: 'Từ chỉ sự vật', q: 'Từ nào chỉ cảnh vật quê hương?', o: ['cánh đồng', 'thơm ngát', 'chăn trâu', 'xanh mướt'] },
+
+  // ── Tiếng Việt · Từ chỉ hoạt động ──
+  { w: 1, m: 'tv', lv: 1, t: 'Từ chỉ hoạt động', q: 'Từ nào là từ chỉ hoạt động?', o: ['tưới cây', 'cây bàng', 'tươi tốt', 'cái xô'], ex: 'Tưới cây là việc làm, là từ chỉ hoạt động.' },
+  { w: 3, m: 'tv', lv: 2, t: 'Từ chỉ hoạt động', q: 'Từ nào chỉ hoạt động khi nấu ăn?', o: ['luộc', 'cái nồi', 'mặn', 'gian bếp'] },
+  { w: 3, m: 'tv', lv: 2, t: 'Từ chỉ hoạt động', q: 'Trong câu "Bố rửa rau, mẹ thái thịt.", từ nào chỉ hoạt động?', o: ['thái', 'rau', 'thịt', 'bố'], ex: '"Rửa" và "thái" là hoạt động; rau, thịt, bố là sự vật.' },
+  { w: 9, m: 'tv', lv: 2, t: 'Từ chỉ hoạt động', q: 'Nhóm nào gồm toàn từ chỉ hoạt động?', o: ['đọc, viết, vẽ', 'đọc, sách, vẽ', 'đẹp, viết, vẽ', 'vở, bút, thước'] },
+  { w: 12, m: 'tv', lv: 1, t: 'Từ chỉ hoạt động', q: 'Từ nào chỉ hoạt động của học sinh trong giờ học?', o: ['phát biểu', 'bảng đen', 'chăm chỉ', 'lớp học'] },
+  { w: 16, m: 'tv', lv: 2, t: 'Từ chỉ hoạt động', q: 'Chọn từ chỉ hoạt động điền vào chỗ trống: Ngọn hải đăng … sáng suốt đêm.', o: ['chiếu', 'cao', 'biển', 'tàu'] },
+  { w: 28, m: 'tv', lv: 1, t: 'Từ chỉ hoạt động', q: 'Từ nào chỉ hoạt động thể thao?', o: ['bơi lội', 'sân bóng', 'khỏe mạnh', 'cầu thủ'] },
+
+  // ── Tiếng Việt · Từ chỉ đặc điểm ──
+  { w: 2, m: 'tv', lv: 1, t: 'Từ chỉ đặc điểm', q: 'Từ nào là từ chỉ đặc điểm?', o: ['xanh ngắt', 'bãi biển', 'bơi lội', 'con thuyền'], ex: 'Xanh ngắt tả màu sắc, là từ chỉ đặc điểm.' },
+  { w: 2, m: 'tv', lv: 2, t: 'Từ chỉ đặc điểm', q: 'Trong câu "Biển xanh mênh mông.", từ nào chỉ đặc điểm?', o: ['mênh mông', 'biển', 'sóng', 'bơi'] },
+  { w: 5, m: 'tv', lv: 1, t: 'Từ chỉ đặc điểm', q: 'Từ nào tả đặc điểm của con đường đến trường?', o: ['quanh co', 'đi bộ', 'cái cặp', 'cổng trường'] },
+  { w: 10, m: 'tv', lv: 2, t: 'Từ chỉ đặc điểm', q: 'Chọn từ chỉ đặc điểm điền vào chỗ trống: Chiếc bàn học của em rất …', o: ['gọn gàng', 'học bài', 'bút chì', 'lau chùi'] },
+  { w: 12, m: 'tv', lv: 2, t: 'Từ chỉ đặc điểm', q: 'Từ nào chỉ đặc điểm của ông bà?', o: ['hiền hậu', 'chăm sóc', 'kể chuyện', 'vườn cây'] },
+  { w: 19, m: 'tv', lv: 2, t: 'Từ chỉ đặc điểm', q: 'Từ nào chỉ màu sắc?', o: ['đỏ thắm', 'thơm ngát', 'mát rượi', 'ríu rít'] },
+  { w: 19, m: 'tv', lv: 2, t: 'Từ chỉ đặc điểm', q: 'Từ nào tả âm thanh?', o: ['ríu rít', 'xanh lam', 'mềm mại', 'ngọt lịm'] },
+  { w: 19, m: 'tv', lv: 2, t: 'Từ chỉ đặc điểm', q: 'Từ nào tả hương thơm của hoa?', o: ['thoang thoảng', 'rực rỡ', 'lấp lánh', 'ầm ầm'] },
+  { w: 20, m: 'tv', lv: 3, t: 'Từ chỉ đặc điểm', q: 'Từ nào tả tiếng cơn mưa rào?', o: ['ào ào', 'lất phất', 'hiu hiu', 'lăn tăn'], ex: 'Mưa rào to, nặng hạt nên rơi ào ào; lất phất là mưa phùn.' },
+  { w: 33, m: 'tv', lv: 2, t: 'Từ chỉ đặc điểm', q: 'Nhóm nào gồm toàn từ chỉ đặc điểm?', o: ['cao, thấp, béo', 'cao, chạy, gầy', 'nhà, thấp, to', 'đi, đứng, ngồi'] },
+
+  // ── Tiếng Việt · Tìm từ khác loại ──
+  { w: 9, m: 'tv', lv: 2, t: 'Tìm từ khác loại', q: 'Từ nào khác loại với các từ còn lại?', o: ['nhảy dây', 'con mèo', 'con chó', 'con gà'], ex: 'Nhảy dây chỉ hoạt động, ba từ kia chỉ con vật.' },
+  { w: 9, m: 'tv', lv: 2, t: 'Tìm từ khác loại', q: 'Từ nào khác loại với các từ còn lại?', o: ['xanh lè', 'đọc sách', 'viết bài', 'quét nhà'], ex: 'Xanh lè chỉ đặc điểm, ba từ kia chỉ hoạt động.' },
+  { w: 13, m: 'tv', lv: 2, t: 'Tìm từ khác loại', q: 'Từ nào khác loại với các từ còn lại?', o: ['cái bàn', 'đỏ tươi', 'vàng óng', 'trắng tinh'], ex: 'Cái bàn chỉ sự vật, ba từ kia chỉ màu sắc.' },
+  { w: 17, m: 'tv', lv: 2, t: 'Tìm từ khác loại', q: 'Từ nào khác loại với các từ còn lại?', o: ['thành phố', 'cấy lúa', 'gặt lúa', 'chăn trâu'], ex: 'Thành phố chỉ nơi chốn, ba từ kia chỉ hoạt động.' },
+  { w: 24, m: 'tv', lv: 3, t: 'Tìm từ khác loại', q: 'Từ nào khác loại với các từ còn lại?', o: ['Hà Nội', 'con sông', 'ngọn núi', 'cánh đồng'], ex: 'Hà Nội là tên riêng nên viết hoa; ba từ kia là tên chung.' },
+  { w: 29, m: 'tv', lv: 2, t: 'Tìm từ khác loại', q: 'Từ nào khác loại với các từ còn lại?', o: ['bóng chuyền', 'cầu thủ', 'trọng tài', 'khán giả'], ex: 'Bóng chuyền là môn thể thao; ba từ kia chỉ người.' },
+
+  // ── Tiếng Việt · Mở rộng vốn từ ──
+  { w: 6, m: 'tv', lv: 1, t: 'Mở rộng vốn từ', q: 'Từ nào chỉ đồ dùng học tập?', o: ['thước kẻ', 'cái nồi', 'cái chổi', 'bàn chải'] },
+  { w: 6, m: 'tv', lv: 2, t: 'Mở rộng vốn từ', q: 'Từ nào chỉ người làm việc trong nhà trường?', o: ['thầy hiệu trưởng', 'bác nông dân', 'chú bộ đội', 'cô bán hàng'] },
+  { w: 8, m: 'tv', lv: 1, t: 'Mở rộng vốn từ', q: 'Ở thư viện, các bạn thường làm gì?', o: ['đọc sách', 'đá bóng', 'nấu ăn', 'tắm biển'] },
+  { w: 11, m: 'tv', lv: 1, t: 'Mở rộng vốn từ', q: 'Từ nào chỉ người thân trong gia đình?', o: ['ông nội', 'bạn thân', 'cô giáo', 'hàng xóm'] },
+  { w: 11, m: 'tv', lv: 2, t: 'Mở rộng vốn từ', q: 'Con của bác, chú, cô, dì là gì của em?', o: ['anh chị em họ', 'anh chị em ruột', 'ông bà', 'cô dì chú bác'] },
+  { w: 13, m: 'tv', lv: 1, t: 'Mở rộng vốn từ', q: 'Đồ vật nào thường có trong nhà bếp?', o: ['cái chảo', 'cái gối', 'cái bảng', 'cái cặp'] },
+  { w: 15, m: 'tv', lv: 1, t: 'Mở rộng vốn từ', q: 'Người khám, chữa bệnh cho mọi người là ai?', o: ['bác sĩ', 'thợ may', 'kĩ sư', 'nông dân'] },
+  { w: 15, m: 'tv', lv: 2, t: 'Mở rộng vốn từ', q: 'Người may những bộ quần áo là ai?', o: ['thợ may', 'thợ xây', 'thợ điện', 'thợ mộc'] },
+  { w: 15, m: 'tv', lv: 2, t: 'Mở rộng vốn từ', q: 'Ai ra khơi đánh bắt cá trên biển?', o: ['ngư dân', 'nông dân', 'công nhân', 'thợ mỏ'] },
+  { w: 17, m: 'tv', lv: 2, t: 'Mở rộng vốn từ', q: 'Sự vật nào thường thấy ở nông thôn?', o: ['lũy tre', 'tòa nhà cao tầng', 'đèn giao thông', 'siêu thị'] },
+  { w: 17, m: 'tv', lv: 2, t: 'Mở rộng vốn từ', q: 'Sự vật nào thường thấy ở thành phố?', o: ['tòa nhà cao tầng', 'cánh đồng', 'lũy tre', 'ao cá'] },
+  { w: 32, m: 'tv', lv: 2, t: 'Mở rộng vốn từ', q: 'Việc làm nào giúp bảo vệ môi trường?', o: ['trồng cây xanh', 'xả rác ra sông', 'chặt phá rừng', 'đốt túi ni lông'] },
+  { w: 33, m: 'tv', lv: 1, t: 'Mở rộng vốn từ', q: 'Con vật nào sống dưới nước?', o: ['cá heo', 'đại bàng', 'sóc nâu', 'hươu sao'] },
+
+  // ── Tiếng Việt · Kiểu câu ──
+  { w: 1, m: 'tv', lv: 1, t: 'Kiểu câu', q: 'Câu nào là câu giới thiệu?', o: ['Đây là quê nội của em.', 'Quê nội em rất đẹp.', 'Em về thăm quê nội.', 'Quê nội có nhiều cây.'], ex: 'Câu giới thiệu trả lời câu hỏi "Ai, cái gì là gì?".' },
+  { w: 1, m: 'tv', lv: 1, t: 'Kiểu câu', q: 'Câu nào là câu nêu hoạt động?', o: ['Bà đang hái rau.', 'Bà em rất hiền.', 'Đây là bà em.', 'Vườn rau xanh tốt.'] },
+  { w: 2, m: 'tv', lv: 1, t: 'Kiểu câu', q: 'Câu nào là câu nêu đặc điểm?', o: ['Bãi biển rất rộng.', 'Em chạy trên bãi biển.', 'Bố đưa em ra biển.', 'Em nhặt vỏ sò.'] },
+  { w: 6, m: 'tv', lv: 1, t: 'Kiểu câu', q: 'Câu nào là câu hỏi?', o: ['Bạn đã làm bài tập chưa?', 'Em đã làm bài tập.', 'Bài tập này hay quá!', 'Bạn hãy làm bài tập đi.'] },
+  { w: 10, m: 'tv', lv: 1, t: 'Kiểu câu', q: 'Câu "Em là học sinh lớp 3." là kiểu câu gì?', o: ['Câu kể', 'Câu hỏi', 'Câu cảm', 'Câu khiến'] },
+  { w: 8, m: 'tv', lv: 2, t: 'Kiểu câu', q: 'Câu nào là câu cảm?', o: ['Ôi, thư viện đẹp quá!', 'Thư viện ở tầng hai.', 'Thư viện mở cửa lúc mấy giờ?', 'Em hãy giữ trật tự.'], ex: 'Câu cảm bộc lộ cảm xúc, thường có "ôi, quá" và dấu chấm than.' },
+  { w: 10, m: 'tv', lv: 2, t: 'Kiểu câu', q: 'Câu nào là câu khiến?', o: ['Con hãy cất sách vào cặp.', 'Con cất sách vào cặp rồi.', 'Con cất sách ở đâu?', 'Ôi, sách đẹp quá!'], ex: 'Câu khiến dùng để đề nghị, yêu cầu, thường có "hãy, đi, nào".' },
+  { w: 12, m: 'tv', lv: 2, t: 'Kiểu câu', q: 'Câu "Ông em trồng rất nhiều cây ăn quả." là kiểu câu gì?', o: ['Câu kể', 'Câu khiến', 'Câu hỏi', 'Câu cảm'] },
+  { w: 14, m: 'tv', lv: 2, t: 'Kiểu câu', q: 'Câu "Mời bạn ngồi xuống đây!" là kiểu câu gì?', o: ['Câu khiến', 'Câu kể', 'Câu hỏi', 'Câu cảm'] },
+  { w: 18, m: 'tv', lv: 3, t: 'Kiểu câu', q: 'Câu cảm dùng để làm gì?', o: ['Bộc lộ cảm xúc', 'Hỏi điều chưa biết', 'Nhờ, yêu cầu ai đó', 'Kể, tả sự việc'] },
+  { w: 18, m: 'tv', lv: 3, t: 'Kiểu câu', q: 'Câu khiến dùng để làm gì?', o: ['Đề nghị, yêu cầu', 'Bộc lộ cảm xúc', 'Hỏi điều chưa biết', 'Kể lại sự việc'] },
+  { w: 20, m: 'tv', lv: 2, t: 'Kiểu câu', q: 'Câu nào là câu cảm?', o: ['Chà, bầu trời đẹp quá!', 'Bầu trời hôm nay trong xanh.', 'Bầu trời có màu gì?', 'Con hãy nhìn bầu trời.'] },
+  { w: 30, m: 'tv', lv: 3, t: 'Kiểu câu', q: 'Thêm từ nào vào chỗ trống để có câu khiến: … cùng nhau giữ vệ sinh lớp học!', o: ['Chúng ta hãy', 'Chúng ta đã', 'Hôm qua', 'Lớp em'] },
+  { w: 35, m: 'tv', lv: 2, t: 'Kiểu câu', q: 'Câu nào là câu khiến?', o: ['Các em hãy ôn bài thật kĩ.', 'Các em đã ôn bài kĩ.', 'Các em ôn bài chưa?', 'Ôi, các em ôn bài chăm quá!'] },
+
+  // ── Tiếng Việt · Dấu câu ──
+  { w: 4, m: 'tv', lv: 1, t: 'Dấu câu', q: 'Chọn dấu câu điền vào chỗ trống: Mùa hè, em được về quê …', o: ['dấu chấm (.)', 'dấu chấm hỏi (?)', 'dấu phẩy (,)', 'dấu hai chấm (:)'] },
+  { w: 4, m: 'tv', lv: 2, t: 'Dấu câu', q: 'Chọn dấu câu điền vào chỗ trống: Mẹ dặn em … "Con nhớ đội mũ khi ra nắng."', o: ['dấu hai chấm (:)', 'dấu chấm (.)', 'dấu chấm hỏi (?)', 'dấu chấm than (!)'], ex: 'Trước lời nói của nhân vật dùng dấu hai chấm.' },
+  { w: 7, m: 'tv', lv: 1, t: 'Dấu câu', q: 'Cuối câu hỏi ta đặt dấu gì?', o: ['dấu chấm hỏi (?)', 'dấu chấm (.)', 'dấu phẩy (,)', 'dấu hai chấm (:)'] },
+  { w: 7, m: 'tv', lv: 2, t: 'Dấu câu', q: 'Chọn dấu câu điền vào chỗ trống: Ôi, chiếc cặp mới đẹp quá …', o: ['dấu chấm than (!)', 'dấu chấm hỏi (?)', 'dấu phẩy (,)', 'dấu hai chấm (:)'] },
+  { w: 8, m: 'tv', lv: 2, t: 'Dấu câu', q: 'Chọn dấu câu điền vào chỗ trống: Bạn mượn quyển truyện này ở đâu …', o: ['dấu chấm hỏi (?)', 'dấu chấm (.)', 'dấu chấm than (!)', 'dấu phẩy (,)'] },
+  { w: 9, m: 'tv', lv: 2, t: 'Dấu câu', q: 'Câu nào đặt dấu phẩy đúng?', o: ['Sáng nay, em đi học sớm.', 'Sáng, nay em đi học sớm.', 'Sáng nay em, đi học sớm.', 'Sáng nay em đi, học sớm.'] },
+  { w: 11, m: 'tv', lv: 2, t: 'Dấu câu', q: 'Chọn dấu câu điền vào chỗ trống: Nhà em có ba người … bố, mẹ và em.', o: ['dấu hai chấm (:)', 'dấu chấm hỏi (?)', 'dấu chấm than (!)', 'dấu chấm (.)'], ex: 'Dấu hai chấm đứng trước phần liệt kê.' },
+  { w: 12, m: 'tv', lv: 2, t: 'Dấu câu', q: 'Câu nào đặt dấu phẩy đúng?', o: ['Vườn nhà em có cam, bưởi, ổi.', 'Vườn nhà em, có cam bưởi ổi.', 'Vườn nhà em có, cam bưởi ổi.', 'Vườn, nhà em có cam bưởi ổi.'], ex: 'Dấu phẩy ngăn cách các sự vật cùng loại.' },
+  { w: 22, m: 'tv', lv: 3, t: 'Dấu câu', q: 'Trong câu Bố bảo: "Con học bài đi.", dấu ngoặc kép dùng để làm gì?', o: ['Đánh dấu lời nói', 'Kết thúc câu', 'Ngăn cách các từ', 'Hỏi điều chưa biết'] },
+  { w: 22, m: 'tv', lv: 2, t: 'Dấu câu', q: 'Câu nào dùng dấu câu đúng?', o: ['Cô nói: "Các em ngồi ngay ngắn."', 'Cô nói "Các em: ngồi ngay ngắn."', '"Cô nói:" Các em ngồi ngay ngắn.', 'Cô "nói": Các em ngồi ngay ngắn.'] },
+  { w: 26, m: 'tv', lv: 2, t: 'Dấu câu', q: 'Chọn dấu câu điền vào chỗ trống: Quê em có nhiều cảnh đẹp … sông, núi, đồng lúa.', o: ['dấu hai chấm (:)', 'dấu chấm hỏi (?)', 'dấu chấm than (!)', 'dấu ngoặc kép ("")'] },
+  { w: 30, m: 'tv', lv: 2, t: 'Dấu câu', q: 'Chọn dấu câu điền vào chỗ trống: Các bạn ơi … hãy cùng nhau nhặt rác!', o: ['dấu phẩy (,)', 'dấu chấm hỏi (?)', 'dấu hai chấm (:)', 'dấu chấm (.)'] },
+
+  // ── Tiếng Việt · So sánh ──
+  { w: 13, m: 'tv', lv: 1, t: 'So sánh', q: 'Câu nào có hình ảnh so sánh?', o: ['Mặt trăng tròn như cái đĩa.', 'Mặt trăng rất tròn.', 'Mặt trăng lên cao.', 'Em ngắm mặt trăng.'], ex: 'Mặt trăng được so sánh với cái đĩa nhờ từ "như".' },
+  { w: 13, m: 'tv', lv: 2, t: 'So sánh', q: 'Trong câu "Mắt bé tròn như hạt nhãn.", mắt bé được so sánh với gì?', o: ['hạt nhãn', 'bé', 'tròn', 'như'] },
+  { w: 13, m: 'tv', lv: 2, t: 'So sánh', q: 'Từ nào dùng để so sánh trong câu "Cây bàng như chiếc ô xanh khổng lồ."?', o: ['như', 'cây bàng', 'chiếc ô', 'xanh'] },
+  { w: 13, m: 'tv', lv: 1, t: 'So sánh', q: 'Câu "Ông em hiền như Bụt." so sánh ông với ai?', o: ['Bụt', 'em', 'cô Tấm', 'bà'] },
+  { w: 17, m: 'tv', lv: 2, t: 'So sánh', q: 'Chọn từ điền vào chỗ trống: Trẻ em như … trên cành.', o: ['búp', 'lá vàng', 'gốc cây', 'cành khô'], ex: 'Trẻ em như búp trên cành: non tơ, cần được chăm sóc.' },
+  { w: 17, m: 'tv', lv: 1, t: 'So sánh', q: 'Chọn hình ảnh so sánh hợp lí: Quả bóng tròn như …', o: ['quả cam', 'cái thước', 'cây cột', 'sợi dây'] },
+  { w: 19, m: 'tv', lv: 1, t: 'So sánh', q: 'Câu "Những đám mây trắng như bông." so sánh đám mây với gì?', o: ['bông', 'trắng', 'bầu trời', 'mặt trời'] },
+  { w: 20, m: 'tv', lv: 3, t: 'So sánh', q: 'Câu nào so sánh về âm thanh?', o: ['Tiếng mưa rơi như tiếng trống.', 'Giọt mưa trong như pha lê.', 'Hạt mưa nhỏ như sợi chỉ.', 'Mây đen như mực.'] },
+  { w: 20, m: 'tv', lv: 2, t: 'So sánh', q: 'Từ nào điền vào chỗ trống để có câu so sánh: Bãi cỏ xanh … tấm thảm khổng lồ.', o: ['như', 'và', 'rất', 'đã'] },
+  { w: 25, m: 'tv', lv: 2, t: 'So sánh', q: 'Trong câu "Dòng sông quê em như một dải lụa đào.", sự vật nào được so sánh với dải lụa?', o: ['dòng sông', 'quê em', 'lụa đào', 'con đò'] },
+
+  // ── Tiếng Việt · So sánh, từ ngữ trong câu văn tả (thay cho nhân hóa: chương trình 2018 dạy nhân hóa ở lớp 4) ──
+  { w: 22, m: 'tv', lv: 2, t: 'So sánh', q: 'Câu văn nào có hình ảnh so sánh?', o: ['Gió mát như chiếc quạt của bà.', 'Gió thổi rất mạnh.', 'Trời nổi gió to.', 'Em thích gió mát.'], ex: 'Gió được so sánh với chiếc quạt nhờ từ "như".' },
+  { w: 22, m: 'tv', lv: 2, t: 'So sánh', q: 'Trong câu "Mặt trời đỏ như quả cầu lửa.", mặt trời được so sánh với gì?', o: ['quả cầu lửa', 'mặt trời', 'đỏ', 'như'] },
+  { w: 23, m: 'tv', lv: 1, t: 'Từ chỉ hoạt động', q: 'Chọn từ chỉ hoạt động điền vào chỗ trống: Chú gấu … mật ong trong hốc cây.', o: ['tìm', 'nâu', 'to', 'rừng'] },
+  { w: 23, m: 'tv', lv: 2, t: 'So sánh', q: 'Câu "Đàn kiến nối đuôi nhau như một đoàn tàu nhỏ." so sánh đàn kiến với gì?', o: ['đoàn tàu nhỏ', 'cái đuôi', 'con kiến', 'đường ray'], ex: 'Đàn kiến đi thành hàng dài nên được so sánh với đoàn tàu.' },
+  { w: 24, m: 'tv', lv: 2, t: 'So sánh', q: 'Câu nào có hình ảnh so sánh về màu sắc?', o: ['Lá bàng đỏ như ngọn lửa.', 'Cây bàng có lá to.', 'Cây bàng ở sân trường.', 'Em ngồi dưới gốc bàng.'] },
+  { w: 24, m: 'tv', lv: 1, t: 'Từ chỉ hoạt động', q: 'Trong câu "Chú gà trống gáy trong sân.", từ nào chỉ hoạt động?', o: ['gáy', 'gà trống', 'sân', 'chú'] },
+  { w: 25, m: 'tv', lv: 2, t: 'Từ chỉ đặc điểm', q: 'Chọn từ chỉ đặc điểm điền vào chỗ trống: Những bông hoa hồng … trong nắng sớm.', o: ['tươi thắm', 'chào đón', 'tưới nước', 'khu vườn'] },
+  { w: 26, m: 'tv', lv: 3, t: 'So sánh', q: 'Câu nào so sánh về hình dáng?', o: ['Trăng tròn như quả bóng.', 'Trăng sáng như đèn.', 'Trăng ơi, từ đâu đến?', 'Trăng sáng vằng vặc.'], ex: '"Tròn" là hình dáng; "sáng như đèn" so sánh về độ sáng.' },
+
+  // ── Tiếng Việt · Từ trái nghĩa ──
+  { w: 14, m: 'tv', lv: 1, t: 'Từ trái nghĩa', q: 'Từ nào trái nghĩa với "cao"?', o: ['thấp', 'to', 'dài', 'béo'] },
+  { w: 14, m: 'tv', lv: 1, t: 'Từ trái nghĩa', q: 'Từ nào trái nghĩa với "sáng"?', o: ['tối', 'trắng', 'to', 'sạch'] },
+  { w: 14, m: 'tv', lv: 2, t: 'Từ trái nghĩa', q: 'Từ nào trái nghĩa với "chăm chỉ"?', o: ['lười biếng', 'siêng năng', 'cần cù', 'chịu khó'] },
+  { w: 15, m: 'tv', lv: 1, t: 'Từ trái nghĩa', q: 'Từ nào trái nghĩa với "mới"?', o: ['cũ', 'đẹp', 'sạch', 'to'] },
+  { w: 18, m: 'tv', lv: 2, t: 'Từ trái nghĩa', q: 'Cặp từ nào trái nghĩa?', o: ['nóng, lạnh', 'to, lớn', 'xinh, đẹp', 'nhanh, lẹ'] },
+  { w: 18, m: 'tv', lv: 2, t: 'Từ trái nghĩa', q: 'Chọn từ trái nghĩa điền vào chỗ trống: Kính trên, nhường …', o: ['dưới', 'trẻ', 'nhỏ', 'bé'], ex: 'Kính trên nhường dưới: "trên" trái nghĩa với "dưới".' },
+  { w: 20, m: 'tv', lv: 2, t: 'Từ trái nghĩa', q: 'Từ nào trái nghĩa với "ồn ào"?', o: ['yên tĩnh', 'náo nhiệt', 'ầm ĩ', 'đông vui'] },
+  { w: 25, m: 'tv', lv: 2, t: 'Từ trái nghĩa', q: 'Chọn từ trái nghĩa điền vào chỗ trống: Gần nhà … ngõ.', o: ['xa', 'sát', 'kề', 'bên'] },
+  { w: 31, m: 'tv', lv: 2, t: 'Từ trái nghĩa', q: 'Từ nào trái nghĩa với "hiền lành"?', o: ['dữ tợn', 'hiền hậu', 'ngoan ngoãn', 'dịu dàng'] },
+  { w: 33, m: 'tv', lv: 3, t: 'Từ trái nghĩa', q: 'Câu nào có cặp từ trái nghĩa?', o: ['Ngựa chạy nhanh, rùa đi chậm.', 'Ngựa chạy nhanh và khỏe.', 'Rùa đi chậm rãi.', 'Ngựa và rùa thi chạy.'], ex: '"Nhanh" và "chậm" là cặp từ trái nghĩa.' },
+
+  // ── Tiếng Việt · Từ có nghĩa giống nhau, từ địa phương ──
+  { w: 21, m: 'tv', lv: 1, t: 'Từ có nghĩa giống nhau', q: 'Từ nào có nghĩa giống từ "to"?', o: ['lớn', 'nhỏ', 'bé', 'thấp'] },
+  { w: 21, m: 'tv', lv: 2, t: 'Từ có nghĩa giống nhau', q: 'Từ nào có nghĩa giống từ "siêng năng"?', o: ['chăm chỉ', 'lười biếng', 'thông minh', 'vui vẻ'] },
+  { w: 21, m: 'tv', lv: 2, t: 'Từ có nghĩa giống nhau', q: 'Cặp từ nào có nghĩa giống nhau?', o: ['bố, ba', 'ông, bà', 'anh, em', 'cô, chú'] },
+  { w: 22, m: 'tv', lv: 1, t: 'Từ có nghĩa giống nhau', q: 'Từ nào có nghĩa giống từ "xinh"?', o: ['đẹp', 'xấu', 'cao', 'khỏe'] },
+  { w: 23, m: 'tv', lv: 2, t: 'Từ có nghĩa giống nhau', q: 'Từ nào có nghĩa giống từ "hạnh phúc"?', o: ['sung sướng', 'buồn bã', 'lo lắng', 'mệt mỏi'] },
+  { w: 24, m: 'tv', lv: 2, t: 'Từ có nghĩa giống nhau', q: 'Từ nào có nghĩa giống từ "đất nước"?', o: ['tổ quốc', 'làng xóm', 'thành phố', 'ngõ nhỏ'] },
+  { w: 26, m: 'tv', lv: 2, t: 'Từ địa phương', q: 'Ở miền Nam, "mẹ" thường được gọi là gì?', o: ['má', 'bà', 'chị', 'cô'] },
+  { w: 26, m: 'tv', lv: 3, t: 'Từ địa phương', q: 'Ở miền Nam, "quả dứa" thường được gọi là gì?', o: ['trái thơm', 'trái na', 'trái bơ', 'trái lê'] },
+  { w: 27, m: 'tv', lv: 3, t: 'Từ địa phương', q: 'Ở miền Nam, "cái bát" ăn cơm thường được gọi là gì?', o: ['cái chén', 'cái nồi', 'cái đĩa', 'cái muỗng'] },
+
+  // ── Tiếng Việt · Thành ngữ, tục ngữ ──
+  { w: 11, m: 'tv', lv: 2, t: 'Thành ngữ, tục ngữ', q: 'Điền từ vào chỗ trống: Công cha như núi Thái Sơn, nghĩa mẹ như … trong nguồn chảy ra.', o: ['nước', 'sông', 'suối', 'biển'] },
+  { w: 11, m: 'tv', lv: 1, t: 'Thành ngữ, tục ngữ', q: 'Điền từ vào chỗ trống: Anh em như thể tay …', o: ['chân', 'mắt', 'tai', 'đầu'], ex: 'Anh em như thể tay chân: phải thương yêu, đùm bọc nhau.' },
+  { w: 11, m: 'tv', lv: 1, t: 'Thành ngữ, tục ngữ', q: 'Điền từ vào chỗ trống: Uống nước nhớ …', o: ['nguồn', 'sông', 'suối', 'mưa'] },
+  { w: 6, m: 'tv', lv: 2, t: 'Thành ngữ, tục ngữ', q: 'Điền từ vào chỗ trống: Muốn sang thì bắc cầu kiều, muốn con hay chữ thì yêu lấy …', o: ['thầy', 'bạn', 'sách', 'trường'] },
+  { w: 13, m: 'tv', lv: 2, t: 'Thành ngữ, tục ngữ', q: 'Điền từ vào chỗ trống: Một con ngựa đau, cả tàu bỏ …', o: ['cỏ', 'chạy', 'ăn', 'đi'] },
+  { w: 15, m: 'tv', lv: 1, t: 'Thành ngữ, tục ngữ', q: 'Điền từ vào chỗ trống: Có công mài sắt, có ngày nên …', o: ['kim', 'dao', 'búa', 'đinh'], ex: 'Kiên trì làm việc thì sẽ thành công.' },
+  { w: 17, m: 'tv', lv: 1, t: 'Thành ngữ, tục ngữ', q: 'Điền từ vào chỗ trống: Ăn quả nhớ kẻ trồng …', o: ['cây', 'quả', 'hoa', 'rau'] },
+  { w: 20, m: 'tv', lv: 3, t: 'Thành ngữ, tục ngữ', q: 'Điền từ vào chỗ trống: Chuồn chuồn bay thấp thì mưa, bay cao thì …, bay vừa thì râm.', o: ['nắng', 'gió', 'bão', 'lạnh'] },
+  { w: 23, m: 'tv', lv: 2, t: 'Thành ngữ, tục ngữ', q: 'Câu "Lá lành đùm lá rách." khuyên em điều gì?', o: ['Giúp đỡ người khó khăn', 'Giữ gìn quần áo', 'Chăm sóc cây cối', 'Tiết kiệm lá cây'] },
+  { w: 27, m: 'tv', lv: 2, t: 'Thành ngữ, tục ngữ', q: 'Điền từ vào chỗ trống: Ăn vóc, học …', o: ['hay', 'giỏi', 'nhiều', 'chăm'] },
+  { w: 30, m: 'tv', lv: 3, t: 'Thành ngữ, tục ngữ', q: 'Câu "Một cây làm chẳng nên non, ba cây chụm lại nên hòn núi cao." nói về điều gì?', o: ['Sức mạnh đoàn kết', 'Cách trồng cây', 'Vẻ đẹp núi rừng', 'Chăm chỉ học tập'] },
+
+  // ── Tiếng Việt · Câu đố ──
+  { w: 3, m: 'tv', lv: 1, t: 'Câu đố', q: 'Đố em: Con gì ăn cỏ, kéo cày giúp nhà nông?', o: ['con trâu', 'con mèo', 'con gà', 'con chó'] },
+  { w: 8, m: 'tv', lv: 1, t: 'Câu đố', q: 'Đố em: Cái gì có nhiều trang, chứa nhiều chữ, em đọc mỗi ngày?', o: ['quyển sách', 'cái bút', 'cái thước', 'cái bàn'] },
+  { w: 10, m: 'tv', lv: 2, t: 'Câu đố', q: 'Đố em: Thân em xưa ở bụi tre, mùa đông xếp lại, mùa hè mở ra. Là cái gì?', o: ['cái quạt nan', 'cái ô', 'cái nón', 'cái chổi'] },
+  { w: 10, m: 'tv', lv: 1, t: 'Câu đố', q: 'Đố em: Cái gì có bốn chân mà chẳng biết đi, em ngồi lên mỗi ngày?', o: ['cái ghế', 'con mèo', 'cái bảng', 'cái cặp'] },
+  { w: 16, m: 'tv', lv: 2, t: 'Câu đố', q: 'Đố em: Cái gì thổi mát khắp nơi mà em nhìn chẳng thấy?', o: ['cơn gió', 'cái quạt', 'mặt trời', 'cơn mưa'] },
+  { w: 19, m: 'tv', lv: 1, t: 'Câu đố', q: 'Đố em: Cái gì cong cong, bảy màu, hiện trên trời sau cơn mưa?', o: ['cầu vồng', 'mặt trăng', 'đám mây', 'ngôi sao'] },
+  { w: 28, m: 'tv', lv: 3, t: 'Câu đố', q: 'Đố em: Quả gì da cóc mà bọc bột lọc, bột lọc mà bọc hòn than?', o: ['quả nhãn', 'quả mít', 'quả chuối', 'quả cam'] },
+  { w: 33, m: 'tv', lv: 1, t: 'Câu đố', q: 'Đố em: Con gì nhỏ xíu, chăm làm, tha mồi về tổ, đi thành hàng dài?', o: ['con kiến', 'con voi', 'con cá', 'con mèo'] },
+  { w: 35, m: 'tv', lv: 2, t: 'Câu đố', q: 'Đố em: Cái gì càng lau càng ướt?', o: ['cái khăn', 'cái bàn', 'cái ghế', 'cái gương'] },
+
+  // ── Tiếng Việt · Đọc hiểu câu ──
+  { w: 5, m: 'tv', lv: 2, t: 'Đọc hiểu', q: 'Đọc câu: "Sáng nào Nam cũng dậy sớm tập thể dục rồi mới đi học." Nam tập thể dục khi nào?', o: ['Buổi sáng, trước khi đi học', 'Buổi chiều, sau khi tan học', 'Buổi tối, trước khi ngủ', 'Buổi trưa, sau khi ăn'] },
+  { w: 9, m: 'tv', lv: 2, t: 'Đọc hiểu', q: 'Đọc câu: "Lan mượn truyện ở thư viện, đọc xong em mang trả đúng hẹn." Lan là bạn thế nào?', o: ['Giữ đúng lời hẹn', 'Hay quên đồ', 'Lười đọc sách', 'Thích đá bóng'] },
+  { w: 12, m: 'tv', lv: 1, t: 'Đọc hiểu', q: 'Đọc câu: "Ông cầm tay cháu, hai ông cháu dạo quanh vườn hoa." Ai dạo quanh vườn hoa?', o: ['Hai ông cháu', 'Hai chị em', 'Bố và mẹ', 'Cả lớp'] },
+  { w: 15, m: 'tv', lv: 2, t: 'Đọc hiểu', q: 'Đọc câu: "Mẹ đan cho em chiếc áo len để mặc mùa đông." Chiếc áo dùng để làm gì?', o: ['Mặc cho ấm mùa đông', 'Mặc đi bơi', 'Tặng bạn', 'Treo trong lớp'] },
+  { w: 20, m: 'tv', lv: 1, t: 'Đọc hiểu', q: 'Đọc câu: "Cơn mưa rào vừa tạnh, cầu vồng hiện lên rực rỡ." Cầu vồng hiện lên khi nào?', o: ['Sau khi mưa tạnh', 'Trước khi mưa', 'Lúc trời tối', 'Lúc nửa đêm'] },
+  { w: 25, m: 'tv', lv: 1, t: 'Đọc hiểu', q: 'Đọc câu: "Hồ Gươm nằm giữa lòng Thủ đô Hà Nội." Hồ Gươm ở đâu?', o: ['Hà Nội', 'Huế', 'Đà Nẵng', 'Cần Thơ'] },
+  { w: 29, m: 'tv', lv: 2, t: 'Đọc hiểu', q: 'Đọc câu: "Vì trời mưa to nên trận đấu bóng phải hoãn lại." Vì sao trận đấu bị hoãn?', o: ['Vì trời mưa to', 'Vì sân quá nhỏ', 'Vì cầu thủ bị ốm', 'Vì trời nắng gắt'] },
+  { w: 32, m: 'tv', lv: 2, t: 'Đọc hiểu', q: 'Đọc câu: "Nhờ các bạn nhỏ nhặt rác, bãi biển đã sạch đẹp trở lại." Nhờ đâu bãi biển sạch đẹp?', o: ['Nhờ các bạn nhặt rác', 'Nhờ sóng biển cuốn đi', 'Nhờ trời mưa to', 'Nhờ gió thổi mạnh'] },
+
+  // ── Tiếng Việt · Viết hoa ──
+  { w: 1, m: 'tv', lv: 1, t: 'Viết hoa', q: 'Từ nào là tên riêng, phải viết hoa?', o: ['Nguyễn Văn An', 'học sinh', 'cô giáo', 'bạn thân'], ex: 'Tên người viết hoa chữ cái đầu của mỗi tiếng.' },
+  { w: 7, m: 'tv', lv: 1, t: 'Viết hoa', q: 'Chữ cái đầu câu phải viết thế nào?', o: ['Viết hoa', 'Viết thường', 'Viết nghiêng', 'Viết thật nhỏ'] },
+  { w: 24, m: 'tv', lv: 1, t: 'Viết hoa', q: 'Trong câu "Bố đưa em đi thăm vịnh hạ long.", từ nào phải viết hoa?', o: ['hạ long', 'đưa', 'vịnh', 'thăm'], ex: 'Tên riêng địa danh viết hoa: vịnh Hạ Long.' },
+  { w: 25, m: 'tv', lv: 2, t: 'Viết hoa', q: 'Trong câu "Bà em sống ở huế.", từ nào phải viết hoa?', o: ['huế', 'ở', 'em', 'sống'], ex: 'Huế là tên riêng của thành phố nên viết hoa.' },
+  { w: 26, m: 'tv', lv: 1, t: 'Viết hoa', q: 'Trong câu "Quê nội em ở quảng ninh.", từ nào phải viết hoa?', o: ['quảng ninh', 'ở', 'nội', 'em'], ex: 'Tên tỉnh viết hoa chữ đầu mỗi tiếng: Quảng Ninh.' },
+  { w: 29, m: 'tv', lv: 3, t: 'Viết hoa', q: 'Tên nước ngoài nào viết đúng?', o: ['Ô-xtrây-li-a', 'Ô xtrây li a', 'Ôxtrâylia', 'Ô-xtrây li a'], ex: 'Tên nước ngoài phiên âm: viết hoa chữ đầu, các tiếng nối bằng gạch nối.' },
+
+  // ── Tiếng Việt · Hỏi đáp (Ở đâu, Khi nào, Bằng gì…) ──
+  { w: 6, m: 'tv', lv: 1, t: 'Hỏi đáp', q: 'Câu hỏi nào dùng để hỏi về thời gian?', o: ['Khi nào bạn đi học?', 'Bạn đi học ở đâu?', 'Bạn đi học bằng gì?', 'Ai đưa bạn đi học?'] },
+  { w: 16, m: 'tv', lv: 2, t: 'Hỏi đáp', q: 'Câu "Ngọn hải đăng ở trên đảo." trả lời cho câu hỏi nào?', o: ['Ở đâu?', 'Khi nào?', 'Bằng gì?', 'Để làm gì?'] },
+  { w: 16, m: 'tv', lv: 2, t: 'Hỏi đáp', q: 'Câu hỏi nào hợp với câu trả lời: "Bố em là kĩ sư."?', o: ['Bố em làm nghề gì?', 'Bố em ở đâu?', 'Bố em đi đâu?', 'Bố em về khi nào?'] },
+  { w: 25, m: 'tv', lv: 2, t: 'Hỏi đáp', q: 'Trong câu "Bà đan rổ bằng tre.", bộ phận "bằng tre" trả lời câu hỏi nào?', o: ['Bằng gì?', 'Ở đâu?', 'Khi nào?', 'Vì sao?'] },
+  { w: 25, m: 'tv', lv: 2, t: 'Hỏi đáp', q: 'Trong câu "Em chăm học để mẹ vui lòng.", bộ phận nào trả lời câu hỏi "Để làm gì?"?', o: ['để mẹ vui lòng', 'em', 'chăm học', 'mẹ'] },
+  { w: 26, m: 'tv', lv: 2, t: 'Hỏi đáp', q: 'Trong câu "Mùa hè, chúng em được nghỉ học.", bộ phận nào trả lời câu hỏi "Khi nào?"?', o: ['Mùa hè', 'chúng em', 'được nghỉ', 'nghỉ học'] },
+  { w: 26, m: 'tv', lv: 3, t: 'Hỏi đáp', q: 'Trong câu "Vì mải chơi, Tí bị điểm kém.", bộ phận nào trả lời câu hỏi "Vì sao?"?', o: ['Vì mải chơi', 'Tí', 'bị điểm kém', 'điểm kém'] },
+  { w: 27, m: 'tv', lv: 2, t: 'Hỏi đáp', q: 'Câu "Người dân vùng sông nước đi lại bằng thuyền." trả lời cho câu hỏi nào?', o: ['Người dân đi lại bằng gì?', 'Người dân đi lại ở đâu?', 'Người dân đi lại khi nào?', 'Vì sao người dân đi lại?'] },
+
+  // ── Tiếng Việt · Thứ tự chữ cái (order) ──
+  { w: 1, m: 'tv', k: 'order', lv: 1, t: 'Thứ tự chữ cái', q: 'Xếp các chữ cái theo thứ tự trong bảng chữ cái', o: ['b', 'd', 'g', 'k'] },
+  { w: 3, m: 'tv', k: 'order', lv: 2, t: 'Thứ tự chữ cái', q: 'Xếp các chữ cái theo thứ tự trong bảng chữ cái', o: ['e', 'ê', 'g', 'h'] },
+  { w: 6, m: 'tv', k: 'order', lv: 2, t: 'Thứ tự chữ cái', q: 'Xếp tên các bạn theo thứ tự bảng chữ cái', o: ['Hà', 'Lan', 'Minh', 'Tú'] },
+  { w: 10, m: 'tv', k: 'order', lv: 3, t: 'Thứ tự chữ cái', q: 'Xếp các từ theo thứ tự bảng chữ cái của chữ cái đầu', o: ['ăn', 'âm', 'em', 'ếch'], ex: 'Thứ tự chữ cái: a, ă, â, …, e, ê.' },
+  { w: 14, m: 'tv', k: 'order', lv: 2, t: 'Thứ tự chữ cái', q: 'Xếp tên các bạn theo thứ tự bảng chữ cái', o: ['Bình', 'Cúc', 'Đào', 'Giang'] },
+  { w: 18, m: 'tv', k: 'order', lv: 3, t: 'Thứ tự chữ cái', q: 'Xếp các chữ cái theo thứ tự trong bảng chữ cái', o: ['o', 'ô', 'ơ', 'p'] },
+
+  // ── Tiếng Việt · Xếp câu (order) ──
+  { w: 1, m: 'tv', k: 'order', lv: 1, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Mùa hè,', 'em được', 'về thăm', 'quê nội.'] },
+  { w: 2, m: 'tv', k: 'order', lv: 2, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Sóng biển', 'rì rào', 'vỗ vào', 'bờ cát.'] },
+  { w: 3, m: 'tv', k: 'order', lv: 1, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Mẹ', 'dạy em', 'nấu', 'món canh chua.'] },
+  { w: 5, m: 'tv', k: 'order', lv: 2, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Con đường', 'đến trường', 'rợp bóng', 'cây xanh.'] },
+  { w: 7, m: 'tv', k: 'order', lv: 2, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Cô giáo', 'cầm tay em', 'viết', 'từng nét chữ.'] },
+  { w: 8, m: 'tv', k: 'order', lv: 1, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Thư viện', 'trường em', 'có rất nhiều', 'truyện tranh.'] },
+  { w: 10, m: 'tv', k: 'order', lv: 1, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Ngôi nhà', 'của em', 'có', 'mái ngói đỏ.'] },
+  { w: 12, m: 'tv', k: 'order', lv: 1, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Ông', 'dắt tay em', 'đi dạo', 'quanh vườn.'] },
+  { w: 14, m: 'tv', k: 'order', lv: 2, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Những bậc đá', 'dẫn lên', 'đỉnh', 'núi cao.'] },
+  { w: 16, m: 'tv', k: 'order', lv: 2, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Ngọn hải đăng', 'soi đường', 'cho', 'tàu thuyền.'] },
+  { w: 19, m: 'tv', k: 'order', lv: 2, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Bầu trời', 'mùa thu', 'cao và', 'trong xanh.'] },
+  { w: 20, m: 'tv', k: 'order', lv: 1, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Sau cơn mưa,', 'cầu vồng', 'hiện ra', 'rực rỡ.'] },
+  { w: 22, m: 'tv', k: 'order', lv: 1, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Bà', 'dạy em', 'thêu', 'khăn tay.'] },
+  { w: 24, m: 'tv', k: 'order', lv: 2, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Dòng sông', 'quê em', 'uốn lượn', 'quanh làng.'] },
+  { w: 26, m: 'tv', k: 'order', lv: 2, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Người dân', 'vùng biển', 'ra khơi', 'đánh cá.'] },
+  { w: 29, m: 'tv', k: 'order', lv: 2, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Các vận động viên', 'thi đấu', 'rất', 'sôi nổi.'] },
+  { w: 32, m: 'tv', k: 'order', lv: 2, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Chúng em', 'trồng cây', 'để', 'bảo vệ môi trường.'] },
+  { w: 34, m: 'tv', k: 'order', lv: 3, t: 'Xếp câu', q: 'Xếp thành câu đúng', o: ['Mùa hè', 'sắp đến,', 'chúng em', 'chăm ôn bài.'] },
+
+  // ── Tiếng Việt · Xếp sự việc (order) ──
+  { w: 3, m: 'tv', k: 'order', lv: 1, t: 'Xếp sự việc', q: 'Xếp các bước làm món trứng rán theo thứ tự hợp lý', o: ['Đập trứng vào bát', 'Đánh đều trứng', 'Đổ trứng vào chảo', 'Lấy trứng ra đĩa'] },
+  { w: 4, m: 'tv', k: 'order', lv: 1, t: 'Xếp sự việc', q: 'Xếp các việc buổi sáng theo thứ tự hợp lý', o: ['Thức dậy', 'Rửa mặt', 'Ăn sáng', 'Đi học'] },
+  { w: 8, m: 'tv', k: 'order', lv: 2, t: 'Xếp sự việc', q: 'Xếp các bước mượn sách ở thư viện theo thứ tự hợp lý', o: ['Chọn sách', 'Ghi phiếu mượn', 'Đọc sách', 'Trả sách'] },
+  { w: 17, m: 'tv', k: 'order', lv: 2, t: 'Xếp sự việc', q: 'Xếp các bước gửi thư theo thứ tự hợp lý', o: ['Viết thư', 'Gấp thư', 'Bỏ thư vào phong bì', 'Dán tem, gửi thư'] },
+  { w: 19, m: 'tv', k: 'order', lv: 1, t: 'Xếp sự việc', q: 'Xếp các mùa theo thứ tự trong năm, bắt đầu từ mùa xuân', o: ['Mùa xuân', 'Mùa hạ', 'Mùa thu', 'Mùa đông'] },
+  { w: 21, m: 'tv', k: 'order', lv: 1, t: 'Xếp sự việc', q: 'Xếp các buổi trong ngày theo thứ tự', o: ['Buổi sáng', 'Buổi trưa', 'Buổi chiều', 'Buổi tối'] },
+  { w: 32, m: 'tv', k: 'order', lv: 2, t: 'Xếp sự việc', q: 'Xếp các giai đoạn lớn lên của cây theo thứ tự', o: ['Hạt nảy mầm', 'Cây non', 'Cây ra hoa', 'Cây kết quả'] },
+  { w: 33, m: 'tv', k: 'order', lv: 2, t: 'Xếp sự việc', q: 'Xếp các giai đoạn phát triển của con bướm theo thứ tự', o: ['Trứng', 'Sâu', 'Nhộng', 'Bướm'] },
+
+  // ══ Toán ══
+  // ── Cấu tạo số ──
+  { w: 1, m: 'toan', lv: 1, t: 'Cấu tạo số', q: 'Số gồm 4 trăm, 0 chục và 7 đơn vị là số nào?', o: ['407', '470', '47', '4007'], ex: '4 trăm, 0 chục, 7 đơn vị viết là 407.' },
+  { w: 1, m: 'toan', lv: 2, t: 'Cấu tạo số', q: 'Số lớn nhất có ba chữ số khác nhau là số nào?', o: ['987', '999', '998', '978'], ex: 'Chọn chữ số lớn nhất cho từng hàng, các chữ số khác nhau: 9, 8, 7.' },
+  { w: 1, m: 'toan', lv: 1, t: 'Cấu tạo số', q: 'Số liền sau của 599 là số nào?', o: ['600', '598', '590', '5100'], ex: '599 + 1 = 600.' },
+  { w: 19, m: 'toan', lv: 1, t: 'Cấu tạo số', q: 'Số gồm 3 nghìn, 5 trăm và 8 đơn vị là số nào?', o: ['3508', '3580', '358', '3058'], ex: 'Hàng chục là 0: 3508.' },
+  { w: 19, m: 'toan', lv: 1, t: 'Cấu tạo số', q: 'Số bé nhất có bốn chữ số là số nào?', o: ['1000', '1111', '9999', '1001'] },
+  { w: 20, m: 'toan', lv: 2, t: 'Cấu tạo số', q: 'Số 2506 đọc là gì?', o: ['Hai nghìn năm trăm linh sáu', 'Hai nghìn năm trăm sáu', 'Hai nghìn năm mươi sáu', 'Hai trăm năm mươi sáu'] },
+  { w: 24, m: 'toan', lv: 2, t: 'Cấu tạo số', q: 'Số gồm 6 chục nghìn, 2 nghìn và 5 đơn vị là số nào?', o: ['62 005', '62 050', '6205', '60 205'], ex: '60 000 + 2000 + 5 = 62 005.' },
+  { w: 24, m: 'toan', lv: 1, t: 'Cấu tạo số', q: 'Chữ số 7 trong số 47 315 thuộc hàng nào?', o: ['Hàng nghìn', 'Hàng chục nghìn', 'Hàng trăm', 'Hàng chục'] },
+  { w: 25, m: 'toan', lv: 2, t: 'Cấu tạo số', q: 'Số liền trước của 40 000 là số nào?', o: ['39 999', '40 001', '39 000', '49 999'] },
+  { w: 25, m: 'toan', lv: 3, t: 'Cấu tạo số', q: 'Từ năm chữ số 0, 3, 5, 8, 1, lập số lớn nhất có năm chữ số khác nhau. Đó là số nào?', o: ['85 310', '85 301', '10 358', '80 531'], ex: 'Xếp các chữ số từ lớn đến bé: 8, 5, 3, 1, 0.' },
+  { w: 33, m: 'toan', lv: 2, t: 'Cấu tạo số', q: 'Số tròn chục nào lớn hơn 95 và bé hơn 105?', o: ['100', '90', '110', '105'] },
+
+  // ── So sánh số ──
+  { w: 2, m: 'toan', lv: 1, t: 'So sánh số', q: 'Số nào lớn nhất trong các số 509, 590, 559, 595?', o: ['595', '590', '559', '509'] },
+  { w: 20, m: 'toan', lv: 1, t: 'So sánh số', q: 'So sánh hai số 4099 và 4100, cách viết nào đúng?', o: ['4099 < 4100', '4099 > 4100', '4099 = 4100', '4100 < 4099'], ex: '4099 có 40 trăm, 4100 có 41 trăm nên 4099 < 4100.' },
+  { w: 25, m: 'toan', lv: 2, t: 'So sánh số', q: 'Số nào bé nhất: 65 432, 56 432, 65 423, 56 423?', o: ['56 423', '56 432', '65 423', '65 432'] },
+  { w: 26, m: 'toan', lv: 3, t: 'So sánh số', q: 'Số bé nhất có năm chữ số mà đọc xuôi hay đọc ngược đều như nhau là số nào?', o: ['10 001', '10 000', '11 111', '10 101'], ex: '10 001 đọc ngược vẫn là 10 001, và bé hơn 10 101, 11 111.' },
+
+  // ── Bảng nhân, bảng chia ──
+  { w: 3, m: 'toan', lv: 1, t: 'Bảng nhân, bảng chia', q: 'Mỗi con gà có 2 chân. 7 con gà có bao nhiêu chân?', o: ['14 chân', '9 chân', '12 chân', '16 chân'], ex: '2 × 7 = 14.' },
+  { w: 3, m: 'toan', lv: 1, t: 'Bảng nhân, bảng chia', q: 'Có 20 cái bánh chia đều vào 4 hộp. Mỗi hộp có mấy cái bánh?', o: ['5 cái', '4 cái', '16 cái', '24 cái'], ex: '20 : 4 = 5.' },
+  { w: 4, m: 'toan', lv: 1, t: 'Bảng nhân, bảng chia', q: 'Phép nhân nào có kết quả bằng 24?', o: ['6 × 4', '5 × 5', '7 × 3', '8 × 2'], ex: '6 × 4 = 24; 5 × 5 = 25; 7 × 3 = 21; 8 × 2 = 16.' },
+  { w: 4, m: 'toan', lv: 1, t: 'Bảng nhân, bảng chia', q: 'Mỗi tuần có 7 ngày. 6 tuần có bao nhiêu ngày?', o: ['42 ngày', '13 ngày', '36 ngày', '48 ngày'], ex: '7 × 6 = 42.' },
+  { w: 5, m: 'toan', lv: 2, t: 'Bảng nhân, bảng chia', q: 'Một hộp bút có 8 cái. 9 hộp như thế có bao nhiêu cái bút?', o: ['72 cái', '17 cái', '81 cái', '64 cái'], ex: '8 × 9 = 72.' },
+  { w: 5, m: 'toan', lv: 2, t: 'Bảng nhân, bảng chia', q: 'Có 54 quả cam xếp đều vào các đĩa, mỗi đĩa 6 quả. Cần bao nhiêu đĩa?', o: ['9 đĩa', '8 đĩa', '48 đĩa', '60 đĩa'], ex: '54 : 6 = 9.' },
+  { w: 5, m: 'toan', lv: 1, t: 'Bảng nhân, bảng chia', q: 'Con nhện có 8 chân. 5 con nhện có bao nhiêu chân?', o: ['40 chân', '13 chân', '35 chân', '45 chân'], ex: '8 × 5 = 40.' },
+  { w: 5, m: 'toan', lv: 2, t: 'Bảng nhân, bảng chia', q: 'Phép chia nào có thương là 7?', o: ['56 : 8', '48 : 6', '36 : 6', '63 : 7'], ex: '56 : 8 = 7; 48 : 6 = 8; 36 : 6 = 6; 63 : 7 = 9.' },
+
+  // ── Tìm thành phần ──
+  { w: 1, m: 'toan', lv: 1, t: 'Tìm thành phần', q: '… + 245 = 600. Số cần điền là số nào?', o: ['355', '845', '365', '455'], ex: 'Số hạng = tổng trừ số hạng kia: 600 − 245 = 355.' },
+  { w: 2, m: 'toan', lv: 2, t: 'Tìm thành phần', q: '… − 128 = 372. Số cần điền là số nào?', o: ['500', '244', '400', '490'], ex: 'Số bị trừ = hiệu + số trừ: 372 + 128 = 500.' },
+  { w: 6, m: 'toan', lv: 1, t: 'Tìm thành phần', q: '… × 6 = 48. Số cần điền là số nào?', o: ['8', '42', '54', '7'], ex: '48 : 6 = 8.' },
+  { w: 6, m: 'toan', lv: 2, t: 'Tìm thành phần', q: '… : 7 = 6. Số cần điền là số nào?', o: ['42', '13', '36', '48'], ex: 'Số bị chia = thương × số chia: 6 × 7 = 42.' },
+  { w: 6, m: 'toan', lv: 3, t: 'Tìm thành phần', q: '35 : … = 5. Số cần điền là số nào?', o: ['7', '30', '40', '175'], ex: 'Số chia = số bị chia : thương: 35 : 5 = 7.' },
+  { w: 6, m: 'toan', lv: 2, t: 'Tìm thành phần', q: 'Em nghĩ một số, nhân số đó với 9 thì được 63. Số em nghĩ là số nào?', o: ['7', '54', '72', '8'], ex: '63 : 9 = 7.' },
+  { w: 29, m: 'toan', lv: 2, t: 'Tìm thành phần', q: '… × 4 = 2812. Số cần điền là số nào?', o: ['703', '730', '11 248', '713'], ex: '2812 : 4 = 703.' },
+
+  // ── Một phần mấy ──
+  { w: 6, m: 'toan', lv: 1, t: 'Một phần mấy', q: '1/4 của 20 cái kẹo là mấy cái?', o: ['5 cái', '4 cái', '16 cái', '80 cái'], ex: '20 : 4 = 5.' },
+  { w: 6, m: 'toan', lv: 1, t: 'Một phần mấy', q: 'Hình vuông chia thành 4 phần bằng nhau, tô màu 1 phần. Đã tô màu một phần mấy hình vuông?', o: ['1/4', '1/3', '1/2', '1/5'] },
+  { w: 6, m: 'toan', lv: 2, t: 'Một phần mấy', q: 'Lớp có 32 bạn, 1/8 số bạn đeo kính. Có mấy bạn đeo kính?', o: ['4 bạn', '8 bạn', '24 bạn', '40 bạn'], ex: '32 : 8 = 4.' },
+  { w: 7, m: 'toan', lv: 2, t: 'Một phần mấy', q: 'Một ngày có 24 giờ. 1/3 ngày là bao nhiêu giờ?', o: ['8 giờ', '3 giờ', '6 giờ', '12 giờ'], ex: '24 : 3 = 8.' },
+  { w: 13, m: 'toan', lv: 3, t: 'Một phần mấy', q: 'Mẹ mua 1 chục quả trứng, đã dùng 1/2 số trứng. Còn lại mấy quả trứng?', o: ['5 quả', '2 quả', '8 quả', '10 quả'], ex: '1 chục = 10 quả; 10 : 2 = 5 quả đã dùng; 10 − 5 = 5.' },
+  { w: 16, m: 'toan', lv: 3, t: 'Một phần mấy', q: 'Quyển truyện có 96 trang. Em đã đọc 1/4 số trang. Em còn phải đọc bao nhiêu trang?', o: ['72 trang', '24 trang', '92 trang', '100 trang'], ex: '96 : 4 = 24 trang đã đọc; 96 − 24 = 72.' },
+  { w: 18, m: 'toan', lv: 3, t: 'Một phần mấy', q: 'Thùng có 84 l nước, đã dùng 1/4 số nước. Thùng còn lại bao nhiêu lít?', o: ['63 l', '21 l', '80 l', '88 l'], ex: '84 : 4 = 21 l đã dùng; 84 − 21 = 63 (l).' },
+
+  // ── Hình học ──
+  { w: 7, m: 'toan', lv: 1, t: 'Hình học', q: 'M là trung điểm của đoạn thẳng AB dài 10 cm. Đoạn thẳng AM dài bao nhiêu?', o: ['5 cm', '10 cm', '20 cm', '2 cm'], ex: 'Trung điểm chia đoạn thẳng thành hai phần bằng nhau: 10 : 2 = 5.' },
+  { w: 8, m: 'toan', lv: 2, t: 'Hình học', q: 'Hình tròn có bán kính 4 cm thì đường kính dài bao nhiêu?', o: ['8 cm', '4 cm', '2 cm', '16 cm'], ex: 'Đường kính gấp đôi bán kính: 4 × 2 = 8.' },
+  { w: 8, m: 'toan', lv: 2, t: 'Hình học', q: 'Đường kính hình tròn dài 12 cm. Bán kính dài bao nhiêu?', o: ['6 cm', '12 cm', '24 cm', '3 cm'], ex: 'Bán kính bằng nửa đường kính: 12 : 2 = 6.' },
+  { w: 8, m: 'toan', lv: 3, t: 'Hình học', q: 'Lúc mấy giờ đúng thì kim giờ và kim phút tạo thành góc vuông?', o: ['3 giờ', '6 giờ', '12 giờ', '4 giờ'], ex: 'Lúc 3 giờ, kim phút chỉ 12, kim giờ chỉ 3: góc vuông.' },
+  { w: 9, m: 'toan', lv: 1, t: 'Hình học', q: 'Hình chữ nhật có mấy góc vuông?', o: ['4 góc', '2 góc', '3 góc', '1 góc'] },
+  { w: 8, m: 'toan', lv: 1, t: 'Hình học', q: 'Hình tam giác có mấy cạnh?', o: ['3 cạnh', '4 cạnh', '2 cạnh', '5 cạnh'] },
+  { w: 9, m: 'toan', lv: 2, t: 'Hình học', q: 'Hình nào có 4 cạnh bằng nhau và 4 góc vuông?', o: ['Hình vuông', 'Hình tam giác', 'Hình tròn', 'Hình tứ giác bất kì'] },
+  { w: 10, m: 'toan', lv: 2, t: 'Hình học', q: 'Khối lập phương có bao nhiêu mặt?', o: ['6 mặt', '4 mặt', '8 mặt', '12 mặt'] },
+  { w: 10, m: 'toan', lv: 3, t: 'Hình học', q: 'Khối lập phương có bao nhiêu đỉnh?', o: ['8 đỉnh', '6 đỉnh', '4 đỉnh', '12 đỉnh'] },
+  { w: 10, m: 'toan', lv: 3, t: 'Hình học', q: 'Khối hộp chữ nhật có bao nhiêu cạnh?', o: ['12 cạnh', '6 cạnh', '8 cạnh', '4 cạnh'] },
+
+  // ── Gấp, giảm một số lần ──
+  { w: 11, m: 'toan', lv: 1, t: 'Gấp, giảm một số lần', q: 'Em có 6 viên bi, anh có số bi gấp 3 lần của em. Anh có bao nhiêu viên bi?', o: ['18 viên', '9 viên', '2 viên', '24 viên'], ex: 'Gấp 3 lần: 6 × 3 = 18.' },
+  { w: 13, m: 'toan', lv: 3, t: 'Gấp, giảm một số lần', q: 'Gấp một số lên 4 lần rồi bớt đi 5 thì được 31. Số đó là số nào?', o: ['9', '144', '104', '6'], ex: 'Ngược lại: 31 + 5 = 36; 36 : 4 = 9.' },
+  { w: 13, m: 'toan', lv: 2, t: 'Gấp, giảm một số lần', q: 'Đàn gà có 35 con, số vịt bằng số gà giảm đi 5 lần. Có bao nhiêu con vịt?', o: ['7 con', '30 con', '40 con', '175 con'], ex: 'Giảm đi 5 lần: 35 : 5 = 7.' },
+  { w: 17, m: 'toan', lv: 2, t: 'Gấp, giảm một số lần', q: 'Con lợn nặng 56 kg, con chó nặng 8 kg. Con lợn nặng gấp mấy lần con chó?', o: ['7 lần', '48 lần', '6 lần', '64 lần'], ex: '56 : 8 = 7.' },
+  { w: 17, m: 'toan', lv: 2, t: 'Gấp, giảm một số lần', q: 'Mẹ 36 tuổi, con 9 tuổi. Tuổi mẹ gấp mấy lần tuổi con?', o: ['4 lần', '27 lần', '3 lần', '45 lần'], ex: '36 : 9 = 4.' },
+
+  // ── Chia có dư ──
+  { w: 12, m: 'toan', lv: 2, t: 'Chia có dư', q: 'Có 29 quả táo chia đều cho 4 bạn. Mỗi bạn được mấy quả, còn thừa mấy quả?', o: ['7 quả, thừa 1 quả', '6 quả, thừa 5 quả', '7 quả, thừa 2 quả', '8 quả, thừa 3 quả'], ex: '29 : 4 = 7 dư 1.' },
+  { w: 12, m: 'toan', lv: 3, t: 'Chia có dư', q: 'Có 30 bạn, mỗi bàn ngồi 4 bạn. Cần ít nhất bao nhiêu bàn để ai cũng có chỗ ngồi?', o: ['8 bàn', '7 bàn', '6 bàn', '9 bàn'], ex: '30 : 4 = 7 dư 2; 2 bạn còn lại cần thêm 1 bàn: 8 bàn.' },
+  { w: 12, m: 'toan', lv: 2, t: 'Chia có dư', q: 'Trong phép chia cho 5, số dư lớn nhất có thể là bao nhiêu?', o: ['4', '5', '1', '6'], ex: 'Số dư luôn bé hơn số chia: lớn nhất là 4.' },
+  { w: 12, m: 'toan', lv: 3, t: 'Chia có dư', q: 'Hôm nay là thứ Hai. 15 ngày nữa là thứ mấy?', o: ['Thứ Ba', 'Thứ Hai', 'Thứ Tư', 'Chủ nhật'], ex: '15 : 7 = 2 dư 1: qua 2 tuần rồi thêm 1 ngày, là thứ Ba.' },
+
+  // ── Toán có lời văn ──
+  { w: 2, m: 'toan', lv: 1, t: 'Toán có lời văn', q: 'Trường có 465 học sinh nam và 438 học sinh nữ. Trường có tất cả bao nhiêu học sinh?', o: ['903 học sinh', '893 học sinh', '803 học sinh', '913 học sinh'], ex: '465 + 438 = 903 (nhớ hai lần).' },
+  { w: 2, m: 'toan', lv: 2, t: 'Toán có lời văn', q: 'Cuộn dây dài 500 m, đã cắt đi 175 m. Cuộn dây còn lại bao nhiêu mét?', o: ['325 m', '435 m', '675 m', '335 m'], ex: '500 − 175 = 325 (m).' },
+  { w: 13, m: 'toan', lv: 2, t: 'Toán có lời văn', q: 'Thùng thứ nhất có 24 l dầu, thùng thứ hai nhiều hơn 8 l. Cả hai thùng có bao nhiêu lít dầu?', o: ['56 l', '32 l', '40 l', '48 l'], ex: 'Thùng hai: 24 + 8 = 32 l; cả hai: 24 + 32 = 56 (l).' },
+  { w: 13, m: 'toan', lv: 3, t: 'Toán có lời văn', q: 'Cửa hàng có 45 kg gạo, đã bán 1/5 số gạo. Cửa hàng còn lại bao nhiêu ki-lô-gam gạo?', o: ['36 kg', '9 kg', '40 kg', '50 kg'], ex: 'Đã bán 45 : 5 = 9 kg; còn 45 − 9 = 36 (kg).' },
+  { w: 13, m: 'toan', lv: 2, t: 'Toán có lời văn', q: 'Bình có 18 nhãn vở, An có số nhãn vở gấp đôi Bình. Cả hai bạn có bao nhiêu nhãn vở?', o: ['54 nhãn vở', '36 nhãn vở', '20 nhãn vở', '38 nhãn vở'], ex: 'An: 18 × 2 = 36; cả hai: 18 + 36 = 54.' },
+  { w: 16, m: 'toan', lv: 2, t: 'Toán có lời văn', q: 'Mỗi xe chở 125 bao xi măng. 4 xe như thế chở bao nhiêu bao?', o: ['500 bao', '129 bao', '480 bao', '520 bao'], ex: '125 × 4 = 500.' },
+  { w: 16, m: 'toan', lv: 2, t: 'Toán có lời văn', q: 'Có 156 quyển sách xếp đều lên 6 ngăn. Mỗi ngăn có bao nhiêu quyển?', o: ['26 quyển', '25 quyển', '150 quyển', '162 quyển'], ex: '156 : 6 = 26.' },
+  { w: 26, m: 'toan', lv: 2, t: 'Toán có lời văn', q: 'Tháng Một nhà máy làm được 12 500 sản phẩm, tháng Hai làm nhiều hơn 2750 sản phẩm. Tháng Hai làm được bao nhiêu?', o: ['15 250 sản phẩm', '9750 sản phẩm', '14 250 sản phẩm', '15 150 sản phẩm'], ex: '12 500 + 2750 = 15 250.' },
+  { w: 27, m: 'toan', lv: 2, t: 'Toán có lời văn', q: 'Cửa hàng có 12 450 quyển vở, đã bán 5230 quyển. Cửa hàng còn lại bao nhiêu quyển vở?', o: ['7220 quyển', '17 680 quyển', '7230 quyển', '7120 quyển'], ex: '12 450 − 5230 = 7220.' },
+  { w: 30, m: 'toan', lv: 3, t: 'Toán có lời văn', q: '4 thùng nước như nhau chứa tất cả 1240 l. 3 thùng như thế chứa bao nhiêu lít?', o: ['930 l', '310 l', '1236 l', '3720 l'], ex: 'Một thùng: 1240 : 4 = 310 l; ba thùng: 310 × 3 = 930 (l).' },
+  { w: 30, m: 'toan', lv: 3, t: 'Toán có lời văn', q: '5 hộp bánh như nhau có 40 cái bánh. 8 hộp như thế có bao nhiêu cái bánh?', o: ['64 cái', '43 cái', '45 cái', '320 cái'], ex: 'Một hộp: 40 : 5 = 8 cái; tám hộp: 8 × 8 = 64.' },
+  { w: 35, m: 'toan', lv: 2, t: 'Toán có lời văn', q: 'Đội trồng cây trồng 3 hàng, mỗi hàng 1250 cây. Đội trồng được bao nhiêu cây?', o: ['3750 cây', '1253 cây', '3650 cây', '4750 cây'], ex: '1250 × 3 = 3750.' },
+
+  // ── Đo lường ──
+  { w: 4, m: 'toan', lv: 1, t: 'Đo lường', q: '1 km bằng bao nhiêu mét?', o: ['1000 m', '100 m', '10 m', '10 000 m'] },
+  { w: 14, m: 'toan', lv: 1, t: 'Đo lường', q: '1 m bằng bao nhiêu mi-li-mét?', o: ['1000 mm', '100 mm', '10 mm', '10 000 mm'], ex: '1 m = 100 cm = 1000 mm.' },
+  { w: 14, m: 'toan', lv: 1, t: 'Đo lường', q: 'Chiếc bút chì dài khoảng bao nhiêu?', o: ['15 cm', '15 mm', '15 m', '15 km'] },
+  { w: 14, m: 'toan', lv: 2, t: 'Đo lường', q: '4 cm 5 mm bằng bao nhiêu mi-li-mét?', o: ['45 mm', '405 mm', '9 mm', '450 mm'], ex: '4 cm = 40 mm; 40 + 5 = 45 (mm).' },
+  { w: 14, m: 'toan', lv: 1, t: 'Đo lường', q: 'Quả trứng gà nặng khoảng bao nhiêu?', o: ['50 g', '50 kg', '5 kg', '500 kg'] },
+  { w: 16, m: 'toan', lv: 2, t: 'Đo lường', q: 'Một gói kẹo nặng 250 g. 4 gói như thế nặng bao nhiêu?', o: ['1 kg', '254 g', '100 g', '1000 kg'], ex: '250 × 4 = 1000 g = 1 kg.' },
+  { w: 15, m: 'toan', lv: 2, t: 'Đo lường', q: 'Can có 2 l nước, rót ra 500 ml. Trong can còn lại bao nhiêu mi-li-lít nước?', o: ['1500 ml', '498 ml', '2500 ml', '300 ml'], ex: '2 l = 2000 ml; 2000 − 500 = 1500 (ml).' },
+  { w: 15, m: 'toan', lv: 1, t: 'Đo lường', q: 'Một hộp sữa nhỏ chứa khoảng bao nhiêu?', o: ['180 ml', '180 l', '18 l', '1800 l'] },
+  { w: 14, m: 'toan', lv: 3, t: 'Đo lường', q: 'Quả dưa nặng 1 kg 200 g, quả bí nặng 950 g. Quả dưa nặng hơn quả bí bao nhiêu gam?', o: ['250 g', '750 g', '1150 g', '350 g'], ex: '1 kg 200 g = 1200 g; 1200 − 950 = 250 (g).' },
+  { w: 16, m: 'toan', lv: 1, t: 'Đo lường', q: 'Đo chiều dài lớp học, em dùng đơn vị nào là hợp lí nhất?', o: ['mét', 'mi-li-mét', 'gam', 'lít'] },
+
+  // ── Nhiệt độ ──
+  { w: 15, m: 'toan', lv: 1, t: 'Nhiệt độ', q: 'Nước đá đang tan có nhiệt độ khoảng bao nhiêu?', o: ['0 °C', '100 °C', '37 °C', '50 °C'] },
+  { w: 15, m: 'toan', lv: 1, t: 'Nhiệt độ', q: 'Nhiệt độ cơ thể người khỏe mạnh khoảng bao nhiêu?', o: ['37 °C', '27 °C', '100 °C', '0 °C'] },
+  { w: 15, m: 'toan', lv: 2, t: 'Nhiệt độ', q: 'Nước sôi ở nhiệt độ bao nhiêu?', o: ['100 °C', '37 °C', '0 °C', '50 °C'] },
+  { w: 15, m: 'toan', lv: 2, t: 'Nhiệt độ', q: 'Buổi sáng trời 22 °C, buổi trưa nóng hơn 9 °C. Buổi trưa trời bao nhiêu độ?', o: ['31 °C', '13 °C', '29 °C', '30 °C'], ex: '22 + 9 = 31 (°C).' },
+
+  // ── Biểu thức ──
+  { w: 17, m: 'toan', lv: 1, t: 'Biểu thức', q: 'Trong biểu thức 20 + 5 × 3, ta làm phép tính nào trước?', o: ['Phép nhân', 'Phép cộng', 'Làm từ trái sang phải', 'Làm cùng một lúc'] },
+  { w: 17, m: 'toan', lv: 2, t: 'Biểu thức', q: 'Giá trị của biểu thức 48 − 12 : 4 là bao nhiêu?', o: ['45', '9', '44', '3'], ex: 'Chia trước, trừ sau: 12 : 4 = 3; 48 − 3 = 45.' },
+  { w: 17, m: 'toan', lv: 2, t: 'Biểu thức', q: 'Giá trị của biểu thức (35 + 15) × 2 là bao nhiêu?', o: ['100', '65', '52', '70'], ex: 'Trong ngoặc trước: 35 + 15 = 50; 50 × 2 = 100.' },
+  { w: 17, m: 'toan', lv: 3, t: 'Biểu thức', q: 'Biểu thức nào có giá trị lớn nhất?', o: ['9 × (5 + 3)', '9 × 5 + 3', '9 + 5 × 3', '(9 + 5) × 3'], ex: 'Lần lượt bằng 72, 48, 24, 42.' },
+  { w: 17, m: 'toan', lv: 2, t: 'Biểu thức', q: 'Mẹ mua 3 hộp sữa, mỗi hộp 8 nghìn đồng, và một gói bánh 12 nghìn đồng. Mẹ trả bao nhiêu tiền?', o: ['36 nghìn đồng', '23 nghìn đồng', '60 nghìn đồng', '44 nghìn đồng'], ex: '8 × 3 + 12 = 24 + 12 = 36 (nghìn đồng).' },
+
+  // ── Chu vi, diện tích ──
+  { w: 21, m: 'toan', lv: 1, t: 'Chu vi, diện tích', q: 'Hình vuông có cạnh 5 cm. Chu vi hình vuông là bao nhiêu?', o: ['20 cm', '25 cm', '10 cm', '15 cm'], ex: 'Chu vi hình vuông = cạnh × 4 = 5 × 4 = 20 (cm).' },
+  { w: 21, m: 'toan', lv: 2, t: 'Chu vi, diện tích', q: 'Hình chữ nhật dài 8 cm, rộng 5 cm. Chu vi hình chữ nhật là bao nhiêu?', o: ['26 cm', '13 cm', '40 cm', '21 cm'], ex: '(8 + 5) × 2 = 26 (cm).' },
+  { w: 21, m: 'toan', lv: 1, t: 'Chu vi, diện tích', q: 'Hình tam giác có ba cạnh 4 cm, 5 cm, 6 cm. Chu vi hình tam giác là bao nhiêu?', o: ['15 cm', '120 cm', '11 cm', '20 cm'], ex: '4 + 5 + 6 = 15 (cm).' },
+  { w: 22, m: 'toan', lv: 1, t: 'Chu vi, diện tích', q: 'Xăng-ti-mét vuông viết tắt là gì?', o: ['cm²', 'cm', 'm²', 'mm'] },
+  { w: 22, m: 'toan', lv: 2, t: 'Chu vi, diện tích', q: 'Hình chữ nhật dài 9 cm, rộng 4 cm. Diện tích hình chữ nhật là bao nhiêu?', o: ['36 cm²', '26 cm²', '13 cm²', '18 cm²'], ex: 'Diện tích = dài × rộng = 9 × 4 = 36 (cm²).' },
+  { w: 23, m: 'toan', lv: 3, t: 'Chu vi, diện tích', q: 'Hình vuông có chu vi 24 cm. Diện tích hình vuông là bao nhiêu?', o: ['36 cm²', '24 cm²', '144 cm²', '96 cm²'], ex: 'Cạnh: 24 : 4 = 6 cm; diện tích 6 × 6 = 36 (cm²).' },
+  { w: 23, m: 'toan', lv: 2, t: 'Chu vi, diện tích', q: 'Mảnh vườn hình vuông cạnh 7 m. Rào xung quanh vườn cần bao nhiêu mét rào?', o: ['28 m', '49 m', '14 m', '21 m'], ex: 'Rào xung quanh là chu vi: 7 × 4 = 28 (m).' },
+  { w: 23, m: 'toan', lv: 3, t: 'Chu vi, diện tích', q: 'Hình chữ nhật A dài 6 cm, rộng 4 cm. Hình chữ nhật B dài 8 cm, rộng 3 cm. So sánh diện tích hai hình.', o: ['Hai hình có diện tích bằng nhau', 'Hình A có diện tích lớn hơn', 'Hình B có diện tích lớn hơn', 'Chưa so sánh được'], ex: '6 × 4 = 24 và 8 × 3 = 24: diện tích bằng nhau.' },
+  { w: 23, m: 'toan', lv: 3, t: 'Chu vi, diện tích', q: 'Tờ giấy hình chữ nhật rộng 5 cm, chiều dài gấp đôi chiều rộng. Diện tích tờ giấy là bao nhiêu?', o: ['50 cm²', '30 cm²', '25 cm²', '100 cm²'], ex: 'Dài 5 × 2 = 10 cm; diện tích 10 × 5 = 50 (cm²).' },
+  { w: 34, m: 'toan', lv: 3, t: 'Chu vi, diện tích', q: 'Hình chữ nhật có chu vi 30 cm, chiều dài 9 cm. Chiều rộng là bao nhiêu?', o: ['6 cm', '21 cm', '12 cm', '3 cm'], ex: 'Nửa chu vi: 30 : 2 = 15 cm; rộng 15 − 9 = 6 (cm).' },
+
+  // ── Số La Mã ──
+  { w: 20, m: 'toan', lv: 1, t: 'Số La Mã', q: 'Số La Mã IX là số nào?', o: ['9', '11', '4', '6'], ex: 'I đứng trước X: 10 − 1 = 9.' },
+  { w: 20, m: 'toan', lv: 1, t: 'Số La Mã', q: 'Số 12 viết bằng số La Mã là gì?', o: ['XII', 'IIX', 'XI', 'VII'] },
+  { w: 20, m: 'toan', lv: 2, t: 'Số La Mã', q: 'Số La Mã nào lớn nhất?', o: ['XX', 'XIX', 'XV', 'XVIII'], ex: 'XX = 20, XIX = 19, XV = 15, XVIII = 18.' },
+  { w: 20, m: 'toan', lv: 3, t: 'Số La Mã', q: 'Mỗi chữ V, X xếp bằng 2 que tính, chữ I bằng 1 que. Dùng đúng 3 que, xếp được số La Mã lớn nhất là số mấy?', o: ['11', '3', '6', '9'], ex: 'XI dùng 2 + 1 = 3 que và bằng 11, lớn hơn IX, VI, III.' },
+
+  // ── Làm tròn số ──
+  { w: 20, m: 'toan', lv: 1, t: 'Làm tròn số', q: 'Làm tròn số 4670 đến hàng trăm được số nào?', o: ['4700', '4600', '4000', '5000'], ex: 'Chữ số hàng chục là 7 (≥ 5) nên làm tròn lên: 4700.' },
+  { w: 20, m: 'toan', lv: 2, t: 'Làm tròn số', q: 'Làm tròn số 3258 đến hàng chục được số nào?', o: ['3260', '3250', '3200', '3300'], ex: 'Chữ số hàng đơn vị là 8 nên làm tròn lên: 3260.' },
+  { w: 25, m: 'toan', lv: 2, t: 'Làm tròn số', q: 'Làm tròn số 63 480 đến hàng nghìn được số nào?', o: ['63 000', '64 000', '63 500', '60 000'], ex: 'Chữ số hàng trăm là 4 (< 5) nên làm tròn xuống: 63 000.' },
+
+  // ── Thời gian ──
+  { w: 27, m: 'toan', lv: 1, t: 'Thời gian', q: 'Một năm có bao nhiêu tháng?', o: ['12 tháng', '10 tháng', '24 tháng', '365 tháng'] },
+  { w: 27, m: 'toan', lv: 2, t: 'Thời gian', q: 'Tháng nào có 28 hoặc 29 ngày?', o: ['Tháng Hai', 'Tháng Một', 'Tháng Tư', 'Tháng Mười Hai'] },
+  { w: 27, m: 'toan', lv: 2, t: 'Thời gian', q: 'Tháng nào có 31 ngày?', o: ['Tháng Bảy', 'Tháng Sáu', 'Tháng Chín', 'Tháng Mười Một'] },
+  { w: 27, m: 'toan', lv: 2, t: 'Thời gian', q: 'Ngày 30 tháng 4 là thứ Năm. Ngày 1 tháng 5 cùng năm là thứ mấy?', o: ['Thứ Sáu', 'Thứ Tư', 'Thứ Năm', 'Thứ Bảy'], ex: 'Tháng 4 có 30 ngày nên ngày 1 tháng 5 là ngày kế tiếp: thứ Sáu.' },
+  { w: 27, m: 'toan', lv: 2, t: 'Thời gian', q: 'Kim giờ ở giữa số 9 và số 10, kim phút chỉ số 6. Đồng hồ chỉ mấy giờ?', o: ['9 giờ 30 phút', '10 giờ 30 phút', '6 giờ 45 phút', '9 giờ 6 phút'] },
+  { w: 27, m: 'toan', lv: 3, t: 'Thời gian', q: 'Bộ phim bắt đầu lúc 7 giờ 45 phút, chiếu trong 50 phút. Phim kết thúc lúc mấy giờ?', o: ['8 giờ 35 phút', '8 giờ 45 phút', '7 giờ 95 phút', '8 giờ 25 phút'], ex: '7 giờ 45 phút thêm 15 phút là 8 giờ, thêm 35 phút nữa: 8 giờ 35 phút.' },
+  { w: 28, m: 'toan', lv: 3, t: 'Thời gian', q: 'Em đi học lúc 6 giờ 40 phút, đến trường lúc 7 giờ kém 5 phút. Em đi hết bao nhiêu phút?', o: ['15 phút', '35 phút', '25 phút', '5 phút'], ex: '7 giờ kém 5 phút là 6 giờ 55 phút; 55 − 40 = 15 (phút).' },
+
+  // ── Tiền Việt Nam ──
+  { w: 28, m: 'toan', lv: 1, t: 'Tiền Việt Nam', q: 'Tờ tiền nào có mệnh giá lớn nhất?', o: ['100 000 đồng', '50 000 đồng', '20 000 đồng', '10 000 đồng'] },
+  { w: 28, m: 'toan', lv: 2, t: 'Tiền Việt Nam', q: 'Mẹ đưa 50 000 đồng mua chiếc bút giá 35 000 đồng. Người bán trả lại bao nhiêu tiền?', o: ['15 000 đồng', '25 000 đồng', '85 000 đồng', '5000 đồng'], ex: '50 000 − 35 000 = 15 000 (đồng).' },
+  { w: 28, m: 'toan', lv: 2, t: 'Tiền Việt Nam', q: 'Một quyển vở giá 8000 đồng. Mua 5 quyển vở hết bao nhiêu tiền?', o: ['40 000 đồng', '13 000 đồng', '45 000 đồng', '400 000 đồng'], ex: '8000 × 5 = 40 000 (đồng).' },
+  { w: 28, m: 'toan', lv: 2, t: 'Tiền Việt Nam', q: 'Em có 2 tờ 20 000 đồng và 1 tờ 10 000 đồng. Em có tất cả bao nhiêu tiền?', o: ['50 000 đồng', '30 000 đồng', '40 000 đồng', '60 000 đồng'], ex: '20 000 + 20 000 + 10 000 = 50 000 (đồng).' },
+  { w: 29, m: 'toan', lv: 2, t: 'Tiền Việt Nam', q: '1 kg cam giá 30 nghìn đồng. Mua 3 kg cam hết bao nhiêu tiền?', o: ['90 nghìn đồng', '33 nghìn đồng', '60 nghìn đồng', '10 nghìn đồng'], ex: '30 × 3 = 90 (nghìn đồng).' },
+
+  // ── Khả năng xảy ra, số liệu ──
+  { w: 32, m: 'toan', lv: 1, t: 'Khả năng xảy ra', q: 'Trong túi chỉ có bi đỏ. Lấy ra 1 viên, viên bi chắc chắn có màu gì?', o: ['Màu đỏ', 'Màu xanh', 'Màu vàng', 'Màu trắng'] },
+  { w: 32, m: 'toan', lv: 1, t: 'Khả năng xảy ra', q: 'Tung một đồng xu một lần. Có mấy khả năng về mặt xuất hiện của đồng xu?', o: ['2 khả năng', '1 khả năng', '3 khả năng', '4 khả năng'], ex: 'Đồng xu có thể xuất hiện mặt sấp hoặc mặt ngửa.' },
+  { w: 32, m: 'toan', lv: 2, t: 'Khả năng xảy ra', q: 'Hộp có 3 bi xanh và 1 bi đỏ. Lấy ra 1 viên, dễ lấy được bi màu nào hơn?', o: ['Màu xanh', 'Màu đỏ', 'Dễ như nhau', 'Màu vàng'] },
+  { w: 32, m: 'toan', lv: 3, t: 'Khả năng xảy ra', q: 'Hộp có 2 bi đỏ và 2 bi xanh. Nhắm mắt lấy, cần lấy ít nhất mấy viên để chắc chắn có 2 viên cùng màu?', o: ['3 viên', '2 viên', '4 viên', '1 viên'], ex: '2 viên đầu có thể khác màu; viên thứ 3 chắc chắn trùng màu một viên.' },
+  { w: 31, m: 'toan', lv: 1, t: 'Số liệu', q: 'Lan làm được 12 bông hoa, Hà làm 15 bông, Mai làm 9 bông. Bạn nào làm được nhiều hoa nhất?', o: ['Hà', 'Lan', 'Mai', 'Ba bạn bằng nhau'] },
+  { w: 31, m: 'toan', lv: 2, t: 'Số liệu', q: 'Lớp 3A có 18 bạn thích bóng đá, 11 bạn thích cầu lông. Số bạn thích bóng đá nhiều hơn bao nhiêu bạn?', o: ['7 bạn', '29 bạn', '8 bạn', '6 bạn'], ex: '18 − 11 = 7.' },
+
+  // ── Quy luật ──
+  { w: 5, m: 'toan', lv: 1, t: 'Quy luật', q: 'Số tiếp theo của dãy 7, 14, 21, 28, … là số nào?', o: ['35', '30', '32', '36'], ex: 'Mỗi số hơn số trước 7: 28 + 7 = 35.' },
+  { w: 11, m: 'toan', lv: 3, t: 'Quy luật', q: 'Số tiếp theo của dãy 2, 6, 18, 54, … là số nào?', o: ['162', '58', '108', '72'], ex: 'Mỗi số gấp 3 lần số trước: 54 × 3 = 162.' },
+  { w: 19, m: 'toan', lv: 1, t: 'Quy luật', q: 'Số tiếp theo của dãy 1000, 2000, 3000, … là số nào?', o: ['4000', '3001', '3100', '5000'] },
+  { w: 24, m: 'toan', lv: 2, t: 'Quy luật', q: 'Số tiếp theo của dãy 15 000, 20 000, 25 000, … là số nào?', o: ['30 000', '26 000', '35 000', '25 500'], ex: 'Mỗi số hơn số trước 5000.' },
+  { w: 9, m: 'toan', lv: 2, t: 'Hình học', q: 'Hình vuông có mấy góc vuông?', o: ['4 góc', '2 góc', '3 góc', '1 góc'] },
+
+  // ── Sắp xếp (order) ──
+  { w: 1, m: 'toan', k: 'order', lv: 1, t: 'Sắp xếp', q: 'Xếp các số từ bé đến lớn', o: ['189', '198', '819', '891'] },
+  { w: 2, m: 'toan', k: 'order', lv: 1, t: 'Sắp xếp', q: 'Xếp các số từ lớn đến bé', o: ['720', '702', '270', '207'] },
+  { w: 14, m: 'toan', k: 'order', lv: 2, t: 'Sắp xếp', q: 'Xếp các độ dài từ ngắn đến dài', o: ['8 mm', '5 cm', '1 m', '2 km'] },
+  { w: 14, m: 'toan', k: 'order', lv: 1, t: 'Sắp xếp', q: 'Xếp các vật từ nhẹ đến nặng', o: ['Quả trứng gà', 'Quả dưa hấu', 'Bao gạo 25 kg', 'Con trâu'] },
+  { w: 15, m: 'toan', k: 'order', lv: 2, t: 'Sắp xếp', q: 'Xếp các lượng nước từ ít đến nhiều', o: ['250 ml', '900 ml', '1 l', '2 l'] },
+  { w: 15, m: 'toan', k: 'order', lv: 1, t: 'Sắp xếp', q: 'Xếp các nhiệt độ từ thấp đến cao', o: ['0 °C', '15 °C', '37 °C', '100 °C'] },
+  { w: 17, m: 'toan', k: 'order', lv: 3, t: 'Sắp xếp', q: 'Xếp các biểu thức theo giá trị từ bé đến lớn', o: ['10 − 2 × 4', '4 × 3', '(5 + 3) × 2', '5 + 3 × 6'], ex: 'Giá trị lần lượt: 2, 12, 16, 23.' },
+  { w: 19, m: 'toan', k: 'order', lv: 2, t: 'Sắp xếp', q: 'Xếp các số từ bé đến lớn', o: ['1099', '1909', '1990', '9011'] },
+  { w: 20, m: 'toan', k: 'order', lv: 2, t: 'Sắp xếp', q: 'Xếp các số La Mã từ bé đến lớn', o: ['IV', 'VI', 'IX', 'XI'] },
+  { w: 22, m: 'toan', k: 'order', lv: 3, t: 'Sắp xếp', q: 'Xếp các hình theo diện tích từ bé đến lớn', o: ['Hình vuông cạnh 3 cm', 'Chữ nhật 5 cm × 2 cm', 'Hình vuông cạnh 4 cm', 'Chữ nhật 6 cm × 3 cm'], ex: 'Diện tích: 9, 10, 16, 18 (cm²).' },
+  { w: 24, m: 'toan', k: 'order', lv: 2, t: 'Sắp xếp', q: 'Xếp các số từ bé đến lớn', o: ['45 099', '45 909', '49 050', '54 009'] },
+  { w: 25, m: 'toan', k: 'order', lv: 2, t: 'Sắp xếp', q: 'Xếp các số từ lớn đến bé', o: ['80 000', '78 999', '70 899', '8999'] },
+  { w: 27, m: 'toan', k: 'order', lv: 1, t: 'Sắp xếp', q: 'Xếp các tháng theo thứ tự trong năm', o: ['Tháng Ba', 'Tháng Sáu', 'Tháng Chín', 'Tháng Mười Hai'] },
+  { w: 27, m: 'toan', k: 'order', lv: 1, t: 'Sắp xếp', q: 'Xếp các khoảng thời gian từ ngắn đến dài', o: ['1 phút', '1 giờ', '1 ngày', '1 tuần'] },
+  { w: 28, m: 'toan', k: 'order', lv: 1, t: 'Sắp xếp', q: 'Xếp các tờ tiền từ mệnh giá bé đến lớn', o: ['5000 đồng', '10 000 đồng', '20 000 đồng', '50 000 đồng'] },
+];

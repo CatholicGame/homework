@@ -11,6 +11,7 @@ import { ONLINE, statusUrl } from '../thanDong/church/net.js';
 import { testRoom } from '../thanDong/engine/admin.js';
 import { getProfileGrade } from '../engine/profile.js';
 import { OPEN_BEFORE, clockText, nextStart, stepAt, whenText } from './rules.js';
+import { loadAwards } from './awards.js';
 
 const FONTS = 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap';
 export const SHOW_TITLE = 'Đấu Trường Nhí';
@@ -36,6 +37,11 @@ export function lobbyRender(app, onBack, deps) {
       /* ảnh bìa (sân khấu 3D chụp góc Trực diện, scripts/.tmp/dt-cover.mjs): màn LED và hai MC ở giữa, cắt thành cột cao vẫn giữ */
       .td-lobby .dt-cover { object-position: 50% 45%; }
       .td-lobby .dt-when { font-style: normal !important; font-variant-numeric: tabular-nums; }
+      .td-lobby .dt-awards { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; border-radius: 14px; border: 1px solid rgba(201, 144, 10, 0.45);
+        background: linear-gradient(90deg, rgba(255, 213, 92, 0.22), rgba(255, 213, 92, 0.06)); color: inherit; font: inherit; font-weight: 700; text-align: left; cursor: pointer; }
+      .td-lobby .dt-awards b { font-size: 24px; }
+      .td-lobby .dt-awards span { flex: 1; }
+      .td-lobby .dt-awards small { font-weight: 600; opacity: 0.75; }
     </style>`);
   }
 
@@ -57,6 +63,7 @@ export function lobbyRender(app, onBack, deps) {
           </ul>
           <p class="td-note dt-when" aria-live="polite"></p>
           <button type="button" class="td-go" disabled>Vào trường quay</button>
+          <button type="button" class="dt-awards"><b>🏅</b><span>Thành tích của em<br><small class="dt-aw-n"></small></span>›</button>
           <button type="button" class="dt-demo">Xem sân khấu thử (bản mẫu)</button>
         </div>
       </article>
@@ -64,6 +71,14 @@ export function lobbyRender(app, onBack, deps) {
     app.querySelector('.td-back').onclick = () => { cleanup(); onBack(); };
     const go = app.querySelector('.td-go'), when = app.querySelector('.dt-when');
     app.querySelector('.dt-demo').onclick = () => enter(false);
+    const aws = loadAwards();
+    app.querySelector('.dt-aw-n').textContent = aws.length ? `${aws.length} giấy chứng nhận, chạm để xem` : 'Chưa có giấy chứng nhận nào';
+    app.querySelector('.dt-awards').onclick = async () => {
+      clearInterval(tick); clearInterval(poll);
+      const { renderAwards } = await import('./awardsView.js');
+      if (gone) return;
+      inStage = renderAwards(app, () => { inStage?.(); inStage = null; paintLobby(); });
+    };
     if (!okGrade) { when.textContent = 'Chọn lớp 1 đến lớp 5 trong hồ sơ để vào phòng của lớp mình.'; return; }
     go.onclick = () => enter(true);
     app.querySelector('.td-pic-btn').onclick = () => { if (!go.disabled) enter(true); };
@@ -74,7 +89,7 @@ export function lobbyRender(app, onBack, deps) {
       if (freeTime()) {
         go.disabled = false;
         when.textContent = !ONLINE ? 'Chưa có máy chủ phòng: chơi thử một mình với các bạn máy.'
-          : `${testRoom() ? 'Phòng thử' : 'Máy dev'}: vào lúc nào cũng được, chương trình bắt đầu 90 giây sau khi phòng có người.`;
+          : `${testRoom() ? 'Phòng thử' : 'Máy dev'}: vào lúc nào cũng được, đủ 4 bạn trên bục là chương trình bắt đầu.`;
         return;
       }
       const start = nextStart(grade, now), step = stepAt(start, now);

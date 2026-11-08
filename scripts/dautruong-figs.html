@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dt figs</title>
+<style>
+  body { margin: 0; background: #0b1440; font-family: "Segoe UI", system-ui, sans-serif; color: #fff; }
+  .wrap { display: grid; grid-template-columns: repeat(var(--cols, 2), 1fr); gap: 14px; padding: 14px; }
+  .q { background: #10205e; border-radius: 12px; padding: 8px; }
+  .q canvas.led { width: 100%; display: block; border-radius: 8px; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+  .opts div { background: #1e3a8a; border-radius: 8px; padding: 6px 10px; font-size: 18px; font-weight: 700; min-height: 40px; display: flex; align-items: center; gap: 8px; }
+  .opts div.ok { background: #0f9d58; }
+  .meta { font-size: 13px; color: #9fb4ff; margin: 2px 4px 0; }
+</style>
+</head>
+<body>
+<div class="wrap" id="out"></div>
+<script type="module">
+// Xem trước câu có hình của ngân hàng Đấu Trường Nhí, đúng như màn LED (1600 × 900, khung câu hỏi của game).
+//   /scripts/dautruong-figs.html?g=3&r=tt[&all=1][&from=0&n=40][&cols=2]
+//   file=dautruong-figs-sample.js: xem tệp mẫu mọi loại hình trong scripts/. all=1: cả câu không có hình; mặc định chỉ câu có hình. Thứ tự giữ nguyên trong file (số # là chỉ số dòng trong mảng).
+import { drawQBody, optTokens, tokenCanvas } from '../src/dauTruong/figs.js';
+const P = new URLSearchParams(location.search);
+const g = P.get('g') || '3', r = P.get('r') || 'tt', all = P.get('all') === '1';
+const from = +(P.get('from') || 0), n = +(P.get('n') || 40);
+document.documentElement.style.setProperty('--cols', P.get('cols') || '2');
+const mod = await import(P.get('file') ? `./${P.get('file')}` : `../src/dauTruong/bank/hk1/g${g}/${r}.js`);
+const rows = mod.default.map((q, i) => ({ ...q, i })).filter(q => all || q.fig).slice(from, from + n);
+const out = document.getElementById('out');
+await document.fonts.ready;
+for (const q of rows) {
+  const box = document.createElement('div'); box.className = 'q';
+  const cv = document.createElement('canvas'); cv.className = 'led'; cv.width = 1600; cv.height = 760;
+  const c = cv.getContext('2d');
+  // giống khung CARD của game: nền xanh tối, vùng câu hỏi từ y + 180 tới đáy
+  c.fillStyle = '#0a1a55'; c.fillRect(0, 0, 1600, 760);
+  c.fillStyle = 'rgba(8,20,80,.88)'; c.beginPath(); c.roundRect(50, 20, 1500, 720, 36); c.fill();
+  c.strokeStyle = '#21e6a3'; c.lineWidth = 6; c.stroke();
+  c.font = '800 40px Segoe UI'; c.fillStyle = '#ffd36b'; c.textAlign = 'right'; c.fillText(`${r.toUpperCase()} #${q.i}`, 1500, 80);
+  drawQBody(c, { ...q, kind: q.k || 'abcd' }, 120, 110, 1360, 600);
+  box.append(cv);
+  const meta = document.createElement('div'); meta.className = 'meta';
+  meta.textContent = `w${q.w} · ${q.m} · lv${q.lv}${q.tt ? ` · ${q.tt}` : ''}${q.pt ? ` · ${q.pt}đ` : ''} · ${q.t}${q.k === 'order' ? ' · xếp theo thứ tự đúng' : ''}`;
+  box.append(meta);
+  const opts = document.createElement('div'); opts.className = 'opts';
+  q.o.forEach((o, k) => {
+    const d = document.createElement('div');
+    if (k === 0 && q.k !== 'order') d.className = 'ok';
+    const t = optTokens(o);
+    d.append(`${q.k === 'order' ? k + 1 : 'ABCD'[k]}. `);
+    if (t) d.append(tokenCanvas(t, 40)); else d.append(o);
+    opts.append(d);
+  });
+  box.append(opts);
+  out.append(box);
+}
+document.title = `dt figs ${rows.length}`;
+</script>
+</body>
+</html>

@@ -7,6 +7,7 @@
  * không "nhé", không gạch ngang dài, kết bằng . hoặc !; MC im khi các bạn đang nghĩ.
  */
 import { speakLetters } from '../thanDong/quiz/mc.js';
+import { optTokens, sayTokens } from './figs.js';
 
 export const MC_NAMES = ['Anh Minh', 'Chị Mai'];
 export const LETTER = ['a', 'bê', 'xê', 'đê'];
@@ -151,11 +152,13 @@ const sayMath = (t) => speakLetters(sayEmoji(String(t).replace(/,\s*(?:…|\.{3}
 const sayText = (q, t) => (q.m === 'tv' ? sayTv(t) : sayMath(t));
 /** Câu hỏi MC đọc. */
 export function sayQuestion(q) {
+  if (q.say) return q.say;                       // ngân hàng ghi sẵn lời đọc (câu có hình, phép tính viết khác lời nói)
   if (q.tag === 'Dãy hình') return 'Các bạn quan sát dãy hình trên màn hình. Hình tiếp theo là hình nào?';
   return sayText(q, q.q);
 }
 /** Một phương án MC đọc ("a, 24 xăng-ti-mét"); câu xếp thứ tự đọc thẻ không có chữ cái. */
 export function sayOption(q, i) {
-  const t = sayText(q, q.o[i]);
+  const toks = optTokens(q.o[i]);
+  const t = toks ? sayTokens(toks) : sayText(q, q.o[i]);
   return q.kind === 'order' ? t : `${LETTER[i]}, ${t}`;
 }

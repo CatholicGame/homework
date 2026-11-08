@@ -68,7 +68,7 @@ Bản mẫu chỉ dùng hình khối đơn giản để duyệt bố cục.
 | 0:00–2:00 | **Mở màn** | | Nhạc hiệu, đèn quét, hai MC chào cả phòng, giới thiệu môn và lớp |
 | 2:00–7:00 | **Vòng Chọn** | Cả phòng | 8 câu (4 Toán, 4 TV), 12 giây/câu; 4 bạn cao điểm nhất lên bục |
 | 7:00–9:00 | Mời lên bục | 4 thí sinh | MC gọi tên từng bạn, bạn ấy đi từ ghế lên bục, khán phòng vỗ tay |
-| 9:00–17:00 | **Khởi động** | 4 thí sinh + khán giả | Lượt cá nhân + lượt chung bấm chuông, 20 giây/câu |
+| 9:00–17:00 | **Khởi động** | 4 thí sinh + khán giả | Lượt cá nhân 6 câu/bạn + lượt chung bấm chuông, 15 giây/câu |
 | 17:00–19:00 | Khán phòng giữa giờ | Khán giả | Bảng điểm thí sinh + top 5 khán giả, 2 câu chớp nhoáng cho khán giả |
 | 19:00–28:00 | **Tăng tốc** | 4 thí sinh + khán giả | 4 câu tư duy, 30 giây/câu, nhanh hơn nhiều điểm hơn |
 | 28:00–30:00 | Giải lao | Khán giả | 3 câu chớp nhoáng, nhạc nhẹ, thí sinh nghỉ |
@@ -88,7 +88,48 @@ không bao giờ kéo dài vì một máy treo.
 - 8 câu dễ (độ khó 1–2), mọi người trả lời cùng lúc. Điểm = số câu đúng; bằng nhau thì **tổng thời gian trả lời** ít hơn xếp trên.
 - 4 bạn đứng đầu (đã bật công tắc, chưa lên bục trong ngày) được mời lên. Bạn hạng 5–6 là **dự bị**.
 - Thí sinh rớt mạng: bục chờ 60 giây (màn điểm "Đang kết nối lại…"), quá hạn thì bạn dự bị lên **giữ nguyên điểm của bục**, MC báo tên bạn mới.
-- Phòng ít hơn 4 bạn muốn lên: bục trống do **bạn máy** (tên nhân vật, tỉ lệ đúng 60–75%) để lượt vẫn chạy; bạn máy không nhận thưởng.
+- Phòng ít hơn 4 bạn muốn lên: bục trống do **bạn ảo** được mời từ khán phòng (mục 4b) để lượt vẫn chạy; bạn ảo không nhận thưởng.
+
+### 4b. Bạn ảo (NPC): khán phòng trước, rồi mời lên bục
+
+Mã: `src/dauTruong/npc.js` (hàm thuần, không import gì của trình duyệt: hôm nay mỗi máy tự tính, sau này `realtime/arena.js` gọi
+đúng các hàm này). Cách làm học từ bạn ảo trường quay của kinh-thanh (`E:\ManC\kinh-thanh\docs\npc.md`), nhưng luật riêng.
+
+- **Nguồn**: các bạn ảo của bảng xếp hạng (`data/leaderboardCast.js`): **cùng biệt danh, cùng lớp, cùng mã `cast-N`**. Khán phòng
+  lớp 3 chỉ có bạn ảo lớp 3. Lớp ít bạn ảo (lớp 4: 12, lớp 5: 13) thì khán phòng thưa hơn, không bịa thêm tên.
+  Nhân vật 3D theo ảnh đại diện: `boys/*` → 4 kiểu bạn trai, `girls/*` → 3 kiểu bạn gái của `PUPILS`.
+- **Trình độ** theo nhịp học trên bảng xếp hạng (cột sao/tháng trong lớp): 25% chăm nhất **giỏi**, 45% **khá**, còn lại **mới học**.
+
+  | Mức | Biết câu dễ | Mỗi bậc khó hơn | Thời gian nghĩ (phần đồng hồ) |
+  |---|---|---|---|
+  | giỏi | 94% | −8% | 12–40% |
+  | khá | 84% | −12% | 20–55% |
+  | mới học | 70% | −14% | 30–75% |
+
+  Tăng tốc (câu tư duy) −8% mọi mức. Không biết thì nghĩ lâu rồi đoán (trúng 1/4). Bấm chuông: biết thì phần lớn bấm, chưa chắc thì
+  chỉ bạn bạo dạn liều (giỏi 30%, khá 20%, mới học 12%). Về đích: bạn giỏi chọn gói to hơn, thua xa thì liều hơn; Ngôi sao hy vọng
+  theo độ tự tin ở câu 20 / 30 và câu cuối gói (`decide`, `buzzPlan`, `pickPackage`, `wantStar`).
+- **Khán phòng (ưu tiên)**: phòng mở thì 45% số bạn đến hôm nay đã ngồi sẵn, số còn lại vào rải tới giờ bắt đầu (sát giờ dày hơn).
+  Đông nhất `FILL` = 34 người kể cả người thật; người thật vào thêm thì bạn ảo cuối danh sách về. Ghế người thật đang ngồi không
+  bao giờ bị lấy; sơ đồ ghế hiện mặt và tên bạn ảo như người thật (`audienceAt`).
+- **Bục thi**: người thật bật "Em muốn lên bục" lên bục ngay, đứng trước (người cầm máy luôn là bục 1, ghế của mình để trống, camera
+  nhìn các bục). Còn thiếu thì MC **lần lượt mời** bạn ảo đang ngồi dưới khán phòng lên ở các mốc 30%, 50%, 68%, 84% thời gian chờ
+  (chỉ chọn trong những bạn đã có mặt lúc mời; ưu tiên bạn thích lên bục và bạn giỏi). Bạn được mời giữ nguyên bục, ghế của bạn ấy để
+  trống. Tới giờ mà còn thiếu thì mời nốt. Người thật bật công tắc khi bục đã đủ: bạn ảo mời sau cùng nhường chỗ, về ghế cũ (`podiumAt`).
+- **Đồng hồ phòng trên máy**: chạy ngay lúc bước vào (lịch giống hệt máy chủ, `rules.js`), nên sơ đồ ghế đã có sẵn một phần khán
+  phòng trước khi chọn ghế, rồi các bạn vào thêm từng người. Máy chủ gửi giờ phòng (`A`) thì theo máy chủ; máy chủ cũ không gửi `A`
+  thì vẫn chạy bằng đồng hồ này. Sơ đồ ghế ghi "15 bạn đã ngồi · còn 35 ghế trống" (người thật và bạn ảo như nhau).
+- **Không có nút Bắt đầu**: phòng thử / máy dev đủ 4 bục thì tự bắt đầu sau ~7 giây (bạn cuối lên bục, MC báo, đếm ngược 5 giây); nhịp vào phòng vẫn tính theo giờ bắt đầu ban đầu nên bắt đầu sớm không làm bạn ảo ào ra một lúc. Lượt theo lịch thì bắt đầu đúng giờ (bục đã đủ từ mốc 84%).
+- Mặc định bục thi trống, trên sân khấu chỉ có hai MC; ai đứng bục cũng là người thật hoặc bạn ảo được mời lên.
+- Thẻ chờ có dải **4 bục** (ảnh + tên, bục trống ghi "Bục 2"…) và dòng "MC mời … (ghế B4) lên bục 3!" giữ chỗ sẵn, không nhảy bố
+  cục. Màn bục 3D chưa có ai ghi "Bục trống · Chờ MC mời lên".
+- **Lúc lật**: mỗi khán giả ảo phản ứng theo đúng / sai của mình (`reactOf`: "Yes!", mừng, vỗ tay cho bạn, buồn, ngồi yên);
+  Trao giải cả khán phòng mừng / vỗ tay.
+- **Tất định**: hạt giống = phòng + giờ bắt đầu (phòng thử: phòng + ngày), nên hai máy cùng phòng thấy cùng các bạn ở cùng ghế và
+  cùng thứ tự được mời. Chưa có máy chủ cầm chương trình nên **người thật khác** muốn lên bục chưa được xếp chung bục (mỗi máy chỉ
+  đưa chính mình lên); việc đó và câu trả lời của bạn ảo sẽ chuyển lên `realtime/arena.js`.
+- Bản mẫu (nút "Xem sân khấu thử"): khán phòng đầy bạn ảo của lớp trong hồ sơ, bục 2–4 là ba bạn được mời.
+- Thử: `window.__dtFlow` (máy dev: `A`, `peers`, `pods`, `sync()`), `window.__arena.peek()`.
 
 ---
 
@@ -101,12 +142,12 @@ Khán giả cũng có hạn chót như thí sinh.
 
 ### 5.0 Thời gian theo lớp và MC chủ trì
 
-Trẻ đọc chậm nên **câu nào cũng từ 30 giây**; lớp càng nhỏ càng nhiều giờ (hệ số lớp 1 ×1,5, lớp 2 ×1,3, lớp 3 ×1,15, lớp 4–5 ×1,
+Trẻ đọc chậm nên lớp càng nhỏ càng nhiều giờ (hệ số lớp 1 ×1,5, lớp 2 ×1,3, lớp 3 ×1,15, lớp 4–5 ×1,
 làm tròn 5 giây; `TIME`, `SLOW`, `secs()` trong `games/dauTruong.js`). Đồng hồ chỉ chạy **sau khi MC đọc xong câu hỏi và bốn phương án**.
 
 | Giây | Lớp 1 | Lớp 2 | Lớp 3 | Lớp 4–5 |
 |---|---|---|---|---|
-| Khởi động | 45 | 40 | 35 | 30 |
+| Khởi động (cố định, MC đã đọc đề) | 15 | 15 | 15 | 15 |
 | Tăng tốc | 60 | 50 | 45 | 40 |
 | Về đích câu 10 / 20 / 30 điểm | 45 / 55 / 70 | 40 / 45 / 60 | 35 / 40 / 50 | 30 / 35 / 45 |
 | Bấm chuông được quyền, chọn đáp án | 25 | 20 | 15 | 15 |
@@ -126,9 +167,9 @@ chương trình vẫn chạy theo phụ đề, chờ đủ thời gian đọc.
 
 | | |
 |---|---|
-| Lượt cá nhân | Mỗi thí sinh lần lượt trả lời **câu riêng** của mình (bản mẫu: 2 câu mỗi bạn), ba bục kia mờ đèn. Đúng +10, sai / hết giờ 0 |
+| Lượt cá nhân | Mỗi thí sinh lần lượt trả lời **câu riêng** của mình (**6 câu mỗi bạn**), ba bục kia mờ đèn. Đúng +10, sai / hết giờ 0 |
 | Lượt chung | Sau lượt cá nhân (bản mẫu: 4 câu): cả 4 bạn thấy câu, **bấm chuông giành quyền**; ai bấm trước được MC gọi tên rồi chọn đáp án. Đúng +10, **sai −5**. Không ai bấm thì qua câu |
-| Thời gian | Theo lớp (mục 5.0, lớp 4–5: 30 giây). Người phải trả lời đã chốt (lượt cá nhân) hoặc người giành quyền đã chọn thì **lật ngay**, bỏ thời gian còn lại |
+| Thời gian | **15 giây mọi lớp**, đếm sau khi MC đọc xong đề và bốn phương án. Người phải trả lời đã chốt (lượt cá nhân) hoặc người giành quyền đã chọn thì **lật ngay**, bỏ thời gian còn lại |
 | Câu | Xen kẽ Toán / Tiếng Việt theo tiến độ học (mục 7). Dạng chọn 1 trong 4 |
 | Hiệu ứng | Màu **xanh ngọc + lam**; bục đến lượt viền vàng, đèn rọi mạnh; bấm chuông: chuông và vòng bục nháy màu của bạn ấy, màn LED ghi "🔔 … giành quyền trả lời" |
 
@@ -204,12 +245,30 @@ Mọi nút tối thiểu 64 px, chữ lớn, lớp 1 có hình minh họa. Kết
   (`routeTests/g<lớp>/plan.js`, cuối kì) × tuần / 18 (lớp 3 ngày 07/11/2026: Bài 19). Tiếng Việt: bài có `week` ≤ số tuần.
 - Toán: câu trắc nghiệm 4 phương án (`type: 'mc'`, có `bai`, không hình) trong đề Kiểm tra theo lộ trình lớp 1–5; Tăng tốc sinh
   câu xếp 4 số trong phạm vi số của lớp. Tiếng Việt: sinh từ dữ liệu 🧰 Công cụ Tiếng Việt 2 / 3 (nhóm từ, tìm từ, nối vế câu,
-  dấu câu, ghép câu 4 mảnh). Lớp 1, 4, 5 chưa có dữ liệu Tiếng Việt theo bài nên tạm chỉ có Toán.
-- Số câu mỗi vòng (`KD`, `TT`, `VD` trong `games/dauTruong.js`): Khởi động 4 × 2 cá nhân + 4 chung = 12, Tăng tốc 4, Về đích 4 × 3 = 12;
+  dấu câu, ghép câu 4 mảnh).
+- **Ngân hàng soạn tay mọi lớp** (2026-11-08): `src/dauTruong/bank/g1.js … g5.js`, mỗi lớp khoảng 300 câu Toán + Tiếng Việt, nhiều
+  chủ đề (chính tả, từ loại, thành ngữ, xếp câu, toán đố đời sống, đo lường, quy luật…), dạng `abcd` và `order`. Mỗi câu ghi tuần học
+  `w` (1–35, cả HK II), `lv` 1–3, chủ đề `t`, lời giải `ex`; chỉ hỏi câu có `w` ≤ số tuần đã học. Trộn với hai nguồn trên (Toán 50%,
+  Tiếng Việt lớp 2 / 3 khoảng 65% từ ngân hàng; lớp 1, 4, 5 Tiếng Việt chỉ từ ngân hàng). Kiểm: `node scripts/dautruong-check.mjs --stats`.
+- **Ngân hàng HK I theo vòng thi** (2026-11-08, user: tập trung kì 1, đa dạng, hàng trăm câu mỗi lớp mỗi vòng, có câu vẽ hình, dùng cho
+  chế độ NPC sau này): `src/dauTruong/bank/hk1/g<lớp>/kd.js` (Khởi động ~260, lv 1–3), `tt.js` (Tăng tốc ~240: 60 mỗi dạng
+  seq / shape / facts / logic, ≥ 60% có hình), `vd.js` (Về đích ~240: 80 câu mỗi mức pt 10 / 20 / 30). `w` 1–18, `lv` 1–5,
+  **`o[1]` là nhiễu dễ mắc nhất** (câu hỏi giữ `trap` = chỉ số của nó sau khi xáo, để NPC chọn sai cho giống người).
+  Game: Khởi động / Về đích lấy 75% từ ngân hàng vòng (Về đích đúng mức điểm), Tăng tốc 80% từ `tt.js` đúng dạng, còn lại như cũ.
+  Số câu đã học tới tuần 8 (đầu tháng 11) mỗi lớp: Khởi động ~120–170, Tăng tốc ~20–50 mỗi dạng, Về đích ~12–30 mỗi mức điểm mỗi môn.
+- **Không lặp câu**: trong buổi không hỏi lại câu đã hỏi (`used`); qua các buổi, máy nhớ câu đã gặp 7 ngày (`dt-seen-v1-g<lớp>`,
+  localStorage) và ưu tiên câu chưa gặp, hết câu mới mới lấy lại câu cũ. Khi máy chủ cầm chương trình thì nhớ theo phòng.
+- **Rà đáp án** (2026-11-08): toàn bộ ngân hàng HK I lớp 1–5 được rà từng câu (đáp án đúng duy nhất, hình khớp câu, tiếng Việt,
+  đúng tuần học, luật chữ của dự án).
+- **Hình vẽ trên màn LED**: `src/dauTruong/figs.js` (canvas 2D, `fig` trong câu; tokens, clock, numline, frac, grid, poly, lines, angle,
+  bars, table, money, ruler, balance, cubes, calendar, thermo, jug, text, vcalc); phương án `[tri.red sq.blue]` vẽ thẻ hình trong nút,
+  MC đọc tên hình. `drawQBody` chia chữ và hình (hình hẹp đặt phải, hình dài đặt dưới). Xem trước: `scripts/dautruong-figs.html`,
+  chụp `node scripts/dautruong-figs-shot.mjs <lớp> <kd|tt|vd> out.png [from] [n]`, mẫu mọi loại hình `scripts/dautruong-figs-sample.js`.
+- Số câu mỗi vòng (`KD`, `TT`, `VD` trong `games/dauTruong.js`): Khởi động 4 × 6 cá nhân + 4 chung = 28, Tăng tốc 4, Về đích 4 × 3 = 12;
   câu Khởi động / Về đích xen kẽ Toán / Tiếng Việt;
   hết câu thì "Hết vòng" rồi tự sang vòng sau. Mỗi câu: bạn đúng có cột đèn rọi + pháo giấy trên bục trước khi sang câu mới.
 
-Kế hoạch đầy đủ (chưa làm):
+Kế hoạch ban đầu (đã thay bằng các ngân hàng `.js` ở trên; còn giữ ý cho phần máy chủ rút câu và khuôn Toán sinh câu):
 
 ```
 src/dauTruong/bank/g3/tv.json      // Tiếng Việt: soạn tay, mỗi câu một dòng
@@ -229,7 +288,7 @@ src/dauTruong/gen/g3.js            // Toán: khuôn sinh câu theo hạt giống
 - **Tiếng Việt soạn tay**, mỗi lớp ≥ 300 câu, ngữ liệu tự viết hoặc lấy từ công cụ Tiếng Việt 2 / 3 sẵn có (`tv2-tools`, `tv3-tools`).
   Một câu một đáp án đúng, không phủ định, không "tất cả đều đúng"; người thứ hai đọc kiểm trước khi đưa vào.
 - `scripts/dautruong-check.mjs`: cấu trúc, trùng id, đáp án trùng, độ dài vừa nút, khuôn Toán sinh 1 000 câu không trùng đáp án với nhiễu.
-- Máy chủ rút câu cho lượt: Vòng Chọn lv 1–2; Khởi động 12 câu lv 1 → 3; Tăng tốc lv 2 → 4; Về đích theo mức thí sinh chọn
+- Máy chủ rút câu cho lượt: Vòng Chọn lv 1–2; Khởi động 28 câu lv 1 → 3; Tăng tốc lv 2 → 4; Về đích theo mức thí sinh chọn
   (Dễ lv 2, Vừa lv 3, Khó lv 4–5); tránh câu phòng đã gặp trong tuần.
 
 ---
@@ -290,11 +349,36 @@ nháy, không quét; đồng hồ, điểm chạy số, bay thẻ vẫn chạy b
 
 ---
 
+## 9b. Giấy chứng nhận (thiết kế 2026-11-08)
+
+Phát lúc trao giải, mỗi buổi 5 tờ: **Quán quân, Á quân, Hạng ba, Hạng tư** (4 thí sinh) và **Khán giả xuất sắc** (khán giả điểm cao nhất).
+Vẽ bằng SVG: `src/dauTruong/cert.js` (`certSvg`, `certNo`, `CERT_KINDS`, `CERT_CSS`), xem trước `scripts/dautruong-cert.html`.
+
+- Khổ ngang A4 (1200 × 850), in vừa giấy A4. Nền giấy kem có hoa văn lục giác như tường sân khấu, khung đôi màu theo hạng
+  (vàng, bạc, đồng, xanh dương, tím), bốn góc là chùm lục giác ba màu ba vòng thi.
+- Nội dung: biểu tượng và tên chương trình, "GIẤY CHỨNG NHẬN", tên bạn (cỡ chữ tự co theo độ dài), câu chứng nhận theo hạng
+  ("Học sinh lớp 3, đã giành ngôi Quán quân với 240 điểm."), dải điểm ba vòng (khán giả: số câu đúng / số câu cả buổi),
+  huy chương có cành nguyệt quế và băng tên hạng ở giữa, hai chữ ký MC anh Minh và chị Mai, giờ buổi thi, số chứng nhận
+  `ĐT-nămthángngày-giờphút-L<lớp>-<hạng>-<mã>`.
+- Chữ ký có bản chạy nét (`sign: 'anim'`) để MC "ký" lúc trao.
+
+Đã làm (2026-11-08):
+1. Lúc trao giải, MC đọc tới hạng của mình (mình đứng bục) hoặc gọi mình là Khán giả xuất sắc: tờ giấy bay lên giữa màn hình,
+   chữ ký chạy nét, pháo giấy; nút **Xem** (mở dạng slide) và **Đóng**, tự thu lại sau 10 giây (`giveCert` trong games/dauTruong.js).
+   Trò chơi ghi điểm từng vòng của mỗi bục (`p.rs`), số câu đúng của khán giả (`s.nRight`) và số câu cả buổi (`qDone`).
+2. Lưu: `src/dauTruong/awards.js`, khoá `dautruong-awards-v1` theo tài khoản (`scopedKey`), cloudSync đồng bộ lên Firestore.
+   Nhận ở sân khấu thử thì ghi `demo` (thẻ có nhãn "thử").
+3. **🏅 Thành tích của em** (`src/dauTruong/awardsView.js`), mở từ sảnh Đấu Trường: đếm số lần theo hạng, lưới thẻ mỗi lần một
+   ảnh thu nhỏ của tờ giấy (mới nhất trước). Chạm thẻ → **xem dạng slide**: tờ to giữa màn hình, mũi tên / vuốt / phím ← →,
+   dải ảnh nhỏ để nhảy tới tờ bất kỳ, **Tự chạy** 5 giây một tờ, **In / Lưu PDF** (khổ A4 ngang). Nút "Xem tất cả dạng slide"
+   tự chạy từ tờ mới nhất.
+
 ## 10. Máy chủ phòng (dùng lại `realtime/` của homework)
 
 - Phòng `arena-g{lop}` (`arena-g3`, `arena-g3~2`…), cạnh `studio-g{lop}` của Ai là thần đồng, `capOf` = 50. Phòng thử
   `arena-g3-test`: không cần đủ người, bạn máy lấp chỗ.
 - Máy chủ phòng chưa deploy (`docs/thandong.md`, mục Deploy): deploy một lần dùng cho cả hai chương trình.
+- Hướng dẫn từng bước dựng máy chủ phòng (một máy, cùng Wi-Fi, Cloudflare + Vercel): [realtime-setup.md](realtime-setup.md).
 - `realtime/arena.js` lớp `Arena` (như `Show`): giữ câu hỏi, đáp án, đồng hồ, điểm thí sinh và khán giả, thẻ Nhân đôi, chuông; tự
   sang bước theo `STEP_A` [tối thiểu, tối đa] trong `src/dauTruong/rules.js` (dùng chung trình duyệt và máy chủ, hàm thuần).
 - Bước: `lobby → open → sel(ask/think/reveal ×8) → invite → kd(intro, ask, think, reveal ×12) → mid → tt(…×8) → break → vd(turn, level, ask, think, bell, steal, reveal) → tie → award → closed`.
@@ -345,7 +429,7 @@ Chỉ màn ngang (như trường quay). Nửa trên là cảnh 3D, **dải trả
    `src/dauTruong/flow.js` (chọn 1 trong 7 nhân vật + tên MC gọi dùng chung túi đồ với Ai tài năng nhất, sơ đồ ghế 5 × 10 có mặt bạn
    đang ngồi, thẻ chờ giờ + "Em muốn lên bục", báo mất kết nối / nối lại giữ ghế / Thử lại / phòng ngoài giờ, chơi thử một mình khi
    chưa có máy chủ), phòng `arena-g<lớp>` trong `realtime/room.js` (lịch tạm `SLOTS` 19:30 mỗi ngày trong rules.js, chờ tab 📅 Lịch;
-   máy dev và phòng thử bắt đầu 90 giây sau người đầu tiên, nút Bắt đầu ngay), kiểm thử `realtime/test-arena.mjs`.
+   máy dev và phòng thử: bục tự đầy dần trong lúc chờ, đủ 4 bạn thì tự bắt đầu, chậm nhất 90 giây sau người đầu tiên; không có nút Bắt đầu), kiểm thử `realtime/test-arena.mjs`.
    Tới giờ: tạm chạy bản mẫu vòng thi; còn lại là máy chủ cầm chương trình (Vòng Chọn, mời lên bục, ba vòng, trao giải).
 6. Trình duyệt `src/dauTruong/`: vẽ theo trạng thái, dải trả lời 8 dạng, màn bục, hiệu ứng, hai MC; tab 📅 Lịch, thẻ trang chủ.
 7. Âm thanh, nhạc hiệu, kịch bản MC đầy đủ (lời đã soạn: [kich-ban-mc.md](kich-ban-mc.md)).

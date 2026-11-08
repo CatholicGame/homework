@@ -12,6 +12,10 @@
  * - Tiếng Việt: sinh từ dữ liệu từng bài của 🧰 Công cụ Tiếng Việt lớp 2 / 3 (nhóm từ, tìm từ trong câu, nối vế câu, dấu câu,
  *   ghép câu 4 mảnh). Lớp 1, 4, 5 chưa có dữ liệu Tiếng Việt theo bài: vòng thi chỉ có Toán (ghi rõ trên màn chờ).
  *
+ * - Ngân hàng soạn tay src/dauTruong/bank/g<lớp>.js (mọi lớp 1–5, Toán + Tiếng Việt, nhiều chủ đề): mỗi câu ghi tuần học `w`
+ *   (1–35, cả HK II), chỉ hỏi câu có w ≤ số tuần đã học. Trộn với hai nguồn trên; lớp 1, 4, 5 có Tiếng Việt nhờ ngân hàng này.
+ *   Kiểm tra: `node scripts/dautruong-check.mjs`.
+ *
  * Câu Tăng tốc (speedQ) có thêm `tag`: Dãy số, Dãy hình, Sắp xếp, Tư duy, Suy luận hình ảnh.
  * Câu trả về: abcd { kind: 'abcd', m: 'toan'|'tv', q, o: [4], a: chỉ số đúng } | order { kind: 'order', m, q, o: [4], a: [thứ tự đúng] }.
  */
@@ -22,6 +26,10 @@ const TV_DATA = {
   2: import.meta.glob('../games/tv2Tools/data/cd*.js'),
   3: import.meta.glob('../games/tv3Tools/data/cd*.js'),
 };
+const BANKS = import.meta.glob('./bank/g*.js');
+/* Ngân hàng HK I theo vòng thi: bank/hk1/g<lớp>/kd.js (Khởi động), tt.js (Tăng tốc), vd.js (Về đích). */
+const ROUND_BANKS = import.meta.glob('./bank/hk1/g*/*.js');
+const TT_TAG = { seq: 'Dãy số', shape: 'Dãy hình', facts: 'Sắp xếp', logic: 'Tư duy' };
 const HK1_WEEKS = 18;
 
 /** Thứ Hai đầu tiên từ ngày 5/9 của năm học chứa `date`. */
@@ -163,6 +171,34 @@ function tvOrder(P) {
   return { kind: 'order', m: 'tv', q: 'Xếp thành câu đúng', o, a: pieces.map(p => o.indexOf(p)) };
 }
 
+/* ---------- Ngân hàng soạn tay ---------- */
+/** Câu soạn tay → câu hỏi của game (xáo phương án). Giữ các trường phụ: hình, lời đọc, nhãn Tăng tốc, điểm Về đích, bẫy (o[1]). */
+function fromRow(r, src) {
+  const k = r.k || 'abcd';
+  const extra = { level: r.lv, w: r.w, ex: r.ex, src, ...(r.fig ? { fig: r.fig } : {}), ...(r.say ? { say: r.say } : {}),
+    ...(r.tt ? { tt: r.tt, tag: r.tag || TT_TAG[r.tt] } : {}), ...(r.pt ? { pt: r.pt } : {}) };
+  if (k === 'order') {
+    let o;
+    for (let i = 0; i < 10; i++) { o = shuffle(r.o); if (o.join() !== r.o.join()) break; }
+    return { kind: 'order', m: r.m, q: r.q, o, a: r.o.map(p => o.indexOf(p)), ...extra };
+  }
+  const q = abcd(r.m, r.q, r.o[0], r.o.slice(1));
+  return { ...q, trap: q.o.indexOf(r.o[1]), ...extra };   // trap: nhiễu dễ mắc nhất (sau này cho NPC chọn sai)
+}
+async function handBank(grade, week) {
+  const load = Object.entries(BANKS).find(([p]) => p.endsWith(`/g${grade}.js`))?.[1];
+  if (!load) return [];
+  const rows = (await load()).default || [];
+  return rows.filter(r => r.w <= week);
+}
+/** Ngân hàng HK I của một vòng ('kd' | 'tt' | 'vd'), chỉ các câu đã học (w ≤ tuần, HK II thì cả HK I). */
+async function roundBank(grade, round, week) {
+  const load = Object.entries(ROUND_BANKS).find(([p]) => p.endsWith(`/g${grade}/${round}.js`))?.[1];
+  if (!load) return [];
+  const rows = (await load()).default || [];
+  return rows.filter(r => r.w <= Math.min(week, HK1_WEEKS));
+}
+
 /* ---------- Tăng tốc: câu tư duy (sinh theo lớp, không cần dữ liệu bài học) ----------
    seq: dãy số; shape: dãy hình (hình màu); facts: sắp xếp dữ kiện (order); logic: tư duy bằng lời hoặc suy luận hình ảnh
    (phép tính bằng hình quả). Mọi câu có `tag` để màn LED ghi dạng câu thay cho tên môn. */
@@ -286,11 +322,51 @@ export async function loadArenaBank(grade, date = new Date()) {
   const math = await mathPool(grade, mathBai);
   const tvWeek = Math.max(1, Math.min(week, HK1_WEEKS));
   const P = tvPool(await tvLessons(grade, tvWeek));
-  const hasTv = !!TV_DATA[grade];
+  const handRows = await handBank(grade, Math.min(35, week));
+  const hand = handRows.map(r => fromRow(r, 'year'));
+  const [kdRows, ttRows, vdRows] = await Promise.all(['kd', 'tt', 'vd'].map(r => roundBank(grade, r, week)));
+  const R = { kd: kdRows, tt: ttRows, vd: vdRows };
+  const rowKey = (r) => r.q + '|' + [...r.o].sort().join('|');
+  /* Câu máy này đã gặp trong 7 ngày (mỗi ngày một buổi thi): ưu tiên câu chưa gặp, hết câu mới mới lấy lại câu cũ. */
+  const SEEN_KEY = `dt-seen-v1-g${grade}`, SEEN_MS = 7 * 864e5, now = Date.now();
+  let seen = {};
+  try { seen = JSON.parse(localStorage.getItem(SEEN_KEY)) || {}; } catch { /* không có bộ nhớ: không nhớ */ }
+  for (const k of Object.keys(seen)) if (!(now - seen[k] < SEEN_MS)) delete seen[k];
+  const hashOf = (t) => { let h = 5381; for (let i = 0; i < t.length; i++) h = (h * 33 + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+  const fresh = (pool, kf) => { const f = pool.filter(x => !seen[hashOf(kf(x))]); return f.length ? f : pool; };
+  function markSeen(k) {
+    seen[hashOf(k)] = now;
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch { /* bộ nhớ bị chặn */ }
+  }
+  /** Một câu chưa hỏi trong các dòng soạn tay `rows`, lọc thêm bằng `ok`; ưu tiên tuần gần đây; hết thì null. */
+  function fromRows(rows, ok = () => true, src = 'hk1') {
+    const pool = fresh(rows.filter(r => ok(r) && !used.has(rowKey(r))), rowKey);
+    if (!pool.length) return null;
+    const recent = pool.filter(r => r.w > Math.min(week, HK1_WEEKS) - 5);
+    const r = pick(recent.length && Math.random() < 0.5 ? recent : pool);
+    used.add(rowKey(r)); markSeen(rowKey(r));
+    return fromRow(r, src);
+  }
+  const H = {
+    toan: hand.filter(q => q.m === 'toan' && q.kind === 'abcd'), tv: hand.filter(q => q.m === 'tv' && q.kind === 'abcd'),
+    toanOrder: hand.filter(q => q.m === 'toan' && q.kind === 'order'), tvOrder: hand.filter(q => q.m === 'tv' && q.kind === 'order'),
+  };
+  const hasTv = !!TV_DATA[grade] || H.tv.length > 0;
   const used = new Set();
-  const key = (q) => q.q + '|' + q.o.join('|');
+  const key = (q) => q.q + '|' + [...q.o].sort().join('|');
+  /** Một câu chưa hỏi trong `list`, ưu tiên mức khó / dễ và các tuần gần đây; hết câu thì null. */
+  function fromHand(list, hard) {
+    const pool = fresh(list.filter(q => !used.has(key(q))), key);
+    if (!pool.length) return null;
+    const pref = pool.filter(q => (hard ? q.level >= 2 : q.level <= 2));
+    const base = pref.length ? pref : pool;
+    const recent = base.filter(q => q.w > week - 6);
+    return pick(recent.length && Math.random() < 0.5 ? recent : base);
+  }
 
-  function tvAbcd() {
+  function tvAbcd(hard) {
+    // câu soạn tay đa dạng hơn câu sinh từ công cụ: lấy trước khi còn (lớp 1, 4, 5 chỉ có nguồn này)
+    if (H.tv.length && (!TV_DATA[grade] || Math.random() < 0.65)) { const q = fromHand(H.tv, hard); if (q) return q; }
     for (let k = 0; k < 30; k++) {
       const make = TV_MAKERS[pick(Object.keys(TV_MAKERS))];
       const q = make(P, grade);
@@ -299,9 +375,11 @@ export async function loadArenaBank(grade, date = new Date()) {
     return null;
   }
   function mathAbcd(hard) {
+    if (H.toan.length && Math.random() < 0.5) { const q = fromHand(H.toan, hard); if (q) return q; }
     let pool = math.filter(q => !used.has(key(q)));
     if (!pool.length) { used.clear(); pool = math; }
     if (!pool.length) return null;
+    pool = fresh(pool, key);
     const pref = pool.filter(q => (hard ? q.level >= 2 : q.level <= 2));
     // ưu tiên các bài gần đây hơn một chút (nửa sau của khoảng đã học) để câu không toàn bài đầu năm
     const recent = (pref.length ? pref : pool).filter(q => q.bai > mathBai / 2);
@@ -309,16 +387,33 @@ export async function loadArenaBank(grade, date = new Date()) {
   }
   function one(kind, m, hard) {
     let q = null;
-    if (kind === 'order') q = m === 'tv' ? tvOrder(P) : mathOrder(grade);
-    else q = m === 'tv' ? tvAbcd() : mathAbcd(hard);
+    if (kind === 'order') {
+      const hl = m === 'tv' ? H.tvOrder : H.toanOrder;
+      if (hl.length && Math.random() < 0.7) q = fromHand(hl, hard);
+      if (!q) q = m === 'tv' ? tvOrder(P) : mathOrder(grade);
+    } else q = m === 'tv' ? tvAbcd(hard) : mathAbcd(hard);
     if (!q && m === 'tv') q = kind === 'order' ? mathOrder(grade) : mathAbcd(hard);
-    if (q) used.add(key(q));
+    if (q) { used.add(key(q)); markSeen(key(q)); }
     return q;
   }
+  /** Khởi động / Về đích: ngân hàng của vòng trước (75%), rồi các nguồn chung. Về đích lọc theo điểm câu (pt 10 / 20 / 30). */
+  function roundOne(kind, m, { round, pt, hard }) {
+    const rows = R[round] || [];
+    if (rows.length && Math.random() < 0.75) {
+      const want = (r) => (r.k || 'abcd') === kind && (round !== 'vd' || !pt || r.pt === pt);
+      const q = fromRows(rows, r => want(r) && r.m === m) || fromRows(rows, want);
+      if (q) return q;
+    }
+    return one(kind, m, hard);
+  }
   return {
-    grade, week, mathBai, mathTotal: total, tvWeek, hasTv,
-    /** Một câu kind / môn m (thiếu Tiếng Việt thì Toán). */
-    one(kind, m, { hard = false } = {}) { return one(kind, m, hard); },
+    grade, week, mathBai, mathTotal: total, tvWeek, hasTv: hasTv || [...kdRows, ...vdRows].some(r => r.m === 'tv'),
+    handCount: hand.length + kdRows.length + ttRows.length + vdRows.length,
+    rounds: { kd: kdRows.length, tt: ttRows.length, vd: vdRows.length },
+    /** Một câu kind / môn m (thiếu Tiếng Việt thì Toán). opts.round 'kd' | 'vd' lấy trước từ ngân hàng của vòng ấy. */
+    one(kind, m, { hard = false, round = null, pt = 0 } = {}) { return round ? roundOne(kind, m, { round, pt, hard }) : one(kind, m, hard); },
+    /** Câu Tăng tốc dạng `type` (seq | shape | facts | logic) từ ngân hàng tt.js; chưa có thì null (game dùng speedQ). */
+    speed(type) { return fromRows(R.tt, r => r.tt === type, 'hk1'); },
     deck(kind, n, { hard = false } = {}) {
       return Array.from({ length: n }, (_, i) => one(kind, i % 2 === 0 ? 'toan' : 'tv', hard)).filter(Boolean);
     },

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>dt cert</title>
+<!-- Xem trước giấy chứng nhận Đấu Trường Nhí (src/dauTruong/cert.js): `npm run dev` rồi mở /scripts/dautruong-cert.html -->
+<style>body{margin:0;padding:16px;background:#1b2240;font-family:sans-serif;display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(560px,1fr))}
+.c{background:#000;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px #0008}</style></head>
+<body><script type="module">
+import { certSvg, loadCertFonts, CERT_CSS } from '/src/dauTruong/cert.js';
+document.head.insertAdjacentHTML('beforeend', `<style>${CERT_CSS}</style>`);
+await loadCertFonts();
+const at = new Date(2026, 10, 8, 19, 30).getTime();
+const list = [
+  { kind: 'champ', name: 'Minh Anh', score: 240, rounds: { kd: 110, tt: 70, vd: 60 } },
+  { kind: 'rank2', name: 'Ku Đẹp Trai', score: 185, rounds: { kd: 95, tt: 40, vd: 50 } },
+  { kind: 'rank3', name: 'Sao Nhỏ', score: 150, rounds: { kd: 80, tt: 30, vd: 40 } },
+  { kind: 'rank4', name: 'Cốm', score: 90, rounds: { kd: 60, tt: 10, vd: 20 } },
+  { kind: 'aud', name: 'Bé Na', score: 320, right: 38, total: 44 },
+  { kind: 'champ', name: 'Nguyễn Hoàng Bảo Ngọc', score: 260, rounds: { kd: 120, tt: 80, vd: 60 }, grade: 5 },
+];
+for (const o of list) document.body.insertAdjacentHTML('beforeend', `<div class="c">${certSvg({ grade: 3, at, ...o })}</div>`);
+document.title = 'dt cert ready';
+</script></body></html>

@@ -1,0 +1,37 @@
+/**
+ * Mẫu mọi loại hình của Đấu Trường Nhí (src/dauTruong/figs.js), để soát bộ vẽ và làm ví dụ khi soạn ngân hàng câu.
+ * Xem: FILE=dautruong-figs-sample.js node scripts/dautruong-figs-shot.mjs 0 tt out.png 0 40
+ */
+export default [
+  { w: 1, m: 'toan', lv: 2, t: 'Dãy hình', tt: 'shape', q: 'Hình tiếp theo là hình nào?', fig: { type: 'tokens', row: ['circle.red', 'tri.blue', 'tri.blue', 'circle.red', 'tri.blue', 'tri.blue', 'circle.red', '?'] }, o: ['[tri.blue]', '[circle.red]', '[sq.green]', '[star]'] },
+  { w: 2, m: 'toan', lv: 3, t: 'Dãy hình', tt: 'shape', q: 'Mũi tên tiếp theo chỉ hướng nào?', fig: { type: 'tokens', row: ['arrow.purple', 'arrow.purple.90', 'arrow.purple.180', 'arrow.purple.270', 'arrow.purple', '?'] }, o: ['[arrow.purple.90]', '[arrow.purple.180]', '[arrow.purple.270]', '[arrow.purple]'] },
+  { w: 3, m: 'toan', lv: 3, t: 'Suy luận hình ảnh', tt: 'logic', q: 'Mỗi quả có một giá trị. Quả lê bằng mấy?', fig: { type: 'tokens', rows: [['🍎', '+', '🍎', '=', '10'], ['🍎', '+', '🍐', '=', '8'], ['🍐', '=', '?', '', '']] }, o: ['3', '2', '5', '4'] },
+  { w: 4, m: 'toan', lv: 1, t: 'Xem giờ', q: 'Đồng hồ chỉ mấy giờ?', fig: { type: 'clock', h: 3, m: 30 }, o: ['3 giờ 30 phút', '6 giờ 15 phút', '3 giờ', '4 giờ 30 phút'] },
+  { w: 5, m: 'toan', lv: 2, t: 'Tia số', q: 'Số thích hợp ở dấu hỏi là số nào?', fig: { type: 'numline', from: 0, to: 50, step: 5, label: [0, 10, 20, 30, 50], ask: [40] }, o: ['40', '35', '45', '400'] },
+  { w: 6, m: 'toan', lv: 2, t: 'Nhảy trên tia số', q: 'Ếch nhảy từ 2, mỗi bước 3 đơn vị. Bước thứ ba ếch tới số nào?', fig: { type: 'numline', from: 0, to: 12, hops: [[2, 5, '+3'], [5, 8, '+3'], [8, 11, '+3']] }, o: ['11', '8', '9', '12'] },
+  { w: 7, m: 'toan', lv: 1, t: 'Một phần mấy', q: 'Đã tô màu một phần mấy hình tròn?', fig: { type: 'frac', shape: 'circle', n: 4, k: 1 }, o: ['1/4', '1/3', '3/4', '1/2'] },
+  { w: 7, m: 'toan', lv: 2, t: 'Phân số', q: 'Phân số chỉ phần đã tô màu là:', fig: [{ type: 'frac', shape: 'bar', n: 5, k: 3 }], o: ['3/5', '2/5', '5/3', '3/8'] },
+  { w: 8, m: 'toan', lv: 2, t: 'Diện tích ô vuông', q: 'Hình tô màu gồm bao nhiêu ô vuông?', fig: { type: 'grid', cols: 6, rows: 4, fill: ['.##...', '.####.', '..###.', '...#..'] }, o: ['10', '9', '11', '12'] },
+  { w: 9, m: 'toan', lv: 2, t: 'Chu vi', q: 'Chu vi hình chữ nhật là bao nhiêu?', fig: { type: 'poly', pts: [[0, 0], [8, 0], [8, 4], [0, 4]], sides: ['8 cm', '4 cm', '', ''], names: ['A', 'B', 'C', 'D'], right: [0, 1, 2, 3] }, o: ['24 cm', '12 cm', '32 cm', '20 cm'] },
+  { w: 9, m: 'toan', lv: 2, t: 'Chu vi', q: 'Chu vi hình tam giác ABC là bao nhiêu?', fig: { type: 'poly', pts: [[0, 6], [4, 0], [9, 6]], sides: ['5 cm', '6 cm', '9 cm'], names: ['A', 'B', 'C'], fill: 'yellow' }, o: ['20 cm', '19 cm', '15 cm', '11 cm'] },
+  { w: 10, m: 'toan', lv: 3, t: 'Đếm hình', tt: 'logic', tag: 'Đếm hình', q: 'Hình bên có bao nhiêu hình tam giác?', fig: { type: 'lines', pts: { A: [3, 0], B: [0, 5], C: [6, 5], D: [3, 5] }, segs: [['A', 'B'], ['A', 'C'], ['B', 'C'], ['A', 'D']] }, o: ['3', '2', '4', '1'] },
+  { w: 10, m: 'toan', lv: 2, t: 'Hình tròn', q: 'Đoạn thẳng nào là bán kính của hình tròn tâm O?', fig: { type: 'lines', pts: { O: [0, 0], A: [3, 0], B: [-3, 0], M: [0, -3] }, segs: [['A', 'B'], ['O', 'M']], circles: [[0, 0, 3]] }, o: ['OM', 'AB', 'AM', 'BM'] },
+  { w: 11, m: 'toan', lv: 3, t: 'Que tính', tt: 'logic', tag: 'Que tính', q: 'Hình bên dùng bao nhiêu que tính?', fig: { type: 'lines', match: true, pts: { a: [0, 0], b: [2, 0], c: [4, 0], d: [0, 2], e: [2, 2], f: [4, 2] }, segs: [['a', 'b'], ['b', 'c'], ['d', 'e'], ['e', 'f'], ['a', 'd'], ['b', 'e'], ['c', 'f']] }, o: ['7', '6', '8', '9'] },
+  { w: 12, m: 'toan', lv: 2, t: 'Góc', q: 'Góc đỉnh O là góc gì?', fig: { type: 'angle', deg: 90, names: ['A', 'O', 'B'] }, o: ['góc vuông', 'góc nhọn', 'góc tù', 'góc bẹt'] },
+  { w: 12, m: 'toan', lv: 2, t: 'Góc', q: 'Góc đỉnh O là góc gì?', fig: { type: 'angle', deg: 130, names: ['M', 'O', 'N'] }, o: ['góc tù', 'góc vuông', 'góc nhọn', 'góc bẹt'] },
+  { w: 13, m: 'toan', lv: 2, t: 'Biểu đồ', q: 'Lớp 3A thích quả nào nhiều nhất?', fig: { type: 'bars', labels: ['Cam', 'Xoài', 'Ổi', 'Táo'], values: [8, 12, 5, 9], unit: 'Số bạn' }, o: ['Xoài', 'Táo', 'Cam', 'Ổi'] },
+  { w: 13, m: 'toan', lv: 2, t: 'Bảng số liệu', q: 'Cả ba bạn có bao nhiêu nhãn vở?', fig: { type: 'table', head: ['Bạn', 'An', 'Bình', 'Chi'], rows: [['Nhãn vở', '12', '8', '15']] }, o: ['35', '33', '27', '20'] },
+  { w: 14, m: 'toan', lv: 2, t: 'Tiền Việt Nam', q: 'Mẹ có số tiền như hình. Mẹ có tất cả bao nhiêu tiền?', fig: { type: 'money', items: [10000, 5000, 2000, 2000, 500] }, o: ['19 500 đồng', '19 000 đồng', '17 500 đồng', '20 500 đồng'] },
+  { w: 14, m: 'toan', lv: 1, t: 'Đo độ dài', q: 'Bút chì dài bao nhiêu xăng-ti-mét?', fig: { type: 'ruler', len: 7, start: 0, max: 10 }, o: ['7 cm', '8 cm', '6 cm', '10 cm'] },
+  { w: 14, m: 'toan', lv: 3, t: 'Đo độ dài', q: 'Chiếc đinh dài bao nhiêu xăng-ti-mét?', fig: { type: 'ruler', len: 4, start: 2, max: 8, obj: 'nail' }, o: ['4 cm', '6 cm', '2 cm', '8 cm'] },
+  { w: 15, m: 'toan', lv: 3, t: 'Cân', tt: 'logic', q: 'Cân thăng bằng. Quả dưa nặng bao nhiêu ki-lô-gam?', fig: { type: 'balance', left: ['🍉', '1 kg'], right: ['2 kg', '2 kg'], tilt: 0 }, o: ['3 kg', '4 kg', '5 kg', '2 kg'] },
+  { w: 15, m: 'toan', lv: 3, t: 'Đếm khối', tt: 'logic', tag: 'Đếm khối', q: 'Có bao nhiêu khối lập phương?', fig: { type: 'cubes', cols: [[2, 1, 1], [1, 1]] }, o: ['6', '5', '7', '4'] },
+  { w: 16, m: 'toan', lv: 2, t: 'Xem lịch', q: 'Ngày 20 tháng 11 là thứ mấy?', fig: { type: 'calendar', days: 30, start: 6, mark: [20], title: 'Tháng 11' }, o: ['Thứ Sáu', 'Thứ Bảy', 'Thứ Năm', 'Chủ nhật'] },
+  { w: 16, m: 'toan', lv: 1, t: 'Nhiệt độ', q: 'Nhiệt kế chỉ bao nhiêu độ C?', fig: { type: 'thermo', v: 28, min: 0, max: 50 }, o: ['28 °C', '22 °C', '30 °C', '82 °C'] },
+  { w: 17, m: 'toan', lv: 2, t: 'Lít', q: 'Cả hai bình có bao nhiêu lít nước?', fig: { type: 'jug', items: [{ cap: 5, v: 3, unit: 'l' }, { cap: 5, v: 4, unit: 'l' }] }, o: ['7 l', '8 l', '10 l', '1 l'] },
+  { w: 17, m: 'toan', lv: 3, t: 'Đặt tính', tt: 'logic', tag: 'Ô số bí ẩn', q: 'Chữ số nào thay cho dấu hỏi?', fig: { type: 'vcalc', a: 47, b: 25, op: '+', res: 72, hide: { b: [1] } }, o: ['5', '3', '8', '2'] },
+  { w: 18, m: 'tv', lv: 2, t: 'Đọc thơ', q: 'Trong hai dòng thơ, từ nào chỉ đặc điểm?', fig: { type: 'text', lines: ['Hạt gạo làng ta', 'Có vị phù sa'] }, o: ['phù sa', 'hạt gạo', 'làng', 'có'] },
+  { w: 18, m: 'toan', lv: 3, t: 'Dãy số', tt: 'seq', q: 'Số nào thay cho dấu hỏi?', fig: { type: 'tokens', row: ['dice.1', 'dice.3', 'dice.5', '?'] }, o: ['7', '6', '4', '8'] },
+  { w: 18, m: 'toan', lv: 2, t: 'Đếm', q: 'Có tất cả bao nhiêu que tính?', fig: { type: 'tokens', row: ['stick.10', 'stick.10', 'stick.4'] }, o: ['24', '14', '34', '204'] },
+  { w: 18, m: 'toan', lv: 2, t: 'Sắp xếp hình', tt: 'facts', k: 'order', q: 'Xếp các hình theo số cạnh từ ít đến nhiều', o: ['[tri.red]', '[sq.blue]', '[pent.green]', '[hex.orange]'] },
+];
