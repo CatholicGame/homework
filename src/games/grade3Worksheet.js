@@ -614,8 +614,13 @@ function renderGrade(grade, app, onBack, opts = {}) {
     // Có bài đã chấm và chưa bấm "Làm lại": xem bài chấm. Ngược lại: làm (bản nháp lưu từng ô).
     const graded = rec.result && !rec.draft;
     if (!graded && !rec.draft) rec.draft = {};
+    // Làm lại một câu (sau khi chấm): chỉ câu trong rec.redo mở để làm, các câu khác giữ bài đã chấm (dấu ✓ ✗, không sửa được).
+    // Không có tấm che, không đồng hồ; nộp lại thì chấm lại cả tờ với câu vừa làm.
+    const redo = !graded && rec.result && rec.redo?.length ? new Set(rec.redo) : null;
+    if (!redo) delete rec.redo;
     const answers = {};
     idx.forEach(e => { answers[e.id] = restoreAnswer(e, (graded ? rec.result.answers : rec.draft)[e.id]); });
+    const isLocked = (qid) => !!redo && qid != null && !redo.has(qid);
     // Nhận xét tính lại khi mở, để bài chấm cũ cũng hiện lời nhận xét mới.
     const comment = graded ? teacherComment(sheet, idx, idx.map(e => gradeQuestion(e, answers[e.id])), rec.result.score) : [];
     const persist = () => { rec.draft = answers; saveStore(store); };
@@ -623,14 +628,16 @@ function renderGrade(grade, app, onBack, opts = {}) {
     const name = getProfile().name || getCurrentUser()?.name || '';
     const date = graded ? new Date(rec.result.at) : new Date();
     const dateText = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
-    const grades = graded ? idx.map(e => gradeQuestion(e, answers[e.id])) : null;
+    // Đang làm lại một câu: các câu khác hiện như bài đã chấm (null = câu đang làm lại).
+    const grades = graded ? idx.map(e => gradeQuestion(e, answers[e.id]))
+      : redo ? idx.map(e => (redo.has(e.id) ? null : gradeQuestion(e, answers[e.id]))) : null;
     const noun = nounOf(col);
     const limitMin = col.timed && sheet.time ? sheet.time : DEFAULT_MIN;
     const LIMIT_MS = limitMin * 60 * 1000;
     // Tấm che phần đề: đồng hồ chỉ chạy sau khi bấm Bắt đầu / Làm tiếp. Đang làm dở thì cho chọn làm tiếp hoặc làm lại.
     const doneCount = graded ? 0 : idx.filter(e => isFilled(e, answers[e.id])).length;
     const touched = !graded && (rec.elapsed > 0 || idx.some(e => JSON.stringify(answers[e.id]) !== JSON.stringify(emptyAnswer(e))));
-    const coverHtml = graded || opts.autostart ? '' : `
+    const coverHtml = graded || redo || opts.autostart ? '' : `
       <div class="ws-cover" id="ws-cover">
         <div class="ws-cover-card">
           <div class="ws-cover-icon">${touched ? '📝' : '⏱️'}</div>
@@ -658,7 +665,7 @@ function renderGrade(grade, app, onBack, opts = {}) {
           <button type="button" class="ws-prog-arrow" id="ws-prog-prev" aria-label="Các câu trước">◀</button>
           <nav class="ws-prog" id="ws-prog" aria-label="Các câu">
             ${sheet.parts.map((part, pi) => `<span class="ws-prog-part">${sheet.numbering === 'part' && sheet.parts.length > 1 ? `<b class="ws-prog-tag" title="${partName(part)}">${partName(part).split(/\s+/).map(w => w[0]).join('').toUpperCase()}</b>` : ''}${idx.filter(e => e.pi === pi).map(e => {
-              const sc = grades ? grades[idx.indexOf(e)].score : null;
+              const sc = grades?.[idx.indexOf(e)]?.score ?? null;
               const cls = sc == null ? '' : sc === 1 ? ' ws-dot-ok' : sc === 0 ? ' ws-dot-bad' : ' ws-dot-half';
               return `<button type="button" class="ws-dot${cls}" data-q="${e.id}" title="${e.label != null ? `${e.label || 'Câu'} ${e.n}` : `Câu ${e.n}`}">${e.n}</button>`;
             }).join('')}</span>`).join('')}
@@ -691,12 +698,12 @@ function renderGrade(grade, app, onBack, opts = {}) {
           ${sheet.parts.map((part, pi) => `
             <section class="ws-part">
               <h2 class="ws-part-title">${part.title}</h2>
-              ${idx.filter(e => e.pi === pi).map(e => `<div class="ws-q${e.label != null ? ' ws-q-block' : ''}" data-q="${e.id}">${questionHtml(e)}</div>`).join('')}
+              ${idx.filter(e => e.pi === pi).map(e => `<div class="ws-q${e.label != null ? ' ws-q-block' : ''}${isLocked(e.id) ? ' ws-q-locked' : ''}${redo?.has(e.id) ? ' ws-q-redo' : ''}" data-q="${e.id}">${questionHtml(e)}${graded ? redoBtnHtml(e) : ''}</div>`).join('')}
             </section>`).join('')}
           <footer class="ws-foot">
             ${graded
               ? `${col.route ? reviewStripHtml() : ''}<button type="button" class="ws-submit" id="ws-redo">🔄 Làm lại ${noun}</button>`
-              : '<button type="button" class="ws-submit" id="ws-submit" disabled>📮 Nộp bài</button><button type="button" class="ws-foot-note" id="ws-foot-note">&nbsp;</button>'}
+              : `<button type="button" class="ws-submit" id="ws-submit" disabled>📮 ${redo ? 'Nộp lại' : 'Nộp bài'}</button><button type="button" class="ws-foot-note" id="ws-foot-note">&nbsp;</button>${redo ? '<button type="button" class="ws-redo-cancel" id="ws-redo-cancel">Thôi, xem lại bài đã chấm</button>' : ''}`}
           </footer>
           </div>
         </article>
@@ -785,9 +792,22 @@ function renderGrade(grade, app, onBack, opts = {}) {
       app.querySelector('#ws-redo').onclick = () => {
         rec.draft = {};
         rec.elapsed = 0;
+        delete rec.redo;
         saveStore(store);
         openSheet(sheet, col, back);
       };
+      // 🔄 Làm lại câu này: bài đã chấm thành bản nháp, riêng câu đó xoá trắng để làm lại.
+      app.querySelector('.ws-body').addEventListener('click', (ev) => {
+        const b = ev.target.closest('.ws-redo-q');
+        if (!b) return;
+        const e = idx.find(x => x.id === b.dataset.q);
+        rec.draft = JSON.parse(JSON.stringify(rec.result.answers));
+        rec.draft[e.id] = emptyAnswer(e);
+        rec.redo = [e.id];
+        rec.elapsed = 0;
+        saveStore(store);
+        openSheet(sheet, col, back, { focus: e.id });
+      });
       return;
     }
 
@@ -835,10 +855,14 @@ function renderGrade(grade, app, onBack, opts = {}) {
     // Rời phiếu / ẩn trang thì dừng, lưu số giây đã làm; mở lại chạy tiếp từ đó.
     const timerEl = app.querySelector('#ws-timer');
     rec.elapsed = rec.elapsed || 0;
-    let running = !coverHtml;
+    let running = !coverHtml && !redo;
     let last = Date.now();
     let lastSave = last;
     const showTimer = () => {
+      if (redo) {
+        timerEl.textContent = `🔄 Làm lại ${idx.filter(e => redo.has(e.id)).map(e => (e.label != null ? `${e.label || 'Câu'} ${e.n}` : `câu ${e.n}`)).join(', ')}`;
+        return;
+      }
       const left = Math.max(0, LIMIT_MS - rec.elapsed);
       const sec = Math.ceil(left / 1000);
       timerEl.textContent = left > 0 ? `⏱ ${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}` : '⏱ Hết giờ';
@@ -852,7 +876,7 @@ function renderGrade(grade, app, onBack, opts = {}) {
       last = now;
       showTimer();
       if (running && now - lastSave > 15000) { lastSave = now; saveStore(store); }
-      if (rec.elapsed >= LIMIT_MS) refreshSubmit();
+      if (rec.elapsed >= LIMIT_MS && !redo) refreshSubmit();
     };
     const onVis = () => {
       if (document.visibilityState === 'hidden') { tick(); saveStore(store); } else last = Date.now();
@@ -898,6 +922,20 @@ function renderGrade(grade, app, onBack, opts = {}) {
       setTimeout(() => cover.remove(), 450);
       saveStore(store);
     });
+    // Câu đã chấm (không làm lại): không cho chạm sửa.
+    paper.addEventListener('click', (ev) => {
+      if (isLocked(ev.target.closest('.ws-q')?.dataset.q)) { ev.stopImmediatePropagation(); ev.preventDefault(); }
+    }, true);
+    if (redo) {
+      app.querySelector('#ws-redo-cancel').onclick = () => {
+        stopTimer();
+        delete rec.draft;
+        delete rec.redo;
+        saveStore(store);
+        openSheet(sheet, col, back);
+      };
+      if (opts.focus) requestAnimationFrame(() => jumpTo(opts.focus));
+    }
     paper.addEventListener('input', (ev) => {
       const inp = ev.target.closest('.ws-in');
       if (!inp) return;
@@ -1139,12 +1177,15 @@ function renderGrade(grade, app, onBack, opts = {}) {
     let armTimer = null;
     const refOf = (e) => (e.label != null ? `${e.label || 'Câu'} ${e.n}${sheet.parts.length > 1 ? ` (${partName(sheet.parts[e.pi])})` : ''}` : `câu ${e.n}`);
     function refreshSubmit() {
-      const left = idx.filter(e => !isFilled(e, answers[e.id]));
+      // làm lại một câu: chỉ chờ câu đang làm lại (các câu đã chấm giữ nguyên bài cũ)
+      const todo = redo ? idx.filter(e => redo.has(e.id)) : idx;
+      const left = todo.filter(e => !isFilled(e, answers[e.id]));
       submit.disabled = left.length > 0;
-      app.querySelector('#ws-count').textContent = `Đã làm ${idx.length - left.length}/${idx.length} câu`;
-      prog.querySelectorAll('.ws-dot').forEach(d => d.classList.toggle('ws-dot-done', !left.some(e => e.id === d.dataset.q)));
-      const timeUp = rec.elapsed >= LIMIT_MS;
-      note.innerHTML = timeUp && left.length
+      app.querySelector('#ws-count').textContent = `Đã làm ${todo.length - left.length}/${todo.length} câu`;
+      prog.querySelectorAll('.ws-dot').forEach(d => !isLocked(d.dataset.q) && d.classList.toggle('ws-dot-done', !left.some(e => e.id === d.dataset.q)));
+      const timeUp = rec.elapsed >= LIMIT_MS && !redo;
+      note.innerHTML = redo && !left.length ? 'Con làm xong rồi. Kiểm tra lại rồi nộp lại!'
+        : timeUp && left.length
         ? `Đã hết ${limitMin} phút. Con làm nốt ${left.length} câu còn lại rồi nộp bài!`
         : left.length
         ? `Còn ${left.slice(0, 3).map(refOf).join(', ')}${left.length > 3 ? '…' : ''} chưa làm xong. <u>Chạm để tới câu đó</u>`
@@ -1155,7 +1196,7 @@ function renderGrade(grade, app, onBack, opts = {}) {
 
     // Chạm dòng nhắc: cuộn tới câu chưa làm đầu tiên, câu đó nháy nhẹ.
     note.onclick = () => {
-      const e = idx.find(x => !isFilled(x, answers[x.id]));
+      const e = idx.find(x => !isLocked(x.id) && !isFilled(x, answers[x.id]));
       if (e) jumpTo(e.id);
     };
 
@@ -1164,7 +1205,7 @@ function renderGrade(grade, app, onBack, opts = {}) {
       if (!armTimer) {
         submit.textContent = '📮 Chạm lần nữa để nộp';
         submit.classList.add('ws-armed');
-        armTimer = setTimeout(() => { armTimer = null; submit.textContent = '📮 Nộp bài'; submit.classList.remove('ws-armed'); }, 4000);
+        armTimer = setTimeout(() => { armTimer = null; submit.textContent = redo ? '📮 Nộp lại' : '📮 Nộp bài'; submit.classList.remove('ws-armed'); }, 4000);
         return;
       }
       clearTimeout(armTimer);
@@ -1175,8 +1216,10 @@ function renderGrade(grade, app, onBack, opts = {}) {
       const gs = idx.map(e => gradeQuestion(e, answers[e.id]));
       const score = roundHalf((10 * gs.reduce((s, g) => s + g.score, 0)) / idx.length);
       stopTimer();
-      rec.result = { answers, score, comment: teacherComment(sheet, idx, gs, score), at: Date.now(), used: rec.elapsed };
+      // làm lại một câu: giữ thời gian làm cả tờ của lần trước
+      rec.result = { answers, score, comment: teacherComment(sheet, idx, gs, score), at: Date.now(), used: redo ? rec.result.used : rec.elapsed };
       rec.elapsed = 0;
+      delete rec.redo;
       rec.best = Math.max(rec.best ?? 0, score);
       rec.attempts = (rec.attempts || 0) + 1;
       delete rec.draft;
@@ -1211,6 +1254,12 @@ function renderGrade(grade, app, onBack, opts = {}) {
 
     // ── HTML từng câu (làm bài) ──
     function questionHtml(e) { return renderQuestion(e, answers[e.id], grades ? grades[idx.indexOf(e)] : null); }
+
+    /** Bài đã chấm: nút làm lại riêng câu này (câu sai thì nổi bật hơn). */
+    function redoBtnHtml(e) {
+      const ok = grades[idx.indexOf(e)].score === 1;
+      return `<button type="button" class="ws-redo-q${ok ? '' : ' ws-redo-q-bad'}" data-q="${e.id}">🔄 Làm lại câu này</button>`;
+    }
   }
 
   // ── HTML dùng chung cho làm bài và bài đã chấm ─────────────────────────────
@@ -2089,6 +2138,16 @@ function injectStyles() {
     .ws-submit.ws-armed { background: #ea580c; box-shadow: 0 6px 0 #c2410c; }
     .ws-foot-note { border: none; background: none; font: inherit; color: #64748b; font-weight: 600; font-size: 0.9em; text-align: center; cursor: pointer; }
     .ws-foot-note:disabled { cursor: default; color: #166534; }
+    /* Làm lại một câu */
+    .ws-redo-q { grid-column: 2; justify-self: start; margin-top: 0.35rem; border: 2px solid #cbd5e1; background: #fff; color: #475569; font: inherit; font-weight: 700; font-size: 0.82em;
+      padding: 0.25rem 0.8rem; border-radius: 999px; cursor: pointer; box-shadow: 0 3px 0 #cbd5e1; }
+    .ws-q-block > .ws-redo-q { margin-left: clamp(0.4rem, 2.5vw, 1.6rem); }
+    .ws-redo-q-bad { border-color: #fdba74; background: #fff7ed; color: #c2410c; box-shadow: 0 3px 0 #fdba74; }
+    .ws-redo-q:active { transform: translateY(2px); box-shadow: 0 1px 0 #cbd5e1; }
+    .ws-q-locked { opacity: 0.5; }
+    .ws-q-locked * { cursor: default !important; }
+    .ws-q-redo { background: #fffbeb; box-shadow: 0 0 0 3px #fcd34d; }
+    .ws-redo-cancel { border: none; background: none; font: inherit; color: #64748b; font-weight: 700; font-size: 0.9em; text-decoration: underline; cursor: pointer; }
     /* Kiểm tra theo lộ trình */
     .ws-list-note { margin: -0.4rem 0 1.2rem; color: #fff; font-weight: 700; font-size: 1.05rem; text-shadow: 0 1px 0 #8a5527; }
     .ws-card-after { align-self: flex-start; background: #ede9fe; color: #5b21b6; font-weight: 800; font-size: 0.95rem; padding: 0.15rem 0.6rem; border-radius: 999px; }
