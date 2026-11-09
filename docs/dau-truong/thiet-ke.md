@@ -388,6 +388,14 @@ Vẽ bằng SVG: `src/dauTruong/cert.js` (`certSvg`, `certNo`, `CERT_KINDS`, `CE
 > - Máy chủ trò rời phòng: người kế nhận quyền, chạy tiếp từ ảnh chụp cuối (`resume`: câu đã lật thì sang bước sau, câu đang hỏi thì
 >   hỏi câu khác cùng lượt). Bạn thật trên bục rời phòng: máy chủ trò chơi thay (mức khá). Người vào giữa chừng nhận ảnh chụp cuối.
 > - Bục và khán phòng ảo giống nhau trên mọi máy: bạn thật xếp theo thứ tự vào phòng, hạt giống theo mã lượt `A.round`.
+> - **Nút Bắt đầu (2026-11-09):** đủ 4 bục thì mỗi bạn đứng bục bấm "▶ Bắt đầu" (`ready`, cả phòng thấy `pr`); bục ghi "Đang chờ" /
+>   "✓ Sẵn sàng", bạn ảo tự sẵn sàng 3–10 giây sau khi được mời (cùng hạt giống, mọi máy như nhau). Cả 4 sẵn sàng: `start 'ready'`,
+>   2 giây sau vào thẳng Khởi động, bỏ Mở màn (`A.quick`). Có bạn chưa bấm: tới giờ vẫn bắt đầu như thường (có Mở màn).
+> - **Giọng MC Azure (2026-11-09):** NamMinh (anh Minh) / HoaiMy (chị Mai) như Kinh Thánh: `api/tts.js` tạo mp3 một lần, lưu R2 (chung
+>   bucket nhưng thư mục riêng `homework/dautruong/tts/…` và `homework/dautruong/usage/…`, không trộn với Kinh Thánh;
+>   `src/dauTruong/tts.js`), máy học sinh tải thẳng từ R2,
+>   câu hỏi + 4 phương án tải trước cả phòng (fx `pre`). Không được thì giọng của máy, rồi phụ đề + chờ theo độ dài câu.
+>   Env Vercel của homework: AZURE_SPEECH_KEY, AZURE_SPEECH_REGION, R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL.
 > - Chương trình xong: máy chủ trò gửi `xe`, 30 giây sau phòng mở lượt mới. Thử: `realtime/test-arena.mjs`,
 >   `scripts/.tmp/dt-sync.mjs` (3 máy: chủ trò, bạn trên bục, khán giả; đổi chủ trò), `dt-sync-win.mjs` (trao giải trên máy hiện theo).
 

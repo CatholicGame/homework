@@ -25,7 +25,7 @@ import { lobbyRender } from '../dauTruong/lobby.js';
 import { loadArenaBank, speedQ } from '../dauTruong/questions.js';
 import { drawQBody, optTokens, tokenCanvas, sayTokens } from '../dauTruong/figs.js';
 import { mcLine, sayQuestion, sayOption, LETTER, MC_NAMES } from '../dauTruong/mc.js';
-import { mcSpeak, mcStop, setMcListener, setMcRate, isMcMuted, setMcMuted } from '../dauTruong/mcVoice.js';
+import { mcPrefetch, mcSpeak, mcStop, setMcListener, setMcRate, isMcMuted, setMcMuted } from '../dauTruong/mcVoice.js';
 import { certSvg, loadCertFonts, CERT_CSS } from '../dauTruong/cert.js';
 import { addAward } from '../dauTruong/awards.js';
 import { awardFixedStars, getTotalStars } from '../engine/stars.js';
@@ -1707,6 +1707,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       sfx: (n, ...a) => { if (following()) SFX[n]?.(...a); },
       cam: (k) => { if (following()) cam(k); },
       lk: (i) => { if (following() && i !== myPod) SFX.lock(); },
+      pre: (texts, mc) => { (texts || []).forEach(t => mcPrefetch(t, mc)); },
       // mọi máy
       burst: (i, k) => { if (pods[i]) { burst(pods[i]); SFX.ting?.(k, true); } },
       pan: () => {
@@ -1999,6 +2000,8 @@ export function stage(app, onBack, { flow = false } = {}) {
       seats.forEach(s => { s.ans = null; s.right = false; s.dirty = true; });
       livePop();
       const mon = monOf(Q);
+      // giọng Azure: tải trước câu hỏi và bốn phương án (cả phòng) để MC đọc liền mạch, không chờ mạng giữa các câu
+      fxRun('pre', [sayQuestion(Q), ...[0, 1, 2, 3].map(i => sayOption(Q, i))], mon);
       // đổi môn: người vừa nói trao lời cho người kia (lượt Tăng tốc, Về đích: không cần)
       if (lastMon >= 0 && mon !== lastMon && !afterStar && sl.seg !== 'speed') {
         if (!(await host(mon ? 'toTV' : 'toToan'))) return;

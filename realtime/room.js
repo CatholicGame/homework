@@ -56,13 +56,15 @@
  * client → server
  *   ['want', 0 | 1]                            bật / tắt "Em muốn lên bục"
  *   ['start']                                  (phòng cuốn chiếu: đủ 4 bục) bắt đầu sau 5 giây
+ *   ['ready', 0 | 1]                           bạn đứng bục bấm "Bắt đầu" (sẵn sàng); ['start', 'ready']: cả 4 bục sẵn sàng, vào thi sau 2 giây
  *   ['xi', loại, ...]                          thao tác trong chương trình, máy chủ chuyển cho máy chủ trò
  *   ['xs', ảnh chụp] / ['xf', …] / ['xe']      (chỉ máy chủ trò) ảnh chụp, hiệu ứng, chương trình đã xong
  * server → client
  *   ['pw', id, 0 | 1]                          người id bật / tắt "Em muốn lên bục" (bục ưu tiên người thật)
+ *   ['pr', id, 0 | 1]                          người id sẵn sàng / chưa
  *   ['xs', ảnh chụp] / ['xf', tên, ...]        (từ máy chủ trò) trạng thái chương trình / hiệu ứng (MC nói, góc máy, âm thanh…)
  *   ['xi', id, loại, ...]                      (gửi máy chủ trò) thao tác của bạn id: lock / buzz / pkg / star / aud
- *   ['A', { step, startAt, now, people, want, test, free, round, host }]  bước của phòng ('lobby' sảnh chờ | 'live' đang diễn | 'closed'), giờ bắt
+ *   ['A', { step, startAt, now, people, want, test, free, round, host, quick }]  quick: bắt đầu vì cả 4 bục sẵn sàng (bỏ Mở màn)  bước của phòng ('lobby' sảnh chờ | 'live' đang diễn | 'closed'), giờ bắt
  *                                              đầu, giờ máy chủ (để đếm ngược đúng), số người thật đã ngồi, số người muốn lên bục;
  *                                              gửi khi có người vào / ra / ngồi / đổi ý và ở mỗi mốc giờ
  */
@@ -218,7 +220,7 @@ export class Room {
     const p = {
       id: this.next++, x: int(s.x), y: int(s.y), z: int(s.z), h: int(s.h, 1000), a: ANIMS[s.a] ? s.a : 0,
       k: int(s.k, 255), c: int(s.c, LOOKS - 1) & (LOOKS - 1), w: s.w ? 1 : 0, seat: '', n: cleanName(s.n), o: lookOf(s.o), conn,
-      u: accOk(s.u) ? s.u : '', r, ...(qa ? { qa } : {}), ...(this.arena ? { want: s.want === 0 ? 0 : 1 } : {}),
+      u: accOk(s.u) ? s.u : '', r, ...(qa ? { qa } : {}), ...(this.arena ? { want: s.want === 0 ? 0 : 1, ready: s.ready ? 1 : 0 } : {}),
     };
     conn.id = p.id;
     this.peers.set(p.id, p);
@@ -246,7 +248,10 @@ export class Room {
 
   // ---- Đấu Trường Nhí: lịch, sảnh chờ ----
   /** Phòng cuốn chiếu: lượt mới, sảnh chờ TEST_LEAD tính từ bây giờ. */
-  newRound() { this.created = Date.now(); this.forceAt = 0; this.aHost = 0; this.aSnap = null; clearTimeout(this.aEndT); this.aEndT = null; }
+  newRound() {
+    this.created = Date.now(); this.forceAt = 0; this.aHost = 0; this.aSnap = null; this.aQuick = false; clearTimeout(this.aEndT); this.aEndT = null;
+    for (const p of this.peers.values()) p.ready = 0;   // lượt mới: ai cũng bấm "Bắt đầu" lại
+  }
   /**
    * Máy chủ trò của lượt: chương trình (MC, đồng hồ, bạn ảo, chấm điểm) chạy trên đúng một máy, các máy khác hiện theo ảnh chụp
    * ('xs') và hiệu ứng ('xf') máy ấy gửi, thao tác của mình ('xi') gửi về máy ấy. Chọn người ngồi ghế vào sớm nhất (id nhỏ nhất);
@@ -281,7 +286,7 @@ export class Room {
     // test: phòng thử (nhãn "Phòng thử"); free: không theo lịch, đủ 4 bục là bắt đầu (phòng thử, máy dev, ALWAYS_OPEN)
     // round: mã lượt (hạt giống bạn ảo giống nhau trên mọi máy); host: máy chủ trò
     return { step, startAt, now, people: this.people(), want: want.size, test: this.test || this.arenaDemo ? 1 : 0, free: this.aFree ? 1 : 0,
-      round: this.aFree ? this.created : startAt, host: this.peers.size ? this.arenaHost() : 0 };
+      round: this.aFree ? this.created : startAt, host: this.peers.size ? this.arenaHost() : 0, quick: this.aQuick ? 1 : 0 };
   }
   arenaCast() { this.cast(['A', this.arenaState()]); }
   /** Hẹn giờ tới mốc kế (mở phòng, bắt đầu, hết lượt) để báo cả phòng đổi bước. */
@@ -306,10 +311,13 @@ export class Room {
       const h = this.peers.get(this.arenaHost());
       if (h && h.id !== p.id) this.send(h.conn, ['xi', p.id, ...m.slice(1, 6)]);
     }
+    // ['ready', 0|1]: bạn đứng bục bấm "Bắt đầu" (sẵn sàng); cả phòng thấy ['pr', id, 0|1]
+    else if (type === 'ready') { p.ready = m[1] ? 1 : 0; this.cast(['pr', p.id, p.ready], p.id); }
     else if (type === 'start') {
-      // người thử (phòng thử / máy dev) bắt đầu ngay: 5 giây nữa
-      if (!this.aFree || this.arenaState().step !== 'lobby') return true;
-      this.forceAt = Date.now() + 5000; this.armArena(); this.arenaCast();
+      // cả 4 bục đã sẵn sàng (m[1] === 'ready': vào thi ngay sau 2 giây, bỏ Mở màn) / phòng thử đủ bục (5 giây). Chỉ lần đầu.
+      if (!this.aFree || this.arenaState().step !== 'lobby' || this.forceAt) return true;
+      this.aQuick = m[1] === 'ready';
+      this.forceAt = Date.now() + (this.aQuick ? 2000 : 5000); this.armArena(); this.arenaCast();
     } else return false;
     return true;
   }
@@ -521,4 +529,4 @@ export class Room {
   }
 }
 
-const pub = (p) => ({ id: p.id, x: p.x, y: p.y, z: p.z, h: p.h, a: p.a, k: p.k, c: p.c, w: p.w, seat: p.seat, n: p.n, o: p.o, ...(p.qa ? { qa: p.qa } : {}), ...(p.want != null ? { want: p.want } : {}) });
+const pub = (p) => ({ id: p.id, x: p.x, y: p.y, z: p.z, h: p.h, a: p.a, k: p.k, c: p.c, w: p.w, seat: p.seat, n: p.n, o: p.o, ...(p.qa ? { qa: p.qa } : {}), ...(p.want != null ? { want: p.want, ready: p.ready || 0 } : {}) });

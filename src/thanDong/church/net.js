@@ -128,6 +128,7 @@ export function makeNet(on) {
       else if (type === 'sit') on.sit(m[1], m[2]);
       else if (type === 'up') on.up(m[1]);
       else if (type === 'pw') on.want?.(m[1], !!m[2]);
+      else if (type === 'pr') on.ready?.(m[1], !!m[2]);
       // Đấu Trường Nhí: ảnh chụp / hiệu ứng của máy chủ trò; (máy chủ trò) thao tác của bạn khác
       else if (type === 'xs') on.showSnap?.(m[1]);
       else if (type === 'xf') on.showFx?.(m[1], m.slice(2));
@@ -249,7 +250,9 @@ export function makeNet(on) {
     answer(i) { send(['ans', i]); },
     /** Đấu Trường Nhí: bật / tắt "Em muốn lên bục"; (phòng thử) bắt đầu ngay. */
     want(on) { send(['want', on ? 1 : 0]); },
-    start() { send(['start']); },
+    start(why) { send(why ? ['start', why] : ['start']); },
+    /** Đấu Trường Nhí: bạn đứng bục bấm "Bắt đầu" (sẵn sàng) / thôi. */
+    setReady(on) { send(['ready', on ? 1 : 0]); },
     /** Đấu Trường Nhí, chương trình chung: (máy chủ trò) ảnh chụp, hiệu ứng, đã xong; (mọi máy) thao tác gửi máy chủ trò. */
     showSnap(o) { send(['xs', o]); },
     showFx(name, args = []) { send(['xf', name, ...args]); },

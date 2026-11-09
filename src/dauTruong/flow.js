@@ -30,7 +30,7 @@ import {
   clockText, lookOfPupil, nextStart, pupilOfLook, stepAt, whenText,
 } from './rules.js';
 import { testRoom } from '../thanDong/engine/admin.js';
-import { audienceAt, podiumAt } from './npc.js';
+import { PICK_AT, audienceAt, podiumAt, rand01 } from './npc.js';
 import { liveNow, roomNpc } from '../engine/liveCount.js';
 
 const SEAT_KEY = 'dt-seat';
@@ -96,6 +96,17 @@ const CSS = `
 @keyframes dt-podin { from { transform: scale(0.6); opacity: 0.2; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .dt-wait .dt-pod.is-new { animation-duration: 1.2s; } }
 .dt-wait .dt-call { min-height: 1.35em; margin: 0; font-size: 13px; font-weight: 700; color: #b45309; }
+.dt-wait .dt-pod em { font-style: normal; font-size: 11px; font-weight: 700; color: #8a90ad; white-space: nowrap; }
+.dt-wait .dt-pod.is-ready em { color: #15803d; }
+.dt-wait .dt-pod.is-ready { background: #ecfdf3; }
+/* nút Bắt đầu: to, giữ chỗ cả khi chưa đủ bục (visibility), không làm thẻ nhảy */
+.dt-wait .dt-ready { width: 100%; min-height: 48px; border: 0; border-radius: 14px; font: inherit; font-size: 17px; font-weight: 900; cursor: pointer;
+  color: #5b6286; background: #e7eaf6; box-shadow: 0 4px 0 #c5cbe4; }
+.dt-wait .dt-ready.is-on { color: #fff; background: linear-gradient(180deg, #2fd27f, #16a35a); box-shadow: 0 5px 0 #0e7a42; animation: dt-ready 1.2s ease-in-out infinite alternate; }
+.dt-wait .dt-ready.is-on:active { transform: translateY(3px); box-shadow: 0 2px 0 #0e7a42; }
+.dt-wait .dt-ready.is-done { color: #15803d; background: #ecfdf3; box-shadow: 0 4px 0 #bfe8cf; cursor: default; }
+@keyframes dt-ready { from { transform: scale(1); } to { transform: scale(1.03); } }
+@media (prefers-reduced-motion: reduce) { .dt-wait .dt-ready.is-on { animation-duration: 2.4s; } }
 @media (max-height: 520px) { .dt-wait .dt-pod img, .dt-wait .dt-pod i { width: 28px; } .dt-wait .dt-pod span { font-size: 11px; } }
 .dt-conn { position: absolute; left: 50%; transform: translateX(-50%); top: calc(max(8px, env(safe-area-inset-top)) + 2px); z-index: 9;
   /* trên lớp nền tối của bảng nhân vật / sơ đồ ghế (z 8); nằm trên cùng để không che nút Vào ngồi, Xong ở đáy các bảng */
@@ -328,6 +339,10 @@ export function startFlow({ root, api, grade, leave, home }) {
   const isFree = () => !!(A?.free ?? A?.test);   // máy chủ cũ chưa gửi `free`: phòng thử là phòng tự do
   let realUp = new Set();   // id bạn thật đang đứng bục (ghế của họ để trống)
   let fill = 0, seedRound = 0;
+  /* Sẵn sàng: đủ 4 bục thì mỗi bạn đứng bục bấm "Bắt đầu". Bạn ảo tự sẵn sàng lần lượt sau khi được mời (rdAt, cùng hạt giống
+     nên mọi máy thấy như nhau); bạn thật theo tin 'pr' của máy chủ. Cả 4 sẵn sàng thì vào thi ngay, bỏ phần Mở màn. */
+  let meReady = false, frac = 0;
+  const podReady = (x) => (x.me ? meReady : x.real ? !!peers.get(x.real)?.ready : x.rdAt != null && frac >= x.rdAt);
   let seed = '', seedAt = 0, podKey = '', pods = [], frozen = false, call = '', callTimer = 0, lastNpc = -1e9, newPod = -1, meOnPod = false, autoGo = false;
   const npcHere = () => [...peers.values()].filter(p => p.npc).length;
   /** Tính lại bạn ảo theo giờ của phòng; chỉ đặt / bỏ những ghế đổi. force: tính ngay (vừa dựng lại danh sách người, đổi công tắc). */
@@ -342,13 +357,14 @@ export function startFlow({ root, api, grade, leave, home }) {
     const lead = isFree() ? TEST_LEAD : OPEN_BEFORE;
     const rid = A.round || A.startAt;
     if (!seed || rid !== seedRound) {
+      if (seedRound) { meReady = false; for (const p of peers.values()) p.ready = false; }   // lượt mới: bấm Bắt đầu lại
       seedRound = rid;
       seed = `${roomKey()}:${A.test && !A.round ? `t${Math.floor(now / 86400e3)}` : rid}`;
       seedAt = A.round && isFree() ? A.round + TEST_LEAD : A.startAt;
       fill = roomNpc(seedAt - lead);
     }
     // nhịp vào phòng theo giờ bắt đầu ban đầu (seedAt): phòng thử đủ bục bắt đầu sớm thì các bạn vẫn vào dần, không ào ra một lúc
-    const frac = 1 - (seedAt - now) / lead;
+    frac = 1 - (seedAt - now) / lead;
     const taken = [];
     for (const p of peers.values()) if (!p.npc && p.seat) taken.push(p.seat);
     if (mySeat) taken.push(mySeat);
@@ -365,6 +381,8 @@ export function startFlow({ root, api, grade, leave, home }) {
       const reals = others.sort((a, b) => a.at - b.at).slice(0, 4);
       const got = podiumAt({ seed, frac, reals, audience, full: A.step === 'live' });
       reals.forEach((r, i) => { if (r.real && got.pods[i]) { got.pods[i].real = r.real; got.pods[i].seat = r.seat; } });
+      // bạn ảo bấm Bắt đầu 3–10 giây (phần của thời gian chờ) sau khi được mời lên bục
+      got.pods.filter(x => x.npc).forEach((x, k) => { x.rdAt = Math.min(0.97, (PICK_AT[k] ?? 0.9) + 0.03 + rand01(seed, x.npc, 'ready') * 0.08); });
       const key = got.pods.map(x => x.npc || (x.me ? `me:${x.kind}:${x.name}` : `r${x.real}:${x.kind}:${x.name}`)).join(',');
       if (key !== podKey) {
         const before = new Set(pods.map(x => x.npc || (x.real && `r${x.real}`)).filter(Boolean));
@@ -385,16 +403,14 @@ export function startFlow({ root, api, grade, leave, home }) {
           SFX.podium();
         }
       }
-      // phòng cuốn chiếu (mọi phòng khi ALWAYS_OPEN, phòng thử, máy dev): đủ 4 bục thì tự bắt đầu; lượt theo lịch thì bắt đầu đúng giờ
-      if (isFree() && A.step === 'lobby' && pods.length === 4 && !autoGo) {
+      // phòng cuốn chiếu (mọi phòng khi ALWAYS_OPEN, phòng thử, máy dev): đủ 4 bục và cả 4 bạn bấm Bắt đầu thì vào thi ngay
+      // (bỏ Mở màn); chưa đủ thì tới giờ (TEST_LEAD sau người đầu tiên) vẫn bắt đầu như thường. Lượt theo lịch: đúng giờ.
+      if (isFree() && A.step === 'lobby' && pods.length === 4 && pods.every(podReady) && !autoGo) {
         autoGo = true;
-        later(() => {
-          if (A?.step !== 'lobby') return;
-          call = 'Đủ 4 bạn trên bục! Chương trình sắp bắt đầu.';
-          clearTimeout(callTimer); newPod = -1;
-          if (srvA) net?.start(); else solo.start();
-          paintWait();
-        }, 2500);   // để mọi người kịp thấy bạn cuối cùng lên bục
+        call = 'Cả 4 bạn đã sẵn sàng! Vào thi ngay.';
+        clearTimeout(callTimer); newPod = -1;
+        SFX.podium?.();
+        if (srvA) net?.start('ready'); else solo.start(true);
       }
     }
     // ghế khán giả: bạn ảo đang đứng bục thì ghế của bạn ấy để trống
@@ -424,8 +440,10 @@ export function startFlow({ root, api, grade, leave, home }) {
   function podsHtml() {
     return `<div class="dt-pods" aria-label="Bục thi">${[0, 1, 2, 3].map(i => {
       const x = pods[i];
-      const cls = `dt-pod${x ? '' : ' is-empty'}${x?.me ? ' is-me' : ''}${i === newPod ? ' is-new' : ''}`;
-      return `<div class="${cls}" style="--c:${COLORS[i]}">${x ? `<img src="${thumb(x.kind)}" alt="" width="46" height="46">` : '<i>?</i>'}<span>${x ? esc(x.name) : `Bục ${i + 1}`}</span></div>`;
+      const rd = x && podReady(x);
+      const cls = `dt-pod${x ? '' : ' is-empty'}${x?.me ? ' is-me' : ''}${i === newPod ? ' is-new' : ''}${rd ? ' is-ready' : ''}`;
+      // dòng trạng thái luôn giữ chỗ (bục trống: khoảng trắng) để thẻ không nhảy khi có bạn lên bục / bấm Bắt đầu
+      return `<div class="${cls}" style="--c:${COLORS[i]}">${x ? `<img src="${thumb(x.kind)}" alt="" width="46" height="46">` : '<i>?</i>'}<span>${x ? esc(x.name) : `Bục ${i + 1}`}</span><em>${x ? (rd ? '✓ Sẵn sàng' : 'Đang chờ') : '&nbsp;'}</em></div>`;
     }).join('')}</div>`;
   }
 
@@ -461,19 +479,28 @@ export function startFlow({ root, api, grade, leave, home }) {
     waitEl.classList.toggle('is-go', soon);
     const html = `<b>${A.test ? 'Phòng thử · ' : ''}Chương trình bắt đầu lúc ${whenText(A.startAt, now)}</b>
       <p>Còn <span class="dt-big">${clockText(left)}</span></p>
-      <p class="ch-qw-ev">${A.people + (liveNow().night ? 0 : npcHere())} bạn đã vào chỗ${isFree() && pods.length < 4 ? ` · đang chờ thêm bạn ${pods.length}/4, đủ 4 bục là bắt đầu` : ''}</p>
+      <p class="ch-qw-ev">${A.people + (liveNow().night ? 0 : npcHere())} bạn đã vào chỗ${!isFree() ? '' : pods.length < 4 ? ` · đang chờ thêm bạn ${pods.length}/4` : ` · ${pods.filter(podReady).length}/4 bạn sẵn sàng`}</p>
       ${podsHtml()}
       <p class="dt-call" aria-live="polite">${call ? esc(call) : '&nbsp;'}</p>
+      ${readyBtn()}
       <button type="button" class="dt-sw" role="switch" aria-checked="${want}" data-w="want"><i></i>Em muốn lên bục</button>
-      <p class="ch-qw-hint">${want ? 'Bạn đứng bục 1. Bục còn trống thì MC mời các bạn dưới khán phòng lên.' : 'Bạn vẫn trả lời mọi câu cùng khán phòng và có điểm riêng.'}</p>
+      <p class="ch-qw-hint">${want ? `${pods.some(x => x.me) ? `Bạn đứng bục ${pods.findIndex(x => x.me) + 1}.` : 'Bạn sẽ được mời lên bục.'} Bục còn trống thì MC mời các bạn dưới khán phòng lên.` : 'Bạn vẫn trả lời mọi câu cùng khán phòng và có điểm riêng.'}</p>
       <div class="ch-qw-btns"><button type="button" data-w="me">${icon('user')}Nhân vật</button><button type="button" data-w="seat">${icon('seats')}Đổi ghế</button></div>`;
     // chỉ vẽ lại khi chữ đổi (vẽ lại cả thẻ mỗi 0,25 giây sẽ nuốt mất cú chạm đang dở)
     if (waitEl.dataset.html !== html) { waitEl.innerHTML = html; waitEl.dataset.html = html; }
+  }
+  /** Nút "Bắt đầu" của bạn đứng bục: giữ chỗ từ đầu (ẩn bằng visibility), đủ 4 bục thì hiện; đã bấm thì thành dòng chờ các bạn. */
+  function readyBtn() {
+    const mine = pods.some(x => x.me) && isFree() && A?.step === 'lobby';
+    const on = mine && pods.length === 4;
+    const label = !on ? '▶ Bắt đầu' : meReady ? '✓ Em đã sẵn sàng, chờ các bạn' : '▶ Bắt đầu';
+    return `<button type="button" class="dt-ready${on && !meReady ? ' is-on' : ''}${meReady ? ' is-done' : ''}" data-w="ready"${on && !meReady ? '' : ' disabled'}${mine ? '' : ' style="visibility:hidden"'}>${label}</button>`;
   }
   waitEl.addEventListener('click', (e) => {
     const b = e.target.closest('[data-w]');
     if (!b) return;
     const w = b.dataset.w;
+    if (w === 'ready') { if (meReady) return; meReady = true; SFX.click(); net?.setReady(true); syncNpc(true); paintWait(); return; }
     if (w === 'want') { want = !want; SFX.click(); saveMe(); net?.want(want); solo.tick(); syncNpc(true); paintWait(); }
     else if (w === 'me') openMe(false);
     else if (w === 'seat') openSeats(false);
@@ -514,11 +541,13 @@ export function startFlow({ root, api, grade, leave, home }) {
     frozen = true;
     // Một chương trình cho cả phòng: máy chủ trò (máy chủ phòng chọn, A.host) chạy Mở màn → Trao giải, các máy khác hiện theo
     // ảnh chụp của máy ấy. Không có máy chủ phòng (srvA false): máy này tự chạy như chơi một mình.
+    // Cả 4 bục bấm Bắt đầu (A.quick): vào thẳng Khởi động, MC không chào mở màn nữa
+    const first = A.quick ? 'khoidong' : 'open';
     if (srvA && net) {
       const host = A.host === myId;
       api.multi({ host, myId, net });
-      if (host) api.setMode('open');
-    } else api.setMode('open');
+      if (host) api.setMode(first);
+    } else api.setMode(first);
     // Mở màn: hai MC chào xong thì tự vào Khởi động (intro trong games/dauTruong.js)
   }
   const timers = [];
@@ -539,7 +568,7 @@ export function startFlow({ root, api, grade, leave, home }) {
   });
   let okTimer = 0, rejoin = false;   // rejoin: tự chào lại (đổi tên), không phải rớt mạng
   const roomKey = () => `arena-g${grade}`;
-  const hiState = () => ({ x: 0, y: 0, z: 0, h: 0, a: 'idle', k: 0, c: 0, w: 0, seat: mySeat, n: nick, o: pupil >= 0 ? lookOfPupil(pupil) : '', want });
+  const hiState = () => ({ x: 0, y: 0, z: 0, h: 0, a: 'idle', k: 0, c: 0, w: 0, seat: mySeat, n: nick, o: pupil >= 0 ? lookOfPupil(pupil) : '', want, ready: meReady ? 1 : 0 });
   function placePeer(id) {
     const p = peers.get(id);
     // ghế của mình không bao giờ bị người khác (hay bạn máy) đè: đè thì mất vai khán giả và điểm của mình
@@ -550,18 +579,19 @@ export function startFlow({ root, api, grade, leave, home }) {
       myId = id;
       for (const p of peers.values()) if (p.seat && p.seat !== mySeat) api.seatPupil(p.seat, -1);
       peers.clear();
-      for (const p of list) { peers.set(p.id, { seat: p.seat || '', kind: pupilOfLook(p.o), n: p.n, want: p.want !== 0 }); placePeer(p.id); }
+      for (const p of list) { peers.set(p.id, { seat: p.seat || '', kind: pupilOfLook(p.o), n: p.n, want: p.want !== 0, ready: !!p.ready }); placePeer(p.id); }
       // ghế chọn đúng lúc đang nối (tin 'sit' chưa gửi được): xin lại; máy chủ đã giữ rồi thì không sao
       if (mySeat) net.sit(mySeat);
       syncNpc(true);
       if (!smEl.hidden) paintSeats();
     },
     want(id, w) { const p = peers.get(id); if (p) { p.want = w; syncNpc(true); } },
+    ready(id, on) { const p = peers.get(id); if (p) { p.ready = on; syncNpc(true); paintWait(); } },
     // chương trình chung: ảnh chụp / hiệu ứng của máy chủ trò; (máy chủ trò) thao tác của bạn khác
     showSnap(o) { api.snap(o); },
     showFx(name, args) { api.fx(name, args); },
     showInput(from, type, args) { api.input(from, type, args); },
-    join(p) { peers.set(p.id, { seat: p.seat || '', kind: pupilOfLook(p.o), n: p.n, want: p.want !== 0 }); syncNpc(true); placePeer(p.id); if (!smEl.hidden) paintSeats(); },
+    join(p) { peers.set(p.id, { seat: p.seat || '', kind: pupilOfLook(p.o), n: p.n, want: p.want !== 0, ready: !!p.ready }); syncNpc(true); placePeer(p.id); if (!smEl.hidden) paintSeats(); },
     leave(id) {
       const p = peers.get(id);
       if (p?.seat && p.seat !== mySeat) api.seatPupil(p.seat, -1);
@@ -630,14 +660,14 @@ export function startFlow({ root, api, grade, leave, home }) {
       this.iv = setInterval(() => this.tick(), 1000);
       this.tick();
     },
-    start() { this.forceAt = Date.now() + 5000; this.tick(); },
+    start(quick = false) { if (this.forceAt) return; this.quick = quick; this.forceAt = Date.now() + (quick ? 2000 : 5000); this.tick(); },
     tick() {
       if (srvA || gone) return;
       const now = Date.now(), startAt = free ? this.forceAt || this.t0 + TEST_LEAD : nextStart(grade, now);
       const step = free ? (now < startAt ? 'lobby' : now < startAt + LIVE_MS ? 'live' : 'closed') : stepAt(startAt, now);
       // người thật (bạn ảo đếm riêng: npcHere)
       const people = [...peers.values()].filter(p => !p.npc && p.seat).length + (mySeat ? 1 : 0);
-      onArena({ step, startAt, now, people, want: want && mySeat ? 1 : 0, test: import.meta.env.DEV || testRoom() || !ONLINE ? 1 : 0, free: free ? 1 : 0 });
+      onArena({ step, startAt, now, people, want: want && mySeat ? 1 : 0, test: import.meta.env.DEV || testRoom() || !ONLINE ? 1 : 0, free: free ? 1 : 0, quick: this.quick ? 1 : 0 });
     },
   };
 
