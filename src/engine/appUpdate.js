@@ -9,6 +9,13 @@ const MIN_GAP_MS = 30 * 1000;
 
 const current = document.querySelector('script[type="module"][src*="/assets/"]')?.getAttribute('src');
 let hiddenAt = 0, lastCheck = 0, checking = false, banner = null;
+/* Đang ở giữa việc không được ngắt (vd. trận Đấu Trường Nhí đang diễn: rời bục bị trừ sao): không hiện thẻ, không tự tải lại.
+   holdUpdates(false) khi xong: hỏi lại ngay. */
+let held = false, missed = false;
+export function holdUpdates(on) {
+  held = !!on;
+  if (!held && missed) { missed = false; lastCheck = 0; check(); }
+}
 
 async function latestBuild() {
   const res = await fetch(`/?_=${Date.now()}`, { cache: 'no-store' });
@@ -19,12 +26,14 @@ async function latestBuild() {
 
 async function check(awayMs = 0) {
   const now = Date.now();
+  if (held) { missed = true; return; }
   if (checking || banner || now - lastCheck < MIN_GAP_MS || !navigator.onLine) return;
   checking = true;
   lastCheck = now;
   try {
     const latest = await latestBuild();
     if (!latest || latest === current) return;
+    if (held) { missed = true; return; }
     if (awayMs >= RELOAD_AWAY_MS) location.reload();
     else showBanner();
   } catch { /* mất mạng: lần sau hỏi lại */ } finally {

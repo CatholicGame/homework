@@ -22,6 +22,7 @@ import { firebaseSession } from './leaderboard.js';
 import { getCurrentUser } from './auth.js';
 import { getProfile, getProfileGrade } from './profile.js';
 import { testRoom } from '../thanDong/engine/admin.js';
+import { isAdminUser } from './admin.js';
 
 const COL = 'arena', PLAYS = 'arenaPlays', OPEN = 'dt-show-open';
 const FLUSH = 30000;
@@ -29,7 +30,10 @@ const KEYS = ['lobby', 'visits', 'seated', 'started', 'ended', 'pod', 'wins', 's
 let pend = null, timer = 0;
 const vnDay = (ms = Date.now()) => new Date(ms + 7 * 3600000).toISOString().slice(0, 10);
 const toMs = (ts) => (ts?.toMillis ? ts.toMillis() : 0);
-const off = () => testRoom() || (typeof navigator !== 'undefined' && navigator.webdriver);
+// không ghi: phòng thử, trình duyệt tự động, tài khoản admin (chạy thử không lẫn vào số liệu của bé)
+const off = () => testRoom() || isAdminUser() || (typeof navigator !== 'undefined' && navigator.webdriver);
+/** Dòng arenaPlays tự xoá sau PLAY_KEEP (chính sách TTL của Firestore trên trường expireAt, bật một lần ở Console). */
+const PLAY_KEEP = 30 * 864e5;
 const myName = () => String(getProfile().name || getCurrentUser()?.name || '').slice(0, 60);
 const grade = () => { const g = getProfileGrade(); return Number.isInteger(g) && g >= -1 && g <= 5 ? g : 0; };
 
@@ -76,7 +80,8 @@ async function addPlay(extra) {
     const user = fb?.auth.currentUser;
     if (!user) return;
     const { db, fs } = fb;
-    await fs.addDoc(fs.collection(db, PLAYS), { uid: user.uid, name: myName(), grade: grade(), at: fs.serverTimestamp(), ...extra });
+    await fs.addDoc(fs.collection(db, PLAYS), { uid: user.uid, name: myName(), grade: grade(), at: fs.serverTimestamp(),
+      expireAt: fs.Timestamp.fromMillis(Date.now() + PLAY_KEEP), ...extra });
   } catch (e) { console.warn('[arenaStats] plays', e); }
 }
 

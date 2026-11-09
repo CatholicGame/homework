@@ -210,6 +210,16 @@ export function render(app, onBack) {
     const end = (p) => (p.quit ? `🚪 Bỏ ở ${MODE[p.mode] || 'chương trình'} (${p.why === 'leave' ? 'bấm rời phòng' : 'thoát app'})`
       : p.role === 'pod' ? (['', '🥇 Quán quân', '🥈 Á quân', '🥉 Hạng ba', '🏅 Hạng tư'][p.rank] || 'Bục thi') : '👏 Khán giả, xem hết');
     const grade = (g) => (g ? gradeTitle(g) : '');
+    // gom: các dòng bỏ giữa chừng liền nhau của cùng một người trong cùng một ngày thành một dòng ("Bỏ giữa chừng 6 lần")
+    const dayOf = (t) => new Date(t).toDateString();
+    const rows = [];
+    for (const p of plays) {
+      const g = rows[rows.length - 1];
+      if (p.quit && g?.quit && g.uid === p.uid && dayOf(g.at) === dayOf(p.at)) { g.n++; g.from = p.at; g.modes[p.mode] = (g.modes[p.mode] || 0) + 1; g.score = Math.max(g.score || 0, p.score || 0); continue; }
+      rows.push({ ...p, n: 1, from: p.at, modes: p.quit ? { [p.mode]: 1 } : {} });
+    }
+    const endOf = (p) => (p.n > 1 ? `🚪 Bỏ giữa chừng ${p.n} lần (${Object.entries(p.modes).map(([m, k]) => `${MODE[m] || 'chương trình'}${k > 1 ? ` ×${k}` : ''}`).join(', ')})` : end(p));
+    const whenOf = (p) => (p.n > 1 ? `${fmtDateTime(p.from)} → ${fmtDateTime(p.at).split(' ')[0]}` : fmtDateTime(p.at));
     body.innerHTML = `
       <div class="adm-tiles">
         ${tiles.map(t => `<div class="adm-tile"><div class="adm-tile-label">${t.label}</div><div class="adm-tile-value">${t.value}</div>
@@ -242,12 +252,12 @@ export function render(app, onBack) {
         <h2 class="adm-h2">Chương trình gần đây</h2>
         ${plays.length ? `<div class="adm-table-wrap"><table class="adm-table">
           <thead><tr><th>Lúc</th><th>Người chơi</th><th>Lớp</th><th>Kết thúc</th><th class="adm-num">Điểm</th><th class="adm-num">Sao</th></tr></thead>
-          <tbody>${plays.map(p => `<tr><td>${fmtDateTime(p.at)}</td><td>${escapeHtml(p.name || '')}</td><td>${escapeHtml(grade(p.grade))}</td>
-            <td>${end(p)}</td><td class="adm-num">${p.score || 0}</td><td class="adm-num">${p.stars || ''}</td></tr>`).join('')}</tbody>
+          <tbody>${rows.map(p => `<tr><td>${whenOf(p)}</td><td>${escapeHtml(p.name || '')}</td><td>${escapeHtml(grade(p.grade))}</td>
+            <td>${endOf(p)}</td><td class="adm-num">${p.score || 0}</td><td class="adm-num">${p.stars || ''}</td></tr>`).join('')}</tbody>
         </table></div>` : '<p class="adm-empty">Chưa có chương trình nào.</p>'}
       </section>
       <p class="adm-chart-sub">Bỏ dở: lượt bắt đầu mà không xem tới hết. Dòng 🚪 chỉ có khi bạn ấy bấm rời phòng, hoặc thoát app rồi mở lại sảnh.
-        Tính cả khách dùng thử, không tính bạn ảo và phòng thử nội bộ. Ghi từ ngày 9/11/2026.</p>`;
+        Tính cả khách dùng thử, không tính bạn ảo, phòng thử nội bộ và tài khoản admin. Các lần bỏ liền nhau trong ngày gom một dòng; dòng chương trình tự xoá sau 30 ngày. Ghi từ ngày 9/11/2026.</p>`;
   }
 
   function drawAll() {
