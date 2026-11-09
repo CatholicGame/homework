@@ -34,6 +34,7 @@ import { PICK_AT, audienceAt, podiumAt, rand01 } from './npc.js';
 import { statsHtml } from './matchStats.js';
 import { liveNow, roomNpc } from '../engine/liveCount.js';
 import { arenaVisit, arenaSeated, showStart, showEnd, showLeave } from '../engine/arenaStats.js';
+import { deductStars } from '../engine/stars.js';
 
 const SEAT_KEY = 'dt-seat';
 const thumb = (k) => `/dautruong/pupils/${PUPILS[k]}.webp`;
@@ -99,6 +100,21 @@ const CSS = `
 .dt-wait .dt-sw i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
 .dt-wait .dt-sw[aria-checked="true"] i { background: #21b26b; }
 .dt-wait .dt-sw[aria-checked="true"] i::after { transform: translateX(16px); }
+/* 🚪 hỏi lại khi rời trận giữa chừng (bị trừ sao) */
+.dt-quit { position: absolute; inset: 0; z-index: 12; display: grid; place-items: center; padding: 16px; background: rgba(4, 8, 32, 0.6); }
+.dt-quit[hidden] { display: none; }
+.dt-quit-box { width: min(420px, 100%); max-height: 100%; overflow-y: auto; box-sizing: border-box; display: grid; justify-items: center; gap: 8px;
+  padding: 18px 20px; border-radius: 18px; text-align: center; color: #2b2f4a; background: #fffdf8; border: 1px solid rgba(196, 128, 60, 0.4);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45); }
+.dt-quit-ic { font-size: 40px; line-height: 1; }
+.dt-quit h3 { margin: 0; font-size: 20px; font-weight: 900; }
+.dt-quit p { margin: 0; font-size: 15px; line-height: 1.4; color: #4b5078; }
+.dt-quit p strong { color: #c2410c; }
+.dt-quit-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 6px; }
+.dt-quit-btns button { min-height: 48px; border-radius: 14px; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+.dt-quit-stay { border: 0; color: #fff; background: linear-gradient(180deg, #2fd27f, #16a35a); box-shadow: 0 4px 0 #0e7a42; }
+.dt-quit-go { color: #9a3412; background: #fff; border: 2px solid #fdba74; }
+@media (max-height: 420px) { .dt-quit-box { gap: 4px; padding: 12px 16px; } .dt-quit-ic { display: none; } }
 /* thẻ kết thúc trận có bảng mạnh / yếu: rộng hơn, cuộn trong thẻ khi dài */
 .dt-wait.is-end { width: min(560px, calc(100% - 24px)); max-height: calc(100% - 80px); overflow-y: auto; }
 @media (max-width: 600px) { .dt-wait.is-end { left: 12px; right: 12px; width: auto; } }
@@ -700,7 +716,40 @@ export function startFlow({ root, api, grade, leave, home }) {
   if (import.meta.env.DEV) window.__dtFlow = { get A() { return A; }, peers, get pods() { return pods; }, get seed() { return seed; }, sync: () => syncNpc(true) };
 
   // ---- vào
-  api.onBack = () => { leave(); return true; };
+  /* 🚪 Rời trận giữa chừng (nút ✕ lúc chương trình đang diễn): hỏi lại trước, rời thì bị trừ sao (đứng bục QUIT_STARS.pod,
+     khán giả QUIT_STARS.aud; phòng thử không trừ). Mất mạng / thẻ kết thúc / sảnh chờ thì rời như thường. */
+  const QUIT_STARS = { pod: 10, aud: 5 };
+  const quitEl = document.createElement('div');
+  quitEl.className = 'dt-quit'; quitEl.hidden = true;
+  quitEl.setAttribute('role', 'alertdialog'); quitEl.setAttribute('aria-modal', 'true'); quitEl.setAttribute('aria-labelledby', 'dt-quit-t');
+  root.appendChild(quitEl);
+  const quitCost = () => (A?.test ? 0 : meOnPod ? QUIT_STARS.pod : QUIT_STARS.aud);
+  function askQuit() {
+    const n = quitCost();
+    quitEl.innerHTML = `<div class="dt-quit-box">
+      <b class="dt-quit-ic" aria-hidden="true">🚪</b>
+      <h3 id="dt-quit-t">Rời trận bây giờ?</h3>
+      <p>${n ? `Trận đang diễn ra. Nếu rời bây giờ em sẽ bị <strong>trừ ${n} sao</strong>.` : 'Trận đang diễn ra. Đây là phòng thử nên em không bị trừ sao.'}${meOnPod ? ' Bục của em sẽ để trống.' : ''}</p>
+      <div class="dt-quit-btns"><button type="button" class="dt-quit-stay" data-q="stay">Ở lại thi tiếp</button>
+        <button type="button" class="dt-quit-go" data-q="go">Rời trận${n ? ` (−${n} ⭐)` : ''}</button></div>
+    </div>`;
+    quitEl.hidden = false;
+    SFX.click?.();
+    quitEl.querySelector('[data-q="stay"]').focus();
+  }
+  quitEl.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-q]');
+    if (!b && e.target !== quitEl) return;
+    if (!b || b.dataset.q === 'stay') { quitEl.hidden = true; return; }
+    const n = quitCost();
+    if (n && grade >= 1 && grade <= 5) deductStars(`dautruong${grade}:${A?.startAt || Date.now()}:quit`, n);
+    quitEl.hidden = true;
+    leave();
+  });
+  api.onBack = () => {
+    if (live && !ended && !gone) { askQuit(); return true; }
+    leave(); return true;
+  };
   arenaVisit();
   solo.begin();
   if (net) {

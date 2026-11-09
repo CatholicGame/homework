@@ -194,6 +194,25 @@ export function awardFixedStars(key, n, { toast = true } = {}) {
   return n;
 }
 
+/**
+ * Trừ `n` sao một lần cho khoá `key` (phạt, vd. rời trận Đấu Trường Nhí giữa chừng): ghi một dòng âm trong sổ sao, nên tổng,
+ * sao theo lớp và theo ngày / tuần / tháng đều giảm. Không trừ quá số sao đang có. Trả số sao đã trừ (0 nếu khoá đã có).
+ * Bảng xếp hạng không bao giờ giảm (leaderboard.js lấy số lớn hơn): sao kiếm thêm sau đó phải bù phần bị trừ mới lên bảng.
+ */
+export function deductStars(key, n) {
+  n = Math.round(n);
+  if (!(n > 0)) return 0;
+  const d = loadLedger();
+  if (key in d.earned) return 0;
+  n = Math.min(n, Object.values(d.earned).reduce((a, b) => a + b, 0));
+  if (!(n > 0)) return 0;
+  d.earned[key] = -n;
+  d.at[key] = dayKey();
+  saveLedger(d);
+  window.dispatchEvent(new CustomEvent('tth:stars-changed'));
+  return n;
+}
+
 // Sổ tiến trình cũ của từng sách: khoá localStorage → tiền tố khoá sao.
 const LEGACY_PROGRESS = { 'gw-progress-v1': 'workbook', 'gw2-progress-v1': 'workbook', 'gp-progress-v1': 'practice', 'g2w-progress-v1': 'workbook2', 'g2w2-progress-v1': 'workbook2', 'g1w-progress-v1': 'workbook1', 'g1w2-progress-v1': 'workbook1b', 'g4s-progress-v1': 'textbook4' };
 
