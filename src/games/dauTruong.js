@@ -57,21 +57,19 @@ const CAM_ROWS = [
    .ch-camset; phần câu hỏi là dải truyền hình tối .ch-qov (khung vát, đồng hồ, huy hiệu kết quả) của church.css. */
 const CSS = `
 .dt-stage.ch { z-index: 60; }
-/* nút loa (giọng MC) đẩy cụm nút sang phải; phụ đề lời MC nằm ở thanh trên cùng, thay chỗ nhãn tên chương trình lúc MC đang nói
+/* phụ đề lời MC nằm ở thanh trên cùng, thay chỗ nhãn tên chương trình lúc MC đang nói
    (không đè màn câu hỏi, không đẩy gì); màn hẹp thì xuống ngay dưới thanh */
-.dt-stage .dt-mute { margin-left: auto; font-size: 18px; }
 /* bạn trên bục trả lời ké câu của bạn khác (không tính điểm, chỉ đếm câu đúng): ô đã chọn chỉ có viền, không tô màu chốt */
 .dt-stage .ch-qov-o.is-side::after { inset: 4px; }
 .dt-stage .ch-qov-o.is-side::before { background: linear-gradient(180deg, #fff7d6, #ffc93c 50%, #fff1b8); }
 .dt-stage .ch-qov-o.is-side i { background: rgba(255, 201, 60, 0.3); border-color: #ffd36b; }
 .dt-stage .ch-qov-o.is-side.is-side-no::before { background: linear-gradient(180deg, #ffd0d6, #ff4d64 50%, #ffc2ca); }
-/* ⏱ thời gian chương trình đã diễn: ô kính cạnh nút loa, luôn giữ chỗ (ẩn bằng visibility trước giờ diễn), không ẩn khi MC nói */
+/* ⏱ thời gian chương trình đã diễn: ô kính đẩy cụm nút sang phải, luôn giữ chỗ (ẩn bằng visibility trước giờ diễn), không ẩn khi MC nói */
 .dt-stage .dt-elapsed { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; height: 42px; padding: 0 12px; box-sizing: border-box;
   border-radius: 12px; background: rgba(6, 12, 40, 0.72); border: 1px solid rgba(255, 211, 107, 0.4); color: #fff; pointer-events: none;
   font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .dt-stage .dt-elapsed i { font-style: normal; font-size: 12px; font-weight: 700; color: #ffd36b; }
 .dt-stage .dt-elapsed.is-off { visibility: hidden; }
-.dt-stage .dt-elapsed + .dt-mute { margin-left: 0; }
 @media (max-width: 560px) { .dt-stage .dt-elapsed i { display: none; } }
 /* màn chưa đủ rộng cho cả nhãn tên chương trình (giữa) và cụm đồng hồ + loa + nút vòng (phải): đang diễn thì nhường chỗ cho đồng hồ */
 @media (max-width: 900px) { .dt-stage:has(.dt-elapsed:not(.is-off)) .ch-top .ch-chip { display: none; } }
@@ -292,7 +290,6 @@ export function stage(app, onBack, { flow = false } = {}) {
       <button type="button" class="ch-ic dt-back" aria-label="Quay lại" title="Quay lại">${icon('x')}</button>
       <div class="ch-chip"><span class="ch-dot" aria-hidden="true"></span><span class="ch-title">${SHOW_NAME}</span><span class="ch-seat">${flow ? `Lớp ${getProfileGrade() || ''}`.trim() : 'bản mẫu'}</span></div>
       <div class="dt-elapsed is-off" role="timer" aria-label="Thời gian chương trình đã diễn"><i>Đã diễn</i><b>0:00</b></div>
-      <button type="button" class="ch-ic dt-mute" aria-label="Tắt / bật giọng MC" title="Giọng MC"></button>
       <button type="button" class="ch-ic dt-mode" aria-haspopup="menu" aria-expanded="false"></button>
     </div>
     <div class="dt-cap" aria-live="polite"><b></b><span></span></div>
@@ -2517,10 +2514,8 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (t !== elapsedTxt) { elapsedTxt = t; elapsedB.textContent = t; }
     }
     const elapsedTm = setInterval(paintElapsed, 500);
-    const muteBtn = root.querySelector('.dt-mute');
-    const paintMute = () => { muteBtn.textContent = isMcMuted() ? '🔇' : '🔊'; muteBtn.setAttribute('aria-pressed', String(isMcMuted())); };
-    muteBtn.onclick = () => { setMcMuted(!isMcMuted()); paintMute(); };
-    paintMute();
+    // không còn nút tắt giọng MC trong lúc thi: máy nào trước đây đã tắt thì bật lại, kẻo không còn cách nghe MC
+    if (isMcMuted()) setMcMuted(false);
     modeBtn.onclick = () => { menu.hidden = !menu.hidden; paintModes(); };
     menu.onclick = (e) => { const b = e.target.closest('[data-mode]'); if (!b) return; menu.hidden = true; setMode(b.dataset.mode); };
 
