@@ -337,8 +337,19 @@ export function stage(app, onBack, { flow = false } = {}) {
     const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
     // điện thoại (màn nhỏ, mật độ điểm ảnh 3): vẽ dày hơn 2 để chữ trên màn LED / bục không nhoè khi nhìn từ xa
     // Vẽ đúng bằng số điểm ảnh thật của máy (điện thoại 3): tỉ lệ lẻ (2.5) làm trình duyệt phóng ảnh lên nên nhoè.
-    const small = (root.clientWidth || innerWidth) * (root.clientHeight || innerHeight) < 600000;
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, small ? 3 : 2));
+    // PC màn thường (devicePixelRatio 1): mỗi điểm ảnh chỉ vẽ một mẫu nên chữ / bục ở xa còn vài điểm ảnh, nhoè.
+    // Máy đủ khoẻ thì vẽ dày gấp đôi rồi trình duyệt thu nhỏ lại (siêu lấy mẫu), giới hạn ~9 triệu điểm ảnh;
+    // khung hình chậm (đo ở vòng lặp, xem ssWatch) thì tự hạ về đúng mật độ của máy.
+    let ssOff = false;
+    function pickRatio() {
+      const w = root.clientWidth || innerWidth, h = root.clientHeight || innerHeight, dpr = devicePixelRatio || 1;
+      const small = w * h < 600000;
+      const native = Math.min(dpr, small ? 3 : 2);
+      if (ssOff || dpr >= 2) return native;
+      const ss = Math.floor(Math.min(2, Math.sqrt(9e6 / (w * h))) * 4) / 4;   // bậc 0.25
+      return Math.max(native, ss);
+    }
+    renderer.setPixelRatio(pickRatio());
     renderer.setSize(root.clientWidth || innerWidth, root.clientHeight || innerHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 0.85;
@@ -2696,10 +2707,26 @@ export function stage(app, onBack, { flow = false } = {}) {
       p.bellWave.visible = w >= 0;
       if (w >= 0) { p.bellWave.scale.setScalar(0.12 + w * 0.7); p.bellWave.material.opacity = 0.9 * (1 - w); }
     }
+    // Đo nhịp khung hình khi đang siêu lấy mẫu: sau 2 giây khởi động, 90 khung liền mà trung bình chậm hơn ~40 hình/giây
+    // thì tắt hẳn siêu lấy mẫu (bỏ qua khung > 250 ms: tab ẩn / đang tải).
+    const ssW = { n: 0, sum: 0, t0: performance.now() };
+    function ssWatch(ms) {
+      if (ssOff || renderer.getPixelRatio() <= Math.min(devicePixelRatio || 1, 2)) return;
+      if (performance.now() - ssW.t0 < 2000 || ms <= 0 || ms > 250) return;
+      ssW.n++; ssW.sum += ms;
+      if (ssW.n < 90) return;
+      if (ssW.sum / ssW.n > 25) {
+        ssOff = true;
+        renderer.setPixelRatio(pickRatio()); renderer.setSize(root.clientWidth || innerWidth, root.clientHeight || innerHeight); sharpSize();
+      }
+      ssW.n = 0; ssW.sum = 0;
+    }
     function frame() {
       if (!root.isConnected) { dispose(); return; } // rời trang bằng đường khác (nút Back của trình duyệt, đổi trang)
       const now = performance.now(); const t = clock.getElapsedTime();
-      const dt = Math.min(0.1, (now - (frame.last || now)) / 1000); frame.last = now;
+      const raw = now - (frame.last || now);
+      const dt = Math.min(0.1, raw / 1000); frame.last = now;
+      ssWatch(raw);
       syncCamLock();
       stepCam(now);
       stepCelebrate(dt);
@@ -2980,7 +3007,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     const ro = new ResizeObserver(() => {
       const w = root.clientWidth, h = root.clientHeight; if (!w || !h) return;
       const was = camKind();
-      camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h); sharpSize();
+      camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setPixelRatio(pickRatio()); renderer.setSize(w, h); sharpSize();
       // xoay màn: dùng góc ngang / dọc tương ứng; góc "Màn hình câu hỏi" khớp lại theo khung mới
       if (camKind() !== was || findCam(camCur)?.fit) requestAnimationFrame(() => { if (!gone) cam(camCur, true); });
     });
