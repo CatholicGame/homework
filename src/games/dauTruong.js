@@ -33,7 +33,7 @@ import { addCastArenaStars } from '../engine/leaderboard.js';
 import { testRoom } from '../thanDong/engine/admin.js';
 import { awardFixedStars, getTotalStars } from '../engine/stars.js';
 import { arenaAnswer, showProgress } from '../engine/arenaStats.js';
-import { audienceAt, buzzPlan, decide, pickPackage, podiumAt, reactOf, wantStar } from '../dauTruong/npc.js';
+import { audienceAnswer, audienceAt, buzzPlan, decide, pickPackage, podiumAt, reactOf, wantStar } from '../dauTruong/npc.js';
 
 /** Tên chương trình trên màn LED (tên tạm, chủ dự án chốt; '\n' = xuống dòng). Không dùng tên chương trình truyền hình có thật. */
 const SHOW_NAME = 'Đấu Trường Nhí';
@@ -2215,7 +2215,13 @@ export function stage(app, onBack, { flow = false } = {}) {
         else if (answers(i)) { const d = decide(p.skill, { level: qLevel(), round: mode, sec }); p.plan = d.at; p.ok = d.ok; }
       });
       // khán giả: bạn ảo theo trình độ; bạn thật (real) tự trả lời trên máy mình, máy chủ trò nhận qua 'xi'
-      seats.forEach(s => { if (s.real) { s.plan = Infinity; return; } const d = decide(s.skill, { level: qLevel(), round: mode, sec }); s.plan = d.at; s.ok = d.ok; });
+      // khán giả ảo không chọn mọi câu, và không vượt bạn dẫn đầu trên bục (trần 85% điểm bục cao nhất, tối thiểu 30)
+      const cap = Math.max(30, Math.round(0.85 * Math.max(...pods.map(p => p.score))));
+      seats.forEach(s => {
+        if (s.real) { s.plan = Infinity; return; }
+        const d = audienceAnswer(s.skill, { level: qLevel(), round: mode, sec, score: s.score || 0, cap });
+        s.plan = d.at; s.ok = d.ok;
+      });
       paintOv();
       preAhead();
     }
@@ -2315,8 +2321,11 @@ export function stage(app, onBack, { flow = false } = {}) {
       // khán giả: đúng được điểm (Về đích bằng điểm câu), điểm hiện trên đầu từng bạn
       const audPts = Q.val || R.aud;
       // khán giả giả lập chưa kịp trả lời (câu lật sớm vì thí sinh đã chốt) phần lớn coi như đã chọn xong
-      seats.forEach(s => { if (s.live && !s.mine && !s.real && s.ans == null && Math.random() < 0.85) s.ans = s.ok; });
-      seats.forEach(s => { s.right = s.live && s.ans === true; if (s.right) { s.score += audPts; s.nRight = (s.nRight || 0) + 1; } s.dirty = true; s.react = s.live && !s.mine ? reactOf(s.right) : ''; });
+      // (bạn đã quyết định ngồi xem câu này, plan Infinity, thì vẫn không trả lời)
+      seats.forEach(s => { if (s.live && !s.mine && !s.real && s.ans == null && Number.isFinite(s.plan) && Math.random() < 0.85) s.ans = s.ok; });
+      seats.forEach(s => { s.right = s.live && s.ans === true; if (s.right) { s.score += audPts; s.nRight = (s.nRight || 0) + 1; } s.dirty = true;
+        // ngồi xem (không chọn) thì không buồn, chỉ thỉnh thoảng vỗ tay cho bạn trên bục
+        s.react = !s.live || s.mine ? '' : s.ans == null ? (Math.random() < 0.4 ? 'sitClap' : '') : reactOf(s.right); });
       presentReveal();
       afterReveal(res);
     }

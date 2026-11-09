@@ -70,21 +70,28 @@ export function makeLaunch(realRows, grade, now = new Date()) {
 const memberCache = new Map();
 function members(grade) {
   if (!memberCache.has(grade)) {
-    const list = CAST.flatMap((cast, i) => (cast[2] === grade ? [{ cast, id: `cast-${i + 1}` }] : []));
+    const all = CAST.flatMap((cast, i) => (cast[2] === grade ? [{ cast, id: `cast-${i + 1}`, join: cast[6] || '' }] : []));
+    // Bạn có từ đầu xếp hạng khởi động như cũ (rank, n chỉ trong nhóm này, để sao của họ không đổi khi thêm bạn mới).
+    // Bạn mới vào (cột 7 = ngày vào): không xếp hạng khởi động, sao bắt đầu từ cột 4 vào ngày đó.
+    const list = all.filter(m => !m.join), late = all.filter(m => m.join);
     const byBase = [...list].sort((a, b) => b.cast[3] - a.cast[3]);
-    const byMonth = [...list].sort((a, b) => a.cast[4] - b.cast[4]);
-    const n = list.length;
-    list.forEach((m) => {
-      m.rank = byBase.indexOf(m);
-      m.diligence = n > 1 ? byMonth.indexOf(m) / (n - 1) : 0.5;
+    [list, late].forEach((group) => {
+      const byMonth = [...group].sort((a, b) => a.cast[4] - b.cast[4]);
+      const n = group.length;
+      group.forEach((m) => {
+        if (!m.join) m.rank = byBase.indexOf(m);
+        m.diligence = n > 1 ? byMonth.indexOf(m) / (n - 1) : 0.5;
+      });
     });
-    memberCache.set(grade, list);
+    all.nOrig = list.length;
+    memberCache.set(grade, all);
   }
   return memberCache.get(grade);
 }
 
 /** Sao lúc khởi động: LEADERS bạn trên `top`, các bạn sau rải dần từ ngay dưới `top` xuống 0. */
 function launchStars(m, launch, n) {
+  if (m.join) return m.cast[3];   // bạn mới vào: sao lúc vào
   const jitter = rand(m.id, 'base');
   if (m.rank < LEADERS) {
     const lead = LEAD_MAX * (LEADERS - m.rank) / LEADERS;              // 30%, 22%, 15%, 7%
@@ -146,7 +153,8 @@ function scores(m, launch, n, now, chase, arena) {
   const first = new Date(today.getFullYear(), today.getMonth(), 1);
   // Ngày khởi động: tổng = đúng sao khởi động (bé thật cao nhất ≈ hạng LEADERS + 1); sao "hôm nay"
   // của ngày đó coi như đã nằm trong sao khởi động nên không vượt nó. Từ hôm sau mới cộng thêm.
-  const start = parseDay(launch.start);
+  // bạn mới vào sau ngày khởi động: bắt đầu từ ngày vào (ngày vào cũng như ngày khởi động: chưa cộng thêm)
+  const start = parseDay(m.join && m.join > launch.start ? m.join : launch.start);
   const base = launchStars(m, launch, n);
   const s = { total: base, month: 0, week: 0, day: 0 };
   for (let d = start; d <= today; d = addDays(d, 1)) {
@@ -206,7 +214,7 @@ function ratchet(rows, now) {
 export function castRows(grade, launch, now = new Date(), chase = null, arena = null) {
   const list = members(grade);
   return ratchet(list.map((m) => {
-    const s = scores(m, launch, list.length, now, chase, arena);
+    const s = scores(m, launch, list.nOrig, now, chase, arena);
     const [nickname, avatar] = m.cast;
     return {
       uid: m.id, nickname, avatar, grade,
@@ -244,9 +252,9 @@ export function castStudents(launchOf, now = new Date(), chaseOf = () => null) {
     const launch = launchOf(g);
     const list = members(g);
     return list.map((m) => {
-      const s = scores(m, launch, list.length, now, chaseOf(g));
-      const days = Math.round(launchStars(m, launch, list.length) / 10 + 3 + 20 * rand(m.id, 'reg'));
-      const createdAt = atHour(addDays(parseDay(launch.start), -days), 7 + 13 * rand(m.id, 'regh'));
+      const s = scores(m, launch, list.nOrig, now, chaseOf(g));
+      const days = m.join ? 0 : Math.round(launchStars(m, launch, list.nOrig) / 10 + 3 + 20 * rand(m.id, 'reg'));
+      const createdAt = atHour(addDays(parseDay(m.join || launch.start), -days), 7 + 13 * rand(m.id, 'regh'));
       return {
         uid: m.id, email: '', name: '', nickname: m.cast[0], avatar: m.cast[1], grade: g,
         stars: s.total, createdAt, lastSeenAt: lastSeen(m, now, createdAt),

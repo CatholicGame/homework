@@ -4,7 +4,7 @@
  *
  * Nguồn bạn ảo: các "diễn viên quần chúng" của bảng xếp hạng (data/leaderboardCast.js, engine/leaderboardCast.js). Cùng
  * biệt danh, cùng lớp, cùng mã `cast-N`: bạn Khánh Linh lớp 3 ngồi trong khán phòng cũng là Khánh Linh lớp 3 trên bảng xếp hạng.
- * Lớp nào ít bạn ảo (lớp 4, 5) thì khán phòng thưa hơn, không bịa thêm tên.
+ * Mỗi lớp 1–5 có hơn 100 bạn (2026-11-09 thêm 100 bạn mới vào mỗi lớp) nên trong phòng ít gặp lại cùng người.
  *
  * Luật (docs/dau-truong/thiet-ke.md §4b):
  *   - KHÁN PHÒNG ƯU TIÊN: từ lúc phòng mở, bạn ảo vào ngồi dần (một phần ngồi sẵn, số còn lại vào rải tới giờ bắt đầu, sát giờ
@@ -44,9 +44,10 @@ export const rand01 = (...k) => hash(k.join('|')) / 4294967296;
  * guts: dám bấm chuông khi chưa chắc.
  */
 export const SKILLS = {
-  gioi: { label: 'giỏi', know: 0.94, drop: 0.08, think: [0.12, 0.4], guts: 0.3 },
-  kha: { label: 'khá', know: 0.84, drop: 0.12, think: [0.2, 0.55], guts: 0.2 },
-  moi: { label: 'mới học', know: 0.7, drop: 0.14, think: [0.3, 0.75], guts: 0.12 },
+  // join: khán giả ảo có chọn đáp án câu này không (ngồi dưới không phải câu nào cũng làm)
+  gioi: { label: 'giỏi', know: 0.94, drop: 0.08, think: [0.12, 0.4], guts: 0.3, join: 0.7 },
+  kha: { label: 'khá', know: 0.84, drop: 0.12, think: [0.2, 0.55], guts: 0.2, join: 0.55 },
+  moi: { label: 'mới học', know: 0.7, drop: 0.14, think: [0.3, 0.75], guts: 0.12, join: 0.4 },
 };
 const SKILL_KEYS = Object.keys(SKILLS);
 
@@ -195,6 +196,20 @@ export function knowP(skill, level = 1, round = '') {
  */
 export function decide(skill, { level = 1, round = '', sec = 15, rnd = Math.random } = {}) {
   const s = sk(skill), know = rnd() < knowP(skill, level, round);
+  const [a, b] = s.think;
+  const f = know ? a + (b - a) * rnd() : b + (0.92 - b) * rnd();
+  return { ok: know || rnd() < 0.25, at: Math.max(1.2, sec * f) };
+}
+
+/**
+ * Khán giả ảo dưới khán phòng: { ok, at } như decide, nhưng không phải câu nào cũng chọn (at Infinity = ngồi xem) và kém
+ * thí sinh trên bục một chút (không có áp lực nhưng cũng không chăm chú bằng). cap: điểm hiện tại đã chạm trần thì ngồi xem,
+ * để điểm khán giả ảo không vượt các bạn trên bục (khán giả trả lời mọi câu, thí sinh chỉ câu của lượt mình).
+ */
+export function audienceAnswer(skill, { level = 1, round = '', sec = 15, score = 0, cap = Infinity, rnd = Math.random } = {}) {
+  const s = sk(skill);
+  if (score >= cap || rnd() >= s.join) return { ok: false, at: Infinity };
+  const know = rnd() < clamp(knowP(skill, level, round) - 0.12, 0.15, 0.9);
   const [a, b] = s.think;
   const f = know ? a + (b - a) * rnd() : b + (0.92 - b) * rnd();
   return { ok: know || rnd() < 0.25, at: Math.max(1.2, sec * f) };
