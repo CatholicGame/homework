@@ -10,7 +10,8 @@ import { roomKey, statusKey, EMPTY_STATUS } from './keys.js';
 
 export class ChurchRoom {
   constructor(state, env) {
-    this.room = null;
+    this.state = state;
+    this.room = null; this.roomP = null;
     this.need = env.MIN_PLAYERS != null && env.MIN_PLAYERS !== '' ? +env.MIN_PLAYERS : MIN_PLAYERS;
   }
 
@@ -18,8 +19,17 @@ export class ChurchRoom {
     const path = new URL(req.url).pathname;
     if (statusKey(path)) return Response.json(this.room?.status() || { ...EMPTY_STATUS, need: this.need });
     const key = roomKey(path);
-    this.room ||= new Room(key, { onEmpty: () => { this.room = null; }, need: this.need });
-    const room = this.room;
+    // Đấu Trường Nhí: mốc lượt lưu trong bộ nhớ của Durable Object (room.js created / onRound), phòng bị dọn rồi dựng lại vẫn
+    // đúng lượt đang chờ. Một lời hứa chung để hai kết nối cùng lúc không dựng hai phòng.
+    this.roomP ||= (async () => {
+      const arena = /^arena/.test(key);
+      const created = arena ? +(await this.state.storage.get('created').catch(() => 0)) || 0 : 0;
+      return new Room(key, {
+        onEmpty: () => { this.room = null; this.roomP = null; }, need: this.need, created,
+        onRound: arena ? (t) => { this.state.storage.put('created', t).catch(() => {}); } : undefined,
+      });
+    })();
+    const room = this.room = await this.roomP;
     const [client, server] = Object.values(new WebSocketPair());
     server.accept();
     const conn = room.connect({ send: (t) => server.send(t), close: (c, r) => server.close(c, r) });

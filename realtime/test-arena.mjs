@@ -145,6 +145,22 @@ try {
 
   for (const x of [a2, c]) x.ws.close();
   await wait(100);
+
+  // ẩn tab / rớt mạng lúc phòng chỉ có mình: phòng trống vẫn được giữ, quay lại đúng lượt cũ (mã lượt, giờ bắt đầu không đổi)
+  const e = client('arena-g2');
+  await e.open;
+  e.send(hi({ n: 'Nam', r: 'phien-cua-e-01' }));
+  const [, s1e] = await e.next('A');
+  e.ws.close();
+  await wait(1500);
+  const e2 = client('arena-g2');
+  await e2.open;
+  e2.send(hi({ n: 'Nam', r: 'phien-cua-e-01' }));
+  const [, s2e] = await e2.next('A');
+  assert.equal(s2e.round, s1e.round);
+  assert.equal(s2e.startAt, s1e.startAt);
+  e2.ws.close();
+  await wait(100);
   console.log('arena: ok');
 } finally {
   srv.kill();

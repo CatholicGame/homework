@@ -83,6 +83,7 @@ const QUEUE_MAX = 30;             // người trong hàng chờ
 export const MIN_PLAYERS = 5;     // người thật (đã ngồi ghế, mỗi tài khoản một) cần có trong trường quay để bắt đầu ván (docs/HatGiong.md 4.4)
 const START_MS = 10000;           // đủ người: đếm ngược trước khi mời người đầu hàng (ai đang ở Tủ đồ kịp ra)
 const accOk = (u) => typeof u === 'string' && /^[\w-]{6,64}$/.test(u);
+const ARENA_KEEP = 5 * 60000;    // ms: Đấu Trường Nhí giữ phòng trống chừng này (người vừa ẩn tab / rớt mạng quay lại)
 const SILENT_MS = 60000;          // ms: kết nối có gửi nhịp ['p'] mà im quá lâu (rớt mạng không báo đóng) thì bỏ, kẻo thành bóng ma giữ ghế
 const CHAT_KEEP = 20;             // lời chat gần nhất giữ cho người vào sau
 const CHAT_AGE = 10 * 60000;      // ms: lời cũ hơn thì thôi gửi lại
@@ -113,7 +114,7 @@ function bucket(rate, burst) {
 }
 
 export class Room {
-  constructor(key, { onEmpty, need = MIN_PLAYERS, start = START_MS, speed = 1, arenaDemo = false } = {}) {
+  constructor(key, { onEmpty, need = MIN_PLAYERS, start = START_MS, speed = 1, arenaDemo = false, created = 0, onRound } = {}) {
     this.key = key;
     this.cap = capOf(key);
     this.peers = new Map();   // id → peer (đã chào)
@@ -145,7 +146,13 @@ export class Room {
     this.aGrade = +(/^arena-g([1-5])/.exec(key)?.[1] || 3);
     this.arenaDemo = arenaDemo;
     this.aFree = this.test || arenaDemo || ALWAYS_OPEN;   // ALWAYS_OPEN: mọi phòng thật cũng cuốn chiếu (rules.js)
-    this.created = Date.now(); this.forceAt = 0; this.aT = null;
+    /* created: mốc lượt (mã lượt = hạt giống bạn ảo, đồng hồ sảnh chờ). worker.js lưu vào bộ nhớ của Durable Object (onRound) và
+       đưa lại khi phòng bị dọn rồi dựng lại: bé ẩn tab / rớt mạng chốc lát lúc phòng chỉ có mình thì quay lại vẫn đúng lượt cũ,
+       không bị đếm lại từ đầu và bục bạn ảo không xếp lại. Chỉ nhận mốc còn đang ở sảnh chờ. */
+    const keep = this.aFree && created > 0 && Date.now() < created + TEST_LEAD;
+    this.onRound = onRound;
+    this.created = keep ? created : Date.now(); this.forceAt = 0; this.aT = null; this.emptyT = null;
+    if (this.arena && !keep) this.onRound?.(this.created);
   }
 
   /** Kết nối mới (chưa tính là trong phòng cho tới khi gửi 'hi'). */
@@ -223,6 +230,7 @@ export class Room {
       u: accOk(s.u) ? s.u : '', r, ...(qa ? { qa } : {}), ...(this.arena ? { want: s.want === 0 ? 0 : 1, ready: s.ready ? 1 : 0 } : {}),
     };
     conn.id = p.id;
+    clearTimeout(this.emptyT); this.emptyT = null;   // có người quay lại trong lúc giữ phòng trống
     this.peers.set(p.id, p);
     if (!this.sweepT) this.sweepT = setInterval(() => this.sweep(), SILENT_MS / 4);
     if (qAt >= 0 && p.id !== this.hot && !this.queue.includes(p.id)) this.queue.splice(Math.min(qAt, this.queue.length), 0, p.id);
@@ -250,6 +258,7 @@ export class Room {
   /** Phòng cuốn chiếu: lượt mới, sảnh chờ TEST_LEAD tính từ bây giờ. */
   newRound() {
     this.created = Date.now(); this.forceAt = 0; this.aHost = 0; this.aSnap = null; this.aQuick = false; clearTimeout(this.aEndT); this.aEndT = null;
+    this.onRound?.(this.created);
     for (const p of this.peers.values()) p.ready = 0;   // lượt mới: ai cũng bấm "Bắt đầu" lại
   }
   /**
@@ -475,7 +484,12 @@ export class Room {
       else if (this.queue.includes(p.id) || p.seat) { this.queue = this.queue.filter(id => id !== p.id); this.turn(); }
     }
     if (this.arena && this.peers.size) this.arenaCast();   // máy chủ trò rời: arenaHost() chọn người kế, 'A' báo cả phòng
-    if (!this.peers.size && !this.swapping) { clearTimeout(this.timer); this.timer = null; this.show?.dispose(); this.show = null; clearTimeout(this.goT); clearTimeout(this.aT); clearTimeout(this.aEndT); this.aEndT = null; clearInterval(this.sweepT); this.sweepT = null; this.onEmpty?.(); }
+    if (!this.peers.size && !this.swapping) { clearTimeout(this.timer); this.timer = null; this.show?.dispose(); this.show = null; clearTimeout(this.goT); clearTimeout(this.aT); clearTimeout(this.aEndT); this.aEndT = null; clearInterval(this.sweepT); this.sweepT = null;
+      // Đấu Trường Nhí: giữ phòng trống thêm ARENA_KEEP (bé ẩn tab, trình duyệt làm chậm tab nên kết nối bị ngắt): quay lại
+      // vẫn đúng lượt, đồng hồ, bạn ảo, người sẵn sàng. Hết hạn mà vẫn trống mới bỏ phòng.
+      if (this.arena) { clearTimeout(this.emptyT); this.emptyT = setTimeout(() => { this.emptyT = null; if (!this.peers.size) this.onEmpty?.(); }, ARENA_KEEP); }
+      else this.onEmpty?.();
+    }
   }
 
   // kết nối đã gửi nhịp mà im quá SILENT_MS: coi như đã rớt (Cloudflare không tự báo đóng khi máy mất mạng)
