@@ -149,6 +149,4 @@
   .rv-pick { font-size: 2.3rem; }
 }
 
-/* Tab trang admin: mỗi tab rộng theo chữ (không chia đều), hết chỗ thì xuống hàng, không đè nhau */
-.adm-tabs { container-type: normal; width: fit-content; max-width: 100%; flex-wrap: wrap; margin-bottom: 14px; }
-.adm-tabs .lb-tab { flex: 0 0 auto; flex-direction: row; white-space: nowrap; padding: 8px 14px; font-size: 0.9rem; }
+/* Tab trang admin: ở home.css (mục TRANG ADMIN), luôn được nạp */

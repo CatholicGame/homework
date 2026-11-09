@@ -1908,6 +1908,10 @@
 }
 
 /* ====== TRANG ADMIN (#admin) ====== */
+/* Tab: mỗi tab rộng theo chữ (không chia đều), hết chỗ thì xuống hàng, không đè nhau. Bỏ container-type của .lb-tabs
+   (nó làm fit-content co về 0) nên các luật @container của tab bảng xếp hạng không áp vào đây. */
+.lb-tabs.adm-tabs { container-type: normal; width: fit-content; max-width: 100%; flex-wrap: wrap; margin-bottom: 14px; }
+.lb-tabs.adm-tabs .lb-tab { flex: 0 0 auto; flex-direction: row; gap: 6px; white-space: nowrap; padding: 8px 14px; font-size: 0.9rem; }
 .adm-page {
   max-width: 1100px;
   margin: 0 auto;
