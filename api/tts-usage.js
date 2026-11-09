@@ -2,7 +2,8 @@
  * GET /api/tts-usage → (chỉ admin) số ký tự đã gửi Azure cho giọng MC Đấu Trường Nhí, đếm từ các file rỗng
  * homework/dautruong/usage/<ngày>/<giọng>/<số ký tự>-<mã> trên R2 (api/tts.js ghi mỗi lần gọi Azure). Trang admin tab 🎙️ Giọng MC.
  * Vào: header Authorization: Bearer <Firebase ID token> của tài khoản admin (src/engine/adminEmails.js).
- * Ra: { azure: có key Azure, r2: có R2, days: [{ day, chars, n, voices: { namMinh, hoaiMy } }] (mới nhất trước, 2 tháng gần nhất) }.
+ * Ra: { azure: có key Azure, r2: có R2, days: [{ day, chars, n, voices: { namMinh, hoaiMy } }] (mới nhất trước, 2 tháng gần nhất),
+ *       kinhThanh: [{ day, chars }] ký tự Kinh Thánh đã gửi (chung key, chung hạn mức) }.
  */
 import { sendJson } from './_lib/google.js';
 import { bearer, verifyIdToken } from './_lib/firebaseToken.js';
@@ -28,7 +29,15 @@ export default async function handler(req, res) {
       d.chars += chars; d.n++; d.voices[voice] = (d.voices[voice] || 0) + chars;
       by.set(day, d);
     }
-    sendJson(res, 200, { azure, r2: true, days: [...by.values()].sort((a, b) => (a.day < b.day ? 1 : -1)) });
+    // Kinh Thánh dùng chung key Azure (chung hạn mức) và chung bucket: nó ghi usage/<ngày>/<giọng>/<số ký tự>-<mã> ở gốc bucket
+    // (kinh-thanh/api/tts.js). Đếm theo ngày để admin thấy số đã dùng thật của cả key.
+    const other = new Map();
+    for (const k of (await Promise.all(months.map(m => r2List(`usage/${m}`).catch(() => [])))).flat()) {
+      const m = k.match(/^usage\/(\d{4}-\d{2}-\d{2})\/[^/]+\/(\d+)-/);
+      if (m) other.set(m[1], (other.get(m[1]) || 0) + Number(m[2]));
+    }
+    sendJson(res, 200, { azure, r2: true, days: [...by.values()].sort((a, b) => (a.day < b.day ? 1 : -1)),
+      kinhThanh: [...other].map(([day, chars]) => ({ day, chars })).sort((a, b) => (a.day < b.day ? 1 : -1)) });
   } catch (e) {
     console.warn('[tts-usage]', e.message);
     sendJson(res, 502, { error: 'r2' });

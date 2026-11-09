@@ -769,18 +769,27 @@ export function render(app, onBack) {
     const month = new Date().toISOString().slice(0, 7);
     const monthChars = days.filter(d => d.day.startsWith(month)).reduce((n, d) => n + d.chars, 0);
     const monthCalls = days.filter(d => d.day.startsWith(month)).reduce((n, d) => n + d.n, 0);
-    const pct = Math.min(100, Math.round(monthChars / MC_FREE * 100));
-    const over = Math.max(0, monthChars - MC_FREE);
     const fmt = (n) => n.toLocaleString('vi-VN');
+    // Hạn mức là của cả key Azure: Kinh Thánh dùng chung key (api/tts-usage.js đếm cả file usage/ của nó trong cùng bucket R2).
+    const kt = usage?.kinhThanh || [];
+    const ktByDay = new Map(kt.map(d => [d.day, d.chars]));
+    const ktMonth = kt.filter(d => d.day.startsWith(month)).reduce((n, d) => n + d.chars, 0);
+    const used = monthChars + ktMonth;
+    const left = Math.max(0, MC_FREE - used);
+    const pctNum = Math.min(100, used / MC_FREE * 100);
+    const pct = pctNum === 0 ? '0%' : pctNum < 1 ? `${pctNum.toLocaleString('vi-VN', { maximumFractionDigits: 2 })}%` : `${Math.round(pctNum)}%`;
+    const over = Math.max(0, used - MC_FREE);
     const err = usage?.error === 'admin' ? 'Máy chủ không nhận tài khoản admin (đăng nhập lại).'
       : usage?.error ? 'Không đọc được số liệu trên R2.' : !usage?.r2 ? 'Máy chủ chưa có biến R2_* (Vercel → Environment Variables).'
         : !usage?.azure ? 'Máy chủ chưa có AZURE_SPEECH_KEY / AZURE_SPEECH_REGION: MC đang đọc bằng giọng của máy.' : '';
     const tiles = [
-      { label: 'Ký tự tháng này', value: fmt(monthChars) },
-      { label: 'Hạn mức miễn phí', value: `${pct}%` },
-      { label: 'Câu mới đã tạo', value: fmt(monthCalls) },
+      { label: 'Đã dùng tháng này (cả key)', value: fmt(used), note: `Đấu Trường ${fmt(monthChars)} · Kinh Thánh ${fmt(ktMonth)}` },
+      { label: 'Còn lại trong hạn mức', value: fmt(left), note: `đã dùng ${pct} của ${fmt(MC_FREE)}` },
+      { label: 'Câu mới Đấu Trường', value: fmt(monthCalls) },
       { label: 'Ước tính tiền vượt', value: over ? `${(over * MC_USD).toFixed(2)} USD` : '0' },
     ];
+    const dayList = [...new Set([...days.map(d => d.day), ...ktByDay.keys()])].sort().reverse()
+      .map(day => days.find(d => d.day === day) || { day, chars: 0, n: 0, voices: {} });
     body.innerHTML = `
       <section class="lb-card adm-section adm-guest-switch">
         <div>
@@ -788,21 +797,22 @@ export function render(app, onBack) {
           <p class="adm-chart-sub">${on
             ? 'Đang bật: anh Minh đọc giọng NamMinh, chị Mai giọng HoaiMy. Câu mới gửi Azure một lần rồi lưu R2 (homework/dautruong/tts).'
             : 'Đang tắt: không gửi câu mới sang Azure. Câu đã lưu vẫn phát; câu mới đọc bằng giọng của máy, máy không có giọng thì bé tự đọc đề.'}</p>
-          ${err ? `<p class="adm-chart-sub" style="color:#b45309">⚠️ ${escapeHtml(err)}</p>` : ''}
-        </div>
+          ${err ? `<p class="adm-chart-sub" style="color:#b45309">⚠️ ${escapeHtml(err)}</p>` : ''}        </div>
         <button type="button" class="btn ${on ? 'btn-ghost' : 'btn-primary'}" id="adm-mc-toggle">${on ? '⏸️ Tắt giọng Azure' : '▶️ Bật giọng Azure'}</button>
       </section>
       <div class="adm-tiles">
-        ${tiles.map(t => `<div class="adm-tile"><div class="adm-tile-label">${t.label}</div><div class="adm-tile-value">${t.value}</div></div>`).join('')}
+        ${tiles.map(t => `<div class="adm-tile"><div class="adm-tile-label">${t.label}</div><div class="adm-tile-value">${t.value}</div>
+          ${t.note ? `<div class="adm-tile-note">${t.note}</div>` : ''}</div>`).join('')}
       </div>
       <section class="lb-card adm-section">
         <h2 class="adm-h2">Ký tự gửi Azure theo ngày</h2>
-        <p class="adm-chart-sub">Gói miễn phí: ${fmt(MC_FREE)} ký tự mỗi tháng. Vượt: khoảng 16 USD cho 1 triệu ký tự. Hết hạn mức thì MC tự chuyển sang giọng của máy.</p>
-        ${days.length ? `
+        <p class="adm-chart-sub">Gói miễn phí: ${fmt(MC_FREE)} ký tự mỗi tháng. Vượt: khoảng 16 USD cho 1 triệu ký tự. Hết hạn mức thì MC tự chuyển sang giọng của máy.
+          Hạn mức dùng chung với Kinh Thánh (cùng key Azure). Số do máy chủ hai app tự đếm mỗi lần gọi Azure (ngày theo giờ UTC); hoá đơn thật xem ở Azure Portal → Cost Management.</p>
+        ${dayList.length ? `
         <div class="adm-table-wrap">
           <table class="adm-table">
-            <thead><tr><th>Ngày</th><th>Ký tự</th><th>Câu mới</th><th>Anh Minh</th><th>Chị Mai</th></tr></thead>
-            <tbody>${days.map(d => `<tr><td>${escapeHtml(d.day)}</td><td>${fmt(d.chars)}</td><td>${fmt(d.n)}</td><td>${fmt(d.voices.namMinh || 0)}</td><td>${fmt(d.voices.hoaiMy || 0)}</td></tr>`).join('')}</tbody>
+            <thead><tr><th>Ngày</th><th>Cả key</th><th>Đấu Trường</th><th>Câu mới</th><th>Anh Minh</th><th>Chị Mai</th><th>Kinh Thánh</th></tr></thead>
+            <tbody>${dayList.map(d => { const k = ktByDay.get(d.day) || 0; return `<tr><td>${escapeHtml(d.day)}</td><td><b>${fmt(d.chars + k)}</b></td><td>${fmt(d.chars)}</td><td>${fmt(d.n)}</td><td>${fmt(d.voices.namMinh || 0)}</td><td>${fmt(d.voices.hoaiMy || 0)}</td><td>${fmt(k)}</td></tr>`; }).join('')}</tbody>
           </table>
         </div>` : '<p class="adm-empty">Chưa có câu nào gửi Azure trong hai tháng gần đây.</p>'}
       </section>`;
