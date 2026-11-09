@@ -80,6 +80,19 @@ const CSS = `
 @media (max-aspect-ratio: 1/1) { .dt-me-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } .dt-me-pick img { max-width: 110px; } }
 /* thẻ chờ luôn ở giữa (church.css màn hẹp đẩy .ch-qwait sang phải 64 px chừa cột nút trái của Ai tài năng nhất; ở đây không có cột đó) */
 .dt-stage .dt-wait { left: 12px; right: 12px; width: auto; max-width: 400px; margin: 0 auto; transform: none; }
+.dt-stage .dt-wait { max-height: calc(100% - max(12px, env(safe-area-inset-top)) - 62px); overflow-y: auto; overscroll-behavior: contain; }
+/* điện thoại xoay ngang (màn thấp): thẻ chờ hai cột, bên trái giờ, bục; bên phải nút Bắt đầu, công tắc lên bục, Nhân vật / Đổi ghế.
+   Một cột thì cao hơn màn, các bục và nút Bắt đầu bị cắt mất */
+@media (max-height: 520px) and (min-aspect-ratio: 1/1) {
+  .dt-stage .dt-wait:not(.is-end) { max-width: 780px; grid-template-columns: minmax(0, 1fr) minmax(190px, 250px); column-gap: 16px; align-items: center;
+    top: calc(max(8px, env(safe-area-inset-top)) + 50px); max-height: calc(100% - max(8px, env(safe-area-inset-top)) - 56px); }
+  .dt-stage .dt-wait:not(.is-end) > * { grid-column: 1; }
+  .dt-stage .dt-wait:not(.is-end) > .dt-ready { grid-column: 2; grid-row: 1 / span 2; }
+  .dt-stage .dt-wait:not(.is-end) > .dt-sw { grid-column: 2; grid-row: 3; justify-self: stretch; justify-content: center; }
+  .dt-stage .dt-wait:not(.is-end) > .ch-qw-btns { grid-column: 2; grid-row: 4 / span 2; }
+  .dt-stage .dt-wait:not(.is-end) > .ch-qw-hint { display: none; }
+  .dt-wait p { line-height: 1.25; }
+}
 .dt-wait .dt-sw { display: inline-flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 14px; border-radius: 999px; cursor: pointer;
   font: inherit; font-size: 14px; font-weight: 700; color: var(--ch-text); border: 1px solid var(--ch-line2); background: #fff; }
 .dt-wait .dt-sw i { position: relative; width: 38px; height: 22px; border-radius: 11px; background: #555d7a; transition: background 0.2s; }

@@ -73,6 +73,8 @@ const CSS = `
 .dt-stage .dt-elapsed.is-off { visibility: hidden; }
 .dt-stage .dt-elapsed + .dt-mute { margin-left: 0; }
 @media (max-width: 560px) { .dt-stage .dt-elapsed i { display: none; } }
+/* màn chưa đủ rộng cho cả nhãn tên chương trình (giữa) và cụm đồng hồ + loa + nút vòng (phải): đang diễn thì nhường chỗ cho đồng hồ */
+@media (max-width: 900px) { .dt-stage:has(.dt-elapsed:not(.is-off)) .ch-top .ch-chip { display: none; } }
 .dt-stage .dt-cap { position: absolute; left: 76px; right: 300px; top: max(10px, env(safe-area-inset-top)); z-index: 2; width: fit-content;
   max-width: min(980px, calc(100% - 376px)); margin: 0 auto; box-sizing: border-box; padding: 8px 18px; border-radius: 14px;
   background: rgba(6, 12, 40, 0.84); border: 1px solid rgba(255, 211, 107, 0.45); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
