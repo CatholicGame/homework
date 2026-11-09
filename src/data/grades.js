@@ -19,8 +19,8 @@ const SPELL = { id: 'tv3-spell', group: 'tiengviet', icon: '🔤', color: '#EA58
 const writing = (desc) => ({ id: 'writing', group: 'tiengviet', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc });
 
 // `hidden: true` = ẩn với mọi người (kể cả admin), vẫn mở được bằng #id.
-// 🏆 Đấu Trường Nhí (tên tạm): bản mẫu sân khấu 3D để duyệt, chỉ admin thấy (home.js lọc `admin`), `live` = thẻ LIVE to đầu tab Trò chơi. Thiết kế docs/dau-truong/thiet-ke.md.
-const DAUTRUONG = { id: 'dautruong-preview', group: 'challenge', admin: true, live: true, cover: '/dautruong/cover-card.webp', icon: '🏆', color: '#1D4ED8', title: 'Đấu Trường Nhí', desc: '4 bạn thi cùng lúc trên sân khấu, hai MC dẫn chương trình: Khởi động, Tăng tốc, Về đích. Khán giả cũng có điểm!' };
+// 🏆 Đấu Trường Nhí: mở cho mọi người (lớp 1–5) từ 2026-11-09, `live` = thẻ LIVE to đầu tab Trò chơi. Thiết kế docs/dau-truong/thiet-ke.md.
+const DAUTRUONG = { id: 'dautruong-preview', group: 'challenge', live: true, cover: '/dautruong/cover-card.webp', icon: '🏆', color: '#1D4ED8', title: 'Đấu Trường Nhí', desc: '4 bạn thi cùng lúc trên sân khấu, hai MC dẫn chương trình: Khởi động, Tăng tốc, Về đích. Khán giả cũng có điểm!' };
 
 const LIFE = LIFE_SKILLS ? [{ id: 'life-skills', icon: '🏘️', color: '#F97316', title: 'Phố Kỹ Năng', desc: 'Truyện kỹ năng sống: em nhập vai, chọn cách xử lý khi qua đường, đi lạc, ở nhà một mình… và xem chuyện gì xảy ra' }] : [];
 
