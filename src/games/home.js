@@ -16,9 +16,12 @@ import { getCloudStatus, syncNow } from '../engine/cloudSync.js';
 import { getLang, setLang, hasEnglish, LANGS } from '../engine/i18n.js';
 import { shouldPromptReview, snoozeReviewPrompt, setPendingRating } from '../engine/reviews.js';
 import { canOfferInstall, promptInstall, shouldNudgeInstall, snoozeInstallNudge } from '../engine/installApp.js';
-import { liveCountHtml, startLiveCount } from '../engine/liveCount.js';
+import { liveCountHtml, startLiveCount, liveNow, waitFill } from '../engine/liveCount.js';
 import { heroArt } from './homeHero.js';
 import { thumbArt } from './homeThumbs.js';
+import { statusUrl } from '../thanDong/church/net.js';
+import { ALWAYS_OPEN } from '../dauTruong/rules.js';
+import { testRoom } from '../thanDong/engine/admin.js';
 // Giao diện Tươi sáng (theo app Kinh Thánh). Nạp sau stickers.css (engine/stickers.js ở trên) để đè đúng thứ tự.
 import '../styles/sunny.css';
 
@@ -108,23 +111,49 @@ function langTag(gameId) {
 }
 
 // Thẻ trắng bo tròn: trên là tranh bìa vẽ riêng cho loại thẻ (homeThumbs.js; chưa có tranh thì biểu tượng to), dưới là tên + mô tả.
-// Giờ LIVE mỗi tối (giờ máy): 19:00 đến 22:30. Trong giờ: thẻ sáng rực, nhãn LIVE nhấp nháy, tab Trò chơi có nhãn LIVE;
-// ngoài giờ: thẻ dịu, nhãn "🌙 Mở lúc 19:00". Cả hai bản vẽ sẵn, lớp .is-live-on trên .hm chọn bản hiện (không vẽ lại trang).
+// Thẻ LIVE Đấu Trường Nhí: phòng mở mọi lúc (ALWAYS_OPEN) nên thẻ luôn sáng, nhãn LIVE nhấp nháy, dòng trạng thái lấy từ phòng
+// (startLiveClock). Tắt ALWAYS_OPEN thì quay về khung giờ 19:00–22:30 (thẻ dịu ngoài giờ, lớp .is-live-on chọn bản hiện).
 const LIVE_FROM = 19 * 60, LIVE_TO = 22 * 60 + 30;
 export function isLiveNow(d = new Date()) {
   if (import.meta.env.DEV && typeof window.__tthLive === 'boolean') return window.__tthLive; // scripts/home-dev.html ?live=1|0
+  if (ALWAYS_OPEN) return true;   // Đấu Trường Nhí mở mọi lúc (dauTruong/rules.js), không còn khung giờ
   const m = d.getHours() * 60 + d.getMinutes();
   return m >= LIVE_FROM && m < LIVE_TO;
 }
-/** Bật / tắt lớp is-live-on theo giờ, kiểm tra mỗi 30 giây tới khi trang chủ bị thay. */
+/**
+ * Bật / tắt lớp is-live-on theo giờ, kiểm tra mỗi 30 giây tới khi trang chủ bị thay.
+ * Có thẻ LIVE thì hỏi thêm phòng Đấu Trường của lớp mình (GET /status, 20 giây một lần): có bạn thật đang chơi một lượt
+ * (playing + people > 0) thì thẻ hiện "Đang diễn ra, N bạn đang chơi" (lớp is-live-real), kể cả ngoài khung giờ.
+ */
 function startLiveClock(root) {
   if (!root) return;
-  const tick = () => {
-    if (!root.isConnected) { clearInterval(timer); return; }
-    root.classList.toggle('is-live-on', isLiveNow());
+  const grade = getProfileGrade();
+  const url = root.querySelector('.hm-live') && grade >= 1 && grade <= 5 ? statusUrl(`arena-g${grade}${testRoom() ? '-test' : ''}`) : '';
+  const realEl = root.querySelector('.hm-live .hm-when-real');
+  let real = 0, waiting = 0;
+  const paint = () => {
+    // phòng cuốn chiếu (ALWAYS_OPEN): thẻ luôn sáng; chưa ai chơi thì mời "Đang chờ thêm bạn 2/4, 3/4" (rules.js waitFill)
+    const open = real > 0 || (ALWAYS_OPEN && !!realEl);
+    root.classList.toggle('is-live-real', open);
+    root.classList.toggle('is-live-on', open || isLiveNow());
+    if (realEl && open) {
+      // số trong phòng: một phần nhỏ của "N người đang học" (liveCount.js roomNpc), luôn nhỏ hơn số ấy
+      const lv = liveNow(), room = Math.min(lv.room + waiting, lv.learning - 1);
+      realEl.textContent = real > 0 ? `🔴 Đang diễn ra, ${real} bạn đang chơi`
+        : lv.night ? (waiting > 0 ? `🟢 ${waiting} bạn đang chờ trong phòng. Vào thi ngay!` : '🟢 Vào thi ngay lúc nào cũng được!')   // 23h30–8h: chỉ số thật
+        : `🟢 ${room} bạn trong phòng, đang chờ thêm bạn ${waitFill(Date.now(), waiting)}/4. Vào tham gia ngay!`;
+    }
   };
-  const timer = setInterval(tick, 30000);
+  const ask = () => url && fetch(url, { cache: 'no-store' }).then(r => r.json())
+    .then(s => { real = s.playing && s.people > 0 ? s.people : 0; waiting = s.playing ? 0 : s.people || 0; if (root.isConnected) paint(); }, () => {});
+  const tick = () => {
+    if (!root.isConnected) { clearInterval(timer); clearInterval(poll); return; }
+    paint();
+  };
+  const timer = setInterval(tick, 10000);
+  const poll = url ? setInterval(ask, 20000) : 0;
   tick();
+  ask();
 }
 
 // Thẻ `live: true` (Đấu Trường Nhí): tấm sân khấu to chiếm cả hàng đầu, chấm LIVE nhấp nháy, nút Vào thi.
@@ -139,7 +168,7 @@ function liveCard(grade, g) {
         <span class="hm-live-badge is-soon hm-when-off">🌙 Mở lúc 19:00</span>
         <h3>${g.icon} ${g.title}</h3>
         <p>${g.desc}</p>
-        <span class="hm-live-time"><span class="hm-when-on">🔴 Đang diễn ra tới 22:30</span><span class="hm-when-off">⏰ Mỗi tối từ 19:00 đến 22:30</span></span>
+        <span class="hm-live-time"><span class="hm-when-on">🔴 Đang diễn ra tới 22:30</span><span class="hm-when-off">⏰ Mỗi tối từ 19:00 đến 22:30</span><span class="hm-when-real"></span></span>
         <span class="hm-live-go"><span class="hm-when-on">Vào thi ▶</span><span class="hm-when-off">Vào xem ▶</span></span>
       </span>
     </button>`;

@@ -127,6 +127,11 @@ export function makeNet(on) {
       else if (type === 'look') on.look(m[1], m[2], m[3], m[4] || '');
       else if (type === 'sit') on.sit(m[1], m[2]);
       else if (type === 'up') on.up(m[1]);
+      else if (type === 'pw') on.want?.(m[1], !!m[2]);
+      // Đấu Trường Nhí: ảnh chụp / hiệu ứng của máy chủ trò; (máy chủ trò) thao tác của bạn khác
+      else if (type === 'xs') on.showSnap?.(m[1]);
+      else if (type === 'xf') on.showFx?.(m[1], m.slice(2));
+      else if (type === 'xi') on.showInput?.(m[1], m[2], m.slice(3));
       else if (type === 'no') on.refused(m[1]);
       // chat: một lời mới / vài lời gần nhất khi vừa vào phòng
       else if (type === 'say') on.say?.(m[1], m[2], m[3]);
@@ -245,6 +250,11 @@ export function makeNet(on) {
     /** Đấu Trường Nhí: bật / tắt "Em muốn lên bục"; (phòng thử) bắt đầu ngay. */
     want(on) { send(['want', on ? 1 : 0]); },
     start() { send(['start']); },
+    /** Đấu Trường Nhí, chương trình chung: (máy chủ trò) ảnh chụp, hiệu ứng, đã xong; (mọi máy) thao tác gửi máy chủ trò. */
+    showSnap(o) { send(['xs', o]); },
+    showFx(name, args = []) { send(['xf', name, ...args]); },
+    showEnd() { send(['xe']); },
+    showInput(type, args = []) { send(['xi', type, ...args]); },
     /** Hết lượt nối lại (on.failed): thử lại từ đầu. */
     retry() { if (key && !ws) { tries = 0; open(); } },
     close() { key = null; asleep = false; close(); unhook(); },

@@ -28,6 +28,7 @@ import { mcLine, sayQuestion, sayOption, LETTER, MC_NAMES } from '../dauTruong/m
 import { mcSpeak, mcStop, setMcListener, setMcRate, isMcMuted, setMcMuted } from '../dauTruong/mcVoice.js';
 import { certSvg, loadCertFonts, CERT_CSS } from '../dauTruong/cert.js';
 import { addAward } from '../dauTruong/awards.js';
+import { awardFixedStars, getTotalStars } from '../engine/stars.js';
 import { audienceAt, buzzPlan, decide, pickPackage, podiumAt, reactOf, wantStar } from '../dauTruong/npc.js';
 
 /** Tên chương trình trên màn LED (tên tạm, chủ dự án chốt; '\n' = xuống dòng). Không dùng tên chương trình truyền hình có thật. */
@@ -139,6 +140,29 @@ const CSS = `
 @keyframes dt-cert-in { from { opacity: 0; transform: translateY(40px) scale(0.6) rotate(-4deg); } to { opacity: 1; transform: none; } }
 @keyframes dt-cert-out { to { opacity: 0; transform: translateY(30%) scale(0.3); } }
 @media (prefers-reduced-motion: reduce) { .dt-stage .dt-cert-box { animation: dt-fade 1.2s ease both; } .dt-stage .dt-cert.is-out .dt-cert-box { animation: dt-fade 0.8s ease reverse both; } }
+/* ⭐ màn thu sao (collectStars): thẻ trắng giữa màn hình, ô tổng sao góc trên phải, sao bay từ thẻ lên ô */
+.dt-stage .dt-collect { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; padding: 16px; background: rgba(4, 8, 32, 0.6); }
+.dt-stage .dt-collect[hidden] { display: none; }
+.dt-stage .dt-collect.is-out { opacity: 0; transition: opacity 0.6s ease 0.1s; }
+.dt-stage .dt-col-total { position: absolute; top: 12px; right: 16px; display: flex; align-items: center; gap: 8px; padding: 8px 18px 8px 12px; border-radius: 999px;
+  background: #fff; color: #3a2800; font-weight: 900; font-size: clamp(20px, 1.4vw + 1vh, 32px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35); }
+.dt-stage .dt-col-total b { font-size: 1.15em; }
+.dt-stage .dt-col-total.is-pop { animation: dt-col-pop 0.25s ease; }
+@keyframes dt-col-pop { 50% { transform: scale(1.15); } }
+.dt-stage .dt-col-card { width: min(92vw, 460px); max-height: calc(100% - 70px); margin-top: 40px; display: grid; justify-items: center; gap: 8px; padding: 22px 22px 20px;
+  border-radius: 24px; background: #fff; color: #23264a; text-align: center; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5); animation: dt-cert-in 0.7s cubic-bezier(.2, 1.3, .4, 1) both; }
+.dt-stage .dt-col-card.is-out { animation: dt-cert-out 0.6s ease-in both; }
+.dt-stage .dt-col-badge { font-size: clamp(44px, 4vw + 3vh, 76px); line-height: 1; }
+.dt-stage .dt-col-card h3 { margin: 0; font-size: clamp(20px, 1.2vw + 1.2vh, 30px); font-weight: 900; }
+.dt-stage .dt-col-star { display: flex; align-items: center; gap: 10px; color: #e6a100; font-weight: 900; font-size: clamp(54px, 4vw + 4vh, 96px); line-height: 1.05; }
+.dt-stage .dt-col-card p { margin: 0; font-size: clamp(15px, 0.6vw + 1vh, 20px); font-weight: 700; color: #4b5078; }
+.dt-stage .dt-col-go { margin-top: 8px; min-height: 56px; min-width: 220px; padding: 0 28px; border: 0; border-radius: 16px; background: #ffc83a; color: #3a2800;
+  font: inherit; font-size: clamp(20px, 1vw + 1vh, 26px); font-weight: 900; cursor: pointer; box-shadow: 0 6px 0 #d99a00; }
+.dt-stage .dt-col-go:active { transform: translateY(4px); box-shadow: 0 2px 0 #d99a00; }
+.dt-stage .dt-col-go:not(:disabled) { animation: dt-col-nudge 1.6s ease-in-out 2s infinite; }
+@keyframes dt-col-nudge { 50% { transform: scale(1.06); } }
+.dt-stage .dt-col-fly { position: absolute; font-style: normal; font-size: 34px; pointer-events: none; z-index: 2; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4)); }
+@media (prefers-reduced-motion: reduce) { .dt-stage .dt-col-card { animation: dt-fade 1s ease both; } .dt-stage .dt-col-go:not(:disabled) { animation: none; } }
 /* thí sinh đang thi: không có thanh góc máy, không bảng chỉnh góc (syncCamLock) */
 .dt-stage.is-cam-lock .ch-views, .dt-stage.is-cam-lock .dt-camset { display: none; }
 /* 📺 Camera trực tiếp: ô cạnh khung câu hỏi (màn ngang: cột trái; màn dọc: dải trên khung) quay bục người đang trả lời suốt
@@ -237,6 +261,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     <div class="dt-live" hidden></div>
     <div class="dt-board" hidden aria-live="polite"></div>
     <div class="dt-cert" hidden role="dialog" aria-label="Giấy chứng nhận của em"></div>
+    <div class="dt-collect" hidden role="dialog" aria-label="Phần thưởng sao của em"></div>
     <div class="ch-top">
       <button type="button" class="ch-ic dt-back" aria-label="Quay lại" title="Quay lại">${icon('x')}</button>
       <div class="ch-chip"><span class="ch-dot" aria-hidden="true"></span><span class="ch-title">${SHOW_NAME}</span><span class="ch-seat">bản mẫu</span></div>
@@ -385,7 +410,12 @@ export function stage(app, onBack, { flow = false } = {}) {
     let camTo = null, camCur = 'wide';
     controls.addEventListener('start', () => { camTo = null; }); // tự kéo xoay giữa chừng: dừng bay, không giằng co
     let meSeat = null;   // ghế của mình (flow): người cầm máy là khán giả ở ghế này
-    let meOnPod = !flow; // người cầm máy đứng bục 1 (bản mẫu: luôn; chương trình thật: bật "Em muốn lên bục", setPods)
+    let meOnPod = !flow; // người cầm máy đứng bục (bản mẫu: bục 1; chương trình thật: bật "Em muốn lên bục", setPods)
+    let myPod = flow ? -1 : 0;   // bục của người cầm máy (-1: không đứng bục). Chương trình chung: bục xếp như máy chủ trò
+    /* Chương trình chung (flow + máy chủ phòng): sync = { host, myId, net }. host: máy này chạy chương trình (MC, đồng hồ, bạn ảo,
+       chấm điểm) rồi gửi ảnh chụp ('xs') và hiệu ứng ('xf') cho cả phòng; không phải host: chỉ hiện theo ảnh chụp, thao tác của
+       mình gửi về máy chủ trò ('xi'). null: một mình (bản mẫu, không có máy chủ phòng) chạy như cũ. */
+    let sync = null;
     let meRing = null;   // vòng vàng trên ghế của mình (flow, dựng ở phần Ghế của người thật)
     function cam(k, now = false) {
       const p = findCam(k);
@@ -661,7 +691,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       p.lit = 0; p.waveT = -1;
     });
     // pháo giấy: một InstancedMesh chung (mảnh giấy nhỏ xoay lật), mỗi lần tung lấy các mảnh đang rảnh
-    const CONF_N = 480;
+    const CONF_N = 1100;   // đủ cho mưa giấy lúc trao giải (stepRain) cộng vài lần tung
     const confMesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.1, 0.06), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, toneMapped: false }), CONF_N);
     confMesh.frustumCulled = false; confMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); scene.add(confMesh);
     const confP = Array.from({ length: CONF_N }, () => ({ life: 0, p: new THREE.Vector3(), v: new THREE.Vector3(), r: new THREE.Euler(), w: new THREE.Vector3() }));
@@ -669,12 +699,17 @@ export function stage(app, onBack, { flow = false } = {}) {
     confP.forEach((c, i) => { confMesh.setColorAt(i, confCol.set('#ffffff')); confObj.scale.setScalar(0); confObj.updateMatrix(); confMesh.setMatrixAt(i, confObj.matrix); });
     const CONF_COLS = ['#ffd36b', '#2cff8a', '#56c8ff', '#ff6fb1', '#ffffff', '#ff9f2e', '#b07cff'];
     function burst(p) {
-      const n = reduce ? 40 : 110, sp = reduce ? 0.55 : 1;
+      burstAt(p.g.position.x, 1.9, p.g.position.z);
+      if (!reduce) p.waveT = 0;
+    }
+    /** Tung pháo giấy từ điểm (x, y, z); n mảnh (giảm chuyển động: ít hơn, chậm hơn). */
+    function burstAt(x, y, z, n = reduce ? 40 : 110) {
+      const sp = reduce ? 0.55 : 1;
       let k = 0;
       for (let i = 0; i < CONF_N && k < n; i++) {
         const c = confP[i]; if (c.life > 0) continue; k++;
         const a = Math.random() * Math.PI * 2, out = 0.6 + Math.random() * 1.6;
-        c.p.set(p.g.position.x + (Math.random() - 0.5) * 0.6, 1.9, p.g.position.z + (Math.random() - 0.5) * 0.4);
+        c.p.set(x + (Math.random() - 0.5) * 0.6, y, z + (Math.random() - 0.5) * 0.4);
         c.v.set(Math.cos(a) * out * sp, (4.2 + Math.random() * 2.6) * sp, Math.sin(a) * out * sp * 0.7);
         c.r.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
         c.w.set((Math.random() - 0.5) * 14, (Math.random() - 0.5) * 14, (Math.random() - 0.5) * 8).multiplyScalar(sp);
@@ -682,7 +717,6 @@ export function stage(app, onBack, { flow = false } = {}) {
         confMesh.setColorAt(i, confCol.set(CONF_COLS[i % CONF_COLS.length]));
       }
       confMesh.instanceColor.needsUpdate = true;
-      if (!reduce) p.waveT = 0;
     }
     function stepCelebrate(dt) {
       let live = false;
@@ -711,6 +745,144 @@ export function stage(app, onBack, { flow = false } = {}) {
         }
       });
     }
+
+    /* ---------- 🏆 Bục vinh danh (Trao giải) ----------
+       Bốn khối giữa sân khấu, trước các bục thí sinh, nhìn ra khán phòng; trái → phải: hạng 4 · 2 · 1 · 3 (hạng nhất cao nhất, ở giữa
+       ba khối huy chương). MC đọc tới hạng nào thì camera áp lại khối đó, bạn ấy bật lên đứng trên khối, cúi chào rồi mừng, đeo huy
+       chương (vàng, bạc, đồng, xanh), cột sáng rọi xuống, pháo giấy tung; đọc xong quán quân thì giấy rơi ngập sân khấu, toàn cảnh.
+       Mặt khối ghi hạng, tên và sao thưởng. Giảm chuyển động: vẫn đủ các bước, bật lên chậm, giấy rơi thưa hơn. */
+    const AWARD_X = 0.8, AWARD_Z = 2.4;
+    const MEDAL = ['#ffc83a', '#dfe6f2', '#e08a48', '#7fb4ff'];
+    const STEP_H = [1.05, 0.8, 0.6, 0.42], STEP_X = [0, -1.62, 1.62, -3.24];
+    const awardG = new THREE.Group(); awardG.position.set(AWARD_X, 0.62, AWARD_Z); awardG.visible = false; scene.add(awardG);
+    function medalMesh(col) {
+      const g = new THREE.Group(), rib = M('#d8344f', { roughness: .6, metalness: 0 });
+      // hai dải ruy băng từ cổ áo chụm xuống, đĩa huy chương giữa ngực
+      add(new THREE.BoxGeometry(0.04, 0.17, 0.012), rib, -0.04, 0.08, 0, g).rotation.z = 0.42;
+      add(new THREE.BoxGeometry(0.04, 0.17, 0.012), rib, 0.04, 0.08, 0, g).rotation.z = -0.42;
+      add(new THREE.CylinderGeometry(0.075, 0.075, 0.022, 32).rotateX(Math.PI / 2), M(col, { roughness: .22, metalness: .85, emissive: col, emissiveIntensity: .35 }), 0, -0.04, 0.012, g);
+      return g;
+    }
+    const steps = MEDAL.map((col, r) => {
+      const h = STEP_H[r], g = new THREE.Group(); g.position.x = STEP_X[r]; awardG.add(g);
+      add(new THREE.BoxGeometry(1.5, h, 1.3), mat.white, 0, h / 2, 0, g);
+      const edge = glow(new THREE.Color(col), 2.4);
+      add(new THREE.BoxGeometry(1.54, 0.05, 1.34), edge, 0, h, 0, g);      // viền sáng mép trên
+      add(new THREE.BoxGeometry(1.54, 0.04, 1.34), edge, 0, 0.02, 0, g);   // và chân khối
+      const canv = document.createElement('canvas'); canv.width = 600; canv.height = Math.round(600 * (h - 0.1) / 1.42);
+      const tex = new THREE.CanvasTexture(canv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      add(new THREE.PlaneGeometry(1.42, h - 0.1), crispMap(new THREE.MeshBasicMaterial({ map: tex, toneMapped: false })), 0, h / 2, 0.652, g);
+      const stand = new THREE.Group(); stand.position.set(0, h, 0.05); g.add(stand);
+      const medal = medalMesh(col);
+      const wx = AWARD_X + STEP_X[r], top = 0.62 + h;
+      const spot = new THREE.SpotLight('#fff3d1', 0, 16, 0.2, 0.5, 1.2);
+      spot.position.set(wx, 11, AWARD_Z + 3); spot.target = stand; scene.add(spot);
+      const halo = new THREE.Mesh(haloGeo, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+      halo.scale.set(0.9, 1, 0.9); halo.position.set(wx, top + HALO_H, AWARD_Z + 0.05); halo.visible = false; scene.add(halo);
+      return { r, h, col, canv, tex, stand, medal, spot, halo, wx, top, who: null, stars: 0, lit: 0 };
+    });
+    function drawStep(s) {
+      const c = s.canv.getContext('2d'), W = s.canv.width, H = s.canv.height;
+      const grd = c.createLinearGradient(0, 0, 0, H); grd.addColorStop(0, '#13246e'); grd.addColorStop(1, '#070f3c');
+      c.fillStyle = grd; c.fillRect(0, 0, W, H);
+      c.fillStyle = s.col; c.fillRect(0, 0, W, 10);
+      const rad = Math.min(H * 0.4, 92), cx = 26 + rad, cy = H / 2 + 4;
+      c.beginPath(); c.arc(cx, cy, rad, 0, Math.PI * 2); c.fillStyle = s.col; c.fill();
+      c.lineWidth = 6; c.strokeStyle = 'rgba(255,255,255,.75)'; c.stroke();
+      c.fillStyle = '#1b1f3a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = `900 ${Math.round(rad * 1.3)}px Segoe UI`;
+      c.fillText(String(s.r + 1), cx, cy + rad * 0.06);
+      if (s.who) {
+        const x0 = cx + rad + 22, w = W - x0 - 16, fs = Math.min(66, H * 0.3);
+        c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = `800 ${Math.round(fs)}px Segoe UI`;
+        c.fillText(s.who.name, x0, cy - fs * 0.55, w);
+        c.fillStyle = '#ffd45c'; c.font = `800 ${Math.round(fs * 0.78)}px Segoe UI`;
+        c.fillText(`⭐ ${s.stars} sao`, x0, cy + fs * 0.55, w);
+      }
+      s.tex.needsUpdate = true;
+    }
+    steps.forEach(drawStep);
+    let awardOn = false, rainOn = false, rainAcc = 0;
+    /** Bật / tắt bục vinh danh. Tắt: các bạn về lại bục thí sinh. */
+    function showAward(on) {
+      awardOn = on; awardG.visible = on; rainOn = false;
+      if (!on) pods.forEach(p => {
+        if (!p.award) return;
+        if (p.medal) { p.kid.remove(p.medal); p.medal = null; }
+        p.g.add(p.kid); p.kid.position.set(0, 0.12, -0.62); p.kid.rotation.set(0, 0, 0); p.kid.scale.setScalar(1);
+        p.award = null;
+      });
+      steps.forEach(s => { s.who = null; s.stars = 0; drawStep(s); });
+    }
+    /** Bạn ở bục thí sinh p lên khối hạng r (0 = quán quân), mang `stars` sao thưởng. */
+    function standOn(p, r, stars) {
+      const s = steps[r];
+      s.who = p; s.stars = stars; drawStep(s);
+      s.stand.add(p.kid);
+      p.kid.position.set(0, p.pupil ? -0.22 : -0.12, 0); p.kid.rotation.set(0, 0, 0);
+      p.kid.scale.setScalar(0.01);
+      // huy chương trước ngực, gắn vào bạn ấy (bật lên cùng); học sinh Hyper3D cao 1,5 m đứng trên bậc 0,22, hình khối tạm thấp hơn
+      p.kid.add(s.medal); p.medal = s.medal;
+      s.medal.position.set(0, p.pupil ? 1.12 : 0.95, p.pupil ? 0.17 : 0.22); s.medal.visible = true;
+      p.award = { r, t: 0 };
+      p.kid.visible = true;
+      later(() => burstAt(s.wx, s.top + 1.6, AWARD_Z + 0.2, reduce ? 50 : 160), 250);
+      SFX.ting?.(3 - r, true);
+    }
+    /** Mỗi khung: bạn trên khối bật lên (to dần, nảy nhẹ), cúi chào một lần rồi mừng; cột sáng, đèn rọi khối có người. */
+    function stepAward(dt) {
+      steps.forEach(s => {
+        s.lit += ((s.who ? 1 : 0) - s.lit) * Math.min(1, dt * 3);
+        s.halo.visible = s.lit > 0.01;
+        s.halo.material.opacity = 0.2 * s.lit * (reduce ? 1 : 0.85 + 0.15 * Math.sin(performance.now() / 200 + s.r));
+        s.spot.intensity = (s.r === 0 ? 220 : 150) * s.lit;
+      });
+      pods.forEach(p => {
+        const a = p.award; if (!a) return;
+        a.t += dt;
+        const k = Math.min(1, a.t / (reduce ? 0.8 : 0.45));
+        const e = reduce ? 1 - (1 - k) * (1 - k) : 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2);   // easeOutBack: nảy nhẹ
+        p.kid.scale.setScalar(Math.max(0.01, e));
+        if (!p.pupil) return;
+        // cúi chào một lần, rồi mừng luân phiên: mỗi bạn tự đổi kiểu sau vài giây, rút ngẫu nhiên (không lặp kiểu vừa làm, không
+        // trùng kiểu bạn bên cạnh đang làm). Quán quân vui nhất: đổi nhanh hơn, toàn kiểu sôi nổi, nhịp nhanh hơn, nhún nhảy.
+        const bow = p.pupil.clips.bow ? p.pupil.clips.bow.duration + 0.5 : 0;
+        if (a.t < bow) pupilPlay(p.pupil, 'bow', { once: true, fade: 0.3 });
+        else if (!a.joy || a.t >= a.next) {
+          const pool = (a.r === 0 ? ['cheer', 'fists', 'yes', 'cheer'] : JOYS).filter(k => p.pupil.clips[k] && k !== a.joy);
+          const busy = new Set(pods.filter(o => o !== p && o.award?.joy).map(o => o.award.joy));
+          const pick = pool.filter(k => !busy.has(k));
+          a.joy = (pick.length ? pick : pool)[(Math.random() * (pick.length || pool.length)) | 0] || 'cheer';
+          a.next = a.t + (a.r === 0 ? 1.6 + Math.random() * 0.9 : 2.4 + Math.random() * 1.8);
+          pupilPlay(p.pupil, a.joy, { fade: 0.35, at: Math.random() * 0.4 });
+        }
+        if (a.r === 0 && a.t >= bow) p.kid.position.y = (p.pupil ? -0.22 : -0.12) + (reduce ? 0 : Math.abs(Math.sin(a.t * 5.2)) * 0.08);
+        p.pupil.mixer.update(dt * (reduce ? 0.6 : a.r === 0 ? 1.2 : 1));
+      });
+      if (!rainOn) return;
+      // mưa giấy: rơi từ giàn đèn xuống khắp sân khấu phía trước
+      rainAcc += dt * (reduce ? 30 : 130);
+      let n = Math.floor(rainAcc); rainAcc -= n;
+      let any = false;
+      for (let i = 0; i < CONF_N && n > 0; i++) {
+        const c = confP[i]; if (c.life > 0) continue; n--; any = true;
+        c.p.set(-5 + Math.random() * 10, 6.5 + Math.random() * 2.5, AWARD_Z - 2.5 + Math.random() * 5);
+        c.v.set((Math.random() - 0.5) * 0.6, -0.3 - Math.random() * 0.6, (Math.random() - 0.5) * 0.4);
+        c.r.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
+        c.w.set((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 6).multiplyScalar(reduce ? 0.4 : 1);
+        c.life = 7.5;
+        confMesh.setColorAt(i, confCol.set(CONF_COLS[(Math.random() * CONF_COLS.length) | 0]));
+      }
+      if (any) confMesh.instanceColor.needsUpdate = true;
+    }
+    /** Góc máy trao giải: nhìn thẳng bục vinh danh, khung (cx ± halfW, cy ± halfH) vừa màn hình (ngang hay dọc). */
+    function awardView(cx, cy, halfW, halfH) {
+      // màn dọc: góc rộng hơn và máy nâng cao nhìn chếch xuống, để không phải lùi ra sau các dãy ghế (đầu khán giả che bục)
+      const port = camera.aspect < 1, fov = port ? 58 : 40, tan = Math.tan(fov * Math.PI / 360), a = camera.aspect;
+      const d = Math.max(halfW / (tan * a), halfH / tan);
+      return { pos: [cx, cy + d * (port ? 0.28 : 0.1), AWARD_Z + 0.6 + d], target: [cx, cy, AWARD_Z], fov };
+    }
+    const awardWide = () => (camera.aspect < 1 ? awardView(AWARD_X - 0.81, 2.0, 3.6, 1.75) : awardView(AWARD_X - 0.81, 2.0, 4.3, 1.75));
+    const awardClose = (r) => awardView(steps[r].wx, steps[r].top + 0.7, camera.aspect < 1 ? 1.15 : 1.6, 1.3);
 
     /* ---------- Bục MC đôi: 2 MC đứng chung một bục, thay phiên nhau nói ---------- */
     const mcG = new THREE.Group(); mcG.position.set(-6.3, 0.62, 0.4); mcG.rotation.y = 0.7; scene.add(mcG);
@@ -860,9 +1032,11 @@ export function stage(app, onBack, { flow = false } = {}) {
         p.skill = w?.skill || 'kha';
         p.wantKind = w ? w.kind : -1;
         p.kid.visible = !!w;
+        p.me = !!w?.me;
+        p.rid = w?.me ? 0 : w?.real || w?.rid || 0;   // bạn thật khác trên bục: mã của bạn ấy trong phòng (máy chủ trò chờ thao tác)
         applyPod(p);
       });
-      if (flow) meOnPod = !!list[0]?.me;
+      if (flow) { myPod = list.findIndex(x => x?.me); meOnPod = myPod >= 0; }
       scrDirty = true;
     }
 
@@ -927,6 +1101,10 @@ export function stage(app, onBack, { flow = false } = {}) {
     const RK = { khoidong: 'kd', tangtoc: 'tt', vedich: 'vd' };
     let qDone = 0;   // số câu đã lật cả buổi (khán giả: đúng x / qDone câu)
     let Q = null, qn = 0, qTotal = 0, picks = [], shownOpts = 0, scrDirty = true, scrLast = 0;
+    /* qid: tăng mỗi lần mở một bước nhận thao tác (câu hỏi, chọn gói, đặt sao); sent: thao tác đã gửi máy chủ trò ở bước ấy
+       (`${qid}:lock` …) để không gửi hai lần và hiện "Đã chốt" ngay. tmId: mã đồng hồ (máy hiện theo đặt lại khi đổi). */
+    let qid = 0, sent = '', tmId = 0;
+    const setTimer = (sec, start = performance.now()) => { t0 = start; timer = { id: ++tmId, total: sec, end: start + sec * 1000 }; };
     /* Các bước của vòng: slots (mỗi phần tử một câu, hoặc 'pick' = một bạn chọn gói Về đích, chèn 3 câu của gói ngay sau nó).
        sl: bước đang chạy; turn: bục đang tới lượt (-1: chung); buzzer: bục bấm chuông được quyền; vd: lượt Về đích đang chạy. */
     let slots = [], si = 0, sl = null, turn = -1, buzzer = -1, vd = null;
@@ -936,8 +1114,14 @@ export function stage(app, onBack, { flow = false } = {}) {
     const clearLater = () => { tms.forEach(clearTimeout); tms = []; };
 
     /** Người cầm máy là ai: bản mẫu = bục 1; chương trình thật = khán giả ở ghế của mình (chưa ngồi thì chỉ xem). */
-    const role = () => (meOnPod ? 'pod' : flow && meSeat ? 'aud' : 'none');
-    const isMe = (i) => role() === 'pod' && i === 0;
+    const role = () => (meOnPod && myPod >= 0 ? 'pod' : flow && meSeat ? 'aud' : 'none');
+    const isMe = (i) => role() === 'pod' && i === myPod;
+    /** Bục i là bạn ảo (máy chủ trò / một mình giả lập): không phải mình, không phải bạn thật khác. */
+    const isBot = (i) => !isMe(i) && !pods[i].rid && !pods[i].me;
+    const hosting = () => !sync || sync.host;   // máy này chạy chương trình (một mình cũng là chạy)
+    const following = () => !!sync && !sync.host;
+    /** Mã của bạn đứng bục p trong phòng (mình: myId của máy này). */
+    const ridOf = (p) => (p.me ? sync?.myId || 0 : p.rid || 0);
     /** Bục i có phải trả lời câu này không (trước khi bấm chuông). */
     const answers = (i) => sl && (sl.seg === 'speed' || ((sl.seg === 'solo' || sl.seg === 'vd') && i === turn));
     /** Bục i có tham gia câu này (để tính điểm, đổi màu bục lúc lật). */
@@ -1092,6 +1276,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     /* Số câu hiển thị: tính trong phần đang chạy (lượt cá nhân của bạn đang thi 1/6, lượt chung 1/4, gói Về đích 1/3),
        không đếm cả vòng, để bé thấy mình còn bao nhiêu câu. */
     function qPos() {
+      if (following() && qpSnap) return qpSnap;   // máy hiện theo: số câu theo máy chủ trò
       if (sl && (sl.seg === 'solo' || sl.seg === 'common')) {
         const same = (s) => s.seg === sl.seg && s.who === sl.who;
         return [slots.slice(0, slots.indexOf(sl)).filter(same).length + 1, slots.filter(same).length];
@@ -1128,13 +1313,13 @@ export function stage(app, onBack, { flow = false } = {}) {
         const toks = optTokens(Q.o[+b.dataset.i]);
         if (toks) { const sp = b.querySelector('span'); sp.textContent = ''; sp.append(tokenCanvas(toks, 56)); sp.setAttribute('aria-label', sayTokens(toks)); }
       });
-      ov.querySelector('.dt-bell').onclick = () => { if (canBuzz()) buzz(0); };
+      ov.querySelector('.dt-bell').onclick = () => doBuzz();
       ov.classList.toggle('is-in', !reduce);
       ov.hidden = false;
     }
     /** Về đích trước câu: dải có cùng khung bốn ô (chọn gói / đặt sao); chỉ bạn đang tới lượt bấm được. */
     function buildChoice() {
-      const mine = role() === 'pod' && vd.who === 0;
+      const mine = role() === 'pod' && vd.who === myPod;
       const btn = (k, i, body, dis = !mine) => `<button type="button" class="ch-qov-o is-pop${dis ? ' dt-info' : ''}" data-k="${k}"${dis ? ' disabled' : ''}><i>${i}</i><span>${body}</span></button>`;
       let rows;
       if (phase === 'pick') {
@@ -1153,7 +1338,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       ov.querySelectorAll('[data-k]:not(:disabled)').forEach(b => {
         b.onclick = () => {
           const k = b.dataset.k;
-          if (phase === 'pick') choosePkg(+k); else if (phase === 'star') setStar(k === 'star');
+          if (phase === 'pick') doPkg(+k); else if (phase === 'star') doStar(k === 'star');
         };
       });
       ov.classList.remove('is-in');
@@ -1172,7 +1357,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     }
     /** Ô nào đang hiện là đã chọn: của mình; mình không trả lời câu này thì hiện ô của bạn đang trả lời (sau khi bạn ấy chốt). */
     function shownPicks() {
-      if (role() === 'aud' || (role() === 'pod' && (answers(0) || buzzer === 0))) return picks;
+      if (role() === 'aud' || (role() === 'pod' && (answers(myPod) || buzzer === myPod))) return picks;
       const w = buzzer >= 0 ? buzzer : turn;
       const p = pods[w];
       return w >= 0 && p.pick != null && ['locked', 'right', 'wrong'].includes(p.state) ? [p.pick] : [];
@@ -1183,15 +1368,15 @@ export function stage(app, onBack, { flow = false } = {}) {
       // (cả lúc MC gọi người bấm chuông / mở giành quyền)
       if (role() === 'aud') return ['think', 'buzzed', 'answer', 'stealing', 'steal'].includes(phase) && meSeat.ans == null;
       if (!['think', 'answer'].includes(phase)) return false;
-      if (role() !== 'pod') return false;
-      const me = pods[0];
-      if (phase === 'answer') return buzzer === 0 && me.state === 'buzz';
-      if (phase === 'steal' || !answers(0)) return false;
+      if (role() !== 'pod' || sent === `${qid}:lock`) return false;   // đã gửi đáp án cho máy chủ trò: chờ
+      const me = pods[myPod];
+      if (phase === 'answer') return buzzer === myPod && me.state === 'buzz';
+      if (phase === 'steal' || !answers(myPod)) return false;
       return me.state === 'turn' || me.state === 'think' || me.state === 'idle';
     }
     function canBuzz() {
-      if (role() !== 'pod' || buzzer >= 0 || !sl) return false;
-      return (phase === 'think' && sl.seg === 'common') || (phase === 'steal' && turn !== 0);
+      if (role() !== 'pod' || buzzer >= 0 || !sl || sent === `${qid}:buzz:${phase}`) return false;
+      return (phase === 'think' && sl.seg === 'common') || (phase === 'steal' && turn !== myPod);
     }
     function paintOv() {
       if (!Q || ov.hidden) return;
@@ -1223,7 +1408,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       const note = phase === 'read' ? 'Nghe MC đọc hết câu hỏi'
         : rev ? (role() === 'aud' ? pods.filter((q, i) => takesPart(i)).map(q => `${q.name} ${q.gain > 0 ? `+${q.gain}` : q.gain < 0 ? q.gain : 'chưa đúng'}`).join(' · ') : '')
         : role() === 'aud' && meSeat.ans != null ? (who >= 0 ? `Đã chọn, chờ ${pods[who].name} trả lời` : 'Đã chọn, chờ kết quả')
-        : role() === 'pod' && pods[0].state === 'locked' ? 'Đã chốt, chờ kết quả' : '';
+        : role() === 'pod' && (pods[myPod].state === 'locked' || sent === `${qid}:lock`) ? 'Đã chốt, chờ kết quả' : '';
       if (mr) { mr.textContent = note || ptsLabel(); mr.classList.toggle('dt-note', !!note); }
       const res = ov.querySelector('.ch-qov-res');
       res.hidden = !rev;
@@ -1239,8 +1424,8 @@ export function stage(app, onBack, { flow = false } = {}) {
         const ok = meSeat.ans === true, pts = Q.val || ROUNDS[mode].aud;
         return ok ? ['is-ok', '✓', `Chính xác! +${pts}`] : ['is-no', '✕', meSeat.ans == null ? 'Hết giờ!' : 'Rất tiếc!'];
       }
-      const me = pods[0];
-      if (role() === 'pod' && takesPart(0)) {
+      const me = pods[myPod];
+      if (role() === 'pod' && takesPart(myPod)) {
         if (me.state === 'right') return ['is-ok', '✓', `Chính xác! +${me.gain}`];
         const late = Q.kind === 'order' ? picks.length < 4 : !picks.length;
         return ['is-no', '✕', me.gain < 0 ? `Rất tiếc! ${me.gain}` : late ? 'Hết giờ!' : 'Rất tiếc!'];
@@ -1290,17 +1475,65 @@ export function stage(app, onBack, { flow = false } = {}) {
         done = picks.length === 4; ok = done && picks.every((x, j) => x === Q.a[j]);
       }
       if (role() === 'aud') {
-        if (done) { meSeat.ans = ok; SFX.lock(); } else SFX.click();
+        if (done) { meSeat.ans = ok; SFX.lock(); if (following()) sync.net.showInput('aud', [meSeat.id, ok ? 1 : 0]); } else SFX.click();
         paintOv(); return;
       }
-      if (done) lock(0, ok, Q.kind === 'abcd' ? i : null, el); else SFX.click();
+      if (!done) { SFX.click(); paintOv(); return; }
+      if (following()) {
+        // máy chủ trò chấm: gửi đáp án (đúng / sai, ô đã chọn, giây chốt theo đồng hồ của mình), hiện "Đã chốt" ngay
+        sent = `${qid}:lock`; SFX.lock();
+        sync.net.showInput('lock', [ok ? 1 : 0, Q.kind === 'abcd' ? i : -1, Math.round(el * 100) / 100, qid]);
+      } else lock(myPod, ok, Q.kind === 'abcd' ? i : null, el);
       paintOv();
+    }
+    /** Bấm chuông (nút, phím cách): máy hiện theo gửi máy chủ trò, máy chủ trò / một mình thì bấm luôn. */
+    function doBuzz() {
+      if (!canBuzz()) return;
+      if (following()) { sent = `${qid}:buzz:${phase}`; SFX.click(); sync.net.showInput('buzz', [qid]); paintOv(); return; }
+      buzz(myPod);
+    }
+    function doPkg(k) {
+      if (phase !== 'pick' || vd?.who !== myPod || role() !== 'pod') return;
+      if (following()) { if (sent === `${qid}:pkg`) return; sent = `${qid}:pkg`; SFX.click(); sync.net.showInput('pkg', [k, qid]); return; }
+      choosePkg(k);
+    }
+    function doStar(on) {
+      if (phase !== 'star' || vd?.who !== myPod || role() !== 'pod') return;
+      if (following()) { if (sent === `${qid}:star`) return; sent = `${qid}:star`; SFX.click(); sync.net.showInput('star', [on ? 1 : 0, qid]); return; }
+      setStar(on);
+    }
+    /**
+     * (Máy chủ trò) thao tác của một bạn thật khác trong phòng: from = mã của bạn ấy. Chỉ nhận đúng lúc bạn ấy được làm,
+     * như khi chính bạn ấy bấm trên máy này (bước đã qua hay câu khác thì bỏ).
+     */
+    function input(from, type, a = []) {
+      if (!hosting() || gone) return;
+      if (type === 'aud') {
+        const st = seatById.get(a[0]);
+        if (st?.live && st.real && st.ans == null && Q && ['think', 'buzzed', 'answer', 'stealing', 'steal'].includes(phase)) st.ans = !!a[1];
+        return;
+      }
+      const i = pods.findIndex(p => !p.me && p.rid === from);
+      if (i < 0 || a[a.length - 1] !== qid) return;
+      const p = pods[i];
+      if (type === 'lock') {
+        if (!Q) return;
+        const okNow = phase === 'answer' ? buzzer === i && p.state === 'buzz' : phase === 'think' && answers(i) && ['turn', 'think', 'idle'].includes(p.state);
+        if (!okNow) return;
+        const el = Math.max(0, Math.min(+a[2] || 0, (performance.now() - t0) / 1000));
+        lock(i, !!a[0], Q.kind === 'abcd' && a[1] >= 0 ? a[1] : null, el);
+        paintOv();
+      } else if (type === 'buzz') {
+        if (buzzer >= 0 || !sl) return;
+        if ((phase === 'think' && sl.seg === 'common') || (phase === 'steal' && turn !== i)) buzz(i);
+      } else if (type === 'pkg') { if (phase === 'pick' && vd?.who === i) choosePkg(Math.max(0, Math.min(3, a[0] | 0))); }
+      else if (type === 'star') { if (phase === 'star' && vd?.who === i) setStar(!!a[0]); }
     }
     /** Bục i chốt đáp án (ok đúng / sai; pick: ô đã chọn của câu một đáp án). */
     function lock(i, ok, pick, el = (performance.now() - t0) / 1000) {
       const p = pods[i];
       p.state = 'locked'; p.ok = ok; p.pick = pick; p.lockAt = el; scrDirty = true;
-      SFX.lock();
+      SFX.lock(); emit('lk', i);
     }
     /** Độ khó câu đang hỏi cho bạn ảo: độ khó trong ngân hàng, Về đích theo điểm câu. */
     const qLevel = () => (Q?.val ? Q.val / 10 : Q?.level || 1);
@@ -1331,8 +1564,78 @@ export function stage(app, onBack, { flow = false } = {}) {
        màn hình, chữ ký hai MC chạy nét; tự thu lại sau 10 giây hoặc chạm Đóng, "Xem" mở dạng slide. Sân khấu thử: ghi demo. */
     const certEl = root.querySelector('.dt-cert');
     let certTm = 0;
-    function giveCert({ kind, name, score, rounds, right, total, at }) {
-      const row = addAward({ id: `${at}-${kind}`, kind, name, grade: gradeNow(), score, at, rounds, right, total, demo: !flow || undefined });
+    /* ⭐ Sao thưởng (sổ sao chung engine/stars.js, khoá dautruong<lớp>:<lúc trao giải>:pod|aud), mỗi buổi tối đa STAR_MAX.
+       Thí sinh: theo hạng (POD_STARS) + điểm / 5 (tối đa 50).
+       Khán giả: cao nhất cũng chỉ bằng thí sinh hạng tư (T4). Khán giả điểm cao nhất ≥ điểm T4 thì được đúng sao của T4, thấp hơn thì
+       sao T4 × (điểm của bạn ấy / điểm T4). Các bạn khác: sao của khán giả cao nhất × (điểm mình / điểm khán giả cao nhất).
+       Bạn ảo cũng hiện sao trên bục vinh danh nhưng không ghi sổ; sân khấu thử (không flow) chỉ hiện, không cộng. */
+    const STAR_MAX = 100, POD_STARS = [50, 35, 25, 15];
+    const podStars = (rank, score) => Math.min(STAR_MAX, POD_STARS[rank] + Math.min(50, Math.max(0, Math.round(score / 5))));
+    /** Sao khán giả: hàm (điểm) → sao, theo T4 (điểm t4Score, sao t4Stars) và điểm khán giả cao nhất topScore. */
+    function audStarsRule(t4Score, t4Stars, topScore) {
+      const top = topScore <= 0 ? 0 : topScore >= t4Score ? t4Stars : Math.round(t4Stars * topScore / Math.max(1, t4Score));
+      return (score) => (topScore > 0 && score > 0 ? Math.min(top, Math.max(1, Math.round(top * score / topScore))) : 0);
+    }
+    function giveStars(role, n, at) {
+      if (!(n > 0)) return 0;
+      if (flow) awardFixedStars(`dautruong${gradeNow()}:${at}:${role}`, n, { toast: false });   // màn thu sao (collectStars) thay hiệu ứng chung
+      return n;
+    }
+    /* ⭐ Màn thu sao của mình (sau lễ trao giải): thẻ phần thưởng giữa màn hình (huy hiệu hạng, số sao to, dòng giải thích), chạm
+       "Nhận sao" (hoặc tự nhận sau 8 giây) thì từng ngôi sao bay từ thẻ lên ô tổng sao góc trên, ô đếm tăng dần, mỗi sao một tiếng
+       "ting"; xong thì thẻ thu lại. Sao đã ghi sổ trước (giveStars) nên rời trang giữa chừng vẫn không mất. Giảm chuyển động: vẫn
+       bay, ít sao hơn, chậm hơn. */
+    const collectEl = root.querySelector('.dt-collect');
+    function collectStars({ n, badge, title, lines, total0 }) {
+      return new Promise(done => {
+        if (!(n > 0) || gone) { done(); return; }
+        collectEl.innerHTML = `<div class="dt-col-total"><b>⭐</b><span>${total0}</span></div>
+          <div class="dt-col-card"><div class="dt-col-badge">${badge}</div><h3>${esc(title)}</h3>
+            <div class="dt-col-star"><b>⭐</b><span>${n}</span></div>
+            ${lines.map(l => `<p>${esc(l)}</p>`).join('')}
+            <button type="button" class="dt-col-go">Nhận sao</button></div>`;
+        collectEl.hidden = false; collectEl.classList.remove('is-out');
+        SFX.champ?.();
+        const card = collectEl.querySelector('.dt-col-card'), from = collectEl.querySelector('.dt-col-star b'), totEl = collectEl.querySelector('.dt-col-total');
+        const num = totEl.querySelector('span'), go = collectEl.querySelector('.dt-col-go');
+        let taken = false;
+        const auto = setTimeout(() => take(), 8000);
+        go.onclick = () => take();
+        function take() {
+          if (taken || gone) return;
+          taken = true; clearTimeout(auto);
+          go.disabled = true; go.textContent = 'Đang nhận…';
+          const a = from.getBoundingClientRect(), b = totEl.getBoundingClientRect(), r0 = collectEl.getBoundingClientRect();
+          const k = Math.min(n, reduce ? 8 : 20), gap = reduce ? 180 : 90, dur = reduce ? 1100 : 750;
+          let got = 0;
+          for (let i = 0; i < k; i++) {
+            const s = document.createElement('i'); s.className = 'dt-col-fly'; s.textContent = '⭐';
+            s.style.left = `${a.left - r0.left + a.width / 2}px`; s.style.top = `${a.top - r0.top + a.height / 2}px`;
+            collectEl.appendChild(s);
+            const dx = b.left + 22 - a.left - a.width / 2, dy = b.top + b.height / 2 - a.top - a.height / 2;
+            const bend = (Math.random() - 0.5) * 160;
+            const anim = s.animate([
+              { transform: 'translate(-50%, -50%) scale(1.4)', opacity: 1 },
+              { transform: `translate(calc(-50% + ${dx * 0.45 + bend}px), calc(-50% + ${dy * 0.45 - 60}px)) scale(1.1)`, opacity: 1, offset: 0.45 },
+              { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0.6)`, opacity: 0.9 },
+            ], { duration: dur, delay: i * gap, easing: 'cubic-bezier(.45,0,.3,1)', fill: 'both' });
+            anim.onfinish = () => {
+              s.remove(); got++;
+              num.textContent = String(total0 + Math.round(n * got / k));
+              totEl.classList.remove('is-pop'); void totEl.offsetWidth; totEl.classList.add('is-pop');
+              SFX.ting?.(got % 4, true);
+              if (got === k) later(() => { card.classList.add('is-out'); collectEl.classList.add('is-out'); later(() => { collectEl.hidden = true; done(); }, 700); }, 1300);
+            };
+          }
+          let left = n;   // số trên thẻ giảm dần khi sao bay đi
+          const drain = setInterval(() => { left = Math.max(0, left - Math.ceil(n / k)); const el = card.querySelector('.dt-col-star span'); if (el) el.textContent = String(left); if (!left) clearInterval(drain); }, gap);
+        }
+      });
+    }
+    /** Bay camera tới góc trao giải (không phải góc cài sẵn: nút góc máy không sáng nút nào). */
+    function awardCam(v) { camCur = 'award'; flyCam(v); paintCams(); }
+    function giveCert({ kind, name, score, rounds, right, total, stars, at }) {
+      const row = addAward({ id: `${at}-${kind}`, kind, name, grade: gradeNow(), score, at, rounds, right, total, stars, demo: !flow || undefined });
       loadCertFonts();
       SFX.champ?.();
       certEl.innerHTML = `<div class="dt-cert-box">${certSvg({ ...row, sign: 'anim' })}
@@ -1352,10 +1655,170 @@ export function stage(app, onBack, { flow = false } = {}) {
     async function host(key, vars = {}, opts) {
       const r = run;
       const ln = mcLine(key, { tenCT: SHOW_NAME.split('\n').join(' '), lop: gradeNow(), mon: monOf(Q), ...vars });
-      if (ln) await mcSpeak(ln.text, ln.mc, opts);
+      if (ln) { emit('say', ln.text, ln.mc); await mcSpeak(ln.text, ln.mc, opts); }
       return live(r);
     }
-    async function speak(text, mc, opts) { const r = run; await mcSpeak(text, mc, opts); return live(r); }
+    async function speak(text, mc, opts) { const r = run; emit('say', text, mc); await mcSpeak(text, mc, opts); return live(r); }
+
+    /* ---------- Chương trình chung: một máy chủ trò, cả phòng thấy y như nhau ----------
+       Máy chủ trò chạy mọi bước như khi chơi một mình, rồi gửi qua máy chủ phòng:
+         - ảnh chụp (snapOf): vòng, bước, câu hỏi, đồng hồ, bục (điểm, chốt, đúng sai), điểm khán phòng… mỗi lần đổi (soát 10 lần/giây);
+         - hiệu ứng (emit / fxRun): lời MC, âm thanh, góc máy, pháo giấy, lễ trao giải.
+       Máy hiện theo (following) không tự chạy bước nào: applySnap dựng lại dải đáp án, bảng điểm, lật đáp án theo ảnh chụp; chọn
+       đáp án / bấm chuông / chọn gói / đặt sao / khán giả trả lời thì gửi máy chủ trò (input). Máy chủ trò rời phòng: máy chủ phòng
+       trao quyền cho người kế, máy ấy chạy tiếp từ ảnh chụp cuối (resume). */
+    let snapKey = '', snapT = 0, lastSnap = null, qpSnap = null;
+    function snapOf() {
+      return {
+        mode, phase, qid, qn, qTotal, qp: sl ? qPos() : null, so: shownOpts, Q,
+        tm: timer ? { id: timer.id, total: timer.total } : null,
+        turn, buzzer, si, slots, sl: sl ? 1 : 0,
+        vd: vd ? { who: vd.who, pkg: vd.pkg ? VD.pkgs.indexOf(vd.pkg) : -1, star: vd.star ? 1 : 0, su: vd.starUsed ? 1 : 0 } : null,
+        pods: pods.map(p => ({ n: p.name, k: p.wantKind, sk: p.skill, r: ridOf(p), st: p.state, sc: p.score, g: p.gain, pk: p.pick ?? null, la: p.lockAt || 0, s: p.star ? 1 : 0, j: p.joy || '', rs: p.rs, ok: p.ok ? 1 : 0 })),
+        seats: seats.filter(x => x.live).map(x => [x.id, x.score, x.nRight || 0, x.right ? 1 : 0, x.react || '']),
+        ov: ov.hidden ? 0 : 1, bd: boardEl.hidden ? 0 : 1, tb: turnBase, qd: qDone, lm: lastMon, ma: mAlt,
+      };
+    }
+    /** (Máy chủ trò) gửi ảnh chụp nếu có gì đổi; đồng hồ kèm số giây còn lại lúc gửi (người vào giữa chừng đếm tiếp đúng). */
+    function flushSnap() {
+      if (!sync?.host || gone) return;
+      const o = snapOf(), key = JSON.stringify(o);
+      if (key === snapKey) return;
+      snapKey = key;
+      if (o.tm) { const now = performance.now(); o.tm.left = Math.max(0, (timer.end - now) / 1000); o.tm.el = Math.max(0, (now - t0) / 1000); }
+      sync.net.showSnap(o);
+    }
+    /** (Máy chủ trò) gửi một hiệu ứng cho cả phòng; ảnh chụp đi trước để máy hiện theo đã đúng bước khi chạy hiệu ứng. */
+    function emit(name, ...args) {
+      if (!sync?.host || gone) return;
+      flushSnap();
+      sync.net.showFx(name, args);
+    }
+    const sfx = (n, ...a) => { SFX[n]?.(...a); emit('sfx', n, ...a); };
+    const camX = (k) => { cam(k); emit('cam', k); };
+    /** Hiệu ứng chạy trên mọi máy (máy chủ trò chạy luôn và gửi đi). */
+    function fxRun(name, ...args) { emit(name, ...args); FX[name]?.(...args); }
+    /* Trao giải: phần của riêng mình (sao, giấy chứng nhận, màn thu sao) tính trên từng máy từ điểm chung. */
+    let winMe = null;
+    const winState = () => (winMe ||= { at: Date.now(), myStars: 0, mine: null, total0: getTotalStars() });
+    const FX = {
+      // máy chủ trò đã tự làm (nói, âm thanh, góc máy, tiếng chốt): chỉ máy hiện theo làm
+      say: (text, mc) => { if (following()) mcSpeak(text, mc); },
+      sfx: (n, ...a) => { if (following()) SFX[n]?.(...a); },
+      cam: (k) => { if (following()) cam(k); },
+      lk: (i) => { if (following() && i !== myPod) SFX.lock(); },
+      // mọi máy
+      burst: (i, k) => { if (pods[i]) { burst(pods[i]); SFX.ting?.(k, true); } },
+      pan: () => {
+        // tổng kết đợt: camera lướt chậm một lượt qua khán phòng
+        const base = viewOf(findCam('crowd'));
+        const sh = (k) => ({ pos: [base.pos[0] + 2.5 * k, base.pos[1], base.pos[2]], target: [base.target[0] + 6 * k, base.target[1], base.target[2]], fov: base.fov });
+        camCur = 'crowd'; paintCams();
+        flyCam(sh(-1), true);
+        flyCam(sh(1), false, { dur: reduce ? 10000 : 8000, lift: 0 });
+      },
+      awardStart: (at) => { winMe = { at, myStars: 0, mine: null, total0: getTotalStars() }; showAward(true); awardCam(awardWide()); },
+      awardCam: (rank) => awardCam(rank < 0 ? awardWide() : awardClose(rank)),
+      stand: (i, rank, k) => {
+        const p = pods[i], w = winState(), stars = podStars(rank, p.score);
+        standOn(p, rank, stars);
+        // của mình: giấy chứng nhận bay lên (lưu Thành tích) và sao thưởng vào sổ sao
+        if (meOnPod && i === myPod) {
+          w.myStars = giveStars('pod', stars, w.at);
+          const bonus = stars - POD_STARS[rank];
+          w.mine = { badge: ['🥇', '🥈', '🥉', '🏅'][rank], title: ['Quán quân', 'Á quân', 'Hạng ba', 'Hạng tư'][rank],
+            lines: [`Giải hạng ${rank + 1}: ${POD_STARS[rank]} sao`, ...(bonus > 0 ? [`${p.score} điểm: thêm ${bonus} sao`] : [])] };
+          giveCert({ kind: k, name: p.name, score: p.score, rounds: { ...p.rs }, stars, at: w.at });
+        }
+      },
+      rain: () => { awardCam(awardWide()); rainOn = true; SFX.champ(); },
+      // khán giả: cao nhất bằng sao của thí sinh hạng tư, các bạn khác theo % điểm của bạn khán giả cao nhất (audStarsRule)
+      audStars: () => {
+        const w = winState(), best = [...pods].sort((a, b) => b.score - a.score), stars = best.map((p, k) => podStars(k, p.score));
+        const fan = topFan(), me = seats.find(x => x.mine);
+        if (meOnPod || !me) return;
+        const isBest = me === fan && fan.score > 0;
+        const n = audStarsRule(best[3].score, stars[3], fan?.score || 0)(me.score || 0);
+        w.myStars = giveStars('aud', n, w.at);
+        if (n > 0) w.mine = { badge: isBest ? '🌟' : '👏', title: isBest ? 'Khán giả xuất sắc' : 'Khán giả cổ vũ', lines: [`${me.score} điểm khán giả`, ...(me.nRight ? [`Trả lời đúng ${me.nRight} câu`] : [])] };
+        if (isBest) giveCert({ kind: 'aud', name: fan.name, score: fan.score, right: fan.nRight || 0, total: qDone, stars: n, at: w.at });
+      },
+      // hết chương trình: màn thu sao của mình, rồi flow.js hiện thẻ kết thúc (điểm, sao của mình)
+      end: async () => {
+        const w = winState(), r = run, best = [...pods].sort((a, b) => b.score - a.score), me = seats.find(x => x.mine);
+        if (w.mine && w.myStars > 0) await collectStars({ n: w.myStars, total0: w.total0, ...w.mine });
+        if (r !== run || gone) return;
+        if (sync?.host) sync.net.showEnd();
+        api.onShowEnd?.({ onPod: meOnPod, score: meOnPod ? pods[myPod].score : me?.score || 0, rank: meOnPod ? best.indexOf(pods[myPod]) + 1 : 0, stars: w.myStars });
+      },
+    };
+    /** (Máy hiện theo) dựng lại sân khấu theo ảnh chụp của máy chủ trò. */
+    function applySnap(o) {
+      if (!o || typeof o !== 'object' || !Array.isArray(o.pods)) return;
+      lastSnap = o;
+      if (!following() || gone) return;
+      const was = { phase, bd: !boardEl.hidden };
+      if (o.mode !== mode && ROUNDS[o.mode]) { clearLater(); run++; mcStop(); modeLook(o.mode); if (o.mode === 'win') winMe = null; }
+      phase = o.phase; qn = o.qn; qTotal = o.qTotal; turn = o.turn; buzzer = o.buzzer; si = o.si;
+      slots = Array.isArray(o.slots) ? o.slots : []; sl = o.sl ? slots[si - 1] || null : null;
+      vd = o.vd ? { who: o.vd.who, pkg: VD.pkgs[o.vd.pkg] || null, star: !!o.vd.star, starUsed: !!o.vd.su } : null;
+      qDone = o.qd || 0; turnBase = o.tb || turnBase; lastMon = o.lm ?? -1; mAlt = o.ma || 0; shownOpts = o.so || 0; qpSnap = o.qp;
+      const newQ = o.qid !== qid;
+      qid = o.qid; Q = o.Q || null;
+      if (!o.tm) timer = null;
+      else if (!timer || timer.id !== o.tm.id) {
+        const now = performance.now();
+        timer = { id: o.tm.id, total: o.tm.total, end: now + (o.tm.left ?? o.tm.total) * 1000 };
+        t0 = now - (o.tm.el || 0) * 1000;
+      }
+      // bục: tên, nhân vật, điểm, trạng thái; bục của mình là bục có mã của máy này
+      let podsChanged = false;
+      o.pods.forEach((x, i) => {
+        const p = pods[i];
+        if (!p || !x) return;
+        if (p.name !== x.n || p.wantKind !== x.k) { p.name = x.n; p.wantKind = x.k; p.kid.visible = x.k >= 0; applyPod(p); podsChanged = true; }
+        const me = !!sync.myId && x.r === sync.myId, rid = me ? 0 : x.r || 0;
+        if (p.me !== me || (p.rid || 0) !== rid) podsChanged = true;
+        p.me = me; p.rid = rid; p.skill = x.sk || 'kha';
+        p.state = x.st; p.score = x.sc; p.gain = x.g; p.pick = x.pk; p.lockAt = x.la; p.star = !!x.s; p.joy = x.j; p.rs = x.rs || p.rs; p.ok = !!x.ok;
+      });
+      if (podsChanged) {
+        myPod = pods.findIndex(p => p.me); meOnPod = myPod >= 0;
+        api.onPods?.(pods.map(p => ({ name: p.name, kind: p.wantKind, rid: ridOf(p), me: p.me })));
+      }
+      // khán phòng: điểm từng ghế do máy chủ trò chấm (cả ghế của mình)
+      for (const [id, sc, nr, right, react] of o.seats || []) {
+        const st = seatById.get(id);
+        if (!st) continue;
+        st.score = sc; st.nRight = nr; st.right = !!right; st.react = react; st.dirty = true;
+      }
+      // giao diện theo bước
+      if (newQ) { picks = []; sent = ''; seats.forEach(st => { st.ans = null; }); if (Q) { buildOv(); livePop(); } }
+      if (!Q && vd && ['pick', 'star'].includes(phase) && (newQ || was.phase !== phase)) buildChoice();
+      else if (!Q && vd && ['picked', 'starred'].includes(phase)) paintChoice();
+      if (Q && o.ov && ov.hidden) buildOv();   // vào giữa chừng / dải vừa ẩn lúc tổng kết đợt
+      if (!o.ov) ov.hidden = true;
+      if (o.bd && !was.bd) showBoard(); else if (!o.bd) boardEl.hidden = true;
+      if (phase === 'reveal' && was.phase !== 'reveal') presentReveal();
+      if (Q && !ov.hidden) buildBellLine();
+      paintOv();
+      scrDirty = true;
+    }
+    /**
+     * (Vừa nhận quyền chủ trò giữa chương trình) chạy tiếp từ ảnh chụp cuối: câu đã lật thì sang bước sau; câu đang hỏi thì hỏi
+     * lại câu khác cùng lượt (điểm chỉ cộng lúc lật nên không cộng hai lần); chọn gói / đặt sao thì hỏi lại.
+     */
+    function resume() {
+      run++; clearLater(); mcStop();
+      if (mode === 'idle') return;
+      if (!ROUNDS[mode].sec) { intro(mode); return; }
+      if (phase === 'done') { endRound(); return; }
+      if (!sl) { if (si >= slots.length && slots.length) endRound(); else intro(mode); return; }
+      if (phase === 'reveal') { nextSlot(); return; }
+      if (sl.seg === 'pick') { if (vd?.pkg) nextSlot(); else startPick(sl.who); return; }
+      if (phase === 'star') { startStar(); return; }
+      runQuestion(sl.seg === 'vd');
+    }
     // phụ đề lời MC (trên cùng, giữa) + MC đang nói thì nhấn nhá (vòng chân sáng, clip mcTalk)
     const capEl = root.querySelector('.dt-cap');
     let mcTalk = -1;
@@ -1375,15 +1838,15 @@ export function stage(app, onBack, { flow = false } = {}) {
       buzzer = i;
       const p = pods[i], now = performance.now(), r = run;
       p.state = 'buzz'; p.bellT = now; scrDirty = true;
-      SFX.bell(i);
+      sfx('bell', i);
       phase = 'buzzed'; timer = null;
       pods.forEach((q, k) => { if (k !== i && k !== turn && q.state !== 'wrong') q.state = 'idle'; });
       buildBellLine();
       paintOv();
       if (!(await host('bellHit', { ten: nameOf(i), mau: COLOR_NAMES[i] })) || r !== run) return;
       const sec = secs('answer');
-      phase = 'answer'; t0 = performance.now(); timer = { total: sec, end: t0 + sec * 1000 };
-      if (!isMe(i)) p.plan = 1.5 + Math.random() * Math.min(6, sec * 0.4);   // đúng sai đã quyết lúc bấm chuông (buzzPlan)
+      phase = 'answer'; setTimer(sec);
+      if (isBot(i)) p.plan = 1.5 + Math.random() * Math.min(6, sec * 0.4);   // đúng sai đã quyết lúc bấm chuông (buzzPlan)
       paintOv();
     }
     function buildBellLine() {
@@ -1396,26 +1859,26 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (p.state === 'locked' && Q.kind === 'abcd') Q.out = p.pick;
       p.ok = false; p.state = 'wrong';
       phase = 'stealing'; timer = null; scrDirty = true;
-      SFX.stop(late);
+      sfx('stop', late);
       paintOv();
       const v = { ten: nameOf(turn), diem: Q.val };
       if (!(await host(late ? 'vdLate' : vd.star ? 'vdWrongX2' : 'vdWrong', v))) return;
       if (!(await host('bellOpen'))) return;
-      const sec = secs('steal'), now = performance.now();
-      phase = 'steal'; t0 = now; timer = { total: sec, end: now + sec * 1000 }; scrDirty = true;
+      const sec = secs('steal');
+      phase = 'steal'; setTimer(sec); scrDirty = true;
       pods.forEach((q, i) => {
         if (i === turn) return;
         q.state = 'idle';
-        if (!isMe(i)) { const b = buzzPlan(q.skill, { level: qLevel(), round: mode, sec, steal: true }); q.buzzAt = b.at; q.ok = b.ok; }
+        if (isBot(i)) { const b = buzzPlan(q.skill, { level: qLevel(), round: mode, sec, steal: true }); q.buzzAt = b.at; q.ok = b.ok; }
       });
-      SFX.bellOpen();
+      sfx('bellOpen');
       paintOv();
     }
     /** Đóng câu: MC nói một câu (ai chốt, hết giờ, không ai bấm chuông) rồi lật. */
     async function closeQ(key, vars) {
       const late = !!timer && performance.now() >= timer.end;
       phase = 'closing'; timer = null; scrDirty = true;
-      SFX.stop(late);
+      sfx('stop', late);
       paintOv();
       if (key && !(await host(key, vars))) return;
       reveal();
@@ -1457,14 +1920,14 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (sl.seg === 'solo' && sl.first) {
         turn = sl.who; Q = null; phase = 'turn'; scrDirty = true;
         pods.forEach((p, i) => { p.state = i === turn ? 'turn' : 'idle'; });
-        ov.hidden = true; cam('players'); SFX.spot();
+        ov.hidden = true; camX('players'); sfx('spot');
         if (!(await host('kdTurn', { ten: nameOf(turn) }))) return;
         await wait(400);
       }
       if (sl.seg === 'common' && sl.first) {
         turn = -1; Q = null; phase = 'turn'; scrDirty = true;
         pods.forEach(p => { p.state = 'idle'; });
-        ov.hidden = true; cam('players'); SFX.bellOpen();
+        ov.hidden = true; camX('players'); sfx('bellOpen');
         if (!(await host('kdCommon')) || !(await host('kdCommon2'))) return;
       }
       if (r !== run) return;
@@ -1475,16 +1938,15 @@ export function stage(app, onBack, { flow = false } = {}) {
       vd = { who, pkg: null, star: false, starUsed: false };
       turn = who; buzzer = -1; Q = null; phase = 'turn'; timer = null; scrDirty = true;
       pods.forEach((p, i) => { p.state = i === who ? 'turn' : 'idle'; p.star = false; p.gain = 0; });
-      ov.hidden = true; cam('players'); SFX.spot();
+      ov.hidden = true; camX('players'); sfx('spot');
       if (!(await host('vdTurn', { ten: nameOf(who), diem: pods[who].score }))) return;
-      phase = 'pick'; scrDirty = true;
+      phase = 'pick'; qid++; scrDirty = true;
       buildChoice();
-      requestAnimationFrame(() => { if (!gone) cam('screen'); });
+      requestAnimationFrame(() => { if (!gone) camX('screen'); });
       if (!(await host('vdPick', { ten: nameOf(who) }))) return;
-      const sec = secs('pick'), now = performance.now();
-      t0 = now; timer = { total: sec, end: now + sec * 1000 };
+      setTimer(secs('pick'));
       paintChoice();
-      if (!isMe(who)) {
+      if (isBot(who)) {
         const lead = Math.max(...pods.map(p => p.score)) - pods[who].score;
         const k = pickPackage(pods[who].skill, lead);
         later(() => choosePkg(k), 2000 + Math.random() * 2000);
@@ -1495,22 +1957,21 @@ export function stage(app, onBack, { flow = false } = {}) {
       vd.pkg = VD.pkgs[k];
       slots.splice(si, 0, ...vd.pkg.v.map((val, qi) => ({ seg: 'vd', who: vd.who, val, qi })));
       phase = 'picked'; timer = null; scrDirty = true;
-      SFX.level(Math.min(3, k + 1));
+      sfx('level', Math.min(3, k + 1));
       paintChoice();
       if (!(await host(vd.pkg.pts === 90 ? 'vdBig' : 'vdPicked', { ten: nameOf(vd.who), goi: vd.pkg.pts, list: vd.pkg.v.join(', ') }))) return;
       nextSlot();
     }
     /** Về đích trước mỗi câu (khi còn sao): MC hỏi đặt Ngôi sao hy vọng hay không. */
     async function startStar() {
-      Q = null; buzzer = -1; phase = 'star'; timer = null; scrDirty = true;
+      Q = null; buzzer = -1; phase = 'star'; qid++; timer = null; scrDirty = true;
       buildChoice();
-      requestAnimationFrame(() => { if (!gone) cam('screen'); });
+      requestAnimationFrame(() => { if (!gone) camX('screen'); });
       if (!(await host('starAsk', { so: sl.qi + 1, diem: sl.val, ten: nameOf(vd.who) }))) return;
       if (phase !== 'star') return;   // bấm trước khi MC hỏi xong
-      const sec = secs('star'), now = performance.now();
-      t0 = now; timer = { total: sec, end: now + sec * 1000 };
+      setTimer(secs('star'));
       paintChoice();
-      if (!isMe(vd.who)) {
+      if (isBot(vd.who)) {
         const go = wantStar(pods[vd.who].skill, sl.val, sl.qi === 2);
         later(() => setStar(go), 1200 + Math.random() * 1500);
       }
@@ -1518,7 +1979,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     async function setStar(on) {
       if (phase !== 'star') return;
       vd.star = on;
-      if (on) { vd.starUsed = true; pods[vd.who].star = true; SFX.double(); } else SFX.click();
+      if (on) { vd.starUsed = true; pods[vd.who].star = true; sfx('double'); } else sfx('click');
       phase = 'starred'; timer = null; scrDirty = true;
       paintChoice();
       if (!(await host(on ? 'starOn' : 'starOff', { ten: nameOf(vd.who), diem: sl.val, diemX2: sl.val * 2 }))) return;
@@ -1529,7 +1990,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       const r = run;
       Q = takeQ(sl);
       if (sl.val) Q.val = sl.val;
-      qn++; picks = []; shownOpts = 0; phase = 'read'; timer = null; buzzer = -1; scrDirty = true;
+      qn++; qid++; picks = []; shownOpts = 0; phase = 'read'; timer = null; buzzer = -1; scrDirty = true;
       turn = sl.who;
       pods.forEach((p, i) => {
         p.state = i === turn ? 'turn' : 'idle'; p.lockAt = 0; p.ok = false; p.gain = 0; p.pick = null;
@@ -1545,14 +2006,14 @@ export function stage(app, onBack, { flow = false } = {}) {
       }
       lastMon = mon;
       buildOv(); paintOv();
-      SFX.open();
-      requestAnimationFrame(() => { if (!gone && Q) cam('screen'); }); // dải đáp án đã dựng: đo rồi mới khớp khung câu hỏi
+      sfx('open');
+      requestAnimationFrame(() => { if (!gone && Q) camX('screen'); }); // dải đáp án đã dựng: đo rồi mới khớp khung câu hỏi
       const askKey = sl.seg === 'speed' ? 'ttAsk' : sl.seg === 'vd' ? 'vdAsk' : 'ask';
       if (!(await host(askKey, { so: qPos()[0], loai: (Q.tag || '').toLowerCase(), diem: Q.val }))) return;
       if (!(await speak(sayQuestion(Q), mon))) return;
       if (Q.kind === 'order' && !(await host('kindOrder'))) return;
       for (let i = 0; i < 4; i++) {
-        if (!(await speak(sayOption(Q, i), mon, { onStart: () => { shownOpts = Math.max(shownOpts, i + 1); paintOv(); SFX.option(i); } }))) return;
+        if (!(await speak(sayOption(Q, i), mon, { onStart: () => { shownOpts = Math.max(shownOpts, i + 1); paintOv(); sfx('option', i); } }))) return;
         if (shownOpts <= i) { shownOpts = i + 1; paintOv(); }
       }
       const one = sl.seg === 'solo' || sl.seg === 'vd';
@@ -1561,18 +2022,17 @@ export function stage(app, onBack, { flow = false } = {}) {
     }
     function startThink() {
       const sec = Q.val ? secs('vd' + Q.val) : secs(mode);
-      phase = 'think'; t0 = qT0 = performance.now();
-      timer = { total: sec, end: t0 + sec * 1000 };
-      SFX.go(mode, Q.val ? Q.val / 10 : 2);
+      phase = 'think'; setTimer(sec); qT0 = t0;
+      sfx('go', mode, Q.val ? Q.val / 10 : 2);
       pods.forEach((p, i) => {
         if (answers(i) && p.state !== 'locked') p.state = 'think';
-        if (isMe(i)) return;
+        if (!isBot(i)) return;   // mình / bạn thật khác: tự bấm
         // bạn ảo theo trình độ (npc.js): biết đáp án theo độ khó câu, bạn giỏi nghĩ nhanh hơn, bạn chưa chắc ít bấm chuông
         if (sl.seg === 'common') { const b = buzzPlan(p.skill, { level: qLevel(), round: mode, sec }); p.buzzAt = b.at; p.ok = b.ok; }
         else if (answers(i)) { const d = decide(p.skill, { level: qLevel(), round: mode, sec }); p.plan = d.at; p.ok = d.ok; }
       });
-      // khán giả: bạn ảo theo trình độ; người thật khác trong phòng chưa có máy chủ cầm chương trình thì cũng giả lập (mức khá)
-      seats.forEach(s => { const d = decide(s.skill, { level: qLevel(), round: mode, sec }); s.plan = d.at; s.ok = d.ok; });
+      // khán giả: bạn ảo theo trình độ; bạn thật (real) tự trả lời trên máy mình, máy chủ trò nhận qua 'xi'
+      seats.forEach(s => { if (s.real) { s.plan = Infinity; return; } const d = decide(s.skill, { level: qLevel(), round: mode, sec }); s.plan = d.at; s.ok = d.ok; });
       paintOv();
     }
     /** Mỗi khung hình lúc đang đếm giờ: bạn máy chốt / bấm chuông, khán giả trả lời, hết giờ hay đủ người thì MC đóng câu. */
@@ -1582,16 +2042,16 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (phase === 'pick') { if (up) choosePkg(1); return; }
       if (phase === 'star') { if (up) setStar(false); return; }
       const qel = (now - qT0) / 1000;
-      seats.forEach(s => { if (s.live && !s.mine && s.ans == null && qel >= s.plan) s.ans = s.ok; });
+      seats.forEach(s => { if (s.live && !s.mine && !s.real && s.ans == null && qel >= s.plan) s.ans = s.ok; });
       if (phase === 'think') {
-        if (sl.seg === 'common') { const b = pods.findIndex((p, i) => !isMe(i) && el >= p.buzzAt); if (b >= 0) { buzz(b); return; } }
-        else pods.forEach((p, i) => { if (!isMe(i) && p.state === 'think' && el >= p.plan) botLock(i); });
+        if (sl.seg === 'common') { const b = pods.findIndex((p, i) => isBot(i) && el >= p.buzzAt); if (b >= 0) { buzz(b); return; } }
+        else pods.forEach((p, i) => { if (isBot(i) && p.state === 'think' && el >= p.plan) botLock(i); });
       } else if (phase === 'steal') {
-        const b = pods.findIndex((p, i) => i !== turn && !isMe(i) && el >= p.buzzAt);
+        const b = pods.findIndex((p, i) => i !== turn && isBot(i) && el >= p.buzzAt);
         if (b >= 0) { buzz(b); return; }
       } else if (phase === 'answer') {
         const p = pods[buzzer];
-        if (!isMe(buzzer) && p.state === 'buzz' && el >= p.plan) botLock(buzzer);
+        if (isBot(buzzer) && p.state === 'buzz' && el >= p.plan) botLock(buzzer);
       }
       // người phải trả lời đã chốt thì đóng câu ngay, không chờ hết giờ
       if (phase === 'think') {
@@ -1643,21 +2103,24 @@ export function stage(app, onBack, { flow = false } = {}) {
       // khán giả: đúng được điểm (Về đích bằng điểm câu), điểm hiện trên đầu từng bạn
       const audPts = Q.val || R.aud;
       // khán giả giả lập chưa kịp trả lời (câu lật sớm vì thí sinh đã chốt) phần lớn coi như đã chọn xong
-      seats.forEach(s => { if (s.live && !s.mine && s.ans == null && Math.random() < 0.85) s.ans = s.ok; });
+      seats.forEach(s => { if (s.live && !s.mine && !s.real && s.ans == null && Math.random() < 0.85) s.ans = s.ok; });
       seats.forEach(s => { s.right = s.live && s.ans === true; if (s.right) { s.score += audPts; s.nRight = (s.nRight || 0) + 1; } s.dirty = true; s.react = s.live && !s.mine ? reactOf(s.right) : ''; });
+      presentReveal();
+      afterReveal(res);
+    }
+    /** Lật đáp án trên máy này (máy chủ trò lúc chấm xong, máy hiện theo lúc ảnh chụp sang 'reveal'): âm thanh, pháo giấy của mình. */
+    function presentReveal() {
       paintOv();
-      const order = pods.filter(p => p.state === 'right');
-      const anyRight = order.length > 0;
-      if (sl.seg === 'speed') pods.slice().sort((a, b) => (a.lockAt || 99) - (b.lockAt || 99)).forEach((p, k) => later(() => SFX.ting(k, p.state === 'right'), 300 + k * 320));
+      const anyRight = pods.some(p => p.state === 'right');
+      if (sl?.seg === 'speed') pods.slice().sort((a, b) => (a.lockAt || 99) - (b.lockAt || 99)).forEach((p, k) => later(() => SFX.ting(k, p.state === 'right'), 300 + k * 320));
       else SFX.result(anyRight);
-      if (sl.seg === 'speed' && anyRight) later(() => SFX.result(true), 1700);
-      if (anyRight) later(() => SFX.points(), sl.seg === 'speed' ? 2200 : 700);
+      if (sl?.seg === 'speed' && anyRight) later(() => SFX.result(true), 1700);
+      if (anyRight) later(() => SFX.points(), sl?.seg === 'speed' ? 2200 : 700);
       if (pods.some(p => p.gain < 0)) later(() => SFX.minus(), 900);
-      const mineOk = role() === 'aud' ? meSeat.ans === true : role() === 'pod' && pods[0].state === 'right';
-      if (role() === 'aud' ? meSeat.ans != null : takesPart(0) && role() === 'pod') SFX.mine(mineOk);
+      const mineOk = role() === 'aud' ? meSeat.ans === true : role() === 'pod' && pods[myPod].state === 'right';
+      if (role() === 'aud' ? meSeat.ans != null : role() === 'pod' && takesPart(myPod)) SFX.mine(mineOk);
       if (mineOk) confetti(60);
       livePop();
-      afterReveal(res);
     }
     /** Câu MC nói kết quả của câu vừa lật. [key, vars] */
     function resultLine(res) {
@@ -1688,7 +2151,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (r !== run) return;
       // camera đứng yên ở màn câu hỏi suốt lượt: kết quả hiện ngay trong ô camera trực tiếp (pháo giấy, đèn rọi vàng ở bục bạn
       // đúng); MC nói kết quả. Dải đáp án (huy hiệu kết quả của chính người xem) giữ tới câu sau
-      pods.filter(p => p.state === 'right').forEach((p, k) => later(() => { burst(p); SFX.ting?.(k, true); }, 300 + k * 220));
+      pods.map((p, i) => i).filter(i => pods[i].state === 'right').forEach((i, k) => later(() => fxRun('burst', i, k), 300 + k * 220));
       const ln = resultLine(res);
       if (ln && !(await host(ln[0], ln[1]))) return;
       const fan = topFan(), lastOfTurn = si >= slots.length || slots[si].seg !== sl.seg || slots[si].who !== sl.who;
@@ -1704,11 +2167,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     async function recap(fan) {
       const r = run;
       ov.hidden = true;
-      const base = viewOf(findCam('crowd'));
-      const sh = (k) => ({ pos: [base.pos[0] + 2.5 * k, base.pos[1], base.pos[2]], target: [base.target[0] + 6 * k, base.target[1], base.target[2]], fov: base.fov });
-      camCur = 'crowd'; paintCams();
-      flyCam(sh(-1), true);
-      flyCam(sh(1), false, { dur: reduce ? 10000 : 8000, lift: 0 });
+      fxRun('pan');
       showBoard();
       if (fan && !(await host(fan.score > 0 ? 'audTop' : 'audNone', { ten: fan.name, diem: fan.score }))) return false;
       await wait(500);
@@ -1755,8 +2214,8 @@ export function stage(app, onBack, { flow = false } = {}) {
       Q = null; phase = 'done'; timer = null; scrDirty = true; sl = null; turn = -1; buzzer = -1; vd = null;
       ov.hidden = true;
       pods.forEach(p => { p.state = 'idle'; p.star = false; });
-      cam('wide');
-      SFX.result?.(true);
+      camX('wide');
+      sfx('result', true);
       const top = leader();
       const key = { khoidong: 'kdEnd', tangtoc: 'ttEnd' }[mode];
       if (key && !(await host(key, { ten: top.name, diem: top.score }))) return;
@@ -1774,25 +2233,33 @@ export function stage(app, onBack, { flow = false } = {}) {
       }
       if (m === 'win') {
         await wait(2000);
+        if (r !== run) return;
         const best = [...pods].sort((a, b) => b.score - a.score);
-        const winAt = Date.now();
+        // 🏆 bục vinh danh: toàn cảnh bốn khối trống, rồi MC đọc từ hạng tư lên, camera áp lại khối của từng bạn. Sao, giấy chứng
+        // nhận, màn thu sao của mình: mỗi máy tự tính trong FX (stand, audStars, end) từ điểm chung
+        fxRun('awardStart', Date.now());
         if (!(await host('awardOpen'))) return;
-        for (const [k, p] of [['rank4', best[3]], ['rank3', best[2]], ['rank2', best[1]], ['champ', best[0]], ['champPts', best[0]]]) {
+        for (const [k, rank] of [['rank4', 3], ['rank3', 2], ['rank2', 1], ['champ', 0]]) {
+          const p = best[rank];
+          fxRun('awardCam', rank);
+          await wait(reduce ? 1400 : 1000);
+          if (r !== run) return;
+          fxRun('stand', pods.indexOf(p), rank, k);
           if (!(await host(k, { ten: p.name, diem: p.score }))) return;
-          // giấy chứng nhận của mình: MC đọc tới hạng của mình thì giấy bay lên, chữ ký chạy nét, lưu vào Thành tích
-          if (k !== 'champPts' && meOnPod && p === pods[0]) giveCert({ kind: k, name: p.name, score: p.score, rounds: { ...p.rs }, at: winAt });
         }
+        // đủ bốn bạn: toàn cảnh, giấy rơi ngập sân khấu, cả khán phòng mừng
+        fxRun('rain');
+        if (!(await host('champPts', { ten: best[0].name, diem: best[0].score }))) return;
         const fan = topFan();
         if (fan && fan.score > 0) {
-          cam('crowd');
+          camX('crowd');
           if (!(await host('audBest', { ten: fan.name, diem: fan.score }))) return;
-          if (fan.mine) giveCert({ kind: 'aud', name: fan.name, score: fan.score, right: fan.nRight || 0, total: qDone, at: winAt });
-          cam('front');
+          fxRun('awardCam', -1);
         }
+        fxRun('audStars');
         if (!(await say('thanks', 'bye')) || r !== run) return;
-        // hết chương trình: flow.js hiện thẻ kết thúc (điểm của mình, lượt tới)
-        const me = seats.find(s => s.mine);
-        api.onShowEnd?.({ onPod: meOnPod, score: meOnPod ? pods[0].score : me?.score || 0, rank: meOnPod ? best.indexOf(pods[0]) + 1 : 0 });
+        // ⭐ màn thu sao của mình, rồi thẻ kết thúc (flow.js)
+        fxRun('end');
         return;
       }
       if (!ROUNDS[m].sec) return;
@@ -1804,10 +2271,9 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (!(await say(...keys))) return;
       nextSlot();
     }
-    function setMode(m) {
-      clearLater(); run++; mcStop();
-      mode = m; phase = 'none'; timer = null; Q = null; qn = 0; picks = []; scrDirty = true;
-      sl = null; turn = -1; buzzer = -1; vd = null; mAlt = 0; lastMon = -1;
+    /** Đổi vòng trên màn hình (màu đèn, nút vòng, góc máy, nhạc): máy chủ trò trong setMode, máy hiện theo khi ảnh chụp đổi vòng. */
+    function modeLook(m) {
+      mode = m;
       setMcRate(gradeNow() <= 2 ? 1.05 : 1.2);   // MC đọc nhanh hơn 1,2 lần (lớp 1–2 vẫn chậm hơn một chút: 0,88 × 1,2)
       ov.hidden = true; ov.innerHTML = '';
       boardEl.hidden = true;
@@ -1815,15 +2281,24 @@ export function stage(app, onBack, { flow = false } = {}) {
       const R = ROUNDS[m];
       neon.a.emissive.set(R.a); neon.b.emissive.set(R.b);
       beams.forEach((b, i) => b.cone.material.color.set(i % 2 ? R.b : R.a));
-      pods.forEach(p => { p.state = 'idle'; p.star = false; p.gain = 0; });
-      seats.forEach(s => { s.right = false; s.ans = null; s.dirty = true; });
-      if (m === 'open' || m === 'idle') { pods.forEach(p => { p.score = 0; p.shown = 0; p.rs = { kd: 0, tt: 0, vd: 0 }; }); seats.forEach(s => { s.score = 0; s.nRight = 0; }); qDone = 0; }
-      turnBase = pods.map(p => p.score);
+      if (awardOn) showAward(false);   // rời Trao giải: các bạn về bục thí sinh, bục vinh danh cất đi
+      rainOn = false;
       cam(m === 'win' ? 'front' : 'wide');
       if (m === 'idle') { SFX.stopAll(); SFX.lobby(true); }
       else if (m === 'open') SFX.intro();
       else if (m === 'win') SFX.champ();
       else SFX.round(m);
+    }
+    function setMode(m) {
+      if (following()) return;   // máy hiện theo: vòng đổi theo ảnh chụp của máy chủ trò
+      clearLater(); run++; mcStop();
+      phase = 'none'; timer = null; Q = null; qn = 0; picks = []; scrDirty = true;
+      sl = null; turn = -1; buzzer = -1; vd = null; mAlt = 0; lastMon = -1;
+      modeLook(m);
+      pods.forEach(p => { p.state = 'idle'; p.star = false; p.gain = 0; });
+      seats.forEach(s => { s.right = false; s.ans = null; s.dirty = true; });
+      if (m === 'open' || m === 'idle') { pods.forEach(p => { p.score = 0; p.shown = 0; p.rs = { kd: 0, tt: 0, vd: 0 }; }); seats.forEach(s => { s.score = 0; s.nRight = 0; }); qDone = 0; }
+      turnBase = pods.map(p => p.score);
       slots = buildSlots(m); si = 0;
       qTotal = slots.filter(s => s.seg !== 'pick').length + slots.filter(s => s.seg === 'pick').length * 3;
       intro(m);
@@ -1967,12 +2442,14 @@ export function stage(app, onBack, { flow = false } = {}) {
       syncCamLock();
       stepCam(now);
       stepCelebrate(dt);
+      if (awardOn) stepAward(dt);
       camMove(dt);
       controls.update();
       camRead();
       const R = ROUNDS[mode];
       // bạn máy chốt / bấm chuông, khán giả trả lời; người phải trả lời đã chốt hoặc hết giờ thì sang bước sau
-      stepRound(now);
+      if (hosting()) stepRound(now);
+      if (sync?.host && now - snapT > 100) { snapT = now; flushSnap(); }   // ảnh chụp cho cả phòng (chỉ gửi khi có gì đổi)
       // đèn quét
       // máy bật giảm chuyển động: vẫn quét nhưng chậm, biên độ nhỏ, không nhấp nháy (bản êm, không tắt hẳn)
       const speed = reduce ? 0.3 : mode === 'tangtoc' ? 2.2 : mode === 'win' ? 1.6 : 0.6;
@@ -2006,7 +2483,9 @@ export function stage(app, onBack, { flow = false } = {}) {
         p.bell.material.emissiveIntensity = st === 'buzz' ? 2 + 5 * flash : 1.6;
         p.tabScr.material.emissive.set(st === 'locked' ? '#ffffff' : '#2f6bff');
         if (p.shown !== p.score) p.shown = p.shown < p.score ? Math.min(p.score, p.shown + 0.6) : Math.max(p.score, p.shown - 0.6); // điểm chạy số (cả lúc bị trừ)
-        if (p.pupil) {
+        if (awardOn) p.spot.intensity = 8;   // trao giải: bục thí sinh tối, ánh sáng dồn về bục vinh danh
+        if (p.award) { /* đứng trên bục vinh danh: stepAward lo dáng và nhịp */ }
+        else if (p.pupil) {
           // đúng: kiểu mừng rút ở reveal (p.joy); giảm chuyển động thì vẫn mừng nhưng chậm lại, không đứng hình
           pupilPlay(p.pupil, st === 'right' ? p.joy || 'cheer' : 'idle', { fade: 0.25, at: Math.random() * 0.3 });
           p.pupil.mixer.update(reduce && st === 'right' ? dt * 0.6 : dt);
@@ -2166,7 +2645,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     }
     function onKey(e) {
       if (e.target.closest?.('input, select, textarea')) return;
-      if (e.code === 'Space' && e.type === 'keydown' && canBuzz()) { e.preventDefault(); buzz(0); return; }
+      if (e.code === 'Space' && e.type === 'keydown' && canBuzz()) { e.preventDefault(); doBuzz(); return; }
       if (camLock) return;
       const num = /^Digit([1-9])$/.exec(e.code);
       if (num && e.type === 'keydown') { const p = allCams()[num[1] - 1]; if (p) cam(p.id); return; }
@@ -2270,7 +2749,9 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (st.live && name && name !== st.name) st.score = 0;   // người khác ngồi vào: điểm về 0 (đổi bộ đồ thì giữ)
       if (name) st.name = name;
       if (st.live && !st.name) st.name = 'Bạn';
-      st.skill = skill;
+      // 'real': bạn thật khác (flow.js): máy chủ trò không giả lập câu trả lời, chờ bạn ấy gửi ('xi' aud)
+      st.real = skill === 'real';
+      st.skill = st.real ? 'kha' : skill;
       st.dirty = true;
       if (meSeat && meSeat !== st) meSeat.dirty = true;
       if (mine && kind >= 0) meSeat = st; else if (meSeat === st) meSeat = null;
@@ -2297,11 +2778,33 @@ export function stage(app, onBack, { flow = false } = {}) {
     }
     const api = { setMode, cam, cert: (kind = 'champ') => giveCert({ kind, name: pods[0].name || 'Bạn', score: 240, rounds: { kd: 110, tt: 70, vd: 60 }, right: 30, total: 44, at: Date.now() }), seatPupil, seatCam, setPods, seatIds: SEAT_IDS, get mode() { return mode; }, onBack: null, onShowEnd: null,
       // thử tự động (scripts): xem bước đang chạy, chọn đáp án / bấm chuông thay người cầm máy
-      peek: () => ({ mode, phase, wait: [mcArrive(), arena === null], cap: capEl.classList.contains('is-on') ? capEl.textContent : '', seg: sl?.seg, turn, buzzer, qn, qTotal, val: Q?.val, a: Q?.a, kind: Q?.kind, tag: Q?.tag, fig: !!Q?.fig, star: vd?.star,
+      seat: (id) => { const st = seatById.get(id); return st && { score: st.score, real: !!st.real, mine: !!st.mine, live: st.live }; },
+      peek: () => ({ me: myPod, mySeat: meSeat?.id, mode, phase, wait: [mcArrive(), arena === null], cap: capEl.classList.contains('is-on') ? capEl.textContent : '', seg: sl?.seg, turn, buzzer, qn, qTotal, val: Q?.val, a: Q?.a, kind: Q?.kind, tag: Q?.tag, fig: !!Q?.fig, star: vd?.star,
         pods: pods.map(p => [p.state, p.score]), aud: seats.filter(x => x.live).slice(0, 4).map(x => [x.name, x.score]) }),
       mcHome: () => mcs.forEach(m => { if (m.home) { m.fig.position.copy(m.home); m.fig.rotation.y = m.homeH; m.at = 'home'; m.go = null; } }),
       jump: (k) => { si = k; },
-      pick: (i) => onPick(i), bell: () => { if (canBuzz()) buzz(0); }, pkg: (k) => choosePkg(k), star: (on) => setStar(on) };
+      scores: (list) => list.forEach((v, i) => { pods[i].score = pods[i].shown = v; }),   // thử Trao giải với điểm cho sẵn
+      // dựng tay từng bước bục vinh danh (máy chạy không đầu quá chậm để chờ MC đọc): freeze dừng chuỗi lời MC của vòng
+      award: { freeze: () => { run++; clearLater(); mcStop(); }, show: (on) => showAward(on), stand: (i, r) => standOn(pods[i], r, podStars(r, pods[i].score)),
+        cam: (r) => { flyCam(r < 0 ? awardWide() : awardClose(r), true); camCur = 'award'; }, rain: (on) => { rainOn = on; },
+        collect: (n = 71) => collectStars({ n, total0: 1240, badge: '🥈', title: 'Á quân', lines: ['Giải hạng 2: 35 sao', `180 điểm: thêm ${n - 35} sao`] }),
+        aud: (t4Score, t4Stars, top, me) => audStarsRule(t4Score, t4Stars, top)(me) },
+      pick: (i) => onPick(i), bell: () => doBuzz(), pkg: (k) => doPkg(k), star: (on) => doStar(on),
+      /* chương trình chung (flow.js): multi({ host, myId, net }) đặt / đổi vai; snap / fx / input: tin từ máy chủ phòng;
+         onPods: (máy hiện theo) bục theo máy chủ trò đổi, flow.js cập nhật ghế trống và góc nhìn của mình */
+      multi: (o) => {
+        const was = sync;
+        sync = o ? { host: !!o.host, myId: o.myId || 0, net: o.net } : null;
+        snapKey = '';
+        if (!sync) return;
+        if (sync.host && was && !was.host && mode !== 'idle') resume();   // nhận quyền chủ trò giữa chương trình
+        else if (!sync.host) { if (!was || was.host) { run++; clearLater(); } if (lastSnap) applySnap(lastSnap); }
+      },
+      get host() { return hosting(); },
+      /** Bạn thật trên bục rời phòng giữa chương trình: máy chủ trò chơi thay bạn ấy như bạn ảo (mức khá), bục không đứng im. */
+      podGone: (id) => { pods.forEach(p => { if (!p.me && p.rid === id) { p.rid = 0; p.skill = p.skill || 'kha'; } }); },
+      snap: (o) => applySnap(o), fx: (name, args = []) => { if (following() && FX[name]) FX[name](...args); }, input: (from, type, a) => input(from, type, a),
+      onPods: null };
     window.__arena = api;
 
     const canvas = renderer.domElement;

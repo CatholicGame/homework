@@ -108,12 +108,13 @@ function plan(grade, seed) {
  * @param {number} o.frac
  * @param {Iterable<string>} [o.taken] ghế người thật đang ngồi (kể cả ghế mình)
  * @param {number} [o.real] số người thật trong phòng
+ * @param {number} [o.fill] số bạn ảo tối đa của lượt này (liveCount.js roomNpc: một phần của số "đang học"); mặc định FILL
  * @returns {{ npc: object, seat: string }[]} bạn ảo đang ngồi và ghế của họ, theo thứ tự vào
  */
-export function audienceAt({ grade, seed, frac, taken = [], real = 0 }) {
+export function audienceAt({ grade, seed, frac, taken = [], real = 0, fill = FILL }) {
   const { list, seats } = plan(grade, seed);
   const busy = new Set(taken);
-  const cap = Math.max(0, Math.min(list.length, FILL - real, SEAT_IDS.length - busy.size - 2));
+  const cap = Math.max(0, Math.min(list.length, fill, FILL - real, SEAT_IDS.length - busy.size - 2));
   // ai đến hôm nay: `cap` bạn đầu theo thứ tự bốc thăm (người thật vào thêm thì bạn cuối danh sách về); rồi ai tới giờ vào thì ngồi
   const here = [...list].sort((x, y) => x.order - y.order).slice(0, cap)
     .filter(m => m.at <= frac).sort((x, y) => x.at - y.at || x.order - y.order);

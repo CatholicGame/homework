@@ -259,6 +259,10 @@ h1, h2, h3, .section-title { letter-spacing: 0.005em; }
 /* Giờ LIVE 19:00–22:30 (home.js isLiveNow): .hm.is-live-on hiện bản "đang diễn ra", ngoài giờ hiện bản "mở lúc 19:00" */
 .hm:not(.is-live-on) .hm-when-on, .hm.is-live-on .hm-when-off { display: none !important; }
 .hm-live-time { font-size: 14px; font-weight: 800; color: #ffd250; }
+/* Có bạn thật đang chơi (home.js startLiveClock, GET /status của phòng arena): thay dòng giờ bằng "Đang diễn ra, N bạn đang chơi" */
+.hm-when-real { display: none; }
+.hm.is-live-real .hm-live-time .hm-when-real { display: inline; }
+.hm.is-live-real .hm-live-time > :not(.hm-when-real) { display: none !important; }
 .hm-live-badge.is-soon { background: rgba(255, 255, 255, 0.16); box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.35); letter-spacing: 0.02em; }
 /* Ngoài giờ: sân khấu tắt bớt đèn */
 .hm:not(.is-live-on) .hm-live { background: linear-gradient(120deg, #2a3366 0%, #1b2150 60%, #141838 100%); box-shadow: 0 8px 22px rgba(30, 42, 120, 0.25), 0 0 0 1.5px rgba(255, 255, 255, 0.18); }

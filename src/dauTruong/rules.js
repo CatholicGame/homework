@@ -14,6 +14,13 @@ export const OPEN_BEFORE = 15 * 60e3;
 export const LIVE_MS = 45 * 60e3;
 /** Phòng thử (`arena-g3-test`) và máy chủ dev: bắt đầu sau từng này kể từ khi phòng có người đầu tiên. */
 export const TEST_LEAD = 90e3;
+/**
+ * Phòng mở mọi lúc, lượt cuốn chiếu (2026-11-09): người đầu tiên vào thì sảnh chờ TEST_LEAD, đủ 4 bạn trên bục là bắt đầu
+ * (người thật bật "Em muốn lên bục" lên trước, thiếu thì MC mời bạn ảo), hết lượt mà còn người thì mở lượt mới ngay.
+ * false: quay về lịch SLOTS (phòng đóng ngoài giờ). Đổi thì deploy cả Worker lẫn web.
+ */
+export const ALWAYS_OPEN = true;
+
 
 /**
  * Lịch tạm, chờ tab 📅 Lịch của admin (thiet-ke.md §12, Firestore arenaEvents): mỗi buổi { at: 'HH:MM' giờ VN, days: thứ trong

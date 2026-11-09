@@ -1,6 +1,7 @@
 /**
  * Kiểm thử phòng Đấu Trường Nhí (`arena-g<lớp>`, realtime/room.js + src/dauTruong/rules.js): lịch, vào phòng, ghế, nối lại giữ ghế,
- * "Em muốn lên bục", phòng thử bắt đầu ngay, trang cũ. `npm test` trong realtime/.
+ * "Em muốn lên bục", phòng thử bắt đầu ngay, trang cũ, chương trình chung (máy chủ trò, ảnh chụp, thao tác, đổi chủ trò).
+ * `npm test` trong realtime/.
  */
 import { spawn } from 'node:child_process';
 import assert from 'node:assert/strict';
@@ -107,6 +108,34 @@ try {
   const [, s3] = await b.next('A', (m) => m[1].step === 'live', 8000);
   assert.ok(s3.now >= s3.startAt);
 
+  // chương trình chung: máy chủ trò = người ngồi ghế vào sớm nhất còn trong phòng (A đã nối lại nên mã mới, B có mã nhỏ hơn)
+  const [, idA2] = [0, back.id];
+  assert.equal(s3.host, idB);
+  assert.equal(s3.free, 1);
+  assert.ok(s3.round > 0);
+  // máy chủ trò gửi ảnh chụp (dài hơn tin thường) và hiệu ứng: người khác nhận; máy không phải chủ trò gửi thì bị bỏ
+  const big = { mode: 'khoidong', pad: 'x'.repeat(3000) };
+  b.send(['xs', big]);
+  const [, gotSnap] = await a2.next('xs');
+  assert.equal(gotSnap.pad.length, 3000);
+  b.send(['xf', 'say', 'Xin chào', 0]);
+  assert.deepEqual((await a2.next('xf')).slice(1), ['say', 'Xin chào', 0]);
+  a2.send(['xs', { mode: 'gia' }]);
+  await assert.rejects(b.next('xs', null, 600));
+  // thao tác của A chuyển tới máy chủ trò kèm mã của A
+  a2.send(['xi', 'lock', 1, 2, 3.5, 9]);
+  assert.deepEqual(await b.next('xi'), ['xi', idA2, 'lock', 1, 2, 3.5, 9]);
+  // người vào giữa chương trình: nhận ngay ảnh chụp cuối
+  const d = client();
+  await d.open;
+  d.send(hi({ n: 'Dũng', r: 'phien-cua-d-01' }));
+  await d.next('hi');
+  assert.equal((await d.next('xs'))[1].mode, 'khoidong');
+  // máy chủ trò rời phòng: người ngồi ghế kế tiếp (A) nhận quyền
+  b.ws.close();
+  await a2.next('A', (m) => m[1].host === idA2);
+  d.ws.close();
+
   // phòng của lớp khác là phòng riêng
   const c = client('arena-g5');
   await c.open;
@@ -114,7 +143,7 @@ try {
   const [, , peersC] = await c.next('hi');
   assert.equal(peersC.length, 0);
 
-  for (const x of [a2, b, c]) x.ws.close();
+  for (const x of [a2, c]) x.ws.close();
   await wait(100);
   console.log('arena: ok');
 } finally {

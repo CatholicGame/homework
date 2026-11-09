@@ -26,7 +26,7 @@ const http = createServer((req, res) => {
   res.writeHead(200, { 'content-type': 'text/plain' });
   res.end('kinh-thanh rooms (dev)\n');
 });
-const wss = new WebSocketServer({ noServer: true, maxPayload: 16384 });
+const wss = new WebSocketServer({ noServer: true, maxPayload: 32768 });
 
 http.on('upgrade', (req, socket, head) => {
   const key = roomKey(new URL(req.url, 'http://x').pathname);

@@ -206,7 +206,10 @@ chương trình vẫn chạy theo phụ đề, chờ đủ thời gian đọc.
 - Hòa hạng nhất: một câu bấm chuông, ai bấm trước trả lời; sai thì quyền sang bạn kia.
 - Trao giải: màn lớn bảng xếp hạng, đèn vàng, pháo giấy, bạn hạng nhất bước ra trước bục, khán phòng vỗ tay; Khán giả xuất sắc
   (top 3 điểm khán giả) được MC gọi tên và đèn ghế của các bạn ấy sáng vàng.
-- Thưởng **sao** vào sổ sao chung (`awardFixedStars`, khoá `dautruong<lớp>:<lượt>:<vai>`), có trần mỗi ngày như Ai là thần đồng.
+- Thưởng **sao** vào sổ sao chung (`awardFixedStars`, khoá `dautruong<lớp>:<lúc trao giải>:pod|aud`), **tối đa 100 sao mỗi buổi**. Thí sinh: theo hạng 50 / 35 / 25 / 15 + điểm ÷ 5 (tối đa thêm 50). Khán giả: cao nhất cũng chỉ bằng sao của thí sinh hạng tư (T4): khán giả điểm cao nhất ≥ điểm T4 thì bằng sao T4, thấp hơn thì sao T4 × điểm bạn ấy ÷ điểm T4; các bạn khác = sao khán giả cao nhất × điểm mình ÷ điểm khán giả cao nhất. Bạn ảo hiện sao trên bục vinh danh nhưng không ghi sổ; sân khấu thử chỉ hiện, không cộng.
+- **Bục vinh danh**: bốn khối giữa sân khấu (trái → phải 4 · 2 · 1 · 3), MC đọc hạng nào thì camera áp lại khối đó, bạn ấy bật lên, cúi chào rồi mừng, đeo huy chương vàng / bạc / đồng / xanh, cột sáng + pháo giấy; đủ bốn bạn thì toàn cảnh, giấy rơi ngập sân khấu, bục thí sinh tối đi. Mặt khối ghi hạng, tên, sao. Mừng luân phiên: mỗi bạn tự đổi kiểu sau vài giây, ngẫu nhiên, không trùng bạn bên cạnh; quán quân đổi nhanh, toàn kiểu sôi nổi, nhún nhảy.
+- **Màn thu sao** (sau lời chào cuối): thẻ phần thưởng của mình (huy hiệu, số sao, dòng giải thích), chạm "Nhận sao" (tự nhận sau 8 giây) thì sao bay lên ô tổng sao, ô đếm tăng dần. Sao đã ghi sổ trước nên rời trang giữa chừng không mất. Rồi tới thẻ kết thúc: **Về sảnh** (giờ lượt sau, Thành tích) hoặc **🏠 Trang chủ**.
+- Thử: `scripts/.tmp/dt-award.mjs`, `scripts/.tmp/dt-collect.mjs` (hook `__arena.award`).
 
 ---
 
@@ -375,6 +378,19 @@ Vẽ bằng SVG: `src/dauTruong/cert.js` (`certSvg`, `certNo`, `CERT_KINDS`, `CE
 
 ## 10. Máy chủ phòng (dùng lại `realtime/` của homework)
 
+> **Đã làm 2026-11-09: một chương trình cho cả phòng qua máy chủ trò** (thay cho `realtime/arena.js` dưới đây, chưa cần).
+> - Máy chủ phòng chọn **máy chủ trò** = người ngồi ghế vào sớm nhất còn trong phòng (`Room.arenaHost`, gửi trong `A.host`).
+> - Máy chủ trò chạy cả lượt như chơi một mình (MC, đồng hồ, bạn ảo, chấm điểm, `src/games/dauTruong.js`) và gửi `xs` (ảnh chụp:
+>   vòng, bước, câu, đồng hồ, 4 bục, điểm khán phòng; chỉ khi đổi, soát 10 lần/giây) + `xf` (lời MC, âm thanh, góc máy, pháo giấy,
+>   trao giải). Máy khác hiện theo (`applySnap`), không tự chạy bước nào.
+> - Thao tác của mọi bạn thật (chọn đáp án, bấm chuông, chọn gói, đặt sao, khán giả trả lời) đi `xi` tới máy chủ trò, máy ấy nhận như
+>   khi bấm trên chính nó (chỉ đúng lúc bạn ấy được làm). Sao, giấy chứng nhận, màn thu sao: từng máy tự tính từ điểm chung.
+> - Máy chủ trò rời phòng: người kế nhận quyền, chạy tiếp từ ảnh chụp cuối (`resume`: câu đã lật thì sang bước sau, câu đang hỏi thì
+>   hỏi câu khác cùng lượt). Bạn thật trên bục rời phòng: máy chủ trò chơi thay (mức khá). Người vào giữa chừng nhận ảnh chụp cuối.
+> - Bục và khán phòng ảo giống nhau trên mọi máy: bạn thật xếp theo thứ tự vào phòng, hạt giống theo mã lượt `A.round`.
+> - Chương trình xong: máy chủ trò gửi `xe`, 30 giây sau phòng mở lượt mới. Thử: `realtime/test-arena.mjs`,
+>   `scripts/.tmp/dt-sync.mjs` (3 máy: chủ trò, bạn trên bục, khán giả; đổi chủ trò), `dt-sync-win.mjs` (trao giải trên máy hiện theo).
+
 - Phòng `arena-g{lop}` (`arena-g3`, `arena-g3~2`…), cạnh `studio-g{lop}` của Ai là thần đồng, `capOf` = 50. Phòng thử
   `arena-g3-test`: không cần đủ người, bạn máy lấp chỗ.
 - Máy chủ phòng chưa deploy (`docs/thandong.md`, mục Deploy): deploy một lần dùng cho cả hai chương trình.
@@ -404,6 +420,13 @@ Chỉ màn ngang (như trường quay). Nửa trên là cảnh 3D, **dải trả
 ---
 
 ## 12. Lịch lượt chơi (admin đặt)
+
+> **2026-11-09: phòng mở mọi lúc** (`ALWAYS_OPEN` trong `src/dauTruong/rules.js`, tắt thì quay về lịch dưới đây). Người đầu tiên vào
+> mở sảnh chờ 90 giây, đủ 4 bục là bắt đầu, hết lượt còn người thì mở lượt mới. Bục ưu tiên người thật bật "Em muốn lên bục"
+> (máy chủ báo `['pw', id, 0|1]`), thiếu thì MC mời bạn ảo. Trang chủ và sảnh: có bạn thật đang chơi thì "🔴 Đang diễn ra, N bạn
+> đang chơi"; không thì "🟢 X bạn trong phòng, đang chờ thêm bạn 2/4 (3/4)". Số trong phòng = `roomNpc` (`src/engine/liveCount.js`):
+> 15–30% số đệm "người đang học" cùng lúc, ít nhất 3 (đủ bục), luôn nhỏ hơn số đang học; số đệm thấp nhất 5 (cả ban đêm).
+> Không còn chế độ "chơi thử một mình" / "Xem sân khấu thử" ở sảnh.
 
 - Trang `#admin` thêm tab **📅 Lịch** (`src/games/admin.js`, cạnh 👧 Học sinh, ⭐ Đánh giá, 🔊 Giọng đọc): tạo lượt với **lớp**,
   **ngày giờ bắt đầu** (giờ Việt Nam), lặp lại (không / hằng ngày / các thứ trong tuần), ghi chú. Sửa, xoá, xem lượt sắp tới và lượt

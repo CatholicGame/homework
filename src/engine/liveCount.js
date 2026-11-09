@@ -16,10 +16,11 @@ const PEAKS = {
 };
 const WEEKEND = [6, 0];   // thứ Bảy, Chúa Nhật
 // Ngoài giờ đông người. Ngày thường bé đi học nên chủ yếu số thật, chỉ đệm vài người như có khách ghé.
-const QUIET = { weekday: [3, 10], weekend: [7, 20] };
+// Thấp nhất 5 (ban ngày): phòng Đấu Trường Nhí có ít nhất 3 bạn ảo (đủ bục) mà số trong phòng phải nhỏ hơn số đang học.
+const QUIET = { weekday: [5, 12], weekend: [7, 20] };
 const RAMP = 0.75;        // giờ lên / xuống dần trước giờ bắt đầu và sau giờ kết thúc
-const NIGHT = [22.5, 6];  // ban đêm: không cộng số đệm, chỉ hiện số thật
-const FADE = 0.5;         // giờ giảm dần về số thật trước NIGHT[0] (22h → 22h30)
+const NIGHT = [23.5, 8];  // ban đêm 23h30–8h: chỉ số thật, không cộng số đệm (user 2026-11-09)
+const FADE = 0.5;         // giờ giảm dần về 0 trước NIGHT[0] (23h → 23h30)
 
 const BEAT = 4 * 60e3;        // ghi presence
 const WINDOW = 6 * 60e3;      // ai ghi trong khoảng này thì đang học
@@ -70,8 +71,37 @@ export function buffer(t = Date.now()) {
     const k = level(h, start, end);
     v = Math.max(v, quiet * (1 - k) + at(lo, hi) * k);
   }
-  // Người ra người vào: mỗi phút một hệ số ngẫu nhiên ±12% quanh mức.
-  return Math.round(v * fade * (1 + hash(Math.floor(t / 60e3) * 13 + 9) * 0.12));
+  // Người ra người vào: mỗi phút một hệ số ngẫu nhiên ±12% quanh mức; 23h–23h30 giảm dần về 0.
+  const v2 = v * (1 + hash(Math.floor(t / 60e3) * 13 + 9) * 0.12);
+  return fade < 1 ? Math.round(v2 * fade) : Math.max(QUIET.weekday[0], Math.round(v2));
+}
+
+// ── Đấu Trường Nhí: số bạn trong phòng theo số đang học ─────────────────────
+/** Ít nhất 3 bạn ảo (đủ bục cùng một bạn thật), nhiều nhất bằng sức chứa khán phòng ảo (npc.js FILL). */
+const ROOM_MIN = 3, ROOM_MAX = 34;
+/**
+ * Số bạn ảo trong phòng một lớp của Đấu Trường Nhí lúc t: một phần nhỏ của số đệm "đang học" cùng lúc (15–30%, nhiễu trơn
+ * 30 phút), vì người đang học chia cho 5 lớp và phần lớn đang làm bài khác. Luôn nhỏ hơn số đệm (số đệm thấp nhất 5).
+ */
+export function roomNpc(t = Date.now(), buf = buffer(t)) {
+  const share = 0.15 + 0.15 * clamp01((smooth(t, 30 * 60e3, 21) * 1.5 + 1) / 2);
+  return Math.max(ROOM_MIN, Math.min(ROOM_MAX, buf - 2, Math.floor(buf * share)));
+}
+/**
+ * Lời mời "đang chờ thêm bạn 2/4, 3/4" (bục đã có người) khi chưa ai chơi: đổi 2 phút một lần, mọi máy cùng số;
+ * waiting: số bạn thật đang chờ trong phòng (không hiện ít hơn), tối đa 3/4.
+ */
+export function waitFill(t = Date.now(), waiting = 0) {
+  const fake = 2 + (hash(Math.floor(t / 120e3) * 7 + 3) > -0.15 ? 1 : 0);
+  return Math.min(3, Math.max(fake, waiting));
+}
+/**
+ * Số "đang học" và số trong phòng Đấu Trường lúc này (cùng mốc slot() với dòng 🟢 ở trang chủ).
+ * night: ban đêm (số đệm dưới 5, 23h–8h): chỉ có người thật, không hiện số phòng / lời mời giả.
+ */
+export function liveNow() {
+  const t = slot(), buf = buffer(t);
+  return { learning: real + buf, room: roomNpc(t, buf), night: buf < ROOM_MIN + 2 };
 }
 
 // ── Số thật ──────────────────────────────────────────────────────────────────

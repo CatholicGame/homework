@@ -14,9 +14,9 @@ Số đệm được tính từ đồng hồ theo giờ Việt Nam (UTC+7), khô
 |---|---|---|
 | Giờ học | 17h30–22h: 50–100 | 9h–22h: 50–100 |
 | Buổi trưa (phụ huynh vào xem) | 11h30–12h30: 30–60 | nằm trong giờ học |
-| Giờ khác | 3–10 (bé đi học, chủ yếu số thật) | 7–20 |
-| 22h–22h30 | giảm dần về 0 | giảm dần về 0 |
-| Ban đêm 22h30–6h | 0 (chỉ số thật) | 0 (chỉ số thật) |
+| Giờ khác | 5–12 (bé đi học, chủ yếu số thật; thấp nhất 5 để phòng Đấu Trường Nhí ≥ 3 bạn vẫn ít hơn số đang học) | 7–20 |
+| 23h–23h30 | giảm dần về 0 | giảm dần về 0 |
+| Ban đêm 23h30–8h | 0 (chỉ số thật) | 0 (chỉ số thật) |
 
 - **Lên xuống dần:** số tăng dần trong 45 phút trước giờ bắt đầu (vd. 16h45–17h30, 10h45–11h30, 8h15–9h) và giảm dần trong 45 phút sau giờ kết thúc (`RAMP`), không nhảy bậc.
 - **Đứng yên 5–10 phút:** số đệm chỉ đổi ở mốc chung của mọi máy, 5 phút một mốc (`HOLD`); cặp mốc liền nhau có lúc gộp làm một, nên số đứng yên lúc 5, lúc 10 phút rồi mới đổi. Giữa hai mốc, số trên màn hình chỉ đổi khi số thật đổi (có người thật vào ra).

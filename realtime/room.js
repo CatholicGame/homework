@@ -55,9 +55,14 @@
  * nhân vật "p:<số>"; ghế là A1…E10. Ngoài giờ (step 'closed') máy chủ gửi ['A', …] rồi đóng 4004 (client không nối lại).
  * client → server
  *   ['want', 0 | 1]                            bật / tắt "Em muốn lên bục"
- *   ['start']                                  (phòng thử, máy dev) bắt đầu sau 5 giây
+ *   ['start']                                  (phòng cuốn chiếu: đủ 4 bục) bắt đầu sau 5 giây
+ *   ['xi', loại, ...]                          thao tác trong chương trình, máy chủ chuyển cho máy chủ trò
+ *   ['xs', ảnh chụp] / ['xf', …] / ['xe']      (chỉ máy chủ trò) ảnh chụp, hiệu ứng, chương trình đã xong
  * server → client
- *   ['A', { step, startAt, now, people, want, test }]  bước của phòng ('lobby' sảnh chờ | 'live' đang diễn | 'closed'), giờ bắt
+ *   ['pw', id, 0 | 1]                          người id bật / tắt "Em muốn lên bục" (bục ưu tiên người thật)
+ *   ['xs', ảnh chụp] / ['xf', tên, ...]        (từ máy chủ trò) trạng thái chương trình / hiệu ứng (MC nói, góc máy, âm thanh…)
+ *   ['xi', id, loại, ...]                      (gửi máy chủ trò) thao tác của bạn id: lock / buzz / pkg / star / aud
+ *   ['A', { step, startAt, now, people, want, test, free, round, host }]  bước của phòng ('lobby' sảnh chờ | 'live' đang diễn | 'closed'), giờ bắt
  *                                              đầu, giờ máy chủ (để đếm ngược đúng), số người thật đã ngồi, số người muốn lên bục;
  *                                              gửi khi có người vào / ra / ngồi / đổi ý và ở mỗi mốc giờ
  */
@@ -65,12 +70,13 @@ import { cleanChat } from './chatText.js';
 import { Show } from './show.js';
 import { PROTO } from '../src/thanDong/quiz/rules.js';
 import { ANIMS, LOOKS, NAME_MAX, cleanName } from './shared.js';
-import { ARENA_PROTO, LIVE_MS, OPEN_BEFORE, TEST_LEAD, arenaSeatOk, nextStart, stepAt } from '../src/dauTruong/rules.js';
+import { ALWAYS_OPEN, ARENA_PROTO, LIVE_MS, OPEN_BEFORE, TEST_LEAD, arenaSeatOk, nextStart, stepAt } from '../src/dauTruong/rules.js';
 
 export { ANIMS, LOOKS, NAME_MAX, cleanName };
 
 export const TICK = 100;          // ms: gom trạng thái gửi đi 10 lần một giây
 const MAX_MSG = 600;              // ký tự: tin dài hơn là sai
+const SHOW_MAX = 24000;           // ký tự: ảnh chụp chương trình Đấu Trường Nhí của máy chủ trò ('xs', có câu hỏi + điểm cả khán phòng)
 const QUEUE_MAX = 30;             // người trong hàng chờ
 export const MIN_PLAYERS = 5;     // người thật (đã ngồi ghế, mỗi tài khoản một) cần có trong trường quay để bắt đầu ván (docs/HatGiong.md 4.4)
 const START_MS = 10000;           // đủ người: đếm ngược trước khi mời người đầu hàng (ai đang ở Tủ đồ kịp ra)
@@ -131,21 +137,22 @@ export class Room {
     this.speed = speed;       // kiểm thử: chương trình chạy nhanh hơn
     this.seen = new Set();    // câu đã hỏi trong phòng (lượt sau tránh lặp)
     this.qOpen = false; this.answers = new Map(); this.asked = new Set();
-    // Đấu Trường Nhí (`arena-g<lớp>`): phòng mở theo lịch (src/dauTruong/rules.js), ngoài giờ không nhận ai. Phòng thử và máy
-    // chủ dev (arenaDemo) không theo lịch: bắt đầu TEST_LEAD sau khi phòng có người đầu tiên, hoặc khi người thử bấm Bắt đầu.
+    // Đấu Trường Nhí (`arena-g<lớp>`): ALWAYS_OPEN (rules.js) thì mọi phòng cuốn chiếu như phòng thử: bắt đầu TEST_LEAD sau khi
+    // phòng có người đầu tiên, hoặc 5 giây sau khi đủ 4 bục ('start'); hết lượt còn người thì mở lượt mới. Tắt thì theo lịch SLOTS.
     this.arena = /^arena/.test(key);
     this.aGrade = +(/^arena-g([1-5])/.exec(key)?.[1] || 3);
-    this.aFree = this.test || arenaDemo;
+    this.arenaDemo = arenaDemo;
+    this.aFree = this.test || arenaDemo || ALWAYS_OPEN;   // ALWAYS_OPEN: mọi phòng thật cũng cuốn chiếu (rules.js)
     this.created = Date.now(); this.forceAt = 0; this.aT = null;
   }
 
   /** Kết nối mới (chưa tính là trong phòng cho tới khi gửi 'hi'). */
   connect(sock) {
-    return { sock, id: 0, state: bucket(15, 25), other: bucket(4, 10), talk: bucket(0.5, 3), bad: 0, badAt: 0, last: '', seen: Date.now(), pinged: false };
+    return { sock, id: 0, state: bucket(15, 25), other: bucket(4, 10), talk: bucket(0.5, 3), show: bucket(40, 80), bad: 0, badAt: 0, last: '', seen: Date.now(), pinged: false };
   }
 
   message(conn, text) {
-    if (typeof text !== 'string' || text.length > MAX_MSG) return this.kick(conn, 'tin không hợp lệ');
+    if (typeof text !== 'string' || text.length > (this.arena ? SHOW_MAX : MAX_MSG)) return this.kick(conn, 'tin không hợp lệ');
     let m;
     try { m = JSON.parse(text); } catch { return this.kick(conn, 'tin không hợp lệ'); }
     if (!Array.isArray(m)) return this.kick(conn, 'tin không hợp lệ');
@@ -167,6 +174,8 @@ export class Room {
       this.schedule();
       return;
     }
+    // Đấu Trường Nhí: máy chủ trò gửi ảnh chụp / hiệu ứng của chương trình (xô riêng, dày hơn tin thường)
+    if (this.arena && (type === 'xs' || type === 'xf' || type === 'xe')) { this.arenaShow(conn, p, m); return; }
     if (text.length > MAX_MSG) return this.kick(conn, 'tin không hợp lệ');
     if (!conn.other()) return this.flood(conn);
     if (this.quiz && this.quizMessage(p, m)) return;
@@ -196,6 +205,8 @@ export class Room {
     // trường quay: trang cũ hơn máy chủ (tab mở trước một lần cập nhật) thì báo tải lại, không cho chơi lệch giao thức
     if ((this.quiz && s.v !== PROTO) || (this.arena && s.v !== ARENA_PROTO)) { this.send(conn, ['old']); conn.sock.close(4003, 'old'); return; }
     // Đấu Trường Nhí ngoài giờ (trước khi phòng mở / lượt đã xong): báo giờ lượt tới rồi đóng (4004: client không nối lại)
+    // phòng cuốn chiếu: lượt cũ đã xong thì người mới vào mở lượt mới (sảnh chờ TEST_LEAD)
+    if (this.arena && this.aFree && this.arenaState().step === 'closed') this.newRound();
     if (this.arena && this.arenaState().step === 'closed') { this.send(conn, ['A', this.arenaState()]); conn.sock.close(4004, 'closed'); return; }
     // nối lại (cùng mã phiên r của trang ấy): bỏ kết nối cũ trước (máy chủ có khi chưa biết nó đã chết), giữ chỗ trong hàng chờ
     // và điểm đố vui; không thì người ấy hiện hai lần và bóng ma cũ giữ ghế, về ghế bị báo "có người"
@@ -226,10 +237,40 @@ export class Room {
       if (p.seat || qAt >= 0) this.turn(); else this.send(conn, this.roster());   // mang ghế theo: số người đổi, cả phòng nhận roster mới
       if (this.show) this.send(conn, ['G', this.show.pub()]);
     }
-    if (this.arena) { this.armArena(); this.arenaCast(); }
+    if (this.arena) {
+      this.armArena(); this.arenaCast();
+      // vào giữa chương trình: ảnh chụp cuối của máy chủ trò để hiện ngay đúng câu, đúng điểm
+      if (this.aSnap && this.arenaState().step === 'live') this.send(conn, ['xs', this.aSnap]);
+    }
   }
 
   // ---- Đấu Trường Nhí: lịch, sảnh chờ ----
+  /** Phòng cuốn chiếu: lượt mới, sảnh chờ TEST_LEAD tính từ bây giờ. */
+  newRound() { this.created = Date.now(); this.forceAt = 0; this.aHost = 0; this.aSnap = null; clearTimeout(this.aEndT); this.aEndT = null; }
+  /**
+   * Máy chủ trò của lượt: chương trình (MC, đồng hồ, bạn ảo, chấm điểm) chạy trên đúng một máy, các máy khác hiện theo ảnh chụp
+   * ('xs') và hiệu ứng ('xf') máy ấy gửi, thao tác của mình ('xi') gửi về máy ấy. Chọn người ngồi ghế vào sớm nhất (id nhỏ nhất);
+   * máy chủ trò rời phòng thì người kế tiếp nhận, chạy tiếp từ ảnh chụp cuối (src/games/dauTruong.js resume).
+   */
+  arenaHost() {
+    if (this.aHost && this.peers.has(this.aHost)) return this.aHost;
+    let best = 0;
+    for (const p of this.peers.values()) if (p.seat && (!best || p.id < best)) best = p.id;
+    if (!best) for (const p of this.peers.values()) if (!best || p.id < best) best = p.id;
+    this.aHost = best;
+    return best;
+  }
+  arenaShow(conn, p, m) {
+    if (p.id !== this.arenaHost()) return;   // máy không phải chủ trò (vừa mất quyền): bỏ
+    if (!conn.show()) return this.flood(conn);
+    const [type] = m;
+    if (type === 'xs') { if (m[1] && typeof m[1] === 'object') { this.aSnap = m[1]; this.cast(m, p.id); } }
+    else if (type === 'xf') this.cast(m, p.id);
+    else if (type === 'xe' && this.aFree && !this.aEndT) {
+      // chương trình đã xong: 30 giây sau (mọi người xem thẻ kết thúc) mở lượt mới cho ai còn trong phòng / vào sau
+      this.aEndT = setTimeout(() => { this.aEndT = null; this.newRound(); if (this.peers.size) { this.armArena(); this.arenaCast(); } }, 30000);
+    }
+  }
   arenaStart() { return this.aFree ? this.forceAt || this.created + TEST_LEAD : nextStart(this.aGrade); }
   /** { step, startAt, now, people, want, test }: want = số người thật đang ngồi và bật "Em muốn lên bục". */
   arenaState(now = Date.now()) {
@@ -237,7 +278,10 @@ export class Room {
     const step = this.aFree ? (now < startAt ? 'lobby' : now < startAt + LIVE_MS ? 'live' : 'closed') : stepAt(startAt, now);
     const want = new Set();
     for (const p of this.peers.values()) if (p.seat && p.want) want.add(p.u || `c${p.id}`);
-    return { step, startAt, now, people: this.people(), want: want.size, test: this.aFree ? 1 : 0 };
+    // test: phòng thử (nhãn "Phòng thử"); free: không theo lịch, đủ 4 bục là bắt đầu (phòng thử, máy dev, ALWAYS_OPEN)
+    // round: mã lượt (hạt giống bạn ảo giống nhau trên mọi máy); host: máy chủ trò
+    return { step, startAt, now, people: this.people(), want: want.size, test: this.test || this.arenaDemo ? 1 : 0, free: this.aFree ? 1 : 0,
+      round: this.aFree ? this.created : startAt, host: this.peers.size ? this.arenaHost() : 0 };
   }
   arenaCast() { this.cast(['A', this.arenaState()]); }
   /** Hẹn giờ tới mốc kế (mở phòng, bắt đầu, hết lượt) để báo cả phòng đổi bước. */
@@ -245,11 +289,23 @@ export class Room {
     clearTimeout(this.aT);
     const now = Date.now(), startAt = this.arenaStart();
     const next = [startAt - OPEN_BEFORE, startAt, startAt + LIVE_MS].find(t => t > now);
-    if (next) this.aT = setTimeout(() => { this.aT = null; if (this.peers.size) { this.arenaCast(); this.armArena(); } }, Math.min(next - now + 20, 2 ** 31 - 1));
+    if (next) this.aT = setTimeout(() => {
+      this.aT = null;
+      if (!this.peers.size) return;
+      // cuốn chiếu: hết lượt mà còn người trong phòng thì mở ngay lượt mới
+      if (this.aFree && this.arenaState().step === 'closed') this.newRound();
+      this.arenaCast(); this.armArena();
+    }, Math.min(next - now + 20, 2 ** 31 - 1));
   }
   arenaMessage(p, m) {
     const [type] = m;
-    if (type === 'want') { p.want = m[1] ? 1 : 0; this.arenaCast(); }
+    // ['pw', id, 0|1]: báo cả phòng ai muốn lên bục (bục ưu tiên người thật, flow.js syncNpc)
+    if (type === 'want') { p.want = m[1] ? 1 : 0; this.cast(['pw', p.id, p.want], p.id); this.arenaCast(); }
+    // thao tác của một bạn (chọn đáp án, bấm chuông, chọn gói, đặt sao, khán giả trả lời): chuyển cho máy chủ trò
+    else if (type === 'xi') {
+      const h = this.peers.get(this.arenaHost());
+      if (h && h.id !== p.id) this.send(h.conn, ['xi', p.id, ...m.slice(1, 6)]);
+    }
     else if (type === 'start') {
       // người thử (phòng thử / máy dev) bắt đầu ngay: 5 giây nữa
       if (!this.aFree || this.arenaState().step !== 'lobby') return true;
@@ -410,8 +466,8 @@ export class Room {
       if (p.id === this.hot) { if (this.show) this.show.abort(); else this.endTurn(); }
       else if (this.queue.includes(p.id) || p.seat) { this.queue = this.queue.filter(id => id !== p.id); this.turn(); }
     }
-    if (this.arena && this.peers.size) this.arenaCast();
-    if (!this.peers.size && !this.swapping) { clearTimeout(this.timer); this.timer = null; this.show?.dispose(); this.show = null; clearTimeout(this.goT); clearTimeout(this.aT); clearInterval(this.sweepT); this.sweepT = null; this.onEmpty?.(); }
+    if (this.arena && this.peers.size) this.arenaCast();   // máy chủ trò rời: arenaHost() chọn người kế, 'A' báo cả phòng
+    if (!this.peers.size && !this.swapping) { clearTimeout(this.timer); this.timer = null; this.show?.dispose(); this.show = null; clearTimeout(this.goT); clearTimeout(this.aT); clearTimeout(this.aEndT); this.aEndT = null; clearInterval(this.sweepT); this.sweepT = null; this.onEmpty?.(); }
   }
 
   // kết nối đã gửi nhịp mà im quá SILENT_MS: coi như đã rớt (Cloudflare không tự báo đóng khi máy mất mạng)
