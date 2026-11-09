@@ -28,6 +28,7 @@ import { mcLine, mcPlan, sayQuestion, sayOption, LETTER, MC_NAMES } from '../dau
 import { voiceMode, mcPrefetch, mcSpeak, mcStop, setMcListener, setMcRate, isMcMuted, setMcMuted } from '../dauTruong/mcVoice.js';
 import { certSvg, loadCertFonts, CERT_CSS } from '../dauTruong/cert.js';
 import { addAward } from '../dauTruong/awards.js';
+import { summarize, saveMatch } from '../dauTruong/matchStats.js';
 import { awardFixedStars, getTotalStars } from '../engine/stars.js';
 import { arenaAnswer, showProgress } from '../engine/arenaStats.js';
 import { audienceAt, buzzPlan, decide, pickPackage, podiumAt, reactOf, wantStar } from '../dauTruong/npc.js';
@@ -59,8 +60,21 @@ const CSS = `
 /* nút loa (giọng MC) đẩy cụm nút sang phải; phụ đề lời MC nằm ở thanh trên cùng, thay chỗ nhãn tên chương trình lúc MC đang nói
    (không đè màn câu hỏi, không đẩy gì); màn hẹp thì xuống ngay dưới thanh */
 .dt-stage .dt-mute { margin-left: auto; font-size: 18px; }
-.dt-stage .dt-cap { position: absolute; left: 76px; right: 200px; top: max(10px, env(safe-area-inset-top)); z-index: 2; width: fit-content;
-  max-width: min(980px, calc(100% - 276px)); margin: 0 auto; box-sizing: border-box; padding: 8px 18px; border-radius: 14px;
+/* bạn trên bục trả lời ké câu của bạn khác (không tính điểm, chỉ đếm câu đúng): ô đã chọn chỉ có viền, không tô màu chốt */
+.dt-stage .ch-qov-o.is-side::after { inset: 4px; }
+.dt-stage .ch-qov-o.is-side::before { background: linear-gradient(180deg, #fff7d6, #ffc93c 50%, #fff1b8); }
+.dt-stage .ch-qov-o.is-side i { background: rgba(255, 201, 60, 0.3); border-color: #ffd36b; }
+.dt-stage .ch-qov-o.is-side.is-side-no::before { background: linear-gradient(180deg, #ffd0d6, #ff4d64 50%, #ffc2ca); }
+/* ⏱ thời gian chương trình đã diễn: ô kính cạnh nút loa, luôn giữ chỗ (ẩn bằng visibility trước giờ diễn), không ẩn khi MC nói */
+.dt-stage .dt-elapsed { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; height: 42px; padding: 0 12px; box-sizing: border-box;
+  border-radius: 12px; background: rgba(6, 12, 40, 0.72); border: 1px solid rgba(255, 211, 107, 0.4); color: #fff; pointer-events: none;
+  font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dt-stage .dt-elapsed i { font-style: normal; font-size: 12px; font-weight: 700; color: #ffd36b; }
+.dt-stage .dt-elapsed.is-off { visibility: hidden; }
+.dt-stage .dt-elapsed + .dt-mute { margin-left: 0; }
+@media (max-width: 560px) { .dt-stage .dt-elapsed i { display: none; } }
+.dt-stage .dt-cap { position: absolute; left: 76px; right: 300px; top: max(10px, env(safe-area-inset-top)); z-index: 2; width: fit-content;
+  max-width: min(980px, calc(100% - 376px)); margin: 0 auto; box-sizing: border-box; padding: 8px 18px; border-radius: 14px;
   background: rgba(6, 12, 40, 0.84); border: 1px solid rgba(255, 211, 107, 0.45); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   color: #fff; font-size: clamp(13px, 0.9vw + 0.5vh, 21px); font-weight: 600; line-height: 1.4; text-align: center;
   opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity 0.2s, transform 0.2s, visibility 0.2s; pointer-events: none; }
@@ -275,6 +289,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     <div class="ch-top">
       <button type="button" class="ch-ic dt-back" aria-label="Quay lại" title="Quay lại">${icon('x')}</button>
       <div class="ch-chip"><span class="ch-dot" aria-hidden="true"></span><span class="ch-title">${SHOW_NAME}</span><span class="ch-seat">${flow ? `Lớp ${getProfileGrade() || ''}`.trim() : 'bản mẫu'}</span></div>
+      <div class="dt-elapsed is-off" role="timer" aria-label="Thời gian chương trình đã diễn"><i>Đã diễn</i><b>0:00</b></div>
       <button type="button" class="ch-ic dt-mute" aria-label="Tắt / bật giọng MC" title="Giọng MC"></button>
       <button type="button" class="ch-ic dt-mode" aria-haspopup="menu" aria-expanded="false"></button>
     </div>
@@ -1118,6 +1133,16 @@ export function stage(app, onBack, { flow = false } = {}) {
     let mode = 'idle', timer = null, phase = 'none', t0 = 0, qT0 = 0;
     const RK = { khoidong: 'kd', tangtoc: 'tt', vedich: 'vd' };
     let qDone = 0;   // số câu đã lật cả buổi (khán giả: đúng x / qDone câu)
+    /* ⏱ Đồng hồ đã diễn: showAt = lúc chương trình bắt đầu (Mở màn, hoặc thẳng Khởi động khi cả 4 bục sẵn sàng), showEnd = lúc
+       xong (màn thu sao). Giờ tuyệt đối theo máy chủ trò, gửi trong ảnh chụp (sa / se) nên mọi máy cùng một số. */
+    let showAt = 0, showEnd = 0;
+    /* Trả lời ké: bạn đứng bục nhưng câu này không phải lượt mình (lượt cá nhân / Về đích của bạn khác, bạn khác đang trả lời
+       sau chuông) vẫn được chọn, chỉ trên máy mình: không tính điểm, không ảnh hưởng chương trình, ô chọn chỉ có viền.
+       mine: số câu mình trả lời đúng cả buổi (câu của mình, câu ké, hoặc khán giả), mỗi câu tính một lần (qid). */
+    let side = { qid: -1, pick: -1, ok: false };
+    const mine = { right: 0, last: -1, log: [] };   // log: câu em đã trả lời { t, m, r, ok } → bảng mạnh / yếu (matchStats.js)
+    const resetMine = () => { mine.right = 0; mine.last = -1; mine.log = []; };
+    const topicOf = (q) => q.t || q.tag || (q.m === 'tv' ? 'Tiếng Việt' : 'Toán');
     let nextQ = null;   // câu kế tiếp lấy sẵn lúc các bạn đang nghĩ câu này (tải trước giọng MC): { slot, q }
     let Q = null, qn = 0, qTotal = 0, picks = [], shownOpts = 0, scrDirty = true, scrLast = 0;
     /* qid: tăng mỗi lần mở một bước nhận thao tác (câu hỏi, chọn gói, đặt sao); sent: thao tác đã gửi máy chủ trò ở bước ấy
@@ -1405,6 +1430,11 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (phase === 'steal' || !answers(myPod)) return false;
       return me.state === 'turn' || me.state === 'think' || me.state === 'idle';
     }
+    function canSide() {
+      if (role() !== 'pod' || !Q || Q.kind !== 'abcd' || side.qid === qid) return false;
+      if (answers(myPod) || buzzer === myPod || canBuzz()) return false;
+      return ['think', 'buzzed', 'answer', 'stealing', 'steal', 'audLast'].includes(phase);
+    }
     function canBuzz() {
       if (role() !== 'pod' || buzzer >= 0 || !sl || sent === `${qid}:buzz:${phase}`) return false;
       return (phase === 'think' && sl.seg === 'common') || (phase === 'steal' && turn !== myPod);
@@ -1412,7 +1442,8 @@ export function stage(app, onBack, { flow = false } = {}) {
     function paintOv() {
       if (!Q || ov.hidden) return;
       const rev = phase === 'reveal', view = shownPicks();
-      const open = canPick();
+      const sideOpen = !canPick() && canSide(), open = canPick() || sideOpen;
+      const sidePick = role() === 'pod' && side.qid === qid ? side.pick : -1;
       ov.classList.toggle('is-pickable', open || canBuzz());
       const bell = ov.querySelector('.dt-bell');
       bell.classList.toggle('is-on', canBuzz());
@@ -1429,7 +1460,8 @@ export function stage(app, onBack, { flow = false } = {}) {
           st = rev ? (done ? (k === Q.a.indexOf(i) ? ' is-right' : ' is-wrong') : '') : k >= 0 ? (done ? ' is-lock' : ' is-mine') : '';
         }
         const vis = st ? '' : shown ? (el.classList.contains('is-wait') || el.classList.contains('is-pop') ? ' is-pop' : '') : ' is-wait';
-        el.className = `ch-qov-o${st}${vis}`;
+        const sd = i === sidePick ? ` is-side${rev && i !== Q.a ? ' is-side-no' : ''}` : '';
+        el.className = `ch-qov-o${st}${vis}${sd}`;
         el.disabled = !open || !shown || (Q.kind === 'abcd' && k >= 0) || Q.out === i;
       });
       ov.querySelectorAll('.ch-qov-opts .ch-qov-row').forEach((row, r) => row.classList.toggle('is-on', phase !== 'read' || shownOpts > r * 2));
@@ -1440,7 +1472,9 @@ export function stage(app, onBack, { flow = false } = {}) {
         : rev ? (role() === 'aud' ? pods.filter((q, i) => takesPart(i)).map(q => `${q.name} ${q.gain > 0 ? `+${q.gain}` : q.gain < 0 ? q.gain : 'chưa đúng'}`).join(' · ') : '')
         : role() === 'aud' && meSeat.ans != null ? (phase === 'audLast' ? 'Đã chọn, chờ các bạn khán phòng' : who >= 0 ? `Đã chọn, chờ ${pods[who].name} trả lời` : 'Đã chọn, chờ kết quả')
         : role() === 'aud' && phase === 'audLast' ? `${who >= 0 ? pods[who].name : 'Thí sinh'} đã chốt, em chọn nhanh lên!`
-        : role() === 'pod' && (pods[myPod].state === 'locked' || sent === `${qid}:lock`) ? (phase === 'audLast' ? 'Đã chốt, chờ khán phòng chọn' : 'Đã chốt, chờ kết quả') : '';
+        : role() === 'pod' && (pods[myPod].state === 'locked' || sent === `${qid}:lock`) ? (phase === 'audLast' ? 'Đã chốt, chờ khán phòng chọn' : 'Đã chốt, chờ kết quả')
+        : sidePick >= 0 ? (who >= 0 ? `Đã chọn, chờ ${pods[who].name} trả lời` : 'Đã chọn, chờ kết quả')
+        : sideOpen ? 'Em cũng chọn được, không tính điểm' : '';
       if (mr) { mr.textContent = note || ptsLabel(); mr.classList.toggle('dt-note', !!note); }
       const res = ov.querySelector('.ch-qov-res');
       res.hidden = !rev;
@@ -1463,6 +1497,10 @@ export function stage(app, onBack, { flow = false } = {}) {
         return ['is-no', '✕', me.gain < 0 ? `Rất tiếc! ${me.gain}` : late ? 'Hết giờ!' : 'Rất tiếc!'];
       }
       const won = pods.filter(p => p.gain > 0).sort((a, b) => b.gain - a.gain);
+      if (role() === 'pod' && side.qid === qid) {
+        const who = won.length ? ` · ${won.map(p => `${p.name} +${p.gain}`).join(' · ')}` : '';
+        return side.ok ? ['is-ok', '✓', `Em đúng!${who}`] : ['is-no', '✕', `Em chưa đúng${who}`];
+      }
       if (won.length) return ['is-win', '✓', won.map(p => `${p.name} +${p.gain}`).join(' · ')];
       const lost = pods.filter(p => p.gain < 0);
       if (lost.length) return ['is-no', '✕', lost.map(p => `${p.name} ${p.gain}`).join(' · ')];
@@ -1503,7 +1541,13 @@ export function stage(app, onBack, { flow = false } = {}) {
       setTimeout(() => box.remove(), 5500);
     }
     function onPick(i) {
-      if (!canPick()) return;
+      if (!canPick()) {
+        if (!canSide()) return;
+        side = { qid, pick: i, ok: i === Q.a };
+        SFX.lock();
+        if (flow) arenaAnswer(side.ok);   // thống kê admin (engine/arenaStats.js)
+        paintOv(); return;
+      }
       const el = phase === 'read' ? 0 : (performance.now() - t0) / 1000;
       let ok, done;
       if (Q.kind === 'abcd') { picks = [i]; ok = i === Q.a; done = true; }
@@ -1733,7 +1777,7 @@ export function stage(app, onBack, { flow = false } = {}) {
         vd: vd ? { who: vd.who, pkg: vd.pkg ? VD.pkgs.indexOf(vd.pkg) : -1, star: vd.star ? 1 : 0, su: vd.starUsed ? 1 : 0 } : null,
         pods: pods.map(p => ({ n: p.name, k: p.wantKind, sk: p.skill, r: ridOf(p), st: p.state, sc: p.score, g: p.gain, pk: p.pick ?? null, la: p.lockAt || 0, s: p.star ? 1 : 0, j: p.joy || '', rs: p.rs, ok: p.ok ? 1 : 0 })),
         seats: seats.filter(x => x.live).map(x => [x.id, x.score, x.nRight || 0, x.right ? 1 : 0, x.react || '']),
-        ov: ov.hidden ? 0 : 1, bd: boardEl.hidden ? 0 : 1, tb: turnBase, qd: qDone, lm: lastMon, ma: mAlt,
+        ov: ov.hidden ? 0 : 1, bd: boardEl.hidden ? 0 : 1, tb: turnBase, qd: qDone, lm: lastMon, ma: mAlt, sa: showAt, se: showEnd,
       };
     }
     /** (Máy chủ trò) gửi ảnh chụp nếu có gì đổi; đồng hồ kèm số giây còn lại lúc gửi (người vào giữa chừng đếm tiếp đúng). */
@@ -1787,8 +1831,8 @@ export function stage(app, onBack, { flow = false } = {}) {
           w.myStars = giveStars('pod', stars, w.at);
           const bonus = stars - POD_STARS[rank];
           w.mine = { badge: ['🥇', '🥈', '🥉', '🏅'][rank], title: ['Quán quân', 'Á quân', 'Hạng ba', 'Hạng tư'][rank],
-            lines: [`Giải hạng ${rank + 1}: ${POD_STARS[rank]} sao`, ...(bonus > 0 ? [`${p.score} điểm: thêm ${bonus} sao`] : [])] };
-          giveCert({ kind: k, name: p.name, score: p.score, rounds: { ...p.rs }, stars, at: w.at });
+            lines: [`Giải hạng ${rank + 1}: ${POD_STARS[rank]} sao`, ...(bonus > 0 ? [`${p.score} điểm: thêm ${bonus} sao`] : []), `Trả lời đúng ${mine.right}/${qDone} câu`] };
+          giveCert({ kind: k, name: p.name, score: p.score, rounds: { ...p.rs }, right: mine.right, total: qDone, stars, at: w.at });
         }
       },
       rain: () => { awardCam(awardWide()); rainOn = true; SFX.champ(); },
@@ -1800,16 +1844,20 @@ export function stage(app, onBack, { flow = false } = {}) {
         const isBest = me === fan && fan.score > 0;
         const n = audStarsRule(best[3].score, stars[3], fan?.score || 0)(me.score || 0);
         w.myStars = giveStars('aud', n, w.at);
-        if (n > 0) w.mine = { badge: isBest ? '🌟' : '👏', title: isBest ? 'Khán giả xuất sắc' : 'Khán giả cổ vũ', lines: [`${me.score} điểm khán giả`, ...(me.nRight ? [`Trả lời đúng ${me.nRight} câu`] : [])] };
-        if (isBest) giveCert({ kind: 'aud', name: fan.name, score: fan.score, right: fan.nRight || 0, total: qDone, stars: n, at: w.at });
+        if (n > 0) w.mine = { badge: isBest ? '🌟' : '👏', title: isBest ? 'Khán giả xuất sắc' : 'Khán giả cổ vũ', lines: [`${me.score} điểm khán giả`, `Trả lời đúng ${mine.right}/${qDone} câu`] };
+        if (isBest) giveCert({ kind: 'aud', name: fan.name, score: fan.score, right: mine.right || fan.nRight || 0, total: qDone, stars: n, at: w.at });
       },
       // hết chương trình: màn thu sao của mình, rồi flow.js hiện thẻ kết thúc (điểm, sao của mình)
       end: async () => {
+        if (!following() && showAt && !showEnd) { showEnd = Date.now(); scrDirty = true; }
         const w = winState(), r = run, best = [...pods].sort((a, b) => b.score - a.score), me = seats.find(x => x.mine);
         if (w.mine && w.myStars > 0) await collectStars({ n: w.myStars, total0: w.total0, ...w.mine });
         if (r !== run || gone) return;
         if (sync?.host) sync.net.showEnd();
-        api.onShowEnd?.({ onPod: meOnPod, score: meOnPod ? pods[myPod].score : me?.score || 0, rank: meOnPod ? best.indexOf(pods[myPod]) + 1 : 0, stars: w.myStars });
+        const res = { onPod: meOnPod, score: meOnPod ? pods[myPod].score : me?.score || 0, rank: meOnPod ? best.indexOf(pods[myPod]) + 1 : 0, right: mine.right, total: qDone, stars: w.myStars, sum: summarize(mine.log) };
+        // 📊 lưu bảng mạnh / yếu của trận (trang Thành tích); sân khấu thử không lưu
+        if (flow) saveMatch({ at: w.at, grade: gradeNow(), onPod: res.onPod, rank: res.rank, score: res.score, sum: res.sum });
+        api.onShowEnd?.(res);
       },
     };
     /** (Máy hiện theo) dựng lại sân khấu theo ảnh chụp của máy chủ trò. */
@@ -1822,7 +1870,8 @@ export function stage(app, onBack, { flow = false } = {}) {
       phase = o.phase; qn = o.qn; qTotal = o.qTotal; turn = o.turn; buzzer = o.buzzer; si = o.si;
       slots = Array.isArray(o.slots) ? o.slots : []; sl = o.sl ? slots[si - 1] || null : null;
       vd = o.vd ? { who: o.vd.who, pkg: VD.pkgs[o.vd.pkg] || null, star: !!o.vd.star, starUsed: !!o.vd.su } : null;
-      qDone = o.qd || 0; turnBase = o.tb || turnBase; lastMon = o.lm ?? -1; mAlt = o.ma || 0; shownOpts = o.so || 0; qpSnap = o.qp;
+      if ((o.sa || 0) !== showAt) resetMine();   // buổi mới của máy chủ trò
+      qDone = o.qd || 0; showAt = o.sa || 0; showEnd = o.se || 0; turnBase = o.tb || turnBase; lastMon = o.lm ?? -1; mAlt = o.ma || 0; shownOpts = o.so || 0; qpSnap = o.qp;
       const newQ = o.qid !== qid;
       qid = o.qid; Q = o.Q || null;
       if (!o.tm) timer = null;
@@ -2232,8 +2281,15 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (sl?.seg === 'speed' && anyRight) later(() => SFX.result(true), 1700);
       if (anyRight) later(() => SFX.points(), sl?.seg === 'speed' ? 2200 : 700);
       if (pods.some(p => p.gain < 0)) later(() => SFX.minus(), 900);
-      const mineOk = role() === 'aud' ? meSeat.ans === true : role() === 'pod' && pods[myPod].state === 'right';
-      if (role() === 'aud' ? meSeat.ans != null : role() === 'pod' && takesPart(myPod)) SFX.mine(mineOk);
+      const sided = role() === 'pod' && !takesPart(myPod) && side.qid === qid;
+      const mineOk = role() === 'aud' ? meSeat.ans === true : role() === 'pod' && (sided ? side.ok : pods[myPod].state === 'right');
+      if (role() === 'aud' ? meSeat.ans != null : role() === 'pod' && (takesPart(myPod) || sided)) SFX.mine(mineOk);
+      const tried = role() === 'aud' ? meSeat.ans != null : role() === 'pod' && (takesPart(myPod) || sided);
+      if (mine.last !== qid && Q) {
+        mine.last = qid;
+        if (mineOk) mine.right++;
+        if (tried) mine.log.push({ t: topicOf(Q), m: Q.m === 'tv' ? 'tv' : 'toan', r: RK[mode] || '', ok: !!mineOk });
+      }
       if (mineOk) confetti(60);
       livePop();
     }
@@ -2282,6 +2338,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     }
     /** Tổng kết đợt: camera lướt chậm một lượt qua khán phòng (thẻ điểm khán giả), bảng điểm bốn thí sinh chạy số; MC gọi tên
         khán giả dẫn đầu rồi tổng kết lượt của bạn vừa thi. */
+    const AUD_HOLD = 7000;   // ms camera đứng ở khán phòng (tổng kết đợt, khán giả xuất sắc)
     async function recap(fan) {
       const r = run;
       ov.hidden = true;
@@ -2292,7 +2349,8 @@ export function stage(app, onBack, { flow = false } = {}) {
       // bảng điểm tự nói điểm từng bạn; MC chỉ gọi khán giả dẫn đầu lúc hết vòng
       const t = performance.now();
       if (si >= slots.length && fan && fan.score > 0 && !(await host('audTop', { ten: fan.name, diem: fan.score }))) return false;
-      await wait(Math.max(400, 1700 - (performance.now() - t)));   // đủ lâu để xem bảng điểm chạy số
+      // dừng ở khán phòng AUD_HOLD (user 2026-11-09: 5–10 giây, nhanh quá thì không kịp xem ai được điểm, bảng điểm chạy số)
+      await wait(Math.max(400, AUD_HOLD - (performance.now() - t)));
       if (r !== run) return false;
       fxRun('fans', []);
       seats.forEach(x => { x.base = x.score; });
@@ -2376,7 +2434,10 @@ export function stage(app, onBack, { flow = false } = {}) {
         const fan = topFan();
         if (fan && fan.score > 0) {
           camX('crowd');
+          const t = performance.now();
           if (!(await host('audBest', { ten: fan.name, diem: fan.score }))) return;
+          await wait(Math.max(0, AUD_HOLD - (performance.now() - t)));
+          if (r !== run) return;
           fxRun('awardCam', -1);
         }
         fxRun('audStars');
@@ -2422,6 +2483,8 @@ export function stage(app, onBack, { flow = false } = {}) {
       modeLook(m);
       pods.forEach(p => { p.state = 'idle'; p.star = false; p.gain = 0; });
       seats.forEach(s => { s.right = false; s.ans = null; s.dirty = true; });
+      if (m === 'idle') { showAt = 0; showEnd = 0; resetMine(); }
+      else if (!showAt || m === 'open') { showAt = Date.now(); showEnd = 0; resetMine(); }
       if (m === 'open' || m === 'idle') { pods.forEach(p => { p.score = 0; p.shown = 0; p.rs = { kd: 0, tt: 0, vd: 0 }; }); seats.forEach(s => { s.score = 0; s.nRight = 0; }); qDone = 0; }
       turnBase = pods.map(p => p.score);
       seats.forEach(x => { x.base = x.score; });
@@ -2441,6 +2504,17 @@ export function stage(app, onBack, { flow = false } = {}) {
       modeBtn.setAttribute('aria-expanded', String(!menu.hidden));
       menu.innerHTML = Object.entries(ROUNDS).map(([k, r]) => `<button type="button" role="menuitem" data-mode="${k}" aria-pressed="${k === mode}">${r.label}</button>`).join('');
     }
+    const elapsedEl = root.querySelector('.dt-elapsed'), elapsedB = elapsedEl.querySelector('b');
+    let elapsedTxt = '';
+    function paintElapsed() {
+      if (gone) return;
+      const ms = showAt ? Math.max(0, (showEnd || Date.now()) - showAt) : 0, sec = Math.floor(ms / 1000);
+      const h = Math.floor(sec / 3600), m = Math.floor(sec / 60) % 60, ss = String(sec % 60).padStart(2, '0');
+      const t = h ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
+      elapsedEl.classList.toggle('is-off', !showAt);
+      if (t !== elapsedTxt) { elapsedTxt = t; elapsedB.textContent = t; }
+    }
+    const elapsedTm = setInterval(paintElapsed, 500);
     const muteBtn = root.querySelector('.dt-mute');
     const paintMute = () => { muteBtn.textContent = isMcMuted() ? '🔇' : '🔊'; muteBtn.setAttribute('aria-pressed', String(isMcMuted())); };
     muteBtn.onclick = () => { setMcMuted(!isMcMuted()); paintMute(); };
@@ -2962,7 +3036,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     const dispose = () => {
       if (gone) return;
       gone = true;
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(raf); clearInterval(elapsedTm);
       clearLater(); run++;
       mcStop(); setMcListener(null);
       SFX.stopAll();

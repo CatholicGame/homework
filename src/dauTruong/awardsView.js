@@ -5,6 +5,7 @@
  * (hộp thoại in của trình duyệt, chọn "Lưu dạng PDF" để lưu file).
  */
 import { certSvg, loadCertFonts, CERT_CSS, CERT_KINDS } from './cert.js';
+import { loadMatches, statsHtml } from './matchStats.js';
 import { loadAwards } from './awards.js';
 
 const ICON = { champ: '🥇', rank2: '🥈', rank3: '🥉', rank4: '🎖️', aud: '⭐' };
@@ -42,6 +43,12 @@ ${CERT_CSS}
 .aw-item-t span, .aw-item small { color: var(--aw-muted); font-size: 13px; }
 .aw-item i { font-style: normal; font-size: 11px; font-weight: 800; padding: 1px 6px; border-radius: 6px; background: var(--aw-edge); margin-left: 6px; }
 .aw-empty { display: grid; justify-items: center; gap: 10px; padding: 48px 16px; text-align: center; color: var(--aw-muted); }
+.aw-games { display: grid; gap: 8px; margin-top: 18px; }
+.aw-games h3 { margin: 0; font-size: 18px; }
+.aw-game { border: 1px solid rgba(127, 127, 160, 0.3); border-radius: 14px; padding: 8px 12px; background: rgba(255, 255, 255, 0.6); }
+.aw-game summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; cursor: pointer; font-size: 14px; }
+.aw-game summary small { margin-left: auto; opacity: 0.7; }
+.aw-game .ms { margin-top: 8px; }
 .aw-empty b { font-size: 56px; }
 
 /* Xem dạng slide */
@@ -84,7 +91,7 @@ export function renderAwards(app, onBack, { title = 'Thành tích của em' } = 
   ensureCss(); loadCertFonts();
   let closeSl = null;
   const paint = () => {
-    const list = loadAwards();
+    const list = loadAwards(), games = loadMatches();
     const count = Object.fromEntries(ORDER.map(k => [k, list.filter(a => a.kind === k).length]));
     app.innerHTML = `<div class="aw">
       <div class="aw-top"><button type="button" class="aw-back" aria-label="Quay lại">←</button><h2>🏅 ${esc(title)}</h2></div>
@@ -94,10 +101,13 @@ export function renderAwards(app, onBack, { title = 'Thành tích của em' } = 
           <div class="aw-actions"><button type="button" class="aw-play">▶ Xem tất cả dạng slide</button></div>
           <div class="aw-grid">${list.map((a, i) => `<button type="button" class="aw-item" data-i="${i}" aria-label="${esc(CERT_KINDS[a.kind]?.label)}, ${a.score} điểm, ${when(a.at)}">
             ${svgOf(a)}
-            <span class="aw-item-t"><b>${ICON[a.kind] || '🏅'} ${esc(CERT_KINDS[a.kind]?.label || '')}${a.demo ? '<i>thử</i>' : ''}</b><span>${a.score} điểm</span></span>
+            <span class="aw-item-t"><b>${ICON[a.kind] || '🏅'} ${esc(CERT_KINDS[a.kind]?.label || '')}${a.demo ? '<i>thử</i>' : ''}</b><span>${a.score} điểm${a.right != null ? ` · đúng ${a.right}${a.total ? `/${a.total}` : ''} câu` : ''}</span></span>
             <small>Lớp ${a.grade} · ${when(a.at)}</small>
           </button>`).join('')}</div>`
         : `<div class="aw-empty"><b>🏆</b><p>Em chưa có giấy chứng nhận nào.<br>Lên bục thi Đấu Trường Nhí hoặc trả lời đúng nhiều nhất khán phòng để nhận giấy.</p></div>`}
+        ${games.length ? `<section class="aw-games" aria-label="Các trận gần đây"><h3>📊 Các trận gần đây</h3>${games.map((g, i) => `<details class="aw-game"${i ? '' : ' open'}>
+          <summary><b>${g.onPod && g.rank ? `Hạng ${g.rank}` : 'Khán phòng'}</b><span>${g.score} điểm · đúng ${g.sum.right}/${g.sum.n} câu</span><small>Lớp ${g.grade} · ${when(g.at)}</small></summary>
+          ${statsHtml(g.sum)}</details>`).join('')}</section>` : ''}
       </div>
     </div>`;
     app.querySelector('.aw-back').onclick = () => { closeSl?.(); onBack(); };
@@ -150,7 +160,7 @@ export function openSlides(list, start = 0, opts = {}) {
     track.style.transform = `translateX(${-100 * i}%)`;
     const a = list[i];
     el.querySelector('.aw-sl-n').textContent = `${i + 1} / ${list.length}`;
-    el.querySelector('.aw-sl-cap').textContent = `${ICON[a.kind] || '🏅'} ${CERT_KINDS[a.kind]?.label || ''} · ${a.score} điểm · ${when(a.at)}${a.demo ? ' · sân khấu thử' : ''}`;
+    el.querySelector('.aw-sl-cap').textContent = `${ICON[a.kind] || '🏅'} ${CERT_KINDS[a.kind]?.label || ''} · ${a.score} điểm${a.right != null ? ` · đúng ${a.right}${a.total ? `/${a.total}` : ''} câu` : ''} · ${when(a.at)}${a.demo ? ' · sân khấu thử' : ''}`;
     prev.disabled = next.disabled = list.length < 2;
     strip.forEach((b, j) => b.setAttribute('aria-current', String(j === i)));
     strip[i].scrollIntoView({ block: 'nearest', inline: 'center', behavior: reduce || instant ? 'auto' : 'smooth' });

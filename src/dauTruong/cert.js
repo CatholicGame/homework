@@ -8,7 +8,7 @@
  * certSvg({ kind, name, grade, score, at, rounds, right, total, no, show, sign })
  *   kind: 'champ' | 'rank2' | 'rank3' | 'rank4' | 'aud'
  *   rounds: { kd, tt, vd } điểm từng vòng của thí sinh (không có thì bỏ dải điểm vòng)
- *   right / total: số câu khán giả trả lời đúng / số câu cả buổi
+ *   right / total: số câu trả lời đúng cả buổi (khán giả; thí sinh: câu của mình + câu ké) / số câu cả buổi
  *   sign: 'done' (có chữ ký) | 'anim' (chữ ký chạy nét) | 'none'
  */
 export { loadChequeFonts as loadCertFonts } from '../thanDong/pages/cheque.js';
@@ -98,6 +98,8 @@ export function certSvg({ kind = 'champ', name = 'Bạn', grade = 3, score = 0, 
   let chips = [];
   if (kind === 'aud' && right != null) chips = [{ c: T.main, t: `Trả lời đúng ${right}${total ? `/${total}` : ''} câu` }];
   else if (rounds) chips = ['kd', 'tt', 'vd'].filter(k => rounds[k] != null).map(k => ({ c: ROUND_COL[k], t: `${ROUND_NAME[k]} ${rounds[k]} điểm` }));
+  // thí sinh: thêm số câu đúng cả buổi (câu của mình + câu trả lời ké)
+  if (kind !== 'aud' && right != null) chips.push({ c: T.main, t: `Đúng ${right}${total ? `/${total}` : ''} câu` });
   const cw = chips.map(ch => 34 + ch.t.length * 11.5), gap = 18, tw = cw.reduce((a, b) => a + b, 0) + gap * Math.max(0, chips.length - 1);
   let cx0 = 600 - tw / 2;
   const chipSvg = chips.map((ch, i) => {

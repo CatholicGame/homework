@@ -17,9 +17,13 @@
  *   Kiểm tra: `node scripts/dautruong-check.mjs`.
  *
  * Câu Tăng tốc (speedQ) có thêm `tag`: Dãy số, Dãy hình, Sắp xếp, Tư duy, Suy luận hình ảnh.
+ * Mọi câu có `t`: chủ đề (bảng mạnh / yếu sau mỗi trận), thiếu thì game dùng `tag` hoặc tên môn.
  * Câu trả về: abcd { kind: 'abcd', m: 'toan'|'tv', q, o: [4], a: chỉ số đúng } | order { kind: 'order', m, q, o: [4], a: [thứ tự đúng] }.
  */
 
+import { UNIT_INFO } from '../data/knowledgeUnits.js';
+/* Chủ đề câu Toán của đề lộ trình: `bai` là số Bài của sách mà đề lớp ấy bám theo (tên Bài lấy từ bản đồ kiến thức). */
+const UNIT_BOOK = { 1: 'workbook1', 2: 'workbook2', 3: 'workbook', 4: 'tool4', 5: 'tool5' };
 const TESTS = import.meta.glob('../data/routeTests/g*/{nh,th,gk,ck}*.js');
 const PLANS = import.meta.glob('../data/routeTests/g*/plan.js');
 const TV_DATA = {
@@ -74,7 +78,8 @@ async function mathPool(grade, uptoBai) {
     if (!text || opts.some(o => !o) || new Set(opts).size !== 4 || seen.has(text + q.options.join('|'))) continue;
     seen.add(text + q.options.join('|'));
     const right = clean(q.options[q.ans]);
-    out.push({ ...abcd('toan', text, right, q.options.filter((_, i) => i !== q.ans).map(clean)), level: q.level || 1, bai });
+    const t = UNIT_INFO[`${UNIT_BOOK[grade]}:bai-${bai}`]?.[1];
+    out.push({ ...abcd('toan', text, right, q.options.filter((_, i) => i !== q.ans).map(clean)), level: q.level || 1, bai, ...(t ? { t } : {}) });
   }
   return out;
 }
@@ -97,7 +102,7 @@ function mathOrder(grade) {
   const o = shuffle([...xs].slice(0, 4));
   const up = Math.random() < 0.6;
   const sorted = [...o].sort((a, b) => (up ? a - b : b - a));
-  return { kind: 'order', m: 'toan', q: `Xếp các số theo thứ tự từ ${up ? 'bé đến lớn' : 'lớn đến bé'}`, o: o.map(fmt), a: sorted.map(v => o.indexOf(v)) };
+  return { kind: 'order', m: 'toan', t: 'So sánh số', q: `Xếp các số theo thứ tự từ ${up ? 'bé đến lớn' : 'lớn đến bé'}`, o: o.map(fmt), a: sorted.map(v => o.indexOf(v)) };
 }
 
 /* ---------- Tiếng Việt ---------- */
@@ -131,7 +136,7 @@ const TV_MAKERS = {
     const right = pick(P.kinds[c].filter(w => kindOf(P, w).length === 1));
     const others = shuffle(Object.keys(P.kinds).filter(x => x !== c).flatMap(x => P.kinds[x]).filter(w => kindOf(P, w).length === 1 && w !== right));
     if (others.length < 3) return null;
-    return abcd('tv', `Từ nào là từ chỉ ${KIND[c]}?`, right, uniq(others).slice(0, 3));
+    return { ...abcd('tv', `Từ nào là từ chỉ ${KIND[c]}?`, right, uniq(others).slice(0, 3)), t: `Từ chỉ ${KIND[c]}` };
   },
   find(P) {
     if (!P.find.length) return null;
@@ -142,14 +147,14 @@ const TV_MAKERS = {
     const plain = uniq(toks.filter(t => !t.includes('*') && t.length > 1 && !/^\p{Lu}/u.test(t)).map(t => t.replace(/_/g, ' ')));
     if (!starred.length || plain.length < 3) return null;
     const sentence = it.s.replace(/\*/g, '').replace(/_/g, ' ');
-    return abcd('tv', `Trong câu “${sentence}”, từ nào chỉ ${KIND[it.k]}?`, pick(starred), shuffle(plain).filter(w => !starred.includes(w)).slice(0, 3));
+    return { ...abcd('tv', `Trong câu “${sentence}”, từ nào chỉ ${KIND[it.k]}?`, pick(starred), shuffle(plain).filter(w => !starred.includes(w)).slice(0, 3)), t: `Từ chỉ ${KIND[it.k]}` };
   },
   match(P) {
     if (P.match.length < 4) return null;
     const [a, b] = pick(P.match);
     const others = shuffle(uniq(P.match.filter(x => x[1] !== b && x[0] !== a).map(x => x[1])));
     if (others.length < 3) return null;
-    return abcd('tv', `Chọn từ ngữ thích hợp để tạo thành câu: ${a} …`, b, others);
+    return { ...abcd('tv', `Chọn từ ngữ thích hợp để tạo thành câu: ${a} …`, b, others), t: 'Ghép câu' };
   },
   punct(P, grade) {
     const ones = P.punct.filter(s => (s.match(/\{/g) || []).length === 1);
@@ -159,7 +164,7 @@ const TV_MAKERS = {
     const marks = MARKS[grade] || MARKS[3];
     if (!marks.includes(mk)) return null;
     const q = `Chọn dấu câu thích hợp điền vào chỗ trống: ${s.replace(/\{[^}]+\}/, ' …')}`;
-    return abcd('tv', q, MARK_NAME[mk], shuffle(marks.filter(x => x !== mk)).map(x => MARK_NAME[x]));
+    return { ...abcd('tv', q, MARK_NAME[mk], shuffle(marks.filter(x => x !== mk)).map(x => MARK_NAME[x])), t: 'Dấu câu' };
   },
 };
 function tvOrder(P) {
@@ -168,14 +173,14 @@ function tvOrder(P) {
   const pieces = pick(four).split(' / ').map(s => s.trim());
   let o;
   for (let k = 0; k < 10; k++) { o = shuffle(pieces); if (o.join() !== pieces.join()) break; }
-  return { kind: 'order', m: 'tv', q: 'Xếp thành câu đúng', o, a: pieces.map(p => o.indexOf(p)) };
+  return { kind: 'order', m: 'tv', t: 'Sắp xếp câu', q: 'Xếp thành câu đúng', o, a: pieces.map(p => o.indexOf(p)) };
 }
 
 /* ---------- Ngân hàng soạn tay ---------- */
 /** Câu soạn tay → câu hỏi của game (xáo phương án). Giữ các trường phụ: hình, lời đọc, nhãn Tăng tốc, điểm Về đích, bẫy (o[1]). */
 function fromRow(r, src) {
   const k = r.k || 'abcd';
-  const extra = { level: r.lv, w: r.w, ex: r.ex, src, ...(r.fig ? { fig: r.fig } : {}), ...(r.say ? { say: r.say } : {}),
+  const extra = { level: r.lv, w: r.w, ex: r.ex, src, ...(r.t ? { t: r.t } : {}), ...(r.fig ? { fig: r.fig } : {}), ...(r.say ? { say: r.say } : {}),
     ...(r.tt ? { tt: r.tt, tag: r.tag || TT_TAG[r.tt] } : {}), ...(r.pt ? { pt: r.pt } : {}) };
   if (k === 'order') {
     let o;

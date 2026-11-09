@@ -31,6 +31,7 @@ import {
 } from './rules.js';
 import { testRoom } from '../thanDong/engine/admin.js';
 import { PICK_AT, audienceAt, podiumAt, rand01 } from './npc.js';
+import { statsHtml } from './matchStats.js';
 import { liveNow, roomNpc } from '../engine/liveCount.js';
 import { arenaVisit, arenaSeated, showStart, showEnd, showLeave } from '../engine/arenaStats.js';
 
@@ -85,6 +86,9 @@ const CSS = `
 .dt-wait .dt-sw i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
 .dt-wait .dt-sw[aria-checked="true"] i { background: #21b26b; }
 .dt-wait .dt-sw[aria-checked="true"] i::after { transform: translateX(16px); }
+/* thẻ kết thúc trận có bảng mạnh / yếu: rộng hơn, cuộn trong thẻ khi dài */
+.dt-wait.is-end { width: min(560px, calc(100% - 24px)); max-height: calc(100% - 80px); overflow-y: auto; }
+@media (max-width: 600px) { .dt-wait.is-end { left: 12px; right: 12px; width: auto; } }
 .dt-wait .dt-big { font-size: clamp(26px, 4vw, 40px); font-weight: 800; color: var(--ch-text); font-variant-numeric: tabular-nums; line-height: 1.1; }
 .dt-wait .dt-pods { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; width: 100%; margin: 2px 0; }
 .dt-wait .dt-pod { display: grid; justify-items: center; gap: 2px; min-width: 0; padding: 4px 2px; border-radius: 12px; border: 2px solid var(--c); background: #fff; }
@@ -461,11 +465,14 @@ export function startFlow({ root, api, grade, leave, home }) {
     syncNpc();
     if (!show || live) return;
     const now = serverNow();
+    waitEl.classList.toggle('is-end', !!ended);
     if (ended) {
       waitEl.classList.remove('is-go');
       const next = isFree() ? 0 : nextStart(grade, Math.max(now, A.startAt + LIVE_MS));
       const html = `<b>Chương trình đã kết thúc!</b>
         <p>${ended.onPod && ended.rank ? `Bạn xếp hạng ${ended.rank} với <span class="dt-big">${ended.score}</span> điểm.` : `Bạn được <span class="dt-big">${ended.score}</span> điểm cùng khán phòng.`}</p>
+        ${ended.total ? `<p>Trả lời đúng <span class="dt-big">${ended.right || 0}/${ended.total}</span> câu cả buổi.</p>` : ''}
+        ${statsHtml(ended.sum)}
         ${ended.stars > 0 ? `<p>Phần thưởng: <span class="dt-big">⭐ ${ended.stars}</span> sao.</p>` : ''}
         <p class="ch-qw-hint">Cảm ơn bạn đã tham gia.${next ? ` Hẹn gặp lại bạn lúc ${whenText(next, now)}.` : ''}</p>
         <div class="ch-qw-btns"><button type="button" data-w="leave">Về sảnh</button><button type="button" data-w="home">🏠 Trang chủ</button></div>`;
