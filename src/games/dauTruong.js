@@ -264,7 +264,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     <div class="dt-collect" hidden role="dialog" aria-label="Phần thưởng sao của em"></div>
     <div class="ch-top">
       <button type="button" class="ch-ic dt-back" aria-label="Quay lại" title="Quay lại">${icon('x')}</button>
-      <div class="ch-chip"><span class="ch-dot" aria-hidden="true"></span><span class="ch-title">${SHOW_NAME}</span><span class="ch-seat">bản mẫu</span></div>
+      <div class="ch-chip"><span class="ch-dot" aria-hidden="true"></span><span class="ch-title">${SHOW_NAME}</span><span class="ch-seat">${flow ? `Lớp ${getProfileGrade() || ''}`.trim() : 'bản mẫu'}</span></div>
       <button type="button" class="ch-ic dt-mute" aria-label="Tắt / bật giọng MC" title="Giọng MC"></button>
       <button type="button" class="ch-ic dt-mode" aria-haspopup="menu" aria-expanded="false"></button>
     </div>
