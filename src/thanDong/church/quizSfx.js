@@ -354,6 +354,19 @@ export const quizSfx = {
   raw(name, o) { return play(name, o); },
   /** Kênh nền `ch` ('think' | 'crowd' | 'music'): đổi sang file `name` (null = tắt). */
   bed(ch, name, o) { return bed(ch, name, o); },
+  /** Chuông bàn tổng hợp: một tiếng "ting" kim loại (các hoạ âm không chẵn của chuông, tắt dần), rate đổi cao độ. */
+  ding(rate = 1, lv = 0.6) {
+    if (!ac()) return;
+    const t = ctx.currentTime + 0.01, f0 = 1250 * rate;
+    [[1, 1, 1.8], [2.76, 0.45, 1], [5.4, 0.22, 0.5], [8.93, 0.1, 0.25]].forEach(([m, a, d]) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = f0 * m;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(lv * a, t + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g); g.connect(out); o.start(t); o.stop(t + d + 0.05);
+    });
+  },
   /** Kho có file này chưa (tiếng mới chưa tạo thì gọi tiếng thay). */
   has(name) { return !!URLS[name]; },
 

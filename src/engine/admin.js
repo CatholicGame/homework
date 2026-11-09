@@ -21,7 +21,9 @@ import { getCurrentUser } from './auth.js';
 import { firebaseSession } from './leaderboard.js';
 import { castStudents, makeLaunch } from './leaderboardCast.js';
 
-export const ADMIN_EMAILS = ['nguyencongnam506@gmail.com'];
+import { ADMIN_EMAILS } from './adminEmails.js';
+
+export { ADMIN_EMAILS };
 
 export function isAdminUser() {
   const email = getCurrentUser()?.email?.trim().toLowerCase();

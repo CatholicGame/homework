@@ -10,7 +10,7 @@
  *
  * Env (Vercel → Settings → Environment Variables; chạy máy: .env.local), cùng giá trị với dự án Kinh Thánh:
  *   AZURE_SPEECH_KEY, AZURE_SPEECH_REGION; R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL.
- * Thiếu Azure → 503 { error: 'off' }; hết hạn mức (Azure 403 / 429 có chữ quota) → 503 { error: 'quota' } (nghỉ QUOTA_PAUSE);
+ * Thiếu Azure hoặc admin tắt (Firestore config/voice mcAzure: false) → 503 { error: 'off' }; hết hạn mức (Azure 403 / 429 có chữ quota) → 503 { error: 'quota' } (nghỉ QUOTA_PAUSE);
  * lỗi khác → 502. Trình duyệt khi đó đọc bằng giọng của máy (mcVoice.js).
  */
 import { sendJson } from './_lib/google.js';
@@ -24,6 +24,19 @@ const PER_IP_HOUR = 600;
 const DAY_CHARS = 400_000;
 
 let quotaUntil = 0;
+// Admin bật / tắt (Firestore config/voice { mcAzure }, src/engine/mcVoiceConfig.js): đọc lại sau 30 giây; đọc lỗi giữ lần trước
+const CONFIG_URL = `https://firestore.googleapis.com/v1/projects/${process.env.FIREBASE_PROJECT_ID || 'mathtieuhoc'}/databases/(default)/documents/config/voice`;
+let cfg = { on: true, until: 0 };
+async function azureOn() {
+  if (Date.now() < cfg.until) return cfg.on;
+  try {
+    const r = await fetch(CONFIG_URL);
+    if (r.status === 404) cfg.on = true;
+    else if (r.ok) cfg.on = (await r.json())?.fields?.mcAzure?.booleanValue !== false;
+  } catch { /* mạng lỗi: giữ lần trước */ }
+  cfg.until = Date.now() + 30_000;
+  return cfg.on;
+}
 const hits = new Map(); // ip → { hour, n }
 let day = { d: '', n: 0 };
 
@@ -55,6 +68,7 @@ export default async function handler(req, res) {
   const key = process.env.AZURE_SPEECH_KEY, region = process.env.AZURE_SPEECH_REGION;
   if (!key || !region) return sendJson(res, 503, { error: 'off' });
   if (Date.now() < quotaUntil) return sendJson(res, 503, { error: 'quota' });
+  if (!(await azureOn())) return sendJson(res, 503, { error: 'off' });
   const ip = String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').split(',')[0].trim();
   if (tooMany(ip)) return sendJson(res, 429, { error: 'limit' });
   const today = new Date().toISOString().slice(0, 10);

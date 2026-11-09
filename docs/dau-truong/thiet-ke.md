@@ -196,7 +196,14 @@ chương trình vẫn chạy theo phụ đề, chờ đủ thời gian đọc.
 ### 5.5 Khán giả cũng thi
 
 - Khán giả trả lời **mọi câu** của cả ba vòng (cả lượt cá nhân của thí sinh), không cần bấm chuông, có **điểm riêng**: đúng +10
-  (Khởi động), +20 (Tăng tốc), Về đích bằng điểm câu. Khán giả không làm câu lật sớm: thí sinh chốt xong là lật.
+  (Khởi động), +20 (Tăng tốc), Về đích bằng điểm câu.
+- **Khán phòng chốt** (`audLast`): thí sinh phải trả lời đã chốt (lượt cá nhân, bạn bấm chuông, Về đích chốt đúng, Tăng tốc cả bốn
+  bạn đã chốt) mà còn **khán giả thật** chưa chọn thì câu chưa lật: khán phòng còn tối đa **6 giây** (`AUD_LAST`, không quá thời gian
+  còn lại của câu; còn dưới 1,5 giây thì lật luôn). Thí sinh vẫn được ghi giây chốt (`lockAt`: điểm Tăng tốc, lời khen nhanh, màn
+  điểm "Đã chốt 2,1 giây"), chỉ hoãn lật. MC nói ngay "X đã chốt! Khán phòng còn vài giây nữa!" (`audLast`, `audLastFast`,
+  `audLastAll`), đồng hồ đổi sang màu xanh lá, dải khán giả ghi "X đã chốt, em chọn nhanh lên!", thí sinh thấy "Đã chốt, chờ khán
+  phòng chọn". Mọi bạn thật đã chọn thì lật ngay. Phòng chỉ có bạn ảo thì lật ngay như cũ (bạn ảo chưa kịp chọn: 85% coi như đã chọn).
+  Đáp án thí sinh đã chọn không hiện cho khán giả trước khi lật. Về đích chốt sai thì sang giành quyền như cũ (khán giả vẫn chọn được).
 - Điểm hiện **trên đầu từng bạn**: thẻ nổi, điểm (to, vàng) ở trên, tên ở dưới; vừa đúng thì nền xanh, thẻ của mình viền vàng.
   Thẻ chỉ hiện khi camera nhìn về phía khán phòng (sau mỗi câu camera lướt sang Khán phòng), để không chồng lên sân khấu.
 - Trên dải trả lời của khán giả: "Điểm của bạn …". Trao giải ghi 3 **Khán giả xuất sắc** trên màn LED.
@@ -344,7 +351,7 @@ nháy, không quét; đồng hồ, điểm chạy số, bay thẻ vẫn chạy b
 | Lật: sai | Bục đỏ một nhịp rồi mờ | Ô đã chọn đỏ, ô đúng xanh | Tiếng sai nhẹ (không chê) | Bạn ấy cúi đầu nhẹ |
 | Tăng tốc lật | Cam hồng chớp theo thứ tự | 4 thanh thời gian bay vào | Từng tiếng "ting" theo thứ tự | |
 | Về đích: lượt một bạn | Đèn rọi một bục, ba bục mờ | Ba ô độ cao để chọn | Trống dồn ngắn | |
-| Bấm chuông | Bục bấm nháy màu của bạn ấy | Tên bạn ấy | Tiếng chuông | Bạn ấy giơ tay |
+| Bấm chuông | Chuông trên bàn bục nhún xuống, nháy sáng màu bục 1,2 giây + hai vòng sáng loang trên mặt bàn, rồi sáng đều tới câu sau; ô Trực tiếp viền nháy màu bục, nhãn "🔔 Giành quyền" | Tên bạn ấy | Tiếng chuông bàn "ting" (tổng hợp, mỗi bục một cao độ, khi chưa có file `pod-bell`) | Bạn ấy giơ tay |
 | Trao giải | Vàng, quét nhanh, chớp | Bảng xếp hạng | Nhạc chiến thắng, pháo giấy | Hạng nhất bước ra, cả phòng vỗ tay |
 
 Âm thanh: `engine/sfx.js` `playSfx('tên')` với tệp ElevenLabs mới trong `src/assets/sfx/` (danh sách và lời tạo ghi ở
@@ -396,6 +403,11 @@ Vẽ bằng SVG: `src/dauTruong/cert.js` (`certSvg`, `certNo`, `CERT_KINDS`, `CE
 >   `src/dauTruong/tts.js`), máy học sinh tải thẳng từ R2,
 >   câu hỏi + 4 phương án tải trước cả phòng (fx `pre`). Không được thì giọng của máy, rồi phụ đề + chờ theo độ dài câu.
 >   Env Vercel của homework: AZURE_SPEECH_KEY, AZURE_SPEECH_REGION, R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL.
+> - **Admin, tab 🎙️ Giọng MC:** bật / tắt Azure (Firestore `config/voice { mcAzure }`, api/tts.js đọc qua REST, tắt thì không gửi câu
+>   mới sang Azure), số ký tự theo ngày (`api/tts-usage.js` đếm file usage trên R2), % hạn mức miễn phí 500 nghìn ký tự / tháng.
+> - **Không nghe được MC thì tự đọc, công bằng:** Azure hết hạn mức / tắt → giọng của máy; máy cũng không có giọng (hoặc tắt tiếng)
+>   → máy báo `xi nv` cho máy chủ trò. Có ít nhất một bạn như vậy thì mỗi câu cả phòng có **đồng hồ đọc đề chung** (theo độ dài câu
+>   và lớp: lớp 1 5 ký tự/giây … lớp 5 12), bốn phương án hiện ngay, đồng hồ trả lời chỉ chạy sau đó (MC đọc lâu hơn thì chờ MC).
 > - Chương trình xong: máy chủ trò gửi `xe`, 30 giây sau phòng mở lượt mới. Thử: `realtime/test-arena.mjs`,
 >   `scripts/.tmp/dt-sync.mjs` (3 máy: chủ trò, bạn trên bục, khán giả; đổi chủ trò), `dt-sync-win.mjs` (trao giải trên máy hiện theo).
 
@@ -474,3 +486,13 @@ Chỉ màn ngang (như trường quay). Nửa trên là cảnh 3D, **dải trả
 | MC | 2 MC đứng chung bục, thay phiên nói (nam: Toán, nữ: Tiếng Việt) |
 | Lịch | Lượt theo giờ admin đặt trong tab 📅 Lịch |
 | Tên | **Chưa chốt.** Không dùng "Đường lên đỉnh Olympia" (tên chương trình của VTV); cũng không dùng logo, nhạc hiệu, khung sân khấu hay cách gọi riêng của chương trình ấy. Gợi ý: *Chinh Phục Đỉnh Cao*, *Đỉnh Trí Tuệ Nhí*, *Leo Đỉnh Tri Thức*, *Nhà Leo Núi Tri Thức* |
+
+## 15. Thống kê cho admin (2026-11-09)
+
+Giống tab 🎮 Trò chơi của Kinh Thánh. Mã: `src/engine/arenaStats.js`, trang admin `#admin` tab 🏆 Đấu Trường (`src/games/admin.js` drawArena).
+
+- `arena/{uid}`: mỗi tài khoản (cả khách dùng thử) tự cộng dồn: mở sảnh, vào trường quay, ngồi ghế, chương trình bắt đầu, xem hết, lên bục, quán quân, điểm cao nhất, sao, câu trả lời / đúng, bỏ giữa chừng.
+- `arenaPlays/{auto}`: một dòng mỗi chương trình: bục thi (hạng) hay khán giả, điểm, sao; bỏ giữa chừng thì ghi vòng đang chiếu và lý do (bấm rời phòng / thoát app).
+- Thoát app giữa chương trình: dấu `dt-show-open` trong localStorage, lần sau mở sảnh thì ghi. Không quay lại thì vẫn thấy qua bắt đầu − xem hết.
+- Không ghi: phòng thử nội bộ, trình duyệt tự động, máy chưa có tài khoản Firebase.
+- Luật trong `firestore.rules` (mục arena / arenaPlays): sau khi sửa phải dán lại vào Firebase Console → Firestore → Rules → Publish.

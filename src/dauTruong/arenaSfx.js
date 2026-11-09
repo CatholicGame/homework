@@ -109,7 +109,7 @@ export const arenaSfx = {
   bell(i) {
     const rate = BELL_RATE[i] || 1;
     if (S.has('pod-bell')) S.raw('pod-bell', { lv: 0.7, rate });
-    else S.raw('option-pop', { lv: 0.7, rate: rate * 0.75 });
+    else S.ding(rate, 0.55);   // chưa có file: chuông bàn tổng hợp, mỗi bục một cao độ
   },
   /** Mở chuông giành quyền: bốn chuông lướt nhanh từ thấp lên cao. */
   bellOpen() { [0, 1, 2, 3].forEach(i => setTimeout(() => arenaSfx.bell(i), i * 90)); },

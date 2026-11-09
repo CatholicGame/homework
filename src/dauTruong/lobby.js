@@ -13,6 +13,7 @@ import { getProfileGrade } from '../engine/profile.js';
 import { ALWAYS_OPEN, OPEN_BEFORE, clockText, nextStart, stepAt, whenText } from './rules.js';
 import { liveNow, waitFill } from '../engine/liveCount.js';
 import { loadAwards } from './awards.js';
+import { arenaLobby } from '../engine/arenaStats.js';
 
 const FONTS = 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap';
 export const SHOW_TITLE = 'Đấu Trường Nhí';
@@ -22,6 +23,7 @@ export const freeTime = () => ALWAYS_OPEN || import.meta.env.DEV || testRoom() |
 /** deps.stage(opts, back) dựng sân khấu (src/games/dauTruong.js stage), trả { dispose, api, root }. */
 export function lobbyRender(app, onBack, deps) {
   const grade = getProfileGrade();
+  arenaLobby();   // thống kê admin (engine/arenaStats.js); còn dấu chương trình bỏ dở lần trước thì ghi luôn
   let gone = false, tick = 0, poll = 0, inStage = null, entered = false;
   const cleanup = () => {
     gone = true;

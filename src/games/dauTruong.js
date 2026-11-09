@@ -25,10 +25,11 @@ import { lobbyRender } from '../dauTruong/lobby.js';
 import { loadArenaBank, speedQ } from '../dauTruong/questions.js';
 import { drawQBody, optTokens, tokenCanvas, sayTokens } from '../dauTruong/figs.js';
 import { mcLine, sayQuestion, sayOption, LETTER, MC_NAMES } from '../dauTruong/mc.js';
-import { mcPrefetch, mcSpeak, mcStop, setMcListener, setMcRate, isMcMuted, setMcMuted } from '../dauTruong/mcVoice.js';
+import { voiceMode, mcPrefetch, mcSpeak, mcStop, setMcListener, setMcRate, isMcMuted, setMcMuted } from '../dauTruong/mcVoice.js';
 import { certSvg, loadCertFonts, CERT_CSS } from '../dauTruong/cert.js';
 import { addAward } from '../dauTruong/awards.js';
 import { awardFixedStars, getTotalStars } from '../engine/stars.js';
+import { arenaAnswer, showProgress } from '../engine/arenaStats.js';
 import { audienceAt, buzzPlan, decide, pickPackage, podiumAt, reactOf, wantStar } from '../dauTruong/npc.js';
 
 /** Tên chương trình trên màn LED (tên tạm, chủ dự án chốt; '\n' = xuống dòng). Không dùng tên chương trình truyền hình có thật. */
@@ -182,6 +183,11 @@ const CSS = `
   background: rgba(6, 12, 40, 0.8); color: #fff; font-size: clamp(9px, 0.5vw + 0.4vh, 13px); font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; }
 .dt-stage .dt-live-tag i { width: 8px; height: 8px; border-radius: 50%; background: #ff3b4d; box-shadow: 0 0 8px #ff3b4d; animation: dt-rec 1.2s ease-in-out infinite; }
 @keyframes dt-rec { 50% { opacity: 0.25; } }
+/* bạn vừa bấm chuông: viền ô nháy sáng màu bục 3 nhịp, nhãn 🔔 nền màu bục */
+.dt-stage .dt-live-cell.is-bell { animation: dt-bell-cell 0.4s ease-in-out 3 alternate; }
+.dt-stage .dt-live-cell.is-bell .dt-live-tag { background: var(--c); color: #061033; }
+@keyframes dt-bell-cell { to { box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 46px 14px var(--c); border-color: #fff; } }
+@media (prefers-reduced-motion: reduce) { .dt-stage .dt-live-cell.is-bell { animation: dt-bell-cell 1.2s ease-in-out 1 alternate; } }
 .dt-stage .dt-live-name { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
   padding: 4px 10px; background: linear-gradient(90deg, var(--c), color-mix(in srgb, var(--c) 55%, #061033)); color: #061033;
   font-size: clamp(12px, 0.8vw + 0.6vh, 24px); font-weight: 900; line-height: 1.2; }
@@ -237,6 +243,10 @@ const CSS = `
   .dt-stage .dt-bc-s.is-run { animation-duration: 0.6s; }
 }
 @keyframes dt-fade { from { opacity: 0; } to { opacity: 1; } }
+/* đồng hồ đọc đề (có bạn tự đọc): vòng xanh dương, chữ "đọc đề" thay "giây" */
+.dt-stage .ch-qov-clock.is-read .is-fg { stroke: #56c8ff; }
+.dt-stage .ch-qov-clock.is-read small { font-size: 9px; }
+.dt-stage .ch-qov-clock.is-aud .is-fg { stroke: #2cff8a; }
 `;
 
 const FONTS = 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap';
@@ -643,13 +653,18 @@ export function stage(app, onBack, { flow = false } = {}) {
       tabScr.rotation.x = -Math.PI / 2 - 0.35;
       add(new THREE.CylinderGeometry(0.13, 0.15, 0.06, 24), mat.silver, 0.5, 0.96, -0.1, g);
       const bell = add(new THREE.SphereGeometry(0.11, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), glow(col, 1.6), 0.5, 0.99, -0.1, g);
+      // bấm chuông: quầng sáng màu bục quanh chuông + vòng sáng loang ra mặt bàn (stepBell), ai bấm nhìn là biết
+      const bellGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: poolTex, color: col, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+      bellGlow.position.set(0.5, 1.06, -0.1); bellGlow.scale.setScalar(0.9); g.add(bellGlow);
+      const bellWave = new THREE.Mesh(new THREE.TorusGeometry(1, 0.012, 6, 40).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+      bellWave.position.set(0.5, 0.97, -0.1); bellWave.visible = false; g.add(bellWave);
       const kid = person({ h: 1.45, shirt: ['#ffffff', '#ffffff', '#ffffff', '#ffffff'][i] });
       kid.position.set(0, 0.12, -0.62); g.add(kid);
       add(new THREE.BoxGeometry(0.34, 0.22, 0.02), M(COLORS[i]), 0, 0.98, 0.18, kid);  // thẻ màu đội (hình khối tạm: học sinh Hyper3D tải xong thì bỏ)
       const spot = new THREE.SpotLight(col, 60, 14, 0.32, 0.6, 1.4);
       spot.position.set(x * 1.05, 10.5, z + 3); spot.target = kid; spot.castShadow = i === 1 || i === 2; scene.add(spot);
       kid.visible = false;
-      pods.push({ g, col, ringM, canv, tex, tabScr, bell, spot, score: 0, rs: { kd: 0, tt: 0, vd: 0 }, shown: 0, state: 'idle', lockAt: 0, kid, name: NAMES[i], skill: 'kha', wantKind: -1, kindNow: -1 });
+      pods.push({ g, col, ringM, canv, tex, tabScr, bell, bellGlow, bellWave, ringT: -1, spot, score: 0, rs: { kd: 0, tt: 0, vd: 0 }, shown: 0, state: 'idle', lockAt: 0, kid, name: NAMES[i], skill: 'kha', wantKind: -1, kindNow: -1 });
     }
 
     function drawPod(p, sec) {
@@ -1078,7 +1093,10 @@ export function stage(app, onBack, { flow = false } = {}) {
       return Math.max(base, Math.round(base * (SLOW[gradeNow()] || 1) / step) * step);
     };
     const COLOR_NAMES = ['đỏ', 'cam', 'xanh lá', 'xanh dương'];
-    const TIMED = new Set(['think', 'answer', 'steal', 'pick', 'star']);
+    const TIMED = new Set(['think', 'answer', 'steal', 'pick', 'star', 'audLast']);
+    /* audLast: thí sinh đã chốt nhưng còn khán giả thật chưa chọn: câu chưa lật, khán phòng còn tối đa AUD_LAST giây (không quá
+       thời gian còn lại của câu). Thí sinh vẫn được ghi giây chốt (lockAt), chỉ hoãn lật. Phòng chỉ có bạn ảo thì lật ngay. */
+    const AUD_LAST = 6;
     /* Câu mẫu khi chưa tải được bộ câu theo lớp (chỉ để duyệt sân khấu). a = chỉ số đáp án đúng. */
     const BANK = [
       { q: '36 : 4 + 15 = ?', o: ['24', '21', '9', '51'], a: 0 },
@@ -1104,6 +1122,18 @@ export function stage(app, onBack, { flow = false } = {}) {
     /* qid: tăng mỗi lần mở một bước nhận thao tác (câu hỏi, chọn gói, đặt sao); sent: thao tác đã gửi máy chủ trò ở bước ấy
        (`${qid}:lock` …) để không gửi hai lần và hiện "Đã chốt" ngay. tmId: mã đồng hồ (máy hiện theo đặt lại khi đổi). */
     let qid = 0, sent = '', tmId = 0;
+    /* Tự đọc đề: máy không nghe được MC (Azure hết hạn mức / tắt, máy không có giọng tiếng Việt, tắt tiếng) thì bé tự đọc. Để công
+       bằng, máy chủ trò cho CẢ PHÒNG một khoảng đọc đề chung (kidReadSec: theo độ dài câu + phương án và lớp) mỗi khi có ít nhất một
+       bạn tự đọc (readers: mã các bạn báo 'nv', hoặc chính máy chủ trò); bốn phương án hiện ngay, đồng hồ trả lời chỉ chạy sau
+       khoảng ấy (MC đọc lâu hơn thì chờ MC). Máy hiện theo thấy cùng một đồng hồ đọc đề (ảnh chụp). */
+    const readers = new Map();   // mã bạn thật → đang tự đọc
+    let sentNv = null;           // (máy hiện theo) lần báo 'nv' gần nhất
+    const needRead = () => voiceMode() === 'none' || [...readers.values()].some(Boolean);
+    const READ_CPS = { 1: 5, 2: 6, 3: 8, 4: 10, 5: 12 };   // ký tự / giây trẻ tự đọc được (lớp 1 đánh vần chậm)
+    const kidReadSec = (q) => {
+      const len = [sayQuestion(q), ...[0, 1, 2, 3].map(i => sayOption(q, i))].join(' ').length;
+      return Math.max(6, Math.min(45, Math.round(len / (READ_CPS[gradeNow()] || 8)) + 3));
+    };
     const setTimer = (sec, start = performance.now()) => { t0 = start; timer = { id: ++tmId, total: sec, end: start + sec * 1000 }; };
     /* Các bước của vòng: slots (mỗi phần tử một câu, hoặc 'pick' = một bạn chọn gói Về đích, chèn 3 câu của gói ngay sau nó).
        sl: bước đang chạy; turn: bục đang tới lượt (-1: chung); buzzer: bục bấm chuông được quyền; vd: lượt Về đích đang chạy. */
@@ -1366,7 +1396,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (!Q) return false;
       // MC đang đọc câu hỏi (read): chưa ai chọn được, đồng hồ chạy mới mở. Khán giả trả lời suốt lúc câu còn mở
       // (cả lúc MC gọi người bấm chuông / mở giành quyền)
-      if (role() === 'aud') return ['think', 'buzzed', 'answer', 'stealing', 'steal'].includes(phase) && meSeat.ans == null;
+      if (role() === 'aud') return ['think', 'buzzed', 'answer', 'stealing', 'steal', 'audLast'].includes(phase) && meSeat.ans == null;
       if (!['think', 'answer'].includes(phase)) return false;
       if (role() !== 'pod' || sent === `${qid}:lock`) return false;   // đã gửi đáp án cho máy chủ trò: chờ
       const me = pods[myPod];
@@ -1405,10 +1435,11 @@ export function stage(app, onBack, { flow = false } = {}) {
       // dòng phải của dải: nhắc nghe MC đọc / đã chọn, chờ kết quả; còn lại là điểm của câu
       const mr = ov.querySelector('.ch-qov-meta > span');
       const who = buzzer >= 0 ? buzzer : turn;
-      const note = phase === 'read' ? 'Nghe MC đọc hết câu hỏi'
+      const note = phase === 'read' ? (voiceMode() === 'none' ? '📖 Em tự đọc đề, hết giờ đọc thì chọn' : 'Nghe MC đọc hết câu hỏi')
         : rev ? (role() === 'aud' ? pods.filter((q, i) => takesPart(i)).map(q => `${q.name} ${q.gain > 0 ? `+${q.gain}` : q.gain < 0 ? q.gain : 'chưa đúng'}`).join(' · ') : '')
-        : role() === 'aud' && meSeat.ans != null ? (who >= 0 ? `Đã chọn, chờ ${pods[who].name} trả lời` : 'Đã chọn, chờ kết quả')
-        : role() === 'pod' && (pods[myPod].state === 'locked' || sent === `${qid}:lock`) ? 'Đã chốt, chờ kết quả' : '';
+        : role() === 'aud' && meSeat.ans != null ? (phase === 'audLast' ? 'Đã chọn, chờ các bạn khán phòng' : who >= 0 ? `Đã chọn, chờ ${pods[who].name} trả lời` : 'Đã chọn, chờ kết quả')
+        : role() === 'aud' && phase === 'audLast' ? `${who >= 0 ? pods[who].name : 'Thí sinh'} đã chốt, em chọn nhanh lên!`
+        : role() === 'pod' && (pods[myPod].state === 'locked' || sent === `${qid}:lock`) ? (phase === 'audLast' ? 'Đã chốt, chờ khán phòng chọn' : 'Đã chốt, chờ kết quả') : '';
       if (mr) { mr.textContent = note || ptsLabel(); mr.classList.toggle('dt-note', !!note); }
       const res = ov.querySelector('.ch-qov-res');
       res.hidden = !rev;
@@ -1441,16 +1472,22 @@ export function stage(app, onBack, { flow = false } = {}) {
     function paintClock() {
       const el = ov.querySelector('.ch-qov-clock');
       if (!el) return;
-      el.hidden = !timer || !TIMED.has(phase);
+      // lúc đọc đề (phase 'read' có đồng hồ: có bạn tự đọc) đồng hồ đếm thời gian đọc, chữ "đọc", không tích tắc
+      const reading = phase === 'read' && !!timer;
+      el.hidden = !timer || (!TIMED.has(phase) && !reading);
       if (el.hidden) { clkSec = -1; return; }
+      el.classList.toggle('is-read', reading);
+      el.classList.toggle('is-aud', phase === 'audLast');   // thí sinh đã chốt: đồng hồ khán phòng (màu xanh lá)
+      const small = el.querySelector('small');
+      if (small && small.textContent !== (reading ? 'đọc đề' : 'giây')) small.textContent = reading ? 'đọc đề' : 'giây';
       const left = Math.max(0, timer.end - performance.now()) / 1000;
       el.style.setProperty('--p', (left / timer.total).toFixed(3));
       const sec = Math.ceil(left);
       if (sec !== clkSec) {
-        if (clkSec > 0 && sec <= 5 && sec > 0) SFX.tick(sec <= 3);
-        clkSec = sec; el.querySelector('b').textContent = sec; el.classList.toggle('is-low', sec <= 5);
+        if (!reading && clkSec > 0 && sec <= 5 && sec > 0) SFX.tick(sec <= 3);
+        clkSec = sec; el.querySelector('b').textContent = sec; el.classList.toggle('is-low', !reading && sec <= 5);
       }
-      if (Q) SFX.hurry(1 - left / timer.total);
+      if (Q && !reading) SFX.hurry(1 - left / timer.total);
     }
     const CONF = ['#ffd36b', '#2cff8a', '#56c8ff', '#ff6fb1', '#ffffff', '#ff9f2e', '#b07cff'];
     function confetti(n) {
@@ -1474,6 +1511,7 @@ export function stage(app, onBack, { flow = false } = {}) {
         if (k >= 0) picks = picks.slice(0, k); else picks.push(i);
         done = picks.length === 4; ok = done && picks.every((x, j) => x === Q.a[j]);
       }
+      if (done && flow) arenaAnswer(ok);   // thống kê admin (engine/arenaStats.js)
       if (role() === 'aud') {
         if (done) { meSeat.ans = ok; SFX.lock(); if (following()) sync.net.showInput('aud', [meSeat.id, ok ? 1 : 0]); } else SFX.click();
         paintOv(); return;
@@ -1508,9 +1546,10 @@ export function stage(app, onBack, { flow = false } = {}) {
      */
     function input(from, type, a = []) {
       if (!hosting() || gone) return;
+      if (type === 'nv') { readers.set(from, !!a[0]); return; }   // bạn ấy tự đọc đề / nghe được MC
       if (type === 'aud') {
         const st = seatById.get(a[0]);
-        if (st?.live && st.real && st.ans == null && Q && ['think', 'buzzed', 'answer', 'stealing', 'steal'].includes(phase)) st.ans = !!a[1];
+        if (st?.live && st.real && st.ans == null && Q && ['think', 'buzzed', 'answer', 'stealing', 'steal', 'audLast'].includes(phase)) st.ans = !!a[1];
         return;
       }
       const i = pods.findIndex(p => !p.me && p.rid === from);
@@ -1795,6 +1834,9 @@ export function stage(app, onBack, { flow = false } = {}) {
       }
       // giao diện theo bước
       if (newQ) { picks = []; sent = ''; seats.forEach(st => { st.ans = null; }); if (Q) { buildOv(); livePop(); } }
+      // máy này không nghe được MC: báo máy chủ trò để cả phòng có thời gian đọc đề (chỉ báo khi đổi)
+      const nv = voiceMode() === 'none';
+      if (nv !== sentNv) { sentNv = nv; sync.net.showInput('nv', [nv ? 1 : 0]); }
       if (!Q && vd && ['pick', 'star'].includes(phase) && (newQ || was.phase !== phase)) buildChoice();
       else if (!Q && vd && ['picked', 'starred'].includes(phase)) paintChoice();
       if (Q && o.ov && ov.hidden) buildOv();   // vào giữa chừng / dải vừa ẩn lúc tổng kết đợt
@@ -1875,9 +1917,22 @@ export function stage(app, onBack, { flow = false } = {}) {
       sfx('bellOpen');
       paintOv();
     }
+    /** Người phải trả lời đã chốt: còn khán giả thật chưa chọn (và câu còn ≥ 1,5 giây) thì chờ khán phòng (audLast); MC nói ngay
+        "X đã chốt! Khán phòng còn vài giây" trong lúc đồng hồ khán phòng chạy. Không thì đóng câu như cũ. */
+    let audSay = null;
+    const audWaiting = () => seats.some(s => s.live && (s.real || s.mine) && s.ans == null);
+    function closeLocked(key, vars) {
+      const left = timer ? (timer.end - performance.now()) / 1000 : 0;
+      if (!audWaiting() || left < 1.5) { closeQ(key, vars); return; }
+      phase = 'audLast'; setTimer(Math.min(AUD_LAST, Math.ceil(left))); scrDirty = true;
+      paintOv();
+      audSay = host(key === 'allLock' ? 'audLastAll' : key === 'lockedFast' ? 'audLastFast' : 'audLast', vars);
+    }
     /** Đóng câu: MC nói một câu (ai chốt, hết giờ, không ai bấm chuông) rồi lật. */
     async function closeQ(key, vars) {
-      const late = !!timer && performance.now() >= timer.end;
+      const late = phase !== 'audLast' && !!timer && performance.now() >= timer.end;
+      const said = audSay; audSay = null;
+      if (said && !(await said)) return;   // chờ MC nói xong lời mời khán phòng
       phase = 'closing'; timer = null; scrDirty = true;
       sfx('stop', late);
       paintOv();
@@ -2002,6 +2057,9 @@ export function stage(app, onBack, { flow = false } = {}) {
       const mon = monOf(Q);
       // giọng Azure: tải trước câu hỏi và bốn phương án (cả phòng) để MC đọc liền mạch, không chờ mạng giữa các câu
       fxRun('pre', [sayQuestion(Q), ...[0, 1, 2, 3].map(i => sayOption(Q, i))], mon);
+      // có bạn tự đọc: đồng hồ đọc đề chung cho cả phòng, bốn phương án hiện ngay
+      const reading = needRead();
+      if (reading) { shownOpts = 4; setTimer(kidReadSec(Q)); }
       // đổi môn: người vừa nói trao lời cho người kia (lượt Tăng tốc, Về đích: không cần)
       if (lastMon >= 0 && mon !== lastMon && !afterStar && sl.seg !== 'speed') {
         if (!(await host(mon ? 'toTV' : 'toToan'))) return;
@@ -2019,6 +2077,8 @@ export function stage(app, onBack, { flow = false } = {}) {
         if (!(await speak(sayOption(Q, i), mon, { onStart: () => { shownOpts = Math.max(shownOpts, i + 1); paintOv(); sfx('option', i); } }))) return;
         if (shownOpts <= i) { shownOpts = i + 1; paintOv(); }
       }
+      // hết lời MC mà khoảng đọc đề chưa hết: chờ cho bạn tự đọc đọc xong (cả phòng cùng chờ)
+      if (reading && timer) { const left = timer.end - performance.now(); if (left > 0) await wait(left); if (r !== run) return; }
       const one = sl.seg === 'solo' || sl.seg === 'vd';
       if (!(await host(sl.seg === 'common' ? 'goBell' : one ? 'goOne' : 'go', { ten: nameOf(Math.max(0, turn)) }))) return;
       if (r === run && phase === 'read') startThink();
@@ -2046,6 +2106,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (phase === 'star') { if (up) setStar(false); return; }
       const qel = (now - qT0) / 1000;
       seats.forEach(s => { if (s.live && !s.mine && !s.real && s.ans == null && qel >= s.plan) s.ans = s.ok; });
+      if (phase === 'audLast') { if (up || !audWaiting()) closeQ(null); return; }
       if (phase === 'think') {
         if (sl.seg === 'common') { const b = pods.findIndex((p, i) => isBot(i) && el >= p.buzzAt); if (b >= 0) { buzz(b); return; } }
         else pods.forEach((p, i) => { if (isBot(i) && p.state === 'think' && el >= p.plan) botLock(i); });
@@ -2059,16 +2120,16 @@ export function stage(app, onBack, { flow = false } = {}) {
       // người phải trả lời đã chốt thì đóng câu ngay, không chờ hết giờ
       if (phase === 'think') {
         if (sl.seg === 'speed') {
-          if (pods.every(p => p.state === 'locked')) closeQ('allLock'); else if (up) closeQ('timeUp');
+          if (pods.every(p => p.state === 'locked')) closeLocked('allLock'); else if (up) closeQ('timeUp');
         } else if (sl.seg === 'common') { if (up) closeQ('noBell'); }
         else {
           const p = pods[turn];
-          if (p.state === 'locked') { if (sl.seg === 'vd' && !p.ok) steal(false); else closeQ(p.lockAt < 3 ? 'lockedFast' : 'locked', { ten: nameOf(turn) }); }
+          if (p.state === 'locked') { if (sl.seg === 'vd' && !p.ok) steal(false); else closeLocked(p.lockAt < 3 ? 'lockedFast' : 'locked', { ten: nameOf(turn) }); }
           else if (up) { if (sl.seg === 'vd') steal(true); else closeQ('timeUp'); }
         }
       } else if (phase === 'steal') { if (up) closeQ('noBell'); }
       else if (phase === 'answer') {
-        if (pods[buzzer].state === 'locked') closeQ(pods[buzzer].lockAt < 3 ? 'lockedFast' : 'locked', { ten: nameOf(buzzer) }); else if (up) closeQ('timeUp');
+        if (pods[buzzer].state === 'locked') closeLocked(pods[buzzer].lockAt < 3 ? 'lockedFast' : 'locked', { ten: nameOf(buzzer) }); else if (up) closeQ('timeUp');
       }
     }
     /** Lật: tính điểm, đổi màu bục, khán giả cộng điểm; rồi MC đọc đáp án, kết quả, khán phòng, sang bước sau. */
@@ -2277,6 +2338,8 @@ export function stage(app, onBack, { flow = false } = {}) {
     /** Đổi vòng trên màn hình (màu đèn, nút vòng, góc máy, nhạc): máy chủ trò trong setMode, máy hiện theo khi ảnh chụp đổi vòng. */
     function modeLook(m) {
       mode = m;
+      // thống kê admin: vòng đang chiếu, mình ở bục hay không, điểm (dòng bỏ giữa chừng ghi đúng chỗ dừng)
+      if (flow && m !== 'idle') showProgress({ mode: m, pod: meOnPod, score: meOnPod ? pods[myPod]?.score || 0 : seats.find(x => x.mine)?.score || 0 });
       setMcRate(gradeNow() <= 2 ? 1.05 : 1.2);   // MC đọc nhanh hơn 1,2 lần (lớp 1–2 vẫn chậm hơn một chút: 0,88 × 1,2)
       ov.hidden = true; ov.innerHTML = '';
       boardEl.hidden = true;
@@ -2374,7 +2437,8 @@ export function stage(app, onBack, { flow = false } = {}) {
       const k = who.join(',');
       if (k !== liveKey) {
         liveKey = k;
-        liveEl.innerHTML = who.map(i => `<div class="dt-live-cell" style="--c:${COLORS[i]}"><span class="dt-live-tag"><i></i>Trực tiếp</span><em class="dt-live-pop"></em><b class="dt-live-name"><span>${esc(pods[i].name)}</span><s></s></b></div>`).join('');
+        const rang = (i) => i === buzzer && who.length === 1;   // ô của bạn vừa bấm chuông: viền nháy màu bục, nhãn 🔔
+        liveEl.innerHTML = who.map(i => `<div class="dt-live-cell${rang(i) ? ' is-bell' : ''}" style="--c:${COLORS[i]}"><span class="dt-live-tag">${rang(i) ? '🔔 Giành quyền' : '<i></i>Trực tiếp'}</span><em class="dt-live-pop"></em><b class="dt-live-name"><span>${esc(pods[i].name)}</span><s></s></b></div>`).join('');
         liveCells = [...liveEl.children].map((el, j) => ({ el, i: who[j], sc: el.querySelector('s'), shown: null }));
       }
       return true;
@@ -2438,6 +2502,24 @@ export function stage(app, onBack, { flow = false } = {}) {
 
     /* ---------- Vòng lặp ---------- */
     const clock = new THREE.Clock();
+    /* 🔔 Chuông trên bàn bục: bạn nào bấm (buzzer, cả máy hiện theo nhờ ảnh chụp) thì chuông nhún xuống, nháy sáng màu bục
+       1,2 giây kèm vòng sáng loang ra mặt bàn, rồi sáng đều cho tới câu sau, nên trong ô Trực tiếp nhìn là biết ai giành quyền.
+       Giảm chuyển động: không nháy, không loang, chỉ sáng lên êm. */
+    let bellSeen = -1;
+    function stepBell(p, i, t) {
+      if (i === 0 && buzzer !== bellSeen) { bellSeen = buzzer; if (buzzer >= 0) pods[buzzer].ringT = t; }
+      const on = i === buzzer && p.ringT >= 0, k = on ? t - p.ringT : 99;
+      const hit = !reduce && k < 1.2, flash = hit ? 0.5 + 0.5 * Math.abs(Math.cos(k * 14)) : 1;
+      p.bell.material.emissiveIntensity = on ? (hit ? 3 + 6 * flash : 4) : 1.6;
+      // nhún: bấm xuống nhanh rồi bật lên
+      p.bell.scale.y = on && !reduce && k < 0.35 ? 1 - 0.45 * Math.sin(Math.PI * k / 0.35) : 1;
+      const want = on ? (hit ? 0.6 + 0.4 * flash : 0.75) : 0;
+      p.bellGlow.material.opacity += (want - p.bellGlow.material.opacity) * (reduce ? 0.08 : 0.35);
+      p.bellGlow.scale.setScalar(on ? 0.9 + (hit ? 0.35 * flash : 0.15) : 0.9);
+      const w = on && !reduce && k < 1.2 ? (k % 0.6) / 0.6 : -1;   // hai vòng loang
+      p.bellWave.visible = w >= 0;
+      if (w >= 0) { p.bellWave.scale.setScalar(0.12 + w * 0.7); p.bellWave.material.opacity = 0.9 * (1 - w); }
+    }
     function frame() {
       if (!root.isConnected) { dispose(); return; } // rời trang bằng đường khác (nút Back của trình duyệt, đổi trang)
       const now = performance.now(); const t = clock.getElapsedTime();
@@ -2483,7 +2565,7 @@ export function stage(app, onBack, { flow = false } = {}) {
         p.ringM.emissiveIntensity = st === 'right' && !reduce ? 2 + 2 * Math.abs(Math.sin(t * 10)) : st === 'wrong' ? 1.2 : st === 'buzz' ? 1.5 + 3 * flash : dim ? 0.6 : 2.4;
         p.spot.color.set(st === 'wrong' ? '#8a93b8' : st === 'right' ? '#fff3c4' : col);
         p.spot.intensity = st === 'wrong' ? 15 : st === 'right' ? 140 : st === 'buzz' || st === 'turn' ? 120 : dim ? 12 : 60;
-        p.bell.material.emissiveIntensity = st === 'buzz' ? 2 + 5 * flash : 1.6;
+        stepBell(p, i, t);
         p.tabScr.material.emissive.set(st === 'locked' ? '#ffffff' : '#2f6bff');
         if (p.shown !== p.score) p.shown = p.shown < p.score ? Math.min(p.score, p.shown + 0.6) : Math.max(p.score, p.shown - 0.6); // điểm chạy số (cả lúc bị trừ)
         if (awardOn) p.spot.intensity = 8;   // trao giải: bục thí sinh tối, ánh sáng dồn về bục vinh danh
@@ -2500,7 +2582,7 @@ export function stage(app, onBack, { flow = false } = {}) {
         pods.forEach(p => drawPod(p, TIMED.has(phase) && timer && (p.state === 'think' || p.state === 'buzz') ? Math.max(0, timer.end - now) / (timer.total * 1000) : null));
         drawScreen(now);
       }
-      if (TIMED.has(phase)) paintClock();
+      if (TIMED.has(phase) || phase === 'read') paintClock();
       // khán phòng: đèn lưng ghế sáng cho ai đúng, vỗ tay lúc lật đáp án
       seats.forEach(s => {
         if (s.dirty) { s.dirty = false; if (s.live) drawTag(s); }
@@ -2801,11 +2883,11 @@ export function stage(app, onBack, { flow = false } = {}) {
         snapKey = '';
         if (!sync) return;
         if (sync.host && was && !was.host && mode !== 'idle') resume();   // nhận quyền chủ trò giữa chương trình
-        else if (!sync.host) { if (!was || was.host) { run++; clearLater(); } if (lastSnap) applySnap(lastSnap); }
+        else if (!sync.host) { sentNv = null; if (!was || was.host) { run++; clearLater(); } if (lastSnap) applySnap(lastSnap); }   // chủ trò mới: báo lại 'nv'
       },
       get host() { return hosting(); },
       /** Bạn thật trên bục rời phòng giữa chương trình: máy chủ trò chơi thay bạn ấy như bạn ảo (mức khá), bục không đứng im. */
-      podGone: (id) => { pods.forEach(p => { if (!p.me && p.rid === id) { p.rid = 0; p.skill = p.skill || 'kha'; } }); },
+      podGone: (id) => { readers.delete(id); pods.forEach(p => { if (!p.me && p.rid === id) { p.rid = 0; p.skill = p.skill || 'kha'; } }); },
       snap: (o) => applySnap(o), fx: (name, args = []) => { if (following() && FX[name]) FX[name](...args); }, input: (from, type, a) => input(from, type, a),
       onPods: null };
     window.__arena = api;

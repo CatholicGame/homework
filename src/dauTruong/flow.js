@@ -32,6 +32,7 @@ import {
 import { testRoom } from '../thanDong/engine/admin.js';
 import { PICK_AT, audienceAt, podiumAt, rand01 } from './npc.js';
 import { liveNow, roomNpc } from '../engine/liveCount.js';
+import { arenaVisit, arenaSeated, showStart, showEnd, showLeave } from '../engine/arenaStats.js';
 
 const SEAT_KEY = 'dt-seat';
 const thumb = (k) => `/dautruong/pupils/${PUPILS[k]}.webp`;
@@ -146,6 +147,7 @@ export function startFlow({ root, api, grade, leave, home }) {
   }
 
   // ---- trạng thái phòng
+  let seatedOnce = false;
   let mySeat = '', myId = 0, conn = 'connecting', A = null, skew = 0, gone = false, step = 'me', live = false;
   /** Chương trình đã chiếu xong trên máy này ({ onPod, score, rank } từ api.onShowEnd): hiện thẻ kết thúc tới khi rời phòng. */
   let ended = null;
@@ -328,6 +330,7 @@ export function startFlow({ root, api, grade, leave, home }) {
     if (mySeat && mySeat !== id) api.seatPupil(mySeat, -1);
     mySeat = id;
     try { localStorage.setItem(SEAT_KEY, id); } catch { /* bộ nhớ bị chặn */ }
+    if (!seatedOnce) { seatedOnce = true; arenaSeated(); }   // thống kê admin: một lần mỗi lần vào trường quay (đổi ghế không tính)
     if (!meOnPod) { api.seatPupil(id, pupil, true, nick); if (!live) api.seatCam(id); }
     if (chipSeat) chipSeat.textContent = `Ghế ${id}`;
     net?.sit(id);
@@ -521,6 +524,7 @@ export function startFlow({ root, api, grade, leave, home }) {
   }
   api.onShowEnd = (res) => {
     if (gone || !live) return;
+    showEnd(res || {});   // thống kê admin (engine/arenaStats.js): ghi ngay, rời phòng trong 2,5 giây chờ thẻ cũng không tính bỏ giữa chừng
     // để lời chào cuối và pháo giấy kịp xong rồi mới hiện thẻ
     later(() => { if (!live) return; live = false; ended = res || { onPod: false, score: 0, rank: 0 }; paintWait(); }, 2500);
   };
@@ -536,6 +540,7 @@ export function startFlow({ root, api, grade, leave, home }) {
   function goLive() {
     if (step !== 'wait' || ended) return;   // còn chọn nhân vật / ghế: vào xong thì bắt đầu xem; xem xong rồi thì không chiếu lại
     live = true;
+    showStart();   // thống kê admin: chương trình bắt đầu khi mình đang trong phòng
     waitEl.hidden = true;
     syncNpc(true);   // tới giờ: mời nốt bạn ảo cho đủ 4 bục, rồi giữ nguyên tới hết lượt
     frozen = true;
@@ -596,7 +601,7 @@ export function startFlow({ root, api, grade, leave, home }) {
       const p = peers.get(id);
       if (p?.seat && p.seat !== mySeat) api.seatPupil(p.seat, -1);
       peers.delete(id);
-      if (live) api.podGone?.(id);   // đang thi: máy chủ trò chơi thay bạn ấy
+      api.podGone?.(id);   // đang thi: máy chủ trò chơi thay bạn ấy; bạn ấy thôi tính là người tự đọc đề
       syncNpc(true);   // bạn thật rời phòng: bục của bạn ấy để MC mời bạn khác
       if (!smEl.hidden) paintSeats();
     },
@@ -676,6 +681,7 @@ export function startFlow({ root, api, grade, leave, home }) {
 
   // ---- vào
   api.onBack = () => { leave(); return true; };
+  arenaVisit();
   solo.begin();
   if (net) {
     paintConn('info', 'Đang kết nối tới trường quay…');
@@ -689,6 +695,7 @@ export function startFlow({ root, api, grade, leave, home }) {
   addEventListener('online', onOnline);
 
   return () => {
+    if (live && !ended) showLeave();   // rời phòng khi chương trình đang chiếu: bỏ giữa chừng (thống kê admin)
     gone = true;
     clearInterval(tick); clearTimeout(okTimer); clearInterval(solo.iv); clearTimeout(callTimer);
     removeEventListener('online', onOnline);

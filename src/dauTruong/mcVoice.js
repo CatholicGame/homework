@@ -103,6 +103,15 @@ function cloudUrl(text, mc) {
   }
   return found.get(k);
 }
+/**
+ * Máy này nghe MC bằng gì: 'azure' (chưa lỗi), 'local' (giọng tiếng Việt của máy), 'none' (tắt tiếng / không có giọng nào:
+ * bé tự đọc đề, chương trình cho cả phòng thời gian đọc chung, games/dauTruong.js needRead).
+ */
+export function voiceMode() {
+  if (muted) return 'none';
+  if (canCloud()) return 'azure';
+  return hasSynth && voiceOf(0) ? 'local' : 'none';
+}
 /** Tải trước câu MC sắp đọc (câu hỏi và bốn phương án ngay khi chọn câu): lúc đọc không phải chờ mạng. */
 export function mcPrefetch(text, mc = 0) {
   if (muted || !canCloud() || !String(text || '').trim()) return;

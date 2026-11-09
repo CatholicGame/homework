@@ -5,6 +5,10 @@
  *              có trong danh sách với màu riêng. Cả hai không tính vào số liệu học sinh.
  *   Đánh giá — xem đánh giá ứng dụng, trả lời (hiện công khai dưới đánh giá) hoặc xoá.
  *   Giọng đọc — các máy không có giọng đọc tiếng Việt (sách Tiền tiểu học): trình duyệt, thiết bị gì.
+ *   Đấu Trường — ai đã vào 🏆 Đấu Trường Nhí: các bước từ sảnh tới hết chương trình, bục thi, bỏ giữa chừng, câu trả lời, sao,
+ *              và các chương trình gần đây (engine/arenaStats.js).
+ *   Giọng MC — giọng Azure của MC Đấu Trường Nhí: bật / tắt (config/voice), số ký tự đã dùng theo ngày (api/tts-usage.js),
+ *              hạn mức miễn phí của tháng, ước tính chi phí khi vượt.
  * Chỉ tài khoản trong ADMIN_EMAILS vào được (Firestore rules chặn phần còn lại).
  */
 
@@ -16,6 +20,9 @@ import { PRESCHOOL, gradeTitle } from '../data/grades.js';
 import { fetchReviews, replyReview, deleteReview, reviewStats, REPLY_MAX } from '../engine/reviews.js';
 import { starsHtml, reviewerHtml } from './reviews.js';
 import { fetchVoiceIssues, deleteVoiceIssue } from '../engine/voiceReport.js';
+import { getIdToken } from '../engine/leaderboard.js';
+import { isMcAzureOn, setMcAzureOn } from '../engine/mcVoiceConfig.js';
+import { fetchArenaStats } from '../engine/arenaStats.js';
 
 const PAGE_SIZE = 20;
 const CHART_DAYS = 30;
@@ -66,6 +73,8 @@ export function render(app, onBack) {
         <button type="button" role="tab" class="lb-tab" data-tab="students">👧 Học sinh</button>
         <button type="button" role="tab" class="lb-tab" data-tab="reviews">⭐ Đánh giá</button>
         <button type="button" role="tab" class="lb-tab" data-tab="voice">🔊 Giọng đọc</button>
+        <button type="button" role="tab" class="lb-tab" data-tab="mc">🎙️ Giọng MC</button>
+        <button type="button" role="tab" class="lb-tab" data-tab="arena">🏆 Đấu Trường</button>
       </div>
       <div id="adm-body"></div>
     </div>
@@ -113,7 +122,7 @@ export function render(app, onBack) {
     refreshBtn.hidden = true;
     const tab = state.tab;
     body.innerHTML = `<div class="lb-loading" role="status"><div class="page-loading-spinner"></div><p>${
-      tab === 'reviews' ? 'Đang tải đánh giá…' : tab === 'voice' ? 'Đang tải danh sách máy…' : 'Đang tải danh sách học sinh…'}</p></div>`;
+      tab === 'reviews' ? 'Đang tải đánh giá…' : tab === 'voice' ? 'Đang tải danh sách máy…' : tab === 'mc' ? 'Đang tải số liệu giọng MC…' : tab === 'arena' ? 'Đang tải người chơi Đấu Trường Nhí…' : 'Đang tải danh sách học sinh…'}</p></div>`;
     try {
       if (await needsConnect()) return showConnect();
       if (tab === 'reviews') {
@@ -121,6 +130,15 @@ export function render(app, onBack) {
         const [{ reviews }, rows] = await Promise.all([fetchReviews(), fetchStudents().catch(() => [])]);
         const byUid = new Map(rows.map(r => [r.uid, r]));
         state.reviews = reviews.map(r => ({ ...r, email: byUid.get(r.id)?.email || '' }));
+      } else if (tab === 'mc') {
+        const token = await getIdToken();
+        const [usage, on] = await Promise.all([
+          fetch('/api/tts-usage', { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }).then(r => r.json()).catch(() => ({ error: 'net' })),
+          isMcAzureOn(),
+        ]);
+        state.mc = { usage, on };
+      } else if (tab === 'arena') {
+        state.arena = await fetchArenaStats();
       } else if (tab === 'voice') {
         const [issues, rows] = await Promise.all([fetchVoiceIssues(), fetchStudents().catch(() => [])]);
         const byUid = new Map(rows.map(r => [r.uid, r]));
@@ -132,13 +150,15 @@ export function render(app, onBack) {
       refreshBtn.hidden = false;
       if (tab === 'reviews') drawReviews();
       else if (tab === 'voice') drawVoice();
+      else if (tab === 'mc') drawMc();
+      else if (tab === 'arena') drawArena();
       else drawAll();
     } catch (e) {
       if (tab !== state.tab) return;
       if (e?.message === 'need-connect') return showConnect();
       const denied = e?.code === 'permission-denied';
       showMessage(denied ? '🔒' : '📡', denied
-        ? `Firestore từ chối quyền đọc. Kiểm tra đã triển khai firestore.rules mới (${tab === 'voice' ? 'phần voiceIssues' : 'hàm isAdmin'}) chưa.`
+        ? `Firestore từ chối quyền đọc. Kiểm tra đã triển khai firestore.rules mới (${tab === 'voice' ? 'phần voiceIssues' : tab === 'arena' ? 'phần arena / arenaPlays' : 'hàm isAdmin'}) chưa.`
         : 'Không tải được dữ liệu. Kiểm tra kết nối mạng rồi thử lại.',
       '<button type="button" class="btn btn-primary" id="adm-retry">🔄 Thử lại</button>');
       body.querySelector('#adm-retry').onclick = () => load();
@@ -162,6 +182,74 @@ export function render(app, onBack) {
   }
 
   // ── Vẽ ────────────────────────────────────────────────────────────────────
+  /** 🏆 Đấu Trường: các bước từ sảnh tới hết chương trình, người chơi, chương trình gần đây (engine/arenaStats.js). */
+  function drawArena() {
+    const { people, plays } = state.arena;
+    const today = startOfDay(Date.now());
+    const sum = (k) => people.reduce((n, p) => n + (p[k] || 0), 0);
+    const who = (k) => people.filter(p => p[k] > 0).length;
+    const left = (p) => Math.max(0, (p.started || 0) - (p.ended || 0));
+    const pct = (a, b) => (b ? `${Math.round(a / b * 100)}%` : '—');
+    const real = people.filter(p => !p.guest).length;
+    const quits = people.reduce((n, p) => n + left(p), 0);
+    const tiles = [
+      { label: 'Đã từng vào', value: people.length, note: `${real} học sinh · ${people.length - real} khách` },
+      { label: 'Vào hôm nay', value: people.filter(p => p.lastAt >= today).length },
+      { label: 'Vào 7 ngày', value: people.filter(p => p.lastAt >= today - 6 * DAY).length },
+      { label: 'Đã xem chương trình', value: who('started'), note: `${sum('started')} lượt bắt đầu · ${sum('ended')} xem hết` },
+      { label: 'Đã lên bục thi', value: who('pod'), note: `${sum('pod')} lượt · ${sum('wins')} lần quán quân` },
+      { label: 'Bỏ giữa chừng', value: quits, note: `${pct(quits, sum('started'))} số lượt bắt đầu` },
+      { label: 'Câu đã trả lời', value: sum('answered'), note: `đúng ${pct(sum('right'), sum('answered'))}` },
+      { label: 'Sao đã nhận', value: sum('stars') },
+    ];
+    // các bước: mỗi bước bao nhiêu người đã tới (một người tính một lần), trong ngoặc tổng số lượt
+    const funnel = [['Mở sảnh', 'lobby'], ['Vào trường quay', 'visits'], ['Ngồi vào ghế', 'seated'], ['Xem chương trình bắt đầu', 'started'],
+      ['Xem tới hết', 'ended'], ['Lên bục thi', 'pod']].map(([l, k]) => [l, who(k), sum(k)]);
+    const top = Math.max(1, ...funnel.map(f => f[1]));
+    const MODE = { open: 'Mở màn', khoidong: 'Khởi động', tangtoc: 'Tăng tốc', vedich: 'Về đích', win: 'Trao giải' };
+    const end = (p) => (p.quit ? `🚪 Bỏ ở ${MODE[p.mode] || 'chương trình'} (${p.why === 'leave' ? 'bấm rời phòng' : 'thoát app'})`
+      : p.role === 'pod' ? (['', '🥇 Quán quân', '🥈 Á quân', '🥉 Hạng ba', '🏅 Hạng tư'][p.rank] || 'Bục thi') : '👏 Khán giả, xem hết');
+    const grade = (g) => (g ? gradeTitle(g) : '');
+    body.innerHTML = `
+      <div class="adm-tiles">
+        ${tiles.map(t => `<div class="adm-tile"><div class="adm-tile-label">${t.label}</div><div class="adm-tile-value">${t.value}</div>
+          ${t.note ? `<div class="adm-tile-note">${t.note}</div>` : ''}</div>`).join('')}
+      </div>
+      <section class="lb-card adm-section">
+        <h2 class="adm-h2">Các bước</h2>
+        <p class="adm-chart-sub">Số người đã từng tới mỗi bước (trong ngoặc: tổng số lượt).</p>
+        <div class="adm-table-wrap"><table class="adm-table"><tbody>
+          ${funnel.map(([l, n, t]) => `<tr><td>${l}</td><td class="adm-num"><b>${n}</b> (${t})</td>
+            <td style="width:50%"><span style="display:block;height:12px;border-radius:6px;background:#f59f00;width:${Math.round(n / top * 100)}%"></span></td></tr>`).join('')}
+        </tbody></table></div>
+      </section>
+      <section class="lb-card adm-section">
+        <h2 class="adm-h2">Người chơi (${people.length})</h2>
+        ${people.length ? `<div class="adm-table-wrap"><table class="adm-table">
+          <thead><tr><th>Người chơi</th><th>Lớp</th><th class="adm-num">Số ngày</th><th class="adm-num">Sảnh / trường quay</th>
+            <th class="adm-num">Xem (bắt đầu / hết)</th><th class="adm-num">Bỏ dở</th><th class="adm-num">Bục thi</th><th class="adm-num">Điểm cao nhất</th>
+            <th class="adm-num">Trả lời</th><th class="adm-num">Sao</th><th>Lần đầu</th><th>Lần cuối</th></tr></thead>
+          <tbody>${people.map(p => `<tr class="${p.guest ? 'adm-guest' : ''}">
+            <td><strong>${escapeHtml(p.name || '(không tên)')}</strong><br><small class="adm-vc-sub">${escapeHtml(p.email || (p.guest ? 'khách dùng thử' : ''))}</small></td>
+            <td>${escapeHtml(grade(p.grade))}</td><td class="adm-num">${p.days || 0}</td>
+            <td class="adm-num">${p.lobby || 0} / ${p.visits || 0}</td><td class="adm-num">${p.started || 0} / ${p.ended || 0}</td>
+            <td class="adm-num">${left(p) || ''}</td><td class="adm-num">${p.pod || ''}${p.wins ? ` · 🥇${p.wins}` : ''}</td>
+            <td class="adm-num">${p.best || ''}</td><td class="adm-num">${p.answered ? `${p.answered} (đúng ${pct(p.right || 0, p.answered)})` : ''}</td>
+            <td class="adm-num">${p.stars || ''}</td><td>${fmtDate(p.firstAt)}</td><td>${fmtDateTime(p.lastAt)}</td></tr>`).join('')}</tbody>
+        </table></div>` : '<p class="adm-empty">Chưa ai vào Đấu Trường Nhí.</p>'}
+      </section>
+      <section class="lb-card adm-section">
+        <h2 class="adm-h2">Chương trình gần đây</h2>
+        ${plays.length ? `<div class="adm-table-wrap"><table class="adm-table">
+          <thead><tr><th>Lúc</th><th>Người chơi</th><th>Lớp</th><th>Kết thúc</th><th class="adm-num">Điểm</th><th class="adm-num">Sao</th></tr></thead>
+          <tbody>${plays.map(p => `<tr><td>${fmtDateTime(p.at)}</td><td>${escapeHtml(p.name || '')}</td><td>${escapeHtml(grade(p.grade))}</td>
+            <td>${end(p)}</td><td class="adm-num">${p.score || 0}</td><td class="adm-num">${p.stars || ''}</td></tr>`).join('')}</tbody>
+        </table></div>` : '<p class="adm-empty">Chưa có chương trình nào.</p>'}
+      </section>
+      <p class="adm-chart-sub">Bỏ dở: lượt bắt đầu mà không xem tới hết. Dòng 🚪 chỉ có khi bạn ấy bấm rời phòng, hoặc thoát app rồi mở lại sảnh.
+        Tính cả khách dùng thử, không tính bạn ảo và phòng thử nội bộ. Ghi từ ngày 9/11/2026.</p>`;
+  }
+
   function drawAll() {
     const all = state.rows;
     const rows = all.filter(r => !r.fake && !r.guest); // số liệu học sinh: chỉ tài khoản thật
@@ -669,6 +757,66 @@ export function render(app, onBack) {
 
     body.querySelectorAll('[data-vc]').forEach(c => { c.onclick = () => { state.vcFilter = c.dataset.vc; drawVoice(); }; });
     body.querySelectorAll('[data-vc-del]').forEach(b => { b.onclick = () => removeVoiceIssue(b.dataset.vcDel, b); });
+  }
+
+  /* 🎙️ Giọng MC Azure (Đấu Trường Nhí). Azure Speech gói miễn phí F0: 500 nghìn ký tự giọng neural mỗi tháng; vượt thì gói trả tiền
+     khoảng 16 USD / 1 triệu ký tự (giá công bố của Microsoft, có thể đổi). Mỗi câu chỉ gửi Azure một lần (mp3 lưu R2), nên số ký tự
+     chỉ tăng khi có câu mới. Hết hạn mức / tắt: máy học sinh đọc bằng giọng của máy, không có thì bé tự đọc đề (thời gian đọc chung). */
+  const MC_FREE = 500_000, MC_USD = 16 / 1_000_000;
+  function drawMc() {
+    const { usage, on } = state.mc;
+    const days = usage?.days || [];
+    const month = new Date().toISOString().slice(0, 7);
+    const monthChars = days.filter(d => d.day.startsWith(month)).reduce((n, d) => n + d.chars, 0);
+    const monthCalls = days.filter(d => d.day.startsWith(month)).reduce((n, d) => n + d.n, 0);
+    const pct = Math.min(100, Math.round(monthChars / MC_FREE * 100));
+    const over = Math.max(0, monthChars - MC_FREE);
+    const fmt = (n) => n.toLocaleString('vi-VN');
+    const err = usage?.error === 'admin' ? 'Máy chủ không nhận tài khoản admin (đăng nhập lại).'
+      : usage?.error ? 'Không đọc được số liệu trên R2.' : !usage?.r2 ? 'Máy chủ chưa có biến R2_* (Vercel → Environment Variables).'
+        : !usage?.azure ? 'Máy chủ chưa có AZURE_SPEECH_KEY / AZURE_SPEECH_REGION: MC đang đọc bằng giọng của máy.' : '';
+    const tiles = [
+      { label: 'Ký tự tháng này', value: fmt(monthChars) },
+      { label: 'Hạn mức miễn phí', value: `${pct}%` },
+      { label: 'Câu mới đã tạo', value: fmt(monthCalls) },
+      { label: 'Ước tính tiền vượt', value: over ? `${(over * MC_USD).toFixed(2)} USD` : '0' },
+    ];
+    body.innerHTML = `
+      <section class="lb-card adm-section adm-guest-switch">
+        <div>
+          <h2 class="adm-h2">🎙️ Giọng MC Azure (Đấu Trường Nhí)</h2>
+          <p class="adm-chart-sub">${on
+            ? 'Đang bật: anh Minh đọc giọng NamMinh, chị Mai giọng HoaiMy. Câu mới gửi Azure một lần rồi lưu R2 (homework/dautruong/tts).'
+            : 'Đang tắt: không gửi câu mới sang Azure. Câu đã lưu vẫn phát; câu mới đọc bằng giọng của máy, máy không có giọng thì bé tự đọc đề.'}</p>
+          ${err ? `<p class="adm-chart-sub" style="color:#b45309">⚠️ ${escapeHtml(err)}</p>` : ''}
+        </div>
+        <button type="button" class="btn ${on ? 'btn-ghost' : 'btn-primary'}" id="adm-mc-toggle">${on ? '⏸️ Tắt giọng Azure' : '▶️ Bật giọng Azure'}</button>
+      </section>
+      <div class="adm-tiles">
+        ${tiles.map(t => `<div class="adm-tile"><div class="adm-tile-label">${t.label}</div><div class="adm-tile-value">${t.value}</div></div>`).join('')}
+      </div>
+      <section class="lb-card adm-section">
+        <h2 class="adm-h2">Ký tự gửi Azure theo ngày</h2>
+        <p class="adm-chart-sub">Gói miễn phí: ${fmt(MC_FREE)} ký tự mỗi tháng. Vượt: khoảng 16 USD cho 1 triệu ký tự. Hết hạn mức thì MC tự chuyển sang giọng của máy.</p>
+        ${days.length ? `
+        <div class="adm-table-wrap">
+          <table class="adm-table">
+            <thead><tr><th>Ngày</th><th>Ký tự</th><th>Câu mới</th><th>Anh Minh</th><th>Chị Mai</th></tr></thead>
+            <tbody>${days.map(d => `<tr><td>${escapeHtml(d.day)}</td><td>${fmt(d.chars)}</td><td>${fmt(d.n)}</td><td>${fmt(d.voices.namMinh || 0)}</td><td>${fmt(d.voices.hoaiMy || 0)}</td></tr>`).join('')}</tbody>
+          </table>
+        </div>` : '<p class="adm-empty">Chưa có câu nào gửi Azure trong hai tháng gần đây.</p>'}
+      </section>`;
+    const btn = body.querySelector('#adm-mc-toggle');
+    btn.onclick = async () => {
+      btn.disabled = true;
+      try { await setMcAzureOn(!state.mc.on); state.mc.on = !state.mc.on; drawMc(); }
+      catch (e) {
+        btn.disabled = false;
+        alert(e?.code === 'permission-denied'
+          ? 'Firestore từ chối ghi. Kiểm tra đã triển khai firestore.rules mới (phần config/voice) chưa.'
+          : 'Không lưu được, thử lại.');
+      }
+    };
   }
 
   function vcRowHtml(v) {

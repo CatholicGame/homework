@@ -176,12 +176,17 @@ service cloud.firestore {
 
     // Cấu hình app do admin bật / tắt (src/engine/leaderboard.js isGuestEnabled): ai cũng đọc được,
     // kể cả lúc chưa đăng nhập (màn đăng nhập cần biết có hiện nút "Dùng thử" không); chỉ admin ghi.
+    // config/voice: giọng MC Azure của Đấu Trường Nhí bật / tắt (src/engine/mcVoiceConfig.js, api/tts.js đọc qua REST).
     match /config/{id} {
       allow read: if true;
-      allow write: if isAdmin() && id == 'app'
+      allow write: if isAdmin() && ((id == 'app'
         && request.resource.data.keys().hasOnly(['guestEnabled', 'updatedAt'])
         && request.resource.data.guestEnabled is bool
-        && request.resource.data.updatedAt == request.time;
+        && request.resource.data.updatedAt == request.time)
+        || (id == 'voice'
+        && request.resource.data.keys().hasOnly(['mcAzure', 'updatedAt'])
+        && request.resource.data.mcAzure is bool
+        && request.resource.data.updatedAt == request.time));
     }
 
     // Mỗi máy một khách (src/engine/leaderboard.js claimGuestDevice): `{mã máy băm}` → uid ẩn danh đầu tiên
@@ -242,6 +247,44 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if isOwner(uid) && request.resource.data.keys().hasOnly(['at'])
         && request.resource.data.at == request.time;
+    }
+
+    // Thống kê 🏆 Đấu Trường Nhí cho admin (#admin tab 🏆, src/engine/arenaStats.js): mỗi tài khoản (cả khách ẩn danh) tự cộng dồn
+    // bản ghi của mình và thêm dòng chương trình của mình; chỉ admin đọc danh sách.
+    function arenaInt(n, max) { return n is int && n >= 0 && n <= max; }
+    match /arena/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['name', 'email', 'guest', 'grade', 'firstAt', 'lastAt', 'lastDay', 'days', 'best',
+             'lobby', 'visits', 'seated', 'started', 'ended', 'pod', 'wins', 'stars', 'answered', 'right', 'quits'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60
+        && request.resource.data.email == request.auth.token.get('email', '')
+        && request.resource.data.guest is bool
+        && request.resource.data.grade is int && request.resource.data.grade >= -1 && request.resource.data.grade <= 5
+        && request.resource.data.lastAt == request.time
+        && request.resource.data.lastDay is string && request.resource.data.lastDay.size() == 10
+        && arenaInt(request.resource.data.days, 100000) && arenaInt(request.resource.data.best, 10000)
+        && arenaInt(request.resource.data.lobby, 1000000) && arenaInt(request.resource.data.visits, 1000000)
+        && arenaInt(request.resource.data.seated, 1000000) && arenaInt(request.resource.data.started, 1000000)
+        && arenaInt(request.resource.data.ended, 1000000) && arenaInt(request.resource.data.pod, 1000000)
+        && arenaInt(request.resource.data.wins, 1000000) && arenaInt(request.resource.data.stars, 100000000)
+        && arenaInt(request.resource.data.answered, 1000000) && arenaInt(request.resource.data.right, 1000000)
+        && arenaInt(request.resource.data.quits, 1000000);
+      allow delete: if isAdmin();
+    }
+    match /arenaPlays/{id} {
+      allow read, delete: if isAdmin();
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'grade', 'at', 'role', 'rank', 'score', 'stars', 'quit', 'why', 'mode', 'startAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60
+        && request.resource.data.grade is int && request.resource.data.grade >= -1 && request.resource.data.grade <= 5
+        && request.resource.data.at == request.time
+        && request.resource.data.role in ['pod', 'aud']
+        && arenaInt(request.resource.data.rank, 4) && arenaInt(request.resource.data.score, 10000) && arenaInt(request.resource.data.stars, 1000)
+        && (!('quit' in request.resource.data) || request.resource.data.quit == true)
+        && (!('why' in request.resource.data) || request.resource.data.why in ['leave', 'app'])
+        && (!('mode' in request.resource.data) || request.resource.data.mode in ['', 'open', 'khoidong', 'tangtoc', 'vedich', 'win'])
+        && (!('startAt' in request.resource.data) || request.resource.data.startAt is int);
     }
 
     match /reviews/{uid} {

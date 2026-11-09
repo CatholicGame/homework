@@ -34,6 +34,10 @@ const SCRIPT = {
   locked: ['mon', '{ten} đã chốt đáp án!', '{ten} đã chọn xong!'],
   lockedFast: ['mon', 'Một câu trả lời rất nhanh của {ten}!', '{ten} trả lời nhanh như chớp!', 'Nhanh quá! {ten} đã chốt đáp án.'],
   allLock: ['mon', 'Cả bốn bạn đã chốt đáp án!', 'Nhanh quá, bốn bạn đều đã chốt!'],
+  // thí sinh đã chốt nhưng còn bạn khán giả thật chưa chọn: chưa lật, khán phòng còn vài giây (audLast)
+  audLast: ['mon', '{ten} đã chốt đáp án! Khán phòng còn vài giây nữa!', '{ten} đã chọn xong! Các bạn khán phòng nhanh tay lên!'],
+  audLastFast: ['mon', 'Nhanh như chớp, {ten} đã chốt! Khán phòng còn vài giây nữa!', '{ten} trả lời rất nhanh! Khán phòng ơi, chọn nhanh lên!'],
+  audLastAll: ['mon', 'Cả bốn bạn đã chốt! Khán phòng còn vài giây nữa!', 'Bốn bạn đều đã chọn xong! Khán phòng nhanh tay lên!'],
   timeUp: ['mon', 'Hết giờ!', 'Thời gian đã hết!'],
   answer: ['mon', 'Đáp án đúng là {chu}.', 'Và đáp án đúng là {chu}!'],
   answerShow: ['mon', 'Và đây là thứ tự đúng.', 'Cùng xem thứ tự đúng nào!'],
