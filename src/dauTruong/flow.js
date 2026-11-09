@@ -597,7 +597,7 @@ export function startFlow({ root, api, grade, leave, home }) {
   function placePeer(id) {
     const p = peers.get(id);
     // ghế của mình không bao giờ bị người khác (hay bạn máy) đè: đè thì mất vai khán giả và điểm của mình
-    if (p?.seat && p.seat !== mySeat && !realUp.has(id)) api.seatPupil(p.seat, p.kind >= 0 ? p.kind : 0, false, p.n || '', p.npc || 'real');
+    if (p?.seat && p.seat !== mySeat && !realUp.has(id)) api.seatPupil(p.seat, p.kind >= 0 ? p.kind : 0, false, p.n || '', p.npc || 'real', p.npc && String(id).startsWith('npc:') ? String(id).slice(4) : '');
   }
   const net = ONLINE ? makeNet({
     welcome(id, list) {

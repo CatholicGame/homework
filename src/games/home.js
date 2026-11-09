@@ -374,6 +374,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
           mod.render(panel, null, {
             embedded: true,
             onEditProfile: () => navigate('profile'),
+            onOpenGame: (id) => navigate(id),
             onSignIn: user?.guest ? onSignIn : null,
           });
         });

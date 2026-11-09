@@ -139,7 +139,7 @@ function todayProgress(id, now) {
 const atHour = (date, h) => startOfDay(date).getTime() + Math.round(h * 3_600_000);
 
 /** Sao của một bạn ảo: tổng, tháng, tuần, hôm nay — chỉ đếm từ ngày khởi động. */
-function scores(m, launch, n, now, chase) {
+function scores(m, launch, n, now, chase, arena) {
   const today = startOfDay(now);
   const todayKey = dayKey(today);
   const monday = addDays(today, -((today.getDay() + 6) % 7));
@@ -158,6 +158,17 @@ function scores(m, launch, n, now, chase) {
     if (d >= monday) s.week += k;
   }
   s.total += boostAt(chase?.boost?.[m.id], now.getTime());
+  // 🏆 sao bạn ấy giành được ở Đấu Trường Nhí (đứng bục / khán phòng), như bé thật: castArena/g{lớp}
+  if (arena) {
+    s.total += arena.total?.[m.id] || 0;
+    for (const [k, byId] of Object.entries(arena.days || {})) {
+      const v = byId?.[m.id] || 0, d = parseDay(k);
+      if (!v) continue;
+      if (k === todayKey) s.day += v;
+      if (d >= monday && d <= today) s.week += v;
+      if (d >= first && d <= today) s.month += v;
+    }
+  }
   return s;
 }
 
@@ -190,11 +201,12 @@ function ratchet(rows, now) {
  * @param {Launch} launch ảnh chụp khởi động của lớp
  * @param {Date} [now]
  * @param {Chase} [chase] phần sao cộng thêm khi vượt bé đứng đầu
+ * @param {{ total?: Object<string, number>, days?: Object<string, Object<string, number>> }} [arena] sao Đấu Trường Nhí
  */
-export function castRows(grade, launch, now = new Date(), chase = null) {
+export function castRows(grade, launch, now = new Date(), chase = null, arena = null) {
   const list = members(grade);
   return ratchet(list.map((m) => {
-    const s = scores(m, launch, list.length, now, chase);
+    const s = scores(m, launch, list.length, now, chase, arena);
     const [nickname, avatar] = m.cast;
     return {
       uid: m.id, nickname, avatar, grade,

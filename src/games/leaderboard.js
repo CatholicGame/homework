@@ -9,7 +9,8 @@ import {
 import { preloadAuth } from '../engine/auth.js';
 import { getProfile, getProfileGrade, avatarUrl } from '../engine/profile.js';
 import { dayKey, weekKey, monthKey } from '../engine/activity.js';
-import { gradeTitle } from '../data/grades.js';
+import { gradeTitle, getGrade } from '../data/grades.js';
+import { isAdminUser } from '../engine/admin.js';
 
 const TOP_N = 100;
 const MEDALS = ['🥇', '🥈', '🥉'];
@@ -60,7 +61,20 @@ function rankBadge(rank) {
 }
 
 /** `embedded`: vẽ trong mục Xếp hạng của trang chủ (không nút ← Trang chủ). */
-export function render(app, onBack, { onEditProfile, onSignIn, embedded = false } = {}) {
+/* 🏆 Lời mời Đấu Trường Nhí: thi trên bục hoặc trả lời cùng khán phòng để thu hoạch thêm sao (bạn ảo trên bảng cũng được sao
+   ở đó). Chỉ hiện khi thẻ Đấu Trường của lớp này đang mở với người xem (thẻ admin thì chỉ admin thấy). */
+const ARENA_ID = 'dautruong-preview';
+function arenaPromo(grade, onOpenGame) {
+  const g = getGrade(grade)?.games?.find(x => x.id === ARENA_ID);
+  if (!onOpenGame || !g || g.hidden || (g.admin && !isAdminUser())) return '';
+  return `<button type="button" class="lb-arena" data-act="arena">
+    <span class="lb-arena-ic" aria-hidden="true">🏆</span>
+    <span class="lb-arena-t"><b>Vào Đấu Trường Nhí</b><span>Thi trên bục hoặc trả lời cùng khán phòng để thu hoạch nhiều sao hơn!</span></span>
+    <span class="lb-arena-go" aria-hidden="true">›</span>
+  </button>`;
+}
+
+export function render(app, onBack, { onEditProfile, onSignIn, onOpenGame, embedded = false } = {}) {
   const grade = getProfileGrade();
   const PERIODS = periods(grade);
   const state = { tab: 'all', data: null };
@@ -76,6 +90,7 @@ export function render(app, onBack, { onEditProfile, onSignIn, embedded = false 
       <div class="lb-card">
         <h1 class="lb-title">🏆 Bảng xếp hạng ${gradeTitle(grade)}</h1>
         <p class="lb-subtitle">Các bạn cùng học ${gradeTitle(grade).toLowerCase()} · <button type="button" class="lb-link" data-act="edit-profile">Đổi lớp</button></p>
+        ${arenaPromo(grade, onOpenGame)}
         <div class="lb-tabs" role="tablist">
           ${PERIODS.map((p) => {
             const [icon, ...words] = p.label.split(' ');
@@ -92,6 +107,8 @@ export function render(app, onBack, { onEditProfile, onSignIn, embedded = false 
   if (!embedded) app.querySelector('#lb-back').onclick = onBack;
   refreshBtn.onclick = () => load(true);
   app.querySelector('.lb-subtitle [data-act="edit-profile"]').onclick = () => onEditProfile?.();
+  const arenaBtn = app.querySelector('[data-act="arena"]');
+  if (arenaBtn) arenaBtn.onclick = () => onOpenGame?.(ARENA_ID);
   app.querySelectorAll('.lb-tab').forEach(t => {
     t.onclick = () => { state.tab = t.dataset.tab; draw(); };
   });

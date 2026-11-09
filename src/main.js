@@ -297,6 +297,7 @@ function navigate(gameId, opts = {}) {
       mod.render(app, () => navigate('home'), {
         onEditProfile: () => { profileReturn = 'leaderboard'; navigate('profile'); },
         onSignIn: user.guest ? goSignIn : null,
+        onOpenGame: (id) => navigate(id),
       });
     }).catch(() => {
       if (token === navToken) renderLoadError(app, () => navigate('home'));

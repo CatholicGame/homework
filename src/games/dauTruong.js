@@ -29,6 +29,8 @@ import { voiceMode, mcPrefetch, mcSpeak, mcStop, setMcListener, setMcRate, isMcM
 import { certSvg, loadCertFonts, CERT_CSS } from '../dauTruong/cert.js';
 import { addAward } from '../dauTruong/awards.js';
 import { summarize, saveMatch } from '../dauTruong/matchStats.js';
+import { addCastArenaStars } from '../engine/leaderboard.js';
+import { testRoom } from '../thanDong/engine/admin.js';
 import { awardFixedStars, getTotalStars } from '../engine/stars.js';
 import { arenaAnswer, showProgress } from '../engine/arenaStats.js';
 import { audienceAt, buzzPlan, decide, pickPackage, podiumAt, reactOf, wantStar } from '../dauTruong/npc.js';
@@ -1063,6 +1065,7 @@ export function stage(app, onBack, { flow = false } = {}) {
         p.kid.visible = !!w;
         p.me = !!w?.me;
         p.rid = w?.me ? 0 : w?.real || w?.rid || 0;   // bạn thật khác trên bục: mã của bạn ấy trong phòng (máy chủ trò chờ thao tác)
+        p.cid = w && !w.me && !w.real ? w.npc || '' : '';   // bạn ảo: mã cast-N trên bảng xếp hạng (cộng sao Đấu Trường)
         applyPod(p);
       });
       if (flow) { myPod = list.findIndex(x => x?.me); meOnPod = myPod >= 0; }
@@ -1667,6 +1670,19 @@ export function stage(app, onBack, { flow = false } = {}) {
     function audStarsRule(t4Score, t4Stars, topScore) {
       const top = topScore <= 0 ? 0 : topScore >= t4Score ? t4Stars : Math.round(t4Stars * topScore / Math.max(1, t4Score));
       return (score) => (topScore > 0 && score > 0 ? Math.min(top, Math.max(1, Math.round(top * score / topScore))) : 0);
+    }
+    /**
+     * 🏆 Bạn ảo cũng được sao như bé thật (bảng xếp hạng, engine/leaderboard.js addCastArenaStars): bục theo hạng + điểm
+     * (podStars), khán phòng theo điểm khán giả (audStarsRule). Chỉ máy chủ trò của chương trình thật ghi, một lần mỗi trận
+     * (mã trận = lúc bắt đầu, giống nhau trên mọi máy); sân khấu thử, phòng thử, trình duyệt tự động không ghi.
+     */
+    function castStars(best) {
+      if (!flow || testRoom() || !hosting()) return;
+      const stars = best.map((p, k) => podStars(k, p.score)), add = {};
+      best.forEach((p, k) => { if (p.cid) add[p.cid] = (add[p.cid] || 0) + stars[k]; });
+      const fan = topFan(), rule = audStarsRule(best[3].score, stars[3], fan?.score || 0);
+      seats.forEach(x => { if (x.live && x.cid && !x.real && !x.mine) { const n = rule(x.score || 0); if (n > 0) add[x.cid] = (add[x.cid] || 0) + n; } });
+      addCastArenaStars(gradeNow(), `${showAt || Date.now()}`, add);
     }
     function giveStars(role, n, at) {
       if (!(n > 0)) return 0;
@@ -2440,6 +2456,7 @@ export function stage(app, onBack, { flow = false } = {}) {
           fxRun('awardCam', -1);
         }
         fxRun('audStars');
+        castStars(best);
         if (!(await say('bye')) || r !== run) return;
         // ⭐ màn thu sao của mình, rồi thẻ kết thúc (flow.js)
         fxRun('end');
@@ -2960,7 +2977,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       st.pupil.mixer.update(0);
       st.kindNow = w.kind;
     }
-    function seatPupil(id, kind = -1, mine = false, name = '', skill = 'kha') {
+    function seatPupil(id, kind = -1, mine = false, name = '', skill = 'kha', cid = '') {
       const st = seatById.get(id);
       if (!st) return;
       if (kind >= 0) seatWant.set(id, { kind }); else seatWant.delete(id);
@@ -2972,6 +2989,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (st.live && !st.name) st.name = 'Bạn';
       // 'real': bạn thật khác (flow.js): máy chủ trò không giả lập câu trả lời, chờ bạn ấy gửi ('xi' aud)
       st.real = skill === 'real';
+      st.cid = st.live && !st.real && !mine ? cid : '';   // bạn ảo: mã cast-N trên bảng xếp hạng
       st.skill = st.real ? 'kha' : skill;
       st.dirty = true;
       if (meSeat && meSeat !== st) meSeat.dirty = true;

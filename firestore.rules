@@ -86,6 +86,18 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time;
     }
 
+    // Sao Đấu Trường Nhí của các bạn ảo (src/engine/leaderboard.js addCastArenaStars), mỗi lớp một bản `g{lớp}`:
+    // { total: { cast-…: sao }, days: { 'YYYY-MM-DD': { cast-…: sao } }, shows: [mã trận], updatedAt }. Máy chủ trò của trận ghi.
+    match /castArena/{id} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && id in ['g-1', 'g1', 'g2', 'g3', 'g4', 'g5']
+        && request.resource.data.keys().hasOnly(['total', 'days', 'shows', 'updatedAt'])
+        && request.resource.data.total is map && request.resource.data.total.size() <= 300
+        && request.resource.data.days is map && request.resource.data.days.size() <= 40
+        && request.resource.data.shows is list && request.resource.data.shows.size() <= 60
+        && request.resource.data.updatedAt == request.time;
+    }
+
     // Hồ sơ riêng của bé (trai/gái, avatar, tên, lớp) để máy khác cùng tài khoản không hỏi lại.
     // Chỉ chính bé đọc/ghi được.
     function validProfile(d) {

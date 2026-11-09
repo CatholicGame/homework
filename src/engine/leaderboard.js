@@ -19,6 +19,7 @@ import { getCurrentUser, getAccessToken, getFreshAccessToken, isGuest, leaveGues
 import { getTotalStars, getStarsByGrade, getGradePeriodStars } from './stars.js';
 import { getProfile, saveProfile, markProfileSynced, NAME_MAX, CONSENT_TEXT, parentConsentAt } from './profile.js';
 import { castRows, chaseStep, makeLaunch } from './leaderboardCast.js';
+import { dayKey as arenaDayKey } from './activity.js';
 import { describeDevice } from './voiceReport.js';
 import { deviceKey } from './deviceKey.js';
 import { isStandalone, isInstalledHere } from './installApp.js';
@@ -629,7 +630,7 @@ let cache = null; // { at, grade, data }
 export async function fetchLeaderboard({ force = false } = {}) {
   const grade = getProfile().grade || 0;
   if (!force && cache && cache.grade === grade && Date.now() - cache.at < CACHE_MS) {
-    return { ...cache.data, rows: [...cache.data.rows, ...castRows(grade, cache.launch, new Date(), cache.chase)] };
+    return { ...cache.data, rows: [...cache.data.rows, ...castRows(grade, cache.launch, new Date(), cache.chase, arenaOf(grade))] };
   }
   clearTimeout(pushTimer);
   const myUid = await pushNow(); // đảm bảo điểm mới nhất của mình có trên bảng
@@ -645,9 +646,61 @@ export async function fetchLeaderboard({ force = false } = {}) {
   const data = { myUid, grade, rows };
   const launch = await castLaunch(grade, rows);
   const chase = await castChase(grade, rows, launch);
+  await castArenaLoad(grade);
   cache = { at: Date.now(), grade, data, launch, chase };
   // Các bạn ảo tính lại mỗi lần (sao hôm nay tăng dần), không nằm trong cache Firestore.
-  return { ...data, rows: [...rows, ...castRows(grade, launch, new Date(), chase)] };
+  return { ...data, rows: [...rows, ...castRows(grade, launch, new Date(), chase, arenaOf(grade))] };
+}
+
+// ── Sao Đấu Trường Nhí của các bạn ảo ────────────────────────────────────────
+// `castArena/g{lớp}`: { total: { cast-N: sao }, days: { 'YYYY-MM-DD': { cast-N: sao } }, shows: [mã trận], updatedAt }.
+// Bạn ảo đứng bục / ngồi khán phòng trong một trận được sao như bé thật (games/dauTruong.js lúc trao giải, máy chủ trò ghi
+// một lần cho cả phòng); bảng xếp hạng cộng phần này vào tổng, tháng, tuần, hôm nay của bạn ấy (leaderboardCast.js castRows).
+// Ghi trong transaction, mã trận đã có thì bỏ (máy chủ trò đổi giữa chừng không cộng hai lần). Giữ ARENA_DAYS ngày gần nhất.
+const CAST_ARENA = 'castArena';
+const ARENA_DAYS = 40, ARENA_SHOWS = 60;
+const arenaStoreKey = (grade) => `tth_castarena_g${grade}`;
+const arenaOf = (grade) => { try { return JSON.parse(localStorage.getItem(arenaStoreKey(grade))) || null; } catch { return null; } };
+const arenaKeep = (grade, a) => { try { localStorage.setItem(arenaStoreKey(grade), JSON.stringify({ total: a.total || {}, days: a.days || {} })); } catch { /* storage unavailable */ } };
+
+async function castArenaLoad(grade) {
+  try {
+    const { db, fs } = await loadFirebase();
+    const snap = await fs.getDoc(fs.doc(db, CAST_ARENA, `g${grade}`));
+    if (snap.exists()) arenaKeep(grade, snap.data());
+  } catch (e) {
+    console.warn('[leaderboard] Không đọc được sao Đấu Trường của bạn ảo:', e?.code || e);
+  }
+}
+
+/**
+ * Cộng sao Đấu Trường Nhí cho các bạn ảo của lớp `grade` sau một trận. add: { 'cast-N': sao }; showKey: mã trận (một lần).
+ * Không bao giờ ném lỗi.
+ */
+export async function addCastArenaStars(grade, showKey, add) {
+  const list = Object.entries(add || {}).filter(([id, n]) => /^cast-\d+$/.test(id) && Number.isInteger(n) && n > 0 && n <= 100);
+  if (!list.length || !isLeaderboardConfigured() || !(grade >= -1 && grade <= 5)) return;
+  try {
+    const { db, fs } = await loadFirebase();
+    const ref = fs.doc(db, CAST_ARENA, `g${grade}`);
+    const next = await fs.runTransaction(db, async (tx) => {
+      const cur = await tx.get(ref);
+      const { total = {}, days = {}, shows = [] } = cur.exists() ? cur.data() : {};
+      if (shows.includes(showKey)) return null;
+      const day = arenaDayKey(new Date());
+      const today = { ...(days[day] || {}) };
+      const t = { ...total };
+      for (const [id, n] of list) { t[id] = (t[id] || 0) + n; today[id] = (today[id] || 0) + n; }
+      const d = { ...days, [day]: today };
+      for (const k of Object.keys(d).sort().slice(0, Math.max(0, Object.keys(d).length - ARENA_DAYS))) delete d[k];
+      const out = { total: t, days: d, shows: [...shows, showKey].slice(-ARENA_SHOWS), updatedAt: fs.serverTimestamp() };
+      tx.set(ref, out);
+      return out;
+    });
+    if (next) { arenaKeep(grade, next); if (cache?.grade === grade) cache.at = 0; }
+  } catch (e) {
+    console.warn('[leaderboard] Không ghi được sao Đấu Trường của bạn ảo:', e?.code || e);
+  }
 }
 
 // ── Bạn ảo vượt bé thật đứng đầu ────────────────────────────────────────────

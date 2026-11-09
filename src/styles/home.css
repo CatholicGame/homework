@@ -1741,6 +1741,17 @@
 .lb-empty p { margin-bottom: 16px; }
 .lb-loading .page-loading-spinner { margin: 0 auto 12px; }
 
+/* 🏆 lời mời Đấu Trường Nhí trên bảng xếp hạng (leaderboard.js arenaPromo) */
+.lb-arena { display: flex; align-items: center; gap: 12px; width: 100%; margin: 4px 0 14px; padding: 10px 14px; border-radius: 16px; cursor: pointer;
+  font-family: var(--font); text-align: left; color: #1E3A8A; background: linear-gradient(90deg, #EFF6FF, #FEF9C3);
+  border: 1px solid #BFDBFE; box-shadow: 0 3px 0 #BFDBFE; }
+.lb-arena:active { transform: translateY(2px); box-shadow: 0 1px 0 #BFDBFE; }
+.lb-arena-ic { font-size: 1.9rem; line-height: 1; }
+.lb-arena-t { flex: 1; display: grid; gap: 2px; }
+.lb-arena-t b { font-size: 1rem; font-weight: 800; }
+.lb-arena-t span { font-size: 0.88rem; font-weight: 600; color: #475569; }
+.lb-arena-go { font-size: 1.6rem; font-weight: 800; color: #1D4ED8; }
+
 .lb-hint,
 .lb-note {
   margin: 12px 0 0;
