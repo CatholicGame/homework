@@ -9,7 +9,7 @@ cùng trả lời từng câu, giấy khen từ câu 10.
 
 | Phần | kinh-thanh | homework |
 |---|---|---|
-| Câu hỏi | 15 tệp JSON Kinh Thánh | sinh theo lớp: `src/thanDong/quiz/bank/g1.js … g5.js` (15 bậc mỗi lớp), kiểm tra `node scripts/thandong-check.mjs` |
+| Câu hỏi | 15 tệp JSON Kinh Thánh | 15 bậc mỗi lớp, mỗi bậc nửa câu viết tay `src/thanDong/quiz/bank/fixed/g1.js … g5.js` (12 câu/bậc), nửa câu sinh `bank/g1.js … g5.js`, kiểm tra `node scripts/thandong-check.mjs` |
 | Thưởng | Hạt giống | Sao (sổ sao chung `engine/stars.js`, khoá `thandong<lớp>:hot:<lượt>` và `thandong<lớp>:aud:<ngày>:<n>`) |
 | Thang thưởng | 0 → 100 hạt | `HOT` trong `quiz/rules.js`: 0 → 30 sao |
 | Vật phẩm, Tủ đồ | đổi bằng hạt | đổi bằng sao: giỏ = tổng sao − sao đã đổi (`bag.paid`), `PRICE_K = 2` |

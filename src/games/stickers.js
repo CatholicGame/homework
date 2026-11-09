@@ -12,16 +12,17 @@ import { playSfxSoon, preloadSfx } from '../engine/sfx.js';
 const SPIN_MS = 4800;
 const TURNS = 6;
 
-export function render(app, onBack) {
+/** `embedded`: vẽ trong mục Sticker của trang chủ (không nút ← Trang chủ; onBack = về mục Toán để làm bài). */
+export function render(app, onBack, { embedded = false } = {}) {
   const gender = getGender();
   let rotation = 0;
   let spinning = false;
 
   app.innerHTML = `
-    <div class="stk-page animate-fadeIn">
-      <div class="lb-top">
+    <div class="stk-page${embedded ? ' is-embedded' : ''} animate-fadeIn">
+      ${embedded ? '' : `<div class="lb-top">
         <button type="button" class="btn btn-ghost" id="stk-back">← Trang chủ</button>
-      </div>
+      </div>`}
       <div class="stk-card stk-card-${gender}">
         <h1 class="stk-title">🎁 Vòng quay sticker</h1>
         <p class="stk-subtitle">Cứ làm đúng <strong>${solvesPerSpin()} bài</strong> là em được <strong>1 lượt quay</strong> và nhận 1 sticker!</p>
@@ -44,7 +45,7 @@ export function render(app, onBack) {
   preloadSfx('wheelSpin', 'confetti');
   const wheel = app.querySelector('#stk-wheel');
   const spinBtn = app.querySelector('#stk-spin');
-  app.querySelector('#stk-back').onclick = () => { if (!spinning) onBack(); };
+  if (!embedded) app.querySelector('#stk-back').onclick = () => { if (!spinning) onBack(); };
   app.querySelector('#stk-hub').onclick = doSpin;
 
   drawStatus();

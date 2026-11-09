@@ -121,11 +121,12 @@ export function injectStyles() {
   }
 
   /* ── Bản đồ phố, danh sách truyện, chọn nhân vật ── */
-  .ls-bg { position: absolute; inset: 0; }
+  /* Nền menu: một dải trời nhạt êm, không vẽ phố (tranh phố lộ ra giữa các thẻ trông rối mắt); tranh nằm trong thẻ */
+  .ls-bg { position: absolute; inset: 0; background: linear-gradient(180deg, #CDEBFF 0%, #EAF6FF 45%, #F3FAEC 100%); }
   .ls-bg svg { width: 100%; height: 100%; display: block; }
   .ls-menu { position: absolute; inset: 70px 12px 12px; display: grid; gap: 12px; }
-  .ls-places { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr); }
-  @container (max-aspect-ratio: 1/1) { .ls-places { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); } }
+  .ls-places { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
+  @container (max-aspect-ratio: 1/1) { .ls-places { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); } }
   .ls-card { position: relative; border: 0; background: #fff; border-radius: 22px; box-shadow: 0 6px 0 var(--c, #F97316); border-top: 8px solid var(--c, #F97316);
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px; min-height: 0; transition: transform .1s; }
   .ls-card:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--c); }
@@ -134,6 +135,36 @@ export function injectStyles() {
   .ls-card-s { font-weight: 700; font-size: clamp(13px, 2.4cqmin, 19px); color: #64748B; }
   .ls-card.ls-soon { background: #F1F5F9; color: #94A3B8; box-shadow: 0 6px 0 #CBD5E1; border-top-color: #CBD5E1; }
   .ls-card.ls-soon .ls-card-ic { filter: grayscale(.8); opacity: .6; }
+  /* Thẻ địa điểm: tranh phủ gần hết thẻ, dải tên trắng bên dưới */
+  .ls-place { padding: 0; gap: 0; overflow: hidden; justify-content: stretch; align-items: stretch; text-align: left; border-top: 0;
+    box-shadow: 0 6px 0 var(--c), 0 0 0 3px var(--c); }
+  .ls-place:active { box-shadow: 0 2px 0 var(--c), 0 0 0 3px var(--c); }
+  .ls-place-art { position: relative; flex: 1 1 0; min-height: 0; display: block; overflow: hidden; }
+  .ls-place-art svg { width: 100%; height: 100%; display: block; }
+  .ls-place-b { flex: none; display: flex; align-items: center; gap: 10px; padding: clamp(6px, 1.4cqmin, 12px) clamp(10px, 1.8cqmin, 16px); border-top: 3px solid var(--c); background: #fff; }
+  .ls-place-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .ls-place .ls-card-t { text-align: left; font-size: clamp(15px, 3cqmin, 24px); }
+  .ls-place .ls-card-s { font-size: clamp(12px, 2.1cqmin, 17px); }
+  .ls-place .ls-play { width: clamp(38px, 7cqmin, 56px); font-size: clamp(16px, 3.2cqmin, 26px); }
+  .ls-place.ls-soon { background: #fff; color: #64748B; box-shadow: 0 6px 0 #CBD5E1, 0 0 0 3px #E2E8F0; }
+  .ls-place.ls-soon .ls-place-b { border-top-color: #E2E8F0; }
+  .ls-place.ls-soon .ls-place-art svg { filter: grayscale(.75) brightness(1.08); opacity: .7; }
+  .ls-lock { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); white-space: nowrap; background: rgba(255,255,255,.95); color: #475569;
+    font-weight: 800; font-size: clamp(13px, 2.4cqmin, 19px); padding: 4px 14px; border-radius: 999px; box-shadow: 0 3px 10px rgba(0,0,0,.15); }
+  .ls-place-art :is(.sc-sway, .sc-drift, .hh-bob, .hh-blink, .hh-flag, .hh-twinkle) { transform-box: fill-box; }
+  .ls-place-art .sc-sway { transform-origin: center bottom; animation: ls-sway 4s ease-in-out infinite alternate; }
+  .ls-place-art .sc-drift { animation: ls-drift 12s ease-in-out infinite alternate; }
+  .ls-place-art .sc-spin { transform-box: fill-box; transform-origin: center; animation: ls-spin 30s linear infinite; }
+  .ls-place-art .hh-bob { animation: ls-bobp 2.6s ease-in-out infinite alternate; }
+  .ls-place-art :is(.hh-blink, .hh-twinkle) { animation: ls-blink 1.2s ease-in-out infinite; }
+  .ls-place-art .hh-flag { transform-origin: left center; animation: ls-flag 1.4s ease-in-out infinite alternate; }
+  .ls-soon .ls-place-art * { animation: none !important; }
+  @keyframes ls-sway { from { transform: rotate(-2deg); } to { transform: rotate(2deg); } }
+  @keyframes ls-drift { from { transform: translateX(-10px); } to { transform: translateX(10px); } }
+  @keyframes ls-spin { to { transform: rotate(360deg); } }
+  @keyframes ls-bobp { from { transform: translateY(-2px); } to { transform: translateY(2px); } }
+  @keyframes ls-flag { from { transform: skewY(-5deg); } to { transform: skewY(5deg); } }
+
   .ls-stories { grid-auto-rows: minmax(0, 1fr); grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); align-content: stretch; }
   .ls-story { padding: 0; gap: 0; overflow: hidden; justify-content: stretch; align-items: stretch; text-align: left; }
   .ls-prev { flex: 1 1 0; min-height: 0; display: block; }
@@ -149,6 +180,7 @@ export function injectStyles() {
   .ls-ask { position: absolute; top: 12px; left: 70px; right: 12px; }
 
   @media (prefers-reduced-motion: reduce) {
+    .ls-place-art :is(.sc-sway, .sc-drift, .hh-bob, .hh-flag) { animation-duration: 8s; }
     .ls-slot.ls-talking img, .ls-slot.ls-phone::after { animation-duration: 2.4s; }
     .ls-scene[data-bike="come"] .ls-bike { animation-duration: 6s; }
     .ls-scene[data-door="knock"] .ls-door, .ls-scene[data-phone="ring"] .ls-phone { animation-duration: 1.6s; }

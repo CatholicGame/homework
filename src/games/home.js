@@ -9,14 +9,18 @@ import { getGrade } from '../data/grades.js';
 import { getSpinStatus, countOwned, getSets } from '../engine/stickers.js';
 import { isAdminUser } from '../engine/admin.js';
 
-/** Thẻ `admin: true` (bản mẫu chờ duyệt) chỉ hiện với tài khoản admin. */
-const visible = (g) => !g.admin || isAdminUser();
+/** Thẻ `admin: true` (bản mẫu chờ duyệt) chỉ hiện với tài khoản admin; `hidden: true` ẩn với mọi người. */
+const visible = (g) => !g.hidden && (!g.admin || isAdminUser());
 import { getBoardGradeStars } from '../engine/leaderboard.js';
 import { getCloudStatus, syncNow } from '../engine/cloudSync.js';
 import { getLang, setLang, hasEnglish, LANGS } from '../engine/i18n.js';
 import { shouldPromptReview, snoozeReviewPrompt, setPendingRating } from '../engine/reviews.js';
 import { canOfferInstall, promptInstall, shouldNudgeInstall, snoozeInstallNudge } from '../engine/installApp.js';
 import { liveCountHtml, startLiveCount } from '../engine/liveCount.js';
+import { heroArt } from './homeHero.js';
+import { thumbArt } from './homeThumbs.js';
+// Giao diện Tươi sáng (theo app Kinh Thánh). Nạp sau stickers.css (engine/stickers.js ở trên) để đè đúng thứ tự.
+import '../styles/sunny.css';
 
 // Sách học tiếng Việt: luôn 100% tiếng Việt, kể cả khi chọn English (engine/i18n.js).
 const VI_BOOKS = new Set(['pre3-abc', 'tv3-weekly', 'tv3-spell', 'tv3-tools', 'tv2-tools', 'writing']);
@@ -92,8 +96,8 @@ export const TIENGVIET_ID = 'tiengviet';
 
 // Thẻ gom nhóm ở trang chủ: các thẻ có `group` = id của nhóm → trang danh sách riêng.
 const HUBS = {
-  [TIENGVIET_ID]: { icon: '📚', color: '#DB2777', title: 'Tiếng Việt', go: 'Vào học ➜' },
-  [CHALLENGE_ID]: { icon: '🎮', color: '#E11D48', title: 'Challenge games', go: 'Chọn trò ➜' },
+  [TIENGVIET_ID]: { icon: '📚', color: '#DB2777', title: 'Tiếng Việt' },
+  [CHALLENGE_ID]: { icon: '🎮', color: '#E11D48', title: 'Challenge games' },
 };
 export const HUB_IDS = Object.keys(HUBS);
 
@@ -103,23 +107,79 @@ function langTag(gameId) {
   return `<span class="card-lang">${VI_BOOKS.has(gameId) ? 'Học tiếng Việt' : 'Chưa có tiếng Anh'}</span>`;
 }
 
+// Thẻ trắng bo tròn: trên là tranh bìa vẽ riêng cho loại thẻ (homeThumbs.js; chưa có tranh thì biểu tượng to), dưới là tên + mô tả.
+// Giờ LIVE mỗi tối (giờ máy): 19:00 đến 22:30. Trong giờ: thẻ sáng rực, nhãn LIVE nhấp nháy, tab Trò chơi có nhãn LIVE;
+// ngoài giờ: thẻ dịu, nhãn "🌙 Mở lúc 19:00". Cả hai bản vẽ sẵn, lớp .is-live-on trên .hm chọn bản hiện (không vẽ lại trang).
+const LIVE_FROM = 19 * 60, LIVE_TO = 22 * 60 + 30;
+export function isLiveNow(d = new Date()) {
+  if (import.meta.env.DEV && typeof window.__tthLive === 'boolean') return window.__tthLive; // scripts/home-dev.html ?live=1|0
+  const m = d.getHours() * 60 + d.getMinutes();
+  return m >= LIVE_FROM && m < LIVE_TO;
+}
+/** Bật / tắt lớp is-live-on theo giờ, kiểm tra mỗi 30 giây tới khi trang chủ bị thay. */
+function startLiveClock(root) {
+  if (!root) return;
+  const tick = () => {
+    if (!root.isConnected) { clearInterval(timer); return; }
+    root.classList.toggle('is-live-on', isLiveNow());
+  };
+  const timer = setInterval(tick, 30000);
+  tick();
+}
+
+// Thẻ `live: true` (Đấu Trường Nhí): tấm sân khấu to chiếm cả hàng đầu, chấm LIVE nhấp nháy, nút Vào thi.
+function liveCard(grade, g) {
+  return `
+    <button type="button" class="hm-card hm-live" data-game="${g.id}" style="--card-color: ${g.color || grade.color}">
+      <span class="hm-live-art" aria-hidden="true">${g.cover
+        ? `<img src="${g.cover}" alt="" width="960" height="558" decoding="async">` // ảnh chụp trường quay 3D thật (scripts/.tmp/dt-cover.mjs)
+        : thumbArt(g) || `<span class="hm-card-icon">${g.icon}</span>`}</span>
+      <span class="hm-live-body">
+        <span class="hm-live-badge hm-when-on"><i></i>LIVE</span>
+        <span class="hm-live-badge is-soon hm-when-off">🌙 Mở lúc 19:00</span>
+        <h3>${g.icon} ${g.title}</h3>
+        <p>${g.desc}</p>
+        <span class="hm-live-time"><span class="hm-when-on">🔴 Đang diễn ra tới 22:30</span><span class="hm-when-off">⏰ Mỗi tối từ 19:00 đến 22:30</span></span>
+        <span class="hm-live-go"><span class="hm-when-on">Vào thi ▶</span><span class="hm-when-off">Vào xem ▶</span></span>
+      </span>
+    </button>`;
+}
+
 function gameCards(grade, list) {
   return list.map((g, gIdx) => `
-    <button type="button" class="game-card" data-game="${g.id}" style="animation-delay: ${0.15 + gIdx * 0.05}s; --card-color: ${g.color || grade.color}">
-      <span class="card-icon">${g.icon}</span>
-      <span class="card-text">
+    <button type="button" class="hm-card" data-game="${g.id}" style="animation-delay: ${0.05 + gIdx * 0.04}s; --card-color: ${g.color || grade.color}">
+      <span class="hm-card-art${thumbArt(g) ? ' has-art' : ''}" aria-hidden="true">${thumbArt(g) || `<span class="hm-card-icon">${g.icon}</span>`}</span>
+      <span class="hm-card-body">
         <h3>${g.title}</h3>
         <p>${g.desc}</p>
         ${langTag(g.id)}
       </span>
-      <span class="card-go">${HUBS[g.id]?.go || 'Vào học ➜'}</span>
     </button>
   `).join('');
 }
 
-function hubCard(id, list) {
-  const h = HUBS[id];
-  return { id, icon: h.icon, color: h.color, title: h.title, desc: list.map(g => `${g.icon} ${g.title}`).join(', ') };
+/** Lưới thẻ chia đều hàng: số cột = ít nhất để vẫn vừa thẻ ≥ 260px, rồi chia đều số thẻ cho các hàng
+ *  (3 thẻ trên máy rộng = 3 cột phủ kín hàng; 7 thẻ = 4 + 3, hàng ít thẻ giãn ra, không chừa ô trống bên phải). */
+const CARD_MIN = 260;
+function balanceGrid(grid) {
+  if (!grid) return;
+  const n = grid.children.length;
+  const fit = () => {
+    const w = grid.clientWidth;
+    if (!w || !n) return;
+    const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+    const maxCols = Math.max(1, Math.floor((w + gap) / (CARD_MIN + gap)));
+    // Chia đều số thẻ cho các hàng (7 thẻ, tối đa 3 cột = 3 + 2 + 2, không 3 + 3 + 1); thẻ hàng ít hơn giãn ra
+    // phủ kín hàng (--k = số thẻ trong hàng của thẻ đó). Tranh bìa giữ cùng chiều cao (--art-h) để các hàng đều nhau.
+    const rows = Math.ceil(n / maxCols);
+    const cols = Math.ceil(n / rows), extra = n % rows || rows;
+    [...grid.children].forEach((c, i) => c.style.setProperty('--k', i < extra * cols ? cols : cols - 1));
+    grid.style.setProperty('--art-h', `${((w - (cols - 1) * gap) / cols) * 9 / 16}px`);
+    grid.classList.toggle('is-multi', cols > 1);
+  };
+  grid.classList.add('is-balanced');
+  new ResizeObserver(fit).observe(grid);
+  fit();
 }
 
 /** Trang của một nhóm thẻ (Challenge games, Tiếng Việt): các thẻ cùng nhóm của lớp đang học. */
@@ -134,54 +194,105 @@ export function renderHub(app, navigate, hubId) {
       </div>
       <div class="category animate-fadeIn">
         <h2 class="section-title">${h.icon} ${h.title}${grade ? `: ${grade.title}` : ''}</h2>
-        <div class="game-grid">${gameCards(grade, games)}</div>
+        <div class="hm-grid">${gameCards(grade, games)}</div>
       </div>
     </div>
   `;
+  balanceGrid(app.querySelector('.hm-grid'));
   app.querySelector('#challenge-back').addEventListener('click', () => navigate('home'));
-  app.querySelectorAll('.game-card').forEach(card => {
+  app.querySelectorAll('.hm-card').forEach(card => {
     card.addEventListener('click', () => navigate(card.dataset.game));
   });
+}
+
+// Tab của trang chủ (thanh chip dưới tranh đầu trang). `go`: chip mở trang khác thay vì đổi nội dung.
+const TAB_KEY = 'tth_home_tab';
+function savedTab() { try { return localStorage.getItem(TAB_KEY) || 'learn'; } catch { return 'learn'; } }
+function saveTab(id) { try { localStorage.setItem(TAB_KEY, id); } catch { /* storage unavailable */ } }
+/** main.js: quay lại từ một trò trong nhóm → trang chủ mở sẵn tab của nhóm đó. */
+export function openHomeTab(id) { saveTab(id); }
+
+/** Thanh mục tràn: mép phía còn mục khuất mờ dần (như Kinh Thánh, lớp can-prev / can-next). */
+function watchTabsEdge(wrap) {
+  const bar = wrap?.querySelector('.hm-tabs');
+  if (!bar) return;
+  const paint = () => {
+    wrap.classList.toggle('can-prev', bar.scrollLeft > 2);
+    wrap.classList.toggle('can-next', bar.scrollLeft + bar.clientWidth < bar.scrollWidth - 2);
+  };
+  bar.addEventListener('scroll', paint, { passive: true });
+  new ResizeObserver(paint).observe(bar);
+  paint();
+}
+
+/** Dải nút dính đầu trang: trong suốt trên tranh, cuộn xuống thì thành tấm kính (một bộ nghe cho #app). */
+function watchDock(app) {
+  if (app._hmDock) return;
+  app._hmDock = true;
+  app.addEventListener('scroll', () => {
+    const dock = app.querySelector('.hm > .user-bar-dock');
+    if (dock) dock.classList.toggle('is-stuck', app.scrollTop > 24);
+  }, { passive: true });
 }
 
 export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
   const grade = getGrade(getProfileGrade());
   renderPage();
 
+  function tabs(all) {
+    const learn = all.filter(g => !g.group);
+    const tv = all.filter(g => g.group === TIENGVIET_ID);
+    const games = all.filter(g => g.group === CHALLENGE_ID);
+    const spins = getSpinStatus().spins;
+    return [
+      { id: 'learn', icon: '🧮', label: 'Toán', cards: learn },
+      tv.length && { id: TIENGVIET_ID, icon: '📚', label: 'Tiếng Việt', cards: tv },
+      games.length && { id: CHALLENGE_ID, icon: '🎮', label: 'Trò chơi', cards: games, live: games.some(g => g.live) },
+      { id: 'stats', icon: '📊', label: 'Kết quả' },
+      { id: 'rank', icon: '🏆', label: 'Xếp hạng' },
+      { id: 'sticker', icon: '🎁', label: 'Sticker', badge: spins || 0 },
+    ].filter(Boolean);
+  }
+
   function renderPage() {
     const all = (grade?.games || []).filter(visible);
-    // Thẻ có nhóm (Tiếng Việt, Challenge games) gom vào một thẻ của nhóm → trang danh sách riêng.
-    const games = all.filter(g => !g.group);
-    for (const id of HUB_IDS) {
-      const list = all.filter(g => g.group === id);
-      if (list.length) games.push(hubCard(id, list));
-    }
+    const list = tabs(all);
+    let active = savedTab();
+    if (!list.some(t => t.id === active && !t.go)) active = 'learn';
+    const now = new Date();
     app.innerHTML = `
-      <div class="home">
+      <div class="home hm">
         ${userBar()}
-        <div class="dashboard dashboard-top animate-fadeIn">
-          <div class="dashboard-header">
-            ${grade
-              ? `<h1 class="home-grade-title" style="--grade-color: ${grade.color}">${grade.title}</h1>`
-              : '<h1>🎓 Toán Tiểu Học</h1>'}
-            <div><button type="button" class="home-grade-change" id="home-grade-change">🔄 Đổi lớp</button></div>
-            ${liveCountHtml()}
+        <header class="hm-hero">
+          <div class="hm-hero-art" aria-hidden="true">${heroArt()}</div>
+          <div class="hm-hero-text">
+            <img class="hm-logo" src="/icons/icon-192.png" alt="" width="96" height="96">
+            <div class="hm-hero-words">
+              <h1>${grade ? grade.title : 'Toán Tiểu Học'}</h1>
+              <p>Chào ${escapeHtml(displayName())}! 👋 <span class="hm-date">${WEEKDAYS[now.getDay()]}, ${ddmm(now)}</span></p>
+            </div>
           </div>
-          ${greetingPanel()}
+          ${liveCountHtml()}
+        </header>
+
+        <main class="hm-main">
+          <div class="hm-tabs-wrap">
+          <nav class="hm-tabs" aria-label="Mục">
+            ${list.map(t => `
+              <button type="button" class="hm-tab${t.live ? ' has-live' : ''}" data-tab="${t.id}" ${t.go ? `data-go="${t.go}"` : `role="tab" aria-selected="${t.id === active}"`}>
+                <span class="hm-tab-icon" aria-hidden="true">${t.icon}</span><span class="hm-tab-label">${t.label}</span>
+                ${t.badge ? `<b class="hm-tab-badge">${t.badge}</b>` : ''}
+                ${t.live ? '<b class="hm-tab-live hm-when-on"><i></i>LIVE</b>' : ''}
+              </button>`).join('')}
+          </nav>
+          </div>
+
+          <div class="hm-live-slot" id="hm-live-slot"></div>
+          ${quickRow()}
           ${installPrompt() || reviewPrompt()}
-        </div>
 
-        <div class="category animate-fadeIn" style="animation-delay: 0.1s">
-          <div class="home-grade-head">
-            <h2 class="section-title">📚 Chọn bài để học</h2>
-          </div>
-          ${games.length ? `
-          <div class="game-grid">${gameCards(grade, games)}</div>` : '<p class="daily-message">Bài tập của lớp này sắp ra mắt. Hẹn gặp lại bé nhé! 🚀</p>'}
-        </div>
-
-        <div class="dashboard animate-fadeIn" style="animation-delay: 0.2s">
-          ${statsPanel()}
-        </div>
+          <section class="hm-panel" id="hm-panel" role="tabpanel"></section>
+        </main>
       </div>
     `;
 
@@ -189,32 +300,91 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
     bindDailyPanel();
     bindReviewPrompt();
     bindInstallPrompt();
+    watchDock(app);
+    startLiveClock(app.querySelector('.hm'));
+    watchTabsEdge(app.querySelector('.hm-tabs-wrap'));
     startLiveCount(app.querySelector('#home-live'));
     app.querySelector('#home-grade-change').addEventListener('click', () => navigate('profile'));
-    app.querySelectorAll('.game-card').forEach(card => {
-      card.addEventListener('click', () => navigate(card.dataset.game));
-    });
+    app.querySelectorAll('.hm-tab').forEach(btn => btn.addEventListener('click', () => {
+      if (btn.dataset.go) { navigate(btn.dataset.go); return; }
+      saveTab(btn.dataset.tab);
+      showTab(btn.dataset.tab);
+    }));
+    showTab(active);
+
+    function showTab(id) {
+      app.querySelectorAll('.hm-tab[role="tab"]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === id)));
+      const panel = app.querySelector('#hm-panel');
+      panel.dataset.tab = id;
+      app.querySelector('#hm-live-slot').innerHTML = '';
+      // Thanh mục vuốt ngang: kéo mục vừa chọn vào tầm nhìn
+      const tabBtn = app.querySelector(`.hm-tab[data-tab="${id}"]`), bar = tabBtn?.parentElement;
+      if (bar) requestAnimationFrame(() => {
+        const b = bar.getBoundingClientRect(), t = tabBtn.getBoundingClientRect();
+        if (t.left < b.left) bar.scrollLeft -= b.left - t.left + 8;
+        else if (t.right > b.right) bar.scrollLeft += t.right - b.right + 8;
+      });
+      // Dải sticker ở hàng nhanh trùng với mục Sticker: ẩn khi đang mở mục này
+      const stkBanner = app.querySelector('#stk-banner');
+      if (stkBanner) stkBanner.hidden = id === 'sticker';
+      if (id === 'sticker') {
+        // Vòng quay + bộ sưu tập ngay dưới thanh mục (không mở trang riêng)
+        panel.innerHTML = '<div class="lb-loading" role="status"><div class="page-loading-spinner"></div></div>';
+        import('./stickers.js').then(mod => {
+          if (panel.dataset.tab !== 'sticker' || !panel.isConnected) return;
+          // Hết lượt quay: nút "Làm bài để có lượt quay" mở mục Toán
+          mod.render(panel, () => { saveTab('learn'); showTab('learn'); }, { embedded: true });
+        });
+        return;
+      }
+      if (id === 'rank') {
+        // Bảng xếp hạng ngay dưới thanh mục như các mục khác (không mở trang riêng)
+        panel.innerHTML = '<div class="lb-loading" role="status"><div class="page-loading-spinner"></div></div>';
+        import('./leaderboard.js').then(mod => {
+          if (panel.dataset.tab !== 'rank' || !panel.isConnected) return;
+          mod.render(panel, null, {
+            embedded: true,
+            onEditProfile: () => navigate('profile'),
+            onSignIn: user?.guest ? onSignIn : null,
+          });
+        });
+        return;
+      }
+      if (id === 'stats') {
+        panel.innerHTML = statsPanel();
+        bindChart();
+        return;
+      }
+      // Thẻ LIVE của tab Trò chơi: lên đầu, ngay dưới thanh mục (trên hàng Học tiếp / sticker)
+      const all = list.find(t => t.id === id).cards;
+      const lives = all.filter(g => g.live);
+      const slot = app.querySelector('#hm-live-slot');
+      slot.innerHTML = lives.map(g => liveCard(grade, g)).join('');
+      slot.querySelectorAll('.hm-live').forEach(card => card.addEventListener('click', () => navigate(card.dataset.game)));
+      const cards = all.filter(g => !g.live);
+      panel.innerHTML = cards.length
+        ? `<div class="hm-grid">${gameCards(grade, cards)}</div>`
+        : '<p class="daily-message">Bài tập của lớp này sắp ra mắt. Hẹn gặp lại bé nhé! 🚀</p>';
+      balanceGrid(panel.querySelector('.hm-grid'));
+      panel.querySelectorAll('.hm-card').forEach(card => {
+        card.addEventListener('click', () => navigate(card.dataset.game));
+      });
+    }
   }
 
-  // ── Đầu trang: lời chào, nút "Tiếp tục", tiến độ sticker ─────────────────
-  // Đặt trước danh sách sách để trên điện thoại/iPad bé vào bài ngay, không phải cuộn.
-  function greetingPanel() {
-    const now = new Date();
-    const firstName = escapeHtml(displayName());
+  // ── Hàng nhanh dưới thanh mục: "Học tiếp" bài đang làm + sticker (+ dải nhắc lưu khi chưa lưu được) ──
+  // Đặt trên danh sách sách để trên điện thoại/iPad bé vào bài ngay, không phải cuộn.
+  function quickRow() {
     const last = findGame(grade, getLastGame());
     return `
-      <section class="daily daily-greet" aria-label="Lời chào">
-        <div class="daily-head">
-          <div>
-            <h2 class="daily-hello">Chào ${firstName}! 👋</h2>
-            <p class="daily-date">${WEEKDAYS[now.getDay()]}, ${ddmm(now)}/${now.getFullYear()}</p>
-          </div>
-          ${last ? `<button type="button" class="daily-continue" id="daily-continue" data-game="${last.id}">▶ Tiếp tục: <strong>${escapeHtml(last.title)}</strong></button>` : ''}
-        </div>
+      <div class="hm-quick">
         ${user && !user.guest ? '<button type="button" class="stk-banner cloud-banner" id="cloud-banner" hidden></button>' : ''}
+        ${last ? `<button type="button" class="hm-continue" id="daily-continue" data-game="${last.id}" style="--card-color: ${last.color || grade.color}">
+          <span class="hm-continue-icon" aria-hidden="true">${last.icon}</span>
+          <span class="hm-continue-text"><small>Học tiếp</small><strong>${escapeHtml(last.title)}</strong></span>
+        </button>` : ''}
         ${stickerPanel()}
-      </section>
-    `;
+      </div>`;
   }
 
   // ── Dải nhắc cài app (đã bấm "Bỏ qua, học trên web" ở màn cài) ─────
@@ -274,7 +444,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
     const message = goalDone
       ? '🎉 Em đã hoàn thành mục tiêu hôm nay. Giỏi quá!'
       : today.solved === 0
-        ? 'Hôm nay em chưa làm bài nào — bắt đầu thôi nào! 💪'
+        ? 'Hôm nay em chưa làm bài nào. Bắt đầu thôi nào! 💪'
         : `Còn ${DAILY_GOAL_STARS - today.stars} ⭐ nữa là đạt mục tiêu hôm nay!`;
 
     // Cột: chung một thang, tối thiểu bằng mục tiêu để đường mục tiêu luôn nằm trong khung.
@@ -295,8 +465,7 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
     }).join('');
 
     return `
-      <section class="daily" aria-label="Theo dõi học hằng ngày">
-        <h2 class="section-title daily-stats-title">📊 Kết quả học tập</h2>
+      <section class="daily hm-stats" aria-label="Kết quả học tập">
 
         <div class="dashboard-stats">
           <div class="stat-card stat-streak">
@@ -366,7 +535,8 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
   }
 
   function bindDailyPanel() {
-    app.querySelector('#stk-banner')?.addEventListener('click', () => navigate('stickers'));
+    // Dải sticker → mở mục Sticker ngay trên trang chủ
+    app.querySelector('#stk-banner')?.addEventListener('click', () => app.querySelector('.hm-tab[data-tab="sticker"]')?.click());
     const cloudBanner = app.querySelector('#cloud-banner');
     if (cloudBanner) {
       paintCloudBanner(cloudBanner);
@@ -374,7 +544,9 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
       cloudBanner.addEventListener('click', () => { syncNow({ interactive: true }); });
     }
     app.querySelector('#daily-continue')?.addEventListener('click', (e) => navigate(e.currentTarget.dataset.game));
+  }
 
+  function bindChart() {
     // Tooltip cho từng cột (chuột: rê vào; iPad: chạm).
     const chart = app.querySelector('.dchart');
     const tip = app.querySelector('#dchart-tip');
@@ -416,12 +588,11 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
     return `
       <div class="user-bar-dock">
       <div class="user-bar animate-fadeIn">
+        <button type="button" class="hm-grade-change" id="home-grade-change">🔄 Đổi lớp</button>
         ${guest
           ? '<button type="button" class="user-cloud-btn is-warn" id="user-login-btn" title="Đăng nhập Google để lưu bài làm vào tài khoản">🔐<span>Đăng nhập</span></button>'
           : '<button type="button" class="user-cloud-btn" id="user-cloud-btn"></button>'}
         ${langButton()}
-        <button type="button" class="user-rank-btn" id="user-sticker-btn" title="Vòng quay sticker">🎁 <span>Sticker</span>${getSpinStatus().spins ? `<b class="user-badge">${getSpinStatus().spins}</b>` : ''}</button>
-        <button type="button" class="user-rank-btn" id="user-rank-btn" title="Bảng xếp hạng">🏆 <span>Xếp hạng</span></button>
         <span class="user-stars" title="Số sao đã nhận ở lớp đang học"><span class="user-stars-icon">⭐</span><span class="user-stars-count">${headerStars()}</span></span>
         <div class="user-menu-wrap">
           <button type="button" class="user-menu-btn" id="user-menu-btn" aria-haspopup="menu" aria-expanded="false">
@@ -467,8 +638,6 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
       else document.removeEventListener('click', onOutside, true);
     };
     const onOutside = (e) => { if (!e.target.closest('.user-menu-wrap')) setOpen(false); };
-    app.querySelector('#user-rank-btn').addEventListener('click', () => navigate('leaderboard'));
-    app.querySelector('#user-sticker-btn').addEventListener('click', () => navigate('stickers'));
     btn.addEventListener('click', () => setOpen(menu.hidden));
     app.querySelector('#user-edit-profile').addEventListener('click', () => { setOpen(false); navigate('profile'); });
     app.querySelector('#user-kmap').addEventListener('click', () => { setOpen(false); navigate('knowledge-map'); });

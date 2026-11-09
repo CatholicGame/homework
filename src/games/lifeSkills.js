@@ -6,7 +6,8 @@
  */
 
 import { injectStyles } from './lifeSkills/styles.js';
-import { townSvg, SCENES } from './lifeSkills/scenes.js';
+import { placeArt } from './lifeSkills/placeArt.js';
+import { SCENES } from './lifeSkills/scenes.js';
 import { STORIES, PLACES, endingsOf } from './lifeSkills/stories.js';
 import { playStory, HEROES, END_KIND, npcImgSrc } from './lifeSkills/engine.js';
 import { enterGameMode, exitGameMode } from './grade3Games/loop.js';
@@ -39,7 +40,7 @@ const heroImg = (h) => npcImgSrc(HEROES[h].npc);
 
 export function render(app, onBack) {
   injectStyles();
-  enterGameMode();
+  // Menu (chọn bạn, bản đồ, danh sách truyện) là trang thường; chỉ khi vào truyện mới bật chế độ chơi (toàn màn hình).
   const data = load();
   const leave = () => { stopSpeaking(); exitGameMode(); onBack(); };
 
@@ -58,7 +59,7 @@ export function render(app, onBack) {
 
   function pickHero(after = showMap) {
     app.innerHTML = `<div class="ls-root">
-      <div class="ls-bg">${townSvg()}</div>
+      <div class="ls-bg"></div>
       ${top('🏘️ Em là bạn nào?', { hero: false })}
       <div class="ls-menu ls-heroes">${Object.entries(HEROES).map(([id, h]) => `
         <button class="ls-card ls-hero" data-hero="${id}" style="--c:${id === 'bin' ? '#22C55E' : '#F472B6'}">
@@ -80,13 +81,20 @@ export function render(app, onBack) {
 
   function showMap() {
     app.innerHTML = `<div class="ls-root">
-      <div class="ls-bg">${townSvg()}</div>
+      <div class="ls-bg"></div>
       ${top('🏘️ Phố Kỹ Năng')}
       <div class="ls-menu ls-places">${PLACES.map((p) => {
+        // Thẻ địa điểm = tranh vẽ địa điểm (placeArt.js) + dải tên; chưa có truyện thì tranh nhạt màu, nhãn 🔒 Sắp mở
         const stories = STORIES.filter((s) => s.place === p.id);
-        const sub = stories.length ? `🌟 ${bestCount(stories)} / ${bestTotal(stories)}` : 'Sắp có';
-        return `<button class="ls-card${stories.length ? '' : ' ls-soon'}" data-place="${p.id}" style="--c:${p.color}">
-          <span class="ls-card-ic">${p.icon}</span><span class="ls-card-t">${p.title}</span><span class="ls-card-s">${sub}</span></button>`;
+        const open = stories.length > 0;
+        const done = open ? bestCount(stories) : 0, total = open ? bestTotal(stories) : 0;
+        return `<button class="ls-card ls-place${open ? '' : ' ls-soon'}" data-place="${p.id}" style="--c:${p.color}">
+          <span class="ls-place-art">${placeArt(p.id)}${open ? '' : '<span class="ls-lock">🔒 Sắp mở</span>'}</span>
+          <span class="ls-place-b">
+            <span class="ls-place-t"><span class="ls-card-t">${p.title}</span>
+              ${open ? `<span class="ls-card-s">${stories.length} truyện · 🌟 ${done} / ${total}</span>` : ''}</span>
+            ${open ? '<span class="ls-play">▶</span>' : ''}
+          </span></button>`;
       }).join('')}</div>
     </div>`;
     const root = app.querySelector('.ls-root');
@@ -103,7 +111,7 @@ export function render(app, onBack) {
   function showPlace(p) {
     const stories = STORIES.filter((s) => s.place === p.id);
     app.innerHTML = `<div class="ls-root">
-      <div class="ls-bg">${townSvg()}</div>
+      <div class="ls-bg"></div>
       ${top(`${p.icon} ${p.title}`)}
       <div class="ls-menu ls-stories">${stories.map((s) => {
         const f = foundOf(s);
@@ -126,6 +134,7 @@ export function render(app, onBack) {
   }
 
   function openStory(story, back) {
+    enterGameMode();
     const found = foundOf(story);
     playStory(app, story, {
       hero: data.hero,
@@ -135,7 +144,7 @@ export function render(app, onBack) {
         save(data);
         if (node.end === 'best') awardStars(`${starPrefix()}:${story.id}:${endId}`, { stars: node.stars || 2 });
       },
-      onExit: back,
+      onExit: () => { exitGameMode(); back(); },
     });
   }
 

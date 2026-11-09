@@ -36,7 +36,7 @@ function voiceOf(mc) {
 
 let rate = 1;
 /** Tốc độ đọc theo lớp (lớp 1–2 chậm hơn). */
-export function setMcRate(r) { rate = Math.max(0.7, Math.min(1.3, r)); }
+export function setMcRate(r) { rate = Math.max(0.7, Math.min(1.4, r)); }
 export const isMcMuted = () => muted;
 export function setMcMuted(on) {
   muted = !!on;

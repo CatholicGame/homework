@@ -59,7 +59,8 @@ function rankBadge(rank) {
     : `<span class="lb-rank">${rank}</span>`;
 }
 
-export function render(app, onBack, { onEditProfile, onSignIn } = {}) {
+/** `embedded`: vẽ trong mục Xếp hạng của trang chủ (không nút ← Trang chủ). */
+export function render(app, onBack, { onEditProfile, onSignIn, embedded = false } = {}) {
   const grade = getProfileGrade();
   const PERIODS = periods(grade);
   const state = { tab: 'all', data: null };
@@ -67,9 +68,9 @@ export function render(app, onBack, { onEditProfile, onSignIn } = {}) {
   preloadAuth();
 
   app.innerHTML = `
-    <div class="lb-page animate-fadeIn">
+    <div class="lb-page${embedded ? ' is-embedded' : ''} animate-fadeIn">
       <div class="lb-top">
-        <button type="button" class="btn btn-ghost" id="lb-back">← Trang chủ</button>
+        ${embedded ? '' : '<button type="button" class="btn btn-ghost" id="lb-back">← Trang chủ</button>'}
         <button type="button" class="lb-refresh" id="lb-refresh" title="Tải lại" aria-label="Tải lại bảng xếp hạng" hidden>🔄</button>
       </div>
       <div class="lb-card">
@@ -88,7 +89,7 @@ export function render(app, onBack, { onEditProfile, onSignIn } = {}) {
 
   const body = app.querySelector('#lb-body');
   const refreshBtn = app.querySelector('#lb-refresh');
-  app.querySelector('#lb-back').onclick = onBack;
+  if (!embedded) app.querySelector('#lb-back').onclick = onBack;
   refreshBtn.onclick = () => load(true);
   app.querySelector('.lb-subtitle [data-act="edit-profile"]').onclick = () => onEditProfile?.();
   app.querySelectorAll('.lb-tab').forEach(t => {

@@ -2,7 +2,7 @@
  * Main Entry Point — Toán Tiểu Học
  */
 
-import { renderHome, renderHub, HUB_IDS } from './games/home.js';
+import { renderHome, HUB_IDS, openHomeTab } from './games/home.js';
 import { renderLogin } from './games/login.js';
 import { getCurrentUser, signOut, isGuest, leaveGuest, completeServerLogin } from './engine/auth.js';
 import { initCloudSync, pullIfStale, flushCloud } from './engine/cloudSync.js';
@@ -227,6 +227,8 @@ let currentPage = null;
 // Trang đang mở trả về hàm dọn (render(...) trả function, vd. trường quay 3D Ai tài năng nhất: dừng vòng vẽ, đóng kết nối phòng)
 let pageDispose = null;
 function navigate(gameId, opts = {}) {
+  // Nhóm thẻ (Trò chơi, Tiếng Việt) giờ là tab của trang chủ: quay lại từ trò chơi về đúng tab đó.
+  if (HUB_IDS.includes(gameId)) { openHomeTab(gameId); gameId = 'home'; }
   try { pageDispose?.(); } catch (e) { console.warn('[nav] dispose', e); }
   pageDispose = null;
   currentPage = gameId || 'home';
@@ -329,11 +331,6 @@ function navigate(gameId, opts = {}) {
     }).catch(() => {
       if (token === navToken) renderLoadError(app, () => navigate('home'));
     });
-    return;
-  }
-
-  if (HUB_IDS.includes(gameId)) {
-    renderHub(app, navigate, gameId);
     return;
   }
 

@@ -20,10 +20,11 @@
 
   /* Neutrals */
   --white: #FFFFFF;
-  --bg: #FFF7ED;
+  --bg: #FFF8EC;
   --bg-card: #FFFFFF;
-  --text: #1E293B;
-  --text-light: #64748B;
+  /* Tươi sáng (theo giao diện Kinh Thánh): chữ nâu tím đậm thay đen tuyền, dịu mắt mà đủ tương phản */
+  --text: #3A2E48;
+  --text-light: #6E6280;
   --border: #E2E8F0;
 
   /* Gradients */
@@ -34,9 +35,10 @@
   --grad-purple: linear-gradient(135deg, #C084FC, #60A5FA);
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
-  --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  /* bóng mềm ấm */
+  --shadow-sm: 0 2px 6px rgba(120, 80, 40, 0.08);
+  --shadow-md: 0 6px 18px rgba(214, 130, 50, 0.14), 0 2px 5px rgba(120, 80, 40, 0.05);
+  --shadow-lg: 0 12px 30px rgba(214, 130, 50, 0.2), 0 3px 8px rgba(120, 80, 40, 0.06);
   --shadow-glow: 0 0 20px rgba(192,132,252,0.3);
 
   /* Spacing */
@@ -47,7 +49,8 @@
   --radius-full: 9999px;
 
   /* Typography */
-  --font: 'Quicksand', sans-serif;
+  /* Nunito: chữ tròn, đậm, dễ đọc cho bé (giống app Kinh Thánh). Hình SVG của vở bài tập vẫn ghi Quicksand riêng. */
+  --font: 'Nunito', 'Quicksand', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 /* ====== RESET ====== */
@@ -64,7 +67,12 @@ html, body {
 
 body {
   font-family: var(--font);
-  background: var(--bg);
+  /* nền kem ấm có vài vầng màu trời, hồng, bạc hà rất nhạt */
+  background:
+    radial-gradient(900px 520px at 8% 30%, rgba(125, 200, 255, 0.2), transparent 70%),
+    radial-gradient(800px 520px at 95% 55%, rgba(255, 160, 200, 0.16), transparent 70%),
+    radial-gradient(900px 600px at 40% 105%, rgba(130, 230, 190, 0.18), transparent 70%),
+    var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

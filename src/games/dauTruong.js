@@ -1808,7 +1808,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       clearLater(); run++; mcStop();
       mode = m; phase = 'none'; timer = null; Q = null; qn = 0; picks = []; scrDirty = true;
       sl = null; turn = -1; buzzer = -1; vd = null; mAlt = 0; lastMon = -1;
-      setMcRate(gradeNow() <= 2 ? 0.88 : 1);
+      setMcRate(gradeNow() <= 2 ? 1.05 : 1.2);   // MC đọc nhanh hơn 1,2 lần (lớp 1–2 vẫn chậm hơn một chút: 0,88 × 1,2)
       ov.hidden = true; ov.innerHTML = '';
       boardEl.hidden = true;
       paintModes();

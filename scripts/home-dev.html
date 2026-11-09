@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>home dev</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/src/styles/global.css" />
+<link rel="stylesheet" href="/src/styles/home.css" />
+<link rel="stylesheet" href="/src/styles/game.css" />
+<link rel="stylesheet" href="/src/styles/exam.css" />
+</head>
+<body><div id="app"></div>
+<script type="module">
+// Xem trang chủ không cần đăng nhập (tài khoản giả, không ghi Firebase).
+//   ?g=3            lớp 3 (-1 = Tiền tiểu học)
+//   ?hub=challenge  trang nhóm Challenge games / tiengviet
+//   ?thumbs=1       mọi tranh bìa thẻ (homeThumbs.js)
+//   ?tab=stats      mở sẵn tab (learn | tiengviet | challenge | stats | rank)
+//   ?live=1|0       ép giờ LIVE (19:00–22:30) bật / tắt
+//   ?admin=1        hiện cả thẻ chỉ admin thấy (thẻ LIVE Đấu Trường Nhí)
+// Chụp: node scripts/home-shot.mjs "?g=3" out.png 1280 900
+addEventListener('error', e => { document.title = 'ERR ' + e.message; });
+addEventListener('unhandledrejection', e => { document.title = 'REJ ' + (e.reason && e.reason.stack || e.reason); });
+const p = new URLSearchParams(location.search);
+localStorage.setItem('tth_profile_guest', JSON.stringify({ grade: Number(p.get('g') || 3), name: 'Minh An', avatar: 'boys/boy3', setupDone: true }));
+if (p.get('tab')) localStorage.setItem('tth_home_tab', p.get('tab')); // learn | tiengviet | challenge | stats
+if (p.get('admin')) {
+  const { GRADES } = await import('/src/data/grades.js');
+  GRADES.forEach(g => g.games.forEach(x => { if (x.admin) x.admin = false; }));
+}
+if (p.get('live')) window.__tthLive = p.get('live') === '1'; // ép giờ LIVE bật / tắt
+const H = await import('/src/games/home.js');
+const app = document.getElementById('app');
+const nav = (id) => { document.title = 'nav ' + id; };
+if (p.get('thumbs')) {
+  // mọi tranh bìa thẻ trên một trang (kiểm tra nét vẽ)
+  const T = await import('/src/games/homeThumbs.js');
+  app.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;padding:14px">${T.THUMB_KINDS.map(k => `<figure style="margin:0;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 12px #0002"><div style="aspect-ratio:16/9">${T.thumbArt({ id: k, color: '#10B981' })}</div><figcaption style="padding:6px 10px;font:700 14px Nunito">${k}</figcaption></figure>`).join('')}</div>`;
+  app.querySelectorAll('svg').forEach(s => { s.style.width = '100%'; s.style.height = '100%'; s.style.display = 'block'; });
+} else if (p.get('hub')) H.renderHub(app, nav, p.get('hub'));
+else H.renderHome(app, nav, { user: { id: 'guest', name: 'Minh An', email: 'demo@example.com' } });
+document.title = 'ready';
+</script>
+</body></html>
