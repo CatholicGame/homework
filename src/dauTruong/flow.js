@@ -716,20 +716,20 @@ export function startFlow({ root, api, grade, leave, home }) {
   if (import.meta.env.DEV) window.__dtFlow = { get A() { return A; }, peers, get pods() { return pods; }, get seed() { return seed; }, sync: () => syncNpc(true) };
 
   // ---- vào
-  /* 🚪 Rời trận giữa chừng (nút ✕ lúc chương trình đang diễn): hỏi lại trước, rời thì bị trừ sao (đứng bục QUIT_STARS.pod,
-     khán giả QUIT_STARS.aud; phòng thử không trừ). Mất mạng / thẻ kết thúc / sảnh chờ thì rời như thường. */
-  const QUIT_STARS = { pod: 10, aud: 5 };
+  /* 🚪 Rời trận giữa chừng (nút ✕ lúc chương trình đang diễn) khi đang đứng bục thi: hỏi lại trước, rời thì bị trừ QUIT_STARS sao
+     (phòng thử không trừ). Khán giả rời lúc nào cũng được, không hỏi, không phạt. Mất mạng / thẻ kết thúc / sảnh chờ: rời như thường. */
+  const QUIT_STARS = 30;
   const quitEl = document.createElement('div');
   quitEl.className = 'dt-quit'; quitEl.hidden = true;
   quitEl.setAttribute('role', 'alertdialog'); quitEl.setAttribute('aria-modal', 'true'); quitEl.setAttribute('aria-labelledby', 'dt-quit-t');
   root.appendChild(quitEl);
-  const quitCost = () => (A?.test ? 0 : meOnPod ? QUIT_STARS.pod : QUIT_STARS.aud);
+  const quitCost = () => (A?.test || !meOnPod ? 0 : QUIT_STARS);
   function askQuit() {
     const n = quitCost();
     quitEl.innerHTML = `<div class="dt-quit-box">
       <b class="dt-quit-ic" aria-hidden="true">🚪</b>
       <h3 id="dt-quit-t">Rời trận bây giờ?</h3>
-      <p>${n ? `Trận đang diễn ra. Nếu rời bây giờ em sẽ bị <strong>trừ ${n} sao</strong>.` : 'Trận đang diễn ra. Đây là phòng thử nên em không bị trừ sao.'}${meOnPod ? ' Bục của em sẽ để trống.' : ''}</p>
+      <p>${n ? `Trận đang diễn ra. Nếu rời bây giờ em sẽ bị <strong>trừ ${n} sao</strong>.` : 'Trận đang diễn ra. Đây là phòng thử nên em không bị trừ sao.'} Bục của em sẽ để trống.</p>
       <div class="dt-quit-btns"><button type="button" class="dt-quit-stay" data-q="stay">Ở lại thi tiếp</button>
         <button type="button" class="dt-quit-go" data-q="go">Rời trận${n ? ` (−${n} ⭐)` : ''}</button></div>
     </div>`;
@@ -747,7 +747,7 @@ export function startFlow({ root, api, grade, leave, home }) {
     leave();
   });
   api.onBack = () => {
-    if (live && !ended && !gone) { askQuit(); return true; }
+    if (live && !ended && !gone && meOnPod) { askQuit(); return true; }
     leave(); return true;
   };
   arenaVisit();
