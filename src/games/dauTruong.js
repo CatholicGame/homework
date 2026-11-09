@@ -24,7 +24,7 @@ import { PUPILS, SEAT_IDS, COLS } from '../dauTruong/rules.js';
 import { lobbyRender } from '../dauTruong/lobby.js';
 import { loadArenaBank, speedQ } from '../dauTruong/questions.js';
 import { drawQBody, optTokens, tokenCanvas, sayTokens } from '../dauTruong/figs.js';
-import { mcLine, sayQuestion, sayOption, LETTER, MC_NAMES } from '../dauTruong/mc.js';
+import { mcLine, mcPlan, sayQuestion, sayOption, LETTER, MC_NAMES } from '../dauTruong/mc.js';
 import { voiceMode, mcPrefetch, mcSpeak, mcStop, setMcListener, setMcRate, isMcMuted, setMcMuted } from '../dauTruong/mcVoice.js';
 import { certSvg, loadCertFonts, CERT_CSS } from '../dauTruong/cert.js';
 import { addAward } from '../dauTruong/awards.js';
@@ -1118,6 +1118,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     let mode = 'idle', timer = null, phase = 'none', t0 = 0, qT0 = 0;
     const RK = { khoidong: 'kd', tangtoc: 'tt', vedich: 'vd' };
     let qDone = 0;   // số câu đã lật cả buổi (khán giả: đúng x / qDone câu)
+    let nextQ = null;   // câu kế tiếp lấy sẵn lúc các bạn đang nghĩ câu này (tải trước giọng MC): { slot, q }
     let Q = null, qn = 0, qTotal = 0, picks = [], shownOpts = 0, scrDirty = true, scrLast = 0;
     /* qid: tăng mỗi lần mở một bước nhận thao tác (câu hỏi, chọn gói, đặt sao); sent: thao tác đã gửi máy chủ trò ở bước ấy
        (`${qid}:lock` …) để không gửi hai lần và hiện "Đã chốt" ngay. tmId: mã đồng hồ (máy hiện theo đặt lại khi đổi). */
@@ -1599,6 +1600,15 @@ export function stage(app, onBack, { flow = false } = {}) {
     const nameOf = (i) => pods[i].name;
     const leader = () => [...pods].sort((a, b) => b.score - a.score)[0];
     const topFan = () => seats.filter(s => s.live).sort((a, b) => b.score - a.score)[0];
+    /** Khán giả giỏi nhất đợt vừa xong: được nhiều điểm nhất kể từ đầu đợt (s.base), tối đa 3 bạn (bằng điểm thì ai tổng cao hơn). */
+    const bestFans = () => {
+      const g = (x) => x.score - (x.base || 0);
+      const live = seats.filter(x => x.live && g(x) > 0);
+      const top = Math.max(0, ...live.map(g));
+      return live.filter(x => g(x) === top).sort((a, b) => b.score - a.score).slice(0, 3).map(x => x.id);
+    };
+    // đèn rọi vàng cho khán giả giỏi nhất đợt (FX.fans), tắt khi không dùng
+    const fanSpots = [0, 1, 2].map(() => { const sp = new THREE.SpotLight('#ffd76a', 0, 14, 0.16, 0.5, 1.2); scene.add(sp); return sp; });
     /* 🏅 Giấy chứng nhận của mình (src/dauTruong/cert.js): lưu vào Thành tích (awards.js, đồng bộ tài khoản), tờ giấy bay lên giữa
        màn hình, chữ ký hai MC chạy nét; tự thu lại sau 10 giây hoặc chạm Đóng, "Xem" mở dạng slide. Sân khấu thử: ghi demo. */
     const certEl = root.querySelector('.dt-cert');
@@ -1691,12 +1701,20 @@ export function stage(app, onBack, { flow = false } = {}) {
       confetti(80);
     }
     /** MC nói một câu của tình huống key; trả true nếu vòng vẫn đang chạy (false: đã đổi vòng, dừng chuỗi). */
+    const hostVars = (vars) => ({ tenCT: SHOW_NAME.split('\n').join(' '), lop: gradeNow(), mon: monOf(Q), ...vars });
     async function host(key, vars = {}, opts) {
       const r = run;
-      const ln = mcLine(key, { tenCT: SHOW_NAME.split('\n').join(' '), lop: gradeNow(), mon: monOf(Q), ...vars });
-      if (ln) { emit('say', ln.text, ln.mc); await mcSpeak(ln.text, ln.mc, opts); }
+      const ln = mcLine(key, hostVars(vars));
+      if (ln) { emit('say', ln.text, ln.mc, ln.parts); await mcSpeak(ln.text, ln.mc, { ...opts, parts: ln.parts }); }
       return live(r);
     }
+    /** Chọn sẵn câu MC sắp nói và tải trước giọng (cả phòng). Câu có tên: phần cố định và tên là các mp3 riêng (mc.js partsOf). */
+    function preHost(key, vars = {}) {
+      const ln = mcPlan(key, hostVars(vars));
+      if (ln) fxRun('pre', ln.parts, ln.mc);
+    }
+    /** Tải trước câu hỏi q và bốn phương án. */
+    const preQ = (q) => { if (q) fxRun('pre', [sayQuestion(q), ...(q.o || []).map((_, i) => sayOption(q, i))], monOf(q)); };
     async function speak(text, mc, opts) { const r = run; emit('say', text, mc); await mcSpeak(text, mc, opts); return live(r); }
 
     /* ---------- Chương trình chung: một máy chủ trò, cả phòng thấy y như nhau ----------
@@ -1742,20 +1760,22 @@ export function stage(app, onBack, { flow = false } = {}) {
     const winState = () => (winMe ||= { at: Date.now(), myStars: 0, mine: null, total0: getTotalStars() });
     const FX = {
       // máy chủ trò đã tự làm (nói, âm thanh, góc máy, tiếng chốt): chỉ máy hiện theo làm
-      say: (text, mc) => { if (following()) mcSpeak(text, mc); },
+      say: (text, mc, parts) => { if (following()) mcSpeak(text, mc, { parts }); },
       sfx: (n, ...a) => { if (following()) SFX[n]?.(...a); },
       cam: (k) => { if (following()) cam(k); },
       lk: (i) => { if (following() && i !== myPod) SFX.lock(); },
       pre: (texts, mc) => { (texts || []).forEach(t => mcPrefetch(t, mc)); },
       // mọi máy
       burst: (i, k) => { if (pods[i]) { burst(pods[i]); SFX.ting?.(k, true); } },
-      pan: () => {
-        // tổng kết đợt: camera lướt chậm một lượt qua khán phòng
-        const base = viewOf(findCam('crowd'));
-        const sh = (k) => ({ pos: [base.pos[0] + 2.5 * k, base.pos[1], base.pos[2]], target: [base.target[0] + 6 * k, base.target[1], base.target[2]], fov: base.fov });
-        camCur = 'crowd'; paintCams();
-        flyCam(sh(-1), true);
-        flyCam(sh(1), false, { dur: reduce ? 10000 : 8000, lift: 0 });
+      // tổng kết đợt: đèn vàng rọi các bạn khán giả giỏi nhất đợt (mã ghế), [] tắt
+      fans: (ids = []) => {
+        const on = new Set(ids);
+        seats.forEach(x => { x.star = on.has(x.id); });
+        fanSpots.forEach((sp, k) => {
+          const x = seats.find(y => y.id === ids[k]);
+          sp.intensity = x ? 90 : 0;
+          if (x) { sp.position.set(x.sg.position.x, x.sg.position.y + 7, x.sg.position.z - 2.5); sp.target = x.sg; }
+        });
       },
       awardStart: (at) => { winMe = { at, myStars: 0, mine: null, total0: getTotalStars() }; showAward(true); awardCam(awardWide()); },
       awardCam: (rank) => awardCam(rank < 0 ? awardWide() : awardClose(rank)),
@@ -1926,7 +1946,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (!audWaiting() || left < 1.5) { closeQ(key, vars); return; }
       phase = 'audLast'; setTimer(Math.min(AUD_LAST, Math.ceil(left))); scrDirty = true;
       paintOv();
-      audSay = host(key === 'allLock' ? 'audLastAll' : key === 'lockedFast' ? 'audLastFast' : 'audLast', vars);
+      audSay = host(sl?.seg === 'speed' ? 'audLastAll' : key === 'lockedFast' ? 'audLastFast' : 'audLast', vars);
     }
     /** Đóng câu: MC nói một câu (ai chốt, hết giờ, không ai bấm chuông) rồi lật. */
     async function closeQ(key, vars) {
@@ -1978,13 +1998,13 @@ export function stage(app, onBack, { flow = false } = {}) {
         pods.forEach((p, i) => { p.state = i === turn ? 'turn' : 'idle'; });
         ov.hidden = true; camX('players'); sfx('spot');
         if (!(await host('kdTurn', { ten: nameOf(turn) }))) return;
-        await wait(400);
+        await wait(200);
       }
       if (sl.seg === 'common' && sl.first) {
         turn = -1; Q = null; phase = 'turn'; scrDirty = true;
         pods.forEach(p => { p.state = 'idle'; });
         ov.hidden = true; camX('players'); sfx('bellOpen');
-        if (!(await host('kdCommon')) || !(await host('kdCommon2'))) return;
+        if (!(await host('kdCommon'))) return;
       }
       if (r !== run) return;
       if (sl.seg === 'vd' && !vd.starUsed) startStar(); else runQuestion();
@@ -1995,11 +2015,11 @@ export function stage(app, onBack, { flow = false } = {}) {
       turn = who; buzzer = -1; Q = null; phase = 'turn'; timer = null; scrDirty = true;
       pods.forEach((p, i) => { p.state = i === who ? 'turn' : 'idle'; p.star = false; p.gain = 0; });
       ov.hidden = true; camX('players'); sfx('spot');
+      // một câu mời + hỏi gói (vdTurn), bảng gói hiện ngay sau đó
       if (!(await host('vdTurn', { ten: nameOf(who), diem: pods[who].score }))) return;
       phase = 'pick'; qid++; scrDirty = true;
       buildChoice();
       requestAnimationFrame(() => { if (!gone) camX('screen'); });
-      if (!(await host('vdPick', { ten: nameOf(who) }))) return;
       setTimer(secs('pick'));
       paintChoice();
       if (isBot(who)) {
@@ -2038,13 +2058,14 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (on) { vd.starUsed = true; pods[vd.who].star = true; sfx('double'); } else sfx('click');
       phase = 'starred'; timer = null; scrDirty = true;
       paintChoice();
-      if (!(await host(on ? 'starOn' : 'starOff', { ten: nameOf(vd.who), diem: sl.val, diemX2: sl.val * 2 }))) return;
+      if (on && !(await host('starOn', { ten: nameOf(vd.who), diem: sl.val, diemX2: sl.val * 2 }))) return;
       runQuestion(true);
     }
     /** Câu hỏi: MC trao lời khi đổi môn, đọc số câu, câu hỏi, từng phương án (ô bật ra lúc MC đọc tới), "Thời gian bắt đầu!". */
     async function runQuestion(afterStar = false) {
       const r = run;
-      Q = takeQ(sl);
+      Q = nextQ?.slot === sl ? nextQ.q : takeQ(sl);
+      nextQ = null;
       if (sl.val) Q.val = sl.val;
       qn++; qid++; picks = []; shownOpts = 0; phase = 'read'; timer = null; buzzer = -1; scrDirty = true;
       turn = sl.who;
@@ -2055,22 +2076,25 @@ export function stage(app, onBack, { flow = false } = {}) {
       seats.forEach(s => { s.ans = null; s.right = false; s.dirty = true; });
       livePop();
       const mon = monOf(Q);
-      // giọng Azure: tải trước câu hỏi và bốn phương án (cả phòng) để MC đọc liền mạch, không chờ mạng giữa các câu
-      fxRun('pre', [sayQuestion(Q), ...[0, 1, 2, 3].map(i => sayOption(Q, i))], mon);
+      // giọng Azure: tải trước (cả phòng) câu hỏi, bốn phương án và lời MC của câu này để MC đọc liền mạch, không chờ mạng giữa
+      // các câu. Thường câu hỏi đã tải từ lúc các bạn nghĩ câu trước (startThink); tải lại thì lấy ngay từ bộ nhớ.
+      preQ(Q);
+      const askKey = sl.seg === 'speed' ? 'ttAsk' : sl.seg === 'vd' && !afterStar ? 'vdAsk' : null;   // Khởi động: số câu đã trên màn hình, vào thẳng đề
+      const askVars = { so: qPos()[0], loai: (Q.tag || '').toLowerCase(), diem: Q.val };
+      if (askKey) preHost(askKey, askVars);
+      // đồng hồ + tiếng "go" là hiệu lệnh, MC không mời trả lời; chỉ câu đầu lượt chung nhắc bấm chuông
+      const goKey = sl.seg === 'common' && sl.first ? 'goBell' : null;
+      const goVars = { ten: nameOf(Math.max(0, turn)) };
+      if (goKey) preHost(goKey, goVars);
       // có bạn tự đọc: đồng hồ đọc đề chung cho cả phòng, bốn phương án hiện ngay
       const reading = needRead();
       if (reading) { shownOpts = 4; setTimer(kidReadSec(Q)); }
-      // đổi môn: người vừa nói trao lời cho người kia (lượt Tăng tốc, Về đích: không cần)
-      if (lastMon >= 0 && mon !== lastMon && !afterStar && sl.seg !== 'speed') {
-        if (!(await host(mon ? 'toTV' : 'toToan'))) return;
-        if (Math.random() < 0.5 && !(await host(mon ? 'thank1' : 'thank0'))) return;
-      }
+      // đổi môn: MC của môn đọc thẳng, không trao lời / cảm ơn qua lại (giữ nhịp thi nhanh)
       lastMon = mon;
       buildOv(); paintOv();
       sfx('open');
       requestAnimationFrame(() => { if (!gone && Q) camX('screen'); }); // dải đáp án đã dựng: đo rồi mới khớp khung câu hỏi
-      const askKey = sl.seg === 'speed' ? 'ttAsk' : sl.seg === 'vd' ? 'vdAsk' : 'ask';
-      if (!(await host(askKey, { so: qPos()[0], loai: (Q.tag || '').toLowerCase(), diem: Q.val }))) return;
+      if (askKey && !(await host(askKey, askVars))) return;
       if (!(await speak(sayQuestion(Q), mon))) return;
       if (Q.kind === 'order' && !(await host('kindOrder'))) return;
       for (let i = 0; i < 4; i++) {
@@ -2079,8 +2103,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       }
       // hết lời MC mà khoảng đọc đề chưa hết: chờ cho bạn tự đọc đọc xong (cả phòng cùng chờ)
       if (reading && timer) { const left = timer.end - performance.now(); if (left > 0) await wait(left); if (r !== run) return; }
-      const one = sl.seg === 'solo' || sl.seg === 'vd';
-      if (!(await host(sl.seg === 'common' ? 'goBell' : one ? 'goOne' : 'go', { ten: nameOf(Math.max(0, turn)) }))) return;
+      if (goKey && !(await host(goKey, goVars))) return;
       if (r === run && phase === 'read') startThink();
     }
     function startThink() {
@@ -2097,6 +2120,30 @@ export function stage(app, onBack, { flow = false } = {}) {
       // khán giả: bạn ảo theo trình độ; bạn thật (real) tự trả lời trên máy mình, máy chủ trò nhận qua 'xi'
       seats.forEach(s => { if (s.real) { s.plan = Infinity; return; } const d = decide(s.skill, { level: qLevel(), round: mode, sec }); s.plan = d.at; s.ok = d.ok; });
       paintOv();
+      preAhead();
+    }
+    /**
+     * Lúc các bạn đang nghĩ (MC im, mạng rảnh): tải trước giọng của mọi câu MC có thể nói tới hết câu sau. Lời kết quả chưa biết
+     * đúng hay sai nên tải cả hai; câu có tên thì tên đã tải từ đầu vòng (setMode), chỉ cần phần cố định. Câu kế tiếp lấy sẵn
+     * (nextQ) để tải câu hỏi và bốn phương án.
+     */
+    function preAhead() {
+      const ten = nameOf(Math.max(0, turn)), chu = LETTER[Q.a];
+      if (sl.seg === 'speed' || sl.seg === 'common') preHost(Q.kind === 'abcd' ? 'answer' : 'answerShow', { chu });
+      const keys = {
+        solo: ['soloRight', 'soloWrong', 'soloLate'],
+        common: ['bellHit', 'commonRight', 'commonWrong', 'noBell'],
+        speed: ['ttNone'],
+        vd: ['vdRight', 'vdRightX2', 'vdWrong', 'vdWrongX2', 'vdLate', 'stealRight', 'stealWrong'],
+      }[sl.seg] || [];
+      keys.forEach(k => preHost(k, { ten, chu, diem: Q.val, diemX2: Q.val * 2, mau: COLOR_NAMES[Math.max(0, turn)] }));
+      // tổng kết đợt và lời mời lượt sau (điểm còn đổi: chỉ cần phần cố định và tên)
+      const ns = slots[si], fan = topFan();
+      if (!ns && fan) preHost('audTop', { ten: fan.name, diem: fan.score || 10 });
+      if (ns?.seg === 'solo' && ns.first) preHost('kdTurn', { ten: nameOf(ns.who) });
+      if (ns?.seg === 'common' && ns.first) { preHost('kdCommon'); }
+      if (ns?.seg === 'pick') preHost('vdTurn', { ten: nameOf(ns.who), diem: pods[ns.who].score });
+      if (ns && ns.seg !== 'pick' && nextQ?.slot !== ns) { nextQ = { slot: ns, q: takeQ(ns) }; preQ(nextQ.q); }
     }
     /** Mỗi khung hình lúc đang đếm giờ: bạn máy chốt / bấm chuông, khán giả trả lời, hết giờ hay đủ người thì MC đóng câu. */
     function stepRound(now) {
@@ -2120,16 +2167,20 @@ export function stage(app, onBack, { flow = false } = {}) {
       // người phải trả lời đã chốt thì đóng câu ngay, không chờ hết giờ
       if (phase === 'think') {
         if (sl.seg === 'speed') {
-          if (pods.every(p => p.state === 'locked')) closeLocked('allLock'); else if (up) closeQ('timeUp');
+          if (pods.every(p => p.state === 'locked')) closeLocked(null); else if (up) closeQ(null);
         } else if (sl.seg === 'common') { if (up) closeQ('noBell'); }
         else {
           const p = pods[turn];
-          if (p.state === 'locked') { if (sl.seg === 'vd' && !p.ok) steal(false); else closeLocked(p.lockAt < 3 ? 'lockedFast' : 'locked', { ten: nameOf(turn) }); }
-          else if (up) { if (sl.seg === 'vd') steal(true); else closeQ('timeUp'); }
+          // lượt cá nhân Khởi động: không báo "đã chốt" / "hết giờ", lời kết quả nói luôn (soloRight / soloWrong / soloLate)
+          const kd = sl.seg === 'solo';
+          if (p.state === 'locked') { if (sl.seg === 'vd' && !p.ok) steal(false); else closeLocked(null, { ten: nameOf(turn) }); }
+          else if (up) { if (sl.seg === 'vd') steal(true); else closeQ(kd ? null : 'timeUp'); }
         }
       } else if (phase === 'steal') { if (up) closeQ('noBell'); }
       else if (phase === 'answer') {
-        if (pods[buzzer].state === 'locked') closeLocked(pods[buzzer].lockAt < 3 ? 'lockedFast' : 'locked', { ten: nameOf(buzzer) }); else if (up) closeQ('timeUp');
+        // lượt chung Khởi động: bạn bấm chuông chốt xong thì lật luôn, lời kết quả nói cả đáp án
+        const kd = sl.seg === 'common';
+        if (pods[buzzer].state === 'locked') closeLocked(kd ? null : pods[buzzer].lockAt < 3 ? 'lockedFast' : 'locked', { ten: nameOf(buzzer) }); else if (up) closeQ(kd ? null : 'timeUp');
       }
     }
     /** Lật: tính điểm, đổi màu bục, khán giả cộng điểm; rồi MC đọc đáp án, kết quả, khán phòng, sang bước sau. */
@@ -2210,17 +2261,20 @@ export function stage(app, onBack, { flow = false } = {}) {
     }
     async function afterReveal(res) {
       const r = run;
-      if (!(await host(Q.kind === 'abcd' ? 'answer' : 'answerShow', { chu: LETTER[Q.a] }))) return;
-      await wait(500);
-      if (r !== run) return;
+      // Khởi động có người trả lời: một câu gộp đáp án + kết quả ("Đúng rồi, bê! Mười điểm cho Lan."); còn lại đọc đáp án trước
+      const ln = resultLine(res), merged = !!ln && (sl.seg === 'solo' || sl.seg === 'common' || sl.seg === 'vd');
+      if (!merged) {
+        if (!(await host(Q.kind === 'abcd' ? 'answer' : 'answerShow', { chu: LETTER[Q.a] }))) return;
+        await wait(250);
+        if (r !== run) return;
+      }
       // camera đứng yên ở màn câu hỏi suốt lượt: kết quả hiện ngay trong ô camera trực tiếp (pháo giấy, đèn rọi vàng ở bục bạn
       // đúng); MC nói kết quả. Dải đáp án (huy hiệu kết quả của chính người xem) giữ tới câu sau
       pods.map((p, i) => i).filter(i => pods[i].state === 'right').forEach((i, k) => later(() => fxRun('burst', i, k), 300 + k * 220));
-      const ln = resultLine(res);
-      if (ln && !(await host(ln[0], ln[1]))) return;
+      if (ln && !(await host(ln[0], { chu: LETTER[Q.a], ...ln[1] }))) return;
+      // điểm khán giả hiện trên đầu từng bạn, MC không đọc sau mỗi câu (chỉ gọi tên người dẫn đầu khán phòng lúc hết vòng)
       const fan = topFan(), lastOfTurn = si >= slots.length || slots[si].seg !== sl.seg || slots[si].who !== sl.who;
-      if (fan && !(await host(Q.kind === 'abcd' ? 'audRight' : 'audRightOrder', { chu: LETTER[Q.a], diem: Q.val || ROUNDS[mode].aud }))) return;
-      await wait(600);
+      await wait(300);
       if (r !== run) return;
       // hết đợt (lượt của một bạn, lượt chung, cả vòng Tăng tốc): mới rời màn câu hỏi, xem khán phòng cùng bảng điểm
       if (lastOfTurn && !(await recap(fan))) return;
@@ -2231,14 +2285,17 @@ export function stage(app, onBack, { flow = false } = {}) {
     async function recap(fan) {
       const r = run;
       ov.hidden = true;
-      fxRun('pan');
+      // góc Khán phòng cố định (không lướt), đèn vàng rọi những bạn khán giả được nhiều điểm nhất trong đợt
+      camX('crowd');
+      fxRun('fans', bestFans());
       showBoard();
-      if (fan && !(await host(fan.score > 0 ? 'audTop' : 'audNone', { ten: fan.name, diem: fan.score }))) return false;
-      await wait(500);
-      if (sl.seg === 'solo' && sl.last && !(await host('kdTurnDone', { ten: nameOf(sl.who), diem: pods[sl.who].score }))) return false;
-      if (sl.seg === 'vd' && sl.qi === 2 && !(await host('vdDone', { ten: nameOf(sl.who), diem: pods[sl.who].score }))) return false;
-      await wait(900);
+      // bảng điểm tự nói điểm từng bạn; MC chỉ gọi khán giả dẫn đầu lúc hết vòng
+      const t = performance.now();
+      if (si >= slots.length && fan && fan.score > 0 && !(await host('audTop', { ten: fan.name, diem: fan.score }))) return false;
+      await wait(Math.max(400, 1700 - (performance.now() - t)));   // đủ lâu để xem bảng điểm chạy số
       if (r !== run) return false;
+      fxRun('fans', []);
+      seats.forEach(x => { x.base = x.score; });
       boardEl.hidden = true;
       turnBase = pods.map(p => p.score);
       return true;
@@ -2263,7 +2320,7 @@ export function stage(app, onBack, { flow = false } = {}) {
         SFX.points?.();
         if (to.some((v, i) => v > from[i])) confetti(50);
         els.forEach((el, i) => { if (to[i] !== from[i]) el.classList.add('is-run'); });
-        const t0b = performance.now(), dur = 1400;
+        const t0b = performance.now(), dur = 1000;
         const step = () => {
           if (r !== run || boardEl.hidden) return;
           const k = Math.min(1, (performance.now() - t0b) / dur), e = 1 - (1 - k) ** 3;
@@ -2271,7 +2328,7 @@ export function stage(app, onBack, { flow = false } = {}) {
           if (k < 1) requestAnimationFrame(step); else els.forEach(el => el.classList.remove('is-run'));
         };
         requestAnimationFrame(step);
-      }, 900);
+      }, 300);
     }
     /** Hết câu của vòng: MC tổng kết, toàn cảnh, rồi tự sang vòng sau (Khởi động → Tăng tốc → Về đích → Trao giải). */
     async function endRound() {
@@ -2283,16 +2340,18 @@ export function stage(app, onBack, { flow = false } = {}) {
       const top = leader();
       const key = { khoidong: 'kdEnd', tangtoc: 'ttEnd' }[mode];
       if (key && !(await host(key, { ten: top.name, diem: top.score }))) return;
-      await wait(1500);
+      await wait(800);
       setMode(NEXT[mode] || 'win');
     }
     /** Lời mở đầu của từng vòng (và Mở màn, Trao giải), rồi vào bước đầu. */
     async function intro(m) {
       const r = run;
-      const say = async (...keys) => { for (const k of keys) if (!(await host(k, { so: KD.solo, giay: secs(m) }))) return false; return true; };
+      const vars = { so: KD.solo, giay: secs(m) };
+      // cả chuỗi lời dẫn chọn sẵn và tải trước ngay: câu sau tải xong trong lúc MC đọc câu trước
+      const say = async (...keys) => { keys.forEach(k => preHost(k, vars)); for (const k of keys) if (!(await host(k, vars))) return false; return true; };
       if (m === 'open') {
         await wait(2500);
-        if (r === run && await say('openHi', 'openMe0', 'openMe1', 'openPlan', 'openAud', 'openGo') && r === run) setMode('khoidong');
+        if (r === run && await say('openHi', 'openMe0', 'openMe1', 'openPlan') && r === run) setMode('khoidong');
         return;
       }
       if (m === 'win') {
@@ -2321,7 +2380,7 @@ export function stage(app, onBack, { flow = false } = {}) {
           fxRun('awardCam', -1);
         }
         fxRun('audStars');
-        if (!(await say('thanks', 'bye')) || r !== run) return;
+        if (!(await say('bye')) || r !== run) return;
         // ⭐ màn thu sao của mình, rồi thẻ kết thúc (flow.js)
         fxRun('end');
         return;
@@ -2331,7 +2390,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       // MC còn đang đi từ giữa sân khấu về chỗ dẫn, hay bộ câu đang tải: chờ
       while (r === run && (mcArrive() || arena === null)) await wait(200);
       if (r !== run) return;
-      const keys = { khoidong: ['kdIntro', 'kdRule'], tangtoc: ['ttIntro', 'ttRule'], vedich: ['vdIntro', 'vdRule', 'vdRule2', 'vdRule3', 'vdOrder'] }[m];
+      const keys = { khoidong: ['kdIntro', 'kdRule'], tangtoc: ['ttIntro', 'ttRule'], vedich: ['vdIntro', 'vdRule', 'vdRule2'] }[m];
       if (!(await say(...keys))) return;
       nextSlot();
     }
@@ -2365,7 +2424,12 @@ export function stage(app, onBack, { flow = false } = {}) {
       seats.forEach(s => { s.right = false; s.ans = null; s.dirty = true; });
       if (m === 'open' || m === 'idle') { pods.forEach(p => { p.score = 0; p.shown = 0; p.rs = { kd: 0, tt: 0, vd: 0 }; }); seats.forEach(s => { s.score = 0; s.nRight = 0; }); qDone = 0; }
       turnBase = pods.map(p => p.score);
-      slots = buildSlots(m); si = 0;
+      seats.forEach(x => { x.base = x.score; });
+      FX.fans([]);
+      slots = buildSlots(m); si = 0; nextQ = null;
+      // tên bốn bạn trên bục: mỗi tên một mp3 riêng cho mỗi giọng MC, ghép vào lời có tên (mc.js partsOf), tải một lần từ đầu vòng
+      const names = pods.map(p => p.name).filter(Boolean);
+      fxRun('pre', names, 0); fxRun('pre', names, 1);
       qTotal = slots.filter(s => s.seg !== 'pick').length + slots.filter(s => s.seg === 'pick').length * 3;
       intro(m);
     }
@@ -2593,8 +2657,9 @@ export function stage(app, onBack, { flow = false } = {}) {
           s.tag.material.opacity = Math.min(1, Math.max(0, (d - 2) / 2));
         } else s.tag.material.opacity = 0;
         s.tag.visible = s.tag.material.opacity > 0.02;
-        s.lamp.material.emissive.set(s.right ? '#21e67a' : R.a);
-        s.lamp.material.emissiveIntensity = s.right ? 2.5 : 0.35;
+        s.lamp.material.emissive.set(s.star ? '#ffc93c' : s.right ? '#21e67a' : R.a);
+        s.lamp.material.emissiveIntensity = s.star ? 3.5 + Math.sin(t * 6) * 0.8 : s.right ? 2.5 : 0.35;
+        s.tag.scale.set(s.star ? 1.2 : 0.9, s.star ? 0.6 : 0.45, 1);
         const cheer = (phase === 'reveal' || mode === 'win') && !reduce;
         if (s.pupil) {
           // lật đáp án: mỗi bạn một kiểu theo đúng / sai của mình (npc.js reactOf: "Yes!", mừng, vỗ tay cho bạn, buồn, ngồi yên);

@@ -112,10 +112,10 @@ export function voiceMode() {
   if (canCloud()) return 'azure';
   return hasSynth && voiceOf(0) ? 'local' : 'none';
 }
-/** Tải trước câu MC sắp đọc (câu hỏi và bốn phương án ngay khi chọn câu): lúc đọc không phải chờ mạng. */
+/** Tải trước câu MC sắp đọc (một câu, hoặc mảng các câu / các mảnh của một câu): lúc đọc không phải chờ mạng. */
 export function mcPrefetch(text, mc = 0) {
-  if (muted || !canCloud() || !String(text || '').trim()) return;
-  cloudUrl(text, mc).catch(() => {});
+  if (muted || !canCloud()) return;
+  (Array.isArray(text) ? text : [text]).forEach((t) => { if (String(t || '').trim()) cloudUrl(t, mc).catch(() => {}); });
 }
 
 /**
@@ -123,8 +123,9 @@ export function mcPrefetch(text, mc = 0) {
  * onStart: lúc bắt đầu thành tiếng (để bật phương án đúng lúc MC đọc tới). Giọng Azure trước; không được thì giọng của máy;
  * máy không có giọng tiếng Việt / tắt tiếng: phụ đề hiện, chờ một khoảng theo độ dài câu.
  */
-export function mcSpeak(text, mc = 0, { onStart } = {}) {
+export function mcSpeak(text, mc = 0, { onStart, parts } = {}) {
   text = String(text || '').trim();
+  parts = (parts?.length ? parts : [text]).map(t => String(t || '').trim()).filter(Boolean);
   if (!text) return Promise.resolve();
   const my = ++seq;
   pending?.();
@@ -156,21 +157,27 @@ export function mcSpeak(text, mc = 0, { onStart } = {}) {
     };
     if (muted) { begin(); guard = setTimeout(finish, estimate(text)); return; }
     if (!canCloud()) { local(); return; }
-    cloudUrl(text, mc).then((url) => {
+    // câu ghép mảnh (phần cố định + tên, mc.js partsOf): chờ đủ mọi mảnh rồi mới phát, các mảnh nối liền không chờ mạng giữa chừng
+    Promise.all(parts.map(t => cloudUrl(t, mc))).then((urls) => {
       if (done || my !== seq) { finish(); return; }
       const a = playerEl();
       try { synth?.cancel(); } catch { /* bỏ qua */ }
-      if (import.meta.env.DEV) (window.__dtVoice ||= []).push(url.startsWith(R2) ? 'r2' : 'api');   // thử tự động: giọng nào đã đọc
+      if (import.meta.env.DEV) (window.__dtVoice ||= []).push(urls[0].startsWith(R2) ? 'r2' : 'api');   // thử tự động: giọng nào đã đọc
+      let k = 0;
+      const playPart = () => {
+        clearTimeout(guard);
+        a.src = urls[k];
+        a.playbackRate = rate; a.preservesPitch = true; a.defaultPlaybackRate = rate;
+        a.play().then(() => {
+          // phòng thẻ không báo onended: quá độ dài mảnh thì coi như xong
+          const len = isFinite(a.duration) && a.duration > 0 ? a.duration * 1000 / rate : estimate(parts[k]) * 1.6;
+          guard = setTimeout(finish, len + 2500);
+        }, () => { if (!started) local(); else finish(); });   // trình duyệt chặn tự phát (chưa chạm lần nào): giọng của máy
+      };
       a.onplaying = begin;
-      a.onended = finish;
+      a.onended = () => { if (done || my !== seq) return; if (++k < urls.length) playPart(); else finish(); };
       a.onerror = () => { if (!started) local(); else finish(); };
-      a.src = url;
-      a.playbackRate = rate; a.preservesPitch = true; a.defaultPlaybackRate = rate;
-      a.play().then(() => {
-        // phòng thẻ không báo onended: quá độ dài câu thì coi như xong
-        const len = isFinite(a.duration) && a.duration > 0 ? a.duration * 1000 / rate : estimate(text) * 1.6;
-        guard = setTimeout(finish, len + 2500);
-      }, () => { if (!started) local(); });   // trình duyệt chặn tự phát (chưa chạm lần nào): giọng của máy
+      playPart();
     }, () => {
       cloudOffUntil = Date.now() + CLOUD_PAUSE;   // R2 lẫn api/tts đều không được: nghỉ Azure một lúc
       local();
