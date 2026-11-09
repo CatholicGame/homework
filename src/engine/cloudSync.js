@@ -35,7 +35,7 @@ const PER_USER = ['tth_stars', 'tth_activity', 'tth_stickers'];
 // Khoá trước đây lưu chung cả máy, nay là `${tên}@${id}` (auth.scopedKey).
 const SCOPED = ['gw-progress-v1', 'gw2-progress-v1', 'gp-progress-v1', 'g2w-progress-v1', 'g2w2-progress-v1', 'g1w-progress-v1', 'g1w2-progress-v1', 'g4s-progress-v1',
   'g3games-best-v1', 'g3ws-v1', 'g3drill-weak-v1', 'memory-v1', 'math_game_progress', 'math_exam_history', 'writing-v1', 'life-v1', 'tv3w-v1', 'tv3spell-v1', 'tv3spell-tests-v1', 'thandong-bag-v1', 'dautruong-awards-v1', 'dautruong-matches-v1'];
-const SCOPED_PREFIX = ['gw-paint:'];
+const SCOPED_PREFIX = ['gw-paint:', 'dautruong-seen:'];
 
 const isScopedName = (n) => SCOPED.includes(n) || SCOPED_PREFIX.some(p => n.startsWith(p));
 const storageKeyOf = (name, scope) => (PER_USER.includes(name) ? `${name}_${scope}` : `${name}@${scope}`);

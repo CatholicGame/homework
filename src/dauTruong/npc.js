@@ -9,9 +9,10 @@
  * Luật (docs/dau-truong/thiet-ke.md §4b):
  *   - KHÁN PHÒNG ƯU TIÊN: từ lúc phòng mở, bạn ảo vào ngồi dần (một phần ngồi sẵn, số còn lại vào rải tới giờ bắt đầu, sát giờ
  *     đông hơn). Người thật vào càng đông thì bạn ảo càng ít (bạn vào sau cùng về trước). Ghế người thật đã ngồi không bao giờ bị lấy.
- *   - BỤC THI: người thật bật "Em muốn lên bục" luôn đứng trước. Thiếu người thì MC lần lượt mời bạn ảo đang ngồi dưới khán phòng
- *     lên (mốc PICK_AT trong lúc chờ, bạn giỏi dễ được mời hơn); tới giờ mà vẫn thiếu thì mời nốt. Người thật bật công tắc khi bục đã
- *     đủ: bạn ảo được mời sau cùng nhường chỗ, về lại ghế cũ.
+ *   - BỤC THI: phòng mở là đã có 1–2 bạn ảo đứng sẵn trên bục; người thật không bao giờ đứng trước bạn ảo (một mình ở bục 1 trông
+ *     không tự nhiên). Người thật bật "Em muốn lên bục" đứng ngay sau các bạn đứng sẵn. Còn thiếu thì MC lần lượt mời thêm bạn ảo
+ *     đang ngồi dưới khán phòng (mốc PICK_AT, bạn giỏi dễ được mời hơn); tới giờ mà vẫn thiếu thì mời nốt. Người thật vào khi bục
+ *     đã đủ: bạn ảo được mời sau cùng nhường chỗ, về lại ghế cũ (đủ 4 người thật thì cả bạn đứng sẵn cũng nhường).
  *   - TRÌNH ĐỘ: mỗi bạn một mức giỏi / khá / mới học theo nhịp học trên bảng xếp hạng (sao/tháng), quyết định xác suất biết đáp án
  *     (theo độ khó câu), thời gian nghĩ, có dám bấm chuông, chọn gói Về đích, đặt Ngôi sao hy vọng.
  *   - TẤT ĐỊNH: mọi thứ tính từ hạt giống `seed` (phòng + giờ bắt đầu) và thời điểm, nên hai máy cùng phòng thấy cùng các bạn ở
@@ -130,35 +131,49 @@ export function audienceAt({ grade, seed, frac, taken = [], real = 0, fill = FIL
   return out;
 }
 
+/** Mốc mời bạn ảo lên bục của một lượt: 1 hoặc 2 bạn đứng sẵn lúc phòng mở (mốc 0, theo hạt giống), các bạn sau theo PICK_AT. */
+export function pickTimes(seed) {
+  const pre = rand01(seed, 'pre') < 0.5 ? 1 : 2;
+  return [...Array(pre).fill(0), ...PICK_AT.slice(PICK_AT.length - (4 - pre))];
+}
+
 /**
- * Bốn bục thi lúc `frac`. Người thật muốn lên bục đứng trước (theo thứ tự truyền vào, mình thường là người đầu), rồi tới bạn ảo
- * đang ngồi dưới khán phòng được mời lần lượt ở các mốc PICK_AT. `full`: tới giờ bắt đầu, mời nốt cho đủ 4 bục.
+ * Bốn bục thi lúc `frac`. Phòng mở là đã có 1–2 bạn ảo đứng sẵn trên bục (người thật không bao giờ đứng trước bạn ảo, một mình
+ * ở bục 1 trông không tự nhiên). Người thật muốn lên bục đứng ngay sau các bạn đứng sẵn (theo thứ tự truyền vào), rồi tới các bạn
+ * ảo MC mời thêm ở các mốc PICK_AT. Thiếu chỗ cho người thật thì bạn ảo mời sau cùng nhường trước (đủ 4 người thật: hết bạn ảo).
+ * `full`: tới giờ bắt đầu, mời nốt cho đủ 4 bục.
  * @param {object} o
- * @param {{ name: string, kind: number, me?: boolean }[]} o.reals người thật muốn lên bục
+ * @param {{ name: string, kind: number, me?: boolean, real?: string|number, seat?: string }[]} o.reals người thật muốn lên bục
  * @param {{ npc: object, seat: string }[]} o.audience kết quả audienceAt (chưa trừ ai)
  * @returns {{ pods: object[], picked: { npc: object, seat: string }[] }} pods: tối đa 4 phần tử
- *   ({ name, kind, skill, me?, npc?, seat? }); picked: bạn ảo đang đứng bục (ghế của họ để trống)
+ *   ({ name, kind, skill, me?, real?, npc?, seat?, t? (mốc được mời) }); picked: bạn ảo đang đứng bục (ghế của họ để trống)
  */
 export function podiumAt({ seed, frac, reals = [], audience, full = false }) {
-  const pods = reals.slice(0, 4).map(r => ({ name: r.name, kind: r.kind, skill: r.skill || 'kha', me: !!r.me }));
-  const need = 4 - pods.length;
-  const due = full ? 4 : PICK_AT.filter(t => frac >= t).length;
-  const n = Math.max(0, Math.min(need, due));
-  // mời từng bạn một ở mốc của lần mời đó, chỉ trong số bạn đã ngồi lúc ấy: bạn đã mời giữ nguyên bục khi có bạn mới vào.
+  const humans = reals.slice(0, 4).map(r => {
+    const x = { name: r.name, kind: r.kind, skill: r.skill || 'kha', me: !!r.me };
+    if (r.real != null) { x.real = r.real; x.seat = r.seat; }
+    return x;
+  });
+  const times = pickTimes(seed);
+  const due = full ? 4 : times.filter(t => frac >= t).length;
+  const n = Math.max(0, Math.min(4 - humans.length, due));
+  // mời từng bạn một ở mốc của lần mời đó, chỉ trong số bạn đã ngồi lúc ấy: bạn đã mời giữ nguyên bục khi có bạn mới vào,
+  // người thật vào thêm thì bỏ bớt từ cuối danh sách (bạn mời sau cùng về ghế trước).
   // Ưu tiên bạn thích lên bục, bạn giỏi (dễ thắng Vòng Chọn hơn), lệch ngẫu nhiên theo hạt giống.
   const boost = { gioi: 0.45, kha: 0.2, moi: 0 };
   const score = (a) => (a.npc.want ? 1 : 0) + boost[a.npc.skill] + rand01(seed, a.npc.id, 'pick');
   const picked = [], used = new Set();
   for (let k = 0; k < n; k++) {
-    const t = k < due && frac >= PICK_AT[k] ? PICK_AT[k] : Math.min(frac, 1);
+    const t = frac >= times[k] ? times[k] : Math.min(frac, 1);
     let best = null;
     for (const a of audience) if (!used.has(a.npc.id) && a.npc.at <= t && (!best || score(a) > score(best))) best = a;
     if (!best) for (const a of audience) if (!used.has(a.npc.id) && (!best || score(a) > score(best))) best = a;
     if (!best) break;
-    used.add(best.npc.id); picked.push(best);
+    used.add(best.npc.id); picked.push({ ...best, t: times[k] });
   }
-  for (const a of picked) pods.push({ name: a.npc.name, kind: a.npc.kind, skill: a.npc.skill, npc: a.npc.id, seat: a.seat });
-  return { pods, picked };
+  const pod = (a) => ({ name: a.npc.name, kind: a.npc.kind, skill: a.npc.skill, npc: a.npc.id, seat: a.seat, t: a.t });
+  const early = picked.filter(a => a.t === 0).map(pod), late = picked.filter(a => a.t !== 0).map(pod);
+  return { pods: [...early, ...humans, ...late], picked: picked.map(({ npc, seat }) => ({ npc, seat })) };
 }
 
 // ---- trả lời (dùng hàm ngẫu nhiên `rnd`, mặc định Math.random)

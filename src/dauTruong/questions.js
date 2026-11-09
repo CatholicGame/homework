@@ -22,6 +22,48 @@
  */
 
 import { UNIT_INFO } from '../data/knowledgeUnits.js';
+import { scopedKey } from '../engine/auth.js';
+
+/* ---------- Câu đã gặp (theo tài khoản, đồng bộ qua cloudSync.js như tiến trình học) ----------
+   `dautruong-seen:g<lớp>@<tài khoản>` = { mã câu: lúc gặp (ms) }. Ghi cả khi đứng bục, ngồi khán phòng hay làm máy chủ trò
+   (máy hiện theo ghi câu nhận trong ảnh chụp). Giữ SEEN_DAYS ngày, tối đa SEEN_MAX câu mới nhất. */
+const SEEN_DAYS = 30, SEEN_MAX = 1500, SEND_MAX = 800;
+const seenKey = (grade) => scopedKey(`dautruong-seen:g${grade}`);
+/** Mã câu: đề + các phương án đã sắp xếp (abcd và sắp xếp, câu soạn tay hay câu sinh, trước hay sau khi xáo đều ra cùng mã). */
+export function qKey(q) { return `${q.q}|${[...q.o].map(String).sort().join('|')}`; }
+export function qHash(q) {
+  const t = typeof q === 'string' ? q : qKey(q);
+  let h = 5381; for (let i = 0; i < t.length; i++) h = (h * 33 + t.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+}
+export function readSeen(grade) {
+  let seen = {};
+  try {
+    seen = JSON.parse(localStorage.getItem(seenKey(grade))) || {};
+    // bản cũ lưu theo máy 7 ngày (`dt-seen-v1-g<lớp>`): chuyển sang tài khoản đang dùng một lần
+    const old = localStorage.getItem(`dt-seen-v1-g${grade}`);
+    if (old) { Object.assign(seen, JSON.parse(old) || {}); localStorage.removeItem(`dt-seen-v1-g${grade}`); }
+  } catch { /* không có bộ nhớ: không nhớ */ }
+  const lim = Date.now() - SEEN_DAYS * 864e5;
+  for (const k of Object.keys(seen)) if (!(seen[k] > lim)) delete seen[k];
+  return seen;
+}
+let syncTimer = 0;
+/** Ghi các mã câu vừa gặp (đọc lại bộ nhớ trước khi ghi để không đè bản cloudSync vừa kéo về). */
+export function markSeen(grade, hashes, at = Date.now()) {
+  const seen = readSeen(grade);
+  for (const h of hashes) seen[h] = at;
+  let list = Object.entries(seen);
+  if (list.length > SEEN_MAX) list = list.sort((a, b) => b[1] - a[1]).slice(0, SEEN_MAX);
+  try { localStorage.setItem(seenKey(grade), JSON.stringify(Object.fromEntries(list))); } catch { /* bộ nhớ bị chặn */ }
+  clearTimeout(syncTimer);   // gom lại: một trận ~40 câu chỉ báo đồng bộ một lần sau khi yên 5 giây
+  syncTimer = setTimeout(() => window.dispatchEvent(new CustomEvent('tth:data-changed')), 5000);
+  return seen;
+}
+/** Danh sách mã câu đã gặp gần đây nhất (gửi máy chủ trò để tránh), nối bằng dấu phẩy. */
+export function seenForHost(grade) {
+  return Object.entries(readSeen(grade)).sort((a, b) => b[1] - a[1]).slice(0, SEND_MAX).map(([h, t]) => `${h}:${Math.floor(t / 1000)}`).join(',');
+}
 /* Chủ đề câu Toán của đề lộ trình: `bai` là số Bài của sách mà đề lớp ấy bám theo (tên Bài lấy từ bản đồ kiến thức). */
 const UNIT_BOOK = { 1: 'workbook1', 2: 'workbook2', 3: 'workbook', 4: 'tool4', 5: 'tool5' };
 const TESTS = import.meta.glob('../data/routeTests/g*/{nh,th,gk,ck}*.js');
@@ -331,25 +373,27 @@ export async function loadArenaBank(grade, date = new Date()) {
   const hand = handRows.map(r => fromRow(r, 'year'));
   const [kdRows, ttRows, vdRows] = await Promise.all(['kd', 'tt', 'vd'].map(r => roundBank(grade, r, week)));
   const R = { kd: kdRows, tt: ttRows, vd: vdRows };
-  const rowKey = (r) => r.q + '|' + [...r.o].sort().join('|');
-  /* Câu máy này đã gặp trong 7 ngày (mỗi ngày một buổi thi): ưu tiên câu chưa gặp, hết câu mới mới lấy lại câu cũ. */
-  const SEEN_KEY = `dt-seen-v1-g${grade}`, SEEN_MS = 7 * 864e5, now = Date.now();
-  let seen = {};
-  try { seen = JSON.parse(localStorage.getItem(SEEN_KEY)) || {}; } catch { /* không có bộ nhớ: không nhớ */ }
-  for (const k of Object.keys(seen)) if (!(now - seen[k] < SEEN_MS)) delete seen[k];
-  const hashOf = (t) => { let h = 5381; for (let i = 0; i < t.length; i++) h = (h * 33 + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
-  const fresh = (pool, kf) => { const f = pool.filter(x => !seen[hashOf(kf(x))]); return f.length ? f : pool; };
-  function markSeen(k) {
-    seen[hashOf(k)] = now;
-    try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch { /* bộ nhớ bị chặn */ }
-  }
+  const rowKey = qKey;
+  /* Câu đã gặp (của tài khoản này, cộng các bạn khác trong phòng gửi qua avoid): ưu tiên câu chưa ai gặp; hết câu mới thì
+     lấy trong phần ba câu đã lâu nhất chưa gặp (không bốc lại câu vừa hỏi hôm qua). */
+  let seen = readSeen(grade);
+  const others = {};
+  const seenAt = (h) => Math.max(seen[h] || 0, others[h] || 0);
+  const fresh = (pool, kf) => {
+    const at = pool.map(x => [x, seenAt(qHash(kf(x)))]);
+    const f = at.filter(([, t]) => !t).map(([x]) => x);
+    if (f.length) return f;
+    at.sort((a, b) => a[1] - b[1]);
+    return at.slice(0, Math.max(1, Math.ceil(at.length / 3))).map(([x]) => x);
+  };
+  function markSeen1(k) { seen = markSeen(grade, [qHash(k)]); }
   /** Một câu chưa hỏi trong các dòng soạn tay `rows`, lọc thêm bằng `ok`; ưu tiên tuần gần đây; hết thì null. */
   function fromRows(rows, ok = () => true, src = 'hk1') {
     const pool = fresh(rows.filter(r => ok(r) && !used.has(rowKey(r))), rowKey);
     if (!pool.length) return null;
     const recent = pool.filter(r => r.w > Math.min(week, HK1_WEEKS) - 5);
     const r = pick(recent.length && Math.random() < 0.5 ? recent : pool);
-    used.add(rowKey(r)); markSeen(rowKey(r));
+    used.add(rowKey(r)); markSeen1(rowKey(r));
     return fromRow(r, src);
   }
   const H = {
@@ -358,7 +402,7 @@ export async function loadArenaBank(grade, date = new Date()) {
   };
   const hasTv = !!TV_DATA[grade] || H.tv.length > 0;
   const used = new Set();
-  const key = (q) => q.q + '|' + [...q.o].sort().join('|');
+  const key = qKey;
   /** Một câu chưa hỏi trong `list`, ưu tiên mức khó / dễ và các tuần gần đây; hết câu thì null. */
   function fromHand(list, hard) {
     const pool = fresh(list.filter(q => !used.has(key(q))), key);
@@ -398,7 +442,7 @@ export async function loadArenaBank(grade, date = new Date()) {
       if (!q) q = m === 'tv' ? tvOrder(P) : mathOrder(grade);
     } else q = m === 'tv' ? tvAbcd(hard) : mathAbcd(hard);
     if (!q && m === 'tv') q = kind === 'order' ? mathOrder(grade) : mathAbcd(hard);
-    if (q) { used.add(key(q)); markSeen(key(q)); }
+    if (q) { used.add(key(q)); markSeen1(key(q)); }
     return q;
   }
   /** Khởi động / Về đích: ngân hàng của vòng trước (75%), rồi các nguồn chung. Về đích lọc theo điểm câu (pt 10 / 20 / 30). */
@@ -415,6 +459,13 @@ export async function loadArenaBank(grade, date = new Date()) {
     grade, week, mathBai, mathTotal: total, tvWeek, hasTv: hasTv || [...kdRows, ...vdRows].some(r => r.m === 'tv'),
     handCount: hand.length + kdRows.length + ttRows.length + vdRows.length,
     rounds: { kd: kdRows.length, tt: ttRows.length, vd: vdRows.length },
+    /** (Máy chủ trò) các bạn khác trong phòng gửi câu đã gặp ('h:giây,h:giây…', seenForHost): tránh cả những câu đó. */
+    avoid(list) {
+      for (const it of String(list || '').split(',').slice(0, SEND_MAX)) {
+        const [h, t] = it.split(':');
+        if (h && /^[0-9a-z]{1,8}$/.test(h)) others[h] = Math.max(others[h] || 0, (+t || 0) * 1000 || 1);
+      }
+    },
     /** Một câu kind / môn m (thiếu Tiếng Việt thì Toán). opts.round 'kd' | 'vd' lấy trước từ ngân hàng của vòng ấy. */
     one(kind, m, { hard = false, round = null, pt = 0 } = {}) { return round ? roundOne(kind, m, { round, pt, hard }) : one(kind, m, hard); },
     /** Câu Tăng tốc dạng `type` (seq | shape | facts | logic) từ ngân hàng tt.js; chưa có thì null (game dùng speedQ). */

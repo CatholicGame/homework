@@ -112,10 +112,12 @@ Mã: `src/dauTruong/npc.js` (hàm thuần, không import gì của trình duyệ
 - **Khán phòng (ưu tiên)**: phòng mở thì 45% số bạn đến hôm nay đã ngồi sẵn, số còn lại vào rải tới giờ bắt đầu (sát giờ dày hơn).
   Đông nhất `FILL` = 34 người kể cả người thật; người thật vào thêm thì bạn ảo cuối danh sách về. Ghế người thật đang ngồi không
   bao giờ bị lấy; sơ đồ ghế hiện mặt và tên bạn ảo như người thật (`audienceAt`).
-- **Bục thi**: người thật bật "Em muốn lên bục" lên bục ngay, đứng trước (người cầm máy luôn là bục 1, ghế của mình để trống, camera
-  nhìn các bục). Còn thiếu thì MC **lần lượt mời** bạn ảo đang ngồi dưới khán phòng lên ở các mốc 30%, 50%, 68%, 84% thời gian chờ
-  (chỉ chọn trong những bạn đã có mặt lúc mời; ưu tiên bạn thích lên bục và bạn giỏi). Bạn được mời giữ nguyên bục, ghế của bạn ấy để
-  trống. Tới giờ mà còn thiếu thì mời nốt. Người thật bật công tắc khi bục đã đủ: bạn ảo mời sau cùng nhường chỗ, về ghế cũ (`podiumAt`).
+- **Bục thi**: phòng mở là đã có **1–2 bạn ảo đứng sẵn** trên bục (theo hạt giống). Người thật **không bao giờ đứng trước bạn ảo**
+  (một mình ở bục 1 giữa ba bục trống trông không tự nhiên): bật "Em muốn lên bục" thì đứng ngay sau các bạn đứng sẵn (ghế của mình
+  để trống, camera nhìn các bục). Còn thiếu thì MC **lần lượt mời** thêm bạn ảo đang ngồi dưới khán phòng ở các mốc còn lại của
+  30%, 50%, 68%, 84% thời gian chờ (`pickTimes`; chỉ chọn trong những bạn đã có mặt lúc mời; ưu tiên bạn thích lên bục và bạn giỏi).
+  Bạn được mời giữ nguyên bục, ghế của bạn ấy để trống. Tới giờ mà còn thiếu thì mời nốt. Người thật vào khi bục đã đủ: bạn ảo mời
+  sau cùng nhường chỗ, về ghế cũ; đủ 4 người thật thì cả bạn đứng sẵn cũng nhường (`podiumAt`).
 - **Đồng hồ phòng trên máy**: chạy ngay lúc bước vào (lịch giống hệt máy chủ, `rules.js`), nên sơ đồ ghế đã có sẵn một phần khán
   phòng trước khi chọn ghế, rồi các bạn vào thêm từng người. Máy chủ gửi giờ phòng (`A`) thì theo máy chủ; máy chủ cũ không gửi `A`
   thì vẫn chạy bằng đồng hồ này. Sơ đồ ghế ghi "15 bạn đã ngồi · còn 35 ghế trống" (người thật và bạn ảo như nhau).

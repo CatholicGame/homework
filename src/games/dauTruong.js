@@ -22,7 +22,7 @@ import { getProfileGrade } from '../engine/profile.js';
 import { arenaSfx as SFX } from '../dauTruong/arenaSfx.js';
 import { PUPILS, SEAT_IDS, COLS } from '../dauTruong/rules.js';
 import { lobbyRender } from '../dauTruong/lobby.js';
-import { loadArenaBank, speedQ } from '../dauTruong/questions.js';
+import { loadArenaBank, speedQ, markSeen, qHash, seenForHost } from '../dauTruong/questions.js';
 import { drawQBody, optTokens, tokenCanvas, sayTokens } from '../dauTruong/figs.js';
 import { mcLine, mcPlan, sayQuestion, sayOption, LETTER, MC_NAMES } from '../dauTruong/mc.js';
 import { voiceMode, mcPrefetch, mcSpeak, mcStop, setMcListener, setMcRate, isMcMuted, setMcMuted } from '../dauTruong/mcVoice.js';
@@ -1053,7 +1053,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       p.kindNow = p.wantKind;
     }
     /**
-     * Bốn bục: list[i] = { name, kind, skill, me? } hoặc thiếu (bục trống). me: người cầm máy đứng bục này (luôn là bục 1).
+     * Bốn bục: list[i] = { name, kind, skill, me? } hoặc thiếu (bục trống). me: người cầm máy đứng bục này (luôn sau các bạn ảo đứng sẵn, npc.js podiumAt).
      * Đổi trong lúc chờ (MC mời từng bạn lên); vào vòng thi thì flow.js giữ nguyên.
      */
     function setPods(list) {
@@ -1068,7 +1068,8 @@ export function stage(app, onBack, { flow = false } = {}) {
         p.cid = w && !w.me && !w.real ? w.npc || '' : '';   // bạn ảo: mã cast-N trên bảng xếp hạng (cộng sao Đấu Trường)
         applyPod(p);
       });
-      if (flow) { myPod = list.findIndex(x => x?.me); meOnPod = myPod >= 0; }
+      const mi = list.findIndex(x => x?.me);
+      if (flow) { myPod = mi; meOnPod = myPod >= 0; } else if (mi >= 0) myPod = mi;   // mình đứng sau các bạn ảo đứng sẵn (npc.js podiumAt)
       scrDirty = true;
     }
 
@@ -1130,7 +1131,10 @@ export function stage(app, onBack, { flow = false } = {}) {
     /* Bộ câu thật theo tiến độ học của lớp trong hồ sơ (src/dauTruong/questions.js): chỉ các bài đã học tới hôm nay.
        Chưa tải xong thì vòng thi chờ; tải lỗi thì dùng câu mẫu BANK ở trên. Câu Tăng tốc sinh theo lớp (speedQ). */
     let arena = null;
-    loadArenaBank(getProfileGrade()).then(b => { arena = b; scrDirty = true; }, () => { arena = false; });
+    const seenWait = [];   // câu đã gặp các bạn gửi tới trước khi ngân hàng tải xong
+    let sentSeen = false;
+    const arenaGrade = () => arena?.grade || (getProfileGrade() >= 1 && getProfileGrade() <= 5 ? getProfileGrade() : 3);
+    loadArenaBank(getProfileGrade()).then(b => { arena = b; seenWait.splice(0).forEach(l => b.avoid(l)); scrDirty = true; }, () => { arena = false; });
     const progressText = () => (arena ? `Lớp ${arena.grade} · Toán đến Bài ${arena.mathBai}${arena.hasTv ? ` · Tiếng Việt đến Tuần ${arena.handCount ? Math.min(35, arena.week) : arena.tvWeek}` : ' · chưa có câu Tiếng Việt lớp này'}` : '');
     let mode = 'idle', timer = null, phase = 'none', t0 = 0, qT0 = 0;
     const RK = { khoidong: 'kd', tangtoc: 'tt', vedich: 'vd' };
@@ -1593,7 +1597,8 @@ export function stage(app, onBack, { flow = false } = {}) {
      */
     function input(from, type, a = []) {
       if (!hosting() || gone) return;
-      if (type === 'nv') { readers.set(from, !!a[0]); return; }   // bạn ấy tự đọc đề / nghe được MC
+      if (type === 'nv') { readers.set(from, !!a[0]); return; }
+      if (type === 'seen') { if (arena) arena.avoid(a[0]); else seenWait.push(a[0]); return; }   // câu bạn ấy đã gặp: tránh   // bạn ấy tự đọc đề / nghe được MC
       if (type === 'aud') {
         const st = seatById.get(a[0]);
         if (st?.live && st.real && st.ans == null && Q && ['think', 'buzzed', 'answer', 'stealing', 'steal', 'audLast'].includes(phase)) st.ans = !!a[1];
@@ -1817,6 +1822,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     /* Trao giải: phần của riêng mình (sao, giấy chứng nhận, màn thu sao) tính trên từng máy từ điểm chung. */
     let winMe = null;
     const winState = () => (winMe ||= { at: Date.now(), myStars: 0, mine: null, total0: getTotalStars() });
+    let clapUntil = 0;   // FX.clap: khán phòng vỗ tay tới lúc này (performance.now)
     const FX = {
       // máy chủ trò đã tự làm (nói, âm thanh, góc máy, tiếng chốt): chỉ máy hiện theo làm
       say: (text, mc, parts) => { if (following()) mcSpeak(text, mc, { parts }); },
@@ -1835,6 +1841,18 @@ export function stage(app, onBack, { flow = false } = {}) {
           sp.intensity = x ? 90 : 0;
           if (x) { sp.position.set(x.sg.position.x, x.sg.position.y + 7, x.sg.position.z - 2.5); sp.target = x.sg; }
         });
+      },
+      // hết đợt: cả khán phòng vỗ tay, vài bạn đứng dậy khỏi ghế (mỗi máy tự bốc ai đứng, ai ngồi; xong thì ngồi lại)
+      clap: (ms = AUD_HOLD) => {
+        clapUntil = performance.now() + ms;
+        const standP = reduce ? 0.18 : 0.35;
+        seats.forEach(x => {
+          const r = Math.random();
+          x.clapAt = performance.now() + Math.random() * 700;   // mỗi bạn vào nhịp lệch một chút
+          x.clapPose = r < standP ? (reduce ? 'clap' : ['clap', 'clap', 'cheer', 'yes'][(Math.random() * 4) | 0])
+            : (reduce || Math.random() < 0.7 ? 'sitClap' : 'sitCheer');
+        });
+        SFX.clap?.();
       },
       awardStart: (at) => { winMe = { at, myStars: 0, mine: null, total0: getTotalStars() }; showAward(true); awardCam(awardWide()); },
       awardCam: (rank) => awardCam(rank < 0 ? awardWide() : awardClose(rank)),
@@ -1918,9 +1936,13 @@ export function stage(app, onBack, { flow = false } = {}) {
       }
       // giao diện theo bước
       if (newQ) { picks = []; sent = ''; seats.forEach(st => { st.ans = null; }); if (Q) { buildOv(); livePop(); } }
+      // câu đã gặp: máy hiện theo cũng ghi vào sổ của tài khoản mình (questions.js), lần sau máy nào làm chủ trò cũng tránh
+      if (newQ && Q?.q && Array.isArray(Q.o)) markSeen(arenaGrade(), [qHash(Q)]);
       // máy này không nghe được MC: báo máy chủ trò để cả phòng có thời gian đọc đề (chỉ báo khi đổi)
       const nv = voiceMode() === 'none';
       if (nv !== sentNv) { sentNv = nv; sync.net.showInput('nv', [nv ? 1 : 0]); }
+      // gửi máy chủ trò (mỗi lần có chủ trò mới) danh sách câu mình đã gặp để chương trình tránh
+      if (!sentSeen) { sentSeen = true; const list = seenForHost(arenaGrade()); if (list) sync.net.showInput('seen', [list]); }
       if (!Q && vd && ['pick', 'star'].includes(phase) && (newQ || was.phase !== phase)) buildChoice();
       else if (!Q && vd && ['picked', 'starred'].includes(phase)) paintChoice();
       if (Q && o.ov && ov.hidden) buildOv();   // vào giữa chừng / dải vừa ẩn lúc tổng kết đợt
@@ -2360,6 +2382,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       // góc Khán phòng cố định (không lướt), đèn vàng rọi những bạn khán giả được nhiều điểm nhất trong đợt
       camX('crowd');
       fxRun('fans', bestFans());
+      fxRun('clap', AUD_HOLD - 1200);
       showBoard();
       // bảng điểm tự nói điểm từng bạn; MC chỉ gọi khán giả dẫn đầu lúc hết vòng
       const t = performance.now();
@@ -2449,6 +2472,7 @@ export function stage(app, onBack, { flow = false } = {}) {
         const fan = topFan();
         if (fan && fan.score > 0) {
           camX('crowd');
+          fxRun('clap', AUD_HOLD - 1200);
           const t = performance.now();
           if (!(await host('audBest', { ten: fan.name, diem: fan.score }))) return;
           await wait(Math.max(0, AUD_HOLD - (performance.now() - t)));
@@ -2752,9 +2776,15 @@ export function stage(app, onBack, { flow = false } = {}) {
         if (s.pupil) {
           // lật đáp án: mỗi bạn một kiểu theo đúng / sai của mình (npc.js reactOf: "Yes!", mừng, vỗ tay cho bạn, buồn, ngồi yên);
           // Trao giải: cả khán phòng mừng / vỗ tay. Mỗi người vào nhịp lệch một chút, xong thì về dáng ngồi.
-          const want = !cheer ? '' : mode === 'win' ? (s.ph % 1 < 0.6 ? 'sitCheer' : 'sitClap') : s.react || '';
+          // hết đợt (FX.clap): vỗ tay, ai bốc đứng thì bước ra trước ghế đứng vỗ tay / mừng, hết giờ ngồi lại
+          const clapping = now < clapUntil && s.clapPose && now >= (s.clapAt || 0);
+          const want = clapping ? s.clapPose : !cheer ? '' : mode === 'win' ? (s.ph % 1 < 0.6 ? 'sitCheer' : 'sitClap') : s.react || '';
           const pose = want && s.pupil.clips[want] ? want : want ? 'sitClap' : '';
-          if (pose) pupilPlay(s.pupil, pose, { fade: 0.25, at: s.ph % 2 });
+          const up = clapping && !/^sit/.test(pose);
+          // đứng: chân chạm sàn, trước mép ghế (ngồi: kid ở (0, 0.25, 0.1))
+          const ty = up ? -0.17 : 0.25, tz = up ? -0.38 : 0.1, kp = s.kid.position, kk = Math.min(1, dt * 6);
+          if (Math.abs(kp.y - ty) + Math.abs(kp.z - tz) > 0.002) { kp.y += (ty - kp.y) * kk; kp.z += (tz - kp.z) * kk; }
+          if (pose) pupilPlay(s.pupil, pose, { fade: up ? 0.35 : 0.25, at: s.ph % 2 });
           else if (s.pupil.pose !== 'sit') pupilPlay(s.pupil, 'sit', { once: true, end: true, fade: 0.4 });
           if (s.pupil.pose !== 'sit' || s.pupil.live > 0) { s.pupil.mixer.update(dt); s.pupil.live -= dt; }
         } else if (s.kid) s.kid.position.y = 0.25 + (cheer ? Math.abs(Math.sin(t * 9 + s.ph)) * 0.08 : 0);
@@ -3015,13 +3045,14 @@ export function stage(app, onBack, { flow = false } = {}) {
       audience.forEach(a => { if (!up.has(a.seat)) seatPupil(a.seat, a.npc.kind, false, a.npc.name, a.npc.skill); });
       setPods(got.pods);
     }
-    const api = { setMode, cam, cert: (kind = 'champ') => giveCert({ kind, name: pods[0].name || 'Bạn', score: 240, rounds: { kd: 110, tt: 70, vd: 60 }, right: 30, total: 44, at: Date.now() }), seatPupil, seatCam, setPods, seatIds: SEAT_IDS, get mode() { return mode; }, onBack: null, onShowEnd: null,
+    const api = { setMode, cam, cert: (kind = 'champ') => giveCert({ kind, name: pods[Math.max(myPod, 0)].name || 'Bạn', score: 240, rounds: { kd: 110, tt: 70, vd: 60 }, right: 30, total: 44, at: Date.now() }), seatPupil, seatCam, setPods, seatIds: SEAT_IDS, get mode() { return mode; }, onBack: null, onShowEnd: null,
       // thử tự động (scripts): xem bước đang chạy, chọn đáp án / bấm chuông thay người cầm máy
       seat: (id) => { const st = seatById.get(id); return st && { score: st.score, real: !!st.real, mine: !!st.mine, live: st.live }; },
       peek: () => ({ me: myPod, mySeat: meSeat?.id, mode, phase, wait: [mcArrive(), arena === null], cap: capEl.classList.contains('is-on') ? capEl.textContent : '', seg: sl?.seg, turn, buzzer, qn, qTotal, val: Q?.val, a: Q?.a, kind: Q?.kind, tag: Q?.tag, fig: !!Q?.fig, star: vd?.star,
         pods: pods.map(p => [p.state, p.score]), aud: seats.filter(x => x.live).slice(0, 4).map(x => [x.name, x.score]) }),
       mcHome: () => mcs.forEach(m => { if (m.home) { m.fig.position.copy(m.home); m.fig.rotation.y = m.homeH; m.at = 'home'; m.go = null; } }),
       jump: (k) => { si = k; },
+      clap: (ms) => FX.clap(ms),   // thử: khán phòng vỗ tay (một số bạn đứng dậy)
       scores: (list) => list.forEach((v, i) => { pods[i].score = pods[i].shown = v; }),   // thử Trao giải với điểm cho sẵn
       // dựng tay từng bước bục vinh danh (máy chạy không đầu quá chậm để chờ MC đọc): freeze dừng chuỗi lời MC của vòng
       award: { freeze: () => { run++; clearLater(); mcStop(); }, show: (on) => showAward(on), stand: (i, r) => standOn(pods[i], r, podStars(r, pods[i].score)),
@@ -3037,7 +3068,7 @@ export function stage(app, onBack, { flow = false } = {}) {
         snapKey = '';
         if (!sync) return;
         if (sync.host && was && !was.host && mode !== 'idle') resume();   // nhận quyền chủ trò giữa chương trình
-        else if (!sync.host) { sentNv = null; if (!was || was.host) { run++; clearLater(); } if (lastSnap) applySnap(lastSnap); }   // chủ trò mới: báo lại 'nv'
+        else if (!sync.host) { sentNv = null; sentSeen = false; if (!was || was.host) { run++; clearLater(); } if (lastSnap) applySnap(lastSnap); }   // chủ trò mới: báo lại 'nv'
       },
       get host() { return hosting(); },
       /** Bạn thật trên bục rời phòng giữa chương trình: máy chủ trò chơi thay bạn ấy như bạn ảo (mức khá), bục không đứng im. */

@@ -9,8 +9,9 @@
  *      đổi nhân vật / đổi ghế; phòng thử tự bắt đầu khi đủ 4 bạn trên bục (không có nút Bắt đầu).
  *   4. Bắt đầu: tạm chạy bản mẫu vòng thi trên sân khấu (máy chủ cầm chương trình là bước sau: realtime/arena.js).
  *
- * Bạn ảo (npc.js, cùng tên cùng lớp với bảng xếp hạng): vào khán phòng dần từ lúc phòng mở; bục thi: mình (bật "Em muốn lên bục")
- * đứng bục 1 ngay, thiếu người thì MC lần lượt mời bạn ảo đang ngồi dưới khán phòng lên (ghế bạn ấy để trống), tới giờ mời nốt.
+ * Bạn ảo (npc.js, cùng tên cùng lớp với bảng xếp hạng): vào khán phòng dần từ lúc phòng mở; bục thi: phòng mở đã có 1–2 bạn ảo
+ * đứng sẵn, mình (bật "Em muốn lên bục") đứng ngay sau họ (không bao giờ đứng trước bạn ảo), thiếu người thì MC lần lượt mời thêm
+ * bạn ảo đang ngồi dưới khán phòng lên (ghế bạn ấy để trống), tới giờ mời nốt; người thật vào thêm thì bạn ảo mời sau cùng nhường.
  * Thẻ chờ có dải 4 bục (giữ chỗ sẵn, không nhảy bố cục). Máy chủ phòng chưa có bạn ảo: mỗi máy tự tính, cùng hạt giống nên giống nhau.
  *
  * Kết nối (src/thanDong/church/net.js tới phòng `arena-g<lớp>`, giao thức ở realtime/room.js): đang nối / mất kết nối và đang nối lại
@@ -30,7 +31,7 @@ import {
   clockText, lookOfPupil, nextStart, pupilOfLook, stepAt, whenText,
 } from './rules.js';
 import { testRoom } from '../thanDong/engine/admin.js';
-import { PICK_AT, audienceAt, podiumAt, rand01 } from './npc.js';
+import { audienceAt, podiumAt, rand01 } from './npc.js';
 import { statsHtml } from './matchStats.js';
 import { liveNow, roomNpc } from '../engine/liveCount.js';
 import { arenaVisit, arenaSeated, showStart, showEnd, showLeave } from '../engine/arenaStats.js';
@@ -417,9 +418,8 @@ export function startFlow({ root, api, grade, leave, home }) {
       if (meWant) others.push({ name: nick, kind: pupil, me: true, at: myId || 0 });
       const reals = others.sort((a, b) => a.at - b.at).slice(0, 4);
       const got = podiumAt({ seed, frac, reals, audience, full: A.step === 'live' });
-      reals.forEach((r, i) => { if (r.real && got.pods[i]) { got.pods[i].real = r.real; got.pods[i].seat = r.seat; } });
       // bạn ảo bấm Bắt đầu 3–10 giây (phần của thời gian chờ) sau khi được mời lên bục
-      got.pods.filter(x => x.npc).forEach((x, k) => { x.rdAt = Math.min(0.97, (PICK_AT[k] ?? 0.9) + 0.03 + rand01(seed, x.npc, 'ready') * 0.08); });
+      got.pods.filter(x => x.npc).forEach(x => { x.rdAt = Math.min(0.97, Math.max(x.t ?? 0.9, 0) + 0.03 + rand01(seed, x.npc, 'ready') * 0.08); });
       const key = got.pods.map(x => x.npc || (x.me ? `me:${x.kind}:${x.name}` : `r${x.real}:${x.kind}:${x.name}`)).join(',');
       if (key !== podKey) {
         const before = new Set(pods.map(x => x.npc || (x.real && `r${x.real}`)).filter(Boolean));
@@ -466,7 +466,7 @@ export function startFlow({ root, api, grade, leave, home }) {
     }
     if (!smEl.hidden) paintSeats();
   }
-  /** Mình lên bục / về ghế: đứng bục thì ghế của mình để trống (người cầm máy là bục 1), camera nhìn các bục. */
+  /** Mình lên bục / về ghế: đứng bục thì ghế của mình để trống, camera nhìn các bục. */
   function setMeOnPod(on) {
     if (on === meOnPod) return;
     meOnPod = on;

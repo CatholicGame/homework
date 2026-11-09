@@ -115,6 +115,8 @@ export const arenaSfx = {
   bellOpen() { [0, 1, 2, 3].forEach(i => setTimeout(() => arenaSfx.bell(i), i * 90)); },
 
   // ---- trao giải
+  /** Khán phòng vỗ tay sau mỗi đợt thi (lượt cá nhân, lượt chung, hết vòng). */
+  clap() { S.raw('applause-short', { lv: 0.45 }); },
   rank() { S.raw('welcome-sting', { lv: 0.6 }); S.raw('applause-short', { lv: 0.4, at: 0.8 }); },
   /** Người thắng: kèn chiến thắng, pháo giấy, khán phòng reo, vỗ tay dài. */
   champ() { S.crowd(false); S.bed('music', null, { out: 0.6 }); S.bed('think', null); S.win(); },
