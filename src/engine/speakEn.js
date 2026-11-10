@@ -39,10 +39,40 @@ export const canSpeakEn = () => 'speechSynthesis' in window || 'Audio' in window
 const clean = (t) => String(t || '').replace(/[’]/g, "'").trim();
 
 // ── Azure ─────────────────────────────────────────────────────────────────
-/** Tải trước các câu / từ sắp đọc (mở bài, mở phần): lúc bấm nghe phát ngay, không chờ mạng. */
-export function prefetchEn(list) {
+/**
+ * Tải trước các câu / từ sắp đọc (mở bài, mở phần): lúc bấm nghe phát ngay, không chờ mạng.
+ * Hàng đợi tối đa PRE_MAX file cùng lúc (điện thoại yếu không phải tải 80 file một lượt, câu đang đọc không bị tranh mạng);
+ * câu trước, từ sau: { low: true } = hàng sau (từ lẻ), các câu thêm vào sau vẫn được tải trước các từ còn chờ;
+ * { now: true } = chen lên đầu hàng (câu sắp đọc kế tiếp).
+ */
+const PRE_MAX = 4;
+const queued = new Set();
+const hi = [], lo = [];
+let active = 0;
+function pump() {
+  while (active < PRE_MAX && (hi.length || lo.length) && cloudVoiceReady()) {
+    const t = hi.length ? hi.shift() : lo.shift();
+    active++;
+    cloudVoiceUrl(t, EN_VOICE).catch(() => {}).finally(() => { active--; pump(); });
+  }
+}
+export function prefetchEn(list, { low = false, now = false } = {}) {
   if (!cloudVoiceReady()) return;
-  (Array.isArray(list) ? list : [list]).map(clean).filter(Boolean).forEach((t) => cloudVoiceUrl(t, EN_VOICE).catch(() => {}));
+  const items = (Array.isArray(list) ? list : [list]).map(clean).filter(Boolean);
+  if (now) {
+    // đang chờ trong hàng thì kéo lên đầu; đã tải / đang tải thì thôi
+    const pull = items.filter((t) => { const i = hi.indexOf(t), j = lo.indexOf(t); if (i >= 0) hi.splice(i, 1); if (j >= 0) lo.splice(j, 1); return i >= 0 || j >= 0 || !queued.has(t); });
+    pull.forEach((t) => queued.add(t));
+    hi.unshift(...pull);
+  } else {
+    for (const t of items) {
+      if (queued.has(t)) continue;
+      queued.add(t);
+      (low ? lo : hi).push(t);
+    }
+  }
+  if (queued.size > 2000) queued.clear(); // bộ nhớ: lâu lâu quên (cloudVoiceUrl vẫn nhớ link đã có)
+  pump();
 }
 
 let cloudRun = 0;      // lượt phát Azure hiện tại; stopEn / lượt mới tăng để huỷ lượt cũ
@@ -138,7 +168,7 @@ export function stopEn() {
 export function sayEnSeq(list, { rate = 0.85, onEach, onEnd } = {}) {
   let stopped = false, i = 0;
   stopEn();
-  prefetchEn(list.slice(0, 3));
+  prefetchEn(list.slice(1, 3), { now: true });
   const next = () => {
     if (stopped) return;
     if (i >= list.length) { onEnd?.(); return; }
@@ -146,7 +176,7 @@ export function sayEnSeq(list, { rate = 0.85, onEach, onEnd } = {}) {
     const text = clean(list[k]);
     if (!text) { next(); return; }
     onEach?.(k);
-    prefetchEn(list.slice(k + 1, k + 3));
+    prefetchEn(list.slice(k + 1, k + 3), { now: true });
     const after = () => { if (!stopped) setTimeout(next, 250); };
     if (cloudVoiceReady()) playCloud(text, rate, after, () => { if (!stopped) sayLocal(text, rate, after); });
     else sayLocal(text, rate, after);

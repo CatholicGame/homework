@@ -101,7 +101,7 @@ function cloudUrl(text, mc) {
       .catch(() => probe(`/api/tts?${new URLSearchParams({ t, v: voice })}`))
       .catch((e) => { found.delete(k); throw e; });
     found.set(k, req);
-    if (found.size > 300) found.delete(found.keys().next().value);
+    if (found.size > 800) found.delete(found.keys().next().value);   // một bài tiếng Anh tải trước ~150 câu / từ
   }
   return found.get(k);
 }

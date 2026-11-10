@@ -155,8 +155,14 @@ export function render(app, onBack, ctx = {}) {
   // ── Một bài ──────────────────────────────────────────────────────────────
   async function showLesson(L, partId) {
     const gloss = await loadGloss(L).catch(() => ({ words: {}, phrases: {} }));
-    // Giọng Azure: tải trước tiếng các câu của bài (nghe, truyện hoạt hình) và câu chép chính tả
-    prefetchEn([...L.text.split(/\n{2,}/).flatMap((p) => p.match(/[^.!?]+(?:[.!?]+["”']?|$)\s*/g) || [p]).map((s) => s.replace(/\s+/g, ' ').trim()), ...(L.dictation || [])]);
+    // Giọng Azure: tải trước mọi câu sẽ đọc trong bài (hàng đợi 4 file, câu trước): bài đọc (nghe, truyện), câu hỏi, từ vựng +
+    // câu ví dụ, ví dụ ngữ pháp, câu trả lời cho sẵn, chép chính tả, đáp án sắp xếp từ; rồi tới từ lẻ (từ vựng, từ trong bài).
+    prefetchEn([
+      ...L.text.split(/\n{2,}/).flatMap((p) => p.match(/[^.!?]+(?:[.!?]+["”']?|$)\s*/g) || [p]).map((s) => s.replace(/\s+/g, ' ').trim()),
+      ...(L.questions || []).map((q) => q.q), ...(L.vocab || []).map((v) => v.example), ...(L.grammar?.examples || []),
+      ...(L.makeQuestion || []).map((m) => m.answer), ...(L.dictation || []), ...(L.reorder || []).map((r) => r.answer),
+    ]);
+    prefetchEn((L.vocab || []).map((v) => v.word), { low: true });
     store = loadStore();
     const d = doneOf(L.id);
     const part = PARTS.find((p) => p.id === partId) || PARTS.find((p) => !d[p.id]) || PARTS[0];

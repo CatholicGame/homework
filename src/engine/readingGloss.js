@@ -77,9 +77,9 @@ export function renderGlossText(el, lesson, gloss, { onWord } = {}) {
   el.innerHTML = html;
   const spans = [...el.querySelectorAll('.rg-w')];
   let bubble = null, cur = -1;
-  // Giọng Azure: tải trước tiếng từng từ (sau tiếng các câu), bé chạm từ nào cũng phát ngay
+  // Giọng Azure: tải trước tiếng từng từ (hàng sau, các câu tải trước), bé chạm từ nào cũng phát ngay
   const spokenOf = (t) => { const info = gloss?.words?.[t.k] || {}; return info.name && !info.ipa ? '' : info.say || t.w; };
-  const preTimer = setTimeout(() => prefetchEn([...new Set(toks.map(spokenOf).filter(Boolean))]), 1500);
+  const preTimer = setTimeout(() => prefetchEn([...new Set(toks.map(spokenOf).filter(Boolean))], { low: true }), 300);
 
   const close = () => {
     bubble?.remove(); bubble = null; cur = -1;
