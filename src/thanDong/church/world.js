@@ -62,6 +62,7 @@ import { getCurrentUser } from '../engine/auth.js';
 import { setQuizGrade, quizGrade } from '../quiz/index.js';
 import { setGrade as setSeedGrade } from '../engine/seeds.js';
 import { HOST_LOOK } from './wardrobe.js';
+import { holdUpdates } from '../../engine/appUpdate.js';
 import './church.css';
 import './churchSunny.css';
 
@@ -1087,6 +1088,7 @@ export function renderChurch(app, { onBack, place = 'saigon', films = null, grad
     // vào phòng của khu này (rời phòng khu cũ); người thật trong phòng hiện ra khi máy chủ chào lại
     sent = null;
     net?.join(id === 'studio' ? `studio-g${quizGrade()}` : id, myState);
+    if (net) holdUpdates(true);   // đang trong phòng có người thật: không bật ra vì bản mới, rời phòng mới cập nhật
   }
 
   // ---- khu camera cố định (trường quay): mình ngồi một ghế khán giả, vòng sáng trên đầu đánh dấu chỗ của mình ----
@@ -2986,6 +2988,7 @@ export function renderChurch(app, { onBack, place = 'saigon', films = null, grad
     thumbs?.dispose();
     preview?.dispose();
     net?.close();
+    holdUpdates(false);
     clearTimeout(msgTimer);
     clearInterval(skyTimer);
     clearInterval(mapTimer);

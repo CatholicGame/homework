@@ -556,14 +556,14 @@ export function startFlow({ root, api, grade, leave, home }) {
     else if (live && srvA && api.host !== (a.host === myId)) api.multi({ host: a.host === myId, myId, net });
     // Hết giờ lượt (45 phút) KHÔNG cắt chương trình đang diễn: chương trình tự kết thúc (api.onShowEnd). Chỉ khi máy còn mở tới
     // sảnh chờ của lượt sau thì dọn sân khấu cho lượt mới.
-    if (a.step === 'lobby' && (ended || live)) { ended = null; live = false; holdUpdates(false); frozen = false; autoGo = false; delete waitEl.dataset.html; api.multi(null); api.setMode('idle'); }
+    if (a.step === 'lobby' && (ended || live)) { ended = null; live = false; frozen = false; autoGo = false; delete waitEl.dataset.html; api.multi(null); api.setMode('idle'); }
     paintWait();
   }
   api.onShowEnd = (res) => {
     if (gone || !live) return;
     showEnd(res || {});   // thống kê admin (engine/arenaStats.js): ghi ngay, rời phòng trong 2,5 giây chờ thẻ cũng không tính bỏ giữa chừng
     // để lời chào cuối và pháo giấy kịp xong rồi mới hiện thẻ
-    later(() => { if (!live) return; live = false; holdUpdates(false); ended = res || { onPod: false, score: 0, rank: 0 }; paintWait(); }, 2500);
+    later(() => { if (!live) return; live = false; ended = res || { onPod: false, score: 0, rank: 0 }; paintWait(); }, 2500);
   };
   // máy hiện theo: bục theo máy chủ trò (thường giống bục máy này tự tính; khác thì theo máy chủ trò): ghế của bạn thật đứng bục
   // để trống, mình đứng bục thì camera nhìn các bục
@@ -577,7 +577,6 @@ export function startFlow({ root, api, grade, leave, home }) {
   function goLive() {
     if (step !== 'wait' || ended) return;   // còn chọn nhân vật / ghế: vào xong thì bắt đầu xem; xem xong rồi thì không chiếu lại
     live = true;
-    holdUpdates(true);   // đang thi: không hiện thẻ "Đã có bản mới", không tự tải lại (rời bục bị trừ sao)
     showStart();   // thống kê admin: chương trình bắt đầu khi mình đang trong phòng
     waitEl.hidden = true;
     syncNpc(true);   // tới giờ: mời nốt bạn ảo cho đủ 4 bục, rồi giữ nguyên tới hết lượt
@@ -761,6 +760,9 @@ export function startFlow({ root, api, grade, leave, home }) {
   api.cam('wide', true);
   if (nick && pupil >= 0) toSeat(); else openMe(true);
   tick = setInterval(paintWait, 250);
+  // ở trong phòng (sảnh chờ, đang diễn, xem thẻ kết thúc): không hiện thẻ "Đã có bản mới", không tự tải lại; ra khỏi phòng mới
+  // cập nhật (không bao giờ bật bé ra khỏi ghế / bục vì bản mới)
+  holdUpdates(true);
   // máy có mạng trở lại sau khi đã thôi nối: thử lại luôn, không bắt bấm
   const onOnline = () => { if (conn === 'failed') { conn = 'connecting'; paintConn('info', 'Đang kết nối lại…'); net?.retry(); } };
   addEventListener('online', onOnline);
