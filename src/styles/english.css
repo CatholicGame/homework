@@ -129,7 +129,14 @@
   font: inherit; font-size: 1.1rem; font-weight: 700; cursor: pointer; min-height: 40px; padding: 4px 12px;
   border-radius: 10px; border: 1px solid #BFDBFE; background: #fff; color: #1E3A8A;
 }
-.enr-row-end { display: flex; justify-content: flex-end; }
+.enr-row-end { display: flex; justify-content: flex-end; gap: 8px; }
+/* 🧹 Xoá cạnh Kiểm tra: viết lại câu nhanh; câu đã đúng thì ẩn (giữ chỗ để hàng không xô) */
+.enr-clear {
+  font: inherit; font-weight: 700; cursor: pointer; border-radius: 12px; min-height: 44px; padding: 8px 12px; flex: none;
+  border: 1px solid var(--en-edge); background: #fff; color: var(--en-sub);
+}
+.enr-clear:active { background: var(--en-bad-soft); }
+.enr-q.is-ok .enr-clear { visibility: hidden; }
 
 /* Từ vựng */
 .enr-vocab { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 10px; }
@@ -159,3 +166,4 @@
 .enr-shake { animation: enr-shake .35s; }
 @keyframes enr-shake { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 @media (prefers-reduced-motion: reduce) { .enr-shake { animation: none; outline: 2px solid #FCA5A5; } }
+@media (max-width: 480px) { .enr-input-row .enr-clear-t { display: none; } }

@@ -87,6 +87,8 @@ export function render(app, onBack, ctx = {}) {
   let store = loadStore();
   let level = store.level || LEVEL_OF_GRADE[getProfileGrade()] || 1;
   let disposers = [];
+  let lessonView = null; // bài đang mở: { L, show(phần) } để chuyển tab mà không vẽ lại
+  let paneHide = null;   // lúc đang vẽ một phần: danh sách việc cần làm khi phần ấy bị ẩn (dừng đọc)
   const grade = [1, 2, 3, 4, 5].includes(getProfileGrade()) ? getProfileGrade() : null;
 
   const cleanup = () => { stopEn(); disposers.forEach((d) => d?.()); disposers = []; };
@@ -109,6 +111,7 @@ export function render(app, onBack, ctx = {}) {
 
   function frame({ back, backLabel, title, right = '', sub = '' }, body) {
     cleanup();
+    lessonView = null;
     app.innerHTML = `
       <div class="enr">
         <div class="enr-stick">
@@ -153,7 +156,10 @@ export function render(app, onBack, ctx = {}) {
   }
 
   // ── Một bài ──────────────────────────────────────────────────────────────
+  /* Mỗi phần vẽ một lần vào một khung riêng (.enr-pane) và được giữ lại: bé chuyển qua lại giữa các tab trong cùng bài thì
+     câu đã chọn, chữ đã gõ, từ đã xếp vẫn còn nguyên. Rời bài (về danh sách, sang bài khác) mới bỏ. */
   async function showLesson(L, partId) {
+    if (lessonView?.L === L) { lessonView.show(partId); return; }
     const gloss = await loadGloss(L).catch(() => ({ words: {}, phrases: {} }));
     // Giọng Azure: tải trước mọi câu sẽ đọc trong bài (hàng đợi 4 file, câu trước): bài đọc (nghe, truyện), câu hỏi, từ vựng +
     // câu ví dụ, ví dụ ngữ pháp, câu trả lời cho sẵn, chép chính tả, đáp án sắp xếp từ; rồi tới từ lẻ (từ vựng, từ trong bài).
@@ -173,31 +179,65 @@ export function render(app, onBack, ctx = {}) {
       title: `<span class="enr-no">${L.no}.</span> <span lang="en">${esc(L.title)}</span>`,
       right: `<span class="enr-count">${n}/${PARTS.length}</span>`, sub: tabs,
     }, '');
-    app.querySelectorAll('.enr-part').forEach((b) => b.addEventListener('click', () => showLesson(L, b.dataset.p)));
-    app.querySelector('.enr-part.is-on')?.scrollIntoView({ inline: 'center', block: 'nearest' });
     body.addEventListener('pointerdown', () => unlockSpeech(), { once: true });
-
-    const idx = PARTS.indexOf(part);
-    const nextPart = PARTS[idx + 1];
     const nextLesson = LESSONS[LESSONS.indexOf(L) + 1];
-    const nav = document.createElement('div');
-    nav.className = 'enr-nav';
-    nav.innerHTML = nextPart
-      ? `<button type="button" class="enr-next">${nextPart.icon} ${nextPart.name} ▶</button>`
-      : nextLesson ? `<button type="button" class="enr-next">Bài ${nextLesson.no} ▶</button>` : '';
-    nav.querySelector('.enr-next')?.addEventListener('click', () => (nextPart ? showLesson(L, nextPart.id) : showLesson(nextLesson)));
+    const panes = new Map(); // id phần → { el, hide: [], top }
+    let cur = null;
 
-    const done = (revealed) => {
-      if (doneOf(L.id)[part.id]) return;
-      markDone(L, part.id, revealed);
-      const tab = app.querySelector(`.enr-part[data-p="${part.id}"]`);
-      if (tab) { tab.classList.add('is-done'); tab.lastChild.textContent += ' ✓'; }
-      const c = app.querySelector('.enr-count');
-      if (c) c.textContent = `${PARTS.filter((p) => doneOf(L.id)[p.id]).length}/${PARTS.length}`;
-      nav.classList.add('is-ready');
-    };
-    ({ listen, read, vocab, grammar, answer, ask, write })[part.id](body, L, gloss, done);
-    body.appendChild(nav);
+    function build(p) {
+      const el = document.createElement('div');
+      el.className = 'enr-pane';
+      el.dataset.p = p.id;
+      body.appendChild(el);
+      const pane = { el, hide: [], top: 0 };
+      const nextPart = PARTS[PARTS.indexOf(p) + 1];
+      const nav = document.createElement('div');
+      nav.className = 'enr-nav';
+      nav.innerHTML = nextPart
+        ? `<button type="button" class="enr-next">${nextPart.icon} ${nextPart.name} ▶</button>`
+        : nextLesson ? `<button type="button" class="enr-next">Bài ${nextLesson.no} ▶</button>` : '';
+      nav.querySelector('.enr-next')?.addEventListener('click', () => (nextPart ? show(nextPart.id) : showLesson(nextLesson)));
+      const done = (revealed) => {
+        if (doneOf(L.id)[p.id]) return;
+        markDone(L, p.id, revealed);
+        const tab = app.querySelector(`.enr-part[data-p="${p.id}"]`);
+        if (tab) { tab.classList.add('is-done'); tab.lastChild.textContent += ' ✓'; }
+        const c = app.querySelector('.enr-count');
+        if (c) c.textContent = `${PARTS.filter((x) => doneOf(L.id)[x.id]).length}/${PARTS.length}`;
+        nav.classList.add('is-ready');
+      };
+      paneHide = pane.hide;
+      ({ listen, read, vocab, grammar, answer, ask, write })[p.id](el, L, gloss, done);
+      paneHide = null;
+      el.appendChild(nav);
+      return pane;
+    }
+    function show(id) {
+      const p = PARTS.find((x) => x.id === id) || part;
+      if (cur === p.id) return;
+      const old = panes.get(cur);
+      if (old) {
+        old.top = app.scrollTop;
+        old.hide.forEach((f) => f());   // dừng đọc / dừng truyện của phần vừa rời
+        stopEn();
+        old.el.hidden = true;
+      }
+      cur = p.id;
+      let pane = panes.get(p.id);
+      if (pane) pane.el.hidden = false;
+      else panes.set(p.id, (pane = build(p)));
+      body.classList.toggle('is-wide', pane.el.dataset.wide === '1');
+      app.querySelectorAll('.enr-part').forEach((b) => {
+        const on = b.dataset.p === p.id;
+        b.classList.toggle('is-on', on);
+        b.setAttribute('aria-selected', String(on));
+      });
+      app.querySelector('.enr-part.is-on')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+      app.scrollTop = pane.top;
+    }
+    app.querySelectorAll('.enr-part').forEach((b) => b.addEventListener('click', () => show(b.dataset.p)));
+    lessonView = { L, show };
+    show(part.id);
   }
 
   // ── Đọc cả bài: nút ▶ / ⏸ + 🐢 chậm, tô câu đang đọc ─────────────────────
@@ -224,6 +264,7 @@ export function render(app, onBack, ctx = {}) {
       stop = sayEnSeq(off.sentences, { rate: wrap.querySelector('.enr-slow').checked ? 0.6 : 0.85, onEach: off.mark, onEnd: reset });
     });
     disposers.push(() => stop?.());
+    paneHide?.push(() => { if (stop) { stop(); reset(); } });
     wrap.querySelector('.enr-show')?.addEventListener('change', (e) => wrap.querySelector('.enr-text').classList.toggle('is-hidden', !e.target.checked));
     return wrap;
   }
@@ -317,6 +358,13 @@ export function render(app, onBack, ctx = {}) {
     };
     el.querySelector('.enr-check').addEventListener('click', run);
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+    // 🧹 Xoá: xoá cả câu đang viết để viết lại nhanh (đã đúng hoặc đang chờ cô chấm thì thôi)
+    btn.insertAdjacentHTML('beforebegin', '<button type="button" class="enr-clear" aria-label="Xoá câu đã viết">🧹<span class="enr-clear-t"> Xoá</span></button>');
+    el.querySelector('.enr-clear').addEventListener('click', () => {
+      if (busy || el.classList.contains('is-ok')) return;
+      input.value = ''; fb.textContent = '';
+      input.focus();
+    });
   }
 
   // ── 🎧 Nghe ──
@@ -324,13 +372,15 @@ export function render(app, onBack, ctx = {}) {
     head(body, '🎧 Nghe bài đọc');
     if (STORIES[L.id]) {
       // Bài có truyện hoạt hình (englishStory): xem + nghe từng câu, dải truyện, xếp lại thứ tự
-      body.classList.add('is-wide');
+      body.dataset.wide = '1';   // khung phần Nghe rộng hơn (show() đặt is-wide cho .enr-body)
       body.insertAdjacentHTML('beforeend', '<p class="enr-help">Bấm ▶ để xem và nghe truyện. Chạm một ô để xem lại câu đó. Luyện nghe thật: bỏ chọn 👁 Hiện chữ.</p>');
       const box = document.createElement('section');
       box.className = 'enr-story';
       body.appendChild(box);
+      let player = null;
+      paneHide?.push(() => player?.pause?.());
       loadPlayer().then((m) => m.mountStory(box, L, STORIES[L.id])).then((dispose) => {
-        if (box.isConnected) disposers.push(dispose); else dispose();
+        if (box.isConnected) { player = dispose; disposers.push(dispose); } else dispose();
       });
     } else {
       body.insertAdjacentHTML('beforeend', '<p class="enr-help">Bấm ▶ để nghe. Nghe xong trả lời 2 câu hỏi bên dưới. Muốn nhìn chữ thì bấm 👁 Hiện chữ.</p>');
@@ -498,7 +548,7 @@ export function render(app, onBack, ctx = {}) {
         <p class="enr-q-text"><b>${i + 1}.</b></p>
         <div class="enr-line" lang="en"></div>
         <div class="enr-tiles" lang="en">${r.words.map((w, k) => `<button type="button" class="enr-tile" data-k="${k}">${esc(w)}</button>`).join('')}</div>
-        <div class="enr-row-end"><button type="button" class="enr-check">Kiểm tra</button></div>
+        <div class="enr-row-end"><button type="button" class="enr-clear" aria-label="Bỏ hết các từ đã xếp">🧹<span class="enr-clear-t"> Xoá</span></button><button type="button" class="enr-check">Kiểm tra</button></div>
         <p class="enr-fb" aria-live="polite"></p>`;
       ro.appendChild(el);
       const line = el.querySelector('.enr-line'), fb = el.querySelector('.enr-fb');
@@ -512,6 +562,12 @@ export function render(app, onBack, ctx = {}) {
         const t = e.target.closest('.enr-tile');
         if (!t || el.classList.contains('is-ok')) return;
         el.querySelector('.enr-tiles').appendChild(t);
+      });
+      el.querySelector('.enr-clear').addEventListener('click', () => {
+        if (el.classList.contains('is-ok')) return;
+        const tiles = el.querySelector('.enr-tiles');
+        [...line.children, ...tiles.children].sort((a, b) => a.dataset.k - b.dataset.k).forEach((t) => tiles.appendChild(t));
+        fb.textContent = '';
       });
       el.querySelector('.enr-check').addEventListener('click', () => {
         if (el.classList.contains('is-ok')) return;

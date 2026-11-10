@@ -129,5 +129,7 @@ export async function mountStory(host, lesson, load, { onDone } = {}) {
   }
 
   if (import.meta.env.DEV) host.__story = { playFrom, jump: (k) => st.jump(k), stage: st }; // scripts/english-reading-dev.html &beat=
-  return () => { stop(); st.destroy(); };
+  const off = () => { stop(); st.destroy(); };
+  off.pause = stop;   // bé chuyển sang tab khác của bài: dừng đọc, giữ nguyên truyện và phần xếp thứ tự
+  return off;
 }
