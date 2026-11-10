@@ -126,6 +126,13 @@ const CSS = `
 .dt-stage .ch-qov-opts .ch-qov-o { min-height: clamp(34px, 7.5vh, 80px); gap: clamp(6px, 0.9vw, 16px); font-size: clamp(13px, 1.2vw + 0.5vh, 30px); font-weight: 700; }
 .dt-stage .ch-qov-o i { width: clamp(20px, 1.6vw + 1vh, 46px); height: clamp(20px, 1.6vw + 1vh, 46px); font-size: clamp(11px, 0.8vw + 0.5vh, 22px); }
 .dt-stage .ch-qov-meta > span.dt-note { color: #ffd36b; }
+/* Lượt cá nhân Khởi động: đã đúng / sai bao nhiêu câu, ngay sau "Câu 3/6 · Lượt cá nhân · Lan" */
+.dt-stage .dt-tally { display: inline-flex; gap: 6px; margin-left: 8px; vertical-align: middle; }
+.dt-stage .dt-tally b { padding: 1px 9px; border-radius: 999px; font-weight: 800; white-space: nowrap; }
+.dt-stage .dt-tally .is-r { background: rgba(33, 230, 163, 0.2); color: #7dffc9; }
+.dt-stage .dt-tally .is-w { background: rgba(255, 93, 115, 0.2); color: #ffb3bd; }
+.dt-stage .dt-tally i { font-style: normal; }
+@media (max-width: 560px) { .dt-stage .dt-tally i { display: none; } }
 .dt-stage .ch-qov-res { font-size: clamp(13px, 1vw + 0.5vh, 24px); }
 /* Nút chuông (lượt chung Khởi động, giành quyền Về đích): tròn to, góc phải trên dải, luôn giữ chỗ (ẩn bằng visibility),
    lúc được bấm thì đỏ vàng nhún nhịp; phím cách cũng bấm được */
@@ -1241,7 +1248,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (!sl) return null;
       const nm = (i) => pods[i].name.toUpperCase(), cl = (i) => pods[i].col.getStyle();
       if (buzzer >= 0) return [`🔔 ${nm(buzzer)} GIÀNH QUYỀN TRẢ LỜI${Q?.val ? ` · ${Q.val} ĐIỂM` : ''}`, cl(buzzer)];
-      if (sl.seg === 'solo') return [`LƯỢT CÁ NHÂN · ${nm(turn)}`, cl(turn)];
+      if (sl.seg === 'solo') { const [r, w] = soloTally(); return [`LƯỢT CÁ NHÂN · ${nm(turn)} · ĐÚNG ${r} · SAI ${w}`, cl(turn)]; }
       if (sl.seg === 'common') return ['LƯỢT CHUNG · BẤM CHUÔNG GIÀNH QUYỀN · ĐÚNG +10 · SAI −5', '#ffd36b'];
       if (sl.seg === 'speed') return ['CẢ 4 BẠN CÙNG TRẢ LỜI · NHANH NHẤT +40', '#ffd36b'];
       if (phase === 'steal' || phase === 'stealing') return [`GIÀNH QUYỀN! BẤM CHUÔNG TRONG ${secs('steal')} GIÂY`, '#ff8a9a'];
@@ -1357,6 +1364,16 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (sl && sl.qi != null) return [sl.qi + 1, 3];
       return [qn, qTotal];
     }
+    /** Lượt cá nhân Khởi động: bạn đang thi đã đúng / sai bao nhiêu câu (s.res ghi lúc lật, nằm trong slots nên máy hiện theo cũng có). */
+    function soloTally() {
+      const mine = slots.filter(s => s.seg === 'solo' && s.who === sl?.who && s.res);
+      return [mine.filter(s => s.res === 'r').length, mine.filter(s => s.res === 'w').length];
+    }
+    function tallyHtml() {
+      if (sl?.seg !== 'solo') return '';
+      const [r, w] = soloTally();
+      return `<span class="dt-tally"><b class="is-r" title="Đúng">✓ ${r}<i> đúng</i></b><b class="is-w" title="Sai">✗ ${w}<i> sai</i></b></span>`;
+    }
     function segLabel() {
       if (!sl) return '';
       return sl.seg === 'solo' ? `Lượt cá nhân · ${pods[turn].name}` : sl.seg === 'common' ? 'Lượt chung' : sl.seg === 'speed' ? (Q?.tag || '') : `Lượt của ${pods[vd.who].name}`;
@@ -1370,7 +1387,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     // ngắn gọn (tên vòng đã có trên màn LED): giữa dải là chỗ của huy hiệu kết quả
     function metaLeft() {
       const [n, t] = qPos();
-      return `Câu ${n}/${t}${segLabel() ? ` · ${esc(segLabel())}` : ''}`;
+      return `Câu ${n}/${t}${segLabel() ? ` · ${esc(segLabel())}` : ''}${tallyHtml()}`;
     }
     const CLOCK = `<div class="ch-qov-clock" hidden><svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="qov-clk-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b8"/><stop offset="1" stop-color="#ffb03a"/></linearGradient><linearGradient id="qov-clk-r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb3bd"/><stop offset="1" stop-color="#ff3355"/></linearGradient></defs>
           <circle class="is-bg" cx="32" cy="32" r="27"/><circle class="is-ticks" cx="32" cy="32" r="30.5" pathLength="60"/><circle class="is-fg" cx="32" cy="32" r="27" pathLength="100"/></svg><b></b><small>giây</small></div>`;
@@ -1483,6 +1500,8 @@ export function stage(app, onBack, { flow = false } = {}) {
       });
       ov.querySelectorAll('.ch-qov-opts .ch-qov-row').forEach((row, r) => row.classList.toggle('is-on', phase !== 'read' || shownOpts > r * 2));
       // dòng phải của dải: nhắc nghe MC đọc / đã chọn, chờ kết quả; còn lại là điểm của câu
+      const ml = ov.querySelector('.ch-qov-mleft span');
+      if (ml && sl?.seg === 'solo') ml.innerHTML = metaLeft();
       const mr = ov.querySelector('.ch-qov-meta > span');
       const who = buzzer >= 0 ? buzzer : turn;
       const note = phase === 'read' ? (voiceMode() === 'none' ? '📖 Em tự đọc đề, hết giờ đọc thì chọn' : 'Nghe MC đọc hết câu hỏi')
@@ -2292,7 +2311,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       const R = ROUNDS[mode];
       const okAt = (i) => pods[i].state === 'locked' && pods[i].ok;
       pods.forEach(p => { p.gain = 0; });
-      if (sl.seg === 'solo') { if (okAt(turn)) pods[turn].gain = KD.right; }
+      if (sl.seg === 'solo') { if (okAt(turn)) pods[turn].gain = KD.right; sl.res = okAt(turn) ? 'r' : 'w'; }
       else if (sl.seg === 'common') { if (buzzer >= 0) pods[buzzer].gain = okAt(buzzer) ? KD.right : -KD.minus; }
       else if (sl.seg === 'speed') {
         pods.map((p, i) => i).filter(okAt).sort((a, b) => pods[a].lockAt - pods[b].lockAt).forEach((i, k) => { pods[i].gain = TT.pts[k]; });
