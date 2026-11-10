@@ -15,7 +15,7 @@
  *           theo), hoặc chạm từng tiếng; đọc hết các câu thì xong
  */
 
-import { say, sfx, burst, centerOf, whenQuiet } from './fx.js';
+import { say, sfx, burst, centerOf, whenQuiet, prefetchSay } from './fx.js';
 import { splitSyllable, spellOf, spellRhyme, soundName, TONE_LIST, TONE_MARKS } from './phonics.js';
 
 const shuffle = (a) => a.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(v => v[1]);
@@ -290,8 +290,14 @@ function playSort({ round, stage, talk, wrong, right, solve }) {
 }
 
 // ── Đọc cùng Thỏ ────────────────────────────────────────────────────────
+// Bài đọc: giọng Azure (fx cloud), từng tiếng một như Thỏ chỉ tay đọc.
+const readWords = (round) => [...new Set(round.lines.flatMap(l => l.match(/[\p{L}]+/gu) || []))];
+/** Tải trước tiếng các chữ của vòng đọc (gọi khi bé mở trạm, trước khi tới vòng đọc). */
+export function prefetchRead(round) { if (round?.type === 'read') prefetchSay(readWords(round)); }
+
 function playRead({ round, stage, talk, solve, addCleanup }) {
   const { lines, title, hl = [] } = round;
+  prefetchRead(round);
   const heard = lines.map(() => new Set());
   const counts = lines.map(l => (l.match(/[\p{L}]+/gu) || []).length);
   let stop = null;
@@ -315,7 +321,7 @@ function playRead({ round, stage, talk, solve, addCleanup }) {
   };
   const mark = (tok) => { heard[tok.dataset.l].add(Number(tok.dataset.k)); tok.classList.add('is-heard'); };
   stage.querySelectorAll('.pk3-tok').forEach(tok => {
-    tok.onclick = () => { stop?.(); sfx.tap(); say(tok.dataset.w, { rate: 0.8 }); mark(tok); check(Number(tok.dataset.l)); };
+    tok.onclick = () => { stop?.(); sfx.tap(); say(tok.dataset.w, { rate: 0.8, cloud: true }); mark(tok); check(Number(tok.dataset.l)); };
   });
   // Thỏ đọc từng tiếng, chữ đang đọc sáng lên.
   const playLine = (li) => {
@@ -333,7 +339,7 @@ function playRead({ round, stage, talk, solve, addCleanup }) {
       const t = toks[i++];
       t.classList.add('is-now');
       mark(t);
-      say(t.dataset.w, { rate: 0.85 });
+      say(t.dataset.w, { rate: 0.85, cloud: true });
       cancel = whenQuiet(next, { min: 380, gap: 90, max: 3000 });
     };
     next();

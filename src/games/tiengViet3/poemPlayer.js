@@ -68,6 +68,12 @@ function pageHtml(st, prose) {
 /** Câu đưa cho giọng đọc: bỏ gạch đầu dòng lời thoại. */
 const speakable = (t) => t.replace(/^\s*[-–]\s*/, '').replace(/\s+[-–]\s+/g, ', ');
 
+/** Tải trước giọng đọc trang đầu của phim (gọi khi bé mở tuần, trước khi bấm ▶️). */
+export function prefetchPoem(week) {
+  const film = scenesFor(week);
+  if (film) mcPrefetch(film.pages[0].map(u => speakable(u.t)), READER, { mute: isMuted() });
+}
+
 export function openPoemPlayer(week) {
   const film = scenesFor(week);
   if (!film) return;

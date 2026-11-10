@@ -1,7 +1,8 @@
 /**
  * Âm thanh, giọng đọc và hiệu ứng cho "Bé Học Vui Toán" — bé mầm non chưa đọc được chữ,
- * nên mọi lời dặn đều được đọc to. Trang tiền tiểu học (.pk) đọc tiếng Việt bằng giọng Azure HoaiMy (mp3 từng câu
- * tạo một lần, lưu R2: api/tts.js, dauTruong/mcVoice.js); lỗi / hết hạn mức thì giọng của máy, rồi Google Dịch.
+ * nên mọi lời dặn đều được đọc to bằng giọng của máy (không có tiếng Việt thì Google Dịch). Riêng bài đọc
+ * (say(…, { cloud: true }), vd. vòng "Đọc cùng Thỏ") dùng giọng Azure HoaiMy: mp3 từng câu tạo một lần, lưu R2
+ * (api/tts.js, dauTruong/mcVoice.js); tải trước bằng prefetchSay() khi đoán được bé sắp đọc gì. Azure lỗi thì giọng của máy.
  * Tiếng động: file trong src/assets/sfx (engine/sfx.js), tiếng tổng hợp khi file chưa tải xong.
  */
 
@@ -126,14 +127,21 @@ function sayOnline(text, rate, queue, lang = 'vi') {
   if (!player) playNextOnline();
 }
 
-// ── Giọng Azure (chỉ trang tiền tiểu học) ───────────────────────────────────
-// Các trò lớp 1–5 cũng gọi say() nhưng vẫn dùng giọng của máy (đỡ tốn hạn mức Azure, câu có số sinh ngẫu nhiên rất nhiều).
+// ── Giọng Azure (chỉ bài đọc: say(…, { cloud: true })) ──────────────────────
+// Lời dặn, khen, đọc số… vẫn giọng của máy: nhanh, không chờ mạng, không tốn hạn mức Azure.
 const CLOUD_READER = 1;   // vi-VN-HoaiMyNeural
+const cloudTextOf = (text) => String(text || '').replace(EMOJI, '').replace(/\s+/g, ' ').trim();
+const useCloud = (lang = curLang()) => lang === 'vi' && !muted && cloudVoiceReady();
+/** Tải trước giọng Azure của các câu bài đọc bé sắp nghe (mp3 vào bộ đệm trình duyệt), lúc đọc phát ngay. */
+export function prefetchSay(texts) {
+  if (!useCloud()) return;
+  [...new Set((Array.isArray(texts) ? texts : [texts]).map(cloudTextOf))]
+    .filter(t => t && t.length <= 380)
+    .forEach(t => cloudVoiceUrl(t, CLOUD_READER).catch(() => {}));
+}
 let cloudQueue = [];
 let cloudBusy = false;
 let cloudGen = 0;
-const cloudScope = () => !!document.querySelector('.pk');
-const useCloud = (lang = curLang()) => lang === 'vi' && cloudScope() && cloudVoiceReady();
 
 function stopCloud() {
   cloudGen++;
@@ -210,7 +218,7 @@ export function onVoiceStatus(fn) {
 }
 
 /** Máy đọc được tiếng Việt (tiếng Anh khi đang ở English) không (bằng giọng của máy hoặc giọng trực tuyến). */
-export const canSpeak = (lang = curLang()) => useCloud(lang) || canSpeakLocal(lang) || (useOnline(lang) && navigator.onLine !== false);
+export const canSpeak = (lang = curLang()) => canSpeakLocal(lang) || (useOnline(lang) && navigator.onLine !== false);
 
 const VN_CHAR = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu;
@@ -230,14 +238,14 @@ function englishSpeech(text) {
 }
 
 /** Đọc một câu; `queue` = đọc nối sau câu đang đọc thay vì cắt ngang. */
-export function say(text, { queue = false, rate = 0.9 } = {}) {
+export function say(text, { queue = false, rate = 0.9, cloud = false } = {}) {
   if (muted || !text) return;
   const lang = curLang();
   if (lang === 'en') {
     text = englishSpeech(text);
     if (!text) { if (!queue) stopSpeaking(); return; }
   }
-  const cloudText = lang === 'vi' ? String(text).replace(EMOJI, '').replace(/\s+/g, ' ').trim() : '';
+  const cloudText = cloud && lang === 'vi' ? cloudTextOf(text) : '';
   if (cloudText && cloudText.length <= 380 && useCloud(lang)) { sayCloud(cloudText, rate, queue); return; }
   if (!queue) stopCloud();
   sayLegacy(text, rate, queue, lang);

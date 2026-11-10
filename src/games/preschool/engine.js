@@ -19,7 +19,7 @@ import { reportVoiceStatus } from '../../engine/voiceReport.js';
 import { mountTracer, getPen, setPen, CAR } from './trace.js';
 import { letterGlyph } from './letters.js';
 import { soundName } from './phonics.js';
-import { PLAYERS3 } from './play3.js';
+import { PLAYERS3, prefetchRead } from './play3.js';
 import { PLAYERS4 } from './play4.js';
 import { PLAYERS5 } from './play5.js';
 import COUNT_ITEMS from './count-items.json';
@@ -229,6 +229,8 @@ export function renderPreschool(app, onBack, book) {
       idx = station.rounds.findIndex((_, i) => !isSolved(station, i));
       if (idx < 0) idx = 0;
     }
+    // vòng đọc của trạm (thường ở cuối bài): tải trước giọng Azure trong lúc bé chơi các vòng trước
+    station.rounds.slice(idx).forEach(prefetchRead);
     playRound(station, idx);
   }
 

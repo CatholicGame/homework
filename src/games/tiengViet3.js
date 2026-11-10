@@ -24,7 +24,7 @@ import { TYPES, isGraded } from './tiengViet3/types.js';
 import { scopedKey } from '../engine/auth.js';
 import { awardStars, recordWrong, earnedFor } from '../engine/stars.js';
 import { picSvg } from './tiengViet3/pics.js';
-import { scenesFor, openPoemPlayer } from './tiengViet3/poemPlayer.js';
+import { scenesFor, openPoemPlayer, prefetchPoem } from './tiengViet3/poemPlayer.js';
 import '../styles/tv3.css';
 
 const WEEKS = Object.values(import.meta.glob('../data/tv3Weekly/tuan*.js', { eager: true, import: 'default' }))
@@ -245,7 +245,7 @@ export function render(app, onBack, ctx = {}) {
         </div>`}`);
 
     const playBtn = body.querySelector('.tv-poem-play');
-    if (playBtn) playBtn.onclick = () => openPoemPlayer(week);
+    if (playBtn) { playBtn.onclick = () => openPoemPlayer(week); prefetchPoem(week); }
     qs.forEach(x => {
       const el = body.querySelector(`#tvq-${x.n} .tv-q-body`);
       const t = TYPES[x.q.type];
