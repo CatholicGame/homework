@@ -9,10 +9,15 @@
  *   truyện: export default { groups: [[0, 1], [2, 3, 4], …], scenes: [cảnh…] }  (chỉ số đoạn trong read.paras)
  *   truyện đoạn dài: thêm sentences: true → groups đánh số theo CÂU (mọi đoạn tách câu, đếm nối tiếp từ 0,
  *     xem splitSentences / node scripts/tv3-sentences.mjs <tuần>); câu cùng đoạn vẫn hiện liền một đoạn.
+ * Giọng đọc: Azure HoaiMy qua dauTruong/mcVoice.js (api/tts.js, mp3 lưu R2); lỗi mạng / hết hạn mức thì giọng của máy.
  * Trong cảnh: data-l="n" hiện từ dòng/đoạn thứ n của trang (đếm từ 1), data-off="m" ẩn từ dòng m,
  *   data-talk="2,4": nhân vật đang nói ở đoạn 2 và 4 thì nhún nhảy (is-talking).
  */
-import { say, stopSpeaking, whenQuiet, isMuted, setMuted } from '../preschool/fx.js';
+import { isMuted, setMuted } from '../preschool/fx.js';
+// Giọng đọc bài: Azure HoaiMy (mp3 từng câu tạo một lần, lưu R2, như giọng MC Đấu Trường Nhí); không dùng được thì giọng của máy
+import { mcSpeak, mcPrefetch, mcStop } from '../../dauTruong/mcVoice.js';
+
+const READER = 1;   // chị Mai: vi-VN-HoaiMyNeural
 import { proseUnits } from './sentences.js';
 
 export { splitSentences } from './sentences.js';
@@ -96,7 +101,6 @@ export function openPoemPlayer(week) {
   let j = -1;        // dòng đang đọc (-1: chưa đọc dòng nào)
   let playing = true;
   let run = 0;       // đổi mỗi lần nhảy khổ / dừng, để lượt đọc cũ không chạy tiếp
-  let cancelWait = null;
   let timer = null;
 
   const $ = (s) => root.querySelector(s);
@@ -131,9 +135,8 @@ export function openPoemPlayer(week) {
 
   function stopTurn() {
     run++;
-    cancelWait?.(); cancelWait = null;
     clearTimeout(timer);
-    stopSpeaking();
+    mcStop();
   }
 
   /** Đọc dòng `n` của khổ hiện tại rồi dòng sau; hết khổ thì nghỉ một chút sang khổ sau. */
@@ -150,11 +153,10 @@ export function openPoemPlayer(week) {
       return;
     }
     j = n; paint();
-    say(speakable(st[n]), { rate: prose ? 0.88 : 0.8 });
-    cancelWait = whenQuiet(() => {
+    mcSpeak(speakable(st[n]), READER, { rate: prose ? 0.95 : 0.88, mute: isMuted() }).then(() => {
       if (my !== run) return;
-      timer = setTimeout(() => my === run && readLine(n + 1), 350);
-    }, { min: 1300 + st[n].length * (prose ? 55 : 70), max: 4000 + st[n].length * 110 });
+      timer = setTimeout(() => my === run && readLine(n + 1), prose ? 350 : 450);
+    });
   }
 
   function goTo(n, play = playing) {
@@ -163,6 +165,8 @@ export function openPoemPlayer(week) {
     j = -1;
     playing = play;
     paint();
+    // tải trước giọng đọc cả trang này và trang sau: đọc liền mạch, không chờ mạng giữa các dòng
+    [k, k + 1].forEach(p => poem[p] && mcPrefetch(poem[p].map(u => speakable(u.t)), READER, { mute: isMuted() }));
     if (playing) timer = setTimeout(() => readLine(0), 900); // chờ cảnh mới hiện
   }
 
@@ -209,6 +213,7 @@ export function openPoemPlayer(week) {
     setMuted(!isMuted());
     e.currentTarget.innerHTML = isMuted() ? ICON.muted : ICON.sound;
     e.currentTarget.classList.toggle('is-off', isMuted());
+    if (playing && j >= 0) { stopTurn(); playing = true; readLine(j); }   // đọc lại dòng đang dở theo chế độ tiếng mới
   };
   $$('.tvmv-dot').forEach(b => b.onclick = () => goTo(+b.dataset.k));
   // Chạm vào một dòng: đọc lại dòng đó

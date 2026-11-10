@@ -52,7 +52,8 @@ export function setMcListener(fn) { onTalk = fn || (() => {}); }
 
 let seq = 0, pending = null;
 /** Ước lượng thời gian đọc (ms) khi không có tiếng: đủ để trẻ đọc phụ đề. */
-const estimate = (text) => (700 + String(text).length * 62) / rate;
+const estimateAt = (text, r) => (700 + String(text).length * 62) / r;
+const currentRate = () => rate;
 
 // ── Giọng Azure (api/tts.js, mp3 trên R2) ─────────────────────────────────────
 /* Mỗi câu: tìm mp3 trên R2 (link công khai, qua CDN; câu đã có ai nghe thì có sẵn), chưa có thì /api/tts tạo rồi lưu. Phát bằng
@@ -103,6 +104,12 @@ function cloudUrl(text, mc) {
   }
   return found.get(k);
 }
+/* Dùng chung cho chỗ khác cần giọng Azure (preschool/fx.js): link mp3 của một câu, thẻ <audio> đã mở khoá, tạm nghỉ Azure. */
+export const cloudVoiceUrl = (text, mc = 1) => cloudUrl(text, mc);
+export const cloudVoiceReady = () => canCloud();
+export const cloudVoicePlayer = () => playerEl();
+export function cloudVoiceOff() { cloudOffUntil = Date.now() + CLOUD_PAUSE; }
+
 /**
  * Máy này nghe MC bằng gì: 'azure' (chưa lỗi), 'local' (giọng tiếng Việt của máy), 'none' (tắt tiếng / không có giọng nào:
  * bé tự đọc đề, chương trình cho cả phòng thời gian đọc chung, games/dauTruong.js needRead).
@@ -113,8 +120,8 @@ export function voiceMode() {
   return hasSynth && voiceOf(0) ? 'local' : 'none';
 }
 /** Tải trước câu MC sắp đọc (một câu, hoặc mảng các câu / các mảnh của một câu): lúc đọc không phải chờ mạng. */
-export function mcPrefetch(text, mc = 0) {
-  if (muted || !canCloud()) return;
+export function mcPrefetch(text, mc = 0, { mute } = {}) {
+  if ((mute ?? muted) || !canCloud()) return;
   (Array.isArray(text) ? text : [text]).forEach((t) => { if (String(t || '').trim()) cloudUrl(t, mc).catch(() => {}); });
 }
 
@@ -123,7 +130,11 @@ export function mcPrefetch(text, mc = 0) {
  * onStart: lúc bắt đầu thành tiếng (để bật phương án đúng lúc MC đọc tới). Giọng Azure trước; không được thì giọng của máy;
  * máy không có giọng tiếng Việt / tắt tiếng: phụ đề hiện, chờ một khoảng theo độ dài câu.
  */
-export function mcSpeak(text, mc = 0, { onStart, parts } = {}) {
+export function mcSpeak(text, mc = 0, { onStart, parts, rate: callRate, mute } = {}) {
+  // rate / mute riêng cho một lần đọc (máy đọc bài Tiếng Việt 3: chậm hơn, nút tắt tiếng của riêng nó), không đổi cài đặt MC
+  const rate = callRate || currentRate();
+  const muted = mute ?? isMcMuted();
+  const estimate = (t) => estimateAt(t, rate);
   text = String(text || '').trim();
   parts = (parts?.length ? parts : [text]).map(t => String(t || '').trim()).filter(Boolean);
   if (!text) return Promise.resolve();
