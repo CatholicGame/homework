@@ -235,16 +235,16 @@ export function render(app, onBack) {
       </section>
       <section class="lb-card adm-section">
         <h2 class="adm-h2">Người chơi (${people.length})</h2>
-        ${people.length ? `<div class="adm-table-wrap"><table class="adm-table">
-          <thead><tr><th>Người chơi</th><th>Lớp</th><th class="adm-num">Số ngày</th><th class="adm-num">Sảnh / trường quay</th>
-            <th class="adm-num">Xem (bắt đầu / hết)</th><th class="adm-num">Bỏ dở</th><th class="adm-num">Bục thi</th><th class="adm-num">Điểm cao nhất</th>
-            <th class="adm-num">Trả lời</th><th class="adm-num">Sao</th><th>Lần đầu</th><th>Lần cuối</th></tr></thead>
+        ${people.length ? `<div class="adm-table-wrap"><table class="adm-table adm-table-people">
+          <thead><tr><th>Người chơi</th><th>Lớp</th><th class="adm-num">Số<br>ngày</th><th class="adm-num">Sảnh /<br>trường quay</th>
+            <th class="adm-num">Xem<br>(bắt đầu / hết)</th><th class="adm-num">Bỏ<br>dở</th><th class="adm-num">Bục<br>thi</th><th class="adm-num">Điểm<br>cao nhất</th>
+            <th class="adm-num">Trả lời<br>(đúng)</th><th class="adm-num">Sao</th><th>Lần<br>đầu</th><th>Lần<br>cuối</th></tr></thead>
           <tbody>${people.map(p => `<tr class="${p.guest ? 'adm-guest' : ''}">
             <td><strong>${escapeHtml(p.name || '(không tên)')}</strong><br><small class="adm-vc-sub">${escapeHtml(p.email || (p.guest ? 'khách dùng thử' : ''))}</small></td>
             <td>${escapeHtml(grade(p.grade))}</td><td class="adm-num">${p.days || 0}</td>
             <td class="adm-num">${p.lobby || 0} / ${p.visits || 0}</td><td class="adm-num">${p.started || 0} / ${p.ended || 0}</td>
             <td class="adm-num">${left(p) || ''}</td><td class="adm-num">${p.pod || ''}${p.wins ? ` · 🥇${p.wins}` : ''}</td>
-            <td class="adm-num">${p.best || ''}</td><td class="adm-num">${p.answered ? `${p.answered} (đúng ${pct(p.right || 0, p.answered)})` : ''}</td>
+            <td class="adm-num">${p.best || ''}</td><td class="adm-num">${p.answered ? `${p.answered} (${pct(p.right || 0, p.answered)})` : ''}</td>
             <td class="adm-num">${p.stars || ''}</td><td>${fmtDate(p.firstAt)}</td><td>${fmtDateTime(p.lastAt)}</td></tr>`).join('')}</tbody>
         </table></div>` : '<p class="adm-empty">Chưa ai vào Đấu Trường Nhí.</p>'}
       </section>

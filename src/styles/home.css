@@ -2070,8 +2070,16 @@
   color: var(--text-light);
   padding: 8px 10px 8px 0;
   border-bottom: 1px solid var(--border);
-  white-space: nowrap;
+  /* tiêu đề dài xuống dòng (chỗ <br> đặt theo cụm nghĩa), căn đáy: cột hẹp lại, số nằm ngay dưới tiêu đề của nó */
+  white-space: normal;
+  vertical-align: bottom;
+  line-height: 1.25;
 }
+.adm-table th.adm-num { text-align: right; }
+/* Đấu Trường, bảng người chơi: cột tên đủ rộng để email không gãy giữa chừng */
+.adm-table-people td:first-child { min-width: 13em; }
+.adm-table-people td:first-child small { word-break: break-all; }
+.adm-table-people td:nth-child(2), .adm-table-people td:nth-child(11) { white-space: nowrap; }   /* "Lớp 3", ngày lần đầu */
 
 .adm-table td {
   padding: 8px 10px 8px 0;
