@@ -93,7 +93,8 @@ function probe(url) {
   });
 }
 function cloudUrl(text, mc) {
-  const voice = MC_VOICE_OF[mc] || MC_VOICE_OF[0], t = ttsText(text), k = `${voice}|${t}`;
+  // mc: số MC (0 / 1) hoặc tên giọng trong DT_VOICES (vd. 'enUS')
+  const voice = typeof mc === 'string' ? mc : MC_VOICE_OF[mc] || MC_VOICE_OF[0], t = ttsText(text), k = `${voice}|${t}`;
   if (!found.has(k)) {
     const req = ttsPath(t, voice)
       .then(path => probe(`${R2}/${path}`))

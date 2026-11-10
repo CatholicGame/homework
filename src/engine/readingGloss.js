@@ -7,7 +7,7 @@
  *
  *   const off = renderGlossText(el, lesson, gloss, { onWord })   // trả về hàm gỡ; off.sentences, off.mark(k) để đọc cả bài
  */
-import { sayEn, stopEn, unlockSpeech } from './speakEn.js';
+import { sayEn, stopEn, unlockSpeech, prefetchEn } from './speakEn.js';
 
 const WORD_RE = /[A-Za-z]+(?:['’-][A-Za-z]+)*/g;
 const keyOf = (w) => w.toLowerCase().replace(/’/g, "'");
@@ -77,6 +77,9 @@ export function renderGlossText(el, lesson, gloss, { onWord } = {}) {
   el.innerHTML = html;
   const spans = [...el.querySelectorAll('.rg-w')];
   let bubble = null, cur = -1;
+  // Giọng Azure: tải trước tiếng từng từ (sau tiếng các câu), bé chạm từ nào cũng phát ngay
+  const spokenOf = (t) => { const info = gloss?.words?.[t.k] || {}; return info.name && !info.ipa ? '' : info.say || t.w; };
+  const preTimer = setTimeout(() => prefetchEn([...new Set(toks.map(spokenOf).filter(Boolean))]), 1500);
 
   const close = () => {
     bubble?.remove(); bubble = null; cur = -1;
@@ -92,7 +95,7 @@ export function renderGlossText(el, lesson, gloss, { onWord } = {}) {
     spans[i].classList.add('rg-on');
 
     const canSay = !(info.name && !info.ipa); // tên riêng tiếng Việt: không đọc bằng giọng Anh
-    const spoken = info.say || t.w; // từ đọc khác tuỳ nghĩa: read (quá khứ) → "red", used (used to) → "used to"
+    const spoken = spokenOf(t); // từ đọc khác tuỳ nghĩa: read (quá khứ) → "red", used (used to) → "used to"
     const say = (txt) => `<button type="button" class="wh-say" data-say="${esc(txt)}" aria-label="Nghe">🔊</button>`;
     const phHtml = ph ? `<div class="rg-ph-head"><div class="wh-one">${say(ph.key)}<span class="wh-w" lang="en">${esc(ph.key)}</span>${ph.v.ipa ? `<span class="wh-ipa">/${esc(ph.v.ipa)}/</span>` : ''}</div><div class="wh-mean">${esc(ph.v.vi)}</div></div>` : '';
     const form = [info.base && info.base !== t.k ? `từ gốc: <b lang="en">${esc(info.base)}</b>` : '', info.form ? esc(info.form) : ''].filter(Boolean).join(' · ');
@@ -133,6 +136,7 @@ export function renderGlossText(el, lesson, gloss, { onWord } = {}) {
   addEventListener('scroll', onScroll, true);
   addEventListener('resize', onResize);
   const dispose = () => {
+    clearTimeout(preTimer);
     close();
     el.removeEventListener('pointerdown', onDown);
     el.removeEventListener('click', onClick);

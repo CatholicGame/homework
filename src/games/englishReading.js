@@ -17,7 +17,7 @@ import { renderGlossText } from '../engine/readingGloss.js';
 // Ảnh bìa thẻ bài: một khung của truyện hoạt hình (scripts/story-thumbs.mjs → src/assets/english-thumbs/en-NNN.jpg)
 const THUMBS = Object.fromEntries(Object.entries(import.meta.glob('../assets/english-thumbs/*.jpg', { eager: true, query: '?url', import: 'default' }))
   .map(([p, url]) => [p.match(/(en-\d{3})\.jpg$/)[1], url]));
-import { sayEn, sayEnSeq, stopEn, unlockSpeech } from '../engine/speakEn.js';
+import { sayEn, sayEnSeq, stopEn, unlockSpeech, prefetchEn } from '../engine/speakEn.js';
 import { scopedKey } from '../engine/auth.js';
 import { awardFixedStars } from '../engine/stars.js';
 import { getProfileGrade } from '../engine/profile.js';
@@ -155,6 +155,8 @@ export function render(app, onBack, ctx = {}) {
   // ── Một bài ──────────────────────────────────────────────────────────────
   async function showLesson(L, partId) {
     const gloss = await loadGloss(L).catch(() => ({ words: {}, phrases: {} }));
+    // Giọng Azure: tải trước tiếng các câu của bài (nghe, truyện hoạt hình) và câu chép chính tả
+    prefetchEn([...L.text.split(/\n{2,}/).flatMap((p) => p.match(/[^.!?]+(?:[.!?]+["”']?|$)\s*/g) || [p]).map((s) => s.replace(/\s+/g, ' ').trim()), ...(L.dictation || [])]);
     store = loadStore();
     const d = doneOf(L.id);
     const part = PARTS.find((p) => p.id === partId) || PARTS.find((p) => !d[p.id]) || PARTS[0];

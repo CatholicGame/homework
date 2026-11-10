@@ -1,5 +1,6 @@
 /**
- * GET /api/tts?t=<câu>&v=namMinh|hoaiMy → mp3 giọng Azure Speech cho hai MC Đấu Trường Nhí (src/dauTruong/mcVoice.js).
+ * GET /api/tts?t=<câu>&v=namMinh|hoaiMy|enUS → mp3 giọng Azure Speech cho hai MC Đấu Trường Nhí (src/dauTruong/mcVoice.js),
+ * bài đọc Tiếng Việt / tiền tiểu học, và mọi lời tiếng Anh (enUS, src/engine/speakEn.js).
  * Như kinh-thanh/api/tts.js: mỗi câu chỉ tạo một lần, mp3 lưu lên Cloudflare R2 (_lib/r2.js, chung bucket với Kinh Thánh nhưng
  * thư mục riêng homework/dautruong/, xem src/dauTruong/tts.js) ở ttsPath(); trình duyệt tìm ở R2 trước, ở đây cũng xem R2 trước
  * khi gọi Azure. Mỗi lần gọi Azure ghi thêm file rỗng homework/dautruong/usage/<ngày>/<giọng>/<số ký tự>-<mã> để đếm ký tự.
@@ -76,7 +77,7 @@ export default async function handler(req, res) {
   if (day.n + text.length > DAY_CHARS) return sendJson(res, 503, { error: 'quota' });
   day.n += text.length;
 
-  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="vi-VN">`
+  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${DT_VOICES[voice].slice(0, 5)}">`
     + `<voice name="${DT_VOICES[voice]}">${xmlEsc(text)}</voice></speak>`;
   let r;
   try {
