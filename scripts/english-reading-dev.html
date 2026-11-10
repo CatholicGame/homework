@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>english reading dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" />
+<style>
+  body { margin: 0; background: #F0F9FF; font-family: var(--font, Nunito, sans-serif); }
+  #bar { position: sticky; top: 0; z-index: 5; display: flex; gap: 8px; align-items: center; padding: 10px 16px; background: #fff; border-bottom: 1px solid #E2E8F0; }
+  #bar select { flex: 1; min-width: 0; font: inherit; padding: 8px; border-radius: 10px; border: 1px solid #CBD5E1; }
+  #bar button { font: inherit; padding: 8px 12px; border-radius: 10px; border: 1px solid #CBD5E1; background: #fff; cursor: pointer; }
+  main { box-sizing: border-box; max-width: 820px; margin: 0 auto; padding: 16px; }
+  .card { background: #fff; border: 1px solid #E2E8F0; border-radius: 18px; padding: 18px 20px; }
+  h1 { margin: 0 0 4px; font-size: 1.5rem; color: #0F172A; }
+  .meta { color: #475569; margin-bottom: 14px; font-size: .95rem; }
+  .hint { color: #64748B; font-size: .9rem; margin-top: 10px; }
+  #app { position: fixed; inset: 0; overflow: auto; }
+</style></head>
+<body>
+<script type="module">
+// Xem thử bài đọc tiếng Anh.
+//   ?id=en-001                     chỉ bài đọc + bấm từ (src/engine/readingGloss.js), có danh sách chuyển bài
+//   ?id=en-021&w=gets              tự bấm vào từ "gets" đầu tiên (để chụp màn hình)
+//   ?app=1                         trang thật của app (src/games/englishReading.js): danh sách cấp
+//   ?app=1&id=en-021&part=answer   mở thẳng bài + phần (listen / read / vocab / grammar / answer / ask / write)
+//   ?app=1&id=en-021&part=listen&beat=4   truyện hoạt hình: diễn câu 5 (&at=1 chỉ dựng trạng thái trước câu 5)
+// Chụp: chrome --headless=new --force-prefers-reduced-motion --screenshot=out.png --window-size=500,900 --virtual-time-budget=8000 "<url>"
+//   (cửa sổ không màn hình rộng tối thiểu 500px)
+addEventListener('error', e => { document.title = 'ERR ' + e.message; });
+addEventListener('unhandledrejection', e => { document.title = 'REJ ' + (e.reason && e.reason.stack || e.reason); });
+const p = new URLSearchParams(location.search);
+
+if (p.get('app')) {
+  const app = document.createElement('div');
+  app.id = 'app';
+  document.body.appendChild(app);
+  const { render } = await import('/src/games/englishReading.js');
+  render(app, () => { document.title = 'back'; }, { open: p.get('id') ? { lesson: p.get('id'), part: p.get('part') } : null });
+  setTimeout(() => { if (!/^(ERR|REJ)/.test(document.title)) document.title = 'app ok'; }, 500);
+  // &beat=4: tự diễn câu 5 của truyện hoạt hình (&at=1: chỉ dựng trạng thái trước câu đó, không diễn)
+  if (p.get('beat')) {
+    const k = Number(p.get('beat'));
+    const t0 = Date.now();
+    const go = () => {
+      const h = document.querySelector('.enr-story');
+      if (!h?.__story) { if (Date.now() - t0 < 8000) setTimeout(go, 100); return; }
+      if (p.get('at')) h.__story.jump(k); else h.__story.playFrom(k, true);
+    };
+    go();
+  }
+} else {
+  document.body.insertAdjacentHTML('afterbegin', `
+    <div id="bar"><button id="prev">◀</button><select id="sel"></select><button id="next">▶</button></div>
+    <main><div class="card"><h1 id="title"></h1><div class="meta" id="meta"></div><div id="text"></div><div class="hint">Bấm vào một từ để xem phiên âm, nghĩa và nghe đọc.</div></div></main>`);
+  const { LESSONS, loadGloss } = await import('/src/data/englishReading/index.js');
+  const { renderGlossText } = await import('/src/engine/readingGloss.js');
+  const sel = document.getElementById('sel');
+  sel.innerHTML = LESSONS.map(l => `<option value="${l.id}">${l.no}. ${l.title} (cấp ${l.level})</option>`).join('');
+  let off = null;
+  async function show(id) {
+    const L = LESSONS.find(l => l.id === id) || LESSONS[0];
+    sel.value = L.id;
+    history.replaceState(null, '', `?id=${L.id}`);
+    document.getElementById('title').textContent = `${L.no}. ${L.title}`;
+    document.getElementById('meta').textContent = `Cấp ${L.level} · ${L.topic} · Ngữ pháp: ${L.grammar.point}`;
+    const g = await loadGloss(L).catch(() => ({ words: {}, phrases: {} }));
+    off?.();
+    off = renderGlossText(document.getElementById('text'), L, g);
+    document.title = `${L.id} ok`;
+  }
+  sel.onchange = () => show(sel.value);
+  const step = d => { const i = LESSONS.findIndex(l => l.id === sel.value); show(LESSONS[Math.min(LESSONS.length - 1, Math.max(0, i + d))].id); };
+  document.getElementById('prev').onclick = () => step(-1);
+  document.getElementById('next').onclick = () => step(1);
+  await show(p.get('id') || 'en-001');
+  if (p.get('w')) {
+    const s = [...document.querySelectorAll('.rg-w')].find(x => x.textContent.toLowerCase() === p.get('w').toLowerCase());
+    s?.click();
+  }
+}
+</script>
+</body></html>

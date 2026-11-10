@@ -107,6 +107,15 @@ export async function requestVocab({ prompt, grade }) {
   return askTeacher({ mode: 'vocab', prompt, grade }, 'vocab');
 }
 
+/**
+ * Đọc tiếng Anh: nhờ cô xem câu bé viết (code đã chấm sai) có cũng đúng không.
+ * kind 'ask' | 'rewrite'; task = câu trả lời cho sẵn / đề + câu gốc; model = đáp án của sách.
+ * → { ok, fix, explain }. Lỗi như requestReview.
+ */
+export async function requestEnglishCheck({ kind, task, model, text, grade }) {
+  return askTeacher({ mode: 'english', kind, task, model, text, grade }, 'verdict');
+}
+
 async function askTeacher(payload, field) {
   let token = null;
   try { token = await getIdToken(); } catch { /* không mở được phiên: máy chủ trả 401 */ }

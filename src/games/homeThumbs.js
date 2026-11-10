@@ -256,6 +256,11 @@ const SCENES = {
       <path d="M30 76 q10 -6 20 0 t20 0 t20 0" stroke="${HAND}" stroke-width="1.4" fill="none"/></g>`
     + pencil(296, 148, -140, 60, '#1E3A8A'),
 };
+// Đọc tiếng Anh: bạn cầm sách nói "Hello!", vở mở có câu tiếng Anh + phiên âm + nghĩa
+SCENES['english-reading'] = (c) => room('#EFF6FF', { win: 60 }) + person(258, 196, 'na', 'hold', { s: 0.92, prop: 'book', mood: 'joy' }) + desk(146)
+  + notebook(126, 170, c, { left: [['Hello!'], ['I am Minh.']], right: [['/heˈloʊ/'], ['xin chào']], w: 168, h: 96 })
+  + `<g transform="translate(200 34)">${shadow(0, 34, 40, 3)}<path d="M-46 -20 Q-46 -30 -36 -30 H36 Q46 -30 46 -20 V8 Q46 18 36 18 H18 L26 34 L4 18 H-36 Q-46 18 -46 8Z" fill="#fff" stroke="${LINE}" stroke-width="1"/>${txt(0, 0, 'Hello!', { s: 17, c: '#2563EB', w: 900 })}</g>`
+  + star(40, 40, 9, '#60A5FA') + star(110, 26, 7);
 // cùng cảnh cho các thẻ cùng loại
 SCENES.worksheet = SCENES.tests;
 SCENES['tv2-tools'] = SCENES['tv-tools'];

@@ -202,6 +202,9 @@ h1, h2, h3, .section-title { letter-spacing: 0.005em; }
 .hm-grid.is-balanced { display: flex; flex-wrap: wrap; }
 .hm-grid.is-balanced > * { flex: 0 0 calc((100% - (var(--k, 1) - 1) * var(--gap, 16px)) / var(--k, 1)); min-width: 0; }
 .hm-grid.is-balanced.is-multi .hm-card-art.has-art { aspect-ratio: auto; height: var(--art-h); }
+.hm-grid.is-solo .hm-card { flex-direction: row; align-items: center; }
+.hm-grid.is-solo .hm-card-art { flex: none; width: min(44%, 440px); aspect-ratio: 16 / 9; border-bottom: 0; }
+.hm-grid.is-solo .hm-card-body { padding: 20px 28px; }
 .hm-card {
   --cc: var(--card-color, #3b82f6);
   display: flex; flex-direction: column; overflow: hidden; padding: 0; text-align: left;

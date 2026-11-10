@@ -1,0 +1,226 @@
+/* Truyện tiếng Anh có hoạt hình (games/englishStory): sân khấu, nhân vật cử động, hiệu ứng, phụ đề, dải truyện.
+   Chỉ chuyển động bằng transform / opacity. Bản giảm chuyển động: bước ngắn, không nhún, vẫn diễn đủ hành động. */
+
+.es-player { display: flex; flex-direction: column; gap: 10px; }
+.es-stage {
+  position: relative; overflow: hidden; width: 100%;
+  aspect-ratio: 16 / 9; max-height: max(260px, calc(100dvh - 330px)); border-radius: 18px; background: #E0F2FE; border: 1px solid #E2E8F0;
+  contain: layout paint;
+}
+/* Điện thoại dọc: khung cao hơn để nhân vật không bé */
+@media (max-width: 600px) { .es-stage { aspect-ratio: 4 / 3; } }
+@supports not (height: 1dvh) { .es-stage { max-height: max(260px, calc(100vh - 330px)); } }
+.es-world { position: absolute; left: 0; top: 0; will-change: transform; transform: translate3d(0, 0, 0); }
+.es-bg, .es-fg, .es-actors, .es-fx { position: absolute; left: 0; top: 0; }
+.es-bg svg, .es-fg svg { display: block; }
+.es-fg { pointer-events: none; z-index: 2; }
+.es-actors { z-index: 1; }
+.es-fx { z-index: 3; pointer-events: none; }
+.es-ac { position: absolute; left: 0; top: 0; will-change: transform; }
+.es-ac svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.es-ac.is-gone { opacity: 0; }
+.es-ac { transition: opacity .35s; }
+.es-flip { width: 100%; height: 100%; transform-origin: 50% 100%; transition: transform .24s cubic-bezier(.4, 0, .2, 1); }
+.es-ac.is-left .es-flip { transform: scaleX(-1); }
+
+/* Khớp: tư thế đổi mượt; .es-now = nhảy ngay (không transition) */
+.es-ac g { transform-origin: 0 0; }
+.pp-j { transition: transform .38s cubic-bezier(.4, 0, .2, 1); }
+.es-now, .es-now * { transition: none !important; }
+
+/* Nét mặt: chỉ một lớp mặt hiện; mắt chớp khi vui bình thường; nhép miệng khi nói */
+.pp-face { display: none; }
+.m-happy .f-happy, .m-joy .f-joy, .m-wow .f-wow, .m-shut .f-shut, .m-sad .f-sad, .m-cry .f-cry { display: inline; }
+.m-happy .f-shut { display: inline; opacity: 0; animation: ppBlink 4.6s infinite; animation-delay: var(--blink, 0s); }
+.is-talk .f-talk { display: inline; animation: ppTalk .3s steps(1) infinite; }
+.is-talk.m-happy .f-shut { display: none; }
+@keyframes ppBlink { 0%, 95% { opacity: 0; } 96%, 99% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes ppTalk { 0% { opacity: 1; } 50% { opacity: 0; } }
+.is-talk .pp-headw { animation: ppNod .5s ease-in-out infinite alternate; }
+@keyframes ppNod { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+.pp-bag { opacity: 0; transition: opacity .3s; }
+.has-bag .pp-bag { opacity: 1; }
+
+/* Dáng nghiêng khi đi (rig.js sideSvg, theo phim Kinh Thánh): khớp vung bằng thuộc tính rotate chồng lên góc gốc;
+   --p = thời gian một bước (stage.js walk: độ dài bước / tốc độ). Tới nơi thì về dáng trước mặt. */
+.pp-side { display: none; }
+.es-ac.is-side .pp-side { display: inline; }
+.es-ac.is-side .pp-front { display: none; }
+.is-walk .sv-sw { animation: svSw var(--p, .3s) ease-in-out infinite alternate; }
+@keyframes svSw { from { rotate: 0deg; } to { rotate: var(--r); } }
+.is-walk .sv-bob { animation: svBob calc(var(--p, .3s) / 2) ease-in-out infinite alternate; }
+@keyframes svBob { from { translate: 0 0; } to { translate: 0 -2.6px; } }
+.is-walk .sv-tail { animation: svTail var(--p, .3s) ease-in-out infinite alternate; }
+@keyframes svTail { from { rotate: -6deg; } to { rotate: 8deg; } }
+.is-walk .sv-skirt { animation: svTail var(--p, .3s) ease-in-out infinite alternate-reverse; }
+/* Đang cầm đồ khi đi: tay gần thôi vung (giữ góc tư thế, rig.js applySideHold) */
+.is-hold .sv-hU > .sv-sw, .is-hold .sv-hF > .sv-sw { animation: none; rotate: 0deg; }
+/* Chữ / số trên người hay đồ cầm (số áo, nhãn): thêm class es-unflip để không bị lật ngược khi nhân vật quay trái */
+.es-ac.is-left .es-unflip { transform: scaleX(-1); transform-box: fill-box; transform-origin: center; }
+.pp-side .sv-eye { animation: ppBlinkY 4.6s infinite; animation-delay: var(--blink, 0s); }
+
+/* (dáng trước mặt) Đi: chân đưa trước sau, tay vung ngược chân, người nhún nhẹ (2 lần mỗi bước đôi) */
+.is-walk .pp-legwL { animation: ppStepA .42s ease-in-out infinite alternate; }
+.is-walk .pp-legwR { animation: ppStepB .42s ease-in-out infinite alternate; }
+.is-walk .pp-upwR { animation: ppArmA .42s ease-in-out infinite alternate; }
+.is-walk .pp-upwL { animation: ppArmB .42s ease-in-out infinite alternate; }
+.is-walk .pp-bob { animation: ppBob .21s ease-in-out infinite alternate; }
+@keyframes ppStepA { from { transform: rotate(22deg); } to { transform: rotate(-22deg); } }
+@keyframes ppStepB { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
+@keyframes ppArmA { from { transform: rotate(18deg); } to { transform: rotate(-18deg); } }
+@keyframes ppArmB { from { transform: rotate(-18deg); } to { transform: rotate(18deg); } }
+@keyframes ppBob { from { transform: translateY(0); } to { transform: translateY(-2.6px); } }
+
+/* Hành động lặp */
+.act-wave .pp-fowR { animation: ppWave .3s ease-in-out infinite alternate; }
+@keyframes ppWave { from { transform: rotate(-16deg); } to { transform: rotate(16deg); } }
+.act-brush .pp-fowR { animation: ppBrush .13s linear infinite alternate; }
+@keyframes ppBrush { from { transform: rotate(-9deg); } to { transform: rotate(9deg); } }
+.act-wash .pp-upwR { animation: ppRub .2s ease-in-out infinite alternate; }
+.act-wash .pp-upwL { animation: ppRub .2s ease-in-out infinite alternate-reverse; }
+@keyframes ppRub { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
+.act-comb .pp-fowR { animation: ppComb .32s ease-in-out infinite alternate; }
+@keyframes ppComb { from { transform: rotate(-16deg); } to { transform: rotate(12deg); } }
+.act-stir .pp-upwR { animation: ppStir .5s ease-in-out infinite alternate; }
+@keyframes ppStir { from { transform: rotate(-12deg); } to { transform: rotate(10deg); } }
+.act-eat .pp-fowR { animation: ppEat .45s ease-in-out infinite alternate; }
+@keyframes ppEat { from { transform: rotate(0); } to { transform: rotate(-34deg); } }
+.act-drink .pp-milk { animation: ppDrink 2.2s ease-in forwards; }
+@keyframes ppDrink { to { transform: scaleY(0.05); } }
+.act-read .pp-page { animation: ppPage 1.4s ease-in-out infinite; }
+@keyframes ppPage { 0%, 40% { transform: scaleX(1); } 60%, 100% { transform: scaleX(-1); } }
+.act-cheer .pp-bob { animation: ppHop .32s ease-out infinite alternate; }
+@keyframes ppHop { from { transform: translateY(0); } to { transform: translateY(-9px); } }
+.act-stretch .pp-upwR { animation: ppRub .6s ease-in-out infinite alternate; }
+.act-stretch .pp-upwL { animation: ppRub .6s ease-in-out infinite alternate-reverse; }
+/* Thêm cho các truyện khác (pose đi kèm ghi trong ngoặc) */
+.act-clap .pp-fowR { animation: ppClapR .22s ease-in-out infinite alternate; }   /* clap, sitClap */
+.act-clap .pp-fowL { animation: ppClapL .22s ease-in-out infinite alternate; }
+@keyframes ppClapR { from { transform: rotate(0); } to { transform: rotate(-22deg); } }
+@keyframes ppClapL { from { transform: rotate(0); } to { transform: rotate(22deg); } }
+.act-jump .pp-bob { animation: ppJump .36s cubic-bezier(.3, 0, .5, 1) infinite alternate; }   /* cheer, stand */
+@keyframes ppJump { from { transform: translateY(0); } to { transform: translateY(-20px); } }
+.act-dance .pp-upwR { animation: ppDance .4s ease-in-out infinite alternate; }   /* cheer, arms */
+.act-dance .pp-upwL { animation: ppDance .4s ease-in-out infinite alternate-reverse; }
+.act-dance .pp-body { animation: ppSway .4s ease-in-out infinite alternate; }
+@keyframes ppDance { from { transform: rotate(-24deg); } to { transform: rotate(24deg); } }
+@keyframes ppSway { from { rotate: -5deg; } to { rotate: 5deg; } }
+.act-nod .pp-headw { animation: ppYes .3s ease-in-out infinite alternate; }   /* gật đầu (yes) */
+@keyframes ppYes { from { transform: translateY(0); } to { transform: translateY(3px) rotate(4deg); } }
+.act-no .pp-headw { animation: ppNo .22s ease-in-out infinite alternate; }   /* lắc đầu (no) */
+@keyframes ppNo { from { transform: rotate(-9deg); } to { transform: rotate(9deg); } }
+.act-point .pp-upwR { animation: ppPoint .4s ease-in-out infinite alternate; }   /* point, pointUp, me */
+@keyframes ppPoint { from { transform: rotate(0); } to { transform: rotate(-8deg); } }
+.act-dig .pp-upwR, .act-dig .pp-upwL { animation: ppDig .45s ease-in-out infinite alternate; }   /* dig, plant */
+@keyframes ppDig { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+.act-paint .pp-fowR { animation: ppPaint .5s ease-in-out infinite alternate; }   /* paint (paintbrush), write (pencil) */
+.act-write .pp-fowR { animation: ppPaint .3s ease-in-out infinite alternate; }
+@keyframes ppPaint { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+.act-swim .pp-upwR { animation: ppSwim .6s linear infinite; }   /* swim */
+.act-swim .pp-upwL { animation: ppSwim .6s linear infinite; animation-delay: -.3s; }
+@keyframes ppSwim { to { transform: rotate(360deg); } }
+.act-shiver .pp-bob { animation: ppShiver .08s linear infinite alternate; }   /* lạnh, sợ */
+@keyframes ppShiver { from { transform: translateX(-1.2px); } to { transform: translateX(1.2px); } }
+.act-hop .pp-bob { animation: ppHop .32s ease-out infinite alternate; }   /* nhún nhẹ khi vui */
+
+/* Chó Lucky */
+.dg-sit { display: none; }
+.es-dog.is-sit .dg-sit { display: inline; }
+.es-dog.is-sit .dg-stand { display: none; }
+.dg-mouth-o { display: none; }
+.es-dog.m-joy .dg-mouth-o { display: inline; }
+.es-dog.m-joy .dg-mouth-c { display: none; }
+.es-dog.act-wag .dg-tail { animation: dgWag .15s ease-in-out infinite alternate; }
+.es-dog.act-wag .dg-ear { animation: ppRub .3s ease-in-out infinite alternate; }
+@keyframes dgWag { from { transform: rotate(-26deg); } to { transform: rotate(18deg); } }
+.es-dog.act-jump .dg-bob { animation: dgJump .34s cubic-bezier(.3, 0, .5, 1) infinite alternate; }
+@keyframes dgJump { from { transform: translateY(0); } to { transform: translateY(-16px); } }
+.es-dog.is-walk .dg-legF1, .es-dog.is-walk .dg-legB2 { animation: ppStepA .26s ease-in-out infinite alternate; }
+.es-dog.is-walk .dg-legF2, .es-dog.is-walk .dg-legB1 { animation: ppStepB .26s ease-in-out infinite alternate; }
+.es-dog .dg-eye { animation: ppBlinkY 5s infinite; animation-delay: var(--blink, 0s); transform-origin: 4px -4px; }
+@keyframes ppBlinkY { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
+
+/* Xe */
+.es-car.is-walk .car-wheel { animation: carSpin .45s linear infinite; }
+.es-car.is-walk .car-body { animation: ppBob .18s ease-in-out infinite alternate; }
+@keyframes carSpin { to { transform: rotate(360deg); } }
+
+/* Lời nói */
+.es-say {
+  position: absolute; left: 0; top: 0; z-index: 4; white-space: nowrap;
+  padding: .25em .7em; margin-left: -1em; border-radius: 1em; background: #fff; color: #1E3A8A;
+  font-weight: 900; font-size: clamp(14px, 2.4cqi, 22px); border: 2px solid #6B4A3A; translate: -30% -100%;
+  animation: esPop .25s cubic-bezier(.3, 1.6, .6, 1) both;
+}
+.es-say::after { content: ''; position: absolute; left: 30%; bottom: -8px; width: 12px; height: 12px; background: #fff; border: 2px solid #6B4A3A; border-top: 0; border-left: 0; transform: rotate(45deg); }
+.es-say.is-out { opacity: 0; transition: opacity .25s; }
+@keyframes esPop { from { scale: .4; opacity: 0; } to { scale: 1; opacity: 1; } }
+.es-stage { container-type: inline-size; }
+
+.es-flyer { position: absolute; left: 0; top: 0; z-index: 4; }
+.es-flyer svg { width: 100%; height: 100%; overflow: visible; }
+
+/* Hiệu ứng nhỏ (đơn vị --u = px của một đơn vị cảnh) */
+[class^="es-fx-"] { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+[class^="es-fx-"] i { position: absolute; left: 0; top: 0; display: block; }
+.es-fx-poof i { width: calc(var(--u) * 26); height: calc(var(--u) * 26); margin: calc(var(--u) * -13); border-radius: 50%; background: #fff; border: 1px solid #E2E8F0;
+  animation: fxPoof .7s ease-out both; --a: calc(var(--i) * 45deg); }
+@keyframes fxPoof { from { transform: rotate(var(--a)) translateX(0) scale(.3); opacity: 1; } to { transform: rotate(var(--a)) translateX(calc(var(--u) * 34)) scale(1.1); opacity: 0; } }
+.es-fx-sparkle i { width: calc(var(--u) * 10); height: calc(var(--u) * 10); margin: calc(var(--u) * -5); background: #FDE047;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); animation: fxSpark 1s ease-out both; --a: calc(var(--i) * 60deg); }
+@keyframes fxSpark { from { transform: rotate(var(--a)) translateX(0) scale(.2); opacity: 1; } to { transform: rotate(var(--a)) translateX(calc(var(--u) * 30)) scale(1); opacity: 0; } }
+.es-fx-hearts i::before { content: '❤'; color: #F43F5E; font-size: calc(var(--u) * 18); }
+.es-fx-hearts i { animation: fxRise 1.8s ease-out both; animation-delay: calc(var(--i) * .15s); --dx: calc((var(--i) - 2) * var(--u) * 16); }
+@keyframes fxRise { from { transform: translate(0, 0) scale(.4); opacity: 0; } 20% { opacity: 1; } to { transform: translate(var(--dx), calc(var(--u) * -70)) scale(1); opacity: 0; } }
+.es-fx-drops i { width: calc(var(--u) * 5); height: calc(var(--u) * 8); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #38BDF8;
+  animation: fxDrop .8s ease-in both; animation-delay: calc(var(--i) * .12s); --dx: calc((var(--i) - 3) * var(--u) * 5); }
+@keyframes fxDrop { from { transform: translate(var(--dx), 0); opacity: 1; } to { transform: translate(var(--dx), calc(var(--u) * 50)); opacity: 0; } }
+.es-fx-bubbles i { width: calc(var(--u) * 7); height: calc(var(--u) * 7); border-radius: 50%; background: #fff; border: 1px solid #93C5FD;
+  animation: fxBub 1.2s ease-out both; animation-delay: calc(var(--i) * .14s); --dx: calc((var(--i) - 3) * var(--u) * 6); }
+@keyframes fxBub { from { transform: translate(0, 0) scale(.3); opacity: 1; } to { transform: translate(var(--dx), calc(var(--u) * -40)) scale(1.2); opacity: 0; } }
+.es-fx-zzz i::before { content: 'z'; font-weight: 900; color: #6366F1; font-size: calc(var(--u) * 16); }
+.es-fx-zzz i { animation: fxRise 1.8s ease-out both; animation-delay: calc(var(--i) * .45s); --dx: calc(var(--i) * var(--u) * 12); }
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes ppStepA { from { transform: rotate(11deg); } to { transform: rotate(-11deg); } }
+  @keyframes ppStepB { from { transform: rotate(-11deg); } to { transform: rotate(11deg); } }
+  @keyframes ppArmA { from { transform: rotate(8deg); } to { transform: rotate(-8deg); } }
+  @keyframes ppArmB { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+  .is-walk .pp-bob, .es-car.is-walk .car-body, .is-walk .sv-bob { animation: none; }
+  .act-brush .pp-fowR { animation-duration: .3s; }
+  .es-dog.act-wag .dg-tail { animation-duration: .35s; }
+  .es-dog.act-jump .dg-bob { animation-duration: .6s; }
+  .act-cheer .pp-bob { animation-duration: .6s; }
+  .act-jump .pp-bob, .act-dance .pp-upwR, .act-dance .pp-upwL, .act-dance .pp-body, .act-hop .pp-bob { animation-duration: .7s; }
+  .act-shiver .pp-bob { animation-duration: .2s; }
+}
+
+/* Phụ đề + dải truyện + nút */
+.es-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.es-play { font: inherit; font-weight: 800; border: 0; border-radius: 12px; min-height: 46px; padding: 8px 18px; background: #2563EB; color: #fff; cursor: pointer; }
+.es-cap {
+  min-height: 3.2em; display: flex; align-items: center; gap: 10px; padding: 8px 14px; box-sizing: border-box;
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 14px; font-size: clamp(1.05rem, 2.4vw, 1.4rem); font-weight: 700; color: #0F172A;
+}
+.es-cap b { color: #C2410C; background: #FFEDD5; border-radius: 6px; padding: 0 4px; }
+.es-cap .es-cap-n { flex: none; width: 1.8em; height: 1.8em; border-radius: 50%; display: grid; place-items: center; background: #EFF6FF; color: #2563EB; font-size: .8em; }
+.es-cap.is-hidden .es-cap-t { filter: blur(6px); user-select: none; }
+.es-line { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: thin; padding: 2px 2px 6px; }
+.es-chip {
+  flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 76px; padding: 6px 8px;
+  font: inherit; font-size: .8rem; font-weight: 700; line-height: 1.15; color: #94A3B8; cursor: pointer;
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 12px;
+}
+.es-chip span { font-size: 1.6rem; line-height: 1; filter: grayscale(1); opacity: .5; transition: filter .3s, opacity .3s; }
+.es-chip.is-seen { color: #334155; }
+.es-chip.is-seen span { filter: none; opacity: 1; }
+.es-chip.is-now { border-color: #2563EB; background: #EFF6FF; color: #1E3A8A; box-shadow: inset 0 0 0 1px #2563EB; }
+.es-order { background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; padding: 12px 14px; }
+.es-order h3 { margin: 0 0 4px; font-size: 1.1rem; }
+.es-order p { margin: 0 0 10px; color: #475569; }
+.es-slots { display: flex; flex-wrap: wrap; gap: 6px; min-height: 64px; padding: 6px; border: 2px dashed #CBD5E1; border-radius: 12px; margin-bottom: 8px; }
+.es-pool { display: flex; flex-wrap: wrap; gap: 6px; min-height: 64px; }
+.es-order .es-chip { color: #334155; }
+.es-order .es-chip span { filter: none; opacity: 1; }
+.es-order.is-ok .es-slots { border-style: solid; border-color: #16A34A; background: #F0FDF4; }
+.es-order .es-chip.is-bad { border-color: #FCA5A5; background: #FEF2F2; animation: enr-shake .35s; }

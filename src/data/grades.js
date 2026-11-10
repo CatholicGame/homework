@@ -18,6 +18,10 @@ const KNOWLEDGE_MAP = { id: 'knowledge-map', icon: '🗺️', color: '#16A34A', 
 const SPELL = { id: 'tv3-spell', group: 'tiengviet', icon: '🔤', color: '#EA580C', title: 'Luật chính tả', desc: 'Chơi để nhớ luật c/k, g/gh, ng/ngh và mẹo s/x, ch/tr, r/d/gi, l/n, dấu hỏi/ngã; mỗi luật có 3 đề luyện 30 từ' };
 const writing = (desc) => ({ id: 'writing', group: 'tiengviet', icon: '✍️', color: '#DB2777', title: 'Luyện Viết Văn', desc });
 
+// 🌍 Tiếng Anh: thẻ có group 'tienganh' thành tab riêng ở trang chủ. Đọc tiếng Anh: 100 bài, 5 cấp (docs/tieng-anh/thiet-ke-bai-doc.md),
+// cùng một thẻ cho lớp 1–5, trang tự mở cấp hợp với lớp trong hồ sơ.
+const ENGLISH = { id: 'english-reading', group: 'tienganh', icon: '📖', color: '#2563EB', title: 'Đọc tiếng Anh', desc: '100 bài đọc ngắn từ dễ đến khó: nghe đọc, chạm từ xem nghĩa, ngữ pháp, trả lời câu hỏi, chép chính tả' };
+
 // `hidden: true` = ẩn với mọi người (kể cả admin), vẫn mở được bằng #id.
 // 🏆 Đấu Trường Nhí: mở cho mọi người (lớp 1–5) từ 2026-11-09, `live` = thẻ LIVE to đầu tab Trò chơi. Thiết kế docs/dau-truong/thiet-ke.md.
 const DAUTRUONG = { id: 'dautruong-preview', group: 'challenge', live: true, cover: '/dautruong/cover-card.webp', icon: '🏆', color: '#1D4ED8', title: 'Đấu Trường Nhí', desc: '4 bạn thi cùng lúc trên sân khấu, hai MC dẫn chương trình: Khởi động, Tăng tốc, Về đích. Khán giả cũng có điểm!' };
@@ -51,6 +55,7 @@ export const GRADES = [
       { id: 'grade1-thandong', group: 'challenge', hidden: true, icon: '🎤', color: '#2F5FD0', title: 'Ai tài năng nhất?', desc: 'Lên ghế nóng trả lời 15 câu toán từ dễ tới khó: đếm, cộng trừ, hình, giờ. Thắng sao, đổi trang phục cho nhân vật 3D' },
       SPELL,
       writing('Viết 1 đến 3 câu theo đề, cô giáo chấm, chỉ lỗi chính tả, nhắc viết hoa đầu câu và dấu chấm cuối câu'),
+      ENGLISH,
       ...LIFE,
     ],
   },
@@ -69,6 +74,7 @@ export const GRADES = [
       { id: 'tv2-tools', group: 'tiengviet', icon: '🧰', color: '#0D9488', title: 'Công cụ Tiếng Việt 2', desc: 'Tập Một, Bài 1–32: xếp từ vào nhóm, tìm từ trong câu, ghép câu, kiểu câu, dấu câu, bảng chữ cái, chính tả… mỗi lượt đề mới' },
       SPELL,
       writing('Viết vài câu theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
+      ENGLISH,
       ...LIFE,
     ],
   },
@@ -90,6 +96,7 @@ export const GRADES = [
       { id: 'tv3-tools', group: 'tiengviet', icon: '🧰', color: '#0D9488', title: 'Công cụ Tiếng Việt 3', desc: 'Tập Một, Bài 1–32: xếp từ vào nhóm, tìm từ trong câu, ghép câu, kiểu câu, dấu câu, so sánh, chính tả… mỗi lượt đề mới' },
       SPELL,
       writing('Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
+      ENGLISH,
       ...LIFE,
     ],
   },
@@ -107,6 +114,7 @@ export const GRADES = [
       { id: 'grade4-thandong', group: 'challenge', hidden: true, icon: '🎤', color: '#2F5FD0', title: 'Ai tài năng nhất?', desc: 'Lên ghế nóng trả lời 15 câu toán: số lớn, phân số, trung bình cộng, tổng hiệu. Thắng sao, đổi trang phục 3D' },
       SPELL,
       writing('Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
+      ENGLISH,
       ...LIFE,
     ],
   },
@@ -123,6 +131,7 @@ export const GRADES = [
       { id: 'grade5-thandong', group: 'challenge', hidden: true, icon: '🎤', color: '#2F5FD0', title: 'Ai tài năng nhất?', desc: 'Lên ghế nóng trả lời 15 câu toán: số thập phân, phần trăm, hình, vận tốc. Thắng sao, đổi trang phục 3D' },
       SPELL,
       writing('Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
+      ENGLISH,
       ...LIFE,
     ],
   },

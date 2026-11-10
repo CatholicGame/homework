@@ -298,6 +298,8 @@ function hairBack(c) {
     case 'bob': return `<path d="M-19 13 V-4 C-19 -18 -10 -22 0 -22 C10 -22 19 -18 19 -4 V13 Q15.5 15.5 12 13 V4 H-12 V13 Q-15.5 15.5 -19 13Z" fill="${H}"/>`;
     case 'ponytail': return `<path d="M8 6 C18 12 17 34 10 52 Q6 58 3 53 C8 36 8 20 2 12Z" fill="${H}" stroke="${LINE}" stroke-width="0.6"/>`;
     case 'bun': return c.old ? '' : `<path d="M-17 -2 C-21 20 -19 40 -14 56 Q0 60 14 56 C19 40 21 20 17 -2Z" fill="${H}"/>`;
+    case 'curly': return `<g>${[-1, 1].map(s => [0, 1, 2, 3].map(i => `<circle cx="${s * (16 + (i % 2) * 2.4)}" cy="${-4 + i * 8.4}" r="${6.2 - i * 0.5}" fill="${H}" stroke="${LINE}" stroke-width="0.5"/>`).join('')).join('')}
+      <path d="M-17 -4 C-21 12 -19 26 -14 32 H14 C19 26 21 12 17 -4Z" fill="${H}"/></g>`;
     case 'braid': return `<g>${[0, 1, 2, 3, 4].map(i => `<ellipse cx="${-14 - i * 0.6}" cy="${12 + i * 8}" rx="4.4" ry="5" fill="${H}" stroke="${LINE}" stroke-width="0.5"/>`).join('')}
       <circle cx="-17.5" cy="52" r="2.4" fill="#EF4444"/></g>`;
     default: return '';
@@ -323,6 +325,9 @@ function hairFront(c) {
     case 'braid': return cap('C14 -6 7 -11 0 -10 C-7 -11 -14 -6 -16.5 4') + shine
       + `<path d="M-15 2 C-17 6 -16 10 -14 12" stroke="${H}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
     case 'ponytail': return cap('C14 -6 8 -12 -2 -10 C-8 -9 -13 -4 -16.5 4') + shine;
+    case 'curly': return cap('C15 -6 10 -9 5 -7 C2 -10 -2 -10 -5 -7 C-10 -9 -15 -6 -16.5 4')
+      + [-12, -6, 0, 6, 12].map((x, i) => `<circle cx="${x}" cy="${-18 + Math.abs(x) * 0.42 - (i % 2)}" r="4.6" fill="${H}" stroke="${LINE}" stroke-width="0.4"/>`).join('')
+      + `<rect x="7" y="-12" width="7" height="3" rx="1.5" fill="#F472B6" stroke="${LINE}" stroke-width="0.6" transform="rotate(-20 10.5 -10.5)"/>`;
     case 'bun': return c.old
       ? cap('C14 -8 6 -12 0 -11 C-6 -12 -14 -8 -16.5 4') + `<circle cx="0" cy="-24" r="7.5" fill="${H}" stroke="#A8A29E" stroke-width="0.8"/>
         <path d="M-6 -12 Q0 -16 6 -12" stroke="#A8A29E" stroke-width="0.8" fill="none"/>`
@@ -353,6 +358,16 @@ function hat(c) {
       <path d="M-14 -12 Q0 -16 14 -12" stroke="${c.trim[0]}" stroke-width="1.6" fill="none"/><circle cx="0" cy="-22" r="2.6" fill="${c.trim[0]}"/>`;
     case 'conical': return `<path d="M-30 -8 L0 -40 L30 -8 Q0 -2 -30 -8Z" fill="#F5DEB3" stroke="#B08950" stroke-width="1"/>
       <path d="M-20 -13 L0 -40 M-8 -10 L0 -40 M8 -10 L0 -40 M20 -13 L0 -40" stroke="#D6B98A" stroke-width="0.7"/>`;
+    case 'police': return `<path d="M-16 -8 C-17 -20 -9 -25 0 -25 C9 -25 17 -20 16 -8Z" fill="#1E3A8A" stroke="${LINE}" stroke-width="0.7"/>
+      <path d="M-21 -27 Q0 -36 21 -27 L16 -18 H-16Z" fill="#1E40AF" stroke="${LINE}" stroke-width="0.7"/><rect x="-16" y="-11" width="32" height="4" fill="#111827"/>
+      <path d="M-14 -8 Q0 -3 16 -8 Q12 -2 -12 -4Z" fill="#111827"/><path d="M0 -27 l2.4 3 l-2.4 3 l-2.4 -3Z" fill="#FACC15" stroke="${LINE}" stroke-width="0.5"/>`;
+    case 'chef': return `<rect x="-13" y="-22" width="26" height="12" fill="#FFFFFF" stroke="${LINE}" stroke-width="0.8"/>
+      <path d="M-13 -20 C-22 -24 -20 -38 -10 -36 C-8 -44 8 -44 10 -36 C20 -38 22 -24 13 -20Z" fill="#FFFFFF" stroke="${LINE}" stroke-width="0.8"/>
+      <path d="M-6 -22 V-30 M0 -22 V-32 M6 -22 V-30" stroke="#E2E8F0" stroke-width="1"/>`;
+    case 'santa': return `<path d="M-16 -10 C-14 -26 4 -34 18 -24 Q24 -14 22 -2 Q16 -18 6 -20 Q-4 -22 -14 -10Z" fill="#DC2626" stroke="${LINE}" stroke-width="0.7"/>
+      <circle cx="22" cy="-1" r="4" fill="#FFFFFF" stroke="${LINE}" stroke-width="0.6"/><rect x="-18" y="-14" width="36" height="7" rx="3.5" fill="#FFFFFF" stroke="${LINE}" stroke-width="0.6"/>`;
+    case 'sun': return `<ellipse cx="0" cy="-12" rx="25" ry="5" fill="#FDE68A" stroke="${LINE}" stroke-width="0.7"/>
+      <path d="M-14 -12 C-14 -28 14 -28 14 -12Z" fill="#FCD34D" stroke="${LINE}" stroke-width="0.7"/><path d="M-14 -14 H14" stroke="#EF4444" stroke-width="2.2"/>`;
     default: return '';
   }
 }
@@ -367,7 +382,7 @@ function face(c, { look, open, dir = 0, adult, mood }) {
   else if (m === 'shut' || m === 'sleep' || m === 'cry') eyes = [-1, 1].map(s => `<path d="M${s * 6 - 3} 2 Q${s * 6} ${m === 'cry' ? 0 : 4.5} ${s * 6 + 3} 2" stroke="${H}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`).join('');
   else {
     const big = m === 'wow' ? 1.25 : 1;
-    eyes = [-1, 1].map(s => `<ellipse cx="${s * 6 + dir}" cy="${ey}" rx="${(adult ? 1.9 : 2.3) * big}" ry="${(adult ? 2.5 : 2.9) * big}" fill="#2B1D16"/>
+    eyes = [-1, 1].map(s => `<ellipse cx="${s * 6 + dir}" cy="${ey}" rx="${(adult ? 1.9 : 2.3) * big}" ry="${(adult ? 2.5 : 2.9) * big}" fill="${c.eyeC || '#2B1D16'}"/>
         <circle cx="${s * 6 + dir + 0.7}" cy="${ey - 1 + pupY}" r="0.9" fill="#fff"/>`).join('');
   }
   const sadBrow = m === 'sad' || m === 'cry';
@@ -545,3 +560,6 @@ export function lying(x, y, who, { s = 1, mood = 'shut', blanket = '#93C5FD', le
     <path d="M${-len / 2 + 8} -18 H${len / 2 - 6}" stroke="${LINE}" stroke-width="0.6" opacity="0.35"/>
   </g>`;
 }
+
+// Bộ phận rời cho nhân vật cử động (englishStory/rig.js ghép thành "con rối": tay chân xoay quanh khớp).
+export { leg, torso, hairBack, hairFront, hat, face, bag, KID, ADULT, LINE as CAST_LINE, SKIN as CAST_SKIN };

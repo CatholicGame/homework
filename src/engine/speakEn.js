@@ -32,7 +32,7 @@ export function unlockSpeech() {
 export const canSpeakEn = () => 'speechSynthesis' in window || 'Audio' in window;
 
 let frame = null, player = null;
-function sayOnline(text) {
+function sayOnline(text, onEnd, rate = 0.8) {
   if (!frame?.isConnected) {
     frame = document.createElement('iframe');
     frame.hidden = true;
@@ -43,8 +43,8 @@ function sayOnline(text) {
   const play = () => {
     player?.remove();
     const a = frame.contentDocument.createElement('audio');
-    a.src = `https://translate.google.com/translate_tts?ie=UTF-8&tl=en-US&client=tw-ob&ttsspeed=0.8&q=${encodeURIComponent(text.slice(0, 180))}`;
-    a.onended = a.onerror = () => a.remove();
+    a.src = `https://translate.google.com/translate_tts?ie=UTF-8&tl=en-US&client=tw-ob&ttsspeed=${rate}&q=${encodeURIComponent(text.slice(0, 180))}`;
+    a.onended = a.onerror = () => { a.remove(); onEnd?.(); };
     player = a;
     frame.contentDocument.body.appendChild(a);
     a.play().catch(() => {});
@@ -73,4 +73,40 @@ export function sayEn(text) {
 export function stopEn() {
   window.speechSynthesis?.cancel();
   player?.pause(); player?.remove(); player = null;
+}
+
+/**
+ * Đọc lần lượt từng câu (bài đọc tiếng Anh): onEach(i) khi bắt đầu câu i, onEnd() khi đọc hết.
+ * rate: 0.85 thường, 0.6 chậm. Trả về hàm dừng (dừng thì không gọi onEnd).
+ */
+export function sayEnSeq(list, { rate = 0.85, onEach, onEnd } = {}) {
+  let stopped = false, i = 0;
+  stopEn();
+  if (!enVoice) pickVoice();
+  const synth = window.speechSynthesis;
+  const online = !synth || (!enVoice && !noVoiceList);
+  const next = () => {
+    if (stopped) return;
+    if (i >= list.length) { onEnd?.(); return; }
+    const k = i++;
+    const text = String(list[k] || '').replace(/[’]/g, "'").trim();
+    if (!text) { next(); return; }
+    onEach?.(k);
+    if (online) { sayOnline(text, next, rate < 0.75 ? 0.5 : 0.8); return; }
+    const u = new SpeechSynthesisUtterance(text);
+    if (enVoice) u.voice = enVoice;
+    u.lang = enVoice?.lang || 'en-US';
+    u.rate = rate;
+    u.onend = () => setTimeout(next, 250);
+    u.onerror = (e) => { if (e.error !== 'interrupted' && e.error !== 'canceled') setTimeout(next, 250); };
+    synth.resume();
+    synth.speak(u);
+  };
+  next();
+  return () => { stopped = true; stopEn(); };
+}
+
+/** Đọc một câu (chép chính tả, nghe câu hỏi) với tốc độ tuỳ chọn. */
+export function sayEnRate(text, rate = 0.85) {
+  return sayEnSeq([text], { rate });
 }

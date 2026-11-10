@@ -234,3 +234,36 @@ Chọn bản:
 - `shield-break` phải nghe "sướng", không giống kính vỡ thật; `deflect` và `dome-hit` không được giống còi báo lỗi hay tiếng nổ.
 - `space-loop` nghe chỗ nối (hết file quay lại đầu không có tiếng "cộp"), không có tiếng nào nổi lên giữa chừng làm bé tưởng có tàu tới.
 - `radar-alarm` và `ufo-near` không được giống còi xe cứu thương, báo cháy.
+
+## Truyện hoạt hình tiếng Anh (🎧 Nghe, `src/games/englishStory`)
+
+Hai lớp, để 100 truyện dùng lại được:
+
+- **Tiếng chung** `src/assets/sfx/story/common/<tên>.wav`: đặt tên theo hành động, không theo bài
+  (`door-open`, `dog-bark`, `page-turn`…). Truyện nào cũng gọi được `st.sfx('door-open')`.
+- **Tiếng riêng** `src/assets/sfx/story/<enNNN>/<tên>.wav`: chỉ khi tiếng đó không dùng lại được. Cùng tên với tiếng chung
+  thì truyện đó dùng bản riêng.
+
+Tự phát, truyện không phải gọi: `steps` khi người đi (lặp), `sparkle` / `poof` / `hearts` / `snore` theo hiệu ứng
+`fx('sparkle' | 'poof' | 'hearts' | 'zzz')` (`fx(..., { quiet: true })` để tắt). Mọi tiếng phát 0,45 × âm lượng file
+để giọng đọc rõ hơn. Truyện chỉ tải trước những tiếng nó dùng (Stage chạy nhanh một lượt để gom).
+
+**Tạo tiếng:** danh mục, prompt, độ dài và mức to nằm ở bảng `S` trong `scripts/gen-story-sfx.py`.
+Thêm dòng rồi chạy `XI_KEY=sk_... python -I scripts/gen-story-sfx.py` (chỉ tạo tiếng chưa có file; ghi tên để tạo lại).
+Bản gốc stereo lưu `docs/sfx/english-story/`. Lưu ý: ElevenLabs trả `pcm_*` là **stereo xen kẽ**, đọc như mono sẽ dài gấp đôi, trầm một quãng tám.
+
+### Đã có (bài 21)
+
+steps, snore, alarm-clock, birds, window-open, tap-water, brush-teeth, dog-bark, wardrobe-open, poof, sparkle,
+comb-hair, pot-stir, bowl-down, slurp, gulp, page-turn, car-go, bag-on, door-open, hearts.
+
+### Dự kiến (tạo khi bài đầu tiên cần, dùng đúng tên này)
+
+| Nhóm | Tên | Bài sẽ cần |
+|---|---|---|
+| Người | `run-steps` `jump` `clap` `splash-swim` `bike-bell` `ball-kick` `whistle` | 9, 12, 18, 31, 33, 51, 72 |
+| Con vật | `cat-meow` `rooster` `cow-moo` `duck-quack` `chicken` `monkey` `elephant` `lion-roar` | 3, 8, 11, 25, 35, 47 |
+| Nhà | `door-close` `knock` `phone-ring` `drawer` `pen-write` `chalk` `school-bell` `clock-tick` | 13, 23, 30, 41, 71 |
+| Bếp | `chop` `fry-sizzle` `pour` `crunch` | 7, 10, 28 |
+| Ngoài trời | `rain-loop` `thunder` `wind` `waves` `bus-go` `train` `plane` `firework` `drum` | 14, 27, 32, 36, 39, 45, 52, 65, 91 |
+| Hiệu ứng | `pop` `whoosh` `idea-ding` `oops` `cheer-crowd` `lights-off` | 46, 59, 60, 64, 72 |

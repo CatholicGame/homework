@@ -96,10 +96,12 @@ function escapeHtml(str) {
 
 export const CHALLENGE_ID = 'challenge';
 export const TIENGVIET_ID = 'tiengviet';
+export const TIENGANH_ID = 'tienganh';
 
 // Thẻ gom nhóm ở trang chủ: các thẻ có `group` = id của nhóm → trang danh sách riêng.
 const HUBS = {
   [TIENGVIET_ID]: { icon: '📚', color: '#DB2777', title: 'Tiếng Việt' },
+  [TIENGANH_ID]: { icon: '🌍', color: '#2563EB', title: 'Tiếng Anh' },
   [CHALLENGE_ID]: { icon: '🎮', color: '#E11D48', title: 'Challenge games' },
 };
 export const HUB_IDS = Object.keys(HUBS);
@@ -205,6 +207,7 @@ function balanceGrid(grid) {
     [...grid.children].forEach((c, i) => c.style.setProperty('--k', i < extra * cols ? cols : cols - 1));
     grid.style.setProperty('--art-h', `${((w - (cols - 1) * gap) / cols) * 9 / 16}px`);
     grid.classList.toggle('is-multi', cols > 1);
+    grid.classList.toggle('is-solo', n === 1 && maxCols > 1); // tab chỉ có một thẻ trên màn rộng: thẻ nằm ngang, không thành ô trống khổng lồ
   };
   grid.classList.add('is-balanced');
   new ResizeObserver(fit).observe(grid);
@@ -271,11 +274,13 @@ export function renderHome(app, navigate, { user, onSignOut, onSignIn } = {}) {
   function tabs(all) {
     const learn = all.filter(g => !g.group);
     const tv = all.filter(g => g.group === TIENGVIET_ID);
+    const en = all.filter(g => g.group === TIENGANH_ID);
     const games = all.filter(g => g.group === CHALLENGE_ID);
     const spins = getSpinStatus().spins;
     return [
       { id: 'learn', icon: '🧮', label: 'Toán', cards: learn },
       tv.length && { id: TIENGVIET_ID, icon: '📚', label: 'Tiếng Việt', cards: tv },
+      en.length && { id: TIENGANH_ID, icon: '🌍', label: 'Tiếng Anh', cards: en },
       games.length && { id: CHALLENGE_ID, icon: '🎮', label: 'Trò chơi', cards: games, live: games.some(g => g.live) },
       { id: 'stats', icon: '📊', label: 'Kết quả' },
       { id: 'rank', icon: '🏆', label: 'Xếp hạng' },

@@ -48,7 +48,21 @@ const LONG = {
   motherIn: url('mother-in.wav'),
   fireworks: url('fireworks.wav'),
 };
-const URLS = { ...SHORT, ...LONG };
+/**
+ * Tiếng cho truyện hoạt hình tiếng Anh (src/games/englishStory), thả file là dùng được:
+ *  - src/assets/sfx/story/common/<tên>.wav → 'tên': thư viện dùng chung cho mọi truyện (bước chân, cửa, chó sủa…);
+ *  - src/assets/sfx/story/<enNNN>/<tên>.wav → 'enNNN/tên': tiếng riêng của một truyện, ưu tiên hơn tiếng chung cùng tên.
+ * Danh mục + prompt ElevenLabs: docs/sfx/PROMPTS.md. Truyện chỉ tải tiếng nó dùng (Stage gom trước khi chiếu).
+ */
+const STORY = Object.fromEntries(Object.entries(import.meta.glob('../assets/sfx/story/*/*.{wav,mp3}', { eager: true, query: '?url', import: 'default' }))
+  .map(([path, href]) => {
+    const [dir, file] = path.split('/').slice(-2);
+    const name = file.replace(/\.\w+$/, '');
+    return [dir === 'common' ? name : `${dir}/${name}`, href];
+  }));
+const URLS = { ...STORY, ...SHORT, ...LONG };
+/** Tiếng này đã có file chưa (tiếng truyện chưa tạo thì bỏ qua, không phát tiếng tổng hợp thay). */
+export const hasSfx = (name) => !!URLS[name];
 
 let ctx = null;
 const raw = {};      // name → Promise<ArrayBuffer>
@@ -112,7 +126,8 @@ export function playSfx(name, { rate = 1, vol = 1 } = {}) {
 /** Như playSfx nhưng chờ file giải mã xong rồi mới phát (cho tiếng không có bản tổng hợp thay thế). */
 export function playSfxSoon(name, opts) {
   if (!audioCtx()) return Promise.resolve(false);
-  return decode(name).then(b => !!b && playSfx(name, opts));
+  // opts.ok(): hỏi lại lúc giải mã xong còn nên phát không (vd. truyện đã dừng trong lúc chờ)
+  return decode(name).then(b => !!b && (!opts?.ok || opts.ok()) && playSfx(name, opts));
 }
 
 /** Tải trước file (vd. khi mở trang vòng quay), để lần phát đầu không bị trễ. */
