@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "node dev.mjs",
     "test": "node test-show.mjs && node test.mjs && node test-arena.mjs",
-    "deploy": "npx wrangler deploy"
+    "deploy": "node deploy-safe.mjs",
+    "deploy:check": "node deploy-safe.mjs --check"
   },
   "dependencies": {
     "ws": "^8.18.0"

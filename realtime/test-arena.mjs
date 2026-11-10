@@ -5,7 +5,7 @@
  */
 import { spawn } from 'node:child_process';
 import assert from 'node:assert/strict';
-import { ARENA_PROTO, LIVE_MS, OPEN_BEFORE, SEAT_IDS, clockText, nextStart, pupilOfLook, stepAt, whenText } from '../src/dauTruong/rules.js';
+import { ARENA_PROTO, LIVE_MS, OPEN_BEFORE, SEAT_IDS, TEST_LEAD, clockText, nextStart, pupilOfLook, stepAt, whenText } from '../src/dauTruong/rules.js';
 
 // ---- lịch (hàm thuần): 19:30 giờ VN = 12:30 UTC
 const day = Date.UTC(2026, 10, 7);                                   // 7/11/2026, thứ Bảy
@@ -24,6 +24,32 @@ assert.equal(clockText(3725e3), '1:02:05');
 assert.equal(pupilOfLook('p:3'), 3);
 assert.equal(pupilOfLook('x:1,p:9'), -1);
 assert.equal(SEAT_IDS.length, 50);
+
+// ---- phòng cuốn chiếu: chương trình đang diễn không bị cắt vì quá LIVE_MS, phòng dựng lại giữa chương trình vẫn diễn tiếp
+{
+  const { Room } = await import('./room.js');
+  const now = Date.now(), M = 60e3;
+  const r = new Room('arena-g3');
+  r.created = now - 50 * M - TEST_LEAD;                                // bắt đầu 50 phút trước
+  assert.equal(r.arenaState().step, 'closed');                         // không có ảnh chụp: hết lượt như cũ
+  r.aSnapAt = now - 10e3;
+  assert.equal(r.arenaState().step, 'live');                           // máy chủ trò vừa gửi ảnh chụp: diễn tiếp
+  r.aSnapAt = now - 6 * M;
+  assert.equal(r.arenaState().step, 'closed');                         // máy chủ trò im quá ARENA_KEEP
+  r.aSnapAt = now - 10e3; r.aDone = true;
+  assert.equal(r.arenaState().step, 'closed');                         // chương trình đã báo xong ('xe')
+  r.aDone = false; r.created = now - 3 * 3600e3;
+  assert.equal(r.arenaState().step, 'closed');                         // quá ARENA_MAX
+  const created = now - 50 * M;
+  let r2 = new Room('arena-g3', { round: { created, forceAt: created + 5000, quick: 1, snapAt: now - 60e3, done: 0 } });
+  assert.equal(r2.created, created); assert.equal(r2.forceAt, created + 5000); assert.equal(r2.arenaState().step, 'live');
+  r2 = new Room('arena-g3', { round: { created, snapAt: now - 6 * M, done: 0 } });
+  assert.equal(r2.arenaState().step, 'lobby');                         // chương trình đã chết lâu: lượt mới
+  r2 = new Room('arena-g3', { round: { created, snapAt: now - 60e3, done: 1 } });
+  assert.notEqual(r2.created, created);                                // đã xong: lượt mới
+  r2 = new Room('arena-g3', { created: now - 30e3 });                  // bản cũ chỉ lưu created, còn sảnh chờ
+  assert.equal(r2.created, now - 30e3);
+}
 
 // ---- máy chủ dev (ARENA_DEMO: không theo lịch, bắt đầu 90 giây sau người đầu tiên)
 const PORT = 8798;

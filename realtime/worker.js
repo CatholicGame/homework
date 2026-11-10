@@ -23,10 +23,12 @@ export class ChurchRoom {
     // đúng lượt đang chờ. Một lời hứa chung để hai kết nối cùng lúc không dựng hai phòng.
     this.roomP ||= (async () => {
       const arena = /^arena/.test(key);
-      const created = arena ? +(await this.state.storage.get('created').catch(() => 0)) || 0 : 0;
+      // 'round' = { created, forceAt, quick, snapAt, done } (lượt đang diễn cũng giữ được); bản trước chỉ lưu 'created'
+      const round = arena ? await this.state.storage.get('round').catch(() => null) : null;
+      const created = arena && !round ? +(await this.state.storage.get('created').catch(() => 0)) || 0 : 0;
       return new Room(key, {
-        onEmpty: () => { this.room = null; this.roomP = null; }, need: this.need, created,
-        onRound: arena ? (t) => { this.state.storage.put('created', t).catch(() => {}); } : undefined,
+        onEmpty: () => { this.room = null; this.roomP = null; }, need: this.need, created, round: round && typeof round === 'object' ? round : null,
+        onRound: arena ? (r) => { this.state.storage.put('round', r).catch(() => {}); } : undefined,
       });
     })();
     const room = this.room = await this.roomP;

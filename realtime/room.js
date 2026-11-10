@@ -84,6 +84,8 @@ export const MIN_PLAYERS = 5;     // người thật (đã ngồi ghế, mỗi t
 const START_MS = 10000;           // đủ người: đếm ngược trước khi mời người đầu hàng (ai đang ở Tủ đồ kịp ra)
 const accOk = (u) => typeof u === 'string' && /^[\w-]{6,64}$/.test(u);
 const ARENA_KEEP = 5 * 60000;    // ms: Đấu Trường Nhí giữ phòng trống chừng này (người vừa ẩn tab / rớt mạng quay lại)
+const ARENA_MAX = 2 * 3600e3;     // ms: phòng cuốn chiếu, một lượt đang diễn dài nhất chừng này (chốt an toàn)
+const ARENA_SAVE = 30000;         // ms: lượt đang diễn ghi mốc ảnh chụp vào bộ nhớ Durable Object thưa nhất chừng này
 const SILENT_MS = 60000;          // ms: kết nối có gửi nhịp ['p'] mà im quá lâu (rớt mạng không báo đóng) thì bỏ, kẻo thành bóng ma giữ ghế
 const CHAT_KEEP = 20;             // lời chat gần nhất giữ cho người vào sau
 const CHAT_AGE = 10 * 60000;      // ms: lời cũ hơn thì thôi gửi lại
@@ -114,7 +116,7 @@ function bucket(rate, burst) {
 }
 
 export class Room {
-  constructor(key, { onEmpty, need = MIN_PLAYERS, start = START_MS, speed = 1, arenaDemo = false, created = 0, onRound } = {}) {
+  constructor(key, { onEmpty, need = MIN_PLAYERS, start = START_MS, speed = 1, arenaDemo = false, created = 0, round = null, onRound } = {}) {
     this.key = key;
     this.cap = capOf(key);
     this.peers = new Map();   // id → peer (đã chào)
@@ -148,11 +150,19 @@ export class Room {
     this.aFree = this.test || arenaDemo || ALWAYS_OPEN;   // ALWAYS_OPEN: mọi phòng thật cũng cuốn chiếu (rules.js)
     /* created: mốc lượt (mã lượt = hạt giống bạn ảo, đồng hồ sảnh chờ). worker.js lưu vào bộ nhớ của Durable Object (onRound) và
        đưa lại khi phòng bị dọn rồi dựng lại: bé ẩn tab / rớt mạng chốc lát lúc phòng chỉ có mình thì quay lại vẫn đúng lượt cũ,
-       không bị đếm lại từ đầu và bục bạn ảo không xếp lại. Chỉ nhận mốc còn đang ở sảnh chờ. */
-    const keep = this.aFree && created > 0 && Date.now() < created + TEST_LEAD;
+       không bị đếm lại từ đầu và bục bạn ảo không xếp lại. Nhận lượt còn ở sảnh chờ, hoặc lượt đang diễn mà máy chủ trò mới gửi
+       ảnh chụp trong ARENA_KEEP (Cloudflare dọn phòng khỏi bộ nhớ lúc bé chơi một mình ẩn tab: quay lại vẫn diễn tiếp, không bị
+       mở sảnh chờ lượt mới đè lên chương trình đang chạy). round = { created, forceAt, quick, snapAt, done } (bản cũ chỉ có created). */
+    const sv = round || { created }, now0 = Date.now();
+    const lobbyKeep = sv.created > 0 && now0 < (sv.forceAt || sv.created + TEST_LEAD);
+    const liveKeep = sv.created > 0 && sv.snapAt > 0 && !sv.done && now0 < sv.snapAt + ARENA_KEEP;
+    const keep = this.aFree && (lobbyKeep || liveKeep);
     this.onRound = onRound;
-    this.created = keep ? created : Date.now(); this.forceAt = 0; this.aT = null; this.emptyT = null;
-    if (this.arena && !keep) this.onRound?.(this.created);
+    this.created = keep ? sv.created : now0; this.forceAt = keep ? +sv.forceAt || 0 : 0; this.aQuick = keep && !!sv.quick;
+    this.aSnapAt = keep && liveKeep ? now0 : 0;   // cho máy chủ trò ARENA_KEEP để nối lại và gửi ảnh chụp
+    this.aDone = false; this.aSavedAt = 0;
+    this.aT = null; this.emptyT = null;
+    if (this.arena && !keep) this.saveRound();
   }
 
   /** Kết nối mới (chưa tính là trong phòng cho tới khi gửi 'hi'). */
@@ -258,8 +268,24 @@ export class Room {
   /** Phòng cuốn chiếu: lượt mới, sảnh chờ TEST_LEAD tính từ bây giờ. */
   newRound() {
     this.created = Date.now(); this.forceAt = 0; this.aHost = 0; this.aSnap = null; this.aQuick = false; clearTimeout(this.aEndT); this.aEndT = null;
-    this.onRound?.(this.created);
+    this.aSnapAt = 0; this.aDone = false;
+    this.saveRound();
     for (const p of this.peers.values()) p.ready = 0;   // lượt mới: ai cũng bấm "Bắt đầu" lại
+  }
+  /** Ghi lượt vào bộ nhớ Durable Object (worker.js onRound) để phòng dựng lại vẫn đúng lượt. */
+  saveRound() {
+    this.aSavedAt = Date.now();
+    this.onRound?.({ created: this.created, forceAt: this.forceAt, quick: this.aQuick ? 1 : 0, snapAt: this.aSnapAt, done: this.aDone ? 1 : 0 });
+  }
+  /**
+   * Lúc lượt hết diễn. Theo lịch: startAt + LIVE_MS. Phòng cuốn chiếu: chương trình đang chạy (máy chủ trò còn gửi ảnh chụp trong
+   * ARENA_KEEP) thì KHÔNG cắt vì quá 45 phút (Khởi động chậm thì Tăng tốc / Về đích hay rơi vào phút 45), chỉ hết khi chương trình
+   * báo xong ('xe'), không còn máy chủ trò, hoặc quá ARENA_MAX.
+   */
+  arenaLiveEnd(startAt) {
+    const end = startAt + LIVE_MS;
+    if (!this.aFree || this.aDone || !this.aSnapAt) return end;
+    return Math.min(startAt + ARENA_MAX, Math.max(end, this.aSnapAt + ARENA_KEEP));
   }
   /**
    * Máy chủ trò của lượt: chương trình (MC, đồng hồ, bạn ảo, chấm điểm) chạy trên đúng một máy, các máy khác hiện theo ảnh chụp
@@ -278,9 +304,15 @@ export class Room {
     if (p.id !== this.arenaHost()) return;   // máy không phải chủ trò (vừa mất quyền): bỏ
     if (!conn.show()) return this.flood(conn);
     const [type] = m;
-    if (type === 'xs') { if (m[1] && typeof m[1] === 'object') { this.aSnap = m[1]; this.cast(m, p.id); } }
-    else if (type === 'xf') this.cast(m, p.id);
+    if (type === 'xs') {
+      if (m[1] && typeof m[1] === 'object') {
+        this.aSnap = m[1]; this.cast(m, p.id);
+        // chương trình còn chạy: lượt chưa hết dù đã quá LIVE_MS (arenaLiveEnd); ghi mốc thưa thôi
+        if (this.arenaState().step === 'live') { this.aSnapAt = Date.now(); if (this.aSnapAt - this.aSavedAt > ARENA_SAVE) this.saveRound(); }
+      }
+    } else if (type === 'xf') this.cast(m, p.id);
     else if (type === 'xe' && this.aFree && !this.aEndT) {
+      this.aDone = true; this.saveRound();
       // chương trình đã xong: 30 giây sau (mọi người xem thẻ kết thúc) mở lượt mới cho ai còn trong phòng / vào sau
       this.aEndT = setTimeout(() => { this.aEndT = null; this.newRound(); if (this.peers.size) { this.armArena(); this.arenaCast(); } }, 30000);
     }
@@ -289,7 +321,7 @@ export class Room {
   /** { step, startAt, now, people, want, test }: want = số người thật đang ngồi và bật "Em muốn lên bục". */
   arenaState(now = Date.now()) {
     const startAt = this.arenaStart();
-    const step = this.aFree ? (now < startAt ? 'lobby' : now < startAt + LIVE_MS ? 'live' : 'closed') : stepAt(startAt, now);
+    const step = this.aFree ? (now < startAt ? 'lobby' : now < this.arenaLiveEnd(startAt) ? 'live' : 'closed') : stepAt(startAt, now);
     const want = new Set();
     for (const p of this.peers.values()) if (p.seat && p.want) want.add(p.u || `c${p.id}`);
     // test: phòng thử (nhãn "Phòng thử"); free: không theo lịch, đủ 4 bục là bắt đầu (phòng thử, máy dev, ALWAYS_OPEN)
@@ -302,7 +334,7 @@ export class Room {
   armArena() {
     clearTimeout(this.aT);
     const now = Date.now(), startAt = this.arenaStart();
-    const next = [startAt - OPEN_BEFORE, startAt, startAt + LIVE_MS].find(t => t > now);
+    const next = [startAt - OPEN_BEFORE, startAt, this.arenaLiveEnd(startAt)].find(t => t > now);
     if (next) this.aT = setTimeout(() => {
       this.aT = null;
       if (!this.peers.size) return;
@@ -326,7 +358,7 @@ export class Room {
       // cả 4 bục đã sẵn sàng (m[1] === 'ready': vào thi ngay sau 2 giây, bỏ Mở màn) / phòng thử đủ bục (5 giây). Chỉ lần đầu.
       if (!this.aFree || this.arenaState().step !== 'lobby' || this.forceAt) return true;
       this.aQuick = m[1] === 'ready';
-      this.forceAt = Date.now() + (this.aQuick ? 2000 : 5000); this.armArena(); this.arenaCast();
+      this.forceAt = Date.now() + (this.aQuick ? 2000 : 5000); this.saveRound(); this.armArena(); this.arenaCast();
     } else return false;
     return true;
   }
