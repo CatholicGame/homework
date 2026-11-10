@@ -35,11 +35,22 @@ function roomsUrl() {
 async function peopleIn(base) {
   const keys = KEYS.flatMap(k => Array.from({ length: INST_MAX }, (_, i) => (i ? `${k}~${i + 1}` : k)));
   const out = [];
-  for (let i = 0; i < keys.length; i += 20) {
-    await Promise.all(keys.slice(i, i + 20).map(async (k) => {
-      const r = await fetch(`${base}/status/${k}`, { cache: 'no-store' });
-      if (!r.ok) throw new Error(`/status/${k}: HTTP ${r.status}`);
-      const s = await r.json();
+  // hỏi 6 phòng một lúc, mỗi phòng thử lại tới 3 lần (hỏi dồn 20 cái thì thỉnh thoảng rớt kết nối: "fetch failed")
+  const status = async (k) => {
+    for (let t = 1; ; t++) {
+      try {
+        const r = await fetch(`${base}/status/${k}`, { cache: 'no-store' });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return await r.json();
+      } catch (e) {
+        if (t >= 3) throw new Error(`/status/${k}: ${e.cause?.code || e.message}`);
+        await new Promise(ok => setTimeout(ok, 500 * t));
+      }
+    }
+  };
+  for (let i = 0; i < keys.length; i += 6) {
+    await Promise.all(keys.slice(i, i + 6).map(async (k) => {
+      const s = await status(k);
       if ((s.here | 0) > 0 || (s.people | 0) > 0) out.push({ key: k, here: s.here | 0, playing: !!s.playing });
     }));
   }
