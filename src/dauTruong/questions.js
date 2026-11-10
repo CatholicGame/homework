@@ -29,13 +29,19 @@ import { scopedKey } from '../engine/auth.js';
    (máy hiện theo ghi câu nhận trong ảnh chụp). Giữ SEEN_DAYS ngày, tối đa SEEN_MAX câu mới nhất. */
 const SEEN_DAYS = 30, SEEN_MAX = 1500, SEND_MAX = 800;
 const seenKey = (grade) => scopedKey(`dautruong-seen:g${grade}`);
-/** Mã câu: đề + các phương án đã sắp xếp (abcd và sắp xếp, câu soạn tay hay câu sinh, trước hay sau khi xáo đều ra cùng mã). */
-export function qKey(q) { return `${q.q}|${[...q.o].map(String).sort().join('|')}`; }
-export function qHash(q) {
-  const t = typeof q === 'string' ? q : qKey(q);
-  let h = 5381; for (let i = 0; i < t.length; i++) h = (h * 33 + t.charCodeAt(i)) | 0;
-  return (h >>> 0).toString(36);
+const normQ = (s) => String(s).toLowerCase().normalize('NFC').replace(/[\s“”"'.,?!:;…]+/g, ' ').trim();
+/** Mã câu: đề + đáp án đúng. Hai câu cùng đề, cùng đáp án, chỉ khác phương án nhiễu (vd. "Cô-li-a" ở cả ngân hàng Khởi động
+    lẫn Về đích) là MỘT câu với bé. Câu sắp xếp: đề + các mảnh đã sắp. Dòng soạn tay (o[0] là đáp án) hay câu đã xáo (o[a])
+    đều ra cùng mã. */
+export function qKey(q) {
+  const right = (q.kind || q.k) === 'order' ? [...q.o].map(String).sort().join('|') : Number.isInteger(q.a) ? q.o[q.a] : q.o[0];
+  return `${normQ(q.q)}|=${normQ(right)}${q.fig ? `|${JSON.stringify(q.fig)}` : ''}`;   // cùng đề "Hình tiếp theo là gì?" nhưng khác hình là câu khác
 }
+/** Mã cũ (đề + mọi phương án): sổ đã gặp ghi trước bản này và máy các bạn chưa cập nhật vẫn gửi mã cũ. */
+const qKeyOld = (q) => `${q.q}|${[...q.o].map(String).sort().join('|')}`;
+const djb = (t) => { let h = 5381; for (let i = 0; i < t.length; i++) h = (h * 33 + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+export function qHash(q) { return djb(typeof q === 'string' ? q : qKey(q)); }
+const qHashOld = (q) => djb(qKeyOld(q));
 export function readSeen(grade) {
   let seen = {};
   try {
@@ -379,17 +385,25 @@ export async function loadArenaBank(grade, date = new Date()) {
   let seen = readSeen(grade);
   const others = {};
   const seenAt = (h) => Math.max(seen[h] || 0, others[h] || 0);
-  const fresh = (pool, kf) => {
-    const at = pool.map(x => [x, seenAt(qHash(kf(x)))]);
+  /* mã mới → mọi mã cũ cùng nhóm (câu cùng đề + đáp án ở các ngân hàng): bé đã gặp một biến thể theo sổ cũ thì cả nhóm tính là đã gặp */
+  const oldOf = new Map();
+  for (const x of [...hand, ...kdRows, ...ttRows, ...vdRows, ...math]) {
+    const h = qHash(x), list = oldOf.get(h) || oldOf.set(h, []).get(h);
+    list.push(qHashOld(x));
+  }
+  /** Câu chưa gặp trong `pool`; hết thì phần ba câu lâu nhất chưa gặp, hoặc [] nếu `strict` (để nguồn khác còn câu mới lấy thay). */
+  const fresh = (pool, kf, strict = false) => {
+    const at = pool.map(x => { const h = qHash(kf(x)); return [x, Math.max(seenAt(h), ...(oldOf.get(h) || [qHashOld(x)]).map(seenAt))]; });
     const f = at.filter(([, t]) => !t).map(([x]) => x);
-    if (f.length) return f;
+    if (f.length || strict) return f;
     at.sort((a, b) => a[1] - b[1]);
     return at.slice(0, Math.max(1, Math.ceil(at.length / 3))).map(([x]) => x);
   };
   function markSeen1(k) { seen = markSeen(grade, [qHash(k)]); }
-  /** Một câu chưa hỏi trong các dòng soạn tay `rows`, lọc thêm bằng `ok`; ưu tiên tuần gần đây; hết thì null. */
-  function fromRows(rows, ok = () => true, src = 'hk1') {
-    const pool = fresh(rows.filter(r => ok(r) && !used.has(rowKey(r))), rowKey);
+  /** Một câu chưa hỏi trong các dòng soạn tay `rows`, lọc thêm bằng `ok`; ưu tiên tuần gần đây; hết thì null.
+      strict: chỉ câu bé chưa gặp (hết thì null, nguồn chung lấy thay). */
+  function fromRows(rows, ok = () => true, src = 'hk1', strict = false) {
+    const pool = fresh(rows.filter(r => ok(r) && !used.has(rowKey(r))), rowKey, strict);
     if (!pool.length) return null;
     const recent = pool.filter(r => r.w > Math.min(week, HK1_WEEKS) - 5);
     const r = pick(recent.length && Math.random() < 0.5 ? recent : pool);
@@ -404,8 +418,8 @@ export async function loadArenaBank(grade, date = new Date()) {
   const used = new Set();
   const key = qKey;
   /** Một câu chưa hỏi trong `list`, ưu tiên mức khó / dễ và các tuần gần đây; hết câu thì null. */
-  function fromHand(list, hard) {
-    const pool = fresh(list.filter(q => !used.has(key(q))), key);
+  function fromHand(list, hard, strict = false) {
+    const pool = fresh(list.filter(q => !used.has(key(q))), key, strict);
     if (!pool.length) return null;
     const pref = pool.filter(q => (hard ? q.level >= 2 : q.level <= 2));
     const base = pref.length ? pref : pool;
@@ -415,20 +429,29 @@ export async function loadArenaBank(grade, date = new Date()) {
 
   function tvAbcd(hard) {
     // câu soạn tay đa dạng hơn câu sinh từ công cụ: lấy trước khi còn (lớp 1, 4, 5 chỉ có nguồn này)
-    if (H.tv.length && (!TV_DATA[grade] || Math.random() < 0.65)) { const q = fromHand(H.tv, hard); if (q) return q; }
-    for (let k = 0; k < 30; k++) {
-      const make = TV_MAKERS[pick(Object.keys(TV_MAKERS))];
-      const q = make(P, grade);
-      if (q && !used.has(key(q))) return q;
+    // mỗi nguồn trước hết chỉ lấy câu bé chưa gặp; mọi nguồn đều hết câu mới mới hỏi lại câu đã lâu
+    if (H.tv.length && (!TV_DATA[grade] || Math.random() < 0.65)) { const q = fromHand(H.tv, hard, true); if (q) return q; }
+    if (TV_DATA[grade]) {
+      let any = null;
+      for (let k = 0; k < 30; k++) {
+        const q = TV_MAKERS[pick(Object.keys(TV_MAKERS))](P, grade);
+        if (!q || used.has(key(q))) continue;
+        if (fresh([q], key, true).length) return q;
+        any = any || q;
+      }
+      if (H.tv.length) { const q = fromHand(H.tv, hard, true); if (q) return q; }
+      if (any) return any;
     }
-    return null;
+    return H.tv.length ? fromHand(H.tv, hard) : null;
   }
   function mathAbcd(hard) {
-    if (H.toan.length && Math.random() < 0.5) { const q = fromHand(H.toan, hard); if (q) return q; }
+    if (H.toan.length && Math.random() < 0.5) { const q = fromHand(H.toan, hard, true); if (q) return q; }
     let pool = math.filter(q => !used.has(key(q)));
     if (!pool.length) { used.clear(); pool = math; }
-    if (!pool.length) return null;
-    pool = fresh(pool, key);
+    if (!pool.length) return H.toan.length ? fromHand(H.toan, hard) : null;
+    const unseen = fresh(pool, key, true);
+    if (!unseen.length && H.toan.length) { const q = fromHand(H.toan, hard, true); if (q) return q; }
+    pool = unseen.length ? unseen : fresh(pool, key);
     const pref = pool.filter(q => (hard ? q.level >= 2 : q.level <= 2));
     // ưu tiên các bài gần đây hơn một chút (nửa sau của khoảng đã học) để câu không toàn bài đầu năm
     const recent = (pref.length ? pref : pool).filter(q => q.bai > mathBai / 2);
@@ -450,7 +473,8 @@ export async function loadArenaBank(grade, date = new Date()) {
     const rows = R[round] || [];
     if (rows.length && Math.random() < 0.75) {
       const want = (r) => (r.k || 'abcd') === kind && (round !== 'vd' || !pt || r.pt === pt);
-      const q = fromRows(rows, r => want(r) && r.m === m) || fromRows(rows, want);
+      // ngân hàng vòng (vd. Về đích 10 điểm Tiếng Việt chỉ vài chục câu) hết câu bé chưa gặp thì sang nguồn chung, không hỏi lại câu hôm qua
+      const q = fromRows(rows, r => want(r) && r.m === m, 'hk1', true) || fromRows(rows, want, 'hk1', true);
       if (q) return q;
     }
     return one(kind, m, hard);
@@ -469,7 +493,7 @@ export async function loadArenaBank(grade, date = new Date()) {
     /** Một câu kind / môn m (thiếu Tiếng Việt thì Toán). opts.round 'kd' | 'vd' lấy trước từ ngân hàng của vòng ấy. */
     one(kind, m, { hard = false, round = null, pt = 0 } = {}) { return round ? roundOne(kind, m, { round, pt, hard }) : one(kind, m, hard); },
     /** Câu Tăng tốc dạng `type` (seq | shape | facts | logic) từ ngân hàng tt.js; chưa có thì null (game dùng speedQ). */
-    speed(type) { return fromRows(R.tt, r => r.tt === type, 'hk1'); },
+    speed(type) { return fromRows(R.tt, r => r.tt === type, 'hk1', true); },   // hết câu mới: null, game sinh câu (speedQ)
     deck(kind, n, { hard = false } = {}) {
       return Array.from({ length: n }, (_, i) => one(kind, i % 2 === 0 ? 'toan' : 'tv', hard)).filter(Boolean);
     },
