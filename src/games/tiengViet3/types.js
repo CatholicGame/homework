@@ -453,7 +453,8 @@ const punct = {
           let cls = on ? ' is-on' : '';
           if (mode === 'show') cls += on ? (ans.includes(k) ? ' is-right' : ' is-wrong') : (ans.includes(k) ? ' is-missed' : '');
           if (mode === 'key' && on) cls += ' is-right';
-          return `<span class="tvp-w">${esc(w)}</span>${last ? '' : `<button type="button" class="tvp-gap${cls}" data-i="${i}" data-k="${k}" ${mode === 'do' ? '' : 'disabled'}>${on || cls.includes('missed') ? sign : ''}</button>`}`;
+          // chữ + chỗ trống sau nó đi liền một khối: xuống dòng không để chỗ trống trơ trọi ở đầu dòng mới
+          return `<span class="tvp-u"><span class="tvp-w">${esc(w)}</span>${last ? '' : `<button type="button" class="tvp-gap${cls}" data-i="${i}" data-k="${k}" aria-label="Chỗ sau chữ ${esc(w)}" ${mode === 'do' ? '' : 'disabled'}>${on || cls.includes('missed') ? sign : ''}</button>`}</span>`;
         }).join('')}</div>`;
       }).join('')}</div>`;
       if (mode !== 'do') return;

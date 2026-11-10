@@ -253,13 +253,19 @@
 .tvf-fill.is-wrong { color: var(--tv-red); }
 .tvf-fill.is-free { color: #4338CA; }
 
-/* điền dấu câu */
+/* điền dấu câu: chỗ trống giữa hai chữ chỉ rộng như một dấu cách (chữ đọc liền như câu thường), vùng bấm thì rộng hơn
+   (::before tràn sang hai bên, nút nằm trên chữ). Đã đặt dấu thì chỗ đó nở ra vừa dấu. */
 .tvp { display: flex; flex-direction: column; gap: 10px; }
-.tvp-item { display: flex; flex-wrap: wrap; align-items: center; row-gap: 6px; font-size: calc(1.1rem * var(--tv-z)); padding: 8px 10px; background: #F8FAFC; border-radius: 12px; }
+.tvp-item { display: flex; flex-wrap: wrap; align-items: center; row-gap: 2px; font-size: calc(1.1rem * var(--tv-z)); line-height: 1.5; padding: 8px 10px; background: #F8FAFC; border-radius: 12px; }
 .tvp-gap {
-  width: 1.2em; height: 1.8em; margin: 0 2px; border-radius: 8px; border: 2px dashed transparent; background: none;
-  cursor: pointer; font: inherit; font-weight: 900; font-size: calc(1.3rem * var(--tv-z)); color: var(--tv-blue); padding: 0;
+  position: relative; z-index: 1; flex: none;
+  width: 0.5em; height: 1.7em; margin: 0; border-radius: 8px; border: 2px dashed transparent; background: none;
+  cursor: pointer; font: inherit; font-weight: 900; color: var(--tv-blue); padding: 0;
+  transition: width .15s;
 }
+.tvp-gap::before { content: ''; position: absolute; top: 0; bottom: 0; left: -0.45em; right: -0.45em; }
+.tvp-u { display: inline-flex; align-items: center; white-space: nowrap; }
+.tvp-gap.is-on, .tvp-gap.is-right, .tvp-gap.is-wrong, .tvp-gap.is-missed { width: 1.1em; margin: 0 1px; font-size: 1.15em; }
 .tvp-gap:not(:disabled):hover { border-color: #93C5FD; background: #EFF6FF; }
 .tvp-gap.is-on { border-color: var(--tv-blue); background: #DBEAFE; }
 .tvp-gap.is-right { color: var(--tv-green); border-color: var(--tv-green); background: #DCFCE7; }
