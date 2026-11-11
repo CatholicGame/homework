@@ -295,7 +295,7 @@ export function render(app, onBack, ctx = {}) {
     el.innerHTML = `
       <p class="enr-q-text"><b>${i + 1}.</b> <span lang="en">${esc(q.q)}</span> ${sayBtn(q.q)}</p>
       ${opts ? `<div class="enr-opts">${opts.map((o, k) => `<button type="button" class="enr-opt" data-k="${k}"${o.en ? ' lang="en"' : ''}>${esc(o.label)}</button>`).join('')}</div>`
-        : `<div class="enr-input-row"><input type="text" class="enr-input" lang="en" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Viết câu trả lời bằng tiếng Anh"><button type="button" class="enr-check">Kiểm tra</button></div>`}
+        : `<div class="enr-input-row"><textarea class="enr-input" rows="1" lang="en" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Viết câu trả lời bằng tiếng Anh"></textarea><button type="button" class="enr-check">Kiểm tra</button></div>`}
       <p class="enr-fb" aria-live="polite"></p>`;
     host.appendChild(el);
     if (opts) {
@@ -318,6 +318,13 @@ export function render(app, onBack, ctx = {}) {
   function textAnswer(el, check, answerText, ok, { onWrong, aiCheck } = {}) {
     const input = el.querySelector('.enr-input'), fb = el.querySelector('.enr-fb'), btn = el.querySelector('.enr-check');
     let wrong = 0, busy = false;
+    // Ô viết nhiều dòng: câu dài tự xuống dòng, ô cao lên theo chữ (không cuộn ngang); Enter = Kiểm tra, không xuống dòng
+    const fit = () => { if (!input.offsetParent) return; input.style.height = 'auto'; input.style.height = `${input.scrollHeight + 2}px`; };
+    input.addEventListener('input', () => {
+      if (/[\r\n]/.test(input.value)) input.value = input.value.replace(/\s*[\r\n]+\s*/g, ' '); // dán cả đoạn có xuống dòng
+      fit();
+    });
+    requestAnimationFrame(fit);
     const asked = new Map(); // câu đã hỏi cô → kết quả, gõ lại y hệt thì không hỏi lại
     const run = async () => {
       if (busy || el.classList.contains('is-ok') || !input.value.trim()) return;
@@ -351,7 +358,7 @@ export function render(app, onBack, ctx = {}) {
         fb.insertAdjacentHTML('afterend', '<button type="button" class="enr-reveal">Xem đáp án</button>');
         el.querySelector('.enr-reveal').addEventListener('click', (e) => {
           e.target.remove();
-          input.value = answerText; input.readOnly = true;
+          input.value = answerText; input.readOnly = true; fit();
           el.classList.add('is-ok', 'is-revealed');
           fb.innerHTML = `Đáp án: <b lang="en">${esc(answerText)}</b>. Em đọc lại một lần cho nhớ.`;
           ok(true);
@@ -359,12 +366,12 @@ export function render(app, onBack, ctx = {}) {
       }
     };
     el.querySelector('.enr-check').addEventListener('click', run);
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); run(); } });
     // 🧹 Xoá: xoá cả câu đang viết để viết lại nhanh (đã đúng hoặc đang chờ cô chấm thì thôi)
     btn.insertAdjacentHTML('beforebegin', '<button type="button" class="enr-clear" aria-label="Xoá câu đã viết">🧹<span class="enr-clear-t"> Xoá</span></button>');
     el.querySelector('.enr-clear').addEventListener('click', () => {
       if (busy || el.classList.contains('is-ok')) return;
-      input.value = ''; fb.textContent = '';
+      input.value = ''; fb.textContent = ''; fit();
       input.focus();
     });
   }
@@ -490,7 +497,7 @@ export function render(app, onBack, ctx = {}) {
       el.className = 'enr-q';
       el.innerHTML = `
         <p class="enr-q-text"><b>${i + 1}.</b> Trả lời: <span lang="en" class="enr-given">${esc(m.answer)}</span> ${sayBtn(m.answer)}</p>
-        <div class="enr-input-row"><input type="text" class="enr-input" lang="en" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Câu hỏi của em…"><button type="button" class="enr-check">Kiểm tra</button></div>
+        <div class="enr-input-row"><textarea class="enr-input" rows="1" lang="en" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Câu hỏi của em…"></textarea><button type="button" class="enr-check">Kiểm tra</button></div>
         <button type="button" class="enr-hint">💡 Gợi ý</button>
         <p class="enr-fb" aria-live="polite"></p>`;
       box.appendChild(el);
@@ -662,7 +669,7 @@ export function render(app, onBack, ctx = {}) {
       el.className = 'enr-q';
       el.innerHTML = `
         <p class="enr-q-text"><b>${i + 1}.</b> <button type="button" class="enr-listen">🔊 Nghe</button> <button type="button" class="enr-listen slow">🐢 Chậm</button></p>
-        <div class="enr-input-row"><input type="text" class="enr-input" lang="en" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Chép câu em nghe được"><button type="button" class="enr-check">Kiểm tra</button></div>
+        <div class="enr-input-row"><textarea class="enr-input" rows="1" lang="en" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Chép câu em nghe được"></textarea><button type="button" class="enr-check">Kiểm tra</button></div>
         <p class="enr-fb" aria-live="polite"></p>`;
       dict.appendChild(el);
       el.querySelectorAll('.enr-listen').forEach((b) => b.addEventListener('click', () => {
@@ -739,7 +746,7 @@ export function render(app, onBack, ctx = {}) {
       el.innerHTML = `
         <p class="enr-q-text"><b>${i + 1}.</b> ${esc(r.instructionVi)}</p>
         <p class="enr-prompt" lang="en">${esc(r.prompt)}</p>
-        <div class="enr-input-row"><input type="text" class="enr-input" lang="en" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Viết lại câu"><button type="button" class="enr-check">Kiểm tra</button></div>
+        <div class="enr-input-row"><textarea class="enr-input" rows="1" lang="en" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Viết lại câu"></textarea><button type="button" class="enr-check">Kiểm tra</button></div>
         <p class="enr-fb" aria-live="polite"></p>`;
       rw.appendChild(el);
       textAnswer(el, (v) => matches(v, [r.answer, ...(r.accept || [])]), r.answer, ok, {

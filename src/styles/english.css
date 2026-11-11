@@ -106,6 +106,8 @@
   flex: 1; min-width: 0; font: inherit; font-size: 1.12rem; padding: 10px 12px; min-height: 48px; box-sizing: border-box;
   border: 1px solid #CBD5E1; border-radius: 12px; background: #fff; color: var(--en-ink);
 }
+.enr-input { display: block; resize: none; overflow: hidden; line-height: 1.4; overflow-wrap: anywhere; }
+.enr-input-row { align-items: flex-start; }
 .enr-input:focus { outline: 2px solid #93C5FD; border-color: var(--en-blue); }
 .enr-q.is-ok .enr-input { border-color: var(--en-ok); background: var(--en-ok-soft); }
 .enr-q.is-ok .enr-check { background: var(--en-ok); }
@@ -166,7 +168,8 @@
 .enr-shake { animation: enr-shake .35s; }
 @keyframes enr-shake { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 @media (prefers-reduced-motion: reduce) { .enr-shake { animation: none; outline: 2px solid #FCA5A5; } }
-@media (max-width: 480px) { .enr-input-row .enr-clear-t { display: none; } }
+/* điện thoại: ô viết rộng hết dòng, nút Xoá + Kiểm tra xuống dưới bên phải */
+@media (max-width: 520px) { .enr-input-row { flex-wrap: wrap; justify-content: flex-end; } .enr-input-row .enr-input { flex-basis: 100%; } }
 
 /* 🎤 Nói */
 .enr-sp-kind { margin: 0 0 4px; font-size: .85rem; font-weight: 800; color: var(--en-sub); }
