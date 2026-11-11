@@ -47,6 +47,14 @@ function frame(stage, m, api, main, pad, cls = '') {
   fitMain(d.paper.querySelector('.tt-main'));
   const zone = d.scene.querySelector('.g3d-padzone');
   zone.innerHTML = `<div class="tt-pad">${pad}</div>`;
+  // màn dọc: thẻ kết quả (con của tờ đề) hạ xuống phủ vùng nút; đo khoảng cách + cao vùng nút cho CSS
+  const boardEl = d.scene.querySelector('.g3d-board');
+  const measurePad = () => {
+    d.scene.style.setProperty('--tt-padgap', `${Math.max(0, zone.offsetTop - boardEl.offsetTop - boardEl.offsetHeight)}px`);
+    d.scene.style.setProperty('--tt-padh', `${zone.offsetHeight}px`);
+  };
+  measurePad();
+  new ResizeObserver(measurePad).observe(zone);
   const f = {
     ...d, pad: zone.querySelector('.tt-pad'), paper: d.paper, mistakes: 0, tip: '',
     /** Thầy nêu đề; dòng đề đã bỏ khỏi tờ vở thì bong bóng hiện nguyên đề (giữ chữ tô màu). */
@@ -381,6 +389,22 @@ function injectStyles() {
     .tt-scene .g3d-board > .g3g-result-ok { width: auto; min-width: min(260px, 40%); padding: 0.55rem; background: transparent; border-color: transparent; box-shadow: none; }
     .tt-scene .g3d-board > .g3g-result-ok .g3g-result-text { display: none; }
     .tt-scene .g3d-board > .g3g-result-ok .g3g-btn { padding-inline: 1.6em; box-shadow: 0 5px 0 #15803D, 0 10px 22px rgba(21,128,61,0.3); }
+    /* màn dọc / điện thoại ngang / đề rộng (đoạn văn): thẻ ở góc sẽ che chữ và cắt nút: thẻ "sai" nằm rộng hết bề ngang,
+       phủ vùng nút (đã xong việc) ngay dưới tờ đề */
+    .tt-scene.tt-wide .g3d-board > .g3g-result:not(.g3g-result-ok) { top: calc(100% + var(--tt-padgap, 0.8rem)); bottom: auto; left: 0; right: 0; width: auto;
+      max-height: var(--tt-padh, 40vh); box-sizing: border-box; transform-origin: 50% 0; }
+    @media (orientation: portrait), (orientation: landscape) and (max-height: 500px) {
+      .tt-scene .g3d-board > .g3g-result:not(.g3g-result-ok) { top: calc(100% + var(--tt-padgap, 0.8rem)); bottom: auto; left: 0; right: 0; width: auto;
+        max-height: var(--tt-padh, 40vh); box-sizing: border-box; transform-origin: 50% 0; }
+    }
+    /* điện thoại ngang: vùng nút thấp, thẻ chia hai cột (lời + gợi ý | nút) cho vừa */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .tt-scene .g3d-board > .g3g-result:not(.g3g-result-ok) { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.3rem 0.8rem; padding: 0.45rem 0.7rem; }
+      .tt-scene .g3d-board > .g3g-result:not(.g3g-result-ok) > :not(.g3g-btn) { grid-column: 1; margin: 0; }
+      .tt-scene .g3d-board > .g3g-result:not(.g3g-result-ok) > .g3g-btn { grid-column: 2; grid-row: 1 / span 2; margin: 0; }
+      .tt-scene .g3d-board > .g3g-result:not(.g3g-result-ok) .g3g-result-text { font-size: 1rem; }
+      .tt-scene .g3d-board > .g3g-result:not(.g3g-result-ok) .g3g-tip { font-size: 0.9rem; padding: 0.3rem 0.6rem; }
+    }
     /* điện thoại ngang: tờ đề thấp, nút lên bên phải hàng thầy (bong bóng lúc đó chỉ có câu khen ngắn) */
     @media (orientation: landscape) and (max-height: 500px) {
       .tt-scene .g3d-board > .g3g-result { right: 0.4rem; bottom: 0.4rem; }
