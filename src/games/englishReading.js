@@ -18,7 +18,7 @@ import { renderGlossText } from '../engine/readingGloss.js';
 // Ảnh bìa thẻ bài: một khung của truyện hoạt hình (scripts/story-thumbs.mjs → src/assets/english-thumbs/en-NNN.jpg)
 const THUMBS = Object.fromEntries(Object.entries(import.meta.glob('../assets/english-thumbs/*.jpg', { eager: true, query: '?url', import: 'default' }))
   .map(([p, url]) => [p.match(/(en-\d{3})\.jpg$/)[1], url]));
-import { sayEn, sayEnSeq, stopEn, unlockSpeech, prefetchEn } from '../engine/speakEn.js';
+import { sayEn, sayEnSeq, stopEn, unlockSpeech, prefetchEn, setEnVoice, enVoiceOfLesson } from '../engine/speakEn.js';
 import { scopedKey } from '../engine/auth.js';
 import { awardFixedStars } from '../engine/stars.js';
 import { getProfileGrade } from '../engine/profile.js';
@@ -108,7 +108,7 @@ export function render(app, onBack, ctx = {}) {
   // ctx.open = { lesson: 'en-021', part: 'answer' }: mở thẳng một bài (scripts/english-reading-dev.html?app=1)
   const start = ctx.open?.lesson && LESSONS.find((L) => L.id === ctx.open.lesson);
   if (start) { level = start.level; showLesson(start, ctx.open.part); } else showList();
-  return cleanup;
+  return () => { cleanup(); setEnVoice(); }; // rời trang: giọng mặc định cho chỗ khác
 
   function frame({ back, backLabel, title, right = '', sub = '' }, body) {
     cleanup();
@@ -161,6 +161,7 @@ export function render(app, onBack, ctx = {}) {
      câu đã chọn, chữ đã gõ, từ đã xếp vẫn còn nguyên. Rời bài (về danh sách, sang bài khác) mới bỏ. */
   async function showLesson(L, partId) {
     if (lessonView?.L === L) { lessonView.show(partId); return; }
+    setEnVoice(enVoiceOfLesson(L.no)); // bài lẻ giọng nữ, bài chẵn giọng nam (mọi lời đọc trong bài, cả truyện và bấm từ)
     const gloss = await loadGloss(L).catch(() => ({ words: {}, phrases: {} }));
     // Giọng Azure: tải trước mọi câu sẽ đọc trong bài (hàng đợi 4 file, câu trước): bài đọc (nghe, truyện), câu hỏi, từ vựng +
     // câu ví dụ, ví dụ ngữ pháp, câu trả lời cho sẵn, chép chính tả, đáp án sắp xếp từ; rồi tới từ lẻ (từ vựng, từ trong bài).

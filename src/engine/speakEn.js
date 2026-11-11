@@ -1,5 +1,6 @@
 /**
- * Đọc tiếng Anh: giọng Azure en-US-JennyNeural (DT_VOICES.enUS) cho MỌI lời tiếng Anh: bài Đọc tiếng Anh, truyện hoạt hình,
+ * Đọc tiếng Anh: giọng Azure (DT_VOICES) cho MỌI lời tiếng Anh. Bài Đọc tiếng Anh số lẻ: nữ Emma (enEmma), số chẵn: nam Andrew
+ * (enAndrew), englishReading.js gọi setEnVoice khi mở bài; chỗ khác: Emma. Nội dung: bài Đọc tiếng Anh, truyện hoạt hình,
  * chép chính tả, bấm từ (readingGloss.js), bong bóng từ vựng (wordHint.js). Mp3 từng câu / từng từ chỉ tạo một lần, lưu R2
  * (api/tts.js, dauTruong/mcVoice.js cloudVoiceUrl); câu sắp đọc tải trước bằng prefetchEn().
  * Azure / R2 không dùng được (chưa đặt key, hết hạn mức, admin tắt, mất mạng): giọng Anh–Mỹ của máy; máy liệt kê giọng mà
@@ -7,7 +8,12 @@
  */
 import { cloudVoiceUrl, cloudVoiceReady, cloudVoicePlayer, cloudVoiceOff } from '../dauTruong/mcVoice.js';
 
-const EN_VOICE = 'enUS';
+export const EN_DEFAULT = 'enEmma';
+let EN_VOICE = EN_DEFAULT;
+/** Đổi giọng Azure cho các lần đọc sau (tên trong DT_VOICES). */
+export function setEnVoice(v) { EN_VOICE = v || EN_DEFAULT; }
+/** Giọng của một bài Đọc tiếng Anh: bài lẻ nữ, bài chẵn nam. */
+export const enVoiceOfLesson = (no) => (no % 2 ? 'enEmma' : 'enAndrew');
 
 let enVoice = null;
 let noVoiceList = true;
@@ -51,14 +57,16 @@ const hi = [], lo = [];
 let active = 0;
 function pump() {
   while (active < PRE_MAX && (hi.length || lo.length) && cloudVoiceReady()) {
-    const t = hi.length ? hi.shift() : lo.shift();
+    const item = hi.length ? hi.shift() : lo.shift();
+    const at = item.indexOf('|');
     active++;
-    cloudVoiceUrl(t, EN_VOICE).catch(() => {}).finally(() => { active--; pump(); });
+    cloudVoiceUrl(item.slice(at + 1), item.slice(0, at)).catch(() => {}).finally(() => { active--; pump(); });
   }
 }
 export function prefetchEn(list, { low = false, now = false } = {}) {
   if (!cloudVoiceReady()) return;
-  const items = (Array.isArray(list) ? list : [list]).map(clean).filter(Boolean);
+  // mỗi mục nhớ cả giọng: 'giọng|câu' (đổi bài lẻ / chẵn giữa chừng thì câu đang chờ vẫn tải đúng giọng)
+  const items = (Array.isArray(list) ? list : [list]).map(clean).filter(Boolean).map((t) => `${EN_VOICE}|${t}`);
   if (now) {
     // đang chờ trong hàng thì kéo lên đầu; đã tải / đang tải thì thôi
     const pull = items.filter((t) => { const i = hi.indexOf(t), j = lo.indexOf(t); if (i >= 0) hi.splice(i, 1); if (j >= 0) lo.splice(j, 1); return i >= 0 || j >= 0 || !queued.has(t); });
@@ -92,7 +100,7 @@ function playCloud(text, rate, onEnd, onFail) {
     if (!mine()) return;
     const a = cloudVoicePlayer();
     try { window.speechSynthesis?.cancel(); } catch { /* bỏ qua */ }
-    const pb = rate < 0.75 ? 0.72 : 0.92; // Jenny đọc nhanh hơn giọng máy: thường hơi chậm lại, 🐢 chậm rõ
+    const pb = rate < 0.75 ? 0.75 : 1; // thường: đúng tốc độ gốc của Azure (kéo chậm làm giọng méo); 🐢 chậm rõ
     a.onended = end;
     a.onerror = fail;
     a.src = url;

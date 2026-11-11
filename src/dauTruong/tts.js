@@ -12,7 +12,9 @@ export const R2_DIR = 'homework/dautruong';
 export const TTS_VER = 'v1';
 /** Giọng của từng MC: anh Minh (mc 0) NamMinh, chị Mai (mc 1) HoaiMy. enUS: mọi lời tiếng Anh (engine/speakEn.js: Đọc tiếng Anh,
  *  truyện hoạt hình, bấm từ). Danh sách này cũng là danh sách giọng api/tts.js cho phép. */
-export const DT_VOICES = { namMinh: 'vi-VN-NamMinhNeural', hoaiMy: 'vi-VN-HoaiMyNeural', enUS: 'en-US-JennyNeural' };
+export const DT_VOICES = { namMinh: 'vi-VN-NamMinhNeural', hoaiMy: 'vi-VN-HoaiMyNeural', enUS: 'en-US-JennyNeural',
+  // Đọc tiếng Anh (src/engine/speakEn.js): bài lẻ giọng nữ Emma, bài chẵn giọng nam Andrew; chỗ khác Emma. Mỗi giọng một thư mục mp3.
+  enEmma: 'en-US-EmmaMultilingualNeural', enAndrew: 'en-US-AndrewMultilingualNeural' };
 export const MC_VOICE_OF = ['namMinh', 'hoaiMy'];
 /** Câu dài nhất một lần đọc (ký tự). Câu hỏi Tiếng Việt dài nhất trong ngân hàng ~250. */
 export const TTS_MAX = 400;
