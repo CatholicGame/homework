@@ -36,7 +36,7 @@ Bé lớn dần cùng nhân vật: cấp 1–2 Minh 8 tuổi, cấp 4–5 Minh �
 Từ vựng: mỗi bài 6–8 từ mới, ưu tiên từ trong danh sách Cambridge YLE (Starters → Movers → Flyers) và KET cho cấp 5.
 Từ mới chỉ được dùng nếu đã học ở bài trước hoặc nằm trong danh sách từ mới của bài này (cấp 1–2 làm chặt, cấp 3–5 nới).
 
-## 3. Cấu trúc một bài (7 phần)
+## 3. Cấu trúc một bài (8 phần)
 
 | # | Phần | Bé làm gì | Dữ liệu |
 |---|---|---|---|
@@ -46,7 +46,8 @@ Từ mới chỉ được dùng nếu đã học ở bài trước hoặc nằm 
 | 4 | 📐 **Ngữ pháp** | đọc giải thích ngắn bằng tiếng Việt, xem mẫu câu, các câu trong bài có điểm ngữ pháp được tô màu | `grammar` |
 | 5 | ❓ **Trả lời câu hỏi** | 5 câu: chọn đáp án, Đúng/Sai, trả lời ngắn | `questions[]` |
 | 6 | 🙋 **Đặt câu hỏi** | cho câu trả lời, bé viết câu hỏi (có gợi ý từ để hỏi) | `makeQuestion[]` |
-| 7 | ✍️ **Viết** | nghe – chép chính tả 3 câu trong bài; sắp xếp từ thành câu; viết lại câu theo ngữ pháp | `dictation[]`, `reorder[]`, `rewrite[]` |
+| 7 | 🎤 **Nói** | bấm mic, nói câu trả lời; máy nghe ra chữ và chấm theo từ khoá (§9) | `speak/level<n>.js` |
+| 8 | ✍️ **Viết** | nghe – chép chính tả 3 câu trong bài; sắp xếp từ thành câu; viết lại câu theo ngữ pháp | `dictation[]`, `reorder[]`, `rewrite[]` |
 
 Chấm điểm (khi làm app): so khớp không phân biệt hoa thường, bỏ dấu câu thừa, chấp nhận dạng rút gọn
 (`he's` = `he is`, `don't` = `do not`); mỗi câu có thể có nhiều đáp án đúng (`accept`).
@@ -286,3 +287,14 @@ Kỹ thuật (để mượt, không giật):
    - Chữ trên người / đồ cầm: class `es-unflip` để không bị lật khi quay trái. Kit: `thought()` bong bóng nghĩ, `speaker()` nhãn người nói, `night()` lớp đêm (hiện bằng class của truyện).
 4. Xem thử: `scripts/english-reading-dev.html?app=1&id=en-021&part=listen&beat=4`. Chụp soát: `node scripts/story-shot.mjs en-021` (mỗi câu một ảnh, báo câu ↔ nhịp lệch, lỗi trang), `… en-021 4 1500` (giữa chuyển động), `--portrait`.
 5. Ảnh bìa thẻ bài: `node scripts/story-thumbs.mjs en-0NN` chụp khung giữa truyện (đổi câu trong bảng `BEAT` nếu khung giữa không đẹp) → `src/assets/english-thumbs/en-0NN.jpg`, thẻ trong danh sách tự hiện ảnh.
+
+## 9. Phần 🎤 Nói
+
+Bé tự nói về bài đọc. Mỗi bài 5 câu, theo thứ tự: 2 câu **📖 Về bài đọc** (`text`), 2 câu **🙂 Về em** (`me`, có khung câu `frame`), 1 câu **🗣️ Kể lại** (`retell`, có từ gợi ý `hints`).
+
+- Dữ liệu: `src/data/englishReading/speak/level1–5.js` = `{ 'en-001': [ { kind, q, vi, model, need, frame?, hints?, min?, minWords? } ] }`, tải bằng `loadSpeak(L)`.
+- Nghe giọng: `src/engine/listenEn.js`. Có nhận dạng giọng nói (Chrome, Edge, Safari) thì `listenEn()` (en-US, 3 cách nghe; kể lại thì nghe nối nhiều đoạn tới khi bé bấm ⏹). Không có thì `recordEn()` ghi âm để bé nghe lại giọng mình và so với câu mẫu.
+- Chấm: `speakCheck()` trong `src/games/englishCheck.js`. `need` = nhóm từ khoá (`'a|b'` = a hoặc b), `min` = số nhóm phải có (mặc định đủ cả), `minWords` (mặc định text 2, me 3, retell 8). Chữ nghe được qua `norm()` (rút gọn, số thành chữ tới 99), thêm I'd = I would, bỏ 's sở hữu. Từ khoá chỉ dùng từ máy nghe chắc (không bắt tên Việt, địa danh), có cả cách viết Mỹ (mom, color, math).
+- Sai: nhắc theo loại câu (nói cả câu / xem lại bài / nói theo khung / thêm từ gợi ý). Sai 2 lần thì hiện câu mẫu và nút "Bỏ qua câu này" (tính như xem đáp án). Đúng thì hiện câu mẫu để so.
+- Kiểm tra dữ liệu: `node scripts/check-english-speak.mjs [cấp]` (đủ trường, đúng thứ tự, câu mẫu tự qua chấm, không "—" / "nhé").
+- Xem thử: `scripts/english-reading-dev.html?app=1&id=en-021&part=speak`.

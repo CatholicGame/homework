@@ -2,17 +2,18 @@
  * 📖 Đọc tiếng Anh (thẻ english-reading, tab 🌍 Tiếng Anh ở trang chủ, lớp 1–5).
  * 100 bài, 5 cấp (src/data/englishReading, thiết kế docs/tieng-anh/thiet-ke-bai-doc.md).
  *
- * Danh sách: tab Cấp 1–5 (mở sẵn cấp hợp với lớp trong hồ sơ hoặc cấp lần trước), mỗi bài một thẻ có 7 chấm tiến độ.
- * Một bài: 7 phần (tab trên đầu, nút "Phần tiếp" góc dưới phải):
+ * Danh sách: tab Cấp 1–5 (mở sẵn cấp hợp với lớp trong hồ sơ hoặc cấp lần trước), mỗi bài một thẻ có 8 chấm tiến độ.
+ * Một bài: 8 phần (tab trên đầu, nút "Phần tiếp" góc dưới phải):
  *   🎧 Nghe   máy đọc cả bài (tô câu đang đọc, chữ mờ tới khi bấm Hiện chữ), 2 câu hỏi nghe
  *   📖 Đọc    chạm từ → IPA, nghĩa theo ngữ cảnh, đọc to (engine/readingGloss.js)
  *   📚 Từ vựng thẻ từ + chọn nghĩa đúng      📐 Ngữ pháp  giải thích, công thức, câu mẫu
- *   ❓ Trả lời 5 câu    🙋 Đặt câu hỏi    ✍️ Viết  chép chính tả, sắp xếp từ, viết lại câu
+ *   ❓ Trả lời 5 câu    🙋 Đặt câu hỏi    🎤 Nói  bé tự nói về bài và về mình (speak/level<n>.js, engine/listenEn.js)
+ *   ✍️ Viết  chép chính tả, sắp xếp từ, viết lại câu
  * Làm xong một phần (mọi câu đúng) thì được sao một lần: khoá enread<lớp>:<bài>:<phần> (BOOK_GRADE trong engine/stars.js).
  * Tiến độ: localStorage scopedKey('enread-v1') = { level, lessons: { [id]: { [phần]: 1 } } } (đồng bộ cloudSync.js).
  */
 import '../styles/english.css';
-import { LEVELS, LESSONS, loadGloss } from '../data/englishReading/index.js';
+import { LEVELS, LESSONS, loadGloss, loadSpeak } from '../data/englishReading/index.js';
 import { renderGlossText } from '../engine/readingGloss.js';
 // Ảnh bìa thẻ bài: một khung của truyện hoạt hình (scripts/story-thumbs.mjs → src/assets/english-thumbs/en-NNN.jpg)
 const THUMBS = Object.fromEntries(Object.entries(import.meta.glob('../assets/english-thumbs/*.jpg', { eager: true, query: '?url', import: 'default' }))
@@ -23,6 +24,8 @@ import { awardFixedStars } from '../engine/stars.js';
 import { getProfileGrade } from '../engine/profile.js';
 import { STORIES, loadPlayer } from './englishStory/index.js';
 import { requestEnglishCheck } from '../engine/writing.js';
+import { canRecognize, canRecord, listenEn, recordEn } from '../engine/listenEn.js';
+import { norm, speakCheck } from './englishCheck.js';
 
 const STORE = 'enread-v1';
 const PARTS = [
@@ -32,6 +35,7 @@ const PARTS = [
   { id: 'grammar', icon: '📐', name: 'Ngữ pháp', stars: 0 },
   { id: 'answer', icon: '❓', name: 'Trả lời', stars: 2 },
   { id: 'ask', icon: '🙋', name: 'Đặt câu hỏi', stars: 2 },
+  { id: 'speak', icon: '🎤', name: 'Nói', stars: 2 },
   { id: 'write', icon: '✍️', name: 'Viết', stars: 3 },
 ];
 const LEVEL_FOR = { 1: 'hợp với lớp 1–3', 2: 'hợp với lớp 3–4', 3: 'hợp với lớp 4–5', 4: 'hợp với lớp 5–6', 5: 'hợp với lớp 6 trở lên' };
@@ -48,18 +52,6 @@ function saveStore(s) {
   window.dispatchEvent(new CustomEvent('tth:data-changed'));
 }
 
-// ── So khớp câu trả lời ─────────────────────────────────────────────────────
-const NUM = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
-const IS_SHORT = /\b(it|he|she|that|what|where|who|there|here|how|when|why|this)'s\b/g;
-/** Câu trả lời / câu hỏi: không phân biệt hoa thường, bỏ dấu câu, mở dạng rút gọn (don't = do not), số 8 = eight. */
-function norm(s) {
-  return ` ${String(s || '').toLowerCase().replace(/[’‘`]/g, "'")} `
-    .replace(/\bcan't\b/g, 'can not').replace(/\bcannot\b/g, 'can not').replace(/\bwon't\b/g, 'will not').replace(/\bshan't\b/g, 'shall not')
-    .replace(/n't\b/g, ' not').replace(/'re\b/g, ' are').replace(/\bi'm\b/g, 'i am').replace(/'ll\b/g, ' will').replace(/'ve\b/g, ' have')
-    .replace(IS_SHORT, '$1 is').replace(/\blet's\b/g, 'let us')
-    .replace(/\b(\d{1,2})\b/g, (m, d) => NUM[Number(d)] || m)
-    .replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
-}
 /** Chữ nào của got khớp với want theo dãy con chung dài nhất (lệch một chữ không làm cả câu bị tô). */
 function lcsHits(got, want) {
   const n = got.length, m = want.length;
@@ -82,6 +74,15 @@ async function askTeacherEn(kind, task, model, text) {
 }
 const matches = (input, answers) => answers.filter(Boolean).some((a) => norm(a) === norm(input));
 
+// ── 🎤 Nói ──
+const PRAISE = ['Giỏi quá!', 'Hay lắm!', 'Em nói rất tốt!', 'Đúng rồi!'];
+const MIC_ERR = {
+  'not-allowed': 'Máy chưa cho dùng micro. Nhờ bố mẹ bật quyền micro cho trang này.',
+  'service-not-allowed': 'Máy chưa cho dùng micro. Nhờ bố mẹ bật quyền micro cho trang này.',
+  'audio-capture': 'Không tìm thấy micro. Nhờ bố mẹ kiểm tra micro.',
+  'no-speech': 'Cô chưa nghe thấy gì. Em nói to và rõ hơn.',
+  network: 'Mạng yếu nên máy chưa nghe được. Em thử lại.',
+};
 export function render(app, onBack, ctx = {}) {
   app.setAttribute('data-no-i18n', ''); // trang học tiếng Anh: không dịch giao diện
   let store = loadStore();
@@ -145,7 +146,7 @@ export function render(app, onBack, ctx = {}) {
       </button>`;
     }).join('');
     const body = frame({ back: () => { cleanup(); onBack(); }, backLabel: '← Trang chủ', title: '📖 Đọc tiếng Anh', sub: tabs },
-      `<p class="enr-lvinfo">Cấp ${lv.level} · ${esc(lv.cefr)} · ${LEVEL_FOR[lv.level]}. Mỗi bài có 7 phần: nghe, đọc, từ vựng, ngữ pháp, trả lời, đặt câu hỏi, viết.</p>
+      `<p class="enr-lvinfo">Cấp ${lv.level} · ${esc(lv.cefr)} · ${LEVEL_FOR[lv.level]}. Mỗi bài có 8 phần: nghe, đọc, từ vựng, ngữ pháp, trả lời, đặt câu hỏi, nói, viết.</p>
        <div class="enr-grid">${cards}</div>`);
     app.querySelectorAll('.enr-level').forEach((b) => b.addEventListener('click', () => {
       level = Number(b.dataset.lv);
@@ -207,7 +208,7 @@ export function render(app, onBack, ctx = {}) {
         nav.classList.add('is-ready');
       };
       paneHide = pane.hide;
-      ({ listen, read, vocab, grammar, answer, ask, write })[p.id](el, L, gloss, done);
+      ({ listen, read, vocab, grammar, answer, ask, speak, write })[p.id](el, L, gloss, done);
       paneHide = null;
       el.appendChild(nav);
       return pane;
@@ -499,6 +500,145 @@ export function render(app, onBack, ctx = {}) {
         aiCheck: (v) => (/\?\s*$/.test(v) ? askTeacherEn('ask', m.answer, m.question, v) : Promise.resolve(null)),
       });
     });
+  }
+
+  // ── 🎤 Nói: bé bấm mic, nói câu trả lời; máy nghe ra chữ, chấm theo nhóm từ khoá (speakCheck) ──
+  function speak(body, L, gloss, done) {
+    head(body, '🎤 Nói');
+    const host = document.createElement('div');
+    body.appendChild(host);
+    let stopNow = null, active = null; // chỉ một mic chạy một lúc
+    const halt = () => { const s = stopNow; stopNow = null; active = null; s?.(); };
+    paneHide?.push(halt);
+    disposers.push(halt);
+    const hidePane = paneHide;
+    loadSpeak(L).then((items) => {
+      if (!host.isConnected) return;
+      if (!items.length) { host.innerHTML = '<p class="enr-help">Bài này chưa có phần nói.</p>'; return; }
+      prefetchEn([...items.map((p) => p.q), ...items.map((p) => p.model)]);
+      const mode = canRecognize() ? 'sr' : canRecord() ? 'rec' : 'none';
+      host.innerHTML = `<p class="enr-help">${mode === 'sr' ? 'Bấm 🎤 rồi nói câu trả lời bằng tiếng Anh. Câu ngắn nói xong máy tự dừng, kể lại thì bấm ⏹ khi kể xong.'
+        : mode === 'rec' ? 'Máy này chưa nghe ra chữ được. Bấm 🎤 để ghi âm, nghe lại giọng em rồi so với câu mẫu.'
+          : 'Em nói to câu trả lời, rồi bấm 🔊 nghe câu mẫu để so.'}</p>`;
+      paneHide = hidePane; // textBlock dừng đọc khi rời phần
+      textBlock(host, L, gloss, { hidden: true });
+      paneHide = null;
+      const box = document.createElement('section');
+      box.className = 'enr-card-box enr-speak';
+      host.appendChild(box);
+      bindSay(box);
+      box.addEventListener('click', (e) => { if (e.target.closest('.enr-say')) halt(); }); // máy đọc thì mic thôi nghe
+      const ok = group(box, items.length, done);
+      items.forEach((p, i) => speakItem(box, p, i, ok, mode));
+    });
+
+    function speakItem(box, p, i, ok, mode) {
+      const KIND = { text: '📖 Về bài đọc', me: '🙂 Về em', retell: '🗣️ Kể lại' };
+      const tip = p.kind === 'retell' && p.hints?.length ? `Từ gợi ý: ${p.hints.map((h) => `<b lang="en">${esc(h)}</b>`).join(', ')}`
+        : p.frame ? `Bắt đầu bằng: <b lang="en">${esc(p.frame)}</b>` : '';
+      const el = document.createElement('div');
+      el.className = 'enr-q enr-sp';
+      el.innerHTML = `
+        <p class="enr-sp-kind">${KIND[p.kind] || ''}</p>
+        <p class="enr-q-text"><b>${i + 1}.</b> <span lang="en">${esc(p.q)}</span> ${sayBtn(p.q)}</p>
+        <p class="enr-sp-vi">${esc(p.vi)}</p>
+        ${p.kind === 'retell' ? `<p class="enr-hint-text">${tip}</p>` : tip ? '<button type="button" class="enr-hint">💡 Gợi ý</button>' : ''}
+        <div class="enr-sp-row"><button type="button" class="enr-mic">🎤 Bấm để nói</button></div>
+        <p class="enr-sp-heard" aria-live="polite"></p>
+        <p class="enr-fb" aria-live="polite"></p>
+        <p class="enr-sp-model" hidden>Câu mẫu: <span lang="en">${esc(p.model)}</span> ${sayBtn(p.model)}</p>`;
+      box.appendChild(el);
+      el.querySelector('.enr-hint')?.addEventListener('click', (e) => { e.target.outerHTML = `<p class="enr-hint-text">${tip}</p>`; });
+      const mic = el.querySelector('.enr-mic'), heard = el.querySelector('.enr-sp-heard'), fb = el.querySelector('.enr-fb');
+      const model = el.querySelector('.enr-sp-model');
+      let tries = 0, counted = false;
+      const pass = (revealed) => {
+        el.classList.add('is-ok');
+        model.hidden = false;
+        if (!counted) { counted = true; ok(revealed); }
+      };
+      const setOn = (on) => {
+        el.classList.toggle('is-listening', on);
+        mic.textContent = on ? (mode === 'sr' ? '⏹ Đang nghe… bấm để dừng' : '⏹ Đang ghi… bấm để dừng') : el.classList.contains('is-ok') ? '🎤 Nói lại' : '🎤 Bấm để nói';
+      };
+      if (mode === 'none') {
+        mic.textContent = '👍 Em đã nói xong';
+        mic.addEventListener('click', () => { pass(false); fb.textContent = 'Em nghe câu mẫu để so với câu của mình.'; mic.disabled = true; });
+        return;
+      }
+      mic.addEventListener('click', async () => {
+        if (active === el) { halt(); return; }
+        halt();
+        stopEn();
+        active = el;
+        setOn(true);
+        fb.textContent = '';
+        if (mode === 'rec') {
+          heard.textContent = '';
+          const stop = await recordEn({
+            onEnd: ({ url, error }) => {
+              if (active === el) { stopNow = null; active = null; }
+              setOn(false);
+              if (error || !url) { fb.textContent = MIC_ERR[error] || 'Chưa ghi được, em thử lại.'; return; }
+              heard.innerHTML = `Giọng em: <audio controls src="${url}"></audio>`;
+              pass(false);
+              setOn(false);
+              fb.textContent = 'Em nghe lại giọng mình rồi so với câu mẫu.';
+            },
+          });
+          if (active === el) stopNow = stop; else stop();
+          return;
+        }
+        heard.textContent = '🎧 …';
+        const stop = listenEn({
+          long: p.kind === 'retell',
+          onText: (t) => { heard.innerHTML = `🎧 <span lang="en">${esc(t)}</span>`; },
+          onEnd: (r) => {
+            if (active === el) { stopNow = null; active = null; }
+            setOn(false);
+            judge(r);
+          },
+        });
+        stopNow = stop;
+      });
+
+      function judge({ text, alts, error }) {
+        if (!text) { heard.textContent = ''; fb.textContent = MIC_ERR[error] || 'Cô chưa nghe rõ, em bấm 🎤 nói lại.'; return; }
+        const res = speakCheck(p, text, alts);
+        heard.innerHTML = `Cô nghe được: <q lang="en">${res.marked}</q>`;
+        if (res.ok) {
+          const again = counted;
+          pass(tries >= 2);
+          setOn(false);
+          fb.textContent = again ? 'Hay lắm!' : PRAISE[Math.floor(Math.random() * PRAISE.length)];
+          return;
+        }
+        if (counted) { fb.textContent = 'Em so với câu mẫu bên dưới rồi nói lại.'; return; }
+        tries++;
+        shake(mic);
+        const missing = res.missing.map((g) => `<b lang="en">${esc(g.split('|')[0])}</b>`).join(', ');
+        fb.innerHTML = res.words < res.minWords
+          ? (p.kind === 'retell' ? `Em kể dài hơn một chút (ít nhất ${res.minWords} từ).` : 'Em nói cả câu cho đủ ý.')
+          : p.kind === 'text' ? 'Chưa đúng ý trong bài. Em bấm 👁 Hiện chữ xem lại bài rồi nói lại.'
+            : p.kind === 'me' ? `Em nói theo khung: <b lang="en">${esc(p.frame || p.model)}</b>`
+              : `Em dùng thêm từ gợi ý: ${missing}`;
+        if (tries >= 2) {
+          model.hidden = false;
+          fb.insertAdjacentHTML('beforeend', '<br>Nghe câu mẫu rồi nói theo.');
+          if (!el.querySelector('.enr-reveal')) {
+            el.querySelector('.enr-sp-row').insertAdjacentHTML('beforeend', '<button type="button" class="enr-reveal">Bỏ qua câu này</button>');
+            el.querySelector('.enr-reveal').addEventListener('click', (e) => {
+              halt();
+              e.target.remove();
+              el.classList.add('is-revealed');
+              pass(true);
+              setOn(false);
+              fb.textContent = 'Em đọc to câu mẫu một lần cho nhớ.';
+            });
+          }
+        }
+      }
+    }
   }
 
   // ── ✍️ Viết: chép chính tả, sắp xếp từ, viết lại câu ──

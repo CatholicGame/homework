@@ -19,3 +19,7 @@ export const lessonById = (id) => LESSONS.find((l) => l.id === id);
 /** Bảng tra từ theo ngữ cảnh của một bài ({ words, phrases }), tải riêng theo cấp vì khá nặng. */
 export const loadGloss = (lesson) =>
   import(`./gloss/level${lesson.level}.js`).then((m) => m.default[lesson.id] || { words: {}, phrases: {} });
+
+/** Câu hỏi phần 🎤 Nói của một bài (speak/level<n>.js), cấp chưa có thì []. */
+export const loadSpeak = (lesson) =>
+  import(`./speak/level${lesson.level}.js`).then((m) => m.default[lesson.id] || []).catch(() => []);

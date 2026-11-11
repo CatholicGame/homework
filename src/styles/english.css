@@ -167,3 +167,26 @@
 @keyframes enr-shake { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 @media (prefers-reduced-motion: reduce) { .enr-shake { animation: none; outline: 2px solid #FCA5A5; } }
 @media (max-width: 480px) { .enr-input-row .enr-clear-t { display: none; } }
+
+/* 🎤 Nói */
+.enr-sp-kind { margin: 0 0 4px; font-size: .85rem; font-weight: 800; color: var(--en-sub); }
+.enr-sp-vi { margin: -4px 0 8px; color: var(--en-sub); }
+.enr-sp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.enr-mic {
+  font: inherit; font-size: 1.15rem; font-weight: 800; cursor: pointer; min-height: 56px; padding: 10px 22px;
+  border-radius: 999px; border: 0; background: var(--en-blue); color: #fff;
+}
+.enr-mic:active { filter: brightness(.92); }
+.enr-sp.is-listening .enr-mic { background: var(--en-bad); animation: enr-mic 1.2s ease-in-out infinite; }
+@keyframes enr-mic { 0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, .45); } 50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } }
+@media (prefers-reduced-motion: reduce) { .enr-sp.is-listening .enr-mic { animation: none; box-shadow: 0 0 0 4px #FECACA; } }
+.enr-sp.is-ok .enr-mic { background: #fff; color: var(--en-blue); border: 1px solid #BFDBFE; }
+.enr-sp-heard { margin: 8px 0 0; min-height: 1.4em; font-size: 1.08rem; }
+.enr-sp-heard q { color: #1E3A8A; }
+.enr-sp-heard b { color: var(--en-ok); }
+.enr-sp-heard audio { vertical-align: middle; max-width: 100%; }
+.enr-sp-model { margin: 6px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--en-ok-soft); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.enr-sp-model[hidden] { display: none; }
+.enr-sp.is-revealed .enr-sp-model { background: #FFFBEB; }
+.enr-speak .enr-sp .enr-reveal { margin-top: 0; }
+.enr-reading + .enr-speak { margin-top: 12px; }
