@@ -2172,7 +2172,7 @@
 .adm-vc-status.is-ok { background: #DCFCE7; color: #15803D; }
 .adm-vc-del { padding: 4px 8px; }
 @media (max-width: 640px) {
-  .adm-table-wrap.adm-vc-wrap { display: block; }
+  .adm-table-wrap.adm-vc-wrap, .adm-table-wrap.adm-keep-wrap { display: block; }
 }
 
 /* Nút 🌐 đổi ngôn ngữ: luôn ghi VI / EN, kể cả trên điện thoại (các nút khác chỉ còn biểu tượng). */

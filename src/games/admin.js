@@ -228,7 +228,7 @@ export function render(app, onBack) {
       <section class="lb-card adm-section">
         <h2 class="adm-h2">Các bước</h2>
         <p class="adm-chart-sub">Số người đã từng tới mỗi bước (trong ngoặc: tổng số lượt).</p>
-        <div class="adm-table-wrap"><table class="adm-table"><tbody>
+        <div class="adm-table-wrap adm-keep-wrap"><table class="adm-table"><tbody>
           ${funnel.map(([l, n, t]) => `<tr><td>${l}</td><td class="adm-num"><b>${n}</b> (${t})</td>
             <td style="width:50%"><span style="display:block;height:12px;border-radius:6px;background:#f59f00;width:${Math.round(n / top * 100)}%"></span></td></tr>`).join('')}
         </tbody></table></div>
@@ -246,7 +246,17 @@ export function render(app, onBack) {
             <td class="adm-num">${left(p) || ''}</td><td class="adm-num">${p.pod || ''}${p.wins ? ` · 🥇${p.wins}` : ''}</td>
             <td class="adm-num">${p.best || ''}</td><td class="adm-num">${p.answered ? `${p.answered} (${pct(p.right || 0, p.answered)})` : ''}</td>
             <td class="adm-num">${p.stars || ''}</td><td>${fmtDate(p.firstAt)}</td><td>${fmtDateTime(p.lastAt)}</td></tr>`).join('')}</tbody>
-        </table></div>` : '<p class="adm-empty">Chưa ai vào Đấu Trường Nhí.</p>'}
+        </table></div>
+        <div class="adm-cards">${people.map(p => `<div class="adm-card${p.guest ? ' adm-guest' : ''}">
+          <div><strong>${escapeHtml(p.name || '(không tên)')}</strong>${p.grade ? ` · ${escapeHtml(grade(p.grade))}` : ''}</div>
+          <div class="adm-card-email">${escapeHtml(p.email || (p.guest ? 'khách dùng thử' : ''))}</div>
+          <div class="adm-card-meta">
+            <span>📅 ${p.days || 0} ngày</span><span>Sảnh / trường quay: ${p.lobby || 0} / ${p.visits || 0}</span>
+            <span>Xem: ${p.started || 0} / ${p.ended || 0}</span>${left(p) ? `<span>Bỏ dở: ${left(p)}</span>` : ''}
+            ${p.pod ? `<span>Bục thi: ${p.pod}${p.wins ? ` · 🥇${p.wins}` : ''}</span>` : ''}${p.best ? `<span>Điểm cao nhất: ${p.best}</span>` : ''}
+            ${p.answered ? `<span>Trả lời: ${p.answered} (${pct(p.right || 0, p.answered)})</span>` : ''}${p.stars ? `<span>⭐ ${p.stars}</span>` : ''}
+            <span>Lần đầu: ${fmtDate(p.firstAt)}</span><span>Lần cuối: ${fmtDateTime(p.lastAt)}</span>
+          </div></div>`).join('')}</div>` : '<p class="adm-empty">Chưa ai vào Đấu Trường Nhí.</p>'}
       </section>
       <section class="lb-card adm-section">
         <h2 class="adm-h2">Chương trình gần đây</h2>
@@ -254,7 +264,12 @@ export function render(app, onBack) {
           <thead><tr><th>Lúc</th><th>Người chơi</th><th>Lớp</th><th>Kết thúc</th><th class="adm-num">Điểm</th><th class="adm-num">Sao</th></tr></thead>
           <tbody>${rows.map(p => `<tr><td>${whenOf(p)}</td><td>${escapeHtml(p.name || '')}</td><td>${escapeHtml(grade(p.grade))}</td>
             <td>${endOf(p)}</td><td class="adm-num">${p.score || 0}</td><td class="adm-num">${p.stars || ''}</td></tr>`).join('')}</tbody>
-        </table></div>` : '<p class="adm-empty">Chưa có chương trình nào.</p>'}
+        </table></div>
+        <div class="adm-cards">${rows.map(p => `<div class="adm-card">
+          <div><strong>${escapeHtml(p.name || '')}</strong>${p.grade ? ` · ${escapeHtml(grade(p.grade))}` : ''}</div>
+          <div class="adm-card-email">${endOf(p)}</div>
+          <div class="adm-card-meta"><span>${whenOf(p)}</span><span>Điểm: ${p.score || 0}</span>${p.stars ? `<span>⭐ ${p.stars}</span>` : ''}</div>
+        </div>`).join('')}</div>` :'<p class="adm-empty">Chưa có chương trình nào.</p>'}
       </section>
       <p class="adm-chart-sub">Bỏ dở: lượt bắt đầu mà không xem tới hết. Dòng 🚪 chỉ có khi bạn ấy bấm rời phòng, hoặc thoát app rồi mở lại sảnh.
         Tính cả khách dùng thử, không tính bạn ảo, phòng thử nội bộ và tài khoản admin. Các lần bỏ liền nhau trong ngày gom một dòng; dòng chương trình tự xoá sau 30 ngày. Ghi từ ngày 9/11/2026.</p>`;
