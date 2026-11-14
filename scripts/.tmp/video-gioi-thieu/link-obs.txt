@@ -1,0 +1,6 @@
+Link cho nguon Browser cua OBS (KHUNG DOC 1080 x 1920, tick "Control audio via OBS"):
+  Giong doc AI:  http://localhost:5173/scripts/.tmp/video-gioi-thieu/?obs
+  Tu noi (tat giong AI, chi phu de + nhac):  http://localhost:5173/scripts/.tmp/video-gioi-thieu/?obs=tu-noi
+
+OBS: Settings > Video > Base (Canvas) va Output Resolution = 1080x1920.
+Quay: Start Recording, roi chuot phai nguon > Properties > Refresh cache of current page.
