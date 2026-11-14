@@ -89,6 +89,14 @@ export function runExplore(app, { id, title, icon = '🔎', setup, steps, onExit
   const stage = app.querySelector('.g3g-stage');
   const quit = () => { alive = false; stopSpeaking(); exitGameMode(); onExit(); };
   app.querySelector('[data-act="quit"]').onclick = quit;
+  // Bấm một chấm tiến độ: chạy lại từ bước đó (từ đầu cảnh chứa nó, xem sceneStart).
+  app.querySelector('.g4-steps').onclick = (e) => {
+    const d = e.target.closest('.g3g-dot');
+    if (!d || !alive) return;
+    sfx.tap();
+    stopSpeaking();
+    play(sceneStart(+d.dataset.dot));
+  };
   const muteBtn = app.querySelector('[data-act="mute"]');
   muteBtn.onclick = () => { setMuted(!isMuted()); muteBtn.textContent = isMuted() ? '🔇' : '🔊'; };
 
@@ -224,11 +232,26 @@ export function runExplore(app, { id, title, icon = '🔎', setup, steps, onExit
     });
   }
 
-  async function play() {
+  /**
+   * Bước tự dựng hình từ đầu (chạy được ngay sau khi lắp công cụ mới): mở đầu bằng c.use(...) đổi công cụ, hoặc
+   * t.clear() khi chưa bước nào trước đó đổi công cụ. Các bước khác dùng tiếp hình / thao tác của bước trước.
+   */
+  const fresh = (i) => {
+    if (i === 0) return true;
+    const src = String(steps[i]);
+    const w = src.search(/\bawait\b/);
+    const before = (re) => { const m = src.search(re); return m >= 0 && (w < 0 || m < w); };
+    if (before(/\.use\(/)) return true;
+    return before(/\.clear\(/) && !steps.slice(0, i).some(f => /\.use\(/.test(String(f)));
+  };
+  /** Bước đầu cảnh chứa bước i: bước tự dựng hình gần nhất, không sau i. */
+  const sceneStart = (i) => { while (i > 0 && !fresh(i)) i--; return i; };
+
+  async function play(from = 0) {
     const r = ++run;
     mount();
     try {
-      for (let i = 0; i < steps.length; i++) {
+      for (let i = from; i < steps.length; i++) {
         markDot(i, false);
         skipStep = false; skipBtn.disabled = false;
         await steps[i](ctx(r));
@@ -299,7 +322,8 @@ export function injectFrameStyles() {
     .g4-end-title { font-weight: 800; color: #15803D; background: #fff; border: 2px solid ${EDGE}; border-radius: 1rem; padding: 0.3em 0.6em; text-align: center; font-size: clamp(1rem, 1.8vh + 0.5rem, 1.6rem); }
     .g4-end .g4-next { max-height: 6rem; }
     .g4-again { font-size: clamp(0.95rem, 1.6vh + 0.5rem, 1.4rem); }
-    .g4-steps .g3g-dot { font-size: 1rem; color: #15803D; font-weight: 800; }
+    .g4-steps .g3g-dot { font-size: 1rem; color: #15803D; font-weight: 800; cursor: pointer; touch-action: manipulation; }
+    @media (hover: hover) { .g4-steps .g3g-dot:hover { transform: scale(1.12); border-color: #22C55E; } }
     .g4-tapme { animation: g4Tap 1.1s ease-in-out infinite; }
     @keyframes g4Tap { 50% { box-shadow: 0 0 0 6px #FDE047, 0 0 18px 6px #FACC15; } }
     .g4-nudge { animation: g4Nudge 0.6s ease-in-out 4; }
