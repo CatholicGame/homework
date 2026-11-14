@@ -9,7 +9,7 @@ const { chromium } = await import(`file:///${PW}`);
 const OUT = 'src/assets/english-thumbs';
 mkdirSync(OUT, { recursive: true });
 // Câu chọn làm ảnh bìa (số câu đã diễn xong) khi khoảng giữa truyện không đẹp
-const BEAT = { 'en-018': 8, 'en-062': 10, 'en-064': 12, 'en-071': 17, 'en-072': 7, 'en-065': 10, 'en-066': 12, 'en-078': 10, 'en-074': 9, 'en-076': 7 };
+const BEAT = { 'en-018': 8, 'en-062': 10, 'en-064': 12, 'en-071': 17, 'en-072': 7, 'en-065': 10, 'en-066': 12, 'en-078': 10, 'en-074': 9, 'en-076': 7, 'en-082': 3, 'en-083': 5, 'en-084': 9, 'en-085': 5, 'en-088': 2, 'en-089': 8, 'en-090': 11, 'en-091': 8, 'en-092': 13, 'en-095': 4, 'en-096': 8, 'en-098': 3, 'en-099': 11, 'en-100': 6 };
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 900, height: 700 }, deviceScaleFactor: 1.5 });
 page.on('pageerror', (e) => console.log('PAGEERROR', e.message));
