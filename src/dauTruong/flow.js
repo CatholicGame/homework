@@ -1,7 +1,8 @@
 /**
  * Đấu Trường Nhí: các bước từ lúc bước vào trường quay tới khi chương trình bắt đầu, vẽ trên sân khấu 3D (src/games/dauTruong.js stage).
  *
- *   1. Nhân vật: chọn một trong 7 bạn học sinh (ảnh public/dautruong/pupils) và tên MC gọi (nick.js checkNick, dùng chung tên với
+ *   1. Nhân vật: chọn một trong 7 bạn học sinh (ảnh public/dautruong/pupils) và tên MC gọi = biệt danh hồ sơ (profile.js name,
+ *      đổi ở đây thì hồ sơ đổi theo; nick.js checkNick, dùng chung tên với
  *      Ai tài năng nhất: túi đồ thandong-bag-v1 `nick`; nhân vật ở `pupil`, đồng bộ Firestore qua cloudSync). Đã có cả hai thì bỏ qua.
  *   2. Chọn ghế: sơ đồ 5 hàng × 10 ghế như đặt vé (kiểu .ch-seatmap của trường quay), ghế có người hiện mặt bạn ấy; gợi ý sẵn ghế
  *      lần trước hoặc ghế đẹp còn trống. Ghế bị bạn khác lấy trước (máy chủ báo 'no') thì quay lại bước này.
@@ -25,6 +26,7 @@ import { shortName } from '../thanDong/church/nameTag.js';
 import { icon } from '../thanDong/church/icons.js';
 import { loadBag, saveBag } from '../thanDong/engine/progress.js';
 import { getCurrentUser } from '../engine/auth.js';
+import { getProfile, saveProfile } from '../engine/profile.js';
 import { arenaSfx as SFX } from './arenaSfx.js';
 import {
   ALWAYS_OPEN, ARENA_PROTO, AISLE_AFTER, COLS, LIVE_MS, OPEN_BEFORE, PUPILS, PUPIL_NAMES, ROWS, SEAT_IDS, TEST_LEAD,
@@ -169,17 +171,23 @@ export function startFlow({ root, api, grade, leave, home }) {
   css.textContent = CSS;
   // ---- hồ sơ của mình
   const bag0 = loadBag();
-  let nick = checkNick(bag0.nick || '').ok ? bag0.nick : '';
+  // tên trên sân khấu = biệt danh trong hồ sơ (Cài đặt → Đổi lớp, avatar và biệt danh). Biệt danh hồ sơ chưa hợp lệ
+  // với MC (quá 2 chữ, quá 12 ký tự, có số…) thì dùng tên đã đặt trong trường quay, bé sửa ở hộp "Tên MC gọi bạn"
+  const profNick = () => checkNick(getProfile().name || '');
+  let nick = profNick().ok ? profNick().value : checkNick(bag0.nick || '').ok ? bag0.nick : '';
   let pupil = Number.isInteger(bag0.pupil) && bag0.pupil >= 0 && bag0.pupil < PUPILS.length ? bag0.pupil : -1;
   let want = bag0.dtWant !== 0;
-  const suggest = () => checkNick(shortName(getCurrentUser()?.name || '')).value;
-  function saveMe() {
+  const suggest = () => profNick().value || checkNick(shortName(getCurrentUser()?.name || '')).value;
+  function saveMe(renamed = false) {
     const b = loadBag();
     if (b.nick !== nick) { b.nick = nick; b.nickAt = Date.now(); }
     b.pupil = pupil;
     b.dtWant = want ? 1 : 0;
     saveBag(b);
+    // bé tự đổi tên trong trường quay: hồ sơ (bảng xếp hạng, trang chủ) đổi theo, hai nơi luôn một tên
+    if (renamed && nick && getProfile().name !== nick) saveProfile({ name: nick });
   }
+  if (nick && nick !== bag0.nick) saveMe();
 
   // ---- trạng thái phòng
   let seatedOnce = false;
@@ -261,7 +269,7 @@ export function startFlow({ root, api, grade, leave, home }) {
     if (!c.ok || meDraft < 0) return;
     const renamed = c.value !== nick, rekind = meDraft !== pupil;
     nick = c.value; pupil = meDraft;
-    saveMe();
+    saveMe(renamed || c.value !== (getProfile().name || '').trim());
     SFX.click();
     meEl.hidden = true;
     if (mySeat && !meOnPod) api.seatPupil(mySeat, pupil, true, nick);
