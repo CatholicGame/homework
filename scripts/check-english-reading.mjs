@@ -50,7 +50,7 @@ for (const lv of only) {
     });
     if (lv >= 3 && q.filter((x) => x.type === 'short').length < 2) err(id, 'cấp 3+ cần ≥2 câu short');
     const mq = L.makeQuestion || [];
-    if (mq.length < 2 || mq.length > 3) err(id, `makeQuestion ${mq.length}`);
+    if (mq.length < 5 || mq.length > 10) err(id, `makeQuestion ${mq.length} (cần 5–10)`);
     mq.forEach((m) => { if (!m.answer || !m.question || !m.hint) err(id, 'makeQuestion thiếu trường'); });
     const d = L.dictation || [];
     if (d.length !== 3) err(id, `dictation ${d.length} (cần 3)`);
@@ -68,6 +68,13 @@ for (const lv of only) {
   });
   if (lessons.length !== 20) err(`level${lv}`, `${lessons.length} bài (cần 20)`);
   console.log(`level${lv}: ${lessons.length} bài, số từ ${Math.min(...counts)}–${Math.max(...counts)}, TB ${Math.round(counts.reduce((a, b) => a + b, 0) / counts.length)}`);
+}
+// 🗺️ Bản đồ ngữ pháp: mỗi bài nằm đúng một nhánh
+{
+  const { BRANCHES } = await import(pathToFileURL(path.join(dir, 'grammarMap.js')).href);
+  const seen = new Map();
+  BRANCHES.forEach((b) => b.lessons.forEach((n) => { if (seen.has(n)) err(`grammarMap`, `bài ${n} ở cả ${seen.get(n)} và ${b.id}`); seen.set(n, b.id); }));
+  for (let n = 1; n <= 100; n++) if (!seen.has(n)) err('grammarMap', `bài ${n} chưa thuộc nhánh nào`);
 }
 console.log(errors ? `\n${errors} lỗi / ${total} bài` : `\nOK ${total} bài`);
 process.exit(errors ? 1 : 0);

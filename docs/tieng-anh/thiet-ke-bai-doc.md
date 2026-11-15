@@ -36,16 +36,17 @@ Bé lớn dần cùng nhân vật: cấp 1–2 Minh 8 tuổi, cấp 4–5 Minh �
 Từ vựng: mỗi bài 6–8 từ mới, ưu tiên từ trong danh sách Cambridge YLE (Starters → Movers → Flyers) và KET cho cấp 5.
 Từ mới chỉ được dùng nếu đã học ở bài trước hoặc nằm trong danh sách từ mới của bài này (cấp 1–2 làm chặt, cấp 3–5 nới).
 
-## 3. Cấu trúc một bài (8 phần)
+## 3. Cấu trúc một bài (9 phần)
 
 | # | Phần | Bé làm gì | Dữ liệu |
 |---|---|---|---|
 | 1 | 🎧 **Nghe** | nghe cả bài (giọng đọc máy, chậm / thường), mỗi câu sáng lên khi đọc; sau đó trả lời 2 câu nghe không nhìn chữ | `text`, `questions[].listen = true` |
 | 2 | 📖 **Đọc** | đọc to theo, chạm vào từ để xem nghĩa | `text`, `vocab` |
 | 3 | 📚 **Từ vựng** | thẻ từ: hình (emoji), nghĩa, câu ví dụ; trò ghép từ – nghĩa | `vocab[]` |
+| 3b | ✏️ **Điền từ** | câu lấy từ bài, bỏ trống từ vựng đúng dạng trong bài (pets, gets up, cooked); chạm từ trong khung để điền hoặc gõ, điền hết mới Kiểm tra; ô sai tô đỏ, một ô sai 2 lần thì có Xem đáp án | tự sinh từ `text` + `vocab` (src/games/englishFill.js, kiểm bằng scripts/check-english-fill.mjs) |
 | 4 | 📐 **Ngữ pháp** | đọc giải thích ngắn bằng tiếng Việt, xem mẫu câu, các câu trong bài có điểm ngữ pháp được tô màu | `grammar` |
 | 5 | ❓ **Trả lời câu hỏi** | 5 câu: chọn đáp án, Đúng/Sai, trả lời ngắn | `questions[]` |
-| 6 | 🙋 **Đặt câu hỏi** | cho câu trả lời, bé viết câu hỏi (có gợi ý từ để hỏi) | `makeQuestion[]` |
+| 6 | 🙋 **Đặt câu hỏi** | 8 câu: cho câu trả lời, bé viết câu hỏi (có gợi ý từ để hỏi); trộn What / Where / When / Who / Why / How many / Yes-No | `makeQuestion[]` |
 | 7 | 🎤 **Nói** | bấm mic, nói câu trả lời; máy nghe ra chữ và chấm theo từ khoá (§9) | `speak/level<n>.js` |
 | 8 | ✍️ **Viết** | nghe – chép chính tả 3 câu trong bài; sắp xếp từ thành câu; viết lại câu theo ngữ pháp | `dictation[]`, `reorder[]`, `rewrite[]` |
 
@@ -75,7 +76,7 @@ Chấm điểm (khi làm app): so khớp không phân biệt hoa thường, bỏ
     { type: 'tf', q: 'Lucky is a cat.', answer: false, listen: true },
     { type: 'short', q: 'What is the name of his sister?', answer: 'Her name is Lan.', accept: ['Lan', 'It is Lan.'] },
   ],
-  makeQuestion: [                                     // 2–3 câu: bé đặt câu hỏi cho câu trả lời
+  makeQuestion: [                                     // 8 câu (5–10): bé đặt câu hỏi cho câu trả lời; mỗi bài ≥1 Why, ≥1 Yes/No, một từ để hỏi tối đa 2 lần
     { answer: 'I am eight years old.', question: 'How old are you?', hint: 'How old …?' },
   ],
   dictation: ['I am eight years old.', …],           // 3 câu, chép đúng nguyên văn trong text

@@ -29,9 +29,14 @@ export default [
       { type: 'short', q: 'How was Minh at the end of the day?', answer: 'He was tired but happy.', accept: ['tired but happy', 'tired and happy', 'tired', 'happy'] },
     ],
     makeQuestion: [
-      { answer: 'The first lesson was maths.', question: 'What was the first lesson?', hint: 'What was …?' },
-      { answer: 'They were at work.', question: 'Where were Mum and Dad?', hint: 'Where were …?' },
+      { answer: 'Yesterday was Monday.', question: 'What day was yesterday?', hint: 'What day …?' },
       { answer: 'Yes, it was. The classroom was very hot.', question: 'Was the classroom hot?', hint: 'Was …?' },
+      { answer: 'Because the children were quiet and good.', question: 'Why was Ms Hoa happy?', hint: 'Why …?' },
+      { answer: 'The first lesson was maths.', question: 'What was the first lesson?', hint: 'What was …?' },
+      { answer: 'Maths was difficult for Tom.', question: 'Who was maths difficult for?', hint: 'Who …?', accept: ['Who found maths difficult?', 'Who was the maths lesson difficult for?'] },
+      { answer: 'The rice and fish were delicious.', question: 'How were the rice and fish?', hint: 'How were …?', accept: ['How was the lunch?', 'How was lunch?', 'How were the rice and fish at lunch?'] },
+      { answer: 'Tom\'s picture was a red bus.', question: 'Whose picture was a red bus?', hint: 'Whose …?' },
+      { answer: 'They were at work.', question: 'Where were Mum and Dad?', hint: 'Where were …?' },
     ],
     dictation: [
       'It was easy for Minh, but it was difficult for Tom.',
@@ -76,8 +81,14 @@ export default [
       { type: 'short', q: 'What did Grandpa show Minh in the evening?', answer: 'He showed Minh his old photos.', accept: ['his old photos', 'old photos', 'photos'] },
     ],
     makeQuestion: [
+      { answer: 'They visited Grandpa and Grandma in Nam Dinh.', question: 'Where did they visit Grandpa and Grandma?', hint: 'Where did …?', accept: ['Where did Minh and Lan visit Grandpa and Grandma?', 'Where did they go last Saturday?'] },
+      { answer: 'They travelled there by bus.', question: 'How did they travel to Nam Dinh?', hint: 'How did …?', accept: ['How did they travel there?', 'How did they go to Nam Dinh?', 'How did they travel?'] },
       { answer: 'Grandpa waited at the gate.', question: 'Who waited at the gate?', hint: 'Who …?' },
+      { answer: 'They watered the vegetables and picked some tomatoes.', question: 'What did Minh and Grandpa do in the garden?', hint: 'What did … do …?', accept: ['What did they do in the garden?'] },
       { answer: 'Lan cooked lunch.', question: 'Who cooked lunch?', hint: 'Who …?' },
+      { answer: 'Because it rained.', question: 'Why did the children play cards inside?', hint: 'Why …?', accept: ['Why did they play cards inside?', 'Why did the children play inside?'] },
+      { answer: 'No, he didn\'t. Lucky stayed at home with Mum.', question: 'Did Lucky go to Nam Dinh?', hint: 'Did Lucky …?', accept: ['Did Lucky go with them?', 'Did Lucky visit Grandpa?'] },
+      { answer: 'He showed Minh his old photos in the evening.', question: 'When did Grandpa show Minh his old photos?', hint: 'When did …?', accept: ['When did Grandpa show Minh his photos?'] },
     ],
     dictation: [
       'Grandpa waited for them at the gate and smiled.',
@@ -123,7 +134,13 @@ export default [
     ],
     makeQuestion: [
       { answer: 'They went to West Lake.', question: 'Where did they go?', hint: 'Where did …?' },
+      { answer: 'Tom came with them.', question: 'Who came with them?', hint: 'Who …?', accept: ['Who went with them?', 'Who came on the picnic?'] },
+      { answer: 'No, they didn\'t. They drank orange juice.', question: 'Did the children drink milk?', hint: 'Did …?' },
+      { answer: 'It went very high in the sky.', question: 'How high did the kite go?', hint: 'How high …?' },
+      { answer: 'Dad read a newspaper.', question: 'Who read a newspaper?', hint: 'Who …?' },
       { answer: 'They saw some ducks.', question: 'What did they see?', hint: 'What did …?' },
+      { answer: 'They went home in the afternoon.', question: 'When did they go home?', hint: 'When did …?', accept: ['What time did they go home?'] },
+      { answer: 'Because he was tired after the picnic.', question: 'Why did Minh sleep in the car?', hint: 'Why …?' },
     ],
     dictation: [
       'Mum made sandwiches, and Lan brought some fruit.',
@@ -169,8 +186,13 @@ export default [
     ],
     makeQuestion: [
       { answer: 'Yes, I did. I had fun at the weekend.', question: 'Did you have fun at the weekend?', hint: 'Did you …?' },
-      { answer: 'No, he didn\'t. Tom didn\'t play football.', question: 'Did Tom play football?', hint: 'Did Tom …?' },
+      { answer: 'He went to the cinema with Lan.', question: 'Where did Minh go at the weekend?', hint: 'Where did …?', accept: ['Where did Minh go?'] },
       { answer: 'No, they didn\'t. They didn\'t watch a cartoon.', question: 'Did they watch a cartoon?', hint: 'Did they …?' },
+      { answer: 'It was about space.', question: 'What was the film about?', hint: 'What was … about?' },
+      { answer: 'No, he didn\'t. Tom didn\'t play football.', question: 'Did Tom play football?', hint: 'Did Tom …?' },
+      { answer: 'Because it rained.', question: 'Why didn\'t Tom play football?', hint: 'Why …?', accept: ['Why didn\'t Tom go out?'] },
+      { answer: 'He made a cake with his mum.', question: 'What did Tom do at home?', hint: 'What did …?', accept: ['What did Tom make with his mum?', 'What did Tom make?'] },
+      { answer: 'Tom\'s dad ate it all.', question: 'Who ate the cake?', hint: 'Who …?' },
     ],
     dictation: [
       'It rained, so I didn\'t play football.',
@@ -215,9 +237,14 @@ export default [
       { type: 'short', q: 'Who is Lucky going to stay with?', answer: 'He is going to stay with Grandma.', accept: ['Grandma', 'with Grandma'] },
     ],
     makeQuestion: [
+      { answer: 'They are going to visit Ha Long Bay.', question: 'What are they going to visit?', hint: 'What are they going to …?', accept: ['Where are they going to go?', 'Where are they going to visit?', 'What is Minh\'s family going to visit?'] },
+      { answer: 'They are going to travel by car.', question: 'How are they going to travel?', hint: 'How …?', accept: ['How are they going to go to Ha Long Bay?'] },
       { answer: 'Dad is going to drive.', question: 'Who is going to drive?', hint: 'Who is going to …?' },
-      { answer: 'Yes, he is. Minh is going to swim every morning.', question: 'Is Minh going to swim?', hint: 'Is Minh going to …?' },
       { answer: 'They are going to stay in a small hotel.', question: 'Where are they going to stay?', hint: 'Where are they going to …?' },
+      { answer: 'They are going to stay for three nights.', question: 'How long are they going to stay?', hint: 'How long …?', accept: ['How many nights are they going to stay?'] },
+      { answer: 'She is going to take photos of the rocks.', question: 'What is Lan going to do?', hint: 'What is … going to do?' },
+      { answer: 'Yes, he is. Minh is going to swim every morning.', question: 'Is Minh going to swim?', hint: 'Is Minh going to …?' },
+      { answer: 'Because Grandma isn\'t going to come with them.', question: 'Why is Lucky going to stay with Grandma?', hint: 'Why …?' },
     ],
     dictation: [
       'They are going to travel by car.',
@@ -262,8 +289,14 @@ export default [
       { type: 'short', q: 'What will Tom bring tomorrow?', answer: 'He will bring his dad\'s tools.', accept: ['his dad\'s tools', 'tools', 'dad\'s tools', 'the tools'] },
     ],
     makeQuestion: [
+      { answer: 'It will have a science fair next Friday.', question: 'When will Minh\'s school have a science fair?', hint: 'When will …?', accept: ['When is the science fair?', 'When will the school have a science fair?'] },
+      { answer: 'Minh and Tom are making a small robot.', question: 'What are Minh and Tom making?', hint: 'What are …?' },
       { answer: 'Yes, it will. It will move and turn its head.', question: 'Will the robot work?', hint: 'Will …?' },
       { answer: 'She will paint it blue.', question: 'What will Lan do?', hint: 'What will …?' },
+      { answer: 'Because he thinks everyone will laugh at them.', question: 'Why is Tom worried?', hint: 'Why …?' },
+      { answer: 'No, they won\'t. They won\'t laugh.', question: 'Will everyone laugh at Minh and Tom?', hint: 'Will …?', accept: ['Will everyone laugh at them?', 'Will they laugh?'] },
+      { answer: 'They will practise every day.', question: 'How often will they practise?', hint: 'How often …?' },
+      { answer: 'Tom will bring his dad\'s tools.', question: 'Who will bring the tools?', hint: 'Who …?', accept: ['Who will bring his dad\'s tools?'] },
     ],
     dictation: [
       'Next Friday, Minh\'s school will have a science fair.',
@@ -308,8 +341,14 @@ export default [
       { type: 'short', q: 'Which pet is cleverer, Lucky or Kitty?', answer: 'Kitty is cleverer.', accept: ['Kitty', 'Kitty is'] },
     ],
     makeQuestion: [
+      { answer: 'She took the class to the zoo.', question: 'Where did Ms Hoa take the class?', hint: 'Where did …?' },
       { answer: 'The elephant is bigger.', question: 'Which is bigger, the elephant or the hippo?', hint: 'Which is bigger, … or …?' },
       { answer: 'The cheetah is faster.', question: 'Which is faster, the cheetah or the elephant?', hint: 'Which is faster, … or …?' },
+      { answer: 'No, it wasn\'t. The giraffe was taller than the zebra.', question: 'Was the zebra taller than the giraffe?', hint: 'Was …?' },
+      { answer: 'He thought the monkeys were funnier than the bears.', question: 'What did Minh think about the monkeys?', hint: 'What did … think …?' },
+      { answer: 'Tom liked the snakes.', question: 'Who liked the snakes?', hint: 'Who …?' },
+      { answer: 'Because the parrots were more beautiful.', question: 'Why did Minh like the parrots more than the snakes?', hint: 'Why …?', accept: ['Why did Minh like the parrots?'] },
+      { answer: 'Kitty is cleverer.', question: 'Who is cleverer, Lucky or Kitty?', hint: 'Who is cleverer, … or …?', accept: ['Which is cleverer, Lucky or Kitty?', 'Which pet is cleverer, Lucky or Kitty?'] },
     ],
     dictation: [
       'Last week, Ms Hoa took the class to the zoo.',
@@ -354,8 +393,14 @@ export default [
       { type: 'short', q: 'Which page is the most interesting for Minh?', answer: 'The page about the smallest bird.', accept: ['the smallest bird', 'smallest bird', 'the page about the smallest bird'] },
     ],
     makeQuestion: [
+      { answer: 'Because it is full of amazing records.', question: 'Why does Minh love his new book?', hint: 'Why …?', accept: ['Why does Minh love his book?'] },
+      { answer: 'It is in the USA.', question: 'Where is the tallest tree in the world?', hint: 'Where is …?', accept: ['Where is the tallest tree?'] },
+      { answer: 'It is more than one hundred metres tall.', question: 'How tall is the tallest tree?', hint: 'How tall …?', accept: ['How tall is the tallest tree in the world?'] },
+      { answer: 'Yes, it is. The blue whale is the biggest animal.', question: 'Is the blue whale the biggest animal?', hint: 'Is …?' },
       { answer: 'The cheetah is the fastest land animal.', question: 'What is the fastest land animal?', hint: 'What is the fastest …?' },
       { answer: 'The Nile is the longest river in the world.', question: 'What is the longest river in the world?', hint: 'What is the longest …?' },
+      { answer: 'It is only five centimetres long.', question: 'How long is the smallest bird?', hint: 'How long …?' },
+      { answer: 'Lucky is the laziest dog in the world.', question: 'Who is the laziest dog in the world?', hint: 'Who is the laziest …?', accept: ['Which dog is the laziest in the world?', 'Which is the laziest dog in the world?'] },
     ],
     dictation: [
       'The tallest tree in the world is in the USA.',
@@ -399,8 +444,14 @@ export default [
       { type: 'short', q: 'Who read Minh a story?', answer: 'Lan read him a story.', accept: ['Lan', 'his sister', 'Lan did'] },
     ],
     makeQuestion: [
-      { answer: 'Yes, you should. You should take this medicine.', question: 'Should I take some medicine?', hint: 'Should I …?' },
+      { answer: 'He had a sore throat and a cough.', question: 'What was wrong with Minh?', hint: 'What was wrong …?' },
+      { answer: 'Because he had a cold.', question: 'Why didn\'t Minh go to school?', hint: 'Why …?', accept: ['Why did Minh stay in bed?', 'Why did Minh stay at home?'] },
       { answer: 'You should stay in bed.', question: 'What should I do?', hint: 'What should …?' },
+      { answer: 'Yes, you should. You should take this medicine.', question: 'Should I take some medicine?', hint: 'Should I …?' },
+      { answer: 'You should take it after breakfast.', question: 'When should I take the medicine?', hint: 'When should …?', accept: ['When should I take this medicine?', 'When should I take it?'] },
+      { answer: 'No, you shouldn\'t. You shouldn\'t eat ice cream.', question: 'Should I eat ice cream?', hint: 'Should I …?' },
+      { answer: 'Mum made him some hot soup.', question: 'Who made Minh some hot soup?', hint: 'Who …?', accept: ['Who made Minh some soup?', 'Who made the soup?'] },
+      { answer: 'He felt much better two days later.', question: 'When did Minh feel better?', hint: 'When did …?' },
     ],
     dictation: [
       'You should drink lots of warm water.',
@@ -444,7 +495,13 @@ export default [
       { type: 'short', q: 'Who will clean the windows?', answer: 'Dad will clean them.', accept: ['Dad', 'Dad will'] },
     ],
     makeQuestion: [
+      { answer: 'He has to feed Lucky every morning.', question: 'How often does Minh have to feed Lucky?', hint: 'How often …?', accept: ['When does Minh have to feed Lucky?'] },
+      { answer: 'She has to wash the dishes after dinner.', question: 'What does Lan have to do after dinner?', hint: 'What does … have to do …?' },
+      { answer: 'Dad has to take out the rubbish.', question: 'Who has to take out the rubbish?', hint: 'Who has to …?' },
+      { answer: 'Mum has to water the plants.', question: 'Who has to water the plants?', hint: 'Who has to …?' },
       { answer: 'Yes, I do. I have to tidy my room on Saturdays.', question: 'Do you have to tidy your room?', hint: 'Do you have to …?' },
+      { answer: 'Because Dad will clean them.', question: 'Why doesn\'t Minh have to clean the windows?', hint: 'Why …?' },
+      { answer: 'They can play, read or visit Grandma.', question: 'What can the children do on Sundays?', hint: 'What can …?' },
       { answer: 'No, she doesn\'t. Kitty doesn\'t have to do anything.', question: 'Does Kitty have to do chores?', hint: 'Does Kitty have to …?' },
     ],
     dictation: [
@@ -490,8 +547,14 @@ export default [
       { type: 'short', q: 'How did Tom smile at the end?', answer: 'He smiled happily.', accept: ['happily'] },
     ],
     makeQuestion: [
+      { answer: 'They had a big running race on Sports Day.', question: 'When did Minh\'s class have a big running race?', hint: 'When did …?', accept: ['When did the class have a running race?', 'When did they have the race?'] },
+      { answer: 'He tied his shoes carefully.', question: 'What did Minh do before the race?', hint: 'What did … do before …?' },
+      { answer: 'Ms Hoa blew the whistle.', question: 'Who blew the whistle?', hint: 'Who …?' },
+      { answer: 'Because he got tired.', question: 'Why did Tom run slowly?', hint: 'Why …?' },
       { answer: 'He ran slowly.', question: 'How did Tom run at the end?', hint: 'How did …?' },
+      { answer: 'No, he didn\'t. He finished second.', question: 'Did Minh finish first?', hint: 'Did …?' },
       { answer: 'They clapped loudly.', question: 'How did the parents clap?', hint: 'How did …?' },
+      { answer: 'Lan cheered for her brother.', question: 'Who cheered for Minh?', hint: 'Who …?' },
     ],
     dictation: [
       'On Sports Day, Minh\'s class had a big running race.',
@@ -536,8 +599,14 @@ export default [
       { type: 'short', q: 'What did everyone do finally?', answer: 'They sat together, ate mooncakes and looked at the full moon.', accept: ['ate mooncakes', 'looked at the moon', 'looked at the full moon', 'sat together'] },
     ],
     makeQuestion: [
+      { answer: 'It was last night.', question: 'When was the Mid-Autumn Festival?', hint: 'When …?' },
       { answer: 'First, Mum and Lan made mooncakes.', question: 'What did Mum and Lan do first?', hint: 'What did … do first?' },
+      { answer: 'Yes, they did. They put beans inside.', question: 'Did they put beans inside the mooncakes?', hint: 'Did they …?', accept: ['Did they put beans inside?'] },
+      { answer: 'Dad helped Minh make a star lantern.', question: 'Who helped Minh make a star lantern?', hint: 'Who …?', accept: ['Who helped Minh make a lantern?'] },
+      { answer: 'They arrived from Nam Dinh.', question: 'Where did Grandma and Grandpa arrive from?', hint: 'Where did …?', accept: ['Where did Grandma and Grandpa come from?'] },
+      { answer: 'Because a lion dance went past their house.', question: 'Why did Lucky bark?', hint: 'Why …?' },
       { answer: 'Finally, they looked at the full moon.', question: 'What did they do finally?', hint: 'What did they do …?' },
+      { answer: 'It was wonderful.', question: 'How was the family\'s evening?', hint: 'How was …?', accept: ['How was the evening?', 'How was their evening?'] },
     ],
     dictation: [
       'First, Mum and Lan made mooncakes in the kitchen.',
@@ -582,8 +651,14 @@ export default [
       { type: 'short', q: 'How many goals does Minh score?', answer: 'He scores two goals.', accept: ['two', 'two goals', '2'] },
     ],
     makeQuestion: [
+      { answer: 'It is thirty-eight degrees.', question: 'How hot is it today?', hint: 'How hot …?' },
       { answer: 'No, it\'s too hot to play outside.', question: 'Can we play outside?', hint: 'Can we …?' },
+      { answer: 'Because it is too small for them.', question: 'Why can\'t Minh and Tom play in the paddling pool?', hint: 'Why …?', accept: ['Why can\'t they play in the pool?', 'Why can\'t Minh and Tom use the pool?'] },
+      { answer: 'Because there isn\'t enough milk.', question: 'Why can\'t Lan have a mango smoothie?', hint: 'Why …?', accept: ['Why can\'t Lan have a smoothie?'] },
+      { answer: 'He lies under the table.', question: 'Where does Lucky lie?', hint: 'Where does …?' },
+      { answer: 'It is cool enough to go out at six o\'clock.', question: 'What time is it cool enough to go out?', hint: 'What time …?', accept: ['When is it cool enough to go out?'] },
       { answer: 'Yes, he is. He is fast enough to score two goals.', question: 'Is Minh fast enough to score?', hint: 'Is … enough to …?' },
+      { answer: 'Tom is too slow today.', question: 'Who is too slow today?', hint: 'Who …?' },
     ],
     dictation: [
       'Lan wants a mango smoothie, but there isn\'t enough milk.',
@@ -628,8 +703,14 @@ export default [
       { type: 'short', q: 'At what age did Grandpa learn to read?', answer: 'He learned at nine.', accept: ['at nine', 'nine', '9', 'at the age of nine'] },
     ],
     makeQuestion: [
-      { answer: 'Yes, he could. He could swim very well.', question: 'Could Grandpa swim?', hint: 'Could …?' },
+      { answer: 'He made kites from paper and bamboo.', question: 'What did Grandpa make kites from?', hint: 'What did … from?' },
+      { answer: 'Because his family was poor.', question: 'Why couldn\'t Grandpa\'s family buy many toys?', hint: 'Why …?', accept: ['Why couldn\'t they buy many toys?'] },
       { answer: 'No, they couldn\'t. They couldn\'t buy many toys.', question: 'Could they buy many toys?', hint: 'Could they …?' },
+      { answer: 'Yes, he could. He could swim very well.', question: 'Could Grandpa swim?', hint: 'Could …?' },
+      { answer: 'He could catch fish with his hands.', question: 'What could Grandpa catch with his hands?', hint: 'What could …?' },
+      { answer: 'Minh was surprised.', question: 'Who was surprised?', hint: 'Who …?' },
+      { answer: 'They read by an oil lamp.', question: 'How did they read at night?', hint: 'How did …?' },
+      { answer: 'He learned to read at nine.', question: 'When did Grandpa learn to read?', hint: 'When did …?', accept: ['How old was Grandpa when he learned to read?'] },
     ],
     dictation: [
       'I could catch fish in the river with my hands!',
@@ -674,8 +755,14 @@ export default [
       { type: 'short', q: 'What did Lucky get for his help?', answer: 'He got a big bone.', accept: ['a big bone', 'a bone', 'bone'] },
     ],
     makeQuestion: [
+      { answer: 'No, she didn\'t. Kitty didn\'t come home for dinner.', question: 'Did Kitty come home for dinner?', hint: 'Did Kitty …?' },
+      { answer: 'He searched the garden.', question: 'Where did Dad search with a torch?', hint: 'Where did …?', accept: ['Where did Dad search?', 'Where did Dad look for Kitty?'] },
       { answer: 'He only found a ball.', question: 'What did Minh find when he looked under the car?', hint: 'What did Minh find when …?' },
+      { answer: 'Because Kitty was in the old tree.', question: 'Why did Lucky bark at the old tree?', hint: 'Why …?' },
+      { answer: 'She was stuck in the branches of the old tree.', question: 'Where was Kitty?', hint: 'Where was …?' },
+      { answer: 'He climbed up slowly.', question: 'How did Dad climb up the ladder?', hint: 'How did …?', accept: ['How did Dad climb up?'] },
       { answer: 'She purred happily.', question: 'What did Kitty do when she was safe?', hint: 'What did Kitty do when …?' },
+      { answer: 'Lucky got a big bone for his help.', question: 'Who got a big bone?', hint: 'Who …?' },
     ],
     dictation: [
       'When Lan called her name, nothing happened.',
@@ -720,8 +807,14 @@ export default [
       { type: 'short', q: 'Why didn\'t Kitty need to help?', answer: 'Because she doesn\'t like water.', accept: ['she doesn\'t like water', 'she does not like water', 'because she doesn\'t like water'] },
     ],
     makeQuestion: [
-      { answer: 'He wanted to help at home.', question: 'What did Minh want to do?', hint: 'What did … want to do?' },
+      { answer: 'Ms Hoa taught them about water.', question: 'Who taught the class about water?', hint: 'Who …?' },
       { answer: 'We need to save water.', question: 'What do we need to do?', hint: 'What do we need to …?' },
+      { answer: 'He wanted to help at home.', question: 'What did Minh want to do?', hint: 'What did … want to do?' },
+      { answer: 'He used a cup of water.', question: 'How much water did Minh use to brush his teeth?', hint: 'How much …?' },
+      { answer: 'She collected it in a big bucket.', question: 'Where did Lan collect rainwater?', hint: 'Where did …?', accept: ['Where did Lan collect the rainwater?'] },
+      { answer: 'Yes, he did. He fixed it quickly.', question: 'Did Dad fix the dripping tap?', hint: 'Did Dad …?', accept: ['Did Dad fix the tap?'] },
+      { answer: 'Because she wanted to use it for the garden.', question: 'Why did Mum keep the rice water?', hint: 'Why …?' },
+      { answer: 'Because she doesn\'t like water.', question: 'Why didn\'t Kitty need to help?', hint: 'Why …?' },
     ],
     dictation: [
       'First, he tried to take shorter showers.',
@@ -766,9 +859,14 @@ export default [
       { type: 'short', q: 'Who is the red bag for?', answer: 'It is for Lan.', accept: ['Lan', 'for Lan'] },
     ],
     makeQuestion: [
-      { answer: 'They are three hundred thousand dong.', question: 'How much are the black shoes?', hint: 'How much are …?' },
+      { answer: 'Because his old shoes were too small.', question: 'Why did Mum take Minh to a shoe shop?', hint: 'Why …?', accept: ['Why did Minh go to a shoe shop?', 'Why did Minh need new shoes?'] },
+      { answer: 'They were on the shelves.', question: 'Where were the shoes?', hint: 'Where …?' },
       { answer: 'I like the blue ones.', question: 'Which ones do you like?', hint: 'Which ones …?' },
+      { answer: 'They are three hundred thousand dong.', question: 'How much are the black shoes?', hint: 'How much are …?', accept: ['How much are the black ones?'] },
+      { answer: 'No, they didn\'t. The blue ones were too tight.', question: 'Did the blue shoes fit well?', hint: 'Did …?', accept: ['Did the blue ones fit well?'] },
+      { answer: 'He took the black ones.', question: 'Which shoes did Minh take?', hint: 'Which …?', accept: ['Which ones did Minh take?', 'Which shoes did Minh buy?'] },
       { answer: 'It is one hundred thousand dong.', question: 'How much is the red bag?', hint: 'How much is …?' },
+      { answer: 'It is for Lan.', question: 'Who is the red bag for?', hint: 'Who … for?', accept: ['Who is the bag for?'] },
     ],
     dictation: [
       'Minh looked at the shoes on the shelves.',
@@ -813,8 +911,14 @@ export default [
       { type: 'short', q: 'What did Mum want to be when she was young?', answer: 'She wanted to be a singer.', accept: ['a singer', 'singer'] },
     ],
     makeQuestion: [
-      { answer: 'I want to be a pilot.', question: 'What do you want to be?', hint: 'What do you want to be?' },
+      { answer: 'Minh wants to be a footballer.', question: 'What does Minh want to be?', hint: 'What does … want to be?' },
+      { answer: 'Yes, he can. He can run very fast.', question: 'Can Minh run fast?', hint: 'Can …?', accept: ['Can Minh run very fast?'] },
+      { answer: 'Because he wants to fly to Australia and visit his grandparents.', question: 'Why does Tom want to be a pilot?', hint: 'Why does …?' },
+      { answer: 'They live in Australia.', question: 'Where do Tom\'s grandparents live?', hint: 'Where do …?' },
       { answer: 'Because she enjoys cooking.', question: 'Why does Lan want to be a chef?', hint: 'Why does …?' },
+      { answer: 'Mum wanted to be a singer.', question: 'Who wanted to be a singer?', hint: 'Who …?' },
+      { answer: 'Dad likes helping people.', question: 'Who likes helping people?', hint: 'Who …?' },
+      { answer: 'I want to be a pilot.', question: 'What do you want to be?', hint: 'What do you want to be?' },
     ],
     dictation: [
       'Minh wants to be a footballer because he loves football.',
@@ -859,8 +963,14 @@ export default [
       { type: 'short', q: 'What robot wasn\'t there at the show?', answer: 'There wasn\'t a robot for homework.', accept: ['a robot for homework', 'robot for homework', 'a homework robot'] },
     ],
     makeQuestion: [
+      { answer: 'Dad took them to a robot show.', question: 'Who took Minh and Tom to the robot show?', hint: 'Who …?', accept: ['Who took them to the robot show?'] },
+      { answer: 'It was in Hanoi.', question: 'Where was the robot show?', hint: 'Where …?' },
+      { answer: 'There was a big robot at the door.', question: 'What was there at the door?', hint: 'What was there …?' },
       { answer: 'Yes, there were. There were small robots playing football.', question: 'Were there any robots playing football?', hint: 'Were there any …?' },
+      { answer: 'Because one robot fell over again and again.', question: 'Why did Minh laugh?', hint: 'Why …?' },
+      { answer: 'Yes, there was. There was a robot dog.', question: 'Was there a robot dog?', hint: 'Was there …?' },
       { answer: 'There was a robot cook.', question: 'What was there in the next room?', hint: 'What was there …?' },
+      { answer: 'There were three drones.', question: 'How many drones were there?', hint: 'How many …?' },
     ],
     dictation: [
       'There was a big robot at the door.',
@@ -906,6 +1016,11 @@ export default [
     makeQuestion: [
       { answer: 'Ms Hoa found the box.', question: 'Who found the box?', hint: 'Who …?' },
       { answer: 'She found it on her desk.', question: 'Where did Ms Hoa find the box?', hint: 'Where did …?' },
+      { answer: 'It was yellow.', question: 'What colour was the ribbon?', hint: 'What colour …?' },
+      { answer: 'There was a beautiful cake and a card inside.', question: 'What was inside the box?', hint: 'What was …?' },
+      { answer: 'No, he didn\'t. Lan left the box on the desk.', question: 'Did Tom leave the box on the desk?', hint: 'Did …?', accept: ['Did Tom leave the box?'] },
+      { answer: 'Lan and Mum made the cake.', question: 'Who made the cake?', hint: 'Who …?' },
+      { answer: 'They made it the night before.', question: 'When did Lan and Mum make the cake?', hint: 'When did …?', accept: ['When did they make the cake?'] },
       { answer: 'Because it was a surprise.', question: 'Why didn\'t Lan tell them?', hint: 'Why …?' },
     ],
     dictation: [

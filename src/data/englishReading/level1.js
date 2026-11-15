@@ -31,7 +31,12 @@ export default [
     makeQuestion: [
       { answer: 'I am eight years old.', question: 'How old are you?', hint: 'How old …?' },
       { answer: 'She is eleven years old.', question: 'How old is she?', hint: 'How old …?' },
+      { answer: 'Mum is a teacher.', question: 'What is Mum?', hint: 'What is …?', accept: ['What does Mum do?', 'What is Mum\'s job?'] },
+      { answer: 'Dad is busy because he is at the hospital.', question: 'Why is Dad busy?', hint: 'Why …?' },
       { answer: 'He is from Australia.', question: 'Where is he from?', hint: 'Where … from?' },
+      { answer: 'Yes, he is. Tom is in my class.', question: 'Is Tom in your class?', hint: 'Is Tom …?', accept: ['Is Tom in Minh\'s class?'] },
+      { answer: 'Lucky is brown.', question: 'What colour is Lucky?', hint: 'What colour …?' },
+      { answer: 'Kitty is my cat.', question: 'Who is Kitty?', hint: 'Who …?', accept: ['What is Kitty?'] },
     ],
     dictation: ['I am eight years old.', 'Lan is my sister.', 'Dad is a doctor.'],
     reorder: [
@@ -73,7 +78,13 @@ export default [
     ],
     makeQuestion: [
       { answer: 'This is my mum.', question: 'Who is this?', hint: 'Who is …?' },
+      { answer: 'My dad is a doctor.', question: 'What is your dad?', hint: 'What is …?', accept: ['What does your dad do?', 'What is your dad\'s job?'] },
+      { answer: 'They are in Nam Dinh.', question: 'Where are your grandparents?', hint: 'Where are …?', accept: ['Where are they?', 'Where are Grandma and Grandpa?'] },
+      { answer: 'She is kind and funny.', question: 'What is Grandma like?', hint: 'What is Grandma …?' },
       { answer: 'These are my cousins.', question: 'Who are these?', hint: 'Who are …?' },
+      { answer: 'They are six.', question: 'How old are Hai and Mai?', hint: 'How old …?', accept: ['How old are your cousins?', 'How old are they?'] },
+      { answer: 'No, he isn\'t. He is a dog.', question: 'Is Lucky a cat?', hint: 'Is Lucky …?' },
+      { answer: 'I love my family because we are a big, happy family.', question: 'Why do you love your family?', hint: 'Why …?' },
     ],
     dictation: ['This is my family.', 'These are my grandparents.', 'She is a teacher.'],
     reorder: [
@@ -116,6 +127,12 @@ export default [
     makeQuestion: [
       { answer: 'Yes, I have. I have got a dog.', question: 'Have you got a pet?', hint: 'Have you got …?' },
       { answer: 'Yes, he has. He has got a long tail.', question: 'Has Lucky got a long tail?', hint: 'Has Lucky got …?' },
+      { answer: 'He has got four legs.', question: 'How many legs has Lucky got?', hint: 'How many …?', accept: ['How many legs does Lucky have?', 'How many legs has he got?'] },
+      { answer: 'Lucky is happy because he has got a red ball.', question: 'Why is Lucky happy?', hint: 'Why …?' },
+      { answer: 'Her eyes are green.', question: 'What colour are Kitty\'s eyes?', hint: 'What colour …?', accept: ['What colour are her eyes?'] },
+      { answer: 'Tom has got a fish.', question: 'What has Tom got?', hint: 'What has … got?', accept: ['What pet has Tom got?', 'What does Tom have?'] },
+      { answer: 'It is orange.', question: 'What colour is Tom\'s fish?', hint: 'What colour …?', accept: ['What colour is the fish?'] },
+      { answer: 'Lan has got a book about dogs.', question: 'Who has got a book about dogs?', hint: 'Who …?' },
     ],
     dictation: ['I have got a dog.', 'Tom has got a fish.', 'Lucky has got a red ball.'],
     reorder: [
@@ -156,8 +173,14 @@ export default [
       { type: 'mc', q: 'What has Kitty got?', options: ['a ball', 'a box', 'a kite'], answer: 1 },
     ],
     makeQuestion: [
+      { answer: 'Yes, it is. It is small and nice.', question: 'Is your room small?', hint: 'Is your room …?' },
       { answer: 'It is blue.', question: 'What colour is the bed?', hint: 'What colour …?' },
+      { answer: 'There are two colours on my kite.', question: 'How many colours are there on your kite?', hint: 'How many …?' },
       { answer: 'It is an umbrella.', question: 'What is it?', hint: 'What …?' },
+      { answer: 'It is purple.', question: 'What colour is the umbrella?', hint: 'What colour …?' },
+      { answer: 'Lucky has got a ball.', question: 'Who has got a ball?', hint: 'Who …?' },
+      { answer: 'It is Kitty\'s box.', question: 'Whose box is it?', hint: 'Whose …?', accept: ['Whose box is this?', 'Whose is the box?'] },
+      { answer: 'I love my room because it has got many colours.', question: 'Why do you love your room?', hint: 'Why …?' },
     ],
     dictation: ['I have got a desk.', 'This is an apple.', 'It is red and yellow.'],
     reorder: [
@@ -198,8 +221,14 @@ export default [
       { type: 'mc', q: 'What has Mum got for Minh?', options: ['two sandwiches', 'two pens', 'two rulers'], answer: 0 },
     ],
     makeQuestion: [
+      { answer: 'It is big and blue.', question: 'What is your school bag like?', hint: 'What is … like?', accept: ['What is your bag like?'] },
+      { answer: 'I have got two books.', question: 'How many books have you got?', hint: 'How many …?', accept: ['How many books do you have?'] },
+      { answer: 'Yes, I have. I have got an eraser.', question: 'Have you got an eraser?', hint: 'Have you got …?' },
       { answer: 'It is a pencil case.', question: 'What is this?', hint: 'What …?' },
+      { answer: 'I have got ten crayons.', question: 'How many crayons have you got?', hint: 'How many …?', accept: ['How many crayons do you have?'] },
+      { answer: 'Lan has got two boxes.', question: 'Who has got two boxes?', hint: 'Who …?' },
       { answer: 'They are red.', question: 'What colour are the boxes?', hint: 'What colour …?' },
+      { answer: 'It is heavy because there are many books and pens in it.', question: 'Why is your bag heavy?', hint: 'Why …?', accept: ['Why is your school bag heavy?'] },
     ],
     dictation: ['What is this?', 'It is my school bag.', 'I have got ten crayons.'],
     reorder: [
@@ -239,8 +268,14 @@ export default [
       { type: 'mc', q: 'How many toys are there on the floor?', options: ['twelve', 'fifteen', 'twenty'], answer: 2 },
     ],
     makeQuestion: [
+      { answer: 'They are on the floor.', question: 'Where are your toys?', hint: 'Where …?', accept: ['Where are the toys?'] },
+      { answer: 'Mum is not happy because the toys are on the floor.', question: 'Why is Mum not happy?', hint: 'Why …?', accept: ['Why isn\'t Mum happy?'] },
       { answer: 'There are five cars.', question: 'How many cars are there?', hint: 'How many …?' },
       { answer: 'There are three balls.', question: 'How many balls are there?', hint: 'How many …?' },
+      { answer: 'They are Lan\'s dolls.', question: 'Whose dolls are they?', hint: 'Whose …?', accept: ['Whose dolls are these?', 'Whose are the dolls?'] },
+      { answer: 'Yes, he has. He has got a teddy bear.', question: 'Has Lucky got a teddy bear?', hint: 'Has Lucky …?' },
+      { answer: 'They are in the toy box.', question: 'Where are the toys now?', hint: 'Where … now?', accept: ['Where are your toys now?'] },
+      { answer: 'Minh is a good boy.', question: 'Who is a good boy?', hint: 'Who …?' },
     ],
     dictation: ['There are five cars.', 'There are two robots.', 'Mum is happy.'],
     reorder: [
@@ -282,7 +317,13 @@ export default [
     ],
     makeQuestion: [
       { answer: 'There are four chairs.', question: 'How many chairs are there?', hint: 'How many …?' },
+      { answer: 'It is white.', question: 'What colour is the fridge?', hint: 'What colour …?' },
+      { answer: 'There are six eggs.', question: 'How many eggs are there?', hint: 'How many …?', accept: ['How many eggs are there in the fridge?'] },
       { answer: 'Yes, there is. There is a cake.', question: 'Is there a cake?', hint: 'Is there …?' },
+      { answer: 'They are in the kitchen.', question: 'Where are Mum and Lan?', hint: 'Where …?' },
+      { answer: 'Lan is a good cook.', question: 'Who is a good cook?', hint: 'Who …?' },
+      { answer: 'There is rice, fish and soup.', question: 'What is there for dinner?', hint: 'What is there …?', accept: ['What is for dinner?'] },
+      { answer: 'Lucky is in the kitchen because he is hungry.', question: 'Why is Lucky in the kitchen?', hint: 'Why …?' },
     ],
     dictation: ['There is a table.', 'There are four chairs.', 'Dinner is ready!'],
     reorder: [
@@ -322,8 +363,14 @@ export default [
       { type: 'tf', q: 'Lucky and Kitty are friends.', answer: true },
     ],
     makeQuestion: [
-      { answer: 'She is behind the sofa.', question: 'Where is Kitty?', hint: 'Where …?' },
+      { answer: 'She is white.', question: 'What colour is Kitty?', hint: 'What colour …?' },
+      { answer: 'Minh and Lan are in the living room.', question: 'Who is in the living room?', hint: 'Who …?', accept: ['Who are in the living room?'] },
+      { answer: 'No, she isn\'t. She is not in the box.', question: 'Is Kitty in the box?', hint: 'Is Kitty …?', accept: ['Is she in the box?'] },
       { answer: 'He is next to the sofa.', question: 'Where is Lucky?', hint: 'Where …?' },
+      { answer: 'She is behind the sofa.', question: 'Where is Kitty?', hint: 'Where …?' },
+      { answer: 'Kitty is behind the sofa because she is very shy.', question: 'Why is Kitty behind the sofa?', hint: 'Why …?' },
+      { answer: 'There is a red ball next to Kitty.', question: 'What is next to Kitty?', hint: 'What is …?', accept: ['What is there next to Kitty?'] },
+      { answer: 'Yes, they are. Lucky and Kitty are friends.', question: 'Are Lucky and Kitty friends?', hint: 'Are Lucky and Kitty …?' },
     ],
     dictation: ['Kitty is behind the sofa.', 'Lucky is next to the sofa.', 'Is she under the table?'],
     reorder: [
@@ -364,8 +411,14 @@ export default [
       { type: 'mc', q: 'Where are Dad and Minh today?', options: ['at the pool', 'at school', 'at the zoo'], answer: 0 },
     ],
     makeQuestion: [
+      { answer: 'I can draw a cat.', question: 'What can you draw?', hint: 'What can you …?' },
       { answer: 'Yes, she can.', question: 'Can Lan swim?', hint: 'Can …?' },
+      { answer: 'Lan can swim and cook.', question: 'What can Lan do?', hint: 'What can … do?' },
+      { answer: 'Tom can swim very well.', question: 'Who can swim very well?', hint: 'Who …?' },
       { answer: 'No, he can\'t.', question: 'Can Lucky climb trees?', hint: 'Can …?' },
+      { answer: 'Kitty can climb trees.', question: 'Who can climb trees?', hint: 'Who …?' },
+      { answer: 'They are at the pool.', question: 'Where are Dad and Minh today?', hint: 'Where …?', accept: ['Where are you today?', 'Where are Dad and you today?'] },
+      { answer: 'I am so happy because I can swim now!', question: 'Why are you so happy?', hint: 'Why …?', accept: ['Why are you happy?'] },
     ],
     dictation: ['I can play football.', 'Kitty can climb trees.', 'I can swim now!'],
     reorder: [
@@ -406,8 +459,14 @@ export default [
       { type: 'mc', q: 'Minh and Tom don\'t like ___.', options: ['pho', 'onions', 'rice'], answer: 1 },
     ],
     makeQuestion: [
+      { answer: 'My favourite food is pho.', question: 'What is your favourite food?', hint: 'What is your favourite …?' },
       { answer: 'Yes, I do. I like pho.', question: 'Do you like pho?', hint: 'Do you like …?' },
+      { answer: 'I like pho because it is my favourite food.', question: 'Why do you like pho?', hint: 'Why …?' },
       { answer: 'No, I don\'t. I don\'t like fish.', question: 'Do you like fish?', hint: 'Do you like …?' },
+      { answer: 'They like noodles.', question: 'What do Mum and Dad like?', hint: 'What do … like?' },
+      { answer: 'Grandma and Grandpa like fruit.', question: 'Who likes fruit?', hint: 'Who …?', accept: ['Who like fruit?'] },
+      { answer: 'No, they don\'t. They don\'t like ice cream.', question: 'Do Grandma and Grandpa like ice cream?', hint: 'Do Grandma and Grandpa …?' },
+      { answer: 'Lucky and Kitty like fish.', question: 'Who likes fish?', hint: 'Who …?', accept: ['Who like fish?'] },
     ],
     dictation: ['I don\'t like carrots.', 'We like ice cream, too.', 'They don\'t like bananas!'],
     reorder: [
@@ -448,8 +507,14 @@ export default [
       { type: 'mc', q: 'What is Minh\'s favourite animal?', options: ['the tiger', 'the monkey', 'the giraffe'], answer: 1 },
     ],
     makeQuestion: [
+      { answer: 'They are at the zoo.', question: 'Where are Minh, Lan and Dad today?', hint: 'Where …?', accept: ['Where are they today?', 'Where are they?'] },
       { answer: 'Yes, it is. It is very big.', question: 'Is the elephant big?', hint: 'Is the …?' },
+      { answer: 'It is grey.', question: 'What colour is the elephant?', hint: 'What colour …?' },
       { answer: 'No, it isn\'t. It is tall.', question: 'Is the giraffe small?', hint: 'Is the …?' },
+      { answer: 'It has got a long neck.', question: 'What has the giraffe got?', hint: 'What has … got?', accept: ['What does the giraffe have?'] },
+      { answer: 'The snake and the crocodile are long.', question: 'Which animals are long?', hint: 'Which animals …?', accept: ['What animals are long?'] },
+      { answer: 'The tiger is big and orange.', question: 'Which animal is orange?', hint: 'Which animal …?', accept: ['What animal is orange?'] },
+      { answer: 'The monkey is my favourite animal because it is small, like me.', question: 'Why is the monkey your favourite animal?', hint: 'Why …?', accept: ['Why do you like the monkey?'] },
     ],
     dictation: ['The zoo is big.', 'This is a giraffe.', 'The snake is long and green.'],
     reorder: [
@@ -490,8 +555,14 @@ export default [
       { type: 'mc', q: 'Who is the winner?', options: ['Tom', 'Minh', 'Lan'], answer: 1 },
     ],
     makeQuestion: [
-      { answer: 'Ms Hoa is Simon.', question: 'Who is Simon?', hint: 'Who …?' },
+      { answer: 'It is Friday.', question: 'What day is it?', hint: 'What day …?', accept: ['What day is it today?'] },
       { answer: 'They are in the playground.', question: 'Where are the children?', hint: 'Where …?' },
+      { answer: 'Ms Hoa is Simon.', question: 'Who is Simon?', hint: 'Who …?' },
+      { answer: 'It is Simon Says.', question: 'What is the game?', hint: 'What …?', accept: ['What game are they playing?', 'What is the name of the game?'] },
+      { answer: 'Tom is out.', question: 'Who is out?', hint: 'Who …?' },
+      { answer: 'Tom is out because he sits down.', question: 'Why is Tom out?', hint: 'Why …?' },
+      { answer: 'Yes, he is. Minh is the winner.', question: 'Is Minh the winner?', hint: 'Is Minh …?' },
+      { answer: 'Ms Hoa is happy.', question: 'How does Ms Hoa feel?', hint: 'How …?', accept: ['How is Ms Hoa?'] },
     ],
     dictation: ['Simon says, touch your head!', 'Now sit down!', 'Don\'t open your eyes!'],
     reorder: [
@@ -532,8 +603,14 @@ export default [
       { type: 'mc', q: 'Where is Tom\'s desk?', options: ['behind Minh\'s desk', 'next to the board', 'next to the window'], answer: 0 },
     ],
     makeQuestion: [
-      { answer: 'Yes, it is my ruler.', question: 'Is this your ruler?', hint: 'Is this your …?' },
       { answer: 'Her name is Ms Hoa.', question: 'What is her name?', hint: 'What is her …?' },
+      { answer: 'Her desk is next to the board.', question: 'Where is Ms Hoa\'s desk?', hint: 'Where …?', accept: ['Where is her desk?', 'Where is the teacher\'s desk?'] },
+      { answer: 'My desk is next to the window.', question: 'Where is your desk?', hint: 'Where …?' },
+      { answer: 'His pencil case is green.', question: 'What colour is Tom\'s pencil case?', hint: 'What colour …?', accept: ['What colour is his pencil case?'] },
+      { answer: 'No, she isn\'t. Her class is next door.', question: 'Is Lan in your class?', hint: 'Is Lan …?' },
+      { answer: 'Yes, it is my ruler.', question: 'Is this your ruler?', hint: 'Is this your …?' },
+      { answer: 'There are thirty children in our class.', question: 'How many children are there in your class?', hint: 'How many …?' },
+      { answer: 'We love our classroom because it is big and bright.', question: 'Why do you love your classroom?', hint: 'Why …?' },
     ],
     dictation: ['This is our classroom.', 'My bag is blue.', 'His pencil case is green.'],
     reorder: [
@@ -575,7 +652,13 @@ export default [
     ],
     makeQuestion: [
       { answer: 'It\'s sunny.', question: 'What\'s the weather like?', hint: 'What\'s the weather …?' },
+      { answer: 'They are in the garden.', question: 'Where are Minh and Lucky?', hint: 'Where …?' },
+      { answer: 'Tom is on the phone.', question: 'Who is on the phone?', hint: 'Who …?' },
       { answer: 'It\'s cold and windy in Sydney.', question: 'What\'s the weather like in Sydney?', hint: 'What\'s the weather like in …?' },
+      { answer: 'They are at home.', question: 'Where are Grandma and Grandpa?', hint: 'Where …?' },
+      { answer: 'Grandpa is happy because the rain is good for the garden.', question: 'Why is Grandpa happy?', hint: 'Why …?' },
+      { answer: 'Da Lat is cloudy and cool.', question: 'Which city is cloudy and cool?', hint: 'Which city …?', accept: ['Where is it cloudy and cool?', 'What city is cloudy and cool?'] },
+      { answer: 'Yes, it is. It\'s very cold in Sa Pa.', question: 'Is it cold in Sa Pa?', hint: 'Is it …?' },
     ],
     dictation: ['It\'s sunny in Ha Noi.', 'It\'s hot, too.', 'It\'s cold and windy here!'],
     reorder: [
@@ -617,7 +700,13 @@ export default [
     ],
     makeQuestion: [
       { answer: 'I play football on Tuesday.', question: 'When do you play football?', hint: 'When do you …?' },
+      { answer: 'I play football with Tom.', question: 'Who do you play football with?', hint: 'Who …?', accept: ['Who do you play with?'] },
+      { answer: 'We go to the library on Wednesday.', question: 'When do you go to the library?', hint: 'When …?', accept: ['What day do you go to the library?'] },
+      { answer: 'We play games with Ms Hoa.', question: 'Who do you play games with on Friday?', hint: 'Who …?', accept: ['Who do you play games with?'] },
       { answer: 'We visit Grandma and Grandpa.', question: 'What do you do on Saturday?', hint: 'What do you do …?' },
+      { answer: 'No, I don\'t. I don\'t go to school on Sunday.', question: 'Do you go to school on Sunday?', hint: 'Do you …?' },
+      { answer: 'I sleep late on Sunday because I don\'t go to school.', question: 'Why do you sleep late on Sunday?', hint: 'Why …?' },
+      { answer: 'We eat pho for breakfast.', question: 'What do you eat for breakfast on Sunday?', hint: 'What do you eat …?', accept: ['What do you eat for breakfast?'] },
     ],
     dictation: ['On Monday, I have English.', 'I sing songs.', 'I love my week!'],
     reorder: [
@@ -658,8 +747,14 @@ export default [
       { type: 'mc', q: 'Where is Lucky?', options: ['on the sofa', 'under the tree', 'in the bathroom'], answer: 1 },
     ],
     makeQuestion: [
+      { answer: 'There are six rooms.', question: 'How many rooms are there?', hint: 'How many …?', accept: ['How many rooms are there in your house?'] },
       { answer: 'They are upstairs.', question: 'Where are the bedrooms?', hint: 'Where are …?' },
+      { answer: 'The bathroom is next to my bedroom.', question: 'Which room is next to your bedroom?', hint: 'Which room …?', accept: ['What room is next to your bedroom?'] },
+      { answer: 'Kitty is on my bed.', question: 'Who is on your bed?', hint: 'Who …?' },
+      { answer: 'Mum and Dad are in the kitchen.', question: 'Who is in the kitchen?', hint: 'Who …?', accept: ['Who are in the kitchen?'] },
       { answer: 'She is in the garden.', question: 'Where is Lan?', hint: 'Where is …?' },
+      { answer: 'Yes, he is. He is in the garden, too.', question: 'Is Lucky in the garden?', hint: 'Is Lucky …?' },
+      { answer: 'I love our house because it is tall and yellow.', question: 'Why do you love your house?', hint: 'Why …?' },
     ],
     dictation: ['Where is the kitchen?', 'They are upstairs.', 'He is under the tree.'],
     reorder: [
@@ -701,7 +796,13 @@ export default [
     ],
     makeQuestion: [
       { answer: 'I am wearing a white shirt.', question: 'What are you wearing?', hint: 'What are you …?' },
+      { answer: 'They are black.', question: 'What colour are your shoes?', hint: 'What colour …?', accept: ['What colour are Minh\'s shoes?'] },
+      { answer: 'She is wearing a pink dress.', question: 'What is Lan wearing?', hint: 'What is … wearing?' },
+      { answer: 'No, she isn\'t. She is wearing sandals.', question: 'Is Lan wearing shoes?', hint: 'Is Lan …?' },
       { answer: 'Yes, I am. I am wearing a hat.', question: 'Are you wearing a hat?', hint: 'Are you wearing …?' },
+      { answer: 'Tom and I are wearing red T-shirts.', question: 'Who is wearing a red T-shirt?', hint: 'Who …?', accept: ['Who are wearing red T-shirts?', 'Who is wearing red T-shirts?'] },
+      { answer: 'We are very happy.', question: 'How do you and Tom feel?', hint: 'How …?', accept: ['How are you and Tom?', 'How do you feel?'] },
+      { answer: 'Lucky is not wearing clothes because dogs don\'t wear clothes.', question: 'Why is Lucky not wearing clothes?', hint: 'Why …?', accept: ['Why isn\'t Lucky wearing clothes?'] },
     ],
     dictation: ['I am wearing black shoes, too.', 'I am wearing sandals!', 'We are wearing red T-shirts.'],
     reorder: [
@@ -742,8 +843,14 @@ export default [
       { type: 'mc', q: 'What is the girl doing?', options: ['riding a bike', 'flying a kite', 'swimming'], answer: 1 },
     ],
     makeQuestion: [
-      { answer: 'She is taking photos.', question: 'What is Mum doing?', hint: 'What is … doing?' },
+      { answer: 'They are at the park.', question: 'Where is the family?', hint: 'Where …?', accept: ['Where are they?'] },
       { answer: 'He is reading a newspaper.', question: 'What is Dad doing?', hint: 'What is … doing?' },
+      { answer: 'She is taking photos.', question: 'What is Mum doing?', hint: 'What is … doing?' },
+      { answer: 'Lan is sitting on a bench.', question: 'Who is sitting on a bench?', hint: 'Who …?' },
+      { answer: 'He is running fast.', question: 'How is Tom running?', hint: 'How …?' },
+      { answer: 'Yes, he is. He is kicking the ball.', question: 'Is Minh kicking the ball?', hint: 'Is Minh …?' },
+      { answer: 'Kitty is not at the park because she is sleeping at home.', question: 'Why is Kitty not at the park?', hint: 'Why …?', accept: ['Why isn\'t Kitty at the park?', 'Why is Kitty not here?'] },
+      { answer: 'A girl is flying a kite.', question: 'Who is flying a kite?', hint: 'Who …?' },
     ],
     dictation: ['Mum is taking photos.', 'She is reading a book.', 'She is sleeping at home.'],
     reorder: [
@@ -784,8 +891,14 @@ export default [
       { type: 'mc', q: 'What big fruit does Minh want?', options: ['a watermelon', 'a coconut', 'a pineapple'], answer: 0 },
     ],
     makeQuestion: [
+      { answer: 'They are at the fruit market.', question: 'Where are Mum and Minh?', hint: 'Where …?' },
+      { answer: 'They are red, yellow, green and orange.', question: 'What colour are the fruits?', hint: 'What colour …?', accept: ['What colours are the fruits?'] },
       { answer: 'I want some mangoes, please.', question: 'What do you want?', hint: 'What do you …?' },
       { answer: 'No, thanks. I don\'t want grapes.', question: 'Do you want some grapes?', hint: 'Do you want …?' },
+      { answer: 'We want some oranges for Lan.', question: 'Who are the oranges for?', hint: 'Who … for?', accept: ['Who do you want the oranges for?'] },
+      { answer: 'We want some apples for Grandma.', question: 'What do you want for Grandma?', hint: 'What do you want for …?' },
+      { answer: 'Yes, she is. The woman at the market is kind.', question: 'Is the woman at the market kind?', hint: 'Is the woman …?' },
+      { answer: 'Minh is very happy because the woman gives him a small banana.', question: 'Why is Minh very happy?', hint: 'Why …?', accept: ['Why is Minh happy?'] },
     ],
     dictation: ['I want a watermelon!', 'I want some bananas, too.', 'Minh is very happy.'],
     reorder: [
@@ -826,8 +939,14 @@ export default [
       { type: 'mc', q: 'What is Minh\'s present for Lan?', options: ['a book', 'a picture of Kitty', 'a cake'], answer: 1 },
     ],
     makeQuestion: [
+      { answer: 'It is the fifth of May.', question: 'What is the date today?', hint: 'What is the date …?', accept: ['What\'s the date today?', 'What date is it today?'] },
+      { answer: 'It is Lan\'s birthday.', question: 'Whose birthday is it today?', hint: 'Whose …?', accept: ['Whose birthday is it?'] },
+      { answer: 'There are eleven candles on the cake because Lan is eleven.', question: 'Why are there eleven candles on the cake?', hint: 'Why …?' },
       { answer: 'My birthday is in October.', question: 'When is your birthday?', hint: 'When …?' },
       { answer: 'It is in July.', question: 'When is Tom\'s birthday?', hint: 'When is …?' },
+      { answer: 'Yes, it is. Mum\'s birthday is in December.', question: 'Is Mum\'s birthday in December?', hint: 'Is Mum\'s birthday …?' },
+      { answer: 'Lan has got a new book from Mum and Dad.', question: 'Who is the new book from?', hint: 'Who is … from?', accept: ['Who gives Lan a new book?'] },
+      { answer: 'It is a picture of Kitty.', question: 'What is your present for Lan?', hint: 'What is …?', accept: ['What is your present?'] },
     ],
     dictation: ['Happy birthday, Lan!', 'My birthday is in October.', 'Dad\'s birthday is in March.'],
     reorder: [

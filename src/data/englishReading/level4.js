@@ -43,6 +43,11 @@ Minh has never flown on a plane, but he has eaten snails. Tom has never tried th
       { answer: 'No, I have never seen snow.', question: 'Have you ever seen snow?', hint: 'Have you ever …?' },
       { answer: 'Yes, I have. I went to Sa Pa last winter.', question: 'Have you ever been to Sa Pa?', hint: 'Have you ever been to …?' },
       { answer: 'Yes, he has eaten snails.', question: 'Has Minh ever eaten snails?', hint: 'Has Minh ever …?' },
+      { answer: 'Because it does not snow in Ha Noi.', question: 'Why has Minh never seen snow?', hint: 'Why …?', accept: ["Why hasn't Minh seen snow?", 'Why has he never seen snow?'] },
+      { answer: 'He went to Sa Pa last winter.', question: 'When did Tom go to Sa Pa?', hint: 'When did …?', accept: ['When did he go to Sa Pa?'] },
+      { answer: 'He has seen snow in Japan.', question: 'Where has Tom seen snow?', hint: 'Where has …?', accept: ['Where has he seen snow?'] },
+      { answer: 'It was cold and beautiful.', question: 'What was the snow in Japan like?', hint: 'What was … like?', accept: ['What was the snow like?', 'How was the snow in Japan?'] },
+      { answer: 'He will try them tomorrow.', question: 'When will Tom try snails?', hint: 'When will …?', accept: ['When will he try snails?', 'When will Tom try them?'] },
     ],
     dictation: [
       'One afternoon, they sat in the school yard and talked about their experiences.',
@@ -104,6 +109,12 @@ Outside, Dad has already started the motorbike and is waiting for them. Lucky is
     makeQuestion: [
       { answer: 'Yes, I have already packed it.', question: 'Have you packed your bag yet?', hint: 'Have you … yet?' },
       { answer: 'Not yet. I have just washed my face.', question: 'Have you had breakfast yet?', hint: 'Have you had … yet?' },
+      { answer: 'He has just put his new pencil case in it.', question: 'What has Minh just put in his bag?', hint: 'What has … just …?', accept: ['What has he just put in his bag?', 'What has Minh just put in it?'] },
+      { answer: 'She eats her bread quickly.', question: 'How does Lan eat her bread?', hint: 'How does …?', accept: ['How does she eat her bread?'] },
+      { answer: 'Dad has already started the motorbike.', question: 'Who has already started the motorbike?', hint: 'Who has already …?', accept: ['Who has started the motorbike?'] },
+      { answer: 'Because he wants to come too.', question: 'Why is Lucky barking at the gate?', hint: 'Why …?', accept: ['Why is Lucky barking?', 'Why is he barking at the gate?'] },
+      { answer: 'No, he hasn\'t. He has forgotten again.', question: 'Has Minh brushed his teeth yet?', hint: 'Has Minh … yet?', accept: ['Has he brushed his teeth yet?'] },
+      { answer: 'He runs to the bathroom.', question: 'Where does Minh run?', hint: 'Where does …?', accept: ['Where does he run?', 'Where does Minh run to?'] },
     ],
     dictation: [
       'Lan sits down at the table and eats her bread quickly.',
@@ -155,6 +166,12 @@ The two boys have played in the same football team for three years. Tom is a goo
     makeQuestion: [
       { answer: 'I have lived in Viet Nam for five years.', question: 'How long have you lived in Viet Nam?', hint: 'How long have you …?' },
       { answer: 'Tom has studied Vietnamese since grade 1.', question: 'How long has Tom studied Vietnamese?', hint: 'How long has Tom …?' },
+      { answer: 'He came from Sydney.', question: 'Where did Tom come from?', hint: 'Where did …?', accept: ['Where did he come from?'] },
+      { answer: 'He was six.', question: 'How old was Tom when he came to Ha Noi?', hint: 'How old …?', accept: ['How old was he when he came to Ha Noi?', 'How old was Tom?'] },
+      { answer: 'He sat next to Minh.', question: 'Who did Tom sit next to on his first day at school?', hint: 'Who did … sit next to?', accept: ['Who did Tom sit next to?', 'Who did he sit next to?'] },
+      { answer: 'Because he has studied it since grade 1.', question: 'Why does Tom speak Vietnamese very well?', hint: 'Why …?', accept: ['Why does he speak Vietnamese very well?', 'Why does Tom speak Vietnamese so well?'] },
+      { answer: 'Yes, he is. He is a good goalkeeper.', question: 'Is Tom a goalkeeper?', hint: 'Is Tom …?', accept: ['Is Tom a good goalkeeper?', 'Is he a goalkeeper?'] },
+      { answer: 'He always runs to the gate.', question: 'What does Lucky do when Tom visits?', hint: 'What does … do when …?', accept: ['What does Lucky always do when Tom visits?'] },
     ],
     dictation: [
       'Tom has studied Vietnamese since grade 1, so he speaks it very well.',
@@ -207,6 +224,11 @@ Suddenly, all the lights went out. It was dark and very hot. Dad found some cand
       { answer: 'Dad was watching a football match.', question: 'What was Dad doing?', hint: 'What was … doing?' },
       { answer: 'She was marking tests in the living room.', question: 'What was Mum doing?', hint: 'What was … doing?' },
       { answer: 'No, they weren\'t. They were talking and laughing.', question: 'Were they watching TV?', hint: 'Were they …?' },
+      { answer: 'It was last Friday evening.', question: 'When was the power cut?', hint: 'When …?', accept: ['When was there a power cut?'] },
+      { answer: 'Yes, she was. She was visiting them that week.', question: 'Was Grandma visiting them that week?', hint: 'Was Grandma …?', accept: ['Was Grandma visiting the family that week?'] },
+      { answer: 'Grandma was telling Lucky a story.', question: 'Who was telling Lucky a story?', hint: 'Who …?', accept: ['Who was telling a story?'] },
+      { answer: 'They sat together on the balcony.', question: 'Where did the family sit?', hint: 'Where did …?', accept: ['Where did they sit?', 'Where did the family sit together?'] },
+      { answer: 'Because the family talked and laughed together.', question: 'Why did Minh like the power cut?', hint: 'Why …?', accept: ['Why did Minh like power cuts?', 'Why does Minh like power cuts?', 'Why did he like the power cut?'] },
     ],
     dictation: [
       'Last Friday evening, there was a power cut in Minh\'s street.',
@@ -258,6 +280,12 @@ In the morning, we found a fallen tree in front of our house. While we were clea
     makeQuestion: [
       { answer: 'I was dreaming about football.', question: 'What were you doing when the lights went out?', hint: 'What were you doing when …?' },
       { answer: 'She was closing the window.', question: 'What was Lan doing when she saw the trees?', hint: 'What was Lan doing when …?' },
+      { answer: 'It came last night.', question: 'When did the storm come?', hint: 'When did …?', accept: ['When did the big storm come?', 'When did the storm come to Ha Noi?'] },
+      { answer: 'Because a window banged.', question: 'Why did Lan wake up?', hint: 'Why …?', accept: ['Why did she wake up?'] },
+      { answer: 'They were moving like dancers in the rain.', question: 'How were the trees moving?', hint: 'How were …?', accept: ['How were the trees moving in the rain?'] },
+      { answer: 'He was barking under the bed.', question: 'Where was Lucky barking?', hint: 'Where was …?', accept: ['Where was Lucky?', 'Where was he barking?'] },
+      { answer: 'No, she wasn\'t. She was looking for a torch.', question: 'Was Mum checking the doors?', hint: 'Was Mum …?', accept: ['Was Mum checking the doors too?'] },
+      { answer: 'It stopped at nearly four o\'clock.', question: 'When did the storm stop?', hint: 'When did …?', accept: ['What time did the storm stop?'] },
     ],
     dictation: [
       'Lucky was barking under the bed, and Kitty was hiding in a box.',
@@ -314,6 +342,12 @@ Minh checks the weather on Dad's phone and smiles. "If it is sunny on Sunday, I 
     makeQuestion: [
       { answer: 'If it rains, we will visit the museum.', question: 'What will you do if it rains?', hint: 'What will you do if …?' },
       { answer: 'Yes, I will. If it is sunny, I will bring my ball.', question: 'Will you bring your ball if it is sunny?', hint: 'Will you … if …?' },
+      { answer: 'They are going to have a picnic in Thu Le Park.', question: 'Where is the class going to have a picnic?', hint: 'Where …?', accept: ['Where are they going to have a picnic?', 'Where will the class have a picnic?'] },
+      { answer: 'It is on Sunday.', question: 'When is the picnic?', hint: 'When …?', accept: ['When is the class picnic?', 'What day is the picnic?'] },
+      { answer: 'Because it is the rainy season.', question: 'Why are they making two plans?', hint: 'Why …?', accept: ['Why is the class making two plans?'] },
+      { answer: 'If it is sunny, we will play games on the grass.', question: 'What will you do if it is sunny?', hint: 'What will you do if …?', accept: ['What will we do if it is sunny?'] },
+      { answer: 'We will play football next week.', question: 'When will you play football if it rains?', hint: 'When will …?', accept: ['When will we play football if it rains?', 'When will you play football?'] },
+      { answer: 'Yes, you will. If you take an umbrella, you will stay dry.', question: 'Will I stay dry if I take an umbrella?', hint: 'Will I … if …?' },
     ],
     dictation: [
       'If it rains tomorrow, we will visit the museum instead.',
@@ -371,6 +405,12 @@ Minh thinks his sister is the cleverest person that he knows.`,
     makeQuestion: [
       { answer: 'Grandpa gave her the telescope.', question: 'Who gave Lan the telescope?', hint: 'Who …?' },
       { answer: 'It was a satellite which goes around the Earth.', question: 'What was the light in the sky?', hint: 'What was …?' },
+      { answer: 'She got it for her birthday.', question: 'When did Lan get the telescope?', hint: 'When …?', accept: ['When did she get the telescope?', 'When did Grandpa give Lan the telescope?'] },
+      { answer: 'She goes there to look at the sky.', question: 'Why does Lan climb up to the roof?', hint: 'Why …?', accept: ['Why does she go to the roof?', 'Why does Lan go up to the roof?'] },
+      { answer: 'It is a book that tells old stories about the stars.', question: 'What is Lan\'s favourite book?', hint: 'What is …?', accept: ["What kind of book is Lan's favourite book?", 'What is her favourite book?'] },
+      { answer: 'Ms Hoa lent it to her.', question: 'Who lent Lan the book?', hint: 'Who …?', accept: ['Who lent her the book?', 'Who lent the book to Lan?'] },
+      { answer: 'Yes, she does. She wants to be a scientist who studies the planets.', question: 'Does Lan want to be a scientist?', hint: 'Does Lan want to …?', accept: ['Does she want to be a scientist?'] },
+      { answer: 'It moved slowly across the sky.', question: 'How did the light move?', hint: 'How …?', accept: ['How did the light move across the sky?'] },
     ],
     dictation: [
       'She has a small telescope which Grandpa gave her for her birthday.',
@@ -424,6 +464,12 @@ Grandpa still fishes in his pond, but the river is not as clean as it used to be
     makeQuestion: [
       { answer: 'No, I didn\'t. I used to walk to school.', question: 'Did you use to go to school by bike?', hint: 'Did you use to …?' },
       { answer: 'He used to fish in the river.', question: 'What did Grandpa use to do every morning?', hint: 'What did … use to do?' },
+      { answer: 'He visited Grandpa last summer.', question: 'When did Minh visit Grandpa?', hint: 'When …?', accept: ['When did he visit Grandpa?'] },
+      { answer: 'They sat by the pond.', question: 'Where did Minh and Grandpa sit?', hint: 'Where …?', accept: ['Where did they sit?', 'Where did they sit one evening?'] },
+      { answer: 'Because they didn\'t have electricity.', question: 'Why did they use to read by oil lamps?', hint: 'Why …?', accept: ['Why did people use to read by oil lamps?', 'Why did Grandpa use to read by oil lamps?'] },
+      { answer: 'He used to walk five kilometres.', question: 'How far did Grandpa use to walk to school?', hint: 'How far …?', accept: ['How far did he use to walk?', 'How far did Grandpa use to walk?'] },
+      { answer: 'They go to school by bus.', question: 'How do children go to school now?', hint: 'How do …?', accept: ['How do the children go to school now?', 'How do children go to school?'] },
+      { answer: 'No, it isn\'t. It is not as clean as it used to be.', question: 'Is the river still clean?', hint: 'Is the river …?', accept: ['Is the river clean now?', 'Is the river as clean as it used to be?'] },
     ],
     dictation: [
       'One evening, they sat by the pond, and Grandpa talked about the old days.',
@@ -479,6 +525,12 @@ On the bus home, Minh said, "I will never waste paper again!"`,
     makeQuestion: [
       { answer: 'Paper is made from wood.', question: 'What is paper made from?', hint: 'What is … made from?' },
       { answer: 'Yes, old paper is collected and recycled.', question: 'Is old paper used again?', hint: 'Is … used …?' },
+      { answer: 'She took them to a paper factory.', question: 'Where did Ms Hoa take her class?', hint: 'Where …?', accept: ['Where did Ms Hoa take her class last week?', 'Where did she take the class?'] },
+      { answer: 'A worker showed them.', question: 'Who showed them how paper is made?', hint: 'Who …?', accept: ['Who showed the class how paper is made?', 'Who showed them?'] },
+      { answer: 'It is brought to the factory by truck.', question: 'How is the wood brought to the factory?', hint: 'How is …?', accept: ['How is the wood brought there?', 'How is the wood taken to the factory?'] },
+      { answer: 'It is called pulp.', question: 'What is the mixture called?', hint: 'What is … called?', accept: ['What is this mixture called?', 'What is the mixture of wood and water called?'] },
+      { answer: 'It is pressed between big rollers.', question: 'Where is the pulp pressed?', hint: 'Where is …?', accept: ['How is the pulp pressed?'] },
+      { answer: 'Because it saves trees.', question: 'Why is old paper recycled?', hint: 'Why …?', accept: ['Why is old paper collected and recycled?', 'Why do they recycle old paper?'] },
     ],
     dictation: [
       'Then the wood is cut into small pieces and mixed with water.',
@@ -532,6 +584,11 @@ At home, Minh tells his family. Now Lan cooks with only a little oil, and Dad ea
       { answer: 'Playing outside keeps your body strong.', question: 'What keeps your body strong?', hint: 'What keeps …?' },
       { answer: 'Lan cooks with only a little oil.', question: 'How much oil does Lan cook with?', hint: 'How much …?' },
       { answer: 'Dad eats a few bananas.', question: 'How many bananas does Dad eat?', hint: 'How many …?' },
+      { answer: 'They are learning about healthy habits.', question: "What is Ms Hoa's class learning about this week?", hint: 'What is … learning about?', accept: ['What is the class learning about?', 'What are they learning about?'] },
+      { answer: 'Because he loves fried chicken.', question: 'Why does Minh feel a bit worried?', hint: 'Why …?', accept: ['Why is Minh worried?', 'Why does he feel worried?'] },
+      { answer: 'Drinking water is better than drinking soft drinks.', question: 'Which is better, drinking water or drinking soft drinks?', hint: 'Which is better, …?', accept: ['Which is better, water or soft drinks?'] },
+      { answer: 'You should sleep for nine hours.', question: 'How long should I sleep?', hint: 'How long …?', accept: ['How many hours should I sleep?', 'How long should we sleep?'] },
+      { answer: 'No, it isn\'t. It is bad for your eyes.', question: 'Is watching a lot of TV good for your eyes?', hint: 'Is watching …?', accept: ['Is watching TV good for your eyes?', 'Is watching a lot of TV good for you?'] },
     ],
     dictation: [
       'Minh loves fried chicken, so he feels a bit worried.',
@@ -596,6 +653,11 @@ At home, Minh tells his family. Now Lan cooks with only a little oil, and Dad ea
       { answer: 'Yes, I\'d love to come to your house.', question: 'Would you like to come to my house?', hint: 'Would you like to …?' },
       { answer: 'Sure, I can bring some fruit.', question: 'Could you bring some fruit?', hint: 'Could you …?' },
       { answer: 'Of course you can bring your board game.', question: 'Can I bring my board game?', hint: 'Can I …?' },
+      { answer: 'She is going to make spring rolls.', question: 'What is Lan going to make?', hint: 'What is … going to …?', accept: ['What is she going to make?'] },
+      { answer: 'Because Mum would like some mangoes for dessert.', question: 'Why does Minh ask Tom to bring some fruit?', hint: 'Why …?', accept: ['Why should Tom bring some fruit?', 'Why does Minh want some fruit?'] },
+      { answer: 'Yes, please! We can play in the park after we eat.', question: 'Would you like me to bring my football?', hint: 'Would you like me to …?', accept: ['Would you like me to bring my football as well?', 'Would you like me to bring my football too?'] },
+      { answer: 'It\'s 25 Hang Bong Street.', question: 'What is your address?', hint: 'What is …?', accept: ['Could you tell me your address?', 'Could you tell me your address again?'] },
+      { answer: 'He is visiting from Sydney.', question: 'Where is Jack visiting from?', hint: 'Where …?', accept: ["Where is Tom's cousin visiting from?", 'Where is he visiting from?'] },
     ],
     dictation: [
       "On Saturday morning, Minh called Tom on Mum's phone.",
@@ -647,6 +709,12 @@ Since then, he has shown his gold medal to everyone in the family, even Kitty.`,
     makeQuestion: [
       { answer: 'Yes, I have. I scored two goals last Saturday.', question: 'Have you ever scored two goals in one match?', hint: 'Have you ever …?' },
       { answer: 'The final was last Saturday.', question: 'When was the final?', hint: 'When …?' },
+      { answer: 'They have played six matches this year.', question: "How many matches has Minh's team played this year?", hint: 'How many …?', accept: ['How many matches have they played this year?', 'How many matches has the team played this year?'] },
+      { answer: 'Yes, they have. They have won all of them.', question: 'Have they won all their matches this year?', hint: 'Have they …?', accept: ['Have they won all their matches?', 'Have they won all the matches?'] },
+      { answer: 'Many parents came to watch.', question: 'Who came to watch the final?', hint: 'Who …?', accept: ['Who came to watch?', 'Who came to watch the match?'] },
+      { answer: 'Because the other team scored a goal.', question: 'Why did Minh feel nervous?', hint: 'Why …?', accept: ['Why was Minh nervous?', 'Why did he feel nervous?'] },
+      { answer: 'He kicked the ball far up the field to Minh.', question: 'What did Tom do in the second half?', hint: 'What did …?', accept: ['What did Tom do?'] },
+      { answer: 'He scored two goals.', question: 'How many goals did Minh score in the final?', hint: 'How many …?', accept: ['How many goals did Minh score?', 'How many goals did he score?'] },
     ],
     dictation: [
       'In the first half, the other team scored a goal, and Minh felt nervous.',
@@ -700,6 +768,12 @@ Minh is not sure. "It may rain on the day of the fair, so fewer people might com
     makeQuestion: [
       { answer: 'We might make flower pots.', question: 'What might you make?', hint: 'What might …?' },
       { answer: 'They may sell their things at the school fair.', question: 'Where may they sell their things?', hint: 'Where …?' },
+      { answer: 'They bring old bottles, cans and paper.', question: 'What do the members bring?', hint: 'What do … bring?', accept: ['What do they bring?', 'What do the club members bring?'] },
+      { answer: 'They bring old things to the club every Friday.', question: 'How often do the members bring old things?', hint: 'How often …?', accept: ['When do the members bring old things?', 'How often do they bring old things to the club?'] },
+      { answer: 'Parents might buy them.', question: 'Who might buy the flower pots?', hint: 'Who might …?', accept: ['Who might buy them?', 'Who may buy the flower pots?'] },
+      { answer: 'It is in December.', question: 'When is the school fair?', hint: 'When …?', accept: ['When is the fair?'] },
+      { answer: 'Because it may rain on the day of the fair.', question: 'Why might fewer people come?', hint: 'Why …?', accept: ['Why might fewer people come to the fair?', 'Why may fewer people come?'] },
+      { answer: 'No, it might not work.', question: 'Will the robot work?', hint: 'Will the robot …?', accept: ['Will the robot work at the fair?'] },
     ],
     dictation: [
       'Minh and Lan have joined the Recycling Club at school.',
@@ -753,6 +827,12 @@ Minh has learned that helping people feels good. He wants to join a volunteer cl
     makeQuestion: [
       { answer: 'Lan offered to cook dinner for her.', question: 'What did Lan offer to do?', hint: 'What did … offer to do?' },
       { answer: 'He enjoys playing with the dog.', question: 'What does Minh enjoy doing?', hint: 'What does … enjoy doing?' },
+      { answer: 'She broke her leg last month.', question: 'When did Mrs Lien break her leg?', hint: 'When …?', accept: ['When did she break her leg?'] },
+      { answer: 'Because she broke her leg and she lives alone.', question: "Why did Minh's family decide to help Mrs Lien?", hint: 'Why …?', accept: ['Why did the family decide to help her?', "Why did Minh's family help Mrs Lien?"] },
+      { answer: 'Mum promised to buy vegetables for her.', question: 'Who promised to buy vegetables for Mrs Lien?', hint: 'Who …?', accept: ['Who promised to buy vegetables for her?', 'Who promised to buy vegetables?'] },
+      { answer: 'Yes, she does. She loves telling old stories.', question: 'Does Grandma love telling old stories?', hint: 'Does Grandma …?', accept: ['Does Grandma like telling old stories?', 'Does she love telling old stories?'] },
+      { answer: 'She visited her every afternoon.', question: 'How often did Grandma visit Mrs Lien?', hint: 'How often …?', accept: ['When did Grandma visit Mrs Lien?', 'How often did she visit Mrs Lien?'] },
+      { answer: 'He wants to join a volunteer club.', question: 'Which club does Minh want to join?', hint: 'Which club …?', accept: ['What club does Minh want to join?', 'Which club does he want to join?'] },
     ],
     dictation: [
       'Lan offered to cook dinner for her every Tuesday.',
@@ -802,6 +882,12 @@ Under a big tree, they found a tin box. Inside, there was a note: "Well done! No
     makeQuestion: [
       { answer: 'We walked along the river.', question: 'Where did you walk?', hint: 'Where …?' },
       { answer: 'We found a tin box under a big tree.', question: 'What did you find under the big tree?', hint: 'What …?' },
+      { answer: 'They found it one morning during the summer holiday.', question: 'When did the boys find the map?', hint: 'When …?', accept: ['When did they find the map?', 'When did the boys find the old map?'] },
+      { answer: 'They found an old map in a box.', question: 'Where did the boys find the map?', hint: 'Where did …?', accept: ['Where did they find the map?', 'Where did they find the old map?'] },
+      { answer: 'Grandpa drew it for Lan.', question: 'Who drew the treasure map?', hint: 'Who …?', accept: ['Who drew the map?'] },
+      { answer: 'They walked past the old temple.', question: 'What did they walk past?', hint: 'What did … walk past?', accept: ['What did the boys walk past?'] },
+      { answer: 'Yes, they did. They went through the rice fields.', question: 'Did the boys go through the rice fields?', hint: 'Did the boys …?', accept: ['Did they go through the rice fields?'] },
+      { answer: 'Because the note told them to come back for some ice cream.', question: 'Why did the boys walk back past the temple?', hint: 'Why …?', accept: ['Why did they walk back past the temple?', 'Why did the boys walk back?'] },
     ],
     dictation: [
       'They walked out of the gate and went along the river.',
@@ -853,6 +939,12 @@ Later, baby turtles came out, so everyone carried them to the sea. They walked s
     makeQuestion: [
       { answer: 'Because people catch them and make the sea dirty.', question: 'Why are sea turtles in danger?', hint: 'Why …?' },
       { answer: 'They lay their eggs on the beach.', question: 'Where do turtles lay their eggs?', hint: 'Where …?' },
+      { answer: 'It is in the south of Viet Nam.', question: 'Where is Con Dao?', hint: 'Where is …?', accept: ['Where is Con Dao island?'] },
+      { answer: 'They lay them at night.', question: 'When do turtles lay their eggs?', hint: 'When …?', accept: ['What time do turtles lay their eggs?', 'When do they lay their eggs?'] },
+      { answer: 'So that dogs and birds can\'t eat them.', question: 'Why do they keep the eggs in a safe place?', hint: 'Why …?', accept: ['Why do they keep the eggs safe?', 'Why does Mr Tuan keep the eggs in a safe place?'] },
+      { answer: 'They walked slowly so that they didn\'t drop the babies.', question: 'How did they walk to the sea?', hint: 'How …?', accept: ['How did everyone walk to the sea?', 'How did they walk?'] },
+      { answer: 'They look like jellyfish.', question: 'What do plastic bags look like?', hint: 'What do … look like?', accept: ['What do plastic bags look like to turtles?'] },
+      { answer: 'No, he doesn\'t. He always takes a cloth bag now.', question: 'Does Minh still use plastic bags?', hint: 'Does Minh still …?', accept: ['Does Minh use plastic bags now?', 'Does he still use plastic bags?'] },
     ],
     dictation: [
       'Sea turtles are in danger because people catch them and make the sea dirty.',
@@ -908,6 +1000,12 @@ At home, Minh has to ask Mum before he downloads a new game. Lan has to finish h
     makeQuestion: [
       { answer: 'No, you don\'t have to use your real name.', question: 'Do we have to use our real names?', hint: 'Do we have to …?' },
       { answer: 'You should tell an adult.', question: 'What should I do if someone is unkind to me online?', hint: 'What should I do if …?' },
+      { answer: 'She is teaching the class about internet safety.', question: 'What is Ms Hoa teaching the class about?', hint: 'What is … teaching …?', accept: ['What is Ms Hoa teaching about?', 'What is she teaching the class about?'] },
+      { answer: 'No, you mustn\'t. You must never share your password with anyone.', question: 'Can I share my password?', hint: 'Can I …?', accept: ['Can I share my password with anyone?', 'Can I share my password with my friends?', 'Should I share my password?'] },
+      { answer: 'He has to ask Mum.', question: 'Who does Minh have to ask before he downloads a new game?', hint: 'Who does … have to ask …?', accept: ['Who does Minh have to ask?', 'Who does he have to ask before he downloads a game?'] },
+      { answer: 'She can go online after she finishes her homework.', question: 'When can Lan go online?', hint: 'When can …?', accept: ['When can she go online?'] },
+      { answer: 'You should take a break every thirty minutes.', question: 'How often should I take a break?', hint: 'How often …?', accept: ['How often should we take a break?', 'How often should you take a break?'] },
+      { answer: 'Because your eyes need some rest.', question: 'Why should I take a break?', hint: 'Why …?', accept: ['Why should we take a break?', 'Why should I take a break every thirty minutes?', 'Why should you take a break?'] },
     ],
     dictation: [
       'If someone is unkind to you online, you should tell an adult.',
@@ -961,6 +1059,12 @@ In the evening, Minh told Dad, "Today wasn't boring at all. Tomorrow I'm going t
     makeQuestion: [
       { answer: 'I felt bored because it was raining.', question: 'How did you feel?', hint: 'How did you feel?' },
       { answer: 'Yes, it is really exciting.', question: 'Is the book exciting?', hint: 'Is the book …?' },
+      { answer: 'It was about dinosaurs.', question: 'What was Lan\'s book about?', hint: 'What was … about?', accept: ['What was the book about?', 'What was Lan reading about?'] },
+      { answer: 'No, he wasn\'t. But after a few pages, he was amazed.', question: 'Was Minh interested in the book at first?', hint: 'Was Minh … at first?', accept: ['Was Minh interested at first?', 'Was he interested in the book at first?'] },
+      { answer: 'One dinosaur was as long as two buses.', question: 'How long was one dinosaur?', hint: 'How long …?', accept: ['How long was the dinosaur?', 'How big was one dinosaur?'] },
+      { answer: 'Because Kitty jumped onto the book.', question: 'Why was Minh frightened?', hint: 'Why …?', accept: ['Why was Minh scared?', 'Why did Minh scream?', 'Why was he frightened?'] },
+      { answer: 'Lan laughed.', question: 'Who laughed when Minh screamed?', hint: 'Who …?', accept: ['Who laughed?'] },
+      { answer: 'He is going to the library.', question: 'Where is Minh going tomorrow?', hint: 'Where …?', accept: ['Where is he going tomorrow?'] },
     ],
     dictation: [
       'Last Sunday was a rainy day, and Minh felt bored.',
@@ -1013,6 +1117,12 @@ Later, they put small paper lanterns on the river and made wishes. "This is a re
     makeQuestion: [
       { answer: 'Lan bought a beautiful little green lantern.', question: 'What did Lan buy?', hint: 'What did …?' },
       { answer: 'It was quite cheap.', question: 'How much was the lantern?', hint: 'How much …?' },
+      { answer: 'It turns off its electric lights.', question: 'What does Hoi An do on the fourteenth night of every lunar month?', hint: 'What does … do …?', accept: ['What does Hoi An do on the fourteenth night?', 'What does the old town do on the fourteenth night of every lunar month?'] },
+      { answer: 'They were there last month.', question: "When were Minh's family in Hoi An?", hint: 'When …?', accept: ["When was Minh's family in Hoi An?", 'When were they in Hoi An?', 'When did they go to Hoi An?'] },
+      { answer: 'There were hundreds of lanterns.', question: 'How many lanterns were there?', hint: 'How many …?', accept: ['How many lanterns were there everywhere?'] },
+      { answer: 'He ate cao lau, a very tasty Vietnamese noodle dish.', question: 'Which dish did Minh eat?', hint: 'Which dish …?', accept: ['What did Minh eat?', 'What dish did Minh eat?'] },
+      { answer: 'Because they wanted to make wishes.', question: 'Why did they put paper lanterns on the river?', hint: 'Why …?', accept: ['Why did they put lanterns on the river?', 'Why did the family put small paper lanterns on the river?'] },
+      { answer: 'Yes, he was. He was quite tired, but he was very happy.', question: 'Was Dad happy?', hint: 'Was Dad …?', accept: ['Was Dad tired?', 'Was Dad happy at the end?'] },
     ],
     dictation: [
       'Lan bought a beautiful little green lantern for her room.',
@@ -1067,6 +1177,11 @@ At midnight, Lan pointed at the sky. "If you look carefully, you will see a shoo
       { answer: 'No, I have never slept in a tent.', question: 'Have you ever slept in a tent?', hint: 'Have you ever …?' },
       { answer: 'We were sitting around the fire.', question: 'What were you doing when you heard the noise?', hint: 'What were you doing when …?' },
       { answer: 'I am going to bring my parents.', question: 'What are you going to do next year?', hint: 'What are you going to …?' },
+      { answer: 'They went camping in Ba Vi National Park.', question: "Where did Minh's family go camping?", hint: 'Where …?', accept: ['Where did they go camping?', "Where did Minh's family go last weekend?"] },
+      { answer: 'Because Tom has never slept in a tent.', question: 'Why did Minh invite Tom?', hint: 'Why …?', accept: ['Why did Minh invite him?'] },
+      { answer: 'Lan cooked noodles on a stove.', question: 'Who cooked noodles?', hint: 'Who …?', accept: ['Who cooked noodles on a stove?', 'Who cooked the noodles?'] },
+      { answer: 'He used to camp there when he was a student.', question: 'When did Dad use to camp there?', hint: 'When did … use to …?', accept: ['When did Dad use to camp in Ba Vi?', 'When did he use to camp there?'] },
+      { answer: 'It was only a hungry monkey.', question: 'Which animal made the strange noise?', hint: 'Which animal …?', accept: ['What made the strange noise?', 'Which animal made the noise?'] },
     ],
     dictation: [
       "Last weekend, Minh's family went camping in Ba Vi National Park.",
