@@ -35,6 +35,9 @@
 .enr-part { font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
 .enr-level.is-on, .enr-part.is-on { border-color: var(--en-blue); background: var(--en-blue-soft); color: #1E3A8A; box-shadow: inset 0 0 0 1px var(--en-blue); }
 .enr-part.is-done:not(.is-on) { color: var(--en-ok); }
+/* tab bộ chủ đề (bài 101+): ngăn với tab cấp bằng một vạch mảnh */
+.enr-tabsep { flex: none; width: 1px; align-self: stretch; margin: 4px 2px; background: var(--en-edge); }
+.enr-card-lv { font-weight: 700; color: var(--en-blue); margin-right: 4px; }
 
 /* Danh sách bài */
 .enr-lvinfo { margin: 2px 0 12px; color: var(--en-sub); }

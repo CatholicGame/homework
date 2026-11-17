@@ -299,3 +299,64 @@ Bé tự nói về bài đọc. Mỗi bài 5 câu, theo thứ tự: 2 câu **�
 - Sai: nhắc theo loại câu (nói cả câu / xem lại bài / nói theo khung / thêm từ gợi ý). Sai 2 lần thì hiện câu mẫu và nút "Bỏ qua câu này" (tính như xem đáp án). Đúng thì hiện câu mẫu để so.
 - Kiểm tra dữ liệu: `node scripts/check-english-speak.mjs [cấp]` (đủ trường, đúng thứ tự, câu mẫu tự qua chấm, không "—" / "nhé").
 - Xem thử: `scripts/english-reading-dev.html?app=1&id=en-021&part=speak`.
+
+## 10. Bộ chủ đề (bài 101–130)
+
+Ba bộ, mỗi bộ 10 bài, ở các tab sau Cấp 5 trong danh sách (`THEMES` trong `index.js`). Mỗi bài đủ 9 phần như các cấp,
+`level` là độ khó (đếm từ, quy ước câu hỏi theo cấp đó), thêm `pack` = key của bộ. Ngữ pháp chỉ dùng điểm đã học ở cấp đó
+(bảng §5), không vào bản đồ ngữ pháp. Dữ liệu: `<key>.js`, `gloss/<key>.js`, `speak/<key>.js`.
+Kiểm tra: `node scripts/check-english-reading.mjs <key>` (tương tự gloss, speak; fill chạy cả 130 bài).
+
+Quy ước riêng:
+- Tên riêng tiếng Việt viết không dấu trong `text` (Trung Trac, Ngo Quyen, Bach Dang) như Ha Long, Hoi An; gloss ghi tên có dấu trong `vi`, `name: true`.
+- Lịch sử: đúng sự kiện, năm; truyền thuyết / giai thoại nói rõ "People say …" / "An old story says …". Không tả cảnh máu me; nhấn vào lòng dũng cảm, ham học, lòng nhân hậu.
+- Chuyện nhân văn: kể lại bằng lời của mình (không chép bản dịch có bản quyền), giữ đúng các chi tiết thật về nhân vật thật.
+- Truyện hoạt hình 🎧 và ảnh bìa: làm sau khi duyệt nội dung (chưa có thì phần Nghe chạy như bài thường).
+
+### 👽 Bạn từ hành tinh khác (`alien`, bài 101–110)
+
+Bíp (Bip) là cậu bé người ngoài hành tinh từ hành tinh Lumo (hai mặt trời, biển tím), nhỏ, da xanh, ba mắt, hai cái râu sáng lên khi vui.
+Phi thuyền hỏng rơi xuống vườn nhà Minh. 10 tập nối nhau: Bíp học về Trái Đất, Việt Nam, tình bạn; cuối cùng sửa xong phi thuyền và về nhà.
+
+| # | Tên bài | Cấp | Chủ đề | Ngữ pháp |
+|---|---|---|---|---|
+| 101 | A Visitor in the Garden | 1 | Bíp rơi xuống vườn, làm quen | to be; have got |
+| 102 | Bip Likes Pho | 1 | Bíp ăn thử món Việt | like / don't like; can |
+| 103 | Bip Goes to School | 2 | Bíp đi học cùng Minh | hiện tại đơn ngôi 3, trạng từ tần suất |
+| 104 | Life on Planet Lumo | 2 | Bíp kể về hành tinh Lumo | so sánh Trái Đất / Lumo bằng hiện tại đơn; and / but / because |
+| 105 | Lost in the Old Quarter | 3 | Bíp lạc ở phố cổ, bà bán xôi giúp | quá khứ đơn bất quy tắc |
+| 106 | Taller, Faster, Smaller | 3 | Bíp dự ngày hội thể thao | so sánh hơn, so sánh nhất |
+| 107 | Bip Misses Home | 4 | Bíp nhớ nhà, các bạn làm đèn Trung thu | hiện tại hoàn thành ever / never / since / for |
+| 108 | Fixing the Spaceship | 4 | sửa phi thuyền bằng đồ tái chế | mệnh đề quan hệ who / which; may / might |
+| 109 | If I Lived on Lumo | 5 | Minh tưởng tượng sống ở Lumo | câu điều kiện loại 2, wish |
+| 110 | Goodbye, Bip | 5 | Bíp chia tay, hứa trở lại | câu tường thuật; bị động quá khứ |
+
+### 💛 Chuyện nhân văn (`kind`, bài 111–120)
+
+| # | Tên bài | Cấp | Chuyện | Ngữ pháp |
+|---|---|---|---|---|
+| 111 | The Lion and the Mouse | 1 | ngụ ngôn Aesop: chuột nhỏ cứu sư tử | can / can't; tính từ big / small |
+| 112 | The Starfish Boy | 2 | cậu bé ném sao biển về biển: "Mình giúp được con này" | hiện tại đơn và tiếp diễn |
+| 113 | Hachiko Waits | 2 | chú chó Hachiko chờ chủ ở ga Shibuya | hiện tại đơn, trạng từ tần suất, at + giờ |
+| 114 | Androcles and the Lion | 3 | rút gai cho sư tử, sư tử nhớ ơn | quá khứ đơn bất quy tắc; when |
+| 115 | Louis Braille's Dots | 3 | cậu bé mù 15 tuổi sáng tạo chữ nổi | could / couldn't; quá khứ |
+| 116 | The Lady with the Lamp | 3 | Florence Nightingale chăm người bệnh | quá khứ đơn; first / then / finally |
+| 117 | Water! | 4 | Helen Keller và cô Anne Sullivan | quá khứ tiếp diễn + when; who |
+| 118 | A Thousand Paper Cranes | 4 | Sadako và những con hạc giấy hoà bình | so / because / so that; used to |
+| 119 | The Marathon of Hope | 5 | Terry Fox chạy xuyên Canada bằng một chân | although / despite; bị động quá khứ |
+| 120 | The Happy Prince | 5 | truyện Oscar Wilde: bức tượng và chim én | câu tường thuật; quá khứ hoàn thành |
+
+### 📜 Nhân vật lịch sử Việt Nam (`vietsu`, bài 121–130, theo thời gian)
+
+| # | Tên bài | Cấp | Nhân vật, sự kiện | Ngữ pháp |
+|---|---|---|---|---|
+| 121 | The Trung Sisters | 3 | Hai Bà Trưng khởi nghĩa năm 40, cưỡi voi | was / were; quá khứ đơn |
+| 122 | The Stakes in the River | 3 | Ngô Quyền, trận Bạch Đằng năm 938, cọc gỗ và thuỷ triều | quá khứ đơn; first / then / finally |
+| 123 | The Buffalo Boy and the Reed Flags | 3 | Đinh Bộ Lĩnh tuổi nhỏ chơi cờ lau, sau dẹp loạn 12 sứ quân (968) | when + quá khứ; could |
+| 124 | A Poem by the River | 3 | Lý Thường Kiệt, sông Như Nguyệt 1077, bài thơ Nam quốc sơn hà | quá khứ; will (lời hứa trong thơ) |
+| 125 | The Boy Outside the Classroom | 4 | Nguyễn Hiền nghe lỏm bài, đỗ trạng nguyên 12 tuổi (1247) | quá khứ tiếp diễn; while / when |
+| 126 | The Orange in His Hand | 4 | Trần Quốc Toản bóp nát quả cam, lá cờ sáu chữ vàng | too … to; so that; mệnh đề who |
+| 127 | The Sword and the Golden Turtle | 4 | Lê Lợi, khởi nghĩa Lam Sơn, sự tích hồ Hoàn Kiếm (truyền thuyết) | bị động hiện tại / quá khứ đơn giản; which |
+| 128 | Kindness After Victory | 5 | Nguyễn Trãi, Bình Ngô đại cáo; cấp thuyền, ngựa cho quân Minh về nước (1427–1428) | although; câu tường thuật |
+| 129 | How to Weigh an Elephant | 5 | Lương Thế Vinh cân voi bằng thuyền (giai thoại), ông giỏi toán | bị động; câu điều kiện loại 1 |
+| 130 | The Spring Victory | 5 | Quang Trung hành quân thần tốc, Ngọc Hồi – Đống Đa Tết 1789, cành đào | quá khứ hoàn thành; by the time |

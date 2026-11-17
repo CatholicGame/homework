@@ -20,7 +20,7 @@ const writing = (desc) => ({ id: 'writing', group: 'tiengviet', icon: '✍️', 
 
 // 🌍 Tiếng Anh: thẻ có group 'tienganh' thành tab riêng ở trang chủ. Đọc tiếng Anh: 100 bài, 5 cấp (docs/tieng-anh/thiet-ke-bai-doc.md),
 // cùng một thẻ cho lớp 1–5, trang tự mở cấp hợp với lớp trong hồ sơ.
-const ENGLISH = { id: 'english-reading', group: 'tienganh', icon: '📖', color: '#2563EB', title: 'Đọc tiếng Anh', desc: '100 bài đọc ngắn từ dễ đến khó: nghe đọc, chạm từ xem nghĩa, ngữ pháp, trả lời câu hỏi, chép chính tả' };
+const ENGLISH = { id: 'english-reading', group: 'tienganh', icon: '📖', color: '#2563EB', title: 'Đọc tiếng Anh', desc: '100 bài đọc ngắn từ dễ đến khó và 30 bài chủ đề (bạn từ hành tinh khác, chuyện nhân văn, nhân vật lịch sử Việt Nam): nghe đọc, chạm từ xem nghĩa, ngữ pháp, trả lời câu hỏi, chép chính tả' };
 
 // `hidden: true` = ẩn với mọi người (kể cả admin), vẫn mở được bằng #id.
 // 🏆 Đấu Trường Nhí: mở cho mọi người (lớp 1–5) từ 2026-11-09, `live` = thẻ LIVE to đầu tab Trò chơi. Thiết kế docs/dau-truong/thiet-ke.md.

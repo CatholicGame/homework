@@ -6,16 +6,18 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { speakCheck } from '../src/games/englishCheck.js';
 
-const only = process.argv[2] ? [Number(process.argv[2])] : [1, 2, 3, 4, 5];
+const all = [1, 2, 3, 4, 5, 'alien', 'kind', 'vietsu']; // cấp + bộ chủ đề
+const only = process.argv[2] ? [/^\d$/.test(process.argv[2]) ? Number(process.argv[2]) : process.argv[2]] : all;
 const dir = path.resolve('src/data/englishReading');
 let errors = 0, total = 0;
 const err = (id, m) => { errors++; console.log(`✗ ${id}: ${m}`); };
 
 for (const lv of only) {
-  const file = path.join(dir, 'speak', `level${lv}.js`);
-  if (!existsSync(file)) { console.log(`- speak/level${lv}.js chưa có`); continue; }
+  const fname = typeof lv === 'string' ? lv : `level${lv}`;
+  const file = path.join(dir, 'speak', `${fname}.js`);
+  if (!existsSync(file)) { console.log(`- speak/${fname}.js chưa có`); continue; }
   const data = (await import(pathToFileURL(file).href)).default;
-  const lessons = (await import(pathToFileURL(path.join(dir, `level${lv}.js`)).href)).default;
+  const lessons = (await import(pathToFileURL(path.join(dir, `${fname}.js`)).href)).default;
   for (const L of lessons) {
     const items = data[L.id];
     if (!items) { err(L.id, 'chưa có câu nói'); continue; }

@@ -1,11 +1,14 @@
 // Kiểm tra dữ liệu bài đọc tiếng Anh (docs/tieng-anh/thiet-ke-bai-doc.md).
-// node scripts/check-english-reading.mjs [level]
+// node scripts/check-english-reading.mjs [level | alien | kind | vietsu]
 import { pathToFileURL } from 'node:url';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 const RANGE = { 1: [80, 105], 2: [90, 115], 3: [95, 120], 4: [100, 125], 5: [100, 130] };
-const only = process.argv[2] ? [Number(process.argv[2])] : [1, 2, 3, 4, 5];
+// Bộ chủ đề (bài 101+): 10 bài mỗi bộ, level từng bài là độ khó, không vào bản đồ ngữ pháp.
+const THEME_START = { alien: 101, kind: 111, vietsu: 121 };
+const all = [1, 2, 3, 4, 5, ...Object.keys(THEME_START)];
+const only = process.argv[2] ? [/^\d$/.test(process.argv[2]) ? Number(process.argv[2]) : process.argv[2]] : all;
 const dir = path.resolve('src/data/englishReading');
 const words = (s) => s.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
 const norm = (s) => s.replace(/[^A-Za-z0-9']+/g, ' ').trim().toLowerCase();
@@ -14,18 +17,19 @@ let errors = 0, total = 0;
 const err = (id, m) => { errors++; console.log(`✗ ${id}: ${m}`); };
 
 for (const lv of only) {
-  const file = path.join(dir, `level${lv}.js`);
-  if (!existsSync(file)) { console.log(`- level${lv}.js chưa có`); continue; }
+  const theme = typeof lv === 'string', fname = theme ? lv : `level${lv}`;
+  const file = path.join(dir, `${fname}.js`);
+  if (!existsSync(file)) { console.log(`- ${fname}.js chưa có`); continue; }
   const lessons = (await import(pathToFileURL(file).href)).default;
-  const [lo, hi] = RANGE[lv];
   const counts = [];
   lessons.forEach((L, i) => {
     total++;
-    const no = (lv - 1) * 20 + i + 1;
+    const no = theme ? THEME_START[lv] + i : (lv - 1) * 20 + i + 1;
     const id = L.id || `#${no}`;
     if (L.no !== no) err(id, `no=${L.no}, cần ${no}`);
     if (L.id !== `en-${String(no).padStart(3, '0')}`) err(id, 'id sai');
-    if (L.level !== lv) err(id, 'level sai');
+    if (theme ? !(L.level >= 1 && L.level <= 5) || L.pack !== lv : L.level !== lv) err(id, 'level / pack sai');
+    const [lo, hi] = RANGE[L.level] || RANGE[3];
     for (const k of ['title', 'topic', 'text']) if (!L[k]) err(id, `thiếu ${k}`);
     const g = L.grammar || {};
     if (!g.point || !g.explainVi || !g.pattern || !(g.examples?.length >= 2)) err(id, 'grammar thiếu trường');
@@ -48,7 +52,7 @@ for (const lv of only) {
       if (x.type === 'short' && typeof x.answer !== 'string') err(id, `câu ${j + 1} short cần chuỗi`);
       if (!['mc', 'tf', 'short'].includes(x.type)) err(id, `câu ${j + 1} type lạ`);
     });
-    if (lv >= 3 && q.filter((x) => x.type === 'short').length < 2) err(id, 'cấp 3+ cần ≥2 câu short');
+    if (L.level >= 3 && q.filter((x) => x.type === 'short').length < 2) err(id, 'cấp 3+ cần ≥2 câu short');
     const mq = L.makeQuestion || [];
     if (mq.length < 5 || mq.length > 10) err(id, `makeQuestion ${mq.length} (cần 5–10)`);
     mq.forEach((m) => { if (!m.answer || !m.question || !m.hint) err(id, 'makeQuestion thiếu trường'); });
@@ -66,8 +70,9 @@ for (const lv of only) {
     if (rw.length !== 2) err(id, `rewrite ${rw.length}`);
     rw.forEach((x) => { if (!x.prompt || !x.answer || !x.instructionVi) err(id, 'rewrite thiếu trường'); });
   });
-  if (lessons.length !== 20) err(`level${lv}`, `${lessons.length} bài (cần 20)`);
-  console.log(`level${lv}: ${lessons.length} bài, số từ ${Math.min(...counts)}–${Math.max(...counts)}, TB ${Math.round(counts.reduce((a, b) => a + b, 0) / counts.length)}`);
+  if (lessons.length !== (theme ? 10 : 20)) err(fname, `${lessons.length} bài (cần ${theme ? 10 : 20})`);
+  if (!lessons.length) continue;
+  console.log(`${fname}: ${lessons.length} bài, số từ ${Math.min(...counts)}–${Math.max(...counts)}, TB ${Math.round(counts.reduce((a, b) => a + b, 0) / counts.length)}`);
 }
 // 🗺️ Bản đồ ngữ pháp: mỗi bài nằm đúng một nhánh
 {

@@ -1,14 +1,14 @@
 // Kiểm phần ✏️ Điền từ của 100 bài đọc tiếng Anh: số chỗ trống mỗi bài, từ vựng không tìm thấy trong bài.
 // node scripts/check-english-fill.mjs [--all]  (--all in mọi câu)
-import { LESSONS } from '../src/data/englishReading/index.js';
+import { LESSONS, dataFileOf } from '../src/data/englishReading/index.js';
 import { fillItems } from '../src/games/englishFill.js';
 
 const all = process.argv.includes('--all');
 const gl = {};
-for (let l = 1; l <= 5; l++) gl[l] = (await import(`../src/data/englishReading/gloss/level${l}.js`)).default;
+for (const f of ['level1', 'level2', 'level3', 'level4', 'level5', 'alien', 'kind', 'vietsu']) gl[f] = (await import(`../src/data/englishReading/gloss/${f}.js`)).default;
 let bad = 0, total = 0, missTotal = 0;
 for (const L of LESSONS) {
-  const items = fillItems(L, gl[L.level][L.id]);
+  const items = fillItems(L, gl[dataFileOf(L)][L.id]);
   const blanks = items.flatMap((x) => x.parts.filter((p) => typeof p !== 'string'));
   total += blanks.length;
   const got = new Set(blanks.map((x) => x.word));

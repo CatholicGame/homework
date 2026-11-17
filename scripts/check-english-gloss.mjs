@@ -12,7 +12,9 @@ const WORD_RE = /[A-Za-z]+(?:['’-][A-Za-z]+)*/g;
 const IPA_OK = /^[abdefhijklmnoprstuvwzæɑɔəɜɪʊʌθðŋʃʒɡːˈˌ ]+$/;
 // Từ viết giống mà đọc khác tuỳ nghĩa (read hiện tại / quá khứ, used to / đã dùng, live…): IPA theo từng bài.
 const HETERO = new Set(['read', 'used', 'use', 'live', 'lives', 'close', 'wind', 'tear', 'lead', 'minute', 'present', 'record', 'desert', 'wound', 'row', 'bow']);
-const only = /^\d$/.test(process.argv[2] || '') ? [Number(process.argv[2])] : [1, 2, 3, 4, 5];
+const all = [1, 2, 3, 4, 5, 'alien', 'kind', 'vietsu']; // cấp + bộ chủ đề
+const arg = process.argv[2] && !process.argv[2].startsWith('-') ? process.argv[2] : null;
+const only = arg ? [/^\d$/.test(arg) ? Number(arg) : arg] : all;
 const dir = path.resolve('src/data/englishReading');
 const key = (w) => w.toLowerCase().replace(/’/g, "'");
 const appIpa = (await import(pathToFileURL(path.resolve('src/i18n/en/ipa.js')).href)).default;
@@ -22,8 +24,9 @@ const err = (id, m) => { errors++; console.log(`✗ ${id}: ${m}`); };
 const seen = new Map(); // từ → { ipa, id }
 
 for (const lv of only) {
-  const lf = path.join(dir, `level${lv}.js`), gf = path.join(dir, 'gloss', `level${lv}.js`);
-  if (!existsSync(gf)) { console.log(`- gloss/level${lv}.js chưa có`); continue; }
+  const fname = typeof lv === 'string' ? lv : `level${lv}`;
+  const lf = path.join(dir, `${fname}.js`), gf = path.join(dir, 'gloss', `${fname}.js`);
+  if (!existsSync(gf)) { console.log(`- gloss/${fname}.js chưa có`); continue; }
   const lessons = (await import(pathToFileURL(lf).href)).default;
   const gloss = (await import(pathToFileURL(gf).href)).default;
   let nWords = 0, nPhr = 0;
@@ -56,7 +59,7 @@ for (const lv of only) {
       if (v.ipa && !IPA_OK.test(v.ipa)) err(L.id, `cụm "${k}" ipa lạ: ${v.ipa}`);
     }
   }
-  console.log(`gloss level${lv}: ${nWords} mục từ, ${nPhr} cụm`);
+  console.log(`gloss ${fname}: ${nWords} mục từ, ${nPhr} cụm`);
 }
 if (warns) console.log(`(${warns} IPA khác src/i18n/en/ipa.js, thêm -v để xem)`);
 console.log(errors ? `\n${errors} lỗi` : '\nOK');

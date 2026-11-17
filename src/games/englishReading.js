@@ -2,7 +2,8 @@
  * 📖 Đọc tiếng Anh (thẻ english-reading, tab 🌍 Tiếng Anh ở trang chủ, lớp 1–5).
  * 100 bài, 5 cấp (src/data/englishReading, thiết kế docs/tieng-anh/thiet-ke-bai-doc.md).
  *
- * Danh sách: tab Cấp 1–5 (mở sẵn cấp hợp với lớp trong hồ sơ hoặc cấp lần trước), mỗi bài một thẻ có 9 chấm tiến độ.
+ * Danh sách: tab Cấp 1–5 (mở sẵn cấp hợp với lớp trong hồ sơ hoặc cấp lần trước), mỗi bài một thẻ có 9 chấm tiến độ;
+ *   sau đó các tab bộ chủ đề (THEMES: 👽 hành tinh khác, 💛 nhân văn, 📜 lịch sử Việt Nam), bài 101+, mỗi thẻ ghi cấp độ khó.
  * Một bài: 9 phần (tab trên đầu, nút "Phần tiếp" góc dưới phải):
  *   🎧 Nghe   máy đọc cả bài (tô câu đang đọc, chữ mờ tới khi bấm Hiện chữ), 2 câu hỏi nghe
  *   📖 Đọc    chạm từ → IPA, nghĩa theo ngữ cảnh, đọc to (engine/readingGloss.js)
@@ -15,7 +16,7 @@
  * Tiến độ: localStorage scopedKey('enread-v1') = { level, lessons: { [id]: { [phần]: 1 } } } (đồng bộ cloudSync.js).
  */
 import '../styles/english.css';
-import { LEVELS, LESSONS, loadGloss, loadSpeak } from '../data/englishReading/index.js';
+import { LEVELS, THEMES, LESSONS, loadGloss, loadSpeak } from '../data/englishReading/index.js';
 import { renderGlossText } from '../engine/readingGloss.js';
 // Ảnh bìa thẻ bài: một khung của truyện hoạt hình (scripts/story-thumbs.mjs → src/assets/english-thumbs/en-NNN.jpg)
 const THUMBS = Object.fromEntries(Object.entries(import.meta.glob('../assets/english-thumbs/*.jpg', { eager: true, query: '?url', import: 'default' }))
@@ -114,7 +115,7 @@ export function render(app, onBack, ctx = {}) {
 
   // ctx.open = { lesson: 'en-021', part: 'answer' }: mở thẳng một bài (scripts/english-reading-dev.html?app=1)
   const start = ctx.open?.lesson && LESSONS.find((L) => L.id === ctx.open.lesson);
-  if (start) { level = start.level; showLesson(start, ctx.open.part); } else showList();
+  if (start) { level = start.pack || start.level; showLesson(start, ctx.open.part); } else showList();
   return () => { cleanup(); setEnVoice(); }; // rời trang: giọng mặc định cho chỗ khác
 
   function frame({ back, backLabel, title, right = '', sub = '' }, body) {
@@ -141,28 +142,33 @@ export function render(app, onBack, ctx = {}) {
   function showList() {
     lessonBack = showList;
     store = loadStore();
-    const lv = LEVELS.find((x) => x.level === level) || LEVELS[0];
-    const tabs = `<nav class="enr-levels" role="tablist">${LEVELS.map((x) => `<button type="button" role="tab" class="enr-level${x.level === level ? ' is-on' : ''}" data-lv="${x.level}" aria-selected="${x.level === level}"><b>Cấp ${x.level}</b><small>${esc(x.name)}</small></button>`).join('')}</nav>`;
-    const cards = lv.lessons.map((L) => {
+    const theme = THEMES.find((t) => t.key === level);
+    const lv = theme ? null : LEVELS.find((x) => x.level === level) || LEVELS[0];
+    const tab = (key, on, b, small, cls = '') => `<button type="button" role="tab" class="enr-level${cls}${on ? ' is-on' : ''}" data-lv="${key}" aria-selected="${on}"><b>${b}</b><small>${esc(small)}</small></button>`;
+    const tabs = `<nav class="enr-levels" role="tablist">${LEVELS.map((x) => tab(x.level, x === lv, `Cấp ${x.level}`, x.name)).join('')}<span class="enr-tabsep" aria-hidden="true"></span>${THEMES.map((t) => tab(t.key, t === theme, `${t.icon} ${t.name}`, `${t.lessons.length} bài`, ' is-theme')).join('')}</nav>`;
+    const cards = (theme || lv).lessons.map((L) => {
       const d = doneOf(L.id), n = PARTS.filter((p) => d[p.id]).length;
       const th = THUMBS[L.id];
       return `<button type="button" class="enr-card${n === PARTS.length ? ' is-done' : ''}${th ? ' has-thumb' : ''}" data-id="${L.id}">
         ${th ? `<img class="enr-card-thumb" src="${th}" alt="" loading="lazy" width="480" height="270">` : ''}
         <span class="enr-card-no">${L.no}</span>
-        <span class="enr-card-text"><strong lang="en">${esc(L.title)}</strong><small>${esc(L.grammar.point)}</small></span>
+        <span class="enr-card-text"><strong lang="en">${esc(L.title)}</strong><small>${theme ? `<b class="enr-card-lv">Cấp ${L.level}</b> ${esc(L.topic)}` : esc(L.grammar.point)}</small></span>
         <span class="enr-dots" aria-label="${n}/${PARTS.length} phần">${PARTS.map((p) => `<i class="${d[p.id] ? 'on' : ''}"></i>`).join('')}</span>
       </button>`;
     }).join('');
+    const bar = theme
+      ? `<div class="enr-lvbar"><p class="enr-lvinfo">${esc(theme.note)} Mỗi bài có ${PARTS.length} phần như các cấp.</p></div>`
+      : `<div class="enr-lvbar"><p class="enr-lvinfo">Cấp ${lv.level} · ${esc(lv.cefr)} · ${LEVEL_FOR[lv.level]}. Mỗi bài có ${PARTS.length} phần: ${PARTS.map((p) => p.name.toLowerCase()).join(', ')}.</p>
+       <button type="button" class="enr-mapbtn">🗺️ Bản đồ ngữ pháp Cấp ${lv.level}</button></div>`;
     const body = frame({ back: () => { cleanup(); onBack(); }, backLabel: '← Trang chủ', title: '📖 Đọc tiếng Anh', sub: tabs },
-      `<div class="enr-lvbar"><p class="enr-lvinfo">Cấp ${lv.level} · ${esc(lv.cefr)} · ${LEVEL_FOR[lv.level]}. Mỗi bài có ${PARTS.length} phần: ${PARTS.map((p) => p.name.toLowerCase()).join(', ')}.</p>
-       <button type="button" class="enr-mapbtn">🗺️ Bản đồ ngữ pháp Cấp ${lv.level}</button></div>
-       <div class="enr-grid">${cards}</div>`);
-    body.querySelector('.enr-mapbtn').addEventListener('click', () => showMap());
+      `${bar}<div class="enr-grid">${cards}</div>`);
+    body.querySelector('.enr-mapbtn')?.addEventListener('click', () => showMap());
     app.querySelectorAll('.enr-level').forEach((b) => b.addEventListener('click', () => {
-      level = Number(b.dataset.lv);
+      level = /^\d+$/.test(b.dataset.lv) ? Number(b.dataset.lv) : b.dataset.lv;
       store = loadStore(); store.level = level; saveStore(store);
       showList();
     }));
+    app.querySelector('.enr-level.is-on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     body.querySelectorAll('.enr-card').forEach((c) => c.addEventListener('click', () => showLesson(LESSONS.find((L) => L.id === c.dataset.id))));
   }
 
@@ -244,7 +250,7 @@ export function render(app, onBack, ctx = {}) {
       right: `<span class="enr-count">${n}/${PARTS.length}</span>`, sub: tabs,
     }, '');
     body.addEventListener('pointerdown', () => unlockSpeech(), { once: true });
-    const nextLesson = LESSONS[LESSONS.indexOf(L) + 1];
+    const nextLesson = [LESSONS[LESSONS.indexOf(L) + 1]].find((x) => x && (x.pack || '') === (L.pack || '')); // bài 100 không sang bộ chủ đề
     const panes = new Map(); // id phần → { el, hide: [], top }
     let cur = null;
 

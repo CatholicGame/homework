@@ -4,6 +4,9 @@ import level2 from './level2.js';
 import level3 from './level3.js';
 import level4 from './level4.js';
 import level5 from './level5.js';
+import alien from './alien.js';
+import kind from './kind.js';
+import vietsu from './vietsu.js';
 
 export const LEVELS = [
   { level: 1, name: 'Starter', cefr: 'Pre-A1', lessons: level1 },
@@ -13,13 +16,23 @@ export const LEVELS = [
   { level: 5, name: 'Intermediate', cefr: 'A2+ / B1', lessons: level5 },
 ];
 
-export const LESSONS = LEVELS.flatMap((l) => l.lessons);
+// Bộ chủ đề (bài 101+): mỗi bài vẫn có level (độ khó 1–5) để đếm từ, chấm, nhưng nằm ở tab chủ đề, không vào bản đồ ngữ pháp.
+// Bài trong bộ có trường pack = key; gloss / speak của bộ ở gloss/<key>.js, speak/<key>.js.
+export const THEMES = [
+  { key: 'alien', icon: '👽', name: 'Bạn từ hành tinh khác', note: 'Bíp, cậu bé người ngoài hành tinh, rơi xuống Hà Nội và làm bạn với Minh. 10 tập nối nhau, khó dần từ Cấp 1 đến Cấp 5.', lessons: alien },
+  { key: 'kind', icon: '💛', name: 'Chuyện nhân văn', note: 'Những câu chuyện nổi tiếng về lòng tốt, lòng biết ơn và nghị lực, khó dần từ Cấp 1 đến Cấp 5.', lessons: kind },
+  { key: 'vietsu', icon: '📜', name: 'Nhân vật lịch sử Việt Nam', note: 'Những người anh hùng, người tài của Việt Nam, xếp theo thời gian từ Hai Bà Trưng đến Quang Trung.', lessons: vietsu },
+];
+
+export const LESSONS = [...LEVELS.flatMap((l) => l.lessons), ...THEMES.flatMap((t) => t.lessons)];
+/** Tên file gloss / speak của một bài: level<n> hoặc key của bộ chủ đề. */
+export const dataFileOf = (lesson) => lesson.pack || `level${lesson.level}`;
 export const lessonById = (id) => LESSONS.find((l) => l.id === id);
 
 /** Bảng tra từ theo ngữ cảnh của một bài ({ words, phrases }), tải riêng theo cấp vì khá nặng. */
 export const loadGloss = (lesson) =>
-  import(`./gloss/level${lesson.level}.js`).then((m) => m.default[lesson.id] || { words: {}, phrases: {} });
+  import(`./gloss/${dataFileOf(lesson)}.js`).then((m) => m.default[lesson.id] || { words: {}, phrases: {} });
 
 /** Câu hỏi phần 🎤 Nói của một bài (speak/level<n>.js), cấp chưa có thì []. */
 export const loadSpeak = (lesson) =>
-  import(`./speak/level${lesson.level}.js`).then((m) => m.default[lesson.id] || []).catch(() => []);
+  import(`./speak/${dataFileOf(lesson)}.js`).then((m) => m.default[lesson.id] || []).catch(() => []);
