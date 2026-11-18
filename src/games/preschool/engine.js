@@ -279,6 +279,21 @@ export function renderPreschool(app, onBack, book) {
     const resetBubble = () => { bubbleH = 0; };
     window.addEventListener('resize', resetBubble);
     addCleanup(() => window.removeEventListener('resize', resetBubble));
+    // Xoay máy (ngang ↔ dọc) khi bé chưa chạm gì: dựng lại lượt, để hình đếm quyết định lại
+    // xếp ô nhiều hàng (màn dọc) hay giữ hình sách (màn ngang). Bé đã chạm thì giữ nguyên.
+    const wasPortrait = innerHeight > innerWidth;
+    let touched = false;
+    stage.addEventListener('pointerdown', () => { touched = true; }, true);
+    let rotT = 0;
+    const onRotate = () => {
+      clearTimeout(rotT);
+      rotT = setTimeout(() => {
+        if (touched || finished || !stage.isConnected || (innerHeight > innerWidth) === wasPortrait) return;
+        playRound(station, idx);
+      }, 250);
+    };
+    window.addEventListener('resize', onRotate);
+    addCleanup(() => { clearTimeout(rotT); window.removeEventListener('resize', onRotate); });
 
     /** Thỏ nói: hiện chữ + đọc to. `keep`: không thay lời dặn chính (nút nghe lại). */
     const talk = (text, { keep = false, mood = '' } = {}) => {
@@ -872,7 +887,7 @@ export function renderPreschool(app, onBack, book) {
         <img src="${round.img}" alt="" draggable="false">
         ${round.blanks.map(({ zone: [x, y, w] }, k) => `<div class="pk-zone pk-slot" data-k="${k}" style="left:${x}%;top:${y}%;width:${w}%"></div>`).join('')}
       </div></div>
-      <div class="pk-tiles">${values.map(v => `<button type="button" class="pk-tile" data-v="${v}" style="--c:${colorOf(v)}">${v}</button>`).join('')}</div>`;
+      <div class="pk-tray">${values.map(v => `<button type="button" class="pk-tile" data-v="${v}" style="--c:${colorOf(v)}">${v}</button>`).join('')}</div>`;
     const slots = [...stage.querySelectorAll('.pk-slot')];
     let picked = null;
     let left = round.blanks.length;

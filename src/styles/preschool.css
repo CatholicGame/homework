@@ -608,7 +608,7 @@
   -webkit-text-stroke: max(1px, 3cqw) #1E293B; paint-order: stroke fill;
   animation: pk-pop-in 0.3s both;
 }
-.pk-tiles { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.8rem; margin-top: 1rem; }
+.pk-tray { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.8rem; margin-top: 1rem; }
 .pk-tile {
   width: 74px; height: 74px; border-radius: 20px; border: 4px solid #fff;
   background: var(--c); color: #fff !important; font-size: 2.4rem; font-weight: 800; line-height: 1;
@@ -728,6 +728,13 @@
   .pk-choices.is-pad .pk-choice { width: 44px; height: 44px; font-size: 1.25rem; }
   .pk-tile { width: 62px; height: 62px; font-size: 2rem; }
   .pk-next-btn { width: 72px; height: 72px; font-size: 2.3rem; }
+}
+/* Màn dọc: hình kéo-thả bị giới hạn bởi bề ngang, phần cao còn dư: nút số to cho bé dễ cầm kéo */
+@media (orientation: portrait) {
+  .pk-tray { gap: 14px; margin-top: 1.4rem; }
+  /* hình cao (bóng bay): chừa chỗ cho thanh trên + lời Thỏ (~280px) và hàng số (~120px), không cuộn trang */
+  .pk-fill img { max-height: min(56vh, calc(100dvh - 430px)); }
+  .pk-tray .pk-tile { width: min(86px, calc((100vw - 90px) / 4)); height: min(86px, calc((100vw - 90px) / 4)); font-size: 2.8rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
