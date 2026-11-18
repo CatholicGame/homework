@@ -136,6 +136,7 @@ export const COLUMN_LEVELS = [
 
 export const COLUMN_GAME = {
   id: 'drill-col', icon: '✍️', title: 'Đặt tính: cộng, trừ, nhân',
+  calcOps: ['+', '−', '×', ':'], // ✍️ Phép tính của em (engine/calcPlay.js openCalcFree)
   purpose: 'Giúp em luyện đặt tính rồi tính như trong vở: viết các chữ số thẳng cột, tính từ hàng đơn vị, nhớ đúng số nhớ.',
   unitWord: 'phép tính', starPrefix: 'drill', npcs: [TEACHER], levels: COLUMN_LEVELS,
   stallIcon: () => '✍️',

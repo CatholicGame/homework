@@ -78,7 +78,7 @@ export const COL_LEVELS = [
 ];
 
 export const COL_GAME = {
-  ...COLUMN_GAME, id: 'd2-col', title: 'Đặt tính: cộng, trừ', starPrefix: 'drill2', levels: COL_LEVELS,
+  ...COLUMN_GAME, id: 'd2-col', title: 'Đặt tính: cộng, trừ', starPrefix: 'drill2', levels: COL_LEVELS, calcOps: ['+', '−'],
   purpose: 'Giúp em đặt tính rồi tính như trong vở: viết các chữ số thẳng cột, tính từ hàng đơn vị, nhớ đúng số nhớ.',
 };
 

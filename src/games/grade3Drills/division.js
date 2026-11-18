@@ -118,6 +118,7 @@ export const DIVISION_LEVELS = [
 export const DIVISION_GAME = {
   id: 'drill-div', icon: '➗', title: 'Chia đặt tính',
   purpose: 'Giúp em luyện phép chia đặt tính như trong vở: chia từ trái sang phải theo vòng chia, nhân, trừ, hạ; thương có chữ số 0 và phép chia có dư.',
+  calcOps: [':', '+', '−', '×'], // ✍️ Phép tính của em (engine/calcPlay.js openCalcFree)
   unitWord: 'phép chia', starPrefix: 'drill', npcs: [TEACHER], levels: DIVISION_LEVELS,
   stallIcon: () => '➗',
   summaryText: (ok, total) => `Em làm đúng ngay <strong>${ok}/${total}</strong> phép chia.`,

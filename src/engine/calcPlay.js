@@ -115,7 +115,17 @@ async function toolFor(c) {
   return { game: COLUMN_GAME, mission: { op: c.op, a: c.a, b: c.b } };
 }
 
-async function open(c, input) {
+/**
+ * Mở thẳng tờ đặt tính tự nhập (Luyện Tính: ô "✍️ Phép tính của em" ở màn chọn cấp của công cụ đặt tính).
+ * ops: các phép cho chọn, phép đầu tiên chọn sẵn (vd. [':', '+', '−', '×'] ở công cụ chia; lớp 2 chỉ ['+', '−']).
+ */
+export function openCalcFree(ops) {
+  injectStyles();
+  open(null, null, { ops, standalone: true });
+}
+
+// standalone: mở từ Luyện Tính (không có bài để ghi kết quả): màn kết quả mời làm phép tính khác.
+async function open(c, input, { ops = ['+', '−', '×', ':'], standalone = false } = {}) {
   input?.blur();
   document.activeElement?.blur?.();
   const free = !c;
@@ -159,11 +169,14 @@ async function open(c, input) {
         <div class="g3g-result-text">${ok ? '✅' : '✔️'} ${text}</div>
         ${tip ? `<div class="g3g-tip">💡 ${tip}</div>` : ''}
         <div class="calc-result-acts">
-          <button type="button" class="g3g-btn g3g-btn-primary" data-act="write">✏️ Ghi kết quả vào bài</button>
+          ${standalone
+            ? '<button type="button" class="g3g-btn g3g-btn-primary" data-act="new">✏️ Phép tính khác</button>'
+            : '<button type="button" class="g3g-btn g3g-btn-primary" data-act="write">✏️ Ghi kết quả vào bài</button>'}
           <button type="button" class="g3g-btn g3g-btn-ghost" data-act="again">↺ Tính lại</button>
         </div>`;
       host.appendChild(box);
-      box.querySelector('[data-act="write"]').onclick = () => close(true);
+      box.querySelector('[data-act="write"]')?.addEventListener('click', () => close(true));
+      box.querySelector('[data-act="new"]')?.addEventListener('click', () => ov.querySelector('.calc-new').click());
       box.querySelector('[data-act="again"]').onclick = mount;
     };
     tool.game.mountMission(stage, tool.mission, {}, {
@@ -195,18 +208,18 @@ async function open(c, input) {
           <p class="calc-form-lead">Em viết phép tính muốn đặt tính:</p>
           <div class="calc-form-row">
             <input class="game-input calc-in" inputmode="numeric" autocomplete="off" aria-label="Số thứ nhất" maxlength="9">
-            <div class="calc-ops">${['+', '−', '×', ':'].map((o, i) => `<button type="button" class="calc-op${i ? '' : ' on'}" data-op="${o}">${o}</button>`).join('')}</div>
+            <div class="calc-ops">${ops.map((o, i) => `<button type="button" class="calc-op${i ? '' : ' on'}" data-op="${o}">${o}</button>`).join('')}</div>
             <input class="game-input calc-in" inputmode="numeric" autocomplete="off" aria-label="Số thứ hai" maxlength="9">
           </div>
           <div class="calc-form-msg" aria-live="polite"></div>
           <button type="button" class="g3g-btn g3g-btn-primary calc-go">✍️ Đặt tính</button>
         </div>`;
-      let op = '+';
+      let op = ops[0];
       stage.querySelectorAll('.calc-op').forEach((b) => { b.onclick = () => { op = b.dataset.op; stage.querySelectorAll('.calc-op').forEach(x => x.classList.toggle('on', x === b)); }; });
       const [ia, ib] = stage.querySelectorAll('.calc-in');
       const msg = stage.querySelector('.calc-form-msg');
       stage.querySelector('.calc-go').onclick = () => {
-        const a = ia.value.replace(/D/g, ''), b = ib.value.replace(/D/g, '');
+        const a = ia.value.replace(/\D/g, ''), b = ib.value.replace(/\D/g, '');
         if (!a || !b) { msg.textContent = 'Em viết đủ hai số.'; return; }
         const cc = parseCalc(`${a} ${op} ${b}`);
         if (!cc) { msg.textContent = op === '−' ? 'Số bị trừ phải lớn hơn hoặc bằng số trừ.' : 'Số chia phải khác 0.'; return; }

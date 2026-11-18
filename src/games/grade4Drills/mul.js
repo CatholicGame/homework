@@ -100,6 +100,7 @@ export const MUL_LEVELS = [
 
 export const MUL_GAME = {
   id: 'd4-mul', icon: '✖️', title: 'Nhân nhiều chữ số',
+  calcOps: ['×', '+', '−', ':'], // ✍️ Phép tính của em (engine/calcPlay.js openCalcFree)
   purpose: 'Giúp em đặt tính nhân như trong vở: nhân từ hàng đơn vị, viết các tích riêng lùi sang trái một cột rồi cộng lại.',
   unitWord: 'phép nhân', starPrefix: 'drill4', npcs: [TEACHER], levels: MUL_LEVELS,
   stallIcon: () => '✖️',

@@ -272,6 +272,12 @@ export function renderGamesHub(app, ctx, start = null, {
       ${game.purpose ? `<p class="g3g-purpose">🎯 ${game.purpose}</p>` : ''}
       <p class="g3g-lead">${levelLead}</p>
       <div class="g3g-list">
+        ${game.calcOps ? `
+          <button type="button" class="g3g-tile g3g-level" data-act="calc">
+            <span class="g3g-level-num">✍️</span>
+            <span class="g3g-tile-info"><strong>Phép tính của em</strong><span>Em tự viết hai số (vd. bài trên lớp) rồi đặt tính từng bước như trong vở.</span></span>
+            <span class="g3g-go">▶</span>
+          </button>` : ''}
         ${game.levels.map(lv => {
           const best = bestFor(lv.id);
           const done = hasDoneAny(lv, ctx);
@@ -287,6 +293,9 @@ export function renderGamesHub(app, ctx, start = null, {
       ${game.note ? `<aside class="g3g-note">${game.note}</aside>` : ''}`);
     app.querySelector('[data-act="back"]').onclick = () => (solo ? ctx.onBack() : g.single ? showGames() : showStalls(g));
     app.querySelectorAll('[data-level]').forEach(b => { b.onclick = () => showIntro(g, game, game.levels.find(l => l.id === b.dataset.level)); });
+    // ✍️ Phép tính của em (game.calcOps): tờ đặt tính tự nhập của engine/calcPlay.js, không chấm sao.
+    const calcBtn = app.querySelector('[data-act="calc"]');
+    if (calcBtn) calcBtn.onclick = () => import('../engine/calcPlay.js').then(m => m.openCalcFree(game.calcOps));
   }
 
   function showIntro(g, game, baseLv) {
