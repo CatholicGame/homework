@@ -3,6 +3,7 @@
  * Hình: scripts/pre4/congtru1.json. Đáp án đối chiếu trang 77 của sách.
  */
 import { img } from './assets.js';
+import { STORY_ICONS } from './storyIcons.js';
 
 // Trang 9: bảng tính của bốn con vật (thỏ, hổ, chó, mèo). Bảng của hổ đúng hết.
 const TABLES = ['p09_tho', 'p09_ho', 'p09_cho', 'p09_meo'];
@@ -130,10 +131,10 @@ export const STATIONS = [
     id: 'bai-toan-1', icon: '🐛', color: '#65A30D', title: 'Bài toán có lời', name: 'Nghe đề bài, viết phép tính',
     // Đề chỉ có chữ, không có hình để đếm: sai thì nhắc nghe lại đề.
     rounds: [
-      { type: 'eq', img: img('p12_sau'), lines: [[16, '-', 9, '=', 7]], say: 'Trên lá cây có mười sáu con sâu, đã bò đi chín con. Hỏi trên lá cây còn mấy con sâu?' },
-      { type: 'eq', img: img('p12_hoa'), lines: [[13, '-', 5, '=', 8]], say: 'Trong vườn hoa nở mười ba bông hoa, đã ngắt đi năm bông. Hỏi trong vườn còn lại mấy bông hoa?' },
-      { type: 'eq', img: img('p12_keo'), lines: [[8, '+', 7, '=', 15]], say: 'Bạn Hồng có tám chiếc kẹo, mẹ cho thêm bảy chiếc nữa. Hỏi bạn Hồng có tất cả bao nhiêu chiếc kẹo?' },
-      { type: 'eq', img: img('p12_ngo'), lines: [[10, '+', 4, '=', 14]], say: 'Gấu con có mười bắp ngô, sau đó bẻ thêm bốn bắp nữa. Hỏi Gấu con có tất cả bao nhiêu bắp ngô?' },
+      { type: 'eq', story: 'Trên lá cây có 16 con sâu {i}, đã bò đi 9 con, hỏi trên lá cây còn mấy con sâu {i}?', icon: STORY_ICONS.sau, lines: [[16, '-', 9, '=', 7]], say: 'Trên lá cây có mười sáu con sâu, đã bò đi chín con. Hỏi trên lá cây còn mấy con sâu?' },
+      { type: 'eq', story: 'Trong vườn hoa nở 13 bông hoa {i}, đã ngắt đi 5 bông, hỏi trong vườn hoa còn lại mấy bông hoa {i}?', icon: STORY_ICONS.hoa, lines: [[13, '-', 5, '=', 8]], say: 'Trong vườn hoa nở mười ba bông hoa, đã ngắt đi năm bông. Hỏi trong vườn còn lại mấy bông hoa?' },
+      { type: 'eq', story: 'Bạn Hồng có 8 chiếc kẹo {i}, mẹ lại cho thêm 7 chiếc nữa, hỏi bạn Hồng có tổng cộng bao nhiêu chiếc kẹo {i}?', icon: STORY_ICONS.keo, lines: [[8, '+', 7, '=', 15]], say: 'Bạn Hồng có tám chiếc kẹo, mẹ cho thêm bảy chiếc nữa. Hỏi bạn Hồng có tất cả bao nhiêu chiếc kẹo?' },
+      { type: 'eq', story: 'Gấu con có 10 bắp ngô {i}, sau đó lại bẻ thêm 4 bắp nữa, hỏi gấu có tổng cộng bao nhiêu bắp ngô {i}?', icon: STORY_ICONS.ngo, lines: [[10, '+', 4, '=', 14]], say: 'Gấu con có mười bắp ngô, sau đó bẻ thêm bốn bắp nữa. Hỏi Gấu con có tất cả bao nhiêu bắp ngô?' },
     ].map(r => ({ ...r, hint: 'Chưa đúng rồi. Bé chạm vào bạn Thỏ để nghe lại đề bài!' })),
   },
   {

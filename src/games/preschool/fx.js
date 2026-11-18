@@ -9,6 +9,7 @@
 import { isEnglish, tr } from '../../engine/i18n.js';
 import { audioCtx, playSfx, loopSfx } from '../../engine/sfx.js';
 import { cloudVoiceUrl, cloudVoiceReady, cloudVoicePlayer, cloudVoiceOff } from '../../dauTruong/mcVoice.js';
+import { LETTER_VOICE_NAMES, letterVoiceName } from './letterVoiceNames.js';
 
 const MUTE_KEY = 'pre1-mute';
 
@@ -176,11 +177,22 @@ function playNextCloud() {
     a.play().catch(() => { if (gen === cloudGen) cloudFail([item, ...cloudQueue]); });
   }, () => { if (gen === cloudGen) cloudFail([item, ...cloudQueue]); });
 }
-function sayCloud(text, rate, queue) {
+function sayCloud(text, rate, queue, url = cloudVoiceUrl(text, CLOUD_READER)) {
   if (!queue) { stopCloud(); stopLegacy(); }
-  cloudQueue.push({ text, rate, url: cloudVoiceUrl(text, CLOUD_READER) });
+  cloudQueue.push({ text, rate, url });
   if (!cloudBusy) playNextCloud();
 }
+
+// ── Tên chữ cái (bờ, cờ, sờ…) ────────────────────────────────────────────────
+// Máy đọc MỘT tiếng đứng riêng hay sai phụ âm đầu ("sờ" nghe thành "rờ"). Đọc đúng tên chữ: phát clip thu sẵn
+// (src/assets/voice/letters, scripts/gen-letter-voices.mjs); câu có tên chữ ("Âm sờ…", "sờ, a, sa") đọc bằng
+// Azure, đọc trong câu thì rõ. HoaiMy đọc "xờ" thành "giờ" nên đưa Azure "sờ" (miền Bắc s / x cùng một âm).
+const LETTER_CLIPS = Object.fromEntries(Object.entries(import.meta.glob('../../assets/voice/letters/*.wav', { eager: true, query: '?url', import: 'default' }))
+  .map(([p, url]) => [letterVoiceName(p.split('/').pop()), url]));
+const CONSONANT_NAMES = new Set(LETTER_VOICE_NAMES.flatMap(n => n.split(' ')).filter(w => w.endsWith('ờ')));
+const letterKey = (text) => cloudTextOf(text).toLowerCase().replace(/[.!?,…:;]+$/u, '').trim();
+const hasLetterName = (text) => (text.toLowerCase().match(/\p{L}+/gu) || []).some(w => CONSONANT_NAMES.has(w));
+const fixForAzure = (text) => text.replace(/(?<!\p{L})([xX])ờ(?!\p{L})/gu, (_, x) => (x === 'X' ? 'Sờ' : 'sờ'));
 
 // ── Tình trạng giọng đọc (để hướng dẫn bố mẹ) ───────────────────────────────
 const statusListeners = new Set();
@@ -244,6 +256,11 @@ export function say(text, { queue = false, rate = 0.9, cloud = false } = {}) {
   if (lang === 'en') {
     text = englishSpeech(text);
     if (!text) { if (!queue) stopSpeaking(); return; }
+  }
+  if (lang === 'vi') {
+    const clip = LETTER_CLIPS[letterKey(text)];
+    if (clip && typeof Audio === 'function') { sayCloud(letterKey(text), rate, queue, Promise.resolve(clip)); return; }
+    if (hasLetterName(text)) { cloud = true; text = fixForAzure(text); }
   }
   const cloudText = cloud && lang === 'vi' ? cloudTextOf(text) : '';
   if (cloudText && cloudText.length <= 380 && useCloud(lang)) { sayCloud(cloudText, rate, queue); return; }

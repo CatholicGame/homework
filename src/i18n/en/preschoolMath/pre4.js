@@ -116,6 +116,15 @@ export default {
   'Chưa đúng rồi. Bé chạm vào bạn Thỏ để nghe lại đề bài!': 'Not quite. Tap Bunny to hear the problem again!',
   'Số {0} không điền vào ô này': 'The number {0} does not go in this box',
   'Bé chạm vào ô khác': 'Tap another box',
+  // Đề bằng chữ (round.story, {i} = icon)
+  'Trên lá cây có 16 con sâu {i}, đã bò đi 9 con, hỏi trên lá cây còn mấy con sâu {i}?':
+    'There are 16 caterpillars {i} on the leaf, and 9 crawl away. How many caterpillars {i} are left?',
+  'Trong vườn hoa nở 13 bông hoa {i}, đã ngắt đi 5 bông, hỏi trong vườn hoa còn lại mấy bông hoa {i}?':
+    '13 flowers {i} bloom in the garden, and 5 are picked. How many flowers {i} are left?',
+  'Bạn Hồng có 8 chiếc kẹo {i}, mẹ lại cho thêm 7 chiếc nữa, hỏi bạn Hồng có tổng cộng bao nhiêu chiếc kẹo {i}?':
+    'Hồng has 8 candies {i}, and Mom gives her 7 more. How many candies {i} does Hồng have in all?',
+  'Gấu con có 10 bắp ngô {i}, sau đó lại bẻ thêm 4 bắp nữa, hỏi gấu có tổng cộng bao nhiêu bắp ngô {i}?':
+    'Little Bear has 10 ears of corn {i}, then picks 4 more. How many ears of corn {i} does Little Bear have in all?',
   'Trên lá cây có mười sáu con sâu, đã bò đi chín con. Hỏi trên lá cây còn mấy con sâu?':
     'There are sixteen caterpillars on the leaf, and nine crawl away. How many caterpillars are left on the leaf?',
   'Trong vườn hoa nở mười ba bông hoa, đã ngắt đi năm bông. Hỏi trong vườn còn lại mấy bông hoa?':

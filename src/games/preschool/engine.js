@@ -27,6 +27,7 @@ import { awardStars, recordWrong, hasEarned, earnedFor, getQuestionStars, availa
 import { recordAttempt } from '../../engine/activity.js';
 import { handButton, bindHandButton, resumeHand, stopHand } from './hand/handInput.js';
 import { fitStage } from './fit.js';
+import { TILE_MIN, groupItems, buildTiles, fitTiles, tilePending, refitTiles } from './tiles.js';
 import { bunnyFace, bunnyPose, bunnyWin } from './bunny.js';
 
 // Khung đồ vật của hình đếm Tập 1–2 (scripts/count-detect.py), tra theo đường dẫn hình.
@@ -419,7 +420,7 @@ export function renderPreschool(app, onBack, book) {
   // `items` = khung từng đồ vật [x%, y%, w%, h%, nhóm?], mặc định tra trong count-items.json. Chỉ chạm
   // vào đồ vật mới được đếm, mỗi đồ vật một số; hình không có khung thì chỉ để xem.
   // ════════════════════════════════════════════════════════════════════════
-  function countingPicture(src, items, { alt = '', onCount, split = false } = {}) {
+  function countingPicture(src, items, { alt = '', onCount, split = false, tiles = true, bands = null, onLayout, sync = null } = {}) {
     items = items || COUNT_ITEMS[COUNT_NAME[src]] || null;
     const wrap = document.createElement('div');
     wrap.className = 'pk-pic';
@@ -491,24 +492,114 @@ export function renderPreschool(app, onBack, book) {
       first.host.appendChild(hint);
       showHint(true);
       items.forEach((it) => {
-        const g = it[4] || 0;
         const { host, x, y, w, h } = place(it);
         const hit = document.createElement('button');
         hit.type = 'button';
         hit.className = 'pk-item';
-        hit.dataset.g = g % 4;
+        hit.dataset.g = (it[4] || 0) % 4;
         hit.style.cssText = `left:${x}%;top:${y}%;width:${w}%;height:${h}%`;
-        hit.onclick = (e) => {
-          e.stopPropagation();
-          if (hit.classList.contains('is-counted')) { shake(hit); return; }
-          hit.classList.add('is-counted');
-          showHint(false);
-          mark(hit, g);
-        };
+        bindHit(hit, it[4] || 0);
         host.appendChild(hit);
       });
     } else {
       layer.style.cursor = 'default';
+    }
+
+    function bindHit(hit, g) {
+      hit.onclick = (e) => {
+        e.stopPropagation();
+        if (hit.classList.contains('is-counted')) { shake(hit); return; }
+        hit.classList.add('is-counted');
+        showHint(false);
+        mark(hit, g);
+      };
+    }
+
+    // Đồ vật hiện ra nhỏ quá (màn hình dọc): cắt từng đồ vật thành ô, xếp nhiều hàng (tiles.js).
+    // Quyết định khi hình tải xong và đã có cỡ, trước khi bé chạm.
+    let tiled = false;
+    let focus = null; // nhóm đang sáng (playRows: hàng trên / dưới / cả hai)
+    const applyFocus = () => {
+      if (!tiled) return;
+      wrap.querySelectorAll('.pk-tgroup').forEach((b, k) => {
+        b.classList.toggle('is-focus', !!focus && focus.includes(k));
+        b.classList.toggle('is-dim', !!focus && !focus.includes(k));
+      });
+    };
+    // Một lần quyết định cho mỗi hình (tiles.js chờ mọi hình của lượt quyết định xong mới tính cỡ chung).
+    let settled = false;
+    const settle = () => { if (!settled) { settled = true; tilePending(-1); } };
+    // Báo quyết định cho nhóm sync (một lần): nhóm chạy các bước dựng khi mọi hình đã báo.
+    let reported = false;
+    const decide = (fn) => {
+      if (reported) return;
+      reported = true;
+      if (!sync) { fn(); return; }
+      sync.todo.push(fn);
+      if (--sync.left === 0) sync.todo.forEach(g => g());
+    };
+    const giveUp = () => decide(settle);
+    const toTiles = () => {
+      const img = wrap.querySelector('img');
+      if (!img?.naturalWidth || !wrap.isConnected || count > 0 || tiled) { giveUp(); return; }
+      const hits = [...wrap.querySelectorAll('.pk-item')];
+      const sides = hits.map(h => { const q = h.getBoundingClientRect(); return Math.min(q.width, q.height); }).filter(Boolean);
+      const origMin = Math.min(...sides);
+      // Các hình cùng một bài so sánh (sync): một hình cần xếp ô thì cả nhóm cùng xếp, đồ vật hai bên to bằng nhau.
+      if (sync) sync.small ||= origMin < TILE_MIN;
+      decide(() => build(origMin, sync ? sync.small : origMin < TILE_MIN));
+    };
+    const build = (origMin, small) => {
+      const img = wrap.querySelector('img');
+      if (!small || innerWidth > innerHeight || !wrap.isConnected || count > 0) { settle(); onLayout?.(false); return; }
+      tiled = true;
+      const groups = groupItems(items, bands);
+      const { el, cells } = buildTiles(src, items, groups, img.naturalWidth, img.naturalHeight, img);
+      // Bỏ hình sách (ảnh, lớp chạm, hai nửa), giữ phần nơi gọi gắn thêm (chú thích, khung dải hàng…).
+      const removed = [...wrap.children].filter(c => c.matches('img, .pk-pic-layer, .pk-half'));
+      const hintAt = { host: hint.parentElement, left: hint.style.left, top: hint.style.top };
+      const wasSplit = wrap.classList.contains('is-split');
+      removed.forEach(c => c.remove());
+      wrap.classList.remove('is-split');
+      wrap.classList.add('is-tiles');
+      wrap.prepend(el);
+      cells.forEach(({ it, el: cell }) => bindHit(cell, it[4] || 0));
+      hint.style.left = '50%';
+      hint.style.top = '50%';
+      cells[0]?.el.append(hint);
+      let first = true;
+      fitTiles(el, (side) => {
+        if (!first) return;
+        first = false;
+        // Chỗ quá chật (hai hàng 10 bút chì + bàn phím 20 số): ô không to hơn hẳn đồ vật trong hình sách
+        // thì giữ hình sách.
+        if (sync || side >= origMin * 1.15 || count > 0) { onLayout?.(true); return; }
+        tiled = false;
+        el.remove();
+        wrap.prepend(...removed);
+        wrap.classList.remove('is-tiles');
+        wrap.classList.toggle('is-split', wasSplit);
+        Object.assign(hint.style, { left: hintAt.left, top: hintAt.top });
+        hintAt.host?.append(hint);
+        onLayout?.(false);
+        refitTiles(wrap);
+      });
+      settle();
+      applyFocus();
+    };
+    if (tiles && items?.length >= 2) {
+      const img = wrap.querySelector('img');
+      tilePending(1);
+      const check = () => requestAnimationFrame(() => requestAnimationFrame(toTiles));
+      if (img.complete && img.naturalWidth) check();
+      else {
+        img.addEventListener('load', check, { once: true });
+        img.addEventListener('error', giveUp, { once: true });
+        setTimeout(giveUp, 4000); // ảnh tải mãi không xong: không giữ các hình khác chờ
+      }
+    } else {
+      decide(() => {});
+      if (onLayout) requestAnimationFrame(() => onLayout(false));
     }
 
     recount.onclick = (e) => {
@@ -522,7 +613,14 @@ export function renderPreschool(app, onBack, book) {
       sfx.tap();
       onCount?.(0);
     };
-    return { el: wrap, get count() { return count; }, celebrate() { wrap.classList.add('is-won'); } };
+    return {
+      el: wrap,
+      get count() { return count; },
+      get tiled() { return tiled; },
+      celebrate() { wrap.classList.add('is-won'); },
+      /** Làm sáng các nhóm (chỉ số nhóm theo groupItems), null = bỏ. Chỉ có tác dụng khi xếp ô. */
+      focusGroups(list) { focus = list; applyFocus(); },
+    };
   }
 
   /** Hàng số tròn để chọn đáp án. Trả về phần tử; `onPick(n, btn)`. */
@@ -870,7 +968,7 @@ export function renderPreschool(app, onBack, book) {
     ];
     let step = 0;
     let flying = false;
-    const pic = countingPicture(round.img, null);
+    const pic = countingPicture(round.img, null, { bands: round.bands });
     stage.innerHTML = `
       <div class="pk-rows">
         <div class="pk-rows-pic"><div class="pk-band-box"><div class="pk-band"></div></div></div>
@@ -893,7 +991,7 @@ export function renderPreschool(app, onBack, book) {
         flying = false;
         box.classList.add('is-done');
         box.querySelector('b').textContent = v;
-        if (step === steps.length) { solve(`Đúng rồi! ${numberWord(round.top)} với ${numberWord(round.bottom)} là ${numberWord(v)}!`); band.dataset.band = ''; return; }
+        if (step === steps.length) { solve(`Đúng rồi! ${numberWord(round.top)} với ${numberWord(round.bottom)} là ${numberWord(v)}!`); band.dataset.band = ''; pic.focusGroups(null); return; }
         right(box, `Đúng rồi! ${numberWord(v)}!`);
         setTimeout(() => setStep(), 700);
       });
@@ -908,6 +1006,7 @@ export function renderPreschool(app, onBack, book) {
       band.style.top = `${y0}%`;
       band.style.height = `${y1 - y0}%`;
       band.dataset.band = steps[step].band;
+      pic.focusGroups({ top: [0], bottom: [1], all: [0, 1] }[steps[step].band]);
       talk(steps[step].say);
     };
     setStep();
@@ -965,8 +1064,9 @@ export function renderPreschool(app, onBack, book) {
     // to bằng nhau và thẳng cột như sách (so sánh từng cái một).
     const rowItems = (round.imgs || []).map(src => COUNT_ITEMS[COUNT_NAME[src]] || []);
     const plan = rows ? splitRow(rowItems[a >= b ? 0 : 1], rowItems[a >= b ? 1 : 0]) : null;
-    const pics = single ? [countingPicture(round.img, null)]
-      : round.imgs.map(src => countingPicture(src, null, { split: rows ? plan : !stack }));
+    const sync = { left: single ? 1 : round.imgs.length, small: false, todo: [] };
+    const pics = single ? [countingPicture(round.img, null, { sync })]
+      : round.imgs.map(src => countingPicture(src, null, { split: rows ? plan : !stack, sync }));
     if (plan) sameRowWidth(pics.map(p => p.el));
     pics.forEach((pic, i) => sides[i].querySelector('.pk-cmp-pic').append(pic.el));
     const slot = stage.querySelector('.pk-sign-slot');

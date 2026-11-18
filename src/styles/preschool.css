@@ -352,6 +352,35 @@
 }
 .pk-pic.is-won { animation: pk-jump 0.6s ease 2; box-shadow: 0 0 0 6px #FDE047, 0 10px 20px rgba(0, 0, 0, 0.1); }
 
+/* Hình đếm xếp ô (tiles.js): mỗi đồ vật một ô cắt từ hình sách, cỡ ô --tile tính theo chỗ trống */
+.pk-pic.is-tiles { display: block; width: 100%; box-sizing: border-box; }
+.pk-tiles { --tile: 56px; display: flex; flex-direction: column; gap: 12px; }
+.pk-tgroup { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 8px; }
+.pk-tgroup { box-sizing: border-box; width: 100%; margin-inline: auto; } /* max-width: tiles.js, chia đều các hàng */
+.pk-tiles.is-groups .pk-tgroup {
+  --g: 250, 204, 21; padding: 8px; border-radius: 18px;
+  border: 3px solid rgba(var(--g), 0.55); background: rgba(var(--g), 0.07);
+  transition: opacity 0.25s, box-shadow 0.25s;
+}
+.pk-tgroup[data-g='1'] { --g: 59, 130, 246; }
+.pk-tgroup[data-g='2'] { --g: 236, 72, 153; }
+.pk-tgroup[data-g='3'] { --g: 34, 197, 94; }
+.pk-tgroup.is-focus { box-shadow: 0 0 0 4px rgba(var(--g), 0.9); }
+.pk-tgroup.is-dim { opacity: 0.4; }
+.pk-tgroup:first-child.is-focus { --g: 249, 115, 22; }
+.pk-tgroup:nth-child(2).is-focus { --g: 139, 92, 246; }
+.pk-pic.is-tiles .pk-item.pk-tcell {
+  position: relative; flex: none; width: var(--tile); height: calc(var(--tile) * var(--ar));
+  display: grid; place-items: center; border-radius: 14px; background: #fff;
+}
+.pk-tile-pic { display: block; background-repeat: no-repeat; pointer-events: none; }
+/* Đồ vật dính liền cái khác / nằm trên nền màu (tiles.js cutouts): mờ dần ra góc để mẩu cái bên cạnh không rõ */
+.pk-tcell.is-mask .pk-tile-pic { -webkit-mask-image: radial-gradient(ellipse 58% 58% at 50% 50%, #000 78%, transparent 100%); mask-image: radial-gradient(ellipse 58% 58% at 50% 50%, #000 78%, transparent 100%); }
+.pk-pic.is-tiles .pk-band-box { display: none; }
+.pk-cmp-side.is-pickable .pk-tiles { pointer-events: none; }
+/* Khung chứa hình xếp ô giãn hết bề ngang (số cột tính theo bề ngang này) */
+.pk-cmp-side:has(.pk-pic.is-tiles), .pk-cmp-pic:has(> .pk-pic.is-tiles) { width: 100%; align-self: stretch; }
+
 /* Các số để chọn */
 .pk-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem; margin: 1rem auto 0; max-width: 820px; }
 .pk-choices.is-pad { gap: 0.45rem; max-width: 600px; margin-top: 0.7rem; }
@@ -609,6 +638,13 @@
 .pk-sumbox.is-on { border-color: #F97316; animation: pk-pulse 1.2s ease-in-out infinite; }
 .pk-sumbox.is-done { border-color: #22C55E; }
 .pk-sumbox.is-done b { color: #16A34A; }
+/* Màn hình dọc: ba ô (hàng trên + hàng dưới = tổng) một hàng, nhường chỗ cho hình đếm */
+@media (orientation: portrait) {
+  .pk-rows-sum { flex-wrap: nowrap; gap: 0.3rem; margin-top: 0.5rem; }
+  .pk-sumbox { flex: 1 1 0; min-width: 0; max-width: 120px; padding: 0.15rem 0.3rem 0.25rem; }
+  .pk-sumbox small { font-size: 0.82rem; white-space: nowrap; }
+  .pk-sumbox b { font-size: 1.9rem; }
+}
 .pk-eq { font-size: 2.2rem; font-weight: 800; color: #0369A1; }
 
 /* Màn hoàn thành */
@@ -1095,6 +1131,14 @@
 .pk4-pic .pk-pic img { max-height: 40vh; max-width: min(100%, calc(100vw - 3.5rem)); }
 .pk4-pic.is-small .pk-pic img { max-height: 32vh; }
 .pk4-pad { width: 100%; min-height: 56px; }
+/* Đề bằng chữ (thay ảnh chụp chữ): bảng trắng, chữ to theo bề ngang, icon chen giữa dòng */
+.pk4-story {
+  width: 100%; max-width: 980px; box-sizing: border-box; padding: 0.9rem 1.2rem; border-radius: 24px; background: var(--pk-card);
+  box-shadow: 0 6px 0 rgba(14, 165, 233, 0.25), 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+.pk4-story p { margin: 0; font-size: clamp(1.45rem, 5.4vw, 2rem); line-height: 1.45; font-weight: 700; color: #1F2937; text-align: left; }
+.pk4-story-icon { display: inline-block; width: 1.9em; height: 1.45em; vertical-align: -0.35em; margin: 0 0.1em; }
+.pk4-story-icon svg { width: 100%; height: 100%; display: block; }
 .pk4-pad.is-sticky {
   position: sticky; bottom: 0; z-index: 6; padding: 0.5rem 0 0.6rem;
   background: linear-gradient(180deg, rgba(240, 253, 244, 0) 0%, rgba(240, 253, 244, 0.95) 22%);
@@ -1539,6 +1583,9 @@ body.pk-hand-on:not(.pk-ar) .pk-hand-status {
   .pk-cmp.is-stack .pk-cmp-pic { max-width: 100%; }
   .pk-cmp.is-stack .pk-pic img { max-height: calc(50cqh - 0.3rem - 30px); }
   .pk-cmp.is-stack + .pk-cmp-eq { margin-top: 0.5rem; }
+  /* Hình xếp ô: mỗi bên cao theo số hàng ô của nó (tiles.js chia phần cao chung), không chia đôi cứng. */
+  .pk-stage > .pk-cmp.is-stack:has(.pk-pic.is-tiles) { flex: 0 0 auto; container-type: normal; }
+  .pk-cmp.is-stack .pk-cmp-side:has(.pk-pic.is-tiles) { flex: 0 0 auto; }
   /* So sánh một hình chứa hai nhóm (trang 54): hình rộng hết màn hình, cao tới 40% màn hình. */
   .pk-cmp.is-single .pk-pic img { max-height: 40svh; max-width: calc(100vw - 3rem); }
   /* Làm quen dấu bé, dấu lớn: hai thẻ trên dưới vừa một màn hình, không phải cuộn. */

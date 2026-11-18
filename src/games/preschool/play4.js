@@ -31,6 +31,7 @@
 import { NUMBER_COLORS, numberWord } from './numbers.js';
 import { say, sfx, burst, centerOf } from './fx.js';
 import { itemsOf } from './pre4/assets.js';
+import { isEnglish, tr } from '../../engine/i18n.js';
 
 const colorOf = (n) => NUMBER_COLORS[(Math.abs(Number(n)) % 10) || 10] || '#F97316';
 const isOp = (tok) => tok === '+' || tok === '-' || tok === '=';
@@ -133,9 +134,9 @@ function showPad(ctx, host, spec, onPick) {
 function mountPicture(ctx, host, src, { fold = true } = {}) {
   if (!src || !host) return null;
   const items = itemsOf(src);
-  const build = (plan) => {
+  const build = (plan, opts = {}) => {
     let pic;
-    if (items) pic = ctx.countingPicture(src, items, { split: plan || false }).el;
+    if (items) pic = ctx.countingPicture(src, items, { split: plan || false, tiles: false, ...opts }).el;
     else {
       pic = document.createElement('div');
       pic.className = 'pk-pic';
@@ -146,9 +147,11 @@ function mountPicture(ctx, host, src, { fold = true } = {}) {
   };
   // Màn hình dọc, hình có đồ vật: đợi biết cỡ hình để quyết định gập hai hàng hay không (hình chưa tải
   // thì chưa hiện gì, nên dựng sau cũng không làm màn chơi nhảy).
+  // Màn hình dọc, hình có đồ vật để đếm: đồ vật nhỏ thì xếp ô (engine.js countingPicture, tiles.js);
+  // đủ to thì giữ hình sách, lấp phần cao còn trống.
   if (portrait() && fold && items) {
-    fillPortrait(ctx, host, src, items, (plan) => build(plan));
-    return null;
+    const pic = build(null, { tiles: true, onLayout: (tiled) => { if (!tiled) fillPortrait(ctx, host, src, null, () => pic); } });
+    return pic;
   }
   const pic = build(null);
   if (portrait()) fillPortrait(ctx, host, src, null, () => pic);
@@ -330,13 +333,21 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const PRAISE = ['Đúng rồi!', 'Giỏi quá!', 'Tuyệt vời!', 'Chính xác!'];
 
 // ── Lập phép tính theo hình ──────────────────────────────────────────────
+/** Đề bằng chữ (round.story, {i} = icon): chữ thật, cỡ to theo chỗ trống, thay ảnh chụp chữ của sách. */
+function storyHTML(round) {
+  const text = (isEnglish() && tr(round.story)) || round.story;
+  const safe = String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const icon = `<span class="pk4-story-icon">${round.icon || ''}</span>`;
+  return `<div class="pk4-story" data-no-i18n><p>${fmt(safe).split('{i}').join(icon)}</p></div>`;
+}
+
 function playEq(ctx) {
   const { round, stage, talk, wrong, right, solve } = ctx;
   const { lines } = round;
   const shown = new Set(round.show || []);
   stage.innerHTML = `
     <div class="pk4-wrap">
-      ${round.img ? '<div class="pk4-pic"></div>' : ''}
+      ${round.story ? storyHTML(round) : round.img ? '<div class="pk4-pic"></div>' : ''}
       <div class="pk4-eqs">${lines.map((line, l) => `<div class="pk4-eq">${line.map((tok, t) => (tok === '=' || shown.has(t)
         ? `<span class="pk4-tok${isOp(tok) ? ' is-op' : ''}">${fmt(` ${tok} `).trim()}</span>`
         : `<button type="button" class="pk4-box${isOp(tok) ? ' is-op' : ''}" data-l="${l}" data-t="${t}" aria-label="Ô trống"></button>`)).join('')}</div>`).join('')}</div>
