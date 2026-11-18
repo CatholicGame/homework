@@ -21,6 +21,7 @@ import { letterGlyph } from './letters.js';
 import { soundName } from './phonics.js';
 import { PLAYERS3, prefetchRead } from './play3.js';
 import { PLAYERS4 } from './play4.js';
+import { nameOf as pre4NameOf } from './pre4/assets.js';
 import { PLAYERS5 } from './play5.js';
 import COUNT_ITEMS from './count-items.json';
 import { awardStars, recordWrong, hasEarned, earnedFor, getQuestionStars, availableStars } from '../../engine/stars.js';
@@ -554,7 +555,8 @@ export function renderPreschool(app, onBack, book) {
       if (!small || innerWidth > innerHeight || !wrap.isConnected || count > 0) { settle(); onLayout?.(false); return; }
       tiled = true;
       const groups = groupItems(items, bands);
-      const { el, cells } = buildTiles(src, items, groups, img.naturalWidth, img.naturalHeight, img);
+      const artKey = COUNT_NAME[src] || (pre4NameOf(src) ? `pre4/${pre4NameOf(src)}` : '');
+      const { el, cells } = buildTiles(src, items, groups, img.naturalWidth, img.naturalHeight, img, artKey);
       // Bỏ hình sách (ảnh, lớp chạm, hai nửa), giữ phần nơi gọi gắn thêm (chú thích, khung dải hàng…).
       const removed = [...wrap.children].filter(c => c.matches('img, .pk-pic-layer, .pk-half'));
       const hintAt = { host: hint.parentElement, left: hint.style.left, top: hint.style.top };

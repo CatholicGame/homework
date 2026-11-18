@@ -10,6 +10,8 @@
  * một cỡ ô: đồ vật hai bên to bằng nhau, thẳng cột để so từng cái một.
  */
 
+import { ART, ART_OF } from './tileArt.js';
+
 // đồ vật nhỏ hơn (px, cạnh ngắn) thì xếp ô; bản dev ?notiles tắt để so trước / sau
 export const TILE_MIN = import.meta.env.DEV && /[?&]notiles/.test(location.search) ? 0 : 48;
 const GAP = 8;                // khe giữa hai ô (px), như CSS .pk-tgroup gap
@@ -54,17 +56,36 @@ function cellRatio(items, W, H) {
  * Dựng khung ô. Trả về { el, cells: [{ it, idx, el }] } (thứ tự theo nhóm); nơi gọi gắn sự kiện chạm.
  * Mỗi ô: nền là hình sách, phóng và dịch cho khung đồ vật vừa khít trong ô (giữ tỉ lệ).
  */
-export function buildTiles(src, items, groups, W, H, img = null) {
-  const ar = cellRatio(items, W, H);
-  const cut = img ? cutouts(img, items) : null;
+export function buildTiles(src, items, groups, W, H, img = null, artKey = '') {
+  // Hình có đồ vật vẽ lại (tileArt.js): ô vẽ đồ vật mới, tỉ lệ ô theo hình vẽ.
+  // Loại đồ vật vẽ lại của từng đồ vật ([loại, màu?]) hoặc null (ô cắt từ sách).
+  const spec = ART_OF[artKey];
+  const artOf = (it) => {
+    const a = spec?.byGroup ? spec.byGroup[it[4] || 0] : spec;
+    return a && ART[a[0]] ? a : null;
+  };
+  const drawn = items.map(artOf);
+  const allDrawn = drawn.every(Boolean);
+  const vb = allDrawn ? ART[drawn[0][0]]().match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/) : null;
+  const ar = vb ? Number(vb[2]) / Number(vb[1]) : cellRatio(items, W, H);
+  const colors = drawn.some(a => a?.[1] === 'sample') && img ? sampleColors(img, items) : null;
+  const cut = img && !allDrawn ? cutouts(img, items) : null;
+  // Dấu của sách (bị gạch / được khoanh): đồ vật được khoanh tách thành một khung nét đứt riêng.
+  const marks = spec?.[2];
+  if (marks?.o?.length) {
+    const circled = [];
+    groups = groups.map(gr => ({ ...gr, list: gr.list.filter(e => (marks.o.includes(e.idx) ? (circled.push(e), false) : true)) }))
+      .filter(gr => gr.list.length);
+    groups.push({ g: groups.length, list: circled, circled: true });
+  }
   const el = document.createElement('div');
   el.className = `pk-tiles${groups.length > 1 ? ' is-groups' : ''}`;
   el.style.setProperty('--ar', ar);
   el.dataset.ar = ar;
   const cells = [];
-  groups.forEach(({ g, list }) => {
+  groups.forEach(({ g, list, circled }) => {
     const box = document.createElement('div');
-    box.className = 'pk-tgroup';
+    box.className = `pk-tgroup${circled ? ' is-circled' : ''}`;
     box.dataset.g = g % 4;
     box.dataset.n = list.length;
     list.forEach(({ it, idx }) => {
@@ -75,6 +96,14 @@ export function buildTiles(src, items, groups, W, H, img = null) {
       cell.type = 'button';
       cell.className = 'pk-item pk-tcell';
       cell.dataset.g = (it[4] || 0) % 4;
+      if (marks?.x?.includes(idx)) cell.classList.add('is-struck');
+      const kind = drawn[idx];
+      if (kind) {
+        cell.innerHTML = `<span class="pk-tile-pic pk-tile-art">${ART[kind[0]](colors?.[idx] || (kind[1] !== 'sample' ? kind[1] : undefined))}</span>`;
+        box.append(cell);
+        cells.push({ it, idx, el: cell });
+        return;
+      }
       const own = cut?.[idx];
       if (own === 'mask') cell.classList.add('is-mask');
       if (own && own !== 'mask') {
@@ -91,6 +120,47 @@ export function buildTiles(src, items, groups, W, H, img = null) {
     el.append(box);
   });
   return { el, cells };
+}
+
+/** Màu đo được (lẫn viền, chỗ sáng) → màu tươi gần nhất theo sắc độ: hình vẽ lại rõ màu như sách. */
+function vivid(r, g, b) {
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 510;
+  let h = 0;
+  if (mx !== mn) {
+    const d = mx - mn;
+    h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h = (h * 60 + 360) % 360;
+  }
+  if (h < 15 || h >= 335) return l > 0.62 ? '#F472B6' : '#EF4444';
+  if (h < 45) return '#FB923C';
+  if (h < 60) return '#FACC15';
+  if (h < 170) return '#8BD346';
+  if (h < 260) return '#38BDF8';
+  if (h < 300) return '#A78BFA';
+  return '#F472B6';
+}
+
+/** Màu chính của từng đồ vật trong hình sách (điểm ảnh đậm màu nhất ở giữa khung), dạng #rrggbb. */
+function sampleColors(img, items) {
+  try {
+    const cv = document.createElement('canvas');
+    const k = Math.min(1, 400 / img.naturalWidth);
+    cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
+    const cx = cv.getContext('2d', { willReadFrequently: true });
+    cx.drawImage(img, 0, 0, cv.width, cv.height);
+    return items.map(([x, y, w, h]) => {
+      const x0 = Math.round(((x + w * 0.3) / 100) * cv.width), y0 = Math.round(((y + h * 0.2) / 100) * cv.height);
+      const ww = Math.max(1, Math.round((w * 0.4 / 100) * cv.width)), hh = Math.max(1, Math.round((h * 0.35 / 100) * cv.height));
+      const d = cx.getImageData(x0, y0, ww, hh).data;
+      let r = 0, g = 0, b = 0, n = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        const mx = Math.max(d[i], d[i + 1], d[i + 2]), mn = Math.min(d[i], d[i + 1], d[i + 2]);
+        if (mx - mn < 60 || mx < 90) continue; // bỏ trắng, xám, nét đen
+        r += d[i]; g += d[i + 1]; b += d[i + 2]; n++;
+      }
+      return n ? vivid(r / n, g / n, b / n) : null;
+    });
+  } catch { return null; }
 }
 
 // ── Tách đúng hình đồ vật (bỏ mẩu đồ vật bên cạnh lọt vào khung) ───────────────

@@ -26,6 +26,9 @@ export function zones(name) {
 
 const NAME_OF = Object.fromEntries(Object.entries(IMG).map(([name, url]) => [url, name]));
 
+/** Tên hình (vd. 'p10_tho') của một đường dẫn img(). */
+export const nameOf = (url) => NAME_OF[url];
+
 export function itemsOf(url) {
   return ITEMS[NAME_OF[url]] || null;
 }

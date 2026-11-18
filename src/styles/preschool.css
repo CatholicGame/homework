@@ -374,6 +374,15 @@
   display: grid; place-items: center; border-radius: 14px; background: #fff;
 }
 .pk-tile-pic { display: block; background-repeat: no-repeat; pointer-events: none; }
+/* Đồ vật vẽ lại (tileArt.js) */
+.pk-tile-art { width: 90%; height: 90%; }
+.pk-tile-art svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* Dấu của sách trên hình vẽ lại: bị gạch (nét đứt chéo), nhóm được khoanh (khung nét đứt) */
+.pk-tcell.is-struck::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 120%; height: 0; pointer-events: none;
+  border-top: 3px dashed #3F3A40; translate: -50% -50%; rotate: 50deg;
+}
+.pk-tiles .pk-tgroup.is-circled { border: 3px dashed #3F3A40; background: transparent; }
 /* Đồ vật dính liền cái khác / nằm trên nền màu (tiles.js cutouts): mờ dần ra góc để mẩu cái bên cạnh không rõ */
 .pk-tcell.is-mask .pk-tile-pic { -webkit-mask-image: radial-gradient(ellipse 58% 58% at 50% 50%, #000 78%, transparent 100%); mask-image: radial-gradient(ellipse 58% 58% at 50% 50%, #000 78%, transparent 100%); }
 .pk-pic.is-tiles .pk-band-box { display: none; }
