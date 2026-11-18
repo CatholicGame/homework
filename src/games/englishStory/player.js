@@ -49,6 +49,40 @@ export async function mountStory(host, lesson, load, { onDone } = {}) {
   const playBtn = host.querySelector('.es-play');
   const cap = host.querySelector('.es-cap');
   const chips = [...host.querySelectorAll('.es-line .es-chip')];
+  // ── Toàn màn hình: sân khấu phủ cả màn, phụ đề nằm đè lên đáy khung, nút ▶/⏸ và ✕ ở góc trên ──
+  const wrap = host.querySelector('.es-stagewrap');
+  wrap.insertAdjacentHTML('beforeend', `<div class="es-fsctl">
+    <button type="button" class="es-fsplay" aria-label="Xem / dừng">▶</button>
+    <button type="button" class="es-fs" aria-label="Toàn màn hình" title="Toàn màn hình">⛶</button></div>`);
+  const fsBtn = wrap.querySelector('.es-fs'), fsPlay = wrap.querySelector('.es-fsplay');
+  const capHome = cap.parentNode, capNext = cap.nextSibling;
+  let full = false;
+  const setFull = (on) => {
+    if (on === full) return;
+    full = on;
+    wrap.classList.toggle('is-full', on);
+    document.documentElement.classList.toggle('es-noscroll', on);
+    if (on) wrap.appendChild(cap); else capHome.insertBefore(cap, capNext);
+    fsBtn.textContent = on ? '✕' : '⛶';
+    fsBtn.setAttribute('aria-label', on ? 'Thoát toàn màn hình' : 'Toàn màn hình');
+  };
+  const exitFull = () => {
+    if (document.fullscreenElement === wrap) document.exitFullscreen().catch(() => {});
+    setFull(false);
+  };
+  const onFsChange = () => { if (full && document.fullscreenElement !== wrap) setFull(false); };
+  const onKey = (e) => { if (full && e.key === 'Escape') exitFull(); };
+  document.addEventListener('fullscreenchange', onFsChange);
+  document.addEventListener('keydown', onKey);
+  fsBtn.addEventListener('click', () => {
+    unlockSpeech();
+    if (full) { exitFull(); return; }
+    setFull(true);
+    // iPhone không cho phần tử thường toàn màn hình: khi đó vẫn phủ kín cửa sổ bằng CSS (.is-full)
+    wrap.requestFullscreen?.({ navigationUI: 'hide' }).then(() => screen.orientation?.lock?.('landscape').catch(() => {})).catch(() => {});
+    if (!busy) playFrom(next);
+  });
+  fsPlay.addEventListener('click', () => playBtn.click());
   const rate = () => (host.querySelector('.es-slow').checked ? 0.62 : 0.85);
   let busy = false, next = 0, token = 0, finished = false, clean = false;
 
@@ -65,7 +99,10 @@ export async function mountStory(host, lesson, load, { onDone } = {}) {
       line.scrollTo({ left: c.offsetLeft - line.clientWidth / 2 + c.offsetWidth / 2, behavior: 'smooth' });
     }
   };
-  const setBtn = () => { playBtn.textContent = busy ? '⏸ Dừng' : next > 0 && next < n ? '▶ Xem tiếp' : '▶ Xem truyện'; };
+  const setBtn = () => {
+    playBtn.textContent = busy ? '⏸ Dừng' : next > 0 && next < n ? '▶ Xem tiếp' : '▶ Xem truyện';
+    fsPlay.textContent = busy ? '⏸' : '▶';
+  };
 
   async function playFrom(k, only = false) {
     const my = ++token;
@@ -129,7 +166,11 @@ export async function mountStory(host, lesson, load, { onDone } = {}) {
   }
 
   if (import.meta.env.DEV) host.__story = { playFrom, jump: (k) => st.jump(k), stage: st }; // scripts/english-reading-dev.html &beat=
-  const off = () => { stop(); st.destroy(); };
-  off.pause = stop;   // bé chuyển sang tab khác của bài: dừng đọc, giữ nguyên truyện và phần xếp thứ tự
+  const off = () => {
+    stop(); exitFull(); st.destroy();
+    document.removeEventListener('fullscreenchange', onFsChange);
+    document.removeEventListener('keydown', onKey);
+  };
+  off.pause = () => { stop(); exitFull(); };   // bé chuyển sang tab khác của bài: dừng đọc, giữ nguyên truyện và phần xếp thứ tự
   return off;
 }
