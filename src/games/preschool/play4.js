@@ -31,6 +31,7 @@
 import { NUMBER_COLORS, numberWord } from './numbers.js';
 import { say, sfx, burst, centerOf } from './fx.js';
 import { itemsOf } from './pre4/assets.js';
+import { takeAwayPlan, mountTakeAway } from './pre4/takeAway.js';
 import { isEnglish, tr } from '../../engine/i18n.js';
 
 const colorOf = (n) => NUMBER_COLORS[(Math.abs(Number(n)) % 10) || 10] || '#F97316';
@@ -345,15 +346,18 @@ function playEq(ctx) {
   const { round, stage, talk, wrong, right, solve } = ctx;
   const { lines } = round;
   const shown = new Set(round.show || []);
+  // Phép trừ có hình đếm được: bé tự bớt (pre4/takeAway.js) rồi mới điền phép tính.
+  const plan = takeAwayPlan(round);
   stage.innerHTML = `
     <div class="pk4-wrap">
-      ${round.story ? storyHTML(round) : round.img ? '<div class="pk4-pic"></div>' : ''}
+      ${round.story ? storyHTML(round) : plan ? '<div class="pk4-take"></div>' : round.img ? '<div class="pk4-pic"></div>' : ''}
       <div class="pk4-eqs">${lines.map((line, l) => `<div class="pk4-eq">${line.map((tok, t) => (tok === '=' || shown.has(t)
         ? `<span class="pk4-tok${isOp(tok) ? ' is-op' : ''}">${fmt(` ${tok} `).trim()}</span>`
         : `<button type="button" class="pk4-box${isOp(tok) ? ' is-op' : ''}" data-l="${l}" data-t="${t}" aria-label="Ô trống"></button>`)).join('')}</div>`).join('')}</div>
       <div class="pk4-pad"></div>
     </div>`;
-  mountPicture(ctx, stage.querySelector('.pk4-pic'), round.img);
+  const take = plan ? mountTakeAway(ctx, stage.querySelector('.pk4-take'), round, plan, { onDone: () => {} }) : null;
+  if (!plan) mountPicture(ctx, stage.querySelector('.pk4-pic'), round.img);
   const padHost = stage.querySelector('.pk4-pad');
   const boxes = [...stage.querySelectorAll('.pk4-box')];
   const valueAt = (l, t) => {
@@ -389,6 +393,7 @@ function playEq(ctx) {
     const tok = lines[box.dataset.l][box.dataset.t];
     showPad(ctx, padHost, isOp(tok) ? { op: true } : { answer: tok }, (v, btn) => {
       if (current !== box) return;
+      if (take && !take.done()) { take.remind(); return; }
       const l = Number(box.dataset.l), t = Number(box.dataset.t);
       if (!accepts(l, t, v)) {
         // Số đúng nhưng bé đang chọn nhầm ô (vd. bấm 16 khi ô số 9 đang sáng): chỉ sang ô khác, đừng bảo đếm lại.
@@ -418,7 +423,7 @@ function playEq(ctx) {
   };
   boxes.forEach(b => { b.onclick = () => { if (!b.classList.contains('is-done')) { sfx.tap(); focus(b); } }; });
   focus(boxes[0]);
-  talk(round.say);
+  if (!take) talk(round.say);
 }
 
 // ── Tính nhẩm ─────────────────────────────────────────────────────────────

@@ -26,7 +26,7 @@ export const STATIONS = [
       },
       // Trang 5: 12 ổ bánh mì, 3 ổ bị gạch bỏ.
       {
-        type: 'eq', img: img('p05_banhmi'), lines: [[12, '-', 3, '=', 9]],
+        type: 'eq', img: img('p05_banhmi'), unit: 'cái bánh mì', lines: [[12, '-', 3, '=', 9]],
         say: 'Có tất cả mấy ổ bánh mì? Mấy ổ bị gạch đi? Bé viết phép tính!',
       },
     ],
@@ -167,9 +167,9 @@ export const STATIONS = [
     id: 'tru-ba-so', icon: '🎳', color: '#7C3AED', title: 'Bớt đi hai lần', name: 'Nhìn hình viết phép trừ',
     rounds: [
       // Trang 17: 15 − 3 − 5 = 7 và 13 − 5 − 3 = 5 (theo các nhóm khoanh / gạch trong hình).
-      { type: 'eq', img: img('p17_vidu'), lines: [[18, '-', 4, '-', 6, '=', 8]], show: [0, 1, 2, 3, 4, 5], say: 'Đây là ví dụ: mười tám chấm, bớt bốn chấm, rồi bớt sáu chấm. Còn lại mấy chấm?' },
-      { type: 'eq', img: img('p17_bowling'), lines: [[15, '-', 3, '-', 5, '=', 7]], say: 'Có tất cả mấy con ky? Bớt đi nhóm bị gạch và nhóm được khoanh. Bé viết phép trừ!', hint: 'Chưa đúng rồi. Bé đếm tất cả con ky, rồi đếm từng nhóm bị bớt đi!' },
-      { type: 'eq', img: img('p17_hoa'), lines: [[13, '-', 5, '-', 3, '=', 5]], say: 'Có tất cả mấy bông hoa? Bớt đi nhóm bị gạch và nhóm được khoanh. Còn lại mấy bông?', hint: 'Chưa đúng rồi. Bé đếm tất cả bông hoa, rồi đếm từng nhóm bị bớt đi!' },
+      { type: 'eq', img: img('p17_vidu'), unit: 'chấm', lines: [[18, '-', 4, '-', 6, '=', 8]], show: [0, 1, 2, 3, 4, 5], say: 'Đây là ví dụ: mười tám chấm, bớt bốn chấm, rồi bớt sáu chấm. Còn lại mấy chấm?' },
+      { type: 'eq', img: img('p17_bowling'), unit: 'con ky', lines: [[15, '-', 3, '-', 5, '=', 7]], say: 'Có tất cả mấy con ky? Bớt đi nhóm bị gạch và nhóm được khoanh. Bé viết phép trừ!', hint: 'Chưa đúng rồi. Bé đếm tất cả con ky, rồi đếm từng nhóm bị bớt đi!' },
+      { type: 'eq', img: img('p17_hoa'), unit: 'bông hoa', lines: [[13, '-', 5, '-', 3, '=', 5]], say: 'Có tất cả mấy bông hoa? Bớt đi nhóm bị gạch và nhóm được khoanh. Còn lại mấy bông?', hint: 'Chưa đúng rồi. Bé đếm tất cả bông hoa, rồi đếm từng nhóm bị bớt đi!' },
     ],
   },
 ].map(s => ({ ...s, part: 1 }));

@@ -12,13 +12,13 @@ export const STATIONS = [
     rounds: [
       // Trang 18: 16 cái kẹo, bớt 5 rồi bớt 3.
       {
-        type: 'eq', img: img('p18_keo'), lines: [[16, '-', 5, '-', 3, '=', 8]], show: [0, 1, 2, 3, 4],
+        type: 'eq', img: img('p18_keo'), unit: 'cái kẹo', lines: [[16, '-', 5, '-', 3, '=', 8]], show: [0, 1, 2, 3, 4],
         say: 'Có mười sáu cái kẹo. Bớt đi năm cái, rồi bớt thêm ba cái nữa. Còn lại mấy cái kẹo? Bé chạm để đếm!',
         hint: 'Chưa đúng rồi. Bé chạm gạch bớt năm cái, rồi ba cái, đếm số kẹo còn lại!',
       },
       // Trang 18: 13 bắp ngô, bớt 7 rồi bớt 2.
       {
-        type: 'eq', img: img('p18_ngo'), lines: [[13, '-', 7, '-', 2, '=', 4]], show: [0, 1, 2, 3, 4],
+        type: 'eq', img: img('p18_ngo'), unit: 'bắp ngô', lines: [[13, '-', 7, '-', 2, '=', 4]], show: [0, 1, 2, 3, 4],
         say: 'Có mười ba bắp ngô. Bớt đi bảy bắp, rồi bớt thêm hai bắp. Còn lại mấy bắp ngô?',
       },
       // Trang 19: Mèo con tính đúng mới được ăn cá.

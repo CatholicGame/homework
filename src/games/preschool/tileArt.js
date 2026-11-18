@@ -228,6 +228,7 @@ export const ART_OF = {
   // Bớt đi nhóm bị gạch (x) và nhóm được khoanh (o): giữ dấu của sách trên hình vẽ lại.
   'pre4/p17_hoa': ['flower', undefined, { x: [4, 5, 6, 11, 12], o: [3, 9, 10] }],
   'pre4/p05_bapcai': ['cabbage'],
+  'pre4/p05_banhmi': ['bread'], // trò bớt: bé tự chọn cái để bớt, bỏ nét gạch in sẵn của sách
   'pre4/p10_tho': ['carrot'],
   'pre4/p10_meo': ['fish'],
   'pre4/p10_cho': ['bone'],

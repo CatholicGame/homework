@@ -56,7 +56,7 @@ function cellRatio(items, W, H) {
  * Dựng khung ô. Trả về { el, cells: [{ it, idx, el }] } (thứ tự theo nhóm); nơi gọi gắn sự kiện chạm.
  * Mỗi ô: nền là hình sách, phóng và dịch cho khung đồ vật vừa khít trong ô (giữ tỉ lệ).
  */
-export function buildTiles(src, items, groups, W, H, img = null, artKey = '') {
+export function buildTiles(src, items, groups, W, H, img = null, artKey = '', { bookMarks = true } = {}) {
   // Hình có đồ vật vẽ lại (tileArt.js): ô vẽ đồ vật mới, tỉ lệ ô theo hình vẽ.
   // Loại đồ vật vẽ lại của từng đồ vật ([loại, màu?]) hoặc null (ô cắt từ sách).
   const spec = ART_OF[artKey];
@@ -71,7 +71,7 @@ export function buildTiles(src, items, groups, W, H, img = null, artKey = '') {
   const colors = drawn.some(a => a?.[1] === 'sample') && img ? sampleColors(img, items) : null;
   const cut = img && !allDrawn ? cutouts(img, items) : null;
   // Dấu của sách (bị gạch / được khoanh): đồ vật được khoanh tách thành một khung nét đứt riêng.
-  const marks = spec?.[2];
+  const marks = bookMarks ? spec?.[2] : null;
   if (marks?.o?.length) {
     const circled = [];
     groups = groups.map(gr => ({ ...gr, list: gr.list.filter(e => (marks.o.includes(e.idx) ? (circled.push(e), false) : true)) }))
@@ -311,7 +311,7 @@ function slackOf(stage) {
 function fitStageTiles(stage, pass = 0) {
   const all = [...(registry.get(stage) || [])].filter(t => t.isConnected);
   if (!all.length) return;
-  if (!portrait()) { all.forEach(t => setSize(t, 64)); return; }
+  if (!portrait()) { all.forEach(t => setSize(t, t.landSize?.() || 64)); return; }
   const before = all.map(t => t.style.getPropertyValue('--tile')).join();
   const S = bestSize(stage, all);
   all.forEach(t => setSize(t, S, false));
