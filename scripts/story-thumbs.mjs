@@ -9,7 +9,8 @@ const { chromium } = await import(`file:///${PW}`);
 const OUT = 'src/assets/english-thumbs';
 mkdirSync(OUT, { recursive: true });
 // Câu chọn làm ảnh bìa (số câu đã diễn xong) khi khoảng giữa truyện không đẹp
-const BEAT = { 'en-018': 8, 'en-062': 10, 'en-064': 12, 'en-071': 17, 'en-072': 7, 'en-065': 10, 'en-066': 12, 'en-078': 10, 'en-074': 9, 'en-076': 7, 'en-082': 3, 'en-083': 5, 'en-084': 9, 'en-085': 5, 'en-088': 2, 'en-089': 8, 'en-090': 11, 'en-091': 8, 'en-092': 13, 'en-095': 4, 'en-096': 8, 'en-098': 3, 'en-099': 11, 'en-100': 6 };
+const BEAT = { 'en-018': 8, 'en-062': 10, 'en-064': 12, 'en-071': 17, 'en-072': 7, 'en-065': 10, 'en-066': 12, 'en-078': 10, 'en-074': 9, 'en-076': 7, 'en-082': 3, 'en-083': 5, 'en-084': 9, 'en-085': 5, 'en-088': 2, 'en-089': 8, 'en-090': 11, 'en-091': 8, 'en-092': 13, 'en-095': 4, 'en-096': 8, 'en-098': 3, 'en-099': 11, 'en-100': 6,
+  'en-104': 10, 'en-105': 11, 'en-107': 13, 'en-110': 2, 'en-111': 19, 'en-112': 6, 'en-113': 6, 'en-116': 10, 'en-117': 7, 'en-118': 9, 'en-119': 7, 'en-120': 12, 'en-121': 7, 'en-122': 11, 'en-123': 4, 'en-124': 6, 'en-126': 8, 'en-127': 6, 'en-128': 9, 'en-129': 8, 'en-130': 3 };
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 900, height: 700 }, deviceScaleFactor: 1.5 });
 page.on('pageerror', (e) => console.log('PAGEERROR', e.message));
