@@ -133,6 +133,17 @@ Mã: `src/dauTruong/npc.js` (hàm thuần, không import gì của trình duyệ
 - Bản mẫu (nút "Xem sân khấu thử"): khán phòng đầy bạn ảo của lớp trong hồ sơ, bục 2–4 là ba bạn được mời.
 - Thử: `window.__dtFlow` (máy dev: `A`, `peers`, `pods`, `sync()`), `window.__arena.peek()`.
 
+**Điều khiển kết quả theo lịch sử (2026-11-15).** Bạn ảo không trả lời thuần ngẫu nhiên nữa:
+- **Trước trận** máy chủ trò đọc lịch sử trận của bé (`dautruong-matches-v1`, matchStats.js: `won`, `gap`, `by`, `pl`, tỉ lệ đúng)
+  và lập kế hoạch (`npc.js planShow`): 2 trận đầu bé luôn thắng; thua trận trước thì trận này gần như chắc thắng (thua 2 trận liền:
+  chắc thắng); thắng liền càng nhiều thì càng dễ gặp **một bạn ảo giỏi** (rival, chỉ chọn bạn `gioi` đang đứng bục) thắng sát nút,
+  tối đa khoảng 50%. Bé đứng khán phòng thì kế hoạch tính riêng cho danh hiệu Khán giả xuất sắc.
+- **Trong trận** mỗi câu bạn ảo được điều nhịp (`npc.js steer`) theo khoảng cách điểm với bé, phần trận đã qua và điểm câu đang hỏi:
+  đầu trận bạn ảo được dẫn chút ít, cuối trận lùi về sau bé khoảng một câu; dẫn xa thì nghĩ chậm hơn, đoán nghiêng về bẫy; bị bỏ xa
+  thì tập trung hơn, chọn gói Về đích to hơn. Rival bám sát rồi nhỉnh hơn bé khoảng một câu. Bé có tỉ lệ đúng cao thì bạn ảo mạnh
+  hơn theo, để trận luôn sát.
+- Nhiều bạn thật cùng đứng bục: không chọn ai để thua, bạn ảo chỉ bám sát bạn thật dẫn đầu.
+
 ---
 
 ## 5. Các vòng thi

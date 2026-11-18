@@ -28,12 +28,12 @@ import { mcLine, mcPlan, sayQuestion, sayOption, LETTER, MC_NAMES } from '../dau
 import { voiceMode, mcPrefetch, mcSpeak, mcStop, setMcListener, setMcRate, isMcMuted, setMcMuted } from '../dauTruong/mcVoice.js';
 import { certSvg, loadCertFonts, CERT_CSS } from '../dauTruong/cert.js';
 import { addAward } from '../dauTruong/awards.js';
-import { summarize, saveMatch } from '../dauTruong/matchStats.js';
+import { summarize, saveMatch, loadMatches } from '../dauTruong/matchStats.js';
 import { addCastArenaStars } from '../engine/leaderboard.js';
 import { testRoom } from '../thanDong/engine/admin.js';
 import { awardFixedStars, getTotalStars } from '../engine/stars.js';
 import { arenaAnswer, showProgress } from '../engine/arenaStats.js';
-import { audienceAnswer, audienceAt, buzzPlan, decide, pickPackage, podiumAt, reactOf, wantStar } from '../dauTruong/npc.js';
+import { audienceAnswer, audienceAt, buzzPlan, decide, pickPackage, planShow, podiumAt, rand01, reactOf, steer, wantStar } from '../dauTruong/npc.js';
 
 /** Tên chương trình trên màn LED (tên tạm, chủ dự án chốt; '\n' = xuống dòng). Không dùng tên chương trình truyền hình có thật. */
 const SHOW_NAME = 'Đấu Trường Nhí';
@@ -1708,6 +1708,47 @@ export function stage(app, onBack, { flow = false } = {}) {
     const nameOf = (i) => pods[i].name;
     const leader = () => [...pods].sort((a, b) => b.score - a.score)[0];
     const topFan = () => seats.filter(s => s.live).sort((a, b) => b.score - a.score)[0];
+    /* 🎯 Bạn ảo "thông minh": trước trận máy chủ trò đọc lịch sử trận của bé (matchStats.js) và lập kế hoạch (npc.js planShow):
+       phần lớn trận bé về nhất, thỉnh thoảng một bạn ảo giỏi (rival) vượt bé đúng khoảng một câu. Trong trận mỗi câu bạn ảo
+       được điều nhịp theo khoảng cách điểm với bé (npc.js steer): dẫn trước xa thì nghĩ chậm, dễ sai; bị bỏ xa thì tập trung hơn.
+       Nhiều bạn thật cùng đứng bục: không ai được chọn để thua, bạn ảo chỉ bám sát bạn thật dẫn đầu. */
+    let plan = null;
+    const PROG = { khoidong: [0, 0.35], tangtoc: [0.35, 0.55], vedich: [0.55, 1] };
+    const prog = () => { const r = PROG[mode]; return r ? r[0] + (r[1] - r[0]) * Math.min(1, si / Math.max(1, slots.length)) : 0; };
+    /** Điểm câu đang hỏi nếu trả lời đúng (Tăng tốc: trung bình 40/30/20/10; Về đích: điểm gói, có sao ×2). */
+    const ptsNow = () => (Q?.val ? Q.val * (vd?.star ? 2 : 1) : mode === 'tangtoc' ? 25 : KD.right);
+    function planNow() {
+      if (plan && plan.at === showAt) return plan;
+      const humans = pods.map((p, i) => i).filter(i => !isBot(i)), me = role();
+      let hist = [];
+      try { hist = loadMatches(); } catch { /* chưa có lịch sử */ }
+      const seed = `${showAt}|${pods.map(p => p.name).join(',')}`, grade = gradeNow();
+      let pod = null, rival = -1;
+      if (humans.length) {
+        pod = humans.length === 1 && me === 'pod' ? planShow(hist, { seed, onPod: true, grade }) : { kidWins: true, acc: 0.75 };
+        if (!pod.kidWins) {
+          // chỉ bạn ảo giỏi mới được thắng; không có bạn giỏi trên bục thì trận này bé thắng
+          const g = pods.map((p, i) => i).filter(i => isBot(i) && pods[i].skill === 'gioi');
+          if (g.length) rival = g[Math.floor(rand01(seed, 'rival') * g.length)]; else pod = { ...pod, kidWins: true };
+        }
+      }
+      const aud = me === 'aud' ? planShow(hist, { seed, onPod: false, grade }) : null;
+      plan = { at: showAt, pod, rival, aud };
+      return plan;
+    }
+    /** Điều nhịp bạn ảo đứng bục i: { dk, slow } (rỗng khi không có bạn thật trên bục). */
+    function adjPod(i) {
+      const pl = planNow();
+      if (!pl.pod) return {};
+      const top = Math.max(...pods.filter((p, k) => !isBot(k)).map(p => p.score));
+      return steer({ gap: pods[i].score - top, prog: prog(), rival: !pl.pod.kidWins && i === pl.rival, acc: pl.pod.acc, pts: ptsNow() });
+    }
+    /** Điều nhịp khán giả ảo s so với ghế của mình (khi mình ngồi khán phòng). Rival: bạn giỏi đang nhiều điểm nhất. */
+    function adjSeat(s, rivalSeat) {
+      const pl = planNow(), me = pl.aud && seats.find(x => x.mine);
+      if (!me) return {};
+      return steer({ gap: (s.score || 0) - (me.score || 0), prog: prog(), rival: !pl.aud.kidWins && s === rivalSeat, acc: pl.aud.acc, pts: ROUNDS[mode]?.aud || Q?.val || 10 });
+    }
     /** Khán giả giỏi nhất đợt vừa xong: được nhiều điểm nhất kể từ đầu đợt (s.base), tối đa 3 bạn (bằng điểm thì ai tổng cao hơn). */
     const bestFans = () => {
       const g = (x) => x.score - (x.base || 0);
@@ -1947,7 +1988,14 @@ export function stage(app, onBack, { flow = false } = {}) {
         if (sync?.host) sync.net.showEnd();
         const res = { onPod: meOnPod, score: meOnPod ? pods[myPod].score : me?.score || 0, rank: meOnPod ? best.indexOf(pods[myPod]) + 1 : 0, right: mine.right, total: qDone, stars: w.myStars, sum: summarize(mine.log) };
         // 📊 lưu bảng mạnh / yếu của trận (trang Thành tích); sân khấu thử không lưu
-        if (flow) saveMatch({ at: w.at, grade: gradeNow(), onPod: res.onPod, rank: res.rank, score: res.score, sum: res.sum });
+        // kết quả so với các bạn khác (bạn ảo / bạn thật): lịch sử này là đầu vào của planShow cho các trận sau
+        const others = meOnPod ? pods.filter((p, i) => i !== myPod).map(p => p.score) : seats.filter(s => s.live && !s.mine).map(s => s.score || 0);
+        const bestOther = others.length ? Math.max(...others) : 0;
+        const won = meOnPod ? res.rank === 1 : !!me && res.score > 0 && res.score >= bestOther;
+        const by = won ? null : meOnPod ? best[0]?.name : topFan()?.name;
+        const pl = plan?.at === showAt ? (meOnPod ? plan.pod : plan.aud) : null;
+        if (flow) saveMatch({ at: w.at, grade: gradeNow(), onPod: res.onPod, rank: res.rank, score: res.score, sum: res.sum,
+          won, gap: res.score - bestOther, ...(by ? { by } : {}), ...(pl ? { pl: pl.kidWins ? 'kid' : 'npc' } : {}) });
         api.onShowEnd?.(res);
       },
     };
@@ -2076,7 +2124,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       pods.forEach((q, i) => {
         if (i === turn) return;
         q.state = 'idle';
-        if (isBot(i)) { const b = buzzPlan(q.skill, { level: qLevel(), round: mode, sec, steal: true }); q.buzzAt = b.at; q.ok = b.ok; }
+        if (isBot(i)) { const b = buzzPlan(q.skill, { level: qLevel(), round: mode, sec, steal: true, ...adjPod(i) }); q.buzzAt = b.at; q.ok = b.ok; }
       });
       sfx('bellOpen');
       paintOv();
@@ -2189,7 +2237,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       paintChoice();
       if (isBot(who)) {
         const lead = Math.max(...pods.map(p => p.score)) - pods[who].score;
-        const k = pickPackage(pods[who].skill, lead);
+        const k = pickPackage(pods[who].skill, lead, Math.random, adjPod(who).dk || 0);
         later(() => choosePkg(k), 2000 + Math.random() * 2000);
       }
     }
@@ -2214,7 +2262,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       setTimer(secs('star'));
       paintChoice();
       if (isBot(vd.who)) {
-        const go = wantStar(pods[vd.who].skill, sl.val, sl.qi === 2);
+        const go = wantStar(pods[vd.who].skill, sl.val, sl.qi === 2, Math.random, adjPod(vd.who).dk || 0);
         later(() => setStar(go), 1200 + Math.random() * 1500);
       }
     }
@@ -2280,15 +2328,16 @@ export function stage(app, onBack, { flow = false } = {}) {
         if (answers(i) && p.state !== 'locked') p.state = 'think';
         if (!isBot(i)) return;   // mình / bạn thật khác: tự bấm
         // bạn ảo theo trình độ (npc.js): biết đáp án theo độ khó câu, bạn giỏi nghĩ nhanh hơn, bạn chưa chắc ít bấm chuông
-        if (sl.seg === 'common') { const b = buzzPlan(p.skill, { level: qLevel(), round: mode, sec }); p.buzzAt = b.at; p.ok = b.ok; }
-        else if (answers(i)) { const d = decide(p.skill, { level: qLevel(), round: mode, sec }); p.plan = d.at; p.ok = d.ok; }
+        if (sl.seg === 'common') { const b = buzzPlan(p.skill, { level: qLevel(), round: mode, sec, ...adjPod(i) }); p.buzzAt = b.at; p.ok = b.ok; }
+        else if (answers(i)) { const d = decide(p.skill, { level: qLevel(), round: mode, sec, ...adjPod(i) }); p.plan = d.at; p.ok = d.ok; }
       });
       // khán giả: bạn ảo theo trình độ; bạn thật (real) tự trả lời trên máy mình, máy chủ trò nhận qua 'xi'
       // khán giả ảo không chọn mọi câu, và không vượt bạn dẫn đầu trên bục (trần 85% điểm bục cao nhất, tối thiểu 30)
       const cap = Math.max(30, Math.round(0.85 * Math.max(...pods.map(p => p.score))));
+      const rivalSeat = seats.filter(s => s.live && !s.real && !s.mine && s.skill === 'gioi').sort((a, b) => (b.score || 0) - (a.score || 0))[0];
       seats.forEach(s => {
         if (s.real) { s.plan = Infinity; return; }
-        const d = audienceAnswer(s.skill, { level: qLevel(), round: mode, sec, score: s.score || 0, cap });
+        const d = audienceAnswer(s.skill, { level: qLevel(), round: mode, sec, score: s.score || 0, cap, ...adjSeat(s, rivalSeat) });
         s.plan = d.at; s.ok = d.ok;
       });
       paintOv();

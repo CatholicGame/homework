@@ -63,7 +63,11 @@ export function loadMatches() {
   try { list = JSON.parse(localStorage.getItem(scopedKey(KEY))) || []; } catch { /* hỏng: coi như chưa có */ }
   return Array.isArray(list) ? list.filter(x => x && x.at && x.sum).sort((a, b) => b.at - a.at) : [];
 }
-/** Lưu một trận { at, grade, onPod, rank, score, sum } (trùng `at` thì bỏ qua). */
+/**
+ * Lưu một trận { at, grade, onPod, rank, score, sum, won, gap, by?, pl? } (trùng `at` thì bỏ qua).
+ * won: em nhất bục (hoặc nhất khán phòng); gap: điểm em − điểm cao nhất của bạn khác; by: bạn vượt em; pl: kế hoạch trận
+ * ('kid' | 'npc', npc.js planShow). Lịch sử này là đầu vào để bạn ảo các trận sau điều nhịp (games/dauTruong.js planNow).
+ */
 export function saveMatch(m) {
   if (!m?.sum?.n) return;
   const list = loadMatches();

@@ -185,20 +185,24 @@ const sk = (s) => SKILLS[s] || SKILLS.kha;
  * Xác suất biết đáp án. level: độ khó câu 1–3 (Về đích: 10 điểm = 1, 20 = 2, 30 = 3); round: 'khoidong' | 'tangtoc' | 'vedich' | 'sel'.
  * Tăng tốc là câu tư duy: khó hơn một chút với mọi bạn.
  */
-export function knowP(skill, level = 1, round = '') {
+export function knowP(skill, level = 1, round = '', dk = 0) {
   const s = sk(skill);
-  return clamp(s.know - s.drop * (clamp(level, 1, 3) - 1) - (round === 'tangtoc' ? 0.08 : 0), 0.15, 0.98);
+  return clamp(s.know - s.drop * (clamp(level, 1, 3) - 1) - (round === 'tangtoc' ? 0.08 : 0) + dk, dk < -0.3 ? 0.08 : 0.15, 0.98);
 }
+/** Đoán bừa trúng (4 ô: 1/4); bạn đang được điều chậm lại thì đoán nghiêng về bẫy (Q.trap) nên ít trúng hơn. */
+const guessP = (dk = 0) => clamp(0.25 + Math.min(0, dk) * 0.4, 0.08, 0.25);
+/** Thời gian nghĩ [từ, tới] (phần của đồng hồ) sau khi điều nhịp: slow > 1 nghĩ lâu hơn, < 1 nhanh hơn. */
+const thinkOf = (s, slow = 1) => [clamp(s.think[0] * slow, 0.06, 0.85), clamp(s.think[1] * slow, 0.12, 0.9)];
 
 /**
  * Một bạn ảo đọc câu và quyết định: { ok: biết đáp án, at: giây sẽ chốt (tính từ lúc đồng hồ chạy) }.
  * Bạn không biết thì nghĩ lâu hơn rồi đoán (đoán bốn ô: 1/4 trúng).
  */
-export function decide(skill, { level = 1, round = '', sec = 15, rnd = Math.random } = {}) {
-  const s = sk(skill), know = rnd() < knowP(skill, level, round);
-  const [a, b] = s.think;
+export function decide(skill, { level = 1, round = '', sec = 15, rnd = Math.random, dk = 0, slow = 1 } = {}) {
+  const s = sk(skill), know = rnd() < knowP(skill, level, round, dk);
+  const [a, b] = thinkOf(s, slow);
   const f = know ? a + (b - a) * rnd() : b + (0.92 - b) * rnd();
-  return { ok: know || rnd() < 0.25, at: Math.max(1.2, sec * f) };
+  return { ok: know || rnd() < guessP(dk), at: Math.max(1.2, sec * f) };
 }
 
 /**
@@ -206,38 +210,39 @@ export function decide(skill, { level = 1, round = '', sec = 15, rnd = Math.rand
  * thí sinh trên bục một chút (không có áp lực nhưng cũng không chăm chú bằng). cap: điểm hiện tại đã chạm trần thì ngồi xem,
  * để điểm khán giả ảo không vượt các bạn trên bục (khán giả trả lời mọi câu, thí sinh chỉ câu của lượt mình).
  */
-export function audienceAnswer(skill, { level = 1, round = '', sec = 15, score = 0, cap = Infinity, rnd = Math.random } = {}) {
+export function audienceAnswer(skill, { level = 1, round = '', sec = 15, score = 0, cap = Infinity, rnd = Math.random, dk = 0, slow = 1 } = {}) {
   const s = sk(skill);
-  if (score >= cap || rnd() >= s.join) return { ok: false, at: Infinity };
-  const know = rnd() < clamp(knowP(skill, level, round) - 0.12, 0.15, 0.9);
-  const [a, b] = s.think;
+  if (score >= cap || rnd() >= clamp(s.join + dk * 0.5, 0.15, 0.9)) return { ok: false, at: Infinity };
+  const know = rnd() < clamp(knowP(skill, level, round, dk) - 0.12, 0.08, 0.9);
+  const [a, b] = thinkOf(s, slow);
   const f = know ? a + (b - a) * rnd() : b + (0.92 - b) * rnd();
-  return { ok: know || rnd() < 0.25, at: Math.max(1.2, sec * f) };
+  return { ok: know || rnd() < guessP(dk), at: Math.max(1.2, sec * f) };
 }
 
 /**
  * Bấm chuông giành quyền (Khởi động lượt chung, Về đích cướp điểm): { at: giây bấm (Infinity: không bấm), ok }.
  * Biết thì phần lớn bấm (bạn giỏi bấm nhanh), chưa chắc thì chỉ bạn bạo dạn mới liều.
  */
-export function buzzPlan(skill, { level = 1, round = '', sec = 6, rnd = Math.random, steal = false } = {}) {
-  const s = sk(skill), know = rnd() < knowP(skill, level, round);
-  const go = know ? rnd() < (steal ? 0.75 : 0.85) : rnd() < s.guts;
+export function buzzPlan(skill, { level = 1, round = '', sec = 6, rnd = Math.random, steal = false, dk = 0, slow = 1 } = {}) {
+  const s = sk(skill), know = rnd() < knowP(skill, level, round, dk);
+  const go = know ? rnd() < clamp((steal ? 0.75 : 0.85) + dk * 0.6, 0.3, 0.95) : rnd() < clamp(s.guts + dk * 0.3, 0.02, 0.5);
   if (!go) return { at: Infinity, ok: false };
-  const [a, b] = s.think;
+  const [a, b] = thinkOf(s, slow);
   const at = Math.max(0.6, sec * (steal ? 0.15 + (a + (b - a) * rnd()) * 0.6 : a + (b - a) * rnd() * 0.8));
-  return { at, ok: know || rnd() < 0.25 };
+  return { at, ok: know || rnd() < guessP(dk) };
 }
 
 /** Về đích: chọn gói (chỉ số trong VD.pkgs: 0 = 30, 1 = 50, 2 = 70, 3 = 90). lead: thua bạn dẫn đầu bao nhiêu điểm. */
-export function pickPackage(skill, lead = 0, rnd = Math.random) {
+export function pickPackage(skill, lead = 0, rnd = Math.random, dk = 0) {
   const base = { gioi: 2, kha: 1, moi: 0 }[skill] ?? 1;
-  let k = base + (lead > 50 ? 1 : 0) + (rnd() < 0.35 ? 1 : 0) - (rnd() < 0.2 ? 1 : 0);
+  // điều nhịp: cần bám đuổi thì gói to hơn, cần lùi lại thì gói nhỏ (dk từ steer)
+  let k = base + (lead > 50 ? 1 : 0) + (rnd() < 0.35 ? 1 : 0) - (rnd() < 0.2 ? 1 : 0) + (dk > 0.15 ? 1 : dk < -0.15 ? -1 : 0);
   return clamp(k, 0, 3);
 }
 
 /** Về đích: có đặt Ngôi sao hy vọng trước câu này không (val: điểm câu, last: câu cuối của gói). */
-export function wantStar(skill, val = 10, last = false, rnd = Math.random) {
-  const p = (knowP(skill, val / 10) - 0.5) * (val === 30 ? 1.4 : val === 20 ? 0.9 : 0.4) + (last ? 0.25 : 0);
+export function wantStar(skill, val = 10, last = false, rnd = Math.random, dk = 0) {
+  const p = (knowP(skill, val / 10, '', dk) - 0.5) * (val === 30 ? 1.4 : val === 20 ? 0.9 : 0.4) + (last ? 0.25 : 0) + dk * 0.5;
   return rnd() < clamp(p, 0.03, 0.85);
 }
 
@@ -246,6 +251,57 @@ export function reactOf(right, rnd = Math.random) {
   const r = rnd();
   if (right) return r < 0.4 ? 'sitYes' : r < 0.7 ? 'sitCheer' : 'sitClap';
   return r < 0.3 ? 'sitSad' : r < 0.75 ? 'sitClap' : '';
+}
+
+// ---- điều khiển kết quả trận theo lịch sử của bé (feedback: bạn ảo thường thua khéo, đôi khi bạn giỏi thắng sát nút)
+const won = (h) => (h.won != null ? !!h.won : h.onPod ? h.rank === 1 : null);
+
+/**
+ * Trước trận: đọc lịch sử trận của bé (matchStats.js loadMatches, mới nhất trước) và quyết định trận này.
+ *   kidWins: bé (người thật) về nhất. false: một bạn ảo giỏi vượt bé đúng khoảng một câu, để bé "tiếc nuối" mà muốn chơi lại.
+ *   acc: tỉ lệ đúng gần đây của bé (bạn ảo mạnh / yếu theo để trận luôn sát).
+ * Luật: 2 trận đầu bé luôn thắng; thua trận trước thì trận này gần như chắc thắng, thua 2 trận liền thì chắc thắng;
+ * thắng càng nhiều liền / tỉ lệ thắng càng cao thì càng dễ gặp bạn giỏi thắng sát nút (tối đa ~50%).
+ * @param {object[]} history [{ onPod, rank, won?, gap?, grade, sum: { right, n } }]
+ * @param {{ seed: string, onPod?: boolean, grade?: number }} o
+ */
+export function planShow(history = [], { seed = '', onPod = true, grade } = {}) {
+  let list = history.filter(h => h && !!h.onPod === onPod && won(h) != null);
+  const same = list.filter(h => h.grade === grade);
+  if (grade && same.length >= 2) list = same;
+  list = list.slice(0, 10);
+  const rates = history.filter(h => h?.sum?.n >= 4).slice(0, 6).map(h => h.sum.right / h.sum.n);
+  const acc = rates.length ? rates.reduce((a, b) => a + b, 0) / rates.length : 0.75;
+  let streak = 0;
+  while (streak < list.length && won(list[streak])) streak++;
+  const last8 = list.slice(0, 8), rate = last8.length ? last8.filter(won).length / last8.length : 1;
+  let pLose;
+  if (list.length < 2) pLose = 0;
+  else if (!won(list[0])) pLose = won(list[1]) ? 0.08 : 0;
+  else pLose = clamp(0.12 + 0.08 * (streak - 1) + (rate - 0.7) * 0.6, 0.1, 0.5);
+  return { kidWins: rand01(seed, 'plan') >= pLose, acc, streak, rate, pLose, n: list.length };
+}
+
+/**
+ * Trong trận: điều nhịp một bạn ảo theo khoảng cách điểm với bé (cao su). gap = điểm bạn ảo − điểm bé; prog 0..1 phần trận đã qua.
+ * Bạn ảo thường (và mọi bạn khi kidWins): đầu trận được dẫn tới ~20 điểm, cuối trận lùi về sau bé ~15 (khoảng một câu).
+ * rival (bạn giỏi được chọn thắng): đầu trận bám sát, cuối trận nhỉnh hơn bé ~12. Không bao giờ cách biệt lớn.
+ * pts: điểm câu đang hỏi (đúng thì được bao nhiêu).
+ * @returns {{ dk: number, slow: number }} dk cộng vào xác suất biết đáp án; slow nhân thời gian nghĩ
+ */
+export function steer({ gap = 0, prog = 0, rival = false, acc = 0.75, pts = 10 }) {
+  const p = clamp(prog, 0, 1);
+  const want = rival ? -5 + 17 * p : 10 - 28 * p;
+  // nhìn trước: trả lời đúng câu này (pts điểm) thì khoảng cách thành bao nhiêu
+  const d = want - gap - pts / 2;            // > 0: cần lên điểm; < 0: cần chậm lại
+  const k = p > 0.7 ? 25 : 40;               // cuối trận siết chặt hơn
+  let dk = clamp(d / k, -0.75, 0.35) + clamp((acc - 0.75) * 0.4, -0.12, 0.1);
+  // nửa sau trận: bạn ảo thường mà đúng câu này sẽ vượt hẳn bé thì gần như chắc sai (chọn bẫy), không để thắng đậm
+  if (!rival && p > 0.5 && gap + pts > want + 12) dk = Math.min(dk, -0.7);
+  // bạn giỏi được chọn thắng: cuối trận đúng câu này mà vượt quá xa thì chậm lại, giữ cách biệt khoảng một câu
+  if (rival && p > 0.5 && gap + pts > want + 25) dk = Math.min(dk, -0.4);
+  const slow = clamp(1 - d / 160, 0.7, 1.5);
+  return { dk, slow };
 }
 
 export { SKILL_KEYS };
