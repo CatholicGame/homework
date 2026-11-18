@@ -178,7 +178,8 @@ function liveCard(grade, g) {
 
 function gameCards(grade, list) {
   return list.map((g, gIdx) => `
-    <button type="button" class="hm-card" data-game="${g.id}" style="animation-delay: ${0.05 + gIdx * 0.04}s; --card-color: ${g.color || grade.color}">
+    <button type="button" class="hm-card${g.important ? ' is-important' : ''}" data-game="${g.id}" style="animation-delay: ${0.05 + gIdx * 0.04}s; --card-color: ${g.color || grade.color}">
+      ${g.important ? '<span class="hm-card-flag">⭐ Quan trọng</span>' : ''}
       <span class="hm-card-art${thumbArt(g) ? ' has-art' : ''}" aria-hidden="true">${thumbArt(g) || `<span class="hm-card-icon">${g.icon}</span>`}</span>
       <span class="hm-card-body">
         <h3>${g.title}</h3>

@@ -29,6 +29,7 @@ import { NPCS, npcPic, cap, preloadNpcs } from './grade3Games/npc.js';
 import { injectGameStyles, menuBackdrop, fitMenu } from './grade3Games/styles.js';
 import { getTotalStars } from '../engine/stars.js';
 import { tablesForUnit } from './grade3Games/catalog.js';
+import { lessonTreeHtml, mountLessonTree, LESSON_TREE_CSS } from './grade3Games/lessonTree.js';
 
 export const GRADE3_LIST = [
   {
@@ -118,13 +119,20 @@ export function renderGamesHub(app, ctx, start = null, {
   games: GAMES = GRADE3_LIST, kicker = '🎮 Toán 3', stallLessons = false, unitFocus = tablesForUnit,
   title: hubTitle = 'Trò chơi tăng cường', icon: hubIcon = '🎮',
   lead = 'Mỗi lần chơi là một lượt mới: số mới, khách mới!', levelLead = 'Chọn cấp. Cấp nào cũng chơi được!',
-  skipList = true,
+  skipList = true, lessonTree = null,
 } = {}) {
   injectGameStyles();
+  if (lessonTree && !document.getElementById('g3g-ltree-styles')) {
+    const st = document.createElement('style');
+    st.id = 'g3g-ltree-styles';
+    st.textContent = LESSON_TREE_CSS;
+    document.head.appendChild(st);
+  }
   preloadNpcs();
   const found = start && GAMES.map(g => ({ g, s: g.stalls.find(s => s.game?.id === start.stall) })).find(x => x.s);
   const lv = found && found.s.game.levels.find(l => l.id === start.level);
   let fromLesson = !!lv;
+  let fromTree = false; // vào cấp từ cây 🌳 Bài → công cụ: ← và "thoát" về thẳng danh sách có cây (cây mở sẵn bài vừa chọn)
   const unit = start?.unit;
   const unitFocused = unit && unitFocus ? unitFocus(ctx.book, unit) : null;
   // Chỉ các cấp luyện đúng bài đó (lessons / also) — "Cấp tiếp theo" sang bảng khác thì chơi như thường.
@@ -134,6 +142,9 @@ export function renderGamesHub(app, ctx, start = null, {
   // Hub chỉ có một trò một phần chơi (🦈 Săn cá mập, 🛸 Bảo vệ Trái Đất…): bỏ màn danh sách trò, mở thẳng danh sách cấp.
   // skipList: false — vẫn hiện danh sách trò (lớp 4: mới có một trò nhưng sẽ thêm trò khác).
   const solo = skipList && GAMES.length === 1 && GAMES[0].single ? GAMES[0] : null;
+  // 🌳 Cây Bài → công cụ cho bố mẹ (Luyện Tính): bên phải danh sách trên màn ngang, gập lại trên danh sách ở màn hẹp.
+  const tree = lessonTree ? lessonTreeHtml(GAMES, { book: ctx.book, ...lessonTree }) : '';
+
   if (lv) showIntro(found.g, found.s.game, lv);
   else showGames();
 
@@ -166,6 +177,7 @@ export function renderGamesHub(app, ctx, start = null, {
     shell(`
       ${topbar(hubTitle, { kicker, stars: true })}
       <p class="g3g-lead">${lead}</p>
+      ${tree ? '<div class="g3g-hub-split">' : ''}
       <div class="g3g-list">
         ${GAMES.map(g => `
           <button type="button" class="g3g-tile" data-game="${g.id}">
@@ -174,8 +186,10 @@ export function renderGamesHub(app, ctx, start = null, {
               <span class="g3g-tags">${g.tags.map(t => `<i>${t}</i>`).join('')}</span></span>
             <span class="g3g-go">▶</span>
           </button>`).join('')}
-      </div>`);
+      </div>
+      ${tree ? `${tree}</div>` : ''}`);
     app.querySelector('[data-act="back"]').onclick = ctx.onBack;
+    if (tree) mountLessonTree(app, GAMES, (g, game, l) => { fromTree = true; showIntro(g, game, l); }, lessonTree);
     app.querySelectorAll('[data-game]').forEach(b => {
       const g = GAMES.find(x => x.id === b.dataset.game);
       b.onclick = () => (g.single ? showLevels(g, g.stalls[0].game) : showStalls(g));
@@ -252,6 +266,7 @@ export function renderGamesHub(app, ctx, start = null, {
 
   function showLevels(g, game) {
     fromLesson = false;
+    fromTree = false;
     shell(`
       ${solo ? topbar(hubTitle, { kicker, stars: true }) : topbar(`${game.icon} ${game.title}`, { kicker: g.single ? `${hubIcon} ${hubTitle}` : `${g.icon} ${g.title}` })}
       ${game.purpose ? `<p class="g3g-purpose">🎯 ${game.purpose}</p>` : ''}
@@ -312,7 +327,7 @@ export function renderGamesHub(app, ctx, start = null, {
           </div>
         </div>
       </div>`);
-    app.querySelector('[data-act="back"]').onclick = fromLesson ? ctx.onBack : () => showLevels(g, game);
+    app.querySelector('[data-act="back"]').onclick = fromLesson ? ctx.onBack : fromTree ? showGames : () => showLevels(g, game);
     app.querySelector('[data-act="lesson"]')?.addEventListener('click', () => ctx.openUnit(lastUnit.id));
     app.querySelector('[data-act="play"]').onclick = () => play(g, game, baseLv, lv);
     app.querySelectorAll('[data-test]').forEach(b => {
@@ -336,8 +351,8 @@ export function renderGamesHub(app, ctx, start = null, {
     const nextLv = game.levels[idx + 1];
     playRound(app, {
       game, level: lv,
-      onExit: () => showLevels(g, game),
-      onQuit: fromLesson ? ctx.onBack : null,
+      onExit: () => (fromTree ? showGames() : showLevels(g, game)),
+      onQuit: fromLesson ? ctx.onBack : fromTree ? showGames : null,
       onNextLevel: nextLv ? () => showIntro(g, game, nextLv) : null,
     });
   }

@@ -232,6 +232,14 @@ h1, h2, h3, .section-title { letter-spacing: 0.005em; }
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 .hm-card .card-lang { align-self: flex-start; margin: 4px 0 0; }
+/* Thẻ `important` (grades.js): nhãn "⭐ Quan trọng" góc trên trái + viền vàng mảnh */
+.hm-card.is-important { position: relative; box-shadow: 0 0 0 2px #f5c84c, var(--warm-shadow); }
+.hm-card.is-important:hover, .hm-card.is-important:focus-visible { box-shadow: 0 0 0 2px #f5c84c, var(--warm-shadow-hi); }
+.hm-card-flag {
+  position: absolute; top: 10px; left: 10px; z-index: 1; padding: 3px 10px; border-radius: 999px;
+  background: #fff4cc; color: #8a5300; font-size: 13px; font-weight: 800; line-height: 1.3;
+  box-shadow: 0 1px 4px rgba(120, 80, 0, 0.18);
+}
 
 /* Thẻ LIVE (Đấu Trường Nhí): tấm sân khấu tối chiếm cả hàng, tranh bên trái, chấm đỏ nhấp nháy */
 .hm-live-slot:empty { display: none; }

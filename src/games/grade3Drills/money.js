@@ -149,7 +149,53 @@ function genSwap(rng, k) {
   return { t: 'swap', ...s, a: s.a || 0, key: `swap:${s.big}:${s.a || 0}:${s.b}` };
 }
 
-const GEN = { count: genCount, pay: genPay, calc: genCalc, swap: genSwap };
+// ── Lớp 2 (Vở BT Toán 2 Bài 56, 58): tờ 100, 200, 500, 1 000 đồng như trong vở ─────────────────────────
+const NOTES2 = [100, 200, 500, 1000];
+const IT2 = (pic, unit, noun, prices) => ({ pic, unit, noun, prices, of: (n) => `${n} ${unit} ${noun}` });
+const ITEMS2 = [
+  IT2('🍬', 'cái', 'kẹo', [200, 300, 400]),
+  IT2('🧅', 'mớ', 'hành', [500, 600, 700]),
+  IT2('✏️', 'cái', 'bút chì', [700, 800, 900]),
+  IT2('📄', 'tờ', 'giấy màu', [300, 400]),
+  IT2('🍪', 'cái', 'bánh quy', [600, 700, 800]),
+];
+function genCount2(rng, k) {
+  const n = [3, 2, 4, 3, 5][k % 5];
+  for (let t = 0; t < 80; t++) {
+    const vals = Array.from({ length: n }, () => rng.pick([100, 200, 500]));
+    const total = vals.reduce((a, b) => a + b, 0);
+    if (total > 1000 || new Set(vals).size < 2 || vals.filter(v => v === 500).length > 1) continue;
+    const sorted = [...vals].sort((a, b) => b - a);
+    let lay = rng.shuffle(vals);
+    if (lay.join() === sorted.join()) lay = [...lay].reverse();
+    return { t: 'count', lay, sorted, total, key: `count:${sorted.join('+')}` };
+  }
+  return { t: 'count', lay: [100, 500, 200], sorted: [500, 200, 100], total: 800, key: 'count:800' };
+}
+function genPay2(rng) {
+  for (let t = 0; t < 80; t++) {
+    const item = rng.pick(ITEMS2), price = rng.pick(item.prices);
+    const best = fewest(price, NOTES2);
+    if (best.length < 2 || best.length > 4) continue;
+    return { t: 'pay', item, price, best, notes: NOTES2, key: `pay:${item.noun}:${price}` };
+  }
+  return { t: 'pay', item: ITEMS2[2], price: 800, best: [500, 200, 100], notes: NOTES2, key: 'pay:800' };
+}
+const SWAP2_ONE = [], SWAP2_MIX = [];
+for (const big of [200, 500, 1000]) {
+  for (const b of [100, 200, 500]) if (b < big && big % b === 0) SWAP2_ONE.push({ big, b, ans: big / b });
+  for (const a of [200, 500]) for (const b of [100, 200]) {
+    if (a >= big || a === b || (big - a) % b) continue;
+    const ans = (big - a) / b;
+    if (ans >= 2 && ans <= 5) SWAP2_MIX.push({ big, a, b, ans });
+  }
+}
+function genSwap2(rng, k) {
+  const s = rng.pick(k % 3 === 2 ? SWAP2_MIX : SWAP2_ONE);
+  return { t: 'swap', ...s, a: s.a || 0, key: `swap:${s.big}:${s.a || 0}:${s.b}` };
+}
+
+const GEN = { count: genCount, pay: genPay, calc: genCalc, swap: genSwap, count2: genCount2, pay2: genPay2, swap2: genSwap2 };
 const LEVEL = (id, n, title, desc, knowledge, kinds, missions, ask) => ({ id, n, title, desc, knowledge, lessons: { workbook: ['bai-68'] }, kinds, missions, ask: () => ask });
 
 export const MONEY_LEVELS = [
@@ -166,6 +212,18 @@ export const MONEY_LEVELS = [
 ];
 
 // ── Trò chơi ────────────────────────────────────────────────────────────────────────────────────────
+const LEVEL2 = (id, n, title, desc, knowledge, lessons, kinds, missions, ask) => ({ id, n, title, desc, knowledge, lessons: { g2: lessons }, kinds, missions, ask: () => ask });
+export const MONEY2_LEVELS = [
+  LEVEL2('d2-money-1', 1, 'Đếm tiền', 'Vd. tờ 500, 200 và 100 đồng: xếp tờ lớn trước, đếm thêm được 800 đồng.',
+    'tờ 100, 200, 500, 1 000 đồng; đếm thêm', ['bai-56'], ['count2'], 5, 'Xếp tờ lớn trước, rồi đếm thêm từng tờ!'),
+  LEVEL2('d2-money-2', 2, 'Lấy đủ tiền', 'Vd. 1 cái bút chì giá 800 đồng: lấy tờ 500, 200 và 100 đồng.',
+    'lấy đủ tiền để trả', ['bai-56', 'bai-58'], ['pay2'], 5, 'Lấy tờ lớn nhất còn lấy được, rồi lấy tiếp!'),
+  LEVEL2('d2-money-3', 3, 'Đổi tiền', 'Vd. 1 tờ 1 000 đồng đổi được mấy tờ 200 đồng?',
+    'đổi tờ tiền lớn ra các tờ tiền nhỏ', ['bai-56', 'bai-58'], ['swap2'], 5, 'Đếm thêm tờ nhỏ đến khi bằng tờ lớn!'),
+  LEVEL2('d2-money-4', 4, 'Trộn các dạng', 'Đếm tiền, lấy đủ tiền và đổi tiền, trộn lẫn.',
+    'tiền Việt Nam: đếm, trả, đổi tiền', ['bai-58', 'bai-73'], ['count2', 'pay2', 'swap2', 'pay2', 'count2', 'swap2'], 6, 'Đọc kĩ số tiền trên từng tờ!'),
+];
+
 export const MONEY_GAME = {
   id: 'drill-money', icon: '💵', title: 'Tiền Việt Nam',
   purpose: 'Giúp em đếm tiền, lấy đủ tiền để trả, tính tiền trả lại và đổi tiền với các tờ từ 1 000 đến 100 000 đồng.',
@@ -184,6 +242,11 @@ export const MONEY_GAME = {
   mountMission(stage, m, level, api) {
     ({ count: mountCount, pay: mountPay, calc: mountCalc, swap: mountSwap })[m.t](stage, m, api);
   },
+};
+
+export const MONEY2_GAME = {
+  ...MONEY_GAME, id: 'd2-money', starPrefix: 'drill2', levels: MONEY2_LEVELS,
+  purpose: 'Giúp em đếm tiền, lấy đủ tiền để trả và đổi tiền với các tờ 100, 200, 500, 1 000 đồng.',
 };
 
 /** Ô kết quả đủ rộng cho số dài nhất từ đầu lượt. */
@@ -230,7 +293,7 @@ function mountCount(stage, m, api) {
   const n = m.lay.length;
   const rots = [-8, 6, -4, 9, -6, 4];
   // Tờ tiền nằm rải trên bàn 3 × 2 ô (ít tờ thì so le, không dồn một hàng).
-  const pos = { 3: [0, 4, 2], 4: [0, 2, 4, 3], 5: [0, 1, 2, 3, 5], 6: [0, 1, 2, 3, 4, 5] }[n];
+  const pos = { 2: [0, 4], 3: [0, 4, 2], 4: [0, 2, 4, 3], 5: [0, 1, 2, 3, 5], 6: [0, 1, 2, 3, 4, 5] }[n];
   const at = (cell) => pos.indexOf(cell);
   const board = `
     <div class="mny mny-count">
@@ -340,7 +403,7 @@ function mountPay(stage, m, api) {
     </div>`;
   const { scene, paper, talk, tell, show, done } = setup(stage, api, board, 'mny-s-pay mny-walletmode');
   const zone = scene.querySelector('.g3d-padzone');
-  zone.insertAdjacentHTML('beforeend', `<div class="mny-wallet"><span class="mny-wname">👛 Ví tiền</span><div class="mny-wnotes">${NOTES.map(v => `<button type="button" class="mny-wbtn" data-v="${v}" aria-label="${D(v)}"><span class="mny-slot">${noteIn(v)}</span></button>`).join('')}</div></div>`);
+  zone.insertAdjacentHTML('beforeend', `<div class="mny-wallet"><span class="mny-wname">👛 Ví tiền</span><div class="mny-wnotes">${(m.notes || NOTES).map(v => `<button type="button" class="mny-wbtn" data-v="${v}" aria-label="${D(v)}"><span class="mny-slot">${noteIn(v)}</span></button>`).join('')}</div></div>`);
   const wallet = zone.querySelector('.mny-wallet');
   const cells = [...paper.querySelectorAll('.mny-cell')];
   const slots = cells.map(c => c.querySelector('.mny-slot'));

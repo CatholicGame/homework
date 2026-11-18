@@ -22,6 +22,7 @@ const writing = (desc) => ({ id: 'writing', group: 'tiengviet', icon: '✍️', 
 // cùng một thẻ cho lớp 1–5, trang tự mở cấp hợp với lớp trong hồ sơ.
 const ENGLISH = { id: 'english-reading', group: 'tienganh', icon: '📖', color: '#2563EB', title: 'Đọc tiếng Anh', desc: '100 bài đọc ngắn từ dễ đến khó và 30 bài chủ đề (bạn từ hành tinh khác, chuyện nhân văn, nhân vật lịch sử Việt Nam): nghe đọc, chạm từ xem nghĩa, ngữ pháp, trả lời câu hỏi, chép chính tả' };
 
+// `important: true` = thẻ có nhãn "⭐ Quan trọng" ở trang chủ (Luyện Tính, đặt ngay sau Bản đồ kiến thức).
 // `hidden: true` = ẩn với mọi người (kể cả admin), vẫn mở được bằng #id.
 // 🏆 Đấu Trường Nhí: mở cho mọi người (lớp 1–5) từ 2026-11-09, `live` = thẻ LIVE to đầu tab Trò chơi. Thiết kế docs/dau-truong/thiet-ke.md.
 const DAUTRUONG = { id: 'dautruong-preview', group: 'challenge', live: true, cover: '/dautruong/cover-card.webp', icon: '🏆', color: '#1D4ED8', title: 'Đấu Trường Nhí', desc: '4 bạn thi cùng lúc trên sân khấu, hai MC dẫn chương trình: Khởi động, Tăng tốc, Về đích. Khán giả cũng có điểm!' };
@@ -63,10 +64,10 @@ export const GRADES = [
     num: 2, title: 'Lớp 2', icon: '2️⃣', color: '#60A5FA',
     games: [
       KNOWLEDGE_MAP,
+      { id: 'grade2-drills', important: true, icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Làm tròn 10, bảng cộng trừ, đặt tính, bảng nhân chia 2 và 5, tính nhẩm, bài toán có lời văn' },
       { id: 'grade2-workbook', icon: '📒', color: '#0EA5E9', title: 'Vở Bài Tập Toán 2 — Tập Một', desc: 'Bài 1–36' },
       { id: 'grade2-workbook-2', icon: '📙', color: '#F59E0B', title: 'Vở Bài Tập Toán 2 — Tập Hai', desc: 'Bài 37–75' },
       { id: 'grade2-tests', icon: '✏️', color: '#8B5CF6', title: 'Luyện Đề', desc: 'Kiểm tra theo lộ trình: cứ vài Bài trong vở làm một bài kiểm tra, cô chỉ Bài cần ôn lại' },
-      { id: 'grade2-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Làm tròn 10, bảng cộng trừ, đặt tính, bảng nhân chia 2 và 5, tính nhẩm, bài toán có lời văn' },
       { id: 'grade2-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Cộng, trừ qua 10, có nhớ; bảng nhân, chia 2 và 5' },
       { id: 'grade2-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang ổ khoá có số còn thiếu: chọn đúng viên đạn để phá khiên. Cộng, trừ qua 10, có nhớ; nhân, chia 2 và 5' },
       DAUTRUONG,
@@ -82,12 +83,12 @@ export const GRADES = [
     num: 3, title: 'Lớp 3', icon: '3️⃣', color: '#34D399',
     games: [
       KNOWLEDGE_MAP,
+      { id: 'grade3-drills', important: true, icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Đặt tính cộng trừ nhân chia, bảng nhân chia, tìm thành phần, biểu thức, lời văn hai bước, số đến 100 000, đổi đơn vị đo, chu vi diện tích, số La Mã' },
       ...(MEMORY_ISLAND ? [{ id: 'memory-island', group: 'challenge', icon: '🏝️', color: '#0EA5E9', title: 'Đảo Trí Nhớ', desc: 'Ôn bảng nhân chia, đổi đơn vị, số La Mã bằng trò chơi lật thẻ' }] : []),
       { id: 'grade3-workbook', icon: '📗', color: '#10B981', title: 'Vở Bài Tập Toán 3 — Tập Một', desc: 'Bài 1–44' },
       { id: 'grade3-workbook-2', icon: '📕', color: '#EF4444', title: 'Vở Bài Tập Toán 3 — Tập Hai', desc: 'Bài 45–81' },
       { id: 'grade3-practice', icon: '📘', color: '#3B82F6', title: 'Luyện Tập Toán 3', desc: 'Tập Một — Luyện tập theo tuần' },
       { id: 'grade3-worksheet', icon: '✏️', color: '#8B5CF6', title: 'Luyện Đề', desc: 'Kiểm tra theo lộ trình (nhanh, tổng hợp, giữa kì, cuối kì), phiếu bài tập theo bài học, 65 đề ôn tập giữa học kì I, 8 đề ôn tổng hợp' },
-      { id: 'grade3-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Đặt tính cộng trừ nhân chia, bảng nhân chia, tìm thành phần, biểu thức, lời văn hai bước, số đến 100 000, đổi đơn vị đo, chu vi diện tích, số La Mã' },
       { id: 'grade3-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Bảng nhân, bảng chia 2 đến 9, cộng trừ có nhớ' },
       { id: 'grade3-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang ổ khoá "tìm x": bắn đạn mang đúng giá trị của x, số thay vào là thấy đúng sai. Cộng trừ, nhân chia, số lớn' },
       DAUTRUONG,
@@ -104,10 +105,10 @@ export const GRADES = [
     num: 4, title: 'Lớp 4', icon: '4️⃣', color: '#C084FC',
     games: [
       KNOWLEDGE_MAP,
+      { id: 'grade4-drills', important: true, icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Nhân, chia đặt tính với số có một, hai, ba chữ số: tích riêng, ước lượng thương' },
       { id: 'grade4-textbook', icon: '📖', color: '#6366F1', title: 'Sách Toán 4', desc: 'Sách giáo khoa Toán 4, bài 1–175: làm bài tập ngay trong sách, phép tính lớn có nút ✍️ Tính để đặt tính' },
       { id: 'grade4-tools', icon: '🧰', color: '#8B5CF6', title: 'Toán 4: Học bằng công cụ', desc: 'Tập Một, Bài 1–37: bảng hàng, tia số, thước đo góc, ê ke… em tự tay khám phá rồi thực hành' },
       { id: 'grade4-tests', icon: '✏️', color: '#8B5CF6', title: 'Luyện Đề', desc: 'Kiểm tra theo lộ trình: cứ vài Bài trong sách làm một bài kiểm tra, cô chỉ Bài cần ôn lại' },
-      { id: 'grade4-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Nhân, chia đặt tính với số có một, hai, ba chữ số: tích riêng, ước lượng thương' },
       { id: 'grade4-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Tính nhẩm số tới ba chữ số, nhân chia với 10, 100' },
       { id: 'grade4-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang biểu thức chứa chữ: theo mật mã a, b tính giá trị rồi bắn; tìm x với số lớn' },
       DAUTRUONG,
@@ -122,9 +123,9 @@ export const GRADES = [
     num: 5, title: 'Lớp 5', icon: '5️⃣', color: '#FBBF24',
     games: [
       KNOWLEDGE_MAP,
+      { id: 'grade5-drills', important: true, icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Cộng, trừ, nhân, chia số thập phân đặt tính; nhân chia nhẩm với 10, 100, 0,1; phân số' },
       { id: 'grade5-tools', icon: '🧰', color: '#F59E0B', title: 'Toán 5: Học bằng công cụ', desc: 'Tập Một, Bài 1–35: băng phân số, số thập phân, bảng đơn vị đo, cắt ghép hình… em tự tay khám phá rồi thực hành' },
       { id: 'grade5-tests', icon: '✏️', color: '#8B5CF6', title: 'Luyện Đề', desc: 'Kiểm tra theo lộ trình: cứ vài Bài trong sách làm một bài kiểm tra, cô chỉ Bài cần ôn lại' },
-      { id: 'grade5-drills', icon: '🧮', color: '#0D9488', title: 'Luyện Tính', desc: 'Cộng, trừ, nhân, chia số thập phân đặt tính; nhân chia nhẩm với 10, 100, 0,1; phân số' },
       { id: 'grade5-shark', group: 'challenge', icon: '🦈', color: '#0284C7', title: 'Săn cá mập', desc: 'Cá mập mang phép tính bơi tới: gõ đúng kết quả để bắn trúng. Bảng nhân chia, nhân chia số tròn chục, tròn trăm' },
       { id: 'grade5-ufo', group: 'challenge', icon: '🛸', color: '#7C3AED', title: 'Bảo vệ Trái Đất', desc: 'Đĩa bay mang ổ khoá tìm x với số thập phân, nhân chia với 10, 100; công thức chu vi, diện tích' },
       DAUTRUONG,

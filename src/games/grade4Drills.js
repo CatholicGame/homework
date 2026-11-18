@@ -11,6 +11,9 @@
  * Số có ba chữ số (nhân, chia) là cấp nâng cao, ngoài SGK.
  */
 
+import { UNIT_INFO } from '../data/knowledgeUnits.js';
+import { GRADE4_GAMES } from '../data/features.js';
+import { STALLS as GAME_STALLS } from './grade4Games/catalog.js';
 import { renderGamesHub } from './grade3Games.js';
 import { DIVISION_GAME } from './grade3Drills/division.js';
 import { COLUMN_GAME, columnSteps } from './grade3Drills/column.js';
@@ -268,13 +271,28 @@ export const DRILL4_LIST = [
   tool('ufo', UFO4_GAME, 'Đĩa bay mang ổ khoá có số bị giấu: chọn đúng viên đạn, số thay vào ổ khoá là thấy đúng sai!', ['Biểu thức chứa chữ', 'Tìm x']),
 ];
 
+// Tên bài SGK Toán 4 (KNTT) Tập Hai mà cây 🌳 cần; Tập Một lấy từ UNIT_INFO (tool4).
+const SGK4_TAP2 = { 38: 'Nhân với số có một chữ số', 39: 'Chia cho số có một chữ số', 43: 'Nhân với số có hai chữ số', 44: 'Chia cho số có hai chữ số' };
+
 export function render(app, onBack) {
+  // 🎮 Trò chơi tăng cường trong cây 🌳: chạm Cấp → tải trò chơi, mở thẳng cấp đó (chỉ phép tính của bài), quay lại về Luyện Tính.
+  const games = GRADE4_GAMES ? {
+    stalls: GAME_STALLS, book: 'tools',
+    open: (start) => import('./grade4Games.js').then((m) => {
+      app.setAttribute('data-no-i18n', ''); // trò chơi chưa có bản tiếng Anh
+      m.renderGames(app, {
+        book: 'tools', units: [], unitName: (u) => `Bài ${u.number}`, storageKey: 'g4tools-games-none',
+        openUnit() {}, onBack: () => { app.removeAttribute('data-no-i18n'); render(app, onBack); },
+      }, start);
+    }),
+  } : null;
   renderGamesHub(app, {
     // Cấp ghi "Bài 43…" theo SGK Toán 4 (số bài liên tục qua Tập Một, Tập Hai); không mở bài từ đây.
     book: 'sgk4', units: [], unitName: (u) => `Bài ${u.number}`, storageKey: 'g4-drill-none',
     openUnit() {}, onBack,
   }, null, {
     games: DRILL4_LIST, kicker: '🧮 Toán 4', title: 'Luyện Tính', icon: '🧮', unitFocus: null,
+    lessonTree: { games, split: 37, titleOf: (n) => UNIT_INFO[`tool4:bai-${n}`]?.[1] || SGK4_TAP2[n] },
     lead: 'Luyện số lớn, phép tính, đơn vị đo, phân số như cách học ở lớp. Mỗi lượt là số mới!',
     levelLead: 'Chọn cấp. Cấp nào cũng làm được!',
   });

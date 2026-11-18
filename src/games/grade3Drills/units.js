@@ -29,6 +29,8 @@ const qText = (q) => q.map(([n, u]) => `${fmt(n)} ${u}`).join(' ');
 // Chữ "l" (lít) viết nghiêng kiểu chữ có chân như cả app (engine/pourPlay.js): "1 l" không bị đọc thành "11".
 const LIT_RE = /(\d) l(?![a-zà-ỹ0-9])/gi;
 const hl = (str) => String(str).replace(LIT_RE, '$1 <i style="font-family:Georgia,serif">l</i>');
+/** Đơn vị đứng một mình (sau ô đáp số): "l" cũng viết nghiêng. */
+const uH = (u) => (u === 'l' ? '<i style="font-family:Georgia,serif">l</i>' : u);
 const sl = (str) => String(str).replace(LIT_RE, '$1 <tspan font-family="Georgia, Times New Roman, serif" font-style="italic" font-weight="400">l</tspan>');
 const R = (rng, a, b, s = 1) => a + s * rng.int(0, Math.floor((b - a) / s));
 const ratioOf = (big, small) => U[big] / U[small];
@@ -171,6 +173,68 @@ export const UNITS_LEVELS = [
     desc: 'Đổi đơn vị, tính với số đo và so sánh số đo, trộn lẫn.', knowledge: 'đơn vị đo độ dài, khối lượng, dung tích', lessons: { workbook: ['bai-43', 'bai-79'] },
     ask: () => 'Đọc kĩ đơn vị trước khi tính!',
     gen: (rng, k) => [genLen, genCalc, genCmp, genMassCap, genCalc, genCmp][k % 6](rng, rng.int(0, 4)),
+  },
+];
+
+// ── Lớp 2 (Vở BT Toán 2: Bài 15–18 ki-lô-gam, lít; Bài 55 dm, m, km). Số đo nguyên, chưa đổi g, ml. ────
+/** Cộng, trừ số đo cùng đơn vị: kg (túi hàng trên cân), l (can, chai rót vào ca), cm / dm / m (thanh trên thước). */
+function makeCalc2(rng, op, u) {
+  const dim = DIM[u];
+  // [nhỏ nhất, lớn nhất] của tổng / số bị trừ, giữ cân tới 6 kg, ca tới 4 l, thước vừa khung; số đo như đồ vật thật.
+  const MAX = { kg: 6, l: 4, cm: 90, dm: 9, m: 9 }[u];
+  const step = u === 'cm' ? 5 : 1;
+  if (op === '+') {
+    const a = R(rng, step, MAX - step * (u === 'cm' ? 2 : 1), step);
+    const b = R(rng, step, Math.max(step, MAX - a), step);
+    return { t: 'calc', dim, conv: false, op: '+', a: [a, u], b, u, ans: a + b };
+  }
+  const a = R(rng, step * 2, MAX, step);
+  const b = R(rng, step, a - step, step);
+  return { t: 'calc', dim, conv: false, op: '−', a: [a, u], b, u, ans: a - b };
+}
+const LEN2 = { b2s: [['dm', 'cm'], ['m', 'dm'], ['m', 'cm'], ['km', 'm']], s2b: [['dm', 'cm'], ['m', 'dm'], ['m', 'cm']] };
+const genKg2 = (rng, k) => makeCalc2(rng, k % 2 ? '−' : '+', 'kg');
+const genL2 = (rng, k) => makeCalc2(rng, k % 2 ? '−' : '+', 'l');
+const genLen2 = (rng, k) => { const mode = ['b2s', 's2b', 'b2s', 'b2s', 's2b'][k % 5]; return makeConv(rng, rng.pick(LEN2[mode]), mode); };
+const genLenCalc2 = (rng, k) => makeCalc2(rng, k % 2 ? '−' : '+', ['cm', 'dm', 'm'][(k + rng.int(0, 2)) % 3]);
+const genCmp2 = (rng, k) => makeCmp(rng, LEN2.b2s[(k + rng.int(0, 3)) % 4]);
+
+export const UNITS2_LEVELS = [
+  {
+    id: 'd2-unit-1', n: 1, title: 'Ki-lô-gam', missions: 5,
+    desc: 'Vd. túi gạo 3 kg và túi đường 2 kg: cả hai túi nặng 5 kg.', knowledge: 'ki-lô-gam, cộng trừ số đo kg', lessons: { g2: ['bai-15', 'bai-17'] },
+    ask: () => 'Tính như với số rồi viết thêm kg. Xem kim cân chỉ số mấy!',
+    gen: genKg2,
+  },
+  {
+    id: 'd2-unit-2', n: 2, title: 'Lít', missions: 5,
+    desc: 'Vd. can 3 l, rót ra 1 l: can còn 2 l.', knowledge: 'lít, cộng trừ số đo l', lessons: { g2: ['bai-16', 'bai-17'] },
+    ask: () => 'Tính như với số rồi viết thêm l. Xem mực nước trong ca!',
+    gen: genL2,
+  },
+  {
+    id: 'd2-unit-3', n: 3, title: 'Đổi dm, m, km', missions: 5,
+    desc: 'Vd. 1 dm = 10 cm, 3 m = 30 dm, 1 km = 1 000 m.', knowledge: '1 dm = 10 cm, 1 m = 10 dm = 100 cm, 1 km = 1 000 m', lessons: { g2: ['bai-55'] },
+    ask: () => 'Nhớ: 1 dm = 10 cm, 1 m = 10 dm = 100 cm. Đổi rồi xem thước!',
+    gen: genLen2,
+  },
+  {
+    id: 'd2-unit-4', n: 4, title: 'Tính với cm, dm, m', missions: 5,
+    desc: 'Vd. 35 cm + 20 cm = 55 cm, 8 dm − 3 dm = 5 dm.', knowledge: 'cộng, trừ số đo độ dài cùng đơn vị', lessons: { g2: ['bai-55'] },
+    ask: () => 'Tính như với số rồi viết thêm đơn vị!',
+    gen: genLenCalc2,
+  },
+  {
+    id: 'd2-unit-5', n: 5, title: 'So sánh số đo', missions: 5,
+    desc: 'Vd. 1 m … 90 cm: đổi 1 m = 100 cm, rồi chọn dấu >.', knowledge: 'đổi về cùng đơn vị rồi so sánh', lessons: { g2: ['bai-55'] },
+    ask: () => 'Đổi về cùng một đơn vị rồi mới so sánh!',
+    gen: genCmp2,
+  },
+  {
+    id: 'd2-unit-6', n: 6, title: 'Trộn các dạng', missions: 6,
+    desc: 'Ki-lô-gam, lít, đổi và tính với cm, dm, m, so sánh số đo, trộn lẫn.', knowledge: 'ki-lô-gam, lít, đơn vị đo độ dài', lessons: { g2: ['bai-35', 'bai-73'] },
+    ask: () => 'Đọc kĩ đơn vị trước khi tính!',
+    gen: (rng, k) => [genKg2, genLen2, genL2, genLenCalc2, genCmp2, genKg2][k % 6](rng, rng.int(0, 4)),
   },
 ];
 
@@ -422,7 +486,8 @@ function massView(insts, tray) {
 }
 
 // ── Dung tích: ca đo có vạch ml ────────────────────────────────────────────────────────────────────
-function capView(insts, tray) {
+/** inL: vạch chia và chữ theo lít (lớp 2 chưa học mi-li-lít). */
+function capView(insts, tray, inL = false) {
   const n = insts.length;
   const tall = VH >= 640;
   const geo = n === 1 ? [{ x: 200, w: tall ? 260 : 240 }] : [{ x: 150, w: 230 }, { x: 650, w: 230 }];
@@ -456,13 +521,13 @@ function capView(insts, tray) {
     s += `<path d="${body}" fill="none" ${SW} stroke-width="5"/>`;
     s += `<path d="M${x - 10} ${top} H${x + w + 10}" stroke="${INK}" stroke-width="6" stroke-linecap="round"/>`;
     // Vạch chia ml
-    const minor = C <= 1000 ? C / 10 : 100, lab = C <= 1000 ? C / 5 : 500;
+    const minor = inL ? 500 : C <= 1000 ? C / 10 : 100, lab = inL ? 1000 : C <= 1000 ? C / 5 : 500;
     for (let v = minor; v <= C + 1e-6; v += minor) {
       const big = v % lab === 0;
       s += `<path d="M${x} ${yv(v)} h${big ? 40 : 22}" stroke="${INK}" stroke-width="${big ? 3.5 : 2.2}"/>`;
-      if (big) s += `<text x="${x - 10}" y="${yv(v) + fsJ * 0.36}" class="g3u-jl" style="font-size:${fsJ}px">${fmt(v)}</text>`;
+      if (big) s += `<text x="${x - 10}" y="${yv(v) + fsJ * 0.36}" class="g3u-jl" style="font-size:${fsJ}px">${fmt(inL ? v / 1000 : v)}</text>`;
     }
-    s += `<text x="${x - 10}" y="${bot}" class="g3u-jl g3u-ju" style="font-size:${fsJ}px">ml</text>`;
+    s += `<text x="${x - 10}" y="${bot}" class="g3u-jl g3u-ju" style="font-size:${fsJ}px">${inL ? sl('0 l').slice(2) : 'ml'}</text>`;
     s += `<g data-marks="${i}"></g>`;
     s += `<text data-cap="${i}" x="${x + w / 2}" y="${VH - 16}" class="g3u-cap g3u-cap-mid ${it.capCls || ''}" style="font-size:${capFs}px">${sl(it.cap)}</text>`;
     s += '</g>';
@@ -526,19 +591,20 @@ function buildModel(m) {
   }
   if (m.t === 'calc') {
     const A = val([m.a]) / U[m.u], u = m.u, ans = m.ans;
-    const pre = m.conv ? [{ ranges: [{ a: 0, b: A, chip: `${fmt(A)} ${u}`, cap: `${fmt(A)} ${u}` }], item: 0 }] : [];
+    const k = U[u]; // số của đề (theo u) → giá trị gốc của hình đo
+    const pre = m.conv ? [{ ranges: [{ a: 0, b: A * k, chip: `${fmt(A)} ${u}`, cap: `${fmt(A)} ${u}` }], item: 0 }] : [];
     if (m.op === '+') {
-      const parts = [{ v: A, label: `${fmt(A)} ${u}`, u }, { v: m.b, label: `${fmt(m.b)} ${u}`, u }];
-      const ranges = [{ a: 0, b: A, chip: `${fmt(A)} ${u}`, cap: `${fmt(A)} ${u}` }, { a: A, b: A + m.b, chip: `${fmt(m.b)} ${u}`, cap: `${fmt(ans)} ${u}` }];
+      const parts = [{ v: A * k, label: `${fmt(A)} ${u}`, u }, { v: m.b * k, label: `${fmt(m.b)} ${u}`, u }];
+      const ranges = [{ a: 0, b: A * k, chip: `${fmt(A)} ${u}`, cap: `${fmt(A)} ${u}` }, { a: A * k, b: (A + m.b) * k, chip: `${fmt(m.b)} ${u}`, cap: `${fmt(ans)} ${u}` }];
       const plan = [{ ranges, item: 0, load: [0, 1] }];
       if (d === 'len') return { view: lenView([{ segs: segsOf(parts, j => (j ? 'b' : 'a')), cap: '?' }], u), plan };
       const tray = parts.map(p => objOf(p, d));
       if (d === 'mass') return { view: massView([{ objs: parts.map(p => objOf(p, d, { hidden: true })), cap: '?' }], tray), plan };
-      return { view: capView([{ layers: segsOf(parts, j => (j ? 'b' : 'a')).map(sg => ({ ...sg, label: '', hidden: true })), cap: '?' }], tray), plan };
+      return { view: capView([{ layers: segsOf(parts, j => (j ? 'b' : 'a')).map(sg => ({ ...sg, label: '', hidden: true })), cap: '?' }], tray, u === 'l'), plan };
     }
     if (m.op === '×') {
-      const parts = Array.from({ length: m.b }, () => ({ v: A, label: `${fmt(A)} ${u}`, u }));
-      const ranges = parts.map((_, j) => ({ a: j * A, b: (j + 1) * A, chip: `${fmt(A)} ${u}`, cap: `${fmt(A * (j + 1))} ${u}` }));
+      const parts = Array.from({ length: m.b }, () => ({ v: A * k, label: `${fmt(A)} ${u}`, u }));
+      const ranges = parts.map((_, j) => ({ a: j * A * k, b: (j + 1) * A * k, chip: `${fmt(A)} ${u}`, cap: `${fmt(A * (j + 1))} ${u}` }));
       if (d === 'len') return { view: lenView([{ segs: segsOf(parts, j => (j ? 'ghost' : 'a')), cap: '?' }], u), plan: [{ fill: true, ranges, item: 0 }] };
       const tray = parts.map(p => objOf(p, d));
       const plan = [{ load: tray.map((_, j) => j), ranges, item: 0, quiet: true }];
@@ -547,16 +613,16 @@ function buildModel(m) {
     }
     if (m.op === '−') {
       const B = m.b, rest = A - B;
-      const segs = [{ a: 0, b: rest, label: '?', st: 'a' }, { a: rest, b: A, label: `${fmt(B)} ${u}`, st: 'cut' }];
-      const fin = { ranges: [{ a: 0, b: rest, chip: `${fmt(ans)} ${u}`, cap: `${fmt(ans)} ${u}` }], item: 0, remove: 1 };
+      const segs = [{ a: 0, b: rest * k, label: '?', st: 'a' }, { a: rest * k, b: A * k, label: `${fmt(B)} ${u}`, st: 'cut' }];
+      const fin = { ranges: [{ a: 0, b: rest * k, chip: `${fmt(ans)} ${u}`, cap: `${fmt(ans)} ${u}` }], item: 0, remove: 1 };
       const cap0 = m.conv ? '?' : `${fmt(A)} ${u}`;
       if (d === 'len') return { view: lenView([{ segs, cap: cap0, capCls: m.conv ? '' : 'g3u-cap-given' }], u), plan: [...pre, fin] };
       if (d === 'mass') {
-        const tray = [{ kind: 'plate', v: B, label: `${fmt(B)} g` }];
-        return { view: massView([{ objs: [{ kind: 'bag', v: rest, label: '?' }, { kind: 'bag', v: B, cut: true, label: `${fmt(B)} g` }], cap: cap0, capCls: m.conv ? '' : 'g3u-cap-given' }], tray), plan: [...pre, fin] };
+        const tray = [{ kind: 'plate', v: B * k, label: `${fmt(B)} ${u}` }];
+        return { view: massView([{ objs: [{ kind: 'bag', v: rest * k, label: '?' }, { kind: 'bag', v: B * k, cut: true, label: `${fmt(B)} ${u}` }], cap: cap0, capCls: m.conv ? '' : 'g3u-cap-given' }], tray), plan: [...pre, fin] };
       }
-      const tray = [{ kind: 'cup', v: B, label: `${fmt(B)} ml`, empty: true }];
-      return { view: capView([{ layers: segs.map(sg => ({ ...sg, label: sg.st === 'cut' ? sg.label : '' })), cap: cap0, capCls: m.conv ? '' : 'g3u-cap-given' }], tray), plan: [...pre, fin] };
+      const tray = [{ kind: B * k > 500 ? 'bottle' : 'cup', v: B * k, label: `${fmt(B)} ${u}`, empty: true }];
+      return { view: capView([{ layers: segs.map(sg => ({ ...sg, label: sg.st === 'cut' ? sg.label : '' })), cap: cap0, capCls: m.conv ? '' : 'g3u-cap-given' }], tray, u === 'l'), plan: [...pre, fin] };
     }
     // ':'
     const q = ans;
@@ -572,7 +638,7 @@ function buildModel(m) {
   const plan = [{ ranges: convRanges(sides[m.bigSide], m.u), item: m.bigSide }, { glow: true }];
   if (d === 'len') return { view: lenView(parts.map((ps, i) => ({ segs: segsOf(ps, i ? 'b' : 'a'), ...caps[i] })), m.u), plan };
   if (d === 'mass') return { view: massView(parts.map((ps, i) => ({ objs: ps.map(p => objOf(p, d)), ...caps[i] }))), plan };
-  return { view: capView(parts.map((ps, i) => ({ layers: segsOf(ps, j => (j % 2 ? 'b' : 'a')).map(sg => ({ ...sg, label: '' })), ...caps[i] }))), plan };
+  return { view: capView(parts.map((ps, i) => ({ layers: segsOf(ps, j => (j % 2 ? 'b' : 'a')).map(sg => ({ ...sg, label: '' })), ...caps[i] })), null, m.u === 'l'), plan };
 }
 
 // ── Các bước của bài ───────────────────────────────────────────────────────────────────────────────
@@ -657,16 +723,16 @@ export const UNITS_GAME = {
     const boxW = (v) => `${String(fmt(v)).length * 0.6 + 0.9}em`;
     const workStep = steps.find(s => s.box === 'work');
     let prob;
-    if (m.t === 'conv') prob = `<span>${qText(m.from)}</span><span>=</span><span class="g3d-box" style="--boxw:${boxW(m.ans)}" data-box="main"></span><span>${m.to}</span>`;
+    if (m.t === 'conv') prob = `<span>${qText(m.from)}</span><span>=</span><span class="g3d-box" style="--boxw:${boxW(m.ans)}" data-box="main"></span><span>${uH(m.to)}</span>`;
     else if (m.t === 'calc') {
       const A = val([m.a]) / U[m.u];
       const aw = Math.max(qText([m.a]).length, `${fmt(A)} ${m.u}`.length) * 0.55;
-      prob = `<span class="g3u-a" data-a style="min-width:${m.conv ? aw : 0}em">${qText([m.a])}</span><span>${m.op}</span><span>${m.op === '+' || m.op === '−' ? `${fmt(m.b)} ${m.u}` : m.b}</span><span>=</span><span class="g3d-box" style="--boxw:${boxW(m.ans)}" data-box="main"></span><span>${m.u}</span>`;
+      prob = `<span class="g3u-a" data-a style="min-width:${m.conv ? aw : 0}em">${qText([m.a])}</span><span>${m.op}</span><span>${m.op === '+' || m.op === '−' ? `${fmt(m.b)} ${m.u}` : m.b}</span><span>=</span><span class="g3d-box" style="--boxw:${boxW(m.ans)}" data-box="main"></span><span>${uH(m.u)}</span>`;
     } else prob = `<span>${qText(m.left)}</span><span class="g3u-sign" data-sign></span><span>${qText(m.right)}</span>`;
     prob = hl(prob);
     const factHtml = fact ? `<span class="g3u-fact${fact.hidden ? ' g3u-hide' : ''}${fact.calc ? ' g3u-fact-calc' : ''}"${fact.calc ? ` style="min-width:${(fact.text.length + String(fmt(m.ans)).length) * 0.56}em;text-align:center"` : ''} data-fact>${hl(fact.text)}</span>` : '<span class="g3u-fact g3u-hide" data-fact>&nbsp;</span>';
     const work = workStep
-      ? `<span class="g3u-wl">Đổi: ${qText(m.t === 'calc' ? [m.a] : [m.left, m.right][m.bigSide])} = <span class="g3d-box" style="--boxw:${boxW(workStep.ans)}" data-box="work"></span> ${workStep.unit}</span>${factHtml}`
+      ? `<span class="g3u-wl">Đổi: ${qText(m.t === 'calc' ? [m.a] : [m.left, m.right][m.bigSide])} = <span class="g3d-box" style="--boxw:${boxW(workStep.ans)}" data-box="work"></span> ${uH(workStep.unit)}</span>${factHtml}`
       : factHtml;
     const workHtml = hl(work);
     const board = `
@@ -838,11 +904,12 @@ export const UNITS_GAME = {
           const pobj = q('[data-pobj="0-1"]');
           pobj.style.opacity = '0';
           const tp = view.lay.pos[0];
-          const [bw, bh] = dims({ kind: 'bag', v: m.b });
-          await sleep(flyOne(flyObj({ kind: 'bag', v: m.b, cut: true }, pp.w, pp.h, view.hatch), sbox({ x: pp.x, y: pp.y, w: pp.w * pp.s, h: pp.h * pp.s }),
+          const bv = m.b * U[m.u]; // số của đề (g / kg) → gam
+          const [bw, bh] = dims({ kind: 'bag', v: bv });
+          await sleep(flyOne(flyObj({ kind: 'bag', v: bv, cut: true }, pp.w, pp.h, view.hatch), sbox({ x: pp.x, y: pp.y, w: pp.w * pp.s, h: pp.h * pp.s }),
             sbox({ x: tp.x + (tp.w - bw) / 2, y: tp.y, w: bw, h: bh }), { minMs: 420, maxMs: 700, onLand: () => {
               trayObj(0).querySelector('.g3u-liq').style.opacity = '1';
-              q('[data-needle="0"]').style.transform = `rotate(${view.ang(val([m.a]) - m.b)}deg)`;
+              q('[data-needle="0"]').style.transform = `rotate(${view.ang(val([m.a]) - bv)}deg)`;
               sfx.pop(2);
             } }) + 700);
         } else {
@@ -965,14 +1032,22 @@ function trayModel(m) {
   const d = m.dim;
   if (m.t === 'conv') return expand(m.from, m.to).map(p => objOf(p, d));
   if (m.t !== 'calc') return [];
-  const A = val([m.a]) / U[m.u], u = m.u;
-  if (m.op === '+') return [{ v: A, label: `${fmt(A)} ${u}`, u }, { v: m.b, label: `${fmt(m.b)} ${u}`, u }].map(p => objOf(p, d));
-  if (m.op === '×') return Array.from({ length: m.b }, () => objOf({ v: A, label: `${fmt(A)} ${u}`, u }, d));
-  if (m.op === '−') return d === 'mass' ? [{ kind: 'plate', v: m.b, label: `${fmt(m.b)} g` }] : [{ kind: 'cup', v: m.b, label: `${fmt(m.b)} ml`, empty: true }];
-  return Array.from({ length: m.b }, () => ({ kind: 'cup', v: m.ans, label: '?', empty: true }));
+  // Cùng khay với buildModel: giá trị gốc (g, ml) = số của đề × U[u].
+  const A = val([m.a]) / U[m.u], u = m.u, k = U[u];
+  if (m.op === '+') return [{ v: A * k, label: `${fmt(A)} ${u}`, u }, { v: m.b * k, label: `${fmt(m.b)} ${u}`, u }].map(p => objOf(p, d));
+  if (m.op === '×') return Array.from({ length: m.b }, () => objOf({ v: A * k, label: `${fmt(A)} ${u}`, u }, d));
+  if (m.op === '−') return d === 'mass' ? [{ kind: 'plate', v: m.b * k, label: `${fmt(m.b)} ${u}` }] : [{ kind: m.b * k > 500 ? 'bottle' : 'cup', v: m.b * k, label: `${fmt(m.b)} ${u}`, empty: true }];
+  return Array.from({ length: m.b }, () => ({ kind: 'cup', v: m.ans * k, label: '?', empty: true }));
 }
 
 let unitStyles = false;
+// Lớp 2: cùng hình đo, sao ghi vào nhóm Luyện Tính lớp 2.
+export const UNITS2_GAME = {
+  ...UNITS_GAME, id: 'd2-unit', icon: '⚖️', title: 'Ki-lô-gam, lít, mét', starPrefix: 'drill2', levels: UNITS2_LEVELS,
+  purpose: 'Giúp em tính với ki-lô-gam, lít, đổi và tính với cm, dm, m, km, so sánh số đo, rồi tự kiểm tra trên cân, ca đo và thước vẽ đúng tỉ lệ.',
+  howTo: how(['⚖️', 'Cân, đong, đo'], ['🔁', 'Đổi đơn vị'], ['⌨️', 'Gõ số'], ['✅', 'Xem hình kiểm tra']),
+};
+
 function injectUnitStyles() {
   if (unitStyles) return;
   unitStyles = true;

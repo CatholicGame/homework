@@ -6,6 +6,9 @@
  *   ✍️ Đặt tính: dùng lại công cụ đặt tính lớp 3 với số lớp 2 · 📏 Bài toán có lời văn: dùng lại sơ đồ đoạn thẳng lớp 3.
  */
 
+import { UNIT_INFO } from '../data/knowledgeUnits.js';
+import { GRADE2_GAMES } from '../data/features.js';
+import { STALLS as GAME_STALLS } from './grade2Games/catalog.js';
 import { renderGamesHub } from './grade3Games.js';
 import { COLUMN_GAME, columnSteps } from './grade3Drills/column.js';
 import { SEGMENT_GAME, makeProblem } from './grade3Drills/segment.js';
@@ -16,6 +19,10 @@ import { ADD_GAME, TAB_GAME, MEN_GAME } from './grade2Drills/facts.js';
 import { TIME2_GAME, CAL2_GAME } from './grade3Drills/time.js';
 import { SHARK2_GAME } from './grade3Drills/shark.js';
 import { UFO2_GAME } from './grade3Drills/ufo.js';
+import { NUMBERS2_GAME } from './grade3Drills/numbers.js';
+import { UNITS2_GAME } from './grade3Drills/units.js';
+import { MONEY2_GAME } from './grade3Drills/money.js';
+import { DATA2_GAME } from './grade3Drills/data.js';
 
 // ── ✍️ Đặt tính rồi tính ──────────────────────────────────────────────────────────────────────────────
 const carries = (op, a, b) => columnSteps(op, a, b).filter(s => s.kind === 'carry').length;
@@ -116,18 +123,59 @@ export const DRILL2_LIST = [
   tool('col', COL_GAME, 'Viết thẳng cột, tính từ hàng đơn vị, nhớ đúng số nhớ.', ['Có nhớ', 'Phạm vi 100', 'Phạm vi 1 000']),
   tool('tab', TAB_GAME, 'Thuộc bảng nhân, bảng chia 2 và 5.', ['Bảng nhân 2, 5', 'Bảng chia 2, 5']),
   tool('men', MEN_GAME, '30 + 50: 3 chục cộng 5 chục bằng 8 chục.', ['Tròn chục', 'Tròn trăm', 'Không nhớ']),
+  tool('num', NUMBERS2_GAME, 'Đọc, viết, so sánh số có hai, ba chữ số; trăm, chục, đơn vị; số liền trước, liền sau.', ['Đọc viết số', 'Trăm, chục, đơn vị', 'So sánh']),
   tool('word', WORD_GAME, 'Đọc đề, nhìn sơ đồ, chọn phép cộng hay phép trừ.', ['Thêm, bớt', 'Nhiều hơn, ít hơn', 'Hơn kém', 'Cho nhau']),
   tool('time', TIME2_GAME, 'Xem giờ, đổi giờ chiều tối, tính giờ bắt đầu, giờ xong.', ['Xem giờ', 'Chỉnh kim', 'Giờ chiều, tối', 'Tính giờ']),
   tool('cal', CAL2_GAME, 'Ngày ... là thứ mấy, tuần sau, còn mấy ngày nữa.', ['Xem lịch', 'Ngày, thứ', 'Đếm ngày']),
+  tool('unit', UNITS2_GAME, 'Tính với kg, l; đổi và tính với cm, dm, m, km; so sánh số đo, rồi tự kiểm tra trên cân, ca đo, thước.', ['Ki-lô-gam', 'Lít', 'dm, m, km']),
+  tool('money', MONEY2_GAME, 'Đếm tiền, lấy đủ tiền để trả và đổi tiền với các tờ 100, 200, 500, 1 000 đồng.', ['Đếm tiền', 'Trả tiền', 'Đổi tiền']),
+  tool('data', DATA2_GAME, 'Kiểm đếm rồi ghi số; chắc chắn, có thể hay không thể lấy được bi, quay nón, lấy bút.', ['Kiểm đếm', 'Khả năng xảy ra']),
 ];
 
+// Bài ôn tập, luyện tập chung trong Vở BT Toán 2 có câu luyện đúng kỹ năng của cấp: ghi vào also.g2
+// (cây 🌳 "Bài nào có công cụ nào?" đọc cả lessons và also; chữ "Bài …" trên thẻ cấp chỉ theo lessons).
+const ALSO = {
+  'bai-6': ['d2-num-1', 'd2-seg-3'],
+  'bai-18': ['d2-unit-1', 'd2-unit-2'],
+  'bai-32': ['d2-time-1', 'd2-time-5', 'd2-cal-1', 'd2-cal-2'],
+  'bai-33': ['d2-add-1', 'd2-add-2', 'd2-col-1', 'd2-col-2', 'd2-col-3', 'd2-men-1', 'd2-shark-3', 'd2-shark-4'],
+  'bai-35': ['d2-time-1', 'd2-cal-1'],
+  'bai-36': ['d2-col-2', 'd2-col-3', 'd2-seg-4'],
+  'bai-63': ['d2-col-4', 'd2-col-5', 'd2-men-3'],
+  'bai-69': ['d2-add-3', 'd2-col-1', 'd2-col-2', 'd2-col-3', 'd2-men-1', 'd2-men-2', 'd2-seg-4'],
+  'bai-70': ['d2-col-4', 'd2-col-5', 'd2-men-3'],
+  'bai-73': ['d2-time-1', 'd2-cal-3'],
+  'bai-75': ['d2-col-5', 'd2-tab-5', 'd2-seg-4', 'd2-num-5'],
+};
+const LEVEL_BY_ID = new Map(DRILL2_LIST.flatMap(t => t.stalls.flatMap(st => st.game.levels.map(l => [l.id, l]))));
+for (const [bai, ids] of Object.entries(ALSO)) {
+  for (const id of ids) {
+    const l = LEVEL_BY_ID.get(id);
+    if (!l) { if (import.meta.env.DEV) console.warn('ALSO: không có cấp', id); continue; }
+    const g2 = l.also?.g2 || [];
+    if (!g2.includes(bai)) l.also = { ...l.also, g2: [...g2, bai] };
+  }
+}
+
 export function render(app, onBack) {
+  // 🎮 Trò chơi tăng cường trong cây 🌳: chạm Cấp → tải trò chơi, mở thẳng cấp đó (chỉ phép tính của bài), quay lại về Luyện Tính.
+  const games = GRADE2_GAMES ? {
+    stalls: GAME_STALLS, book: 'g2',
+    open: (start) => import('./grade2Games.js').then((m) => {
+      app.setAttribute('data-no-i18n', ''); // trò chơi chưa có bản tiếng Anh
+      m.renderGamesHub(app, {
+        book: 'g2', units: [], unitName: (u) => `Bài ${u.number}`, storageKey: 'g2w-progress-v1',
+        openUnit() {}, onBack: () => { app.removeAttribute('data-no-i18n'); render(app, onBack); },
+      }, start);
+    }),
+  } : null;
   renderGamesHub(app, {
     // Cấp ghi "Bài 19…" theo Vở bài tập Toán 2 (mã bài liên tục qua Tập Một, Tập Hai); không mở bài từ đây.
     book: 'g2', units: [], unitName: (u) => `Bài ${u.number}`, storageKey: 'g2w-progress-v1',
     openUnit() {}, onBack,
   }, null, {
     games: DRILL2_LIST, kicker: '🧮 Toán 2', title: 'Luyện Tính', icon: '🧮', unitFocus: null,
+    lessonTree: { games, split: 36, titleOf: (n) => UNIT_INFO[`workbook2:bai-${n}`]?.[1] },
     lead: 'Luyện phép tính theo cách học ở lớp. Mỗi lượt là số mới!',
     levelLead: 'Chọn cấp. Cấp nào cũng làm được!',
   });

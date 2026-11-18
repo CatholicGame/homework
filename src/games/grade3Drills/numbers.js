@@ -89,18 +89,28 @@ const mk = {
     if (!digitsOf(n).slice(1).includes(0)) n = Number(String(n).slice(0, len - 2) + '0' + String(n).slice(-1));
     return { kind: 'join', n, form };
   },
+  // type: same4 | same5 | diff | equal | late (5 chữ số); lớp 2: same2, same3, late3, diff3 (98 … 102), equal3,
+  // round3 (hai số tròn chục / tròn trăm, Bài 50).
   cmp: (rng, type) => {
     let a, b;
     if (type === 'diff') {           // 5 chữ số bắt đầu bằng 1 với 4 chữ số "to" (9 876)
       a = Number(`1${rng.int(0, 2)}${rng.int(0, 9)}${rng.int(0, 9)}${rng.int(0, 9)}`);
       b = Number(`${rng.int(8, 9)}${rng.int(5, 9)}${rng.int(0, 9)}${rng.int(0, 9)}`);
-    } else if (type === 'equal') {
-      a = b = num(rng, 5, 0.3);
+    } else if (type === 'diff3') {   // 3 chữ số bắt đầu bằng 1 với 2 chữ số "to" (97)
+      a = Number(`1${rng.int(0, 2)}${rng.int(0, 9)}`);
+      b = Number(`${rng.int(8, 9)}${rng.int(5, 9)}`);
+    } else if (type === 'equal' || type === 'equal3') {
+      a = b = num(rng, type === 'equal' ? 5 : 3, 0.3);
+    } else if (type === 'round3') {  // 340 … 430, 600 … 500
+      const step = rng() < 0.5 ? 10 : 100;
+      const lo = step === 10 ? 11 : 1, hi = step === 10 ? 99 : 9;
+      a = step * rng.int(lo, hi);
+      do { b = step * rng.int(lo, hi); } while (b === a);
     } else {                          // cùng số chữ số, khác nhau ở một hàng (late: hàng chục / đơn vị)
-      const len = type === 'same4' ? 4 : 5;
+      const len = Number(type.match(/\d$/)?.[0]) || 5;
       a = num(rng, len, 0.2);
       const ds = digitsOf(a);
-      const i = type === 'late' ? rng.int(len - 2, len - 1) : rng.int(1, len - 2);
+      const i = type.startsWith('late') ? rng.int(len - 2, len - 1) : rng.int(Math.min(1, len - 2), len - 2);
       const e = [...ds];
       do { e[i] = rng.int(0, 9); } while (e[i] === ds[i]);
       // Sau hàng khác nhau: chữ số của số bé thường to hơn (bẫy nhìn chữ số cuối)
@@ -114,23 +124,24 @@ const mk = {
     ds[len - p] = rng.pick([rng.int(0, 9), rng.int(0, 9), 4, 5, 6]);
     return { kind: 'round', n: Number(ds.join('')), p };
   },
-  next: (rng) => {
-    const len = rng() < 0.4 ? 4 : 5;
+  // lens: số chữ số có thể có (lớp 3: 4, 5; lớp 2: 2 hoặc 3), [lo, hi]: khoảng của số.
+  next: (rng, lens = [4, 5, 5], [lo, hi] = [1001, 99998]) => {
+    const len = rng.pick(lens);
     const base = num(rng, len, 0.2);
-    const tail = rng.pick(['9', '99', '999', '0', '00', '000', '', '']);
+    const tail = rng.pick(['9', '99', '999', '0', '00', '000', '', ''].filter(t => t.length < len));
     let n = Number(String(base).slice(0, len - tail.length) + tail);
-    if (n >= 99999) n = 99998;
-    if (n < 1001) n = 1001;
+    if (n > hi) n = hi;
+    if (n < lo) n = lo;
     return { kind: 'next', n };
   },
-  maxmin: (rng) => {
-    const base = num(rng, 5, 0.1);
+  maxmin: (rng, len = 5) => {
+    const base = num(rng, len, 0.1);
     const set = new Set([base]);
-    if (rng() < 0.5) set.add(Number(`9${rng.int(6, 9)}${rng.int(0, 9)}${rng.int(0, 9)}`)); // bẫy: số 4 chữ số "to"
+    if (rng() < 0.5) set.add(len === 5 ? Number(`9${rng.int(6, 9)}${rng.int(0, 9)}${rng.int(0, 9)}`) : Number(`9${rng.int(6, 9)}`)); // bẫy: số ít chữ số hơn mà "to"
     while (set.size < 4) {
       const e = digitsOf(base);
-      const i = rng.int(1, 4);
-      if (rng() < 0.5) e[i] = rng.int(0, 9); else { const j = rng.int(1, 4); [e[i], e[j]] = [e[j], e[i]]; }
+      const i = rng.int(1, len - 1);
+      if (rng() < 0.5) e[i] = rng.int(0, 9); else { const j = rng.int(1, len - 1); [e[i], e[j]] = [e[j], e[i]]; }
       set.add(Number(e.join('')));
     }
     return { kind: 'maxmin', list: rng.shuffle([...set]) };
@@ -181,6 +192,33 @@ export const NUMBERS_GAME = {
     injectNumStyles();
     MOUNT[m.kind](stage, m, api);
   },
+};
+
+// ── Lớp 2: số đến 100 (Bài 1, 2) và số có ba chữ số (Vở BT Toán 2 Tập Hai, Bài 48–54, 68) ─────────────
+const LV2 = (id, n, title, desc, knowledge, lessons, missions, ask, plan) => ({ id, n, title, desc, knowledge, lessons: { g2: lessons }, missions, ask: () => ask, plan });
+export const NUMBERS2_LEVELS = [
+  LV2('d2-num-1', 1, 'Số đến 100', 'Vd. 45 đọc là bốn mươi lăm. Số liền sau của 39 là 40. 67 > 61.', 'chục và đơn vị, số liền trước, số liền sau, so sánh',
+    ['bai-1', 'bai-2'], 5, 'Số có hai chữ số: chục viết trước, đơn vị viết sau!',
+    (rng, k) => [() => mk.write(rng, 2, 0.3), () => mk.next(rng, [2], [11, 98]), () => mk.cmp(rng, 'same2'), () => mk.read(rng, 2, 0.3), () => mk.next(rng, [2], [11, 98])][k % 5]()),
+  LV2('d2-num-2', 2, 'Đọc, viết số có ba chữ số', 'Vd. 405 đọc là bốn trăm linh năm, 251 đọc là hai trăm năm mươi mốt.', 'đọc, viết số có ba chữ số',
+    ['bai-48', 'bai-49', 'bai-51'], 4, 'Đọc từ hàng trăm: trăm, chục, đơn vị. Chục là 0 thì đọc “linh”!',
+    (rng, k) => [() => mk.write(rng, 3, 0.4), () => mk.read(rng, 3, 0.6), () => mk.write(rng, 3, 0.6), () => mk.read(rng, 3, 0.4)][k % 4]()),
+  LV2('d2-num-3', 3, 'Trăm, chục, đơn vị', 'Vd. 352 = 300 + 50 + 2. Số gồm 4 trăm và 7 đơn vị viết là 407.', 'viết số thành tổng các trăm, chục, đơn vị',
+    ['bai-52'], 4, 'Mỗi chữ số đứng ở một hàng. Hàng nào không có thì viết 0!',
+    (rng, k) => [() => mk.split(rng, 3, 0.2), () => mk.join(rng, 3, 'sum'), () => mk.split(rng, 3, 0.5), () => mk.join(rng, 3, 'gom')][k % 4]()),
+  LV2('d2-num-4', 4, 'So sánh số', 'Vd. 540 > 450, 368 < 371, 97 < 102.', 'so sánh số tròn trăm, tròn chục, số có ba chữ số',
+    ['bai-50', 'bai-53'], 5, 'Đếm chữ số trước, rồi so sánh từ hàng trăm!',
+    (rng, k) => mk.cmp(rng, ['round3', 'same3', 'diff3', 'late3', 'equal3'][k % 5])),
+  LV2('d2-num-5', 5, 'Trộn các dạng', 'Đọc, viết, phân tích, so sánh số; số liền trước, liền sau; số lớn nhất, bé nhất.', 'các số trong phạm vi 1 000',
+    ['bai-54', 'bai-68'], 6, 'Mỗi bài một dạng: đọc kĩ thầy hỏi gì!',
+    (rng, k) => [() => mk.next(rng, [3], [101, 998]), () => mk.maxmin(rng, 3), () => (rng() < 0.5 ? mk.read(rng, 3, 0.6) : mk.write(rng, 3, 0.6)),
+      () => mk.cmp(rng, rng.pick(['same3', 'diff3', 'late3'])), () => (rng() < 0.5 ? mk.split(rng, 3, 0.4) : mk.join(rng, 3, rng.pick(['sum', 'gom']))),
+      () => mk.cmp(rng, 'round3')][k % 6]()),
+];
+export const NUMBERS2_GAME = {
+  ...NUMBERS_GAME, id: 'd2-num', title: 'Số đến 1 000', starPrefix: 'drill2', levels: NUMBERS2_LEVELS,
+  purpose: 'Giúp em đọc, viết số có hai, ba chữ số, viết số thành tổng các trăm, chục, đơn vị, so sánh số, tìm số liền trước, liền sau.',
+  howTo: how(['🔊', 'Đọc, viết số'], ['🧱', 'Bảng hàng'], ['⚖️', 'So sánh'], ['➡️', 'Liền trước, liền sau']),
 };
 
 // ── Phần dùng chung ───────────────────────────────────────────────────────────────────────────────
@@ -282,7 +320,8 @@ function mountWrite(stage, m, api) {
   const th = Math.floor(n / 1000), rest = n % 1000;
   const thW = `${docSo(th)} nghìn`;
   const restW = docSo(n).slice(thW.length).trim();
-  const tipText = rest
+  const tipText = n < 1000 ? `Viết lần lượt chữ số hàng ${len === 3 ? 'trăm, hàng chục, hàng' : 'chục, hàng'} đơn vị. Hàng nào không có thì viết 0.`
+    : rest
     ? `“${cap(thW)}” viết là ${th}, “${restW}” viết là ${String(rest).padStart(3, '0')}. Hàng nào không có thì viết 0.`
     : `“${cap(thW)}” viết là ${th}, rồi viết thêm ba chữ số 0.`;
   let stepNow = 'type';
@@ -318,7 +357,8 @@ function mountRead(stage, m, api) {
   </div>`;
   const { paper, say, done, st } = frame(stage, api, board, 'g3n-k-read');
   const th = Math.floor(n / 1000), rest = n % 1000;
-  const tipText = `Đọc từ trái sang phải: ${th} nghìn đọc là “${docSo(th)} nghìn”${rest ? `, ${String(rest).padStart(3, '0')} đọc là “${docSo(n).slice(docSo(th).length + 7).trim()}”` : ''}.`;
+  const tipText = n < 1000 ? 'Đọc từ trái sang phải: hàng trăm, hàng chục, hàng đơn vị. Chục là 0 thì đọc “linh”, đơn vị 1 đọc “mốt”, đơn vị 5 đọc “lăm”.'
+    : `Đọc từ trái sang phải: ${th} nghìn đọc là “${docSo(th)} nghìn”${rest ? `, ${String(rest).padStart(3, '0')} đọc là “${docSo(n).slice(docSo(th).length + 7).trim()}”` : ''}.`;
   let stepNow = 'pick';
   say('Số này đọc là gì? Chọn cách đọc đúng.', '🔊 Chọn <b>cách đọc đúng</b>.');
   paper.querySelectorAll('[data-o]').forEach(btn => {

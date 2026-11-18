@@ -9,7 +9,7 @@ import { flyOne } from '../../grade3Games/fly.js';
 import { R, fmt, sleep, sfx, ask } from './kit.js';
 
 const NOTES = [1000, 2000, 5000, 10000, 20000, 50000, 100000];
-const COLOR = { 1000: ['#E9D5FF', '#7E22CE'], 2000: ['#FDE68A', '#A16207'], 5000: ['#BAE6FD', '#0369A1'], 10000: ['#FED7AA', '#C2410C'], 20000: ['#A5F3FC', '#0E7490'], 50000: ['#FBCFE8', '#BE185D'], 100000: ['#BBF7D0', '#15803D'] };
+const COLOR = { 100: ['#E8DCB5', '#4A3F1E'], 200: ['#F1CBA9', '#5A3215'], 500: ['#F6C3CD', '#6E1F33'], 1000: ['#E9D5FF', '#7E22CE'], 2000: ['#FDE68A', '#A16207'], 5000: ['#BAE6FD', '#0369A1'], 10000: ['#FED7AA', '#C2410C'], 20000: ['#A5F3FC', '#0E7490'], 50000: ['#FBCFE8', '#BE185D'], 100000: ['#BBF7D0', '#15803D'] };
 const SLOTS = 6;
 
 /** Tờ tiền vẽ phẳng: nền màu, khung, bông hoa trang trí, số tiền to. */

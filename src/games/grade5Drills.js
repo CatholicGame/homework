@@ -6,6 +6,7 @@
  *   🔀 Nhân chia nhẩm, 🪜 Đổi đơn vị, 🍫 Phân số: các dạng câu Thực hành của Toán 5 Học bằng công cụ, ghép thành cấp.
  */
 
+import { UNIT_INFO } from '../data/knowledgeUnits.js';
 import { renderGamesHub } from './grade3Games.js';
 import { DADD_GAME, DMUL_GAME } from './grade5Drills/dcol.js';
 import { DDIV_GAME } from './grade5Drills/ddiv.js';
@@ -92,6 +93,7 @@ export function render(app, onBack) {
     openUnit() {}, onBack,
   }, null, {
     games: DRILL5_LIST, kicker: '🧮 Toán 5', title: 'Luyện Tính', icon: '🧮', unitFocus: null,
+    lessonTree: { split: 35, titleOf: (n) => UNIT_INFO[`tool5:bai-${n}`]?.[1] },
     lead: 'Luyện tính với số thập phân và phân số. Mỗi lượt là số mới!',
     levelLead: 'Chọn cấp. Cấp nào cũng làm được!',
   });

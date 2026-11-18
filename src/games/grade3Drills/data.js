@@ -238,11 +238,12 @@ export const DATA_GAME = {
   stallIcon: () => '📊',
   summaryText: (ok, total) => `Em làm đúng ngay <strong>${ok}/${total}</strong> bài.`,
   againText: 'Làm lượt mới',
-  howTo(level) {
-    if (level.n === 1) return how(['👀', 'Nhìn từng cái'], ['✏️', 'Gạch vào hàng'], ['⌨️', 'Viết số'])();
-    if (level.n === 2) return how(['📋', 'Đọc bảng'], ['👆', 'Chọn cột'], ['⌨️', 'Tính'])();
-    if (level.n === 3) return how(['👀', 'Nhìn hộp'], ['👆', 'Chọn khả năng'], ['🤏', 'Thử'])();
-    return how(['✏️', 'Kiểm đếm'], ['📋', 'Đọc bảng'], ['🤏', 'Khả năng'])();
+  howTo(level) { // theo các dạng trong cấp (cấp lớp 2 đánh số khác lớp 3)
+    const has = new Set(level.plan.map(k => (k === 'tally' || k === 'table' ? k : 'chance')));
+    if (has.size > 1) return how(['✏️', 'Kiểm đếm'], ...(has.has('table') ? [['📋', 'Đọc bảng']] : []), ['🤏', 'Khả năng'])();
+    if (has.has('tally')) return how(['👀', 'Nhìn từng cái'], ['✏️', 'Gạch vào hàng'], ['⌨️', 'Viết số'])();
+    if (has.has('table')) return how(['📋', 'Đọc bảng'], ['👆', 'Chọn cột'], ['⌨️', 'Tính'])();
+    return how(['👀', 'Nhìn hộp'], ['👆', 'Chọn khả năng'], ['🤏', 'Thử'])();
   },
 
   makeMission(rng, level, history) {
@@ -920,3 +921,20 @@ function injectDataStyles() {
   `;
   document.head.appendChild(st);
 }
+
+// ── Lớp 2 (Vở BT Toán 2 Bài 64, 66, 67, 74): kiểm đếm; chắc chắn, có thể, không thể ──────────────────────
+const LEVEL2 = (id, n, title, desc, knowledge, lessons, plan, ask) => ({
+  id, n, title, desc, knowledge, lessons: { g2: lessons }, missions: plan.length, ask: () => ask, plan,
+});
+export const DATA2_GAME = {
+  ...DATA_GAME, id: 'd2-data', title: 'Kiểm đếm, khả năng xảy ra', starPrefix: 'drill2',
+  purpose: 'Giúp em thu thập, phân loại, kiểm đếm rồi ghi số liệu, và nói đúng một việc chắc chắn, có thể hay không thể xảy ra.',
+  levels: [
+    LEVEL2('d2-data-1', 1, 'Kiểm đếm', 'Mỗi đồ vật gạch một vạch vào đúng hàng, đủ 5 vạch thì gạch chéo, rồi viết số.',
+      'thu thập, phân loại, kiểm đếm số liệu', ['bai-64', 'bai-67'], ['tally', 'tally', 'tally', 'tally'], 'Đếm cái nào gạch cái đó, không bỏ sót!'),
+    LEVEL2('d2-data-2', 2, 'Chắc chắn, có thể, không thể', 'Vd. Hộp có bi đỏ và bi xanh: có thể lấy được bi đỏ, không thể lấy được bi vàng.',
+      'chắc chắn, có thể, không thể', ['bai-66'], ['bag', 'spin', 'pens', 'bag', 'spin', 'pens'], 'Nhìn kĩ trong hộp có những gì!'),
+    LEVEL2('d2-data-3', 3, 'Trộn', 'Kiểm đếm và khả năng xảy ra xen kẽ.',
+      'kiểm đếm, khả năng xảy ra', ['bai-74'], ['tally', 'bag', 'spin', 'tally', 'pens'], 'Đọc kĩ đề rồi mới làm!'),
+  ],
+};

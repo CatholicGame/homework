@@ -5,6 +5,9 @@
  * Khung chung (lớp học, thầy giáo, tờ vở ô li, bàn phím số): grade3Drills/kit.js.
  */
 
+import { UNIT_INFO } from '../data/knowledgeUnits.js';
+import { GRADE3_GAMES } from '../data/features.js';
+import { STALLS as GAME_STALLS } from './grade3Games/catalog.js';
 import { renderGamesHub } from './grade3Games.js';
 import { DIVISION_GAME } from './grade3Drills/division.js';
 import { COLUMN_GAME } from './grade3Drills/column.js';
@@ -61,12 +64,24 @@ export const DRILL_LIST = [
 ];
 
 export function render(app, onBack) {
+  // 🎮 Trò chơi tăng cường trong cây 🌳: chạm Cấp → tải trò chơi, mở thẳng cấp đó (chỉ phép tính của bài), quay lại về Luyện Tính.
+  const games = GRADE3_GAMES ? {
+    stalls: GAME_STALLS, book: 'workbook',
+    open: (start) => import('./grade3Games.js').then((m) => {
+      app.setAttribute('data-no-i18n', ''); // trò chơi chưa có bản tiếng Anh
+      m.renderGamesHub(app, {
+        book: 'workbook', units: [], unitName: (u) => `Bài ${u.number}`, storageKey: 'gw-progress-v1',
+        openUnit() {}, onBack: () => { app.removeAttribute('data-no-i18n'); render(app, onBack); },
+      }, start);
+    }),
+  } : null;
   renderGamesHub(app, {
     // Cấp ghi "Bài 23…" theo Vở bài tập Toán 3 (số bài liên tục qua Tập Một, Tập Hai); không mở bài từ đây.
     book: 'workbook', units: [], unitName: (u) => `Bài ${u.number}`, storageKey: 'gw-progress-v1',
     openUnit() {}, onBack,
   }, null, {
     games: DRILL_LIST, kicker: '🧮 Toán 3', title: 'Luyện Tính', icon: '🧮', unitFocus: null,
+    lessonTree: { games, split: 44, titleOf: (n) => UNIT_INFO[`workbook:bai-${n}`]?.[1] },
     lead: 'Luyện phép tính theo cách học ở lớp. Mỗi lượt là số mới!',
     levelLead: 'Chọn cấp. Cấp nào cũng làm được!',
   });
