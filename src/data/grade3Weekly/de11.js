@@ -66,14 +66,14 @@ export default {
       questions: [
         { type: 'calc', prompt: 'Đặt tính rồi tính', col: true, items: ['84 : 6', '52 : 2', '77 : 3', '98 : 3'] },
         {
-          type: 'fill',
+          type: 'chain',
           prompt: 'Số?',
           items: [
-            { t: '45 ➜ giảm 9 lần ➜ … ➜ thêm 85 đơn vị ➜ …', ans: [5, 90] },
-            { t: '48 ➜ giảm 6 lần ➜ … ➜ bớt 2 đơn vị ➜ …', ans: [8, 6] },
-            { t: '2 ➜ gấp 4 lần ➜ … ➜ giảm 2 lần ➜ …', ans: [8, 4] },
-            { t: '56 ➜ giảm 7 lần ➜ … ➜ gấp 3 lần ➜ …', ans: [8, 24] },
-            { t: '… ➜ giảm 7 lần ➜ 8 ➜ gấp 5 lần ➜ … ➜ giảm … lần ➜ 10', ans: [56, 40, 4] },
+            { start: 45, steps: [{ op: ': 9', label: 'giảm 9 lần' }, { op: '+ 85', label: 'thêm 85 đơn vị' }] },
+            { start: 48, steps: [{ op: ': 6', label: 'giảm 6 lần' }, { op: '− 2', label: 'bớt 2 đơn vị' }] },
+            { start: 2, steps: [{ op: '× 4', label: 'gấp 4 lần' }, { op: ': 2', label: 'giảm 2 lần' }] },
+            { start: 56, steps: [{ op: ': 7', label: 'giảm 7 lần' }, { op: '× 3', label: 'gấp 3 lần' }] },
+            { start: 56, blank: [0, 2], steps: [{ op: ': 7', label: 'giảm 7 lần' }, { op: '× 5', label: 'gấp 5 lần' }, { op: ': 4', label: 'giảm … lần', ans: 4 }] },
           ],
         },
         {
@@ -98,14 +98,14 @@ export default {
         {
           type: 'match',
           prompt: 'Giúp Conan tìm đúng chìa khóa để mở cửa:',
-          heads: ['Cửa', 'Chìa khóa'],
+          scene: 'doors',
           left: [
             '96 giảm 3 lần rồi bớt đi 27 đơn vị',
             '35 giảm đi 5 lần rồi lại giảm tiếp 7 lần',
             '50 : 5',
             '9 : 3',
           ],
-          right: ['Chìa khóa số 10', 'Chìa khóa số 1', 'Chìa khóa số 5', 'Chìa khóa số 3'],
+          right: ['10', '1', '5', '3'],
           ans: [2, 1, 0, 3],
         },
         {

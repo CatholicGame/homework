@@ -167,12 +167,37 @@ Dùng khi lời giải là **một** phép tính `a op b = kết quả`:
 `ans[i]` = chỉ số ô bên phải nối với ô trái thứ i. Mỗi ô phải chỉ nối một đường; nhiều ô trái cùng nối một ô phải thì thêm `multi: true`.
 Ô có thể là chuỗi SVG (nối hình với phân số).
 
+**Nối có cảnh** (bài kiểu trò chơi: Conan mở cửa, chó về nhà…): thêm `scene`, `left`/`right` chỉ ghi chữ, nối một đổi một.
+Cảnh tự vẽ vật đích và vật cầm (`src/games/worksheetScenes.js`); bé chạm vật cầm rồi chạm vật đích, vật bay vào chỗ đậu;
+nộp bài thì cặp đúng "mở" (cửa mở, virus tan, cá vào miệng mèo…), cặp sai rung và hiện vật đúng.
+
+| `scene` | vật đích | vật cầm (cột) |
+|---|---|---|
+| `doors` | cửa | chìa khoá (`right`) |
+| `virus` | virus | bình xịt (`left`) |
+| `flowers` | bông hoa | bướm (`left`) |
+| `cars` | chỗ đỗ | ô tô (`right`) |
+| `cats` | chú mèo | con cá (`right`) |
+| `dogs` | ngôi nhà | chú chó (`left`) |
+
+```js
+{ type: 'match', prompt: 'Giúp Conan tìm đúng chìa khóa để mở cửa:', scene: 'doors',
+  left: ['50 : 5', '9 : 3'], right: ['10', '3'], ans: [0, 1] }
+```
+
 ### `chain`: sơ đồ mũi tên
 
 ```js
 { type: 'chain', prompt: 'Số?', items: [{ start: 50, steps: [': 5', ': 2', '× 9'] }] }
 ```
 Đáp án tự tính lần lượt từng mũi tên.
+- Chữ trên mũi tên như đề: bước là object `{ op: ': 9', label: 'giảm 9 lần' }` (`op` để tính, `label` để hiện).
+- `blank: [0, 2]`: chỉ để trống các ô này (0 = số đầu), ô khác hiện số có sẵn. Mặc định mọi ô sau số đầu.
+- Nhãn có `…` là chỗ trống, đáp án ở `ans`: `{ op: ': 4', label: 'giảm … lần', ans: 4 }`.
+
+```js
+{ start: 56, blank: [0, 2], steps: [{ op: ': 7', label: 'giảm 7 lần' }, { op: '× 5', label: 'gấp 5 lần' }, { op: ': 4', label: 'giảm … lần', ans: 4 }] }
+```
 
 ### `pick` tô màu theo phần
 

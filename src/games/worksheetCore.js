@@ -139,17 +139,32 @@ export const NORM_TYPES = new Set(['calc', 'fill', 'findx', 'compare', 'table', 
 /**
  * Chuẩn hoá cả câu thành danh sách ý { t, ans }.
  * - table: mỗi hàng dữ liệu là một ý, ô trống '…', `ans[i]` là đáp án các ô trống của hàng i.
- * - chain: sơ đồ mũi tên { start, steps: [': 5', '× 9'] }, đáp án tự tính lần lượt.
+ * - chain: sơ đồ mũi tên { start, steps: [': 5', '× 9'] }, đáp án tự tính lần lượt (xem chainItem).
  */
 export function normQuestion(q) {
   if (q.type === 'table') return tablesOf(q).flatMap(tb => tb.rows.map((r, i) => ({ t: r.join(' '), cells: r, ans: tb.ans?.[i] ?? [] })));
-  if (q.type === 'chain') {
-    return q.items.map(c => {
-      let v = c.start;
-      return { ...c, t: c.steps.map(() => '□').join(' '), ans: c.steps.map(s => (v = evalExpr(`${v} ${s}`))) };
-    });
-  }
+  if (q.type === 'chain') return q.items.map(chainItem);
   return q.items.map(it => normItem(q.type, it));
+}
+
+/**
+ * Một sơ đồ mũi tên. steps: chuỗi phép tính (': 5') hoặc { op: ': 9', label: 'giảm 9 lần' } (chữ trên mũi tên như đề);
+ * nhãn có '…' là chỗ trống, đáp án `ans` (vd. { op: ': 4', label: 'giảm … lần', ans: 4 }).
+ * blank: các ô số để trống (0 = số đầu); mặc định mọi ô sau số đầu. Ô không trống hiện số có sẵn.
+ * Kết quả: nodes (giá trị các ô), steps (object), order (thứ tự chỗ trống: { node: k } hoặc { step: k }), ans theo order.
+ */
+export function chainItem(c) {
+  const steps = c.steps.map(s => (typeof s === 'string' ? { op: s, label: s } : { label: s.op, ...s }));
+  const nodes = [c.start];
+  steps.forEach(s => nodes.push(evalExpr(`${nodes[nodes.length - 1]} ${s.op}`)));
+  const blank = new Set(c.blank || nodes.map((_, k) => k).slice(1));
+  const order = [], ans = [];
+  if (blank.has(0)) { order.push({ node: 0 }); ans.push(nodes[0]); }
+  steps.forEach((s, k) => {
+    for (let h = 0; h < holes(s.label); h++) { order.push({ step: k }); ans.push(Array.isArray(s.ans) ? s.ans[h] : s.ans); }
+    if (blank.has(k + 1)) { order.push({ node: k + 1 }); ans.push(nodes[k + 1]); }
+  });
+  return { ...c, steps, nodes, blank: [...blank], order, t: order.map(() => '□').join(' '), ans };
 }
 
 /** Số ô học sinh phải điền của một ý đã chuẩn hoá. */

@@ -1,8 +1,5 @@
 /** Đề kiểm tra Tuần 15. Nguồn: docs/lop_3/De_thi/Toan3-KN-Tuan11-18.pdf trang 20–24 (Phiếu ôn tập cuối tuần 15). */
 
-// Ô tô nhỏ tự vẽ cho bài Nối (biển số là phép tính).
-const car = (c) => `<svg viewBox="0 0 44 24" width="40" style="vertical-align:middle;margin-right:6px"><path d="M4 17 L6 11 Q8 9 12 9 L16 4 Q18 3 26 3 L32 9 Q40 10 41 14 L41 17 Z" fill="${c}" stroke="#1f2937" stroke-width="1.2"/><path d="M17 5 L25 5 L29 9 L14 9 Z" fill="#e0f2fe" stroke="#1f2937" stroke-width="1"/><circle cx="12" cy="18" r="3.6" fill="#374151"/><circle cx="33" cy="18" r="3.6" fill="#374151"/></svg>`;
-
 export default {
   id: 'tuan-15',
   title: 'Đề kiểm tra Tuần 15',
@@ -49,7 +46,8 @@ export default {
           type: 'match',
           prompt: 'Nối mỗi phép tính với ô tô có kết quả bằng nhau:',
           left: ['168 : 8', '270 : 5', '147 × 5', '88 : 8', '96 : 8'],
-          right: [`${car('#34d399')}245 × 3`, `${car('#f87171')}36 : 3`, `${car('#fb923c')}63 : 3`, `${car('#facc15')}33 : 3`, `${car('#ef4444')}486 : 9`],
+          scene: 'cars',
+          right: ['245 × 3', '36 : 3', '63 : 3', '33 : 3', '486 : 9'],
           ans: [2, 4, 0, 3, 1],
         },
         {

@@ -1,12 +1,5 @@
 /** Đề kiểm tra Tuần 16. Nguồn: docs/lop_3/De_thi/Toan3-KN-Tuan11-18.pdf trang 25–29 (Phiếu ôn tập cuối tuần 16). */
 
-// Hình nhỏ tự vẽ cho các bài Nối: mèo, cá, chó, nhà.
-const ic = (body) => `<svg viewBox="0 0 40 30" width="38" style="vertical-align:middle;margin-right:6px">${body}</svg>`;
-const cat = ic('<ellipse cx="24" cy="21" rx="12" ry="6" fill="#fcd34d" stroke="#92400e" stroke-width="1"/><circle cx="12" cy="13" r="7" fill="#fcd34d" stroke="#92400e" stroke-width="1"/><path d="M7 8 L8 2 L11 7 M13 7 L16 2 L17 8" fill="#fcd34d" stroke="#92400e" stroke-width="1"/><path d="M9 13 q1.5 1.5 3 0 M13 13 q1.5 1.5 3 0" fill="none" stroke="#1f2937" stroke-width="1"/><path d="M36 20 Q40 12 35 8" fill="none" stroke="#f59e0b" stroke-width="2.5"/>');
-const fish = ic('<ellipse cx="18" cy="15" rx="12" ry="8" fill="#fb923c" stroke="#9a3412" stroke-width="1"/><path d="M29 15 L38 7 L38 23 Z" fill="#93c5fd" stroke="#1e40af" stroke-width="1"/><circle cx="11" cy="13" r="2.4" fill="#fff" stroke="#1f2937" stroke-width="0.8"/><circle cx="11" cy="13" r="1.1" fill="#1f2937"/>');
-const dog = ic('<ellipse cx="22" cy="21" rx="12" ry="6" fill="#d97706" stroke="#78350f" stroke-width="1"/><circle cx="12" cy="12" r="7" fill="#f59e0b" stroke="#78350f" stroke-width="1"/><ellipse cx="6" cy="12" rx="2.5" ry="5" fill="#92400e"/><ellipse cx="18" cy="12" rx="2.5" ry="5" fill="#92400e"/><circle cx="10" cy="11" r="1" fill="#1f2937"/><circle cx="14" cy="11" r="1" fill="#1f2937"/><circle cx="12" cy="15" r="1.4" fill="#1f2937"/>');
-const house = ic('<path d="M6 14 L20 3 L34 14 Z" fill="#b45309" stroke="#78350f" stroke-width="1"/><rect x="9" y="14" width="22" height="14" fill="#dc2626" stroke="#7f1d1d" stroke-width="1"/><path d="M16 28 L16 21 Q20 16 24 21 L24 28 Z" fill="#1f2937"/>');
-
 export default {
   id: 'tuan-16',
   title: 'Đề kiểm tra Tuần 16',
@@ -53,8 +46,9 @@ export default {
         {
           type: 'match',
           prompt: 'Nối biểu thức với kết quả phù hợp:',
-          left: [`${cat}12 × 3 + 4`, `${cat}50 − 18 : 2`, `${cat}(20 + 16) : 4`, `${cat}7 × 8 − 6`],
-          right: [`${fish}41`, `${fish}50`, `${fish}40`, `${fish}9`],
+          scene: 'cats',
+          left: ['12 × 3 + 4', '50 − 18 : 2', '(20 + 16) : 4', '7 × 8 − 6'],
+          right: ['41', '50', '40', '9'],
           ans: [2, 0, 3, 1],
         },
         { type: 'calc', prompt: 'Tính giá trị của biểu thức:', items: ['98 + 65 + 32', '98 − 65 + 32', '98 + 65 − 32', '98 − 65 − 32'] },
@@ -81,12 +75,13 @@ export default {
             { t: '600 kg : 2 − 63 kg', ans: 237, unit: 'kg' },
           ],
         },
-        // sửa: bản in chỉ có nhãn "21 gấp 7" trên một chú chó, các nhãn khác để trống; đặt câu hỏi "gấp mấy lần" theo mục tiêu của phiếu.
+        // sửa: bản in chỉ có nhãn "21 gấp 7" trên một chú chó, các nhãn khác để trống; đặt thêm "48 gấp 6", "35 gấp 5" (số lớn gấp mấy lần số bé).
         {
           type: 'match',
           prompt: 'Đưa những chú chó về đúng nhà của mình bằng cách nối kết quả phù hợp:',
-          left: [`${dog}21 gấp mấy lần 7?`, `${dog}48 gấp mấy lần 6?`, `${dog}35 gấp mấy lần 5?`],
-          right: [`${house}7 lần`, `${house}3 lần`, `${house}8 lần`],
+          scene: 'dogs',
+          left: ['21 gấp 7', '48 gấp 6', '35 gấp 5'],
+          right: ['7 lần', '3 lần', '8 lần'],
           ans: [1, 2, 0],
         },
         {

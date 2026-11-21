@@ -12,6 +12,7 @@ import { scopedKey, getCurrentUser } from '../engine/auth.js';
 import { getProfile } from '../engine/profile.js';
 import { awardStars, recordWrong, earnedFor, getEarnedKeys } from '../engine/stars.js';
 import { flyOne } from './grade3Games/fly.js';
+import { SCENES, SCENE_CSS } from './worksheetScenes.js';
 import { say } from './preschool/fx.js';
 import { UNIT_INFO } from '../data/knowledgeUnits.js';
 import { bookOf } from '../data/knowledgeMap.js';
@@ -249,6 +250,8 @@ function tapCalcs(html) {
 /** Câu cần tự đặt tính (biểu thức nhiều dấu, tìm x, bài lời văn): nút "✍️ Đặt tính" bé tự nhập hai số. */
 function needsCalcFree(q) {
   if (q.col) return false;
+  // Nối có cảnh: phép tính trên cửa / ô tô không chạm được (chạm là chọn vật), nên có nút tự đặt tính.
+  if (q.scene && [...q.left, ...q.right].some(t => /\d\s*[+−×:-]\s*\(?\d/.test(String(t)))) return true;
   const text = JSON.stringify(q, (k, v) => (k === 'fig' || k === 'left' || k === 'right' || k === 'options' || (typeof v === 'string' && v.startsWith('<svg')) ? undefined : v));
   if (q.type === 'word' || q.type === 'findx') return true;
   if (MULTI_RE.test(text.replace(/\u2212/g, '−'))) return true;
@@ -1118,12 +1121,25 @@ function renderGrade(grade, app, onBack, opts = {}) {
     // Nối: chạm một ô rồi chạm ô ở cột bên kia. Chạm lại cặp đã nối thì xoá đường nối.
     let matchSel = null;
     function matchClick(mi) {
-      const m = mi.closest('.ws-match');
+      const m = mi.closest('.ws-match, .ws-sc');
       const qid = m.dataset.q;
       const e = idx.find(x => x.id === qid);
       const a = answers[qid];
       const side = mi.dataset.side, i = +mi.dataset.i;
       const clear = () => { paper.querySelectorAll('.ws-mi-sel').forEach(b => b.classList.remove('ws-mi-sel')); matchSel = null; };
+      const sc = SCENES[e.q.scene];
+      const tg = sc && (sc.token === 'l' ? 'r' : 'l');
+      // Nối có cảnh: chạm vật đích đang có vật cầm (chưa chọn gì) thì lấy vật cầm ra, trả về khay.
+      if (sc && side === tg && (!matchSel || matchSel.qid !== qid)) {
+        const had = tg === 'l' ? a[i] !== '' : a.some(v => v === i);
+        if (had) {
+          clear();
+          if (tg === 'l') a[i] = ''; else a.forEach((v, j) => { if (v === i) a[j] = ''; });
+          persist();
+          rerender(qid);
+          return;
+        }
+      }
       if (!matchSel || matchSel.qid !== qid || matchSel.side === side) {
         const same = matchSel?.qid === qid && matchSel.side === side && matchSel.i === i;
         clear();
@@ -1132,6 +1148,10 @@ function renderGrade(grade, app, onBack, opts = {}) {
       }
       const L = side === 'l' ? i : matchSel.i, R = side === 'r' ? i : matchSel.i;
       clear();
+      // Vật cầm bay từ khay vào chỗ đậu trên vật đích (đo trước khi vẽ lại).
+      const tokI = sc ? (sc.token === 'l' ? L : R) : -1, tgtI = sc ? (sc.token === 'l' ? R : L) : -1;
+      const tokEl = sc && m.querySelector(`.ws-sc-k[data-i="${tokI}"] .ws-sc-tok`);
+      const from = tokEl?.getBoundingClientRect();
       if (a[L] === R) a[L] = '';
       else {
         if (!e.q.multi) a.forEach((v, j) => { if (v === R) a[j] = ''; }); // mỗi ô bên phải chỉ nối một đường
@@ -1139,7 +1159,15 @@ function renderGrade(grade, app, onBack, opts = {}) {
       }
       persist();
       const box = rerender(qid);
-      if (a[L] === R) box.querySelector('.ws-match').dataset.fresh = String(L);
+      if (a[L] === R && !sc) box.querySelector('.ws-match').dataset.fresh = String(L);
+      if (a[L] === R && sc && tokEl) {
+        const dock = box.querySelector(`.ws-sc-t[data-i="${tgtI}"] .ws-sc-dock`);
+        const to = dock?.getBoundingClientRect();
+        if (dock && to) {
+          dock.style.visibility = 'hidden';
+          flyOne(tokEl.outerHTML, from, to, { spin: 12, onLand: () => { dock.style.visibility = ''; } });
+        }
+      }
     }
 
     // ── bài toán có lời văn ──
@@ -1444,13 +1472,20 @@ function renderGrade(grade, app, onBack, opts = {}) {
       return `
         <div class="ws-chains">
           ${e.norm.map((c, i) => `
-            <div class="ws-item ws-chain">${letter(i, e.norm.length)}
-              <span class="ws-ch-start">${c.start}</span>
-              ${c.steps.map((st, k) => `<span class="ws-ch-arrow"><span class="ws-ch-op">${rich(st)}</span></span>${field(`${i}|${k}`, a[i][k], 'ws-in-box', c.ans[k])}`).join('')}
+            <div class="ws-item ws-chain">${letter(i, e.norm.length)}${(() => {
+              // Chỗ trống theo thứ tự c.order (worksheetCore chainItem): ô số trống, chỗ trống trong nhãn mũi tên.
+              let j = 0;
+              const slot = () => { const k = j++; return field(`${i}|${k}`, a[i][k], 'ws-in-box', c.ans[k]); };
+              const node = (k) => (c.blank.includes(k) ? slot() : `<span class="ws-ch-start">${fmtNum(c.nodes[k])}</span>`);
+              const label = (st) => st.label.split(/(…)/).map(p => (p === '…' ? slot() : p ? `<span>${rich(p)}</span>` : '')).join('');
+              return node(0) + c.steps.map((st, k) => `<span class="ws-ch-arrow"><span class="ws-ch-op">${label(st)}</span><span class="ws-ch-line"></span></span>${node(k + 1)}`).join('');
+            })()}
               ${g ? mark(g.items[i], g.fix[i]) : ''}
             </div>`).join('')}
         </div>`;
     }
+
+    if (q.type === 'match' && SCENES[q.scene]) return sceneHtml(e, a, g, mark);
 
     if (q.type === 'match') {
       // Đường nối vẽ sau khi trang hiện (drawMatch đo vị trí từng ô).
@@ -1607,6 +1642,47 @@ function renderGrade(grade, app, onBack, opts = {}) {
 }
 
 // ── nối: vẽ đường nối theo vị trí thật của từng ô (đo lại mỗi khi khung đổi cỡ) ──
+/**
+ * Nối có cảnh (worksheetScenes.js): dải vật đích (cửa, nhà, hoa…) có chỗ đậu, khay vật cầm giữ chỗ cố định
+ * (vật đã dùng mờ đi, không dồn hàng). Đã chấm: cặp đúng thì cảnh mở (class ws-sc-ok), sai thì ws-sc-bad + vật đúng.
+ */
+function sceneHtml(e, a, g, mark) {
+  const { q, id } = e;
+  const sc = SCENES[q.scene];
+  const T = sc.token, tg = T === 'l' ? 'r' : 'l';
+  const tokens = T === 'l' ? q.left : q.right, targets = T === 'l' ? q.right : q.left;
+  // Vật cầm đang đậu ở vật đích t.
+  const docked = (t) => (tg === 'l' ? (a[t] === '' || a[t] == null ? [] : [a[t]]) : a.map((v, k) => (v === t ? k : -1)).filter(k => k >= 0));
+  const used = new Set(targets.flatMap((_, t) => docked(t)));
+  const on = sc.labelOn ? ` ws-sc-on" style="--lx:${sc.labelOn[0]}%;--ly:${sc.labelOn[1]}%` : '';
+  const tok = (k) => `<span class="ws-sc-tok${on}">${sc.tokenPic(k)}<span class="ws-sc-tlab">${plainRich(tokens[k])}</span></span>`;
+  const right = (t) => (tg === 'l' ? q.ans[t] : q.ans.indexOf(t)); // vật cầm đúng của vật đích t
+  const [dl, dt, dw, dr] = sc.dock;
+  const targetBtn = (label, t) => {
+    const d = docked(t);
+    const ok = g ? (tg === 'l' ? g.items[t] : g.items[right(t)]) : null;
+    const state = g ? (ok ? ' ws-sc-ok' : ' ws-sc-bad') : '';
+    return `
+      <button type="button" class="ws-mi ws-sc-t sc-k-${q.scene}${state}" data-side="${tg}" data-i="${t}"${g ? ' tabindex="-1"' : ''}>
+        <span class="ws-sc-pic">${sc.target(t)}<span class="ws-sc-dock${d.length ? ' ws-sc-full' : ''}">${d.length ? tok(d[0]) : ''}</span></span>
+        <span class="ws-sc-lab">${plainRich(label)}</span>
+        ${g ? `<span class="ws-sc-mark">${mark(ok, ok ? null : `→ ${plainRich(tokens[right(t)])}`)}</span>` : ''}
+      </button>`;
+  };
+  return `
+    <div class="ws-sc" data-q="${id}" style="--n:${targets.length};--ratio:${sc.ratio};--dl:${dl}%;--dt:${dt}%;--dw:${dw}%;--dr:${dr}">
+      <div class="ws-sc-targets" style="background:${sc.bg}">${targets.map(targetBtn).join('')}</div>
+      <div class="ws-sc-tray">${tokens.map((_, k) => `<button type="button" class="ws-mi ws-sc-k${used.has(k) ? ' ws-sc-used' : ''}" data-side="${T}" data-i="${k}"${g ? ' tabindex="-1"' : ''} aria-label="${plain(tokens[k])}">${tok(k)}</button>`).join('')}</div>
+    </div>
+    ${g ? '' : `<p class="ws-mhint">Chạm ${sc.tokenWord} rồi chạm ${sc.targetWord}. Chạm ${sc.targetWord} để lấy ${sc.tokenWord} ra.</p>`}`;
+}
+// Chữ trên vật (cửa, ô tô…): không gắn chỗ chạm đặt tính (chạm là chọn vật).
+function plainRich(t) {
+  const was = CALC_TAP;
+  CALC_TAP = false;
+  try { return rich(t); } finally { CALC_TAP = was; }
+}
+
 let matchRO = null;
 function wireMatches(root) {
   const list = root.querySelectorAll('.ws-match');
@@ -2070,12 +2146,17 @@ function injectStyles() {
 
     /* Sơ đồ mũi tên. */
     .ws-chains { display: flex; flex-direction: column; gap: 0.6rem; }
-    .ws-chain { gap: 0.2rem; }
+    .ws-chains .ws-chain { flex-wrap: wrap; gap: 0.2rem; row-gap: 0.4rem; }
+    .ws-chain > * { flex-shrink: 0; }
+    @container (max-width: 520px) { .ws-chain { font-size: 0.88em; } .ws-ch-arrow { min-width: 2.8em; } }
     .ws-ch-start { display: inline-flex; align-items: center; justify-content: center; min-width: 2.4em; height: 2.2em; padding: 0 0.3em; border: 2px solid #1f2937; border-radius: 999px; font-weight: 800; }
-    .ws-ch-arrow { position: relative; display: inline-block; width: 3.6em; height: 2.4em; }
-    .ws-ch-arrow::before { content: ''; position: absolute; left: 0.2em; right: 0.5em; bottom: 0.55em; border-top: 2px solid #1f2937; }
-    .ws-ch-arrow::after { content: ''; position: absolute; right: 0.2em; bottom: calc(0.55em - 5px); border: 6px solid transparent; border-left: 9px solid #1f2937; border-right: none; transform: translateY(-1px); }
-    .ws-ch-op { position: absolute; left: 0; right: 0; top: -0.1em; text-align: center; font-size: 0.85em; font-weight: 700; color: #475569; white-space: nowrap; }
+    /* Mũi tên: nhãn ở trên, vạch ở giữa (khoảng trống dưới cao bằng nhãn để vạch ngang tâm các ô). */
+    .ws-ch-arrow { display: inline-flex; flex-direction: column; justify-content: center; min-width: 3.6em; padding: 0 0.15em; }
+    .ws-ch-op { display: inline-flex; align-items: center; justify-content: center; gap: 0.2em; min-height: 1.6em; padding: 0 0.4em; font-size: 0.85em; font-weight: 700; color: #475569; white-space: nowrap; }
+    .ws-ch-op .ws-in-box { font-size: 1.1em; }
+    .ws-ch-line { position: relative; height: 2px; margin: 0 0.55em 0 0.1em; background: #1f2937; }
+    .ws-ch-line::after { content: ''; position: absolute; right: -0.5em; top: -5px; border: 6px solid transparent; border-left: 9px solid #1f2937; border-right: none; }
+    .ws-ch-arrow::after { content: ''; display: block; min-height: 1.6em; font-size: 0.85em; }
 
     /* Nối cột. */
     .ws-match { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(3rem, 0.5fr) minmax(0, 1fr); column-gap: 0; row-gap: 0.3rem; margin: 0.3rem 0 0.2rem; max-width: 46rem; }
@@ -2097,6 +2178,7 @@ function injectStyles() {
     .ws-mdot { fill: #fff; stroke: #1f2937; stroke-width: 2; }
     .ws-mdot-on { fill: var(--ink); stroke: var(--ink); }
     .ws-mhint { margin: 0.2rem 0 0; font-size: 0.85em; color: #64748b; }
+${SCENE_CSS}
 
     /* Vẽ đoạn thẳng trên thước. */
     .ws-draw { margin: 0.2rem 0 0.8rem; }

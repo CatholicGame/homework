@@ -92,7 +92,7 @@ export default {
         {
           type: 'match',
           prompt: 'Hãy tiêu diệt những con virus để đẩy lùi dịch bệnh Covid-19 bằng cách nối các kết quả có giá trị bằng nhau:',
-          heads: ['Bình xịt', 'Virus'],
+          scene: 'virus',
           left: ['50 mm', '5000 mm', '500 mm'],
           right: ['50 cm', '5 cm', '500 cm'],
           ans: [1, 2, 0],
@@ -100,7 +100,7 @@ export default {
         {
           type: 'match',
           prompt: 'Nối (theo mẫu: 3 cm 3 mm nối với 33 mm)',
-          heads: ['Bướm', 'Hoa'],
+          scene: 'flowers',
           left: ['3 cm 3 mm', '3 dm 3 mm', '3 dm 3 cm', '3 m 3 dm', '3 m 3 cm', '3 dm'],
           right: ['33 cm', '33 mm', '303 mm', '33 dm', '303 cm', '300 mm'],
           ans: [1, 2, 0, 3, 4, 5],

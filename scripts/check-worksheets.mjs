@@ -4,6 +4,7 @@
 import { readdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { normQuestion, tablesOf, itemSlots, findVar, holes } from '../src/games/worksheetCore.js';
+import { SCENES } from '../src/games/worksheetScenes.js';
 
 const DIRS = ['src/data/grade3Worksheets', 'src/data/grade3Midterm', 'src/data/grade3Weekly', 'src/data/routeTests/g1', 'src/data/routeTests/g2', 'src/data/routeTests/g3', 'src/data/routeTests/g4', 'src/data/routeTests/g5',
   'src/data/routeTests/g1/hk2', 'src/data/routeTests/g2/hk2', 'src/data/routeTests/g3/hk2', 'src/data/routeTests/g4/hk2', 'src/data/routeTests/g5/hk2']; // hk2: Học kì II, có plan.js riêng
@@ -110,6 +111,12 @@ for (const dir of DIRS) {
             if (!Array.isArray(q.left) || !Array.isArray(q.right) || !Array.isArray(q.ans) || q.ans.length !== q.left.length) { err(at, 'left/right/ans lệch'); break; }
             if (q.ans.some(r => !(Number.isInteger(r) && r >= 0 && r < q.right.length))) err(at, 'ans ngoài phạm vi right');
             if (!q.multi && new Set(q.ans).size !== q.ans.length) err(at, 'hai ô trái cùng nối một ô phải (thêm multi: true nếu cố ý)');
+            // Nối có cảnh (src/games/worksheetScenes.js): mỗi vật đích một vật cầm, chữ trên vật không chứa hình.
+            if (q.scene) {
+              if (!SCENES[q.scene]) err(at, `scene "${q.scene}" không có (${Object.keys(SCENES).join(', ')})`);
+              if (q.multi || q.left.length !== q.right.length) err(at, 'scene cần nối một đổi một (không multi, left và right bằng nhau)');
+              if ([...q.left, ...q.right].some(t => /<svg/.test(t))) err(at, 'scene: hình do cảnh vẽ, left/right chỉ ghi chữ');
+            }
             break;
           case 'draw':
             (q.items || []).forEach((s, si) => { if (!s.name || !(s.len > 0 && s.len <= 15)) err(at, `ý ${si}: name/len (1–15 cm)`); });
