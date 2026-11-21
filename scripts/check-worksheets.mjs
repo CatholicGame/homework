@@ -5,7 +5,7 @@ import { readdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { normQuestion, tablesOf, itemSlots, findVar, holes } from '../src/games/worksheetCore.js';
 
-const DIRS = ['src/data/grade3Worksheets', 'src/data/grade3Midterm', 'src/data/routeTests/g1', 'src/data/routeTests/g2', 'src/data/routeTests/g3', 'src/data/routeTests/g4', 'src/data/routeTests/g5',
+const DIRS = ['src/data/grade3Worksheets', 'src/data/grade3Midterm', 'src/data/grade3Weekly', 'src/data/routeTests/g1', 'src/data/routeTests/g2', 'src/data/routeTests/g3', 'src/data/routeTests/g4', 'src/data/routeTests/g5',
   'src/data/routeTests/g1/hk2', 'src/data/routeTests/g2/hk2', 'src/data/routeTests/g3/hk2', 'src/data/routeTests/g4/hk2', 'src/data/routeTests/g5/hk2']; // hk2: Học kì II, có plan.js riêng
 // Kiến thức từng Bài (points) của sách chính mỗi lớp, để kiểm tra trường bai / point của đề theo lộ trình.
 const KNOWLEDGE = {
@@ -88,7 +88,7 @@ for (const dir of DIRS) {
                 if (!(s.ans > 0 && s.ans <= count)) err(at, `ý ${si}: ans`);
                 return;
               }
-              if (!['rabbit', 'orange', 'flower', 'star'].includes(s.icon)) err(at, `ý ${si}: icon`);
+              if (!['rabbit', 'orange', 'flower', 'star', 'cat', 'cake', 'pen'].includes(s.icon)) err(at, `ý ${si}: icon`);
               if (!(s.count > 0 && s.ans > 0 && s.ans <= s.count)) err(at, `ý ${si}: count/ans`);
             });
             break;

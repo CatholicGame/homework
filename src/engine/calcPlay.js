@@ -9,6 +9,7 @@
  *   blank.calc = true            đọc phép tính ngay trong nhãn của ô (phần trước dấu "=" hoặc "...")
  *   q.calc = true                như blank.calc = true cho mọi ô điền của câu
  *   q.calcs = ['201634 × 2', …]  câu bảng / nối / chọn: một dải nút dưới đề, mỗi nút một phép tính
+ *   openCalc('84 : 6', input)   mở thẳng từ nơi khác (Luyện Đề: chạm vào phép tính dọc)
  *   q.calcFree = true            nút "✍️ Đặt tính" dưới đề: bé tự gõ hai số và chọn phép tính (biểu thức nhiều bước,
  *                                tìm x, bài toán có lời văn — nút có sẵn số sẽ lộ bước tính)
  *
@@ -113,6 +114,18 @@ async function toolFor(c) {
   }
   const { COLUMN_GAME } = await import('../games/grade3Drills/column.js');
   return { game: COLUMN_GAME, mission: { op: c.op, a: c.a, b: c.b } };
+}
+
+/**
+ * Mở tờ đặt tính cho một phép tính có sẵn (Luyện Đề: chạm vào phép tính dọc / chia cột của câu "Đặt tính rồi tính").
+ * input: ô của bài được focus khi bé bấm "Ghi kết quả vào bài". Trả false nếu không đọc được phép tính.
+ */
+export function openCalc(text, input = null) {
+  const c = parseCalc(text);
+  if (!c) return false;
+  injectStyles();
+  open(c, input);
+  return true;
 }
 
 /**

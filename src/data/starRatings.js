@@ -1315,6 +1315,30 @@ export const STAR_RATINGS = {
   // worksheet:de-65 (Đề số 65, ôn tập giữa kì I: một khoá cho mỗi Phần)
   'worksheet:de-65:p0': 3,
   'worksheet:de-65:p1': 4,
+  // worksheet:tuan-11 (Đề kiểm tra Tuần 11: một khoá cho mỗi Phần)
+  'worksheet:tuan-11:p0': 3,
+  'worksheet:tuan-11:p1': 4,
+  // worksheet:tuan-12 (Đề kiểm tra Tuần 12: một khoá cho mỗi Phần)
+  'worksheet:tuan-12:p0': 3,
+  'worksheet:tuan-12:p1': 4,
+  // worksheet:tuan-13 (Đề kiểm tra Tuần 13: một khoá cho mỗi Phần)
+  'worksheet:tuan-13:p0': 3,
+  'worksheet:tuan-13:p1': 4,
+  // worksheet:tuan-14 (Đề kiểm tra Tuần 14: một khoá cho mỗi Phần)
+  'worksheet:tuan-14:p0': 3,
+  'worksheet:tuan-14:p1': 4,
+  // worksheet:tuan-15 (Đề kiểm tra Tuần 15: một khoá cho mỗi Phần)
+  'worksheet:tuan-15:p0': 3,
+  'worksheet:tuan-15:p1': 4,
+  // worksheet:tuan-16 (Đề kiểm tra Tuần 16: một khoá cho mỗi Phần)
+  'worksheet:tuan-16:p0': 3,
+  'worksheet:tuan-16:p1': 4,
+  // worksheet:tuan-17 (Đề kiểm tra Tuần 17: một khoá cho mỗi Phần)
+  'worksheet:tuan-17:p0': 3,
+  'worksheet:tuan-17:p1': 4,
+  // worksheet:tuan-18 (Đề kiểm tra Tuần 18: một khoá cho mỗi Phần)
+  'worksheet:tuan-18:p0': 3,
+  'worksheet:tuan-18:p1': 4,
   // exam:de-1:math
   'exam:de-1:math:0': 4,
   'exam:de-1:math:1': 4,

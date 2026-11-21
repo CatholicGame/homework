@@ -5,7 +5,7 @@
  * Bài toán có lời văn giải theo 4 bước: hiểu đề → ghép câu lời giải (mảnh xáo trộn) → tự nhập phép tính → đáp số.
  * Nộp bài mới chấm (một lần): điểm và lời phê viết tay màu đỏ, dấu ✓ / ✗ cạnh từng ý.
  * Định dạng: docs/lop_3/phieu-bai-tap.md, docs/lop_3/de-on-tap-giua-ki.md.
- * Dữ liệu: src/data/grade3Worksheets/*.js, src/data/grade3Midterm/de*.js.
+ * Dữ liệu: src/data/grade3Worksheets/*.js, src/data/grade3Midterm/de*.js, src/data/grade3Weekly/de*.js.
  */
 
 import { scopedKey, getCurrentUser } from '../engine/auth.js';
@@ -20,12 +20,14 @@ import { normQuestion, tablesOf, NORM_TYPES, itemSlots, gradeSlots, isTextSlot, 
 // bai01.js, bai01b.js… (cùng số bài, nhiều phiếu: thêm chữ cái), de01.js… de65.js. Nạp khi mở thư mục.
 const SHEETS = import.meta.glob('../data/grade3Worksheets/bai*.js');
 const MIDTERM = import.meta.glob('../data/grade3Midterm/de*.js');
+const WEEKLY = import.meta.glob('../data/grade3Weekly/de*.js');
 const loader = (mods) => {
   let cache = null;
   return () => (cache ||= Promise.all(Object.keys(mods).sort().map(k => mods[k]().then(m => m.default))));
 };
 const loadSheets = loader(SHEETS);
 const loadMidterm = loader(MIDTERM);
+const loadWeekly = loader(WEEKLY);
 
 // Chưa đăng nhập (khách dùng thử): mỗi bộ chỉ làm được FREE_SHEETS phiếu / đề đầu, còn lại khoá.
 const FREE_SHEETS = 2;
@@ -54,6 +56,12 @@ const COLLECTIONS = [
     id: 'giuaki', icon: '📝', name: 'Đề ôn tập giữa học kì I', desc: 'Mỗi đề làm trong 40 phút', unit: 'đề',
     sub: () => 'Ôn tập giữa học kì I | Môn: Toán | Lớp 3 | Thời gian: 45 phút',
     count: Object.keys(MIDTERM).length, owns: (id) => /^de-\d+$/.test(id), load: loadMidterm,
+  },
+  // Đề kiểm tra hằng tuần Tuần 11–18 (Kết nối tri thức): src/data/grade3Weekly/de11.js… id tuan-11…
+  {
+    id: 'tuan', icon: '📅', name: 'Đề kiểm tra hằng tuần', desc: 'Tuần 11 đến Tuần 18, học kì I', unit: 'đề',
+    sub: () => 'Kiểm tra hằng tuần | Môn: Toán | Lớp 3 | Thời gian: 45 phút',
+    count: Object.keys(WEEKLY).length, owns: (id) => /^tuan-\d+$/.test(id), load: loadWeekly,
   },
   {
     id: 'ontonghop', icon: '🧩', name: 'Đề ôn tổng hợp', desc: 'Đề ngắn, ôn các dạng toán của lớp 3', unit: 'đề',
@@ -210,7 +218,49 @@ function sayText(q) {
 const decComma = (h) => String(h).replace(/(\d),(?=\d)/g, '$1<span class="ws-dc">,</span>');
 
 function rich(s) {
-  return String(s ?? '').replace(/\{(\d+)\/(\d+)\}/g, '<span class="ws-frac"><span>$1</span><span>$2</span></span>');
+  const html = String(s ?? '').replace(/\{(\d+)\/(\d+)\}/g, '<span class="ws-frac"><span>$1</span><span>$2</span></span>');
+  return CALC_TAP ? tapCalcs(html) : html;
+}
+
+// ✍️ Thực hành đặt tính ngay trong đề (engine/calcPlay.js). Bật khi vẽ câu đang làm (renderQuestion, chưa chấm):
+// phép tính hai số đứng riêng trong chữ đề (không dính dấu khác trước / sau, trong ngoặc thì được) thành chỗ chạm
+// mở tờ đặt tính với đúng hai số đó. Bỏ qua phép tính nhẩm trong bảng (40 : 5, 7 × 4, 30 + 5).
+let CALC_TAP = false;
+const C_NUM = String.raw`\d{1,3}(?:[  ]\d{3})+|\d+`;
+const C_UNIT = String.raw`(?:\s?(?:mm|cm|dm|km|m|kg|g|ml|l|giờ|phút|ngày)(?![\p{L}\d]))?`;
+const C_OP = '[+−×:÷-]';
+const CALC_RE = new RegExp(String.raw`(?<![\d,])(?<![\d)]${C_UNIT}\s*${C_OP}\s*)(${C_NUM})(${C_UNIT})(\s*)(${C_OP})(\s*)(${C_NUM})(${C_UNIT})(?![\d,])(?!${C_UNIT}\s*${C_OP}\s*[\d(])`, 'gu');
+const MULTI_RE = new RegExp(String.raw`\d\)?${C_UNIT}\s*${C_OP}\s*\(?\s*\d[\d  ]*${C_UNIT}\s*\)?\s*${C_OP}\s*\(?\s*\d`, 'u');
+const toInt = (t) => Number(String(t).replace(/\D/g, ''));
+/** Phép tính này có đáng đặt tính không (công cụ làm được và không phải phép tính nhẩm trong bảng). */
+function calcWorthy(a, op, b) {
+  if (op === '+') return (a >= 10 && b >= 10) || a + b >= 100;
+  if (op === '−' || op === '-') return a >= b && ((a >= 20 && b >= 10) || a >= 100);
+  if (op === '×') return Math.max(a, b) >= 11 && Math.min(a, b) >= 2;
+  return b >= 2 && a >= 10 && (a >= 10 * b || a % b !== 0);
+}
+function tapCalcs(html) {
+  return html.split(/(<[^>]+>)/).map(part => (part.startsWith('<') ? part : part.replace(CALC_RE, (m, a, ua, s1, op, s2, b, ub) => {
+    const A = toInt(a), B = toInt(b);
+    if (!calcWorthy(A, op === '÷' ? ':' : op, B)) return m;
+    return `<span class="ws-calc ws-calc-tap" data-calc="${A} ${op === '÷' ? ':' : op} ${B}" title="Chạm để đặt tính">${m}<span class="ws-calc-mini" aria-hidden="true">✍️</span></span>`;
+  }))).join('');
+}
+/** Câu cần tự đặt tính (biểu thức nhiều dấu, tìm x, bài lời văn): nút "✍️ Đặt tính" bé tự nhập hai số. */
+function needsCalcFree(q) {
+  if (q.col) return false;
+  const text = JSON.stringify(q, (k, v) => (k === 'fig' || k === 'left' || k === 'right' || k === 'options' || (typeof v === 'string' && v.startsWith('<svg')) ? undefined : v));
+  if (q.type === 'word' || q.type === 'findx') return true;
+  if (MULTI_RE.test(text.replace(/\u2212/g, '−'))) return true;
+  const big = (text.match(/\d+/g) || []).filter(n => +n >= 10).length;
+  if (q.type === 'fill' && String(q.prompt || '').length > 60 && big >= 2) return true;
+  // Bảng tính (gấp / giảm, thừa số / tích, số bị chia / thương…) có số lớn.
+  if (q.type === 'table' && big >= 2 && /gấp|giảm|thừa số|tích|thương|số bị chia|số chia|số hạng|tổng|hiệu|số bị trừ|số trừ/i.test(text)) return true;
+  // Lời văn có phép tính phải tự nghĩ ra (Tích của 229 và 3, 420 giảm 7 lần…), đề chưa có phép tính chạm được.
+  const prompt = `${q.prompt || ''} ${q.text || ''}`;
+  const nums = (prompt.match(/\d+/g) || []).map(Number);
+  return /tích|tổng|hiệu|thương|gấp|giảm|mỗi|chia|bán|còn lại|tất cả|cả hai|thêm|bớt/i.test(prompt)
+    && nums.some(x => x >= 20) && (nums.length >= 2 || nums.some(x => x >= 100)) && !tapCalcs(rich(prompt)).includes('ws-calc-tap');
 }
 
 // Trộn mảnh câu lời giải cố định theo đề (mở lại vẫn cùng thứ tự).
@@ -957,6 +1007,19 @@ function renderGrade(grade, app, onBack, opts = {}) {
     });
     paper.addEventListener('click', (ev) => {
       const t = ev.target;
+      // Chạm vào phép tính dọc / chia cột (không phải ô nhập): mở tờ đặt tính; xong, bé tự gõ kết quả vào ô.
+      const calc = t.closest('.ws-calc');
+      if (calc && !t.closest('.ws-in')) {
+        ev.preventDefault();
+        // Ô để bé ghi kết quả khi đóng: ô thương của phép tính dọc, hoặc ô đầu tiên cùng ý.
+        const input = calc.querySelector('.ws-ld-q .ws-in') || calc.querySelector('.ws-in') || calc.closest('.ws-item')?.querySelector('.ws-in');
+        import('../engine/calcPlay.js').then(m => m.openCalc(calc.dataset.calc, input));
+        return;
+      }
+      if (t.closest('.ws-calc-free')) {
+        import('../engine/calcPlay.js').then(m => m.openCalcFree(grade <= 2 ? ['+', '−'] : ['+', '−', '×', ':']));
+        return;
+      }
       const cmp = t.closest('.ws-cmp');
       if (cmp) { openPicker(cmp); return; }
       const opt = t.closest('.ws-opt');
@@ -1265,14 +1328,19 @@ function renderGrade(grade, app, onBack, opts = {}) {
   // ── HTML dùng chung cho làm bài và bài đã chấm ─────────────────────────────
   // `g` = kết quả chấm (bài đã chấm) hoặc null (đang làm).
   function renderQuestion(e, a, g) {
-    const { q, n } = e;
-    const speak = COLLECTIONS.some(c => c.speak && c.owns(e.sheetId)) ? `<button type="button" class="ws-say" data-q="${e.id}" aria-label="Đọc đề">🔊</button>` : '';
-    const head = e.label != null
-      ? `<div class="ws-qhead">${speak}<b class="ws-qlabel">${e.label ? `${e.label} ${n}:` : `${n}.`}</b> ${q.type === 'word' ? '' : rich(q.prompt || '')}</div>`
-      : `<div class="ws-qnum">${n}.</div>`;
-    const prompt = e.label == null && q.prompt ? `<p class="ws-prompt">${rich(q.prompt)}</p>` : '';
-    const fig = q.fig ? `<div class="ws-fig">${q.fig}</div>` : '';
-    return `${head}<div class="ws-qbody">${prompt}${fig}${bodyHtml(e, a, g)}</div>`;
+    // Đang làm (chưa chấm, số nguyên): phép tính trong đề chạm được để đặt tính (rich → tapCalcs).
+    CALC_TAP = !g && !DEC;
+    try {
+      const { q, n } = e;
+      const speak = COLLECTIONS.some(c => c.speak && c.owns(e.sheetId)) ? `<button type="button" class="ws-say" data-q="${e.id}" aria-label="Đọc đề">🔊</button>` : '';
+      const free = CALC_TAP && needsCalcFree(q) ? '<button type="button" class="ws-calc-free" title="Tự viết hai số rồi đặt tính">✍️ Đặt tính</button>' : '';
+      const head = e.label != null
+        ? `<div class="ws-qhead">${speak}<b class="ws-qlabel">${e.label ? `${e.label} ${n}:` : `${n}.`}</b> ${q.type === 'word' ? '' : rich(q.prompt || '')}${free}</div>`
+        : `<div class="ws-qnum">${n}.</div>`;
+      const prompt = e.label == null && (q.prompt || free) ? `<p class="ws-prompt">${rich(q.prompt || '')}${free}</p>` : '';
+      const fig = q.fig ? `<div class="ws-fig">${q.fig}</div>` : '';
+      return `${head}<div class="ws-qbody">${prompt}${fig}${bodyHtml(e, a, g)}</div>`;
+    } finally { CALC_TAP = false; }
   }
 
   function bodyHtml(e, a, g) {
@@ -1299,7 +1367,7 @@ function renderGrade(grade, app, onBack, opts = {}) {
       const maxLen = Math.max(...e.norm.map(nm => plain(nm.t).length + holes(nm.t) * 3 + (q.type === 'calc' ? 4 + (nm.unit ? 3 : 0) : 0) + (nm.inv ? 6 : 0)));
       // Ý dài: tối đa 2 cột (điện thoại 1 cột), rất dài: mỗi ý một dòng.
       const figs = e.norm.some(nm => nm.fig);
-      const cls = figs ? `ws-items ws-items-fig ws-items-fig-${Math.min(3, e.norm.length)}` : q.col ? 'ws-items ws-items-col' : maxLen > 26 || (q.type === 'fill' && e.norm.length === 1) ? 'ws-items ws-items-1' : maxLen > 14 ? 'ws-items ws-items-2' : `ws-items ws-items-${Math.min(4, e.norm.length)}`;
+      const cls = figs ? `ws-items ws-items-fig ws-items-fig-${e.norm.length === 4 ? 2 : Math.min(3, e.norm.length)}` : q.col ? 'ws-items ws-items-col' : maxLen > 26 || (q.type === 'fill' && e.norm.length === 1) ? 'ws-items ws-items-1' : maxLen > 14 ? 'ws-items ws-items-2' : `ws-items ws-items-${Math.min(4, e.norm.length)}`;
       const showLetters = q.type !== 'fill' || e.norm.every(nm => plain(nm.t).length <= 30);
       return `
         <div class="${cls}">
@@ -1307,7 +1375,7 @@ function renderGrade(grade, app, onBack, opts = {}) {
             const v = a[i];
             const t = stripLetter(nm.t);
             let body;
-            if (q.type === 'calc' && q.col && columnParts(t)) body = columnHtml(columnParts(t), nm, (j, cls2) => field(`${i}|${j}`, v[j], cls2, nm.ans[j]));
+            if (q.type === 'calc' && q.col && columnParts(t)) body = columnHtml(columnParts(t), nm, (j, cls2) => field(`${i}|${j}`, v[j], cls2, nm.ans[j]), !g);
             else if (q.type === 'calc') {
               body = `<span>${rich(t)} =</span>${field(`${i}|0`, v[0], '', nm.ans[0])}${nm.rem ? `<span>dư</span>${field(`${i}|1`, v[1])}` : ''}${nm.unit ? `<span>${nm.unit}</span>` : ''}`;
             } else if (q.type === 'findx' && nm.inv) {
@@ -1592,18 +1660,23 @@ function stepReady(a, s) {
   return true;
 }
 
-/** Đặt tính dọc (cộng, trừ, nhân) hoặc chia cột; `slot(j, cls)` trả HTML ô nhập thứ j. */
-function columnHtml(p, nm, slot) {
+/**
+ * Đặt tính dọc (cộng, trừ, nhân) hoặc chia cột; `slot(j, cls)` trả HTML ô nhập thứ j.
+ * tap (đang làm bài, số nguyên): chạm vào phép tính mở tờ đặt tính của Luyện Tính (engine/calcPlay.js openCalc).
+ */
+function columnHtml(p, nm, slot, tap = false) {
+  const calc = tap && !/,/.test(`${p.a}${p.b}`) ? ` data-calc="${p.a} ${p.op === '÷' ? ':' : p.op} ${p.b}" title="Chạm để đặt tính"` : '';
+  const hint = calc ? '<span class="ws-calc-hint" aria-hidden="true">✍️</span>' : '';
   if (p.op === '÷') {
     return `
-      <span class="ws-ld">
+      <span class="ws-ld${calc ? ' ws-calc' : ''}"${calc}>${hint}
         <span class="ws-ld-a">${p.a}</span><span class="ws-ld-b">${p.b}</span>
         <span class="ws-ld-work">${nm.rem ? `<span class="ws-ld-rem">dư ${slot(1, 'ws-in-col')}</span>` : ''}</span><span class="ws-ld-q">${slot(0, 'ws-in-col')}</span>
       </span>`;
   }
   const [a, b] = decAlign(p);
   return `
-    <span class="ws-col">
+    <span class="ws-col${calc ? ' ws-calc' : ''}"${calc}>${hint}
       <span class="ws-col-op">${p.op}</span><span class="ws-col-n">${a}</span>
       <span class="ws-col-n ws-col-under">${b}</span>
       <span class="ws-col-n">${slot(0, 'ws-in-col')}</span>
@@ -1672,6 +1745,9 @@ function drawSvg(item, len, key, graded) {
 
 // Hình để khoanh (tự vẽ, cùng nét với phiếu).
 const ICONS = {
+  cat: `<svg viewBox="0 0 40 40" aria-hidden="true"><g stroke="#92400e" stroke-width="1.5" fill="#fbbf24" stroke-linejoin="round"><path d="M8 20 L9 5 L17 12 L23 12 L31 5 L32 20 Z"/><ellipse cx="20" cy="23" rx="13" ry="12"/></g><path d="M11 9 L12 15 L15 12 Z M29 9 L28 15 L25 12 Z" fill="#fda4af"/><circle cx="15" cy="21" r="1.7" fill="#1f2937"/><circle cx="25" cy="21" r="1.7" fill="#1f2937"/><path d="M18.5 25.5 L21.5 25.5 L20 27 Z" fill="#f472b6"/><path d="M20 27 Q18 29.5 16 28.5 M20 27 Q22 29.5 24 28.5 M5 24 L13 25 M5 28 L13 27 M35 24 L27 25 M35 28 L27 27" stroke="#92400e" stroke-width="1" fill="none" stroke-linecap="round"/></svg>`,
+  cake: `<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="18" width="28" height="16" rx="3" fill="#fde68a" stroke="#b45309" stroke-width="1.5"/><path d="M6 22 Q10 27 14 22 Q18 27 22 22 Q26 27 30 22 Q32 25 34 22 L34 20 Q34 17 31 17 L9 17 Q6 17 6 20 Z" fill="#f9a8d4" stroke="#be185d" stroke-width="1.3"/><rect x="18.5" y="8" width="3" height="9" rx="1" fill="#60a5fa" stroke="#1d4ed8" stroke-width="1"/><path d="M20 2 Q23 5.5 20 7.5 Q17 5.5 20 2 Z" fill="#f97316"/></svg>`,
+  pen: `<svg viewBox="0 0 40 40" aria-hidden="true"><g transform="rotate(35 20 20)" stroke-width="1.4" stroke-linejoin="round"><rect x="16" y="3" width="8" height="25" rx="2" fill="#38bdf8" stroke="#0369a1"/><rect x="16" y="3" width="8" height="5" rx="2" fill="#0369a1" stroke="#0369a1"/><path d="M16 28 L24 28 L20 37 Z" fill="#fef3c7" stroke="#0369a1"/><path d="M19 34.5 L21 34.5 L20 37 Z" fill="#1f2937"/></g></svg>`,
   rabbit: `<svg viewBox="0 0 40 40" aria-hidden="true"><g stroke="#475569" stroke-width="1.6" fill="#fff"><ellipse cx="15" cy="9" rx="3.4" ry="8.5" transform="rotate(-10 15 9)"/><ellipse cx="25" cy="9" rx="3.4" ry="8.5" transform="rotate(10 25 9)"/><ellipse cx="20" cy="27" rx="12" ry="10"/></g><ellipse cx="15" cy="9" rx="1.4" ry="5.5" fill="#f9a8d4" transform="rotate(-10 15 9)"/><ellipse cx="25" cy="9" rx="1.4" ry="5.5" fill="#f9a8d4" transform="rotate(10 25 9)"/><circle cx="16" cy="25" r="1.5" fill="#1f2937"/><circle cx="24" cy="25" r="1.5" fill="#1f2937"/><ellipse cx="20" cy="30" rx="2" ry="1.4" fill="#f472b6"/><circle cx="12" cy="31" r="2" fill="#fbcfe8"/><circle cx="28" cy="31" r="2" fill="#fbcfe8"/></svg>`,
   orange: `<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="23" r="13" fill="#f97316" stroke="#c2410c" stroke-width="1.5"/><path d="M20 10 C 22 5, 28 3, 33 6 C 29 11, 24 11, 20 10 Z" fill="#22c55e" stroke="#15803d" stroke-width="1.2"/><path d="M20 10 V 6" stroke="#78350f" stroke-width="2"/><ellipse cx="14" cy="18" rx="3" ry="2" fill="#fdba74"/></svg>`,
   flower: `<svg viewBox="0 0 40 40" aria-hidden="true"><g fill="#f472b6" stroke="#be185d" stroke-width="1.2">${[0, 72, 144, 216, 288].map(r => `<ellipse cx="20" cy="10" rx="6" ry="8" transform="rotate(${r} 20 20)"/>`).join('')}</g><circle cx="20" cy="20" r="5" fill="#facc15" stroke="#a16207" stroke-width="1.2"/></svg>`,
@@ -1884,7 +1960,7 @@ function injectStyles() {
 
     .ws-items { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem 1rem; }
     .ws-items-1 { grid-template-columns: 1fr; }
-    .ws-items-2 { grid-template-columns: repeat(2, minmax(0, 18rem)); }
+    .ws-items-2 { grid-template-columns: repeat(2, minmax(0, 22rem)); }
     .ws-items-3 { grid-template-columns: repeat(3, 1fr); }
     /* Đặt tính: xếp hàng, hết chỗ thì xuống dòng (bài đã chấm có thêm chữ sửa đỏ cạnh từng phép tính). */
     .ws-items-col { display: flex; flex-wrap: wrap; gap: 0.8rem 2.6rem; }
@@ -1923,6 +1999,13 @@ function injectStyles() {
     .ws-col-n .ws-in-col { margin-right: -0.15em; }
     .ws-col-pad { visibility: hidden; }
     .ws-col-under { border-bottom: 2px solid #1f2937; }
+    .ws-calc { position: relative; cursor: pointer; border-radius: 0.5rem; transition: background-color 0.15s; }
+    .ws-calc:hover { background: #eef2ff; }
+    .ws-calc-tap { display: inline; padding: 0 0.1em; border-bottom: 2px dotted #818cf8; white-space: nowrap; }
+    .ws-calc-mini { font-size: 0.7em; vertical-align: super; margin-left: 0.1em; }
+    .ws-calc-free { margin-left: 0.5rem; padding: 0.15rem 0.6rem; border: 1px solid #c7d2fe; border-radius: 999px; background: #eef2ff; color: #3730a3; font: inherit; font-size: 0.85em; font-weight: 700; cursor: pointer; white-space: nowrap; vertical-align: middle; }
+    .ws-calc-free:hover { background: #e0e7ff; }
+    .ws-calc-hint { position: absolute; top: -0.45rem; left: -0.55rem; font-size: 0.8rem; line-height: 1; pointer-events: none; }
     .ws-in-col { width: 3.4em; text-align: right; padding-right: 0.15em; letter-spacing: 0.08em; }
     .ws-ld { display: inline-grid; grid-template-columns: auto auto; font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: 0.08em; }
     .ws-ld-a { padding: 0 0.5em 0 0.2em; border-right: 2px solid #1f2937; text-align: right; }

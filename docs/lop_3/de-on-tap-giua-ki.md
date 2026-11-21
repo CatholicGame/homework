@@ -114,7 +114,7 @@ Biến giữ đúng chữ của đề (`x`, `X`, `y`). Đáp án tự giải. V�
 ```js
 { type: 'pick', prompt: 'a) Khoanh vào {1/3} số con thỏ:', icon: 'rabbit', count: 15, cols: 3, ans: 5 }
 ```
-`icon`: `rabbit`, `orange`, `flower`, `star`. Có nhiều ý → `items: [{ prompt, icon, count, cols, ans }, …]`.
+`icon`: `rabbit`, `orange`, `flower`, `star`, `cat`, `cake`, `pen`. Có nhiều ý → `items: [{ prompt, icon, count, cols, ans }, …]`.
 
 ### `draw`: vẽ đoạn thẳng (thước kẻ, chạm vạch cm để vẽ)
 
