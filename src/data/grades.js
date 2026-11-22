@@ -30,6 +30,10 @@ const EN_GRAMMAR = { id: 'english-grammar', group: 'tienganh', icon: '📐', col
 // 🏆 Đấu Trường Nhí: mở cho mọi người (lớp 1–5) từ 2026-11-09, `live` = thẻ LIVE to đầu tab Trò chơi. Thiết kế docs/dau-truong/thiet-ke.md.
 const DAUTRUONG = { id: 'dautruong-preview', group: 'challenge', live: true, cover: '/dautruong/cover-card.webp', icon: '🏆', color: '#1D4ED8', title: 'Đấu Trường Nhí', desc: '4 bạn thi cùng lúc trên sân khấu, hai MC dẫn chương trình: Khởi động, Tăng tốc, Về đích. Khán giả cũng có điểm!' };
 
+// 🏆 Đấu Trường Nhí Tiếng Anh: cùng sân khấu, luật, bạn ảo; phòng riêng arena-en-g<lớp>, câu Nghe / Từ vựng / Ngữ pháp / Đọc hiểu
+// theo Tiếng Anh Global Success (src/dauTruong/subject.js, enQuestions.js, bank/en/).
+const DAUTRUONG_EN = { id: 'dautruong-en', group: 'tienganh', cover: '/dautruong/cover-card-en.webp', icon: '🏆', color: '#7C3AED', title: 'Đấu Trường Nhí Tiếng Anh', desc: '4 bạn thi cùng lúc trên sân khấu, cả khán phòng cùng trả lời: nghe, từ vựng, ngữ pháp, đọc hiểu tiếng Anh qua Khởi động, Tăng tốc, Về đích' };
+
 const LIFE = LIFE_SKILLS ? [{ id: 'life-skills', icon: '🏘️', color: '#F97316', title: 'Phố Kỹ Năng', desc: 'Truyện kỹ năng sống: em nhập vai, chọn cách xử lý khi qua đường, đi lạc, ở nhà một mình… và xem chuyện gì xảy ra' }] : [];
 
 export const GRADES = [
@@ -61,6 +65,7 @@ export const GRADES = [
       writing('Viết 1 đến 3 câu theo đề, cô giáo chấm, chỉ lỗi chính tả, nhắc viết hoa đầu câu và dấu chấm cuối câu'),
       ENGLISH,
       EN_GRAMMAR,
+      DAUTRUONG_EN,
       ...LIFE,
     ],
   },
@@ -81,6 +86,7 @@ export const GRADES = [
       writing('Viết vài câu theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
       ENGLISH,
       EN_GRAMMAR,
+      DAUTRUONG_EN,
       ...LIFE,
     ],
   },
@@ -104,6 +110,7 @@ export const GRADES = [
       writing('Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
       ENGLISH,
       EN_GRAMMAR,
+      DAUTRUONG_EN,
       ...LIFE,
     ],
   },
@@ -123,6 +130,7 @@ export const GRADES = [
       writing('Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
       ENGLISH,
       EN_GRAMMAR,
+      DAUTRUONG_EN,
       ...LIFE,
     ],
   },
@@ -141,6 +149,7 @@ export const GRADES = [
       writing('Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
       ENGLISH,
       EN_GRAMMAR,
+      DAUTRUONG_EN,
       ...LIFE,
     ],
   },

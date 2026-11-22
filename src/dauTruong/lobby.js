@@ -14,6 +14,7 @@ import { ALWAYS_OPEN, OPEN_BEFORE, clockText, nextStart, stepAt, whenText } from
 import { liveNow, waitFill } from '../engine/liveCount.js';
 import { loadAwards } from './awards.js';
 import { arenaLobby } from '../engine/arenaStats.js';
+import { isEnArena, arenaRoom } from './subject.js';
 
 const FONTS = 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap';
 export const SHOW_TITLE = 'Đấu Trường Nhí';
@@ -53,10 +54,10 @@ export function lobbyRender(app, onBack, deps) {
     app.innerHTML = `<div class="td-lobby">
       <div class="td-top"><button type="button" class="td-back" aria-label="Quay lại">←</button><span class="td-kick">🏆 ${okGrade ? `Lớp ${grade}` : 'Lớp 1–5'}</span></div>
       <article class="td-card" aria-labelledby="dt-title">
-        <button type="button" class="td-pic-btn" tabindex="-1" aria-hidden="true"><img class="td-pic dt-cover" src="/dautruong/cover.jpg" alt="" width="1600" height="930"></button>
+        <button type="button" class="td-pic-btn" tabindex="-1" aria-hidden="true"><img class="td-pic dt-cover" src="/dautruong/${isEnArena() ? 'cover-en.jpg' : 'cover.jpg'}" alt="" width="1600" height="930"></button>
         <div class="td-text">
-          <h2 id="dt-title">${SHOW_TITLE}</h2>
-          <p>Sân chơi Toán và Tiếng Việt cùng các bạn cùng lớp. Bốn bạn giỏi nhất Vòng Chọn lên bục thi, cả khán phòng cùng trả lời từng câu.</p>
+          <h2 id="dt-title">${SHOW_TITLE}${isEnArena() ? ' Tiếng Anh' : ''}</h2>
+          <p>${isEnArena() ? 'Sân chơi tiếng Anh: nghe, từ vựng, ngữ pháp, đọc hiểu' : 'Sân chơi Toán và Tiếng Việt'} cùng các bạn cùng lớp. Bốn bạn giỏi nhất Vòng Chọn lên bục thi, cả khán phòng cùng trả lời từng câu.</p>
           <ul class="td-steps">
             <li><span>🧒</span>Chọn nhân vật và tên MC gọi</li>
             <li><span>🪑</span>Chọn ghế trong khán phòng</li>
@@ -120,7 +121,7 @@ export function lobbyRender(app, onBack, deps) {
     paint();
     tick = setInterval(paint, 1000);
     // số bạn trong phòng (không có tên ai), 20 giây hỏi một lần
-    const url = statusUrl(`arena-g${grade}${testRoom() ? '-test' : ''}`);
+    const url = statusUrl(`${arenaRoom(grade)}${testRoom() ? '-test' : ''}`);
     const ask = () => url && fetch(url, { cache: 'no-store' }).then(r => r.json()).then(s => { people = s.here || 0; real = s.playing && s.people > 0 ? s.people : 0; waiting = s.playing ? 0 : s.people || 0; paint(); }, () => {});
     ask();
     poll = setInterval(ask, 20000);

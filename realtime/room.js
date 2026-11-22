@@ -145,7 +145,7 @@ export class Room {
     // Đấu Trường Nhí (`arena-g<lớp>`): ALWAYS_OPEN (rules.js) thì mọi phòng cuốn chiếu như phòng thử: bắt đầu TEST_LEAD sau khi
     // phòng có người đầu tiên, hoặc 5 giây sau khi đủ 4 bục ('start'); hết lượt còn người thì mở lượt mới. Tắt thì theo lịch SLOTS.
     this.arena = /^arena/.test(key);
-    this.aGrade = +(/^arena-g([1-5])/.exec(key)?.[1] || 3);
+    this.aGrade = +(/^arena(?:-en)?-g([1-5])/.exec(key)?.[1] || 3);   // arena-en-g<lớp>: Đấu Trường Tiếng Anh
     this.arenaDemo = arenaDemo;
     this.aFree = this.test || arenaDemo || ALWAYS_OPEN;   // ALWAYS_OPEN: mọi phòng thật cũng cuốn chiếu (rules.js)
     /* created: mốc lượt (mã lượt = hạt giống bạn ảo, đồng hồ sảnh chờ). worker.js lưu vào bộ nhớ của Durable Object (onRound) và

@@ -403,6 +403,7 @@ function navigate(gameId, opts = {}) {
     'grade4-ufo': () => import('./games/gradeUfo.js').then(m => ({ render: m.ufoRender(4) })),
     'grade5-ufo': () => import('./games/gradeUfo.js').then(m => ({ render: m.ufoRender(5) })),
     'dautruong-preview': () => import('./games/dauTruong.js'),
+    'dautruong-en': () => import('./games/dauTruong.js').then(m => ({ render: m.renderEn })),
     'grade1-thandong': () => import('./games/thanDong.js').then(m => ({ render: m.thanDongRender(1) })),
     'grade2-thandong': () => import('./games/thanDong.js').then(m => ({ render: m.thanDongRender(2) })),
     'grade3-thandong': () => import('./games/thanDong.js').then(m => ({ render: m.thanDongRender(3) })),

@@ -23,19 +23,23 @@
 
 import { UNIT_INFO } from '../data/knowledgeUnits.js';
 import { scopedKey } from '../engine/auth.js';
+import { isEnArena } from './subject.js';
+import { loadEnArenaBank, enSpeedQ } from './enQuestions.js';
 
 /* ---------- Câu đã gặp (theo tài khoản, đồng bộ qua cloudSync.js như tiến trình học) ----------
    `dautruong-seen:g<lớp>@<tài khoản>` = { mã câu: lúc gặp (ms) }. Ghi cả khi đứng bục, ngồi khán phòng hay làm máy chủ trò
    (máy hiện theo ghi câu nhận trong ảnh chụp). Giữ SEEN_DAYS ngày, tối đa SEEN_MAX câu mới nhất. */
 const SEEN_DAYS = 30, SEEN_MAX = 1500, SEND_MAX = 800;
-const seenKey = (grade) => scopedKey(`dautruong-seen:g${grade}`);
+// Tiếng Anh (subject.js) sổ riêng: `dautruong-seen:en-g<lớp>` (cùng tiền tố nên cloudSync.js vẫn đồng bộ)
+const seenKey = (grade) => scopedKey(`dautruong-seen:${isEnArena() ? 'en-' : ''}g${grade}`);
 const normQ = (s) => String(s).toLowerCase().normalize('NFC').replace(/[\s“”"'.,?!:;…]+/g, ' ').trim();
 /** Mã câu: đề + đáp án đúng. Hai câu cùng đề, cùng đáp án, chỉ khác phương án nhiễu (vd. "Cô-li-a" ở cả ngân hàng Khởi động
     lẫn Về đích) là MỘT câu với bé. Câu sắp xếp: đề + các mảnh đã sắp. Dòng soạn tay (o[0] là đáp án) hay câu đã xáo (o[a])
     đều ra cùng mã. */
 export function qKey(q) {
   const right = (q.kind || q.k) === 'order' ? [...q.o].map(String).sort().join('|') : Number.isInteger(q.a) ? q.o[q.a] : q.o[0];
-  return `${normQ(q.q)}|=${normQ(right)}${q.fig ? `|${JSON.stringify(q.fig)}` : ''}`;   // cùng đề "Hình tiếp theo là gì?" nhưng khác hình là câu khác
+  // câu nghe tiếng Anh: cùng đề "🎧 Nghe và chọn…", khác câu được đọc (en) là câu khác
+  return `${normQ(q.q)}|=${normQ(right)}${q.fig ? `|${JSON.stringify(q.fig)}` : ''}${q.en ? `|${normQ(q.en)}` : ''}`;   // cùng đề "Hình tiếp theo là gì?" nhưng khác hình là câu khác
 }
 /** Mã cũ (đề + mọi phương án): sổ đã gặp ghi trước bản này và máy các bạn chưa cập nhật vẫn gửi mã cũ. */
 const qKeyOld = (q) => `${q.q}|${[...q.o].map(String).sort().join('|')}`;
@@ -47,7 +51,7 @@ export function readSeen(grade) {
   try {
     seen = JSON.parse(localStorage.getItem(seenKey(grade))) || {};
     // bản cũ lưu theo máy 7 ngày (`dt-seen-v1-g<lớp>`): chuyển sang tài khoản đang dùng một lần
-    const old = localStorage.getItem(`dt-seen-v1-g${grade}`);
+    const old = isEnArena() ? null : localStorage.getItem(`dt-seen-v1-g${grade}`);
     if (old) { Object.assign(seen, JSON.parse(old) || {}); localStorage.removeItem(`dt-seen-v1-g${grade}`); }
   } catch { /* không có bộ nhớ: không nhớ */ }
   const lim = Date.now() - SEEN_DAYS * 864e5;
@@ -357,6 +361,7 @@ const SPEED = {
 };
 /** Một câu Tăng tốc dạng `type` (seq | shape | facts | logic) cho lớp `grade`. */
 export function speedQ(type, grade = 3) {
+  if (isEnArena()) return enSpeedQ(type, grade >= 1 && grade <= 5 ? grade : 3);
   return (SPEED[type] || SPEED.seq)(grade >= 1 && grade <= 5 ? grade : 3);
 }
 
@@ -368,6 +373,7 @@ export function speedQ(type, grade = 3) {
 export async function loadArenaBank(grade, date = new Date()) {
   grade = grade >= 1 && grade <= 5 ? grade : 3;
   const week = weeksDone(date);
+  if (isEnArena()) return loadEnArenaBank(grade, week, { readSeen, markSeen, qHash, qKey });
   const planMod = Object.entries(PLANS).find(([p]) => p.includes(`/g${grade}/`));
   const plan = planMod ? (await planMod[1]()).PLAN : null;
   const total = Math.max(...(plan?.cuoiki || []).map(c => +String(c.units).split('-')[1]).filter(Number.isFinite), 30);

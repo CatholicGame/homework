@@ -10,7 +10,9 @@ import { scopedKey } from '../engine/auth.js';
 
 const KEY = 'dautruong-matches-v1';
 const MAX = 60;
-const SUBJ = { toan: 'Toán', tv: 'Tiếng Việt' };
+// Đấu Trường Tiếng Anh ghi m là kỹ năng của câu (subject.js EN_SKILL)
+const SUBJ = { toan: 'Toán', tv: 'Tiếng Việt', nghe: 'Nghe', tu: 'Từ vựng', np: 'Ngữ pháp', doc: 'Đọc hiểu' };
+const subjOf = (m) => (SUBJ[m] ? m : 'toan');
 const ROUND = { kd: 'Khởi động', tt: 'Tăng tốc', vd: 'Về đích' };
 /** Chủ đề đạt từ mức này là "mạnh", dưới là "cần ôn". */
 const STRONG = 0.75;
@@ -21,9 +23,9 @@ export function summarize(log = []) {
   const add = (o, k, ok) => { const v = (o[k] ||= [0, 0]); v[1]++; if (ok) v[0]++; };
   const subj = {}, rounds = {}, topics = {};
   for (const x of log) {
-    add(subj, x.m === 'tv' ? 'tv' : 'toan', x.ok);
+    add(subj, subjOf(x.m), x.ok);
     if (x.r) add(rounds, x.r, x.ok);
-    const k = `${x.m === 'tv' ? 'tv' : 'toan'}|${x.t || SUBJ[x.m] || 'Toán'}`;
+    const k = `${subjOf(x.m)}|${x.t || SUBJ[subjOf(x.m)]}`;
     add(topics, k, x.ok);
   }
   const list = Object.entries(topics).map(([k, [r, n]]) => { const [m, t] = k.split('|'); return { t, m, r, n }; });
@@ -51,7 +53,7 @@ export function statsHtml(sum) {
   const part = (cls, title, list, empty) => `<div class="ms-part ${cls}"><b class="ms-h">${title}</b>${list.length
     ? `<table><tbody>${list.map(row).join('')}</tbody></table>` : `<p class="ms-empty">${empty}</p>`}</div>`;
   return `<div class="ms" aria-label="Thống kê trận">
-    <div class="ms-chips">${chip('Toán', sum.subj.toan)}${chip('Tiếng Việt', sum.subj.tv)}</div>
+    <div class="ms-chips">${Object.keys(SUBJ).map(k => chip(SUBJ[k], sum.subj[k])).join('')}</div>
     <div class="ms-chips is-round">${Object.keys(ROUND).map(k => chip(ROUND[k], sum.rounds[k])).join('')}</div>
     ${part('is-strong', '💪 Em làm tốt', sum.strong, 'Trận sau cố lên, em sẽ có phần làm tốt!')}
     ${part('is-weak', '📚 Cần ôn thêm', sum.weak, 'Không có phần nào cần ôn. Giỏi lắm!')}

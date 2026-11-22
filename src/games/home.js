@@ -180,7 +180,9 @@ function gameCards(grade, list) {
   return list.map((g, gIdx) => `
     <button type="button" class="hm-card${g.important ? ' is-important' : ''}" data-game="${g.id}" style="animation-delay: ${0.05 + gIdx * 0.04}s; --card-color: ${g.color || grade.color}">
       ${g.important ? '<span class="hm-card-flag">⭐ Quan trọng</span>' : ''}
-      <span class="hm-card-art${thumbArt(g) ? ' has-art' : ''}" aria-hidden="true">${thumbArt(g) || `<span class="hm-card-icon">${g.icon}</span>`}</span>
+      <span class="hm-card-art${g.cover || thumbArt(g) ? ' has-art' : ''}" aria-hidden="true">${g.cover
+        ? `<img src="${g.cover}" alt="" width="960" height="558" decoding="async" loading="lazy">` // ảnh chụp thật (vd. trường quay Đấu Trường Nhí Tiếng Anh)
+        : thumbArt(g) || `<span class="hm-card-icon">${g.icon}</span>`}</span>
       <span class="hm-card-body">
         <h3>${g.title}</h3>
         <p>${g.desc}</p>

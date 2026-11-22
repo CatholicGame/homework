@@ -214,6 +214,11 @@ const SCENES = {
   'dautruong-preview': () => skyBg('#1E293B', '#1D4ED8') + `<path d="M40 0 L0 180 H90Z M280 0 L230 180 H320Z" fill="#BAE6FD" opacity="0.1"/>`
     + `<ellipse cx="160" cy="176" rx="170" ry="30" fill="#1E3A8A"/>`
     + ['nam', 'linh', 'minh', 'mai'].map((who, i) => `${person(58 + i * 68, 148, who, i === 1 ? 'cheer' : 'stand', { s: 0.5, mood: 'joy' })}<g transform="translate(${58 + i * 68} 168)"><rect x="-22" y="-26" width="44" height="30" rx="4" fill="${['#F59E0B', '#EC4899', '#10B981', '#8B5CF6'][i]}" stroke="${LINE}" stroke-width="0.8"/>${txt(0, -6, i * 10 + 30, { s: 12, c: '#fff' })}</g>`).join(''),
+  // Đấu Trường Nhí Tiếng Anh: bốn bục, bảng ABC trên sân khấu
+  'dautruong-en': () => skyBg('#1E293B', '#7C3AED') + `<path d="M40 0 L0 180 H90Z M280 0 L230 180 H320Z" fill="#DDD6FE" opacity="0.1"/>`
+    + `<rect x="104" y="14" width="112" height="40" rx="8" fill="#fff" stroke="${LINE}" stroke-width="1"/>${txt(160, 41, 'ABC 🎧', { s: 18, c: '#4C1D95' })}`
+    + `<ellipse cx="160" cy="176" rx="170" ry="30" fill="#4C1D95"/>`
+    + ['nam', 'linh', 'minh', 'mai'].map((who, i) => `${person(58 + i * 68, 148, who, i === 2 ? 'cheer' : 'stand', { s: 0.5, mood: 'joy' })}<g transform="translate(${58 + i * 68} 168)"><rect x="-22" y="-26" width="44" height="30" rx="4" fill="${['#F59E0B', '#EC4899', '#10B981', '#0EA5E9'][i]}" stroke="${LINE}" stroke-width="0.8"/>${txt(0, -6, 'ABCD'[i], { s: 12, c: '#fff' })}</g>`).join(''),
   // Đảo Trí Nhớ: đảo cát có thẻ úp
   'memory-island': () => skyBg('#7DD3FC', '#E0F2FE') + sun(276, 30, 14, false) + `<rect y="104" width="320" height="76" fill="#38BDF8"/><path d="M0 110 Q40 104 80 110 T160 110 T240 110 T320 110" stroke="#E0F2FE" stroke-width="2" fill="none"/>`
     + `<ellipse cx="160" cy="132" rx="130" ry="30" fill="#FDE68A" stroke="${LINE}" stroke-width="1"/>` + tree(56, 132, 0.6)

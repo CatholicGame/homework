@@ -36,6 +36,17 @@ function voiceOf(mc) {
   return { v, pitch: shared ? (mc === 0 ? 0.8 : 1.15) : 1 };
 }
 
+/** Giọng tiếng Anh của máy cho phần tiếng Anh (Azure không dùng được): nam cho anh Minh, nữ cho chị Mai nếu tìm được. */
+function enVoiceOf(mc) {
+  const en = (synth?.getVoices() || []).filter(v => /^en[-_]/i.test(v.lang));
+  if (!en.length) return null;
+  const us = en.filter(v => /us/i.test(v.lang));
+  const list = us.length ? us : en;
+  const male = list.find(v => /(male|guy|david|mark|andrew|christopher|eric)/i.test(v.name) && !/female/i.test(v.name));
+  const female = list.find(v => /(female|zira|jenny|aria|emma|samantha|google us)/i.test(v.name));
+  return { v: (mc === 0 ? male : female) || list[0], pitch: 1 };
+}
+
 let rate = 1;
 /** Tốc độ đọc theo lớp (lớp 1–2 chậm hơn). */
 export function setMcRate(r) { rate = Math.max(0.7, Math.min(1.4, r)); }
@@ -131,7 +142,11 @@ export function mcPrefetch(text, mc = 0, { mute } = {}) {
  * onStart: lúc bắt đầu thành tiếng (để bật phương án đúng lúc MC đọc tới). Giọng Azure trước; không được thì giọng của máy;
  * máy không có giọng tiếng Việt / tắt tiếng: phụ đề hiện, chờ một khoảng theo độ dài câu.
  */
-export function mcSpeak(text, mc = 0, { onStart, parts, rate: callRate, mute } = {}) {
+export function mcSpeak(text, mc = 0, { onStart, parts, rate: callRate, mute, voice, cap } = {}) {
+  // cap: phụ đề thay cho lời đọc (câu nghe tiếng Anh: không hiện câu đang đọc, chỉ hiện "🎧 …")
+  // voice: giọng Azure khác giọng của MC (Đấu Trường Tiếng Anh: 'enAndrew' / 'enEmma' đọc phần tiếng Anh); MC `mc` vẫn là người nói
+  // (hoạt cảnh, phụ đề). Giọng máy dự phòng: giọng tiếng Anh của máy.
+  const cloudKey = voice || mc;
   // rate / mute riêng cho một lần đọc (máy đọc bài Tiếng Việt 3: chậm hơn, nút tắt tiếng của riêng nó), không đổi cài đặt MC
   const rate = callRate || currentRate();
   const muted = mute ?? isMcMuted();
@@ -152,11 +167,11 @@ export function mcSpeak(text, mc = 0, { onStart, parts, rate: callRate, mute } =
     };
     const stop = () => { try { player?.pause(); } catch { /* bỏ qua */ } finish(); };
     pending = stop;
-    const begin = () => { if (started) return; started = true; if (my === seq) { onTalk(mc, text); onStart?.(); } };
+    const begin = () => { if (started) return; started = true; if (my === seq) { onTalk(mc, cap || text); onStart?.(); } };
     const local = () => {
       if (done) return;
       if (import.meta.env.DEV) (window.__dtVoice ||= []).push('local');
-      const vo = !muted && hasSynth ? voiceOf(mc) : null;
+      const vo = !muted && hasSynth ? (voice ? enVoiceOf(mc) : voiceOf(mc)) : null;
       if (!vo) { begin(); guard = setTimeout(finish, estimate(text)); return; }
       const u = new SpeechSynthesisUtterance(text);
       u.voice = vo.v; u.lang = vo.v.lang; u.pitch = vo.pitch; u.rate = rate;
@@ -170,7 +185,7 @@ export function mcSpeak(text, mc = 0, { onStart, parts, rate: callRate, mute } =
     if (muted) { begin(); guard = setTimeout(finish, estimate(text)); return; }
     if (!canCloud()) { local(); return; }
     // câu ghép mảnh (phần cố định + tên, mc.js partsOf): chờ đủ mọi mảnh rồi mới phát, các mảnh nối liền không chờ mạng giữa chừng
-    Promise.all(parts.map(t => cloudUrl(t, mc))).then((urls) => {
+    Promise.all(parts.map(t => cloudUrl(t, cloudKey))).then((urls) => {
       if (done || my !== seq) { finish(); return; }
       const a = playerEl();
       try { synth?.cancel(); } catch { /* bỏ qua */ }

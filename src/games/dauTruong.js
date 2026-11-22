@@ -24,7 +24,8 @@ import { PUPILS, SEAT_IDS, COLS } from '../dauTruong/rules.js';
 import { lobbyRender } from '../dauTruong/lobby.js';
 import { loadArenaBank, speedQ, markSeen, qHash, seenForHost } from '../dauTruong/questions.js';
 import { drawQBody, optTokens, tokenCanvas, sayTokens } from '../dauTruong/figs.js';
-import { mcLine, mcPlan, sayQuestion, sayOption, LETTER, MC_NAMES } from '../dauTruong/mc.js';
+import { mcLine, mcPlan, sayQuestion, sayOption, optEn, LETTER, MC_NAMES } from '../dauTruong/mc.js';
+import { setArenaSubject, isEnArena, EN_VOICE, EN_SKILL, EN_TT } from '../dauTruong/subject.js';
 import { voiceMode, mcPrefetch, mcSpeak, mcStop, setMcListener, setMcRate, isMcMuted, setMcMuted } from '../dauTruong/mcVoice.js';
 import { certSvg, loadCertFonts, CERT_CSS } from '../dauTruong/cert.js';
 import { addAward } from '../dauTruong/awards.js';
@@ -36,12 +37,14 @@ import { arenaAnswer, showProgress } from '../engine/arenaStats.js';
 import { audienceAnswer, audienceAt, buzzPlan, decide, pickPackage, planShow, podiumAt, rand01, reactOf, steer, wantStar } from '../dauTruong/npc.js';
 
 /** Tên chương trình trên màn LED (tên tạm, chủ dự án chốt; '\n' = xuống dòng). Không dùng tên chương trình truyền hình có thật. */
-const SHOW_NAME = 'Đấu Trường Nhí';
+const showName = () => (isEnArena() ? 'Đấu Trường Nhí\nTiếng Anh' : 'Đấu Trường Nhí');
 /** Dòng phụ dưới tên (màn chờ, màn LED): chương trình dùng chung cho lớp 1–5, nên ghi lớp theo hồ sơ của bé đang xem
    (phòng thi chia theo lớp); chưa chọn lớp hoặc Tiền tiểu học thì chỉ ghi môn. */
 function showSub() {
   const g = getProfileGrade();
-  return g >= 1 && g <= 5 ? `Toán · Tiếng Việt · Lớp ${g}` : 'Toán · Tiếng Việt';
+  // bản Tiếng Anh: tên đã có "Tiếng Anh" nên dòng phụ chỉ ghi bốn kỹ năng
+  const mon = isEnArena() ? 'Nghe · Từ vựng · Ngữ pháp · Đọc hiểu' : 'Toán · Tiếng Việt';
+  return g >= 1 && g <= 5 ? `${mon} · Lớp ${g}` : mon;
 }
 
 /** Hàng nút giữ để dời camera: [trục, nhãn, phím, [hướng, ký hiệu], [hướng, ký hiệu]]. */
@@ -59,6 +62,8 @@ const CAM_ROWS = [
    .ch-camset; phần câu hỏi là dải truyền hình tối .ch-qov (khung vát, đồng hồ, huy hiệu kết quả) của church.css. */
 const CSS = `
 .dt-stage.ch { z-index: 60; }
+/* phương án chỉ là hình emoji (Đấu Trường Tiếng Anh: nghe / đọc chọn hình): chữ to, line-height 0 để nút giữ nguyên cỡ */
+.ch-qov .ch-qov-o.dt-emo > span em { font-size: 2.1em; line-height: 0; vertical-align: middle; margin-left: 4px; }
 /* phụ đề lời MC nằm ở thanh trên cùng, thay chỗ nhãn tên chương trình lúc MC đang nói
    (không đè màn câu hỏi, không đẩy gì); màn hẹp thì xuống ngay dưới thanh */
 /* bạn trên bục trả lời ké câu của bạn khác (không tính điểm, chỉ đếm câu đúng): ô đã chọn chỉ có viền, không tô màu chốt */
@@ -283,6 +288,13 @@ const FONTS = 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;
 
 /** Thẻ 🏆: sảnh ngoài (src/dauTruong/lobby.js: giờ lượt tới, vào trường quay, xem sân khấu thử). */
 export function render(app, onBack) {
+  setArenaSubject('vn');
+  return lobbyRender(app, onBack, { stage: (opts, back) => stage(app, back, opts) });
+}
+
+/** Thẻ 🏆 Đấu Trường Nhí Tiếng Anh (tab 🌍 Tiếng Anh): y nguyên chương trình, phòng và bộ câu tiếng Anh (dauTruong/subject.js). */
+export function renderEn(app, onBack) {
+  setArenaSubject('en');
   return lobbyRender(app, onBack, { stage: (opts, back) => stage(app, back, opts) });
 }
 
@@ -304,7 +316,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     <div class="dt-collect" hidden role="dialog" aria-label="Phần thưởng sao của em"></div>
     <div class="ch-top">
       <button type="button" class="ch-ic dt-back" aria-label="Quay lại" title="Quay lại">${icon('x')}</button>
-      <div class="ch-chip"><span class="ch-dot" aria-hidden="true"></span><span class="ch-title">${SHOW_NAME}</span><span class="ch-seat">${flow ? `Lớp ${getProfileGrade() || ''}`.trim() : 'bản mẫu'}</span></div>
+      <div class="ch-chip"><span class="ch-dot" aria-hidden="true"></span><span class="ch-title">${showName().split('\n').join(' ')}</span><span class="ch-seat">${flow ? `Lớp ${getProfileGrade() || ''}`.trim() : 'bản mẫu'}</span></div>
       <div class="dt-elapsed is-off" role="timer" aria-label="Thời gian chương trình đã diễn"><i>Đã diễn</i><b>0:00</b></div>
       <button type="button" class="ch-ic dt-mode" aria-haspopup="menu" aria-expanded="false"></button>
     </div>
@@ -1112,7 +1124,7 @@ export function stage(app, onBack, { flow = false } = {}) {
 
     /* ---------- Màn hình lớn ---------- */
     const ROUNDS = {
-      idle:     { label: 'Chờ', title: SHOW_NAME.split('\n').join(' ').toUpperCase(), sub: showSub(), a: '#2fc8ff', b: '#7b5cff' },
+      idle:     { label: 'Chờ', title: showName().split('\n').join(' ').toUpperCase(), sub: showSub(), a: '#2fc8ff', b: '#7b5cff' },
       open:     { label: 'Mở màn', title: 'MỞ MÀN', sub: 'Chào mừng 4 nhà thông thái nhí', a: '#ffc93c', b: '#2fc8ff' },
       // sec: giây mỗi câu; aud: điểm khán giả trả lời đúng (Về đích: bằng điểm câu)
       khoidong: { label: 'Khởi động', title: 'KHỞI ĐỘNG', sub: 'Cả 4 bạn cùng trả lời · đúng +10', a: '#21e6a3', b: '#2fc8ff', sec: 20, aud: 10 },
@@ -1168,7 +1180,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     let sentSeen = false;
     const arenaGrade = () => arena?.grade || (getProfileGrade() >= 1 && getProfileGrade() <= 5 ? getProfileGrade() : 3);
     loadArenaBank(getProfileGrade()).then(b => { arena = b; seenWait.splice(0).forEach(l => b.avoid(l)); scrDirty = true; }, () => { arena = false; });
-    const progressText = () => (arena ? `Lớp ${arena.grade} · Toán đến Bài ${arena.mathBai}${arena.hasTv ? ` · Tiếng Việt đến Tuần ${arena.handCount ? Math.min(35, arena.week) : arena.tvWeek}` : ' · chưa có câu Tiếng Việt lớp này'}` : '');
+    const progressText = () => (arena?.en ? `Lớp ${arena.grade} · Tiếng Anh đến Tuần ${Math.min(35, arena.week)} · Nghe, Từ vựng, Ngữ pháp, Đọc hiểu` : arena ? `Lớp ${arena.grade} · Toán đến Bài ${arena.mathBai}${arena.hasTv ? ` · Tiếng Việt đến Tuần ${arena.handCount ? Math.min(35, arena.week) : arena.tvWeek}` : ' · chưa có câu Tiếng Việt lớp này'}` : '');
     let mode = 'idle', timer = null, phase = 'none', t0 = 0, qT0 = 0;
     const RK = { khoidong: 'kd', tangtoc: 'tt', vedich: 'vd' };
     let qDone = 0;   // số câu đã lật cả buổi (khán giả: đúng x / qDone câu)
@@ -1181,7 +1193,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     let side = { qid: -1, pick: -1, ok: false };
     const mine = { right: 0, last: -1, log: [] };   // log: câu em đã trả lời { t, m, r, ok } → bảng mạnh / yếu (matchStats.js)
     const resetMine = () => { mine.right = 0; mine.last = -1; mine.log = []; };
-    const topicOf = (q) => q.t || q.tag || (q.m === 'tv' ? 'Tiếng Việt' : 'Toán');
+    const topicOf = (q) => q.t || q.tag || (q.m === 'en' ? EN_SKILL[q.sk] || 'Tiếng Anh' : q.m === 'tv' ? 'Tiếng Việt' : 'Toán');
     let nextQ = null;   // câu kế tiếp lấy sẵn lúc các bạn đang nghĩ câu này (tải trước giọng MC): { slot, q }
     let Q = null, qn = 0, qTotal = 0, picks = [], shownOpts = 0, scrDirty = true, scrLast = 0;
     /* qid: tăng mỗi lần mở một bước nhận thao tác (câu hỏi, chọn gói, đặt sao); sent: thao tác đã gửi máy chủ trò ở bước ấy
@@ -1242,21 +1254,24 @@ export function stage(app, onBack, { flow = false } = {}) {
     poster.src = `${import.meta.env.BASE_URL}dautruong/screen.jpg`;
     function drawPoster(c, W, H, sub) {
       c.drawImage(poster, 0, 0, W, H);
-      const lines = SHOW_NAME.split('\n');
-      const size = lines.length > 1 ? 104 : 132;
+      const lines = showName().split('\n');
+      // hai dòng (bản Tiếng Anh): chữ nhỏ hơn, dòng cao hơn để chừa chỗ cho dòng phụ ở đáy khung
+      const size = lines.length > 1 ? 90 : 132;
       c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.lineJoin = 'round';
       lines.forEach((t, k) => {
         let fs = size;
         c.font = `900 ${fs}px "Segoe UI", system-ui, sans-serif`;
         while (c.measureText(t).width > PLATE.w && fs > 48) { fs -= 4; c.font = `900 ${fs}px "Segoe UI", system-ui, sans-serif`; }
-        const y = lines.length > 1 ? PLATE.top + 120 + k * 118 : PLATE.top + 170;
+        const y = lines.length > 1 ? PLATE.top + 98 + k * 104 : PLATE.top + 170;
         const gold = c.createLinearGradient(0, y - fs, 0, y);
         gold.addColorStop(0, '#fff6c2'); gold.addColorStop(0.55, '#ffd23f'); gold.addColorStop(1, '#f59e0b');
         c.lineWidth = 16; c.strokeStyle = '#0b2a8a'; c.strokeText(t, PLATE.cx, y);
         c.lineWidth = 6; c.strokeStyle = '#ffffff'; c.strokeText(t, PLATE.cx, y);
         c.fillStyle = k === 0 && lines.length > 1 ? '#ffffff' : gold; c.fillText(t, PLATE.cx, y);
       });
-      c.font = '700 40px "Segoe UI", system-ui, sans-serif';
+      let ss = 40;
+      c.font = `700 ${ss}px "Segoe UI", system-ui, sans-serif`;
+      while (c.measureText(sub).width > PLATE.w && ss > 24) { ss -= 2; c.font = `700 ${ss}px "Segoe UI", system-ui, sans-serif`; }
       c.lineWidth = 6; c.strokeStyle = '#0b2a8a'; c.strokeText(sub, PLATE.cx, PLATE.bottom);
       c.fillStyle = '#ffffff'; c.fillText(sub, PLATE.cx, PLATE.bottom);
     }
@@ -1340,7 +1355,7 @@ export function stage(app, onBack, { flow = false } = {}) {
         scrTex.needsUpdate = true; return;
       }
       // màn LED lúc có câu: CHỈ câu hỏi (đáp án là nút trên dải của máy người chơi), chữ to để đọc được khi camera áp sát
-      const what = Q.tag ? Q.tag.toUpperCase() : Q.m === 'tv' ? 'TIẾNG VIỆT' : Q.m === 'toan' ? 'TOÁN' : '';
+      const what = Q.tag ? Q.tag.toUpperCase() : Q.m === 'en' ? (EN_SKILL[Q.sk] || 'Tiếng Anh').toUpperCase() : Q.m === 'tv' ? 'TIẾNG VIỆT' : Q.m === 'toan' ? 'TOÁN' : '';
       const [pn, pt] = qPos();
       drawCard(c, R, `${what}${what ? ' · ' : ''}CÂU ${pn}/${pt}`);
       const tl = turnLine();
@@ -1357,7 +1372,9 @@ export function stage(app, onBack, { flow = false } = {}) {
       // chữ to nhất mà vẫn vừa vùng câu hỏi: dưới dòng lượt (y + 180) tới đáy khung, lúc lật thì tới trên ô đáp án (y + 505)
       // câu có hình (Q.fig, src/dauTruong/figs.js): chữ và hình chia nhau vùng này; lúc lật, ô đáp án đè lên đáy vùng
       const top = CARD.y + 180, bot = CARD.y + (rev && !Q.fig ? 505 : CARD.h - 30);
-      drawQBody(c, Q, CARD.x + 70, top, CARD.w - 140, bot - top);
+      // câu nghe tiếng Anh (Q.hide): câu được đọc chỉ hiện lúc lật, hoặc khi phòng phải tự đọc (máy không có tiếng)
+      const body = Q.hide && Q.en && (rev || needRead()) ? { ...Q, q: `${Q.q} 🎧 “${Q.en}”` } : Q;
+      drawQBody(c, body, CARD.x + 70, top, CARD.w - 140, bot - top);
       c.textAlign = 'center'; c.textBaseline = 'alphabetic';
       if (rev) {
         c.font = '800 72px Segoe UI';
@@ -1423,7 +1440,8 @@ export function stage(app, onBack, { flow = false } = {}) {
     const CLOCK = `<div class="ch-qov-clock" hidden><svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="qov-clk-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b8"/><stop offset="1" stop-color="#ffb03a"/></linearGradient><linearGradient id="qov-clk-r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb3bd"/><stop offset="1" stop-color="#ff3355"/></linearGradient></defs>
           <circle class="is-bg" cx="32" cy="32" r="27"/><circle class="is-ticks" cx="32" cy="32" r="30.5" pathLength="60"/><circle class="is-fg" cx="32" cy="32" r="27" pathLength="100"/></svg><b></b><small>giây</small></div>`;
     function buildOv() {
-      const opt = (i) => `<button type="button" class="ch-qov-o is-wait" data-i="${i}" style="--i:${i}" disabled><i>${Q.kind === 'order' ? '' : 'ABCD'[i]}</i><span>${words(Q.o[i])}</span></button>`;
+      // phương án chỉ là hình (emoji, câu tiếng Anh chọn hình): chữ to (.dt-emo)
+      const opt = (i) => `<button type="button" class="ch-qov-o is-wait${/\p{L}|\p{N}/u.test(Q.o[i]) ? '' : ' dt-emo'}" data-i="${i}" style="--i:${i}" disabled><i>${Q.kind === 'order' ? '' : 'ABCD'[i]}</i><span>${words(Q.o[i])}</span></button>`;
       ov.innerHTML = `<div class="ch-qov-box"><b class="ch-qov-num">Câu ${qPos()[0]}</b>${CLOCK}${BELL}
         <b class="ch-qov-res" hidden></b>
         <div class="ch-qov-meta"><div class="ch-qov-mleft"><span>${metaLeft()}</span></div><span>${esc(ptsLabel())}</span></div>
@@ -1708,7 +1726,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     let run = 0, lastMon = -1;
     const live = (r) => r === run && !gone;
     const wait = (ms) => new Promise(res => later(res, ms));
-    const monOf = (q) => (q?.m === 'tv' ? 1 : 0);
+    const monOf = (q) => (q?.m === 'en' ? q.mc || 0 : q?.m === 'tv' ? 1 : 0);
     const nameOf = (i) => pods[i].name;
     const leader = () => [...pods].sort((a, b) => b.score - a.score)[0];
     const topFan = () => seats.filter(s => s.live).sort((a, b) => b.score - a.score)[0];
@@ -1867,7 +1885,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       confetti(80);
     }
     /** MC nói một câu của tình huống key; trả true nếu vòng vẫn đang chạy (false: đã đổi vòng, dừng chuỗi). */
-    const hostVars = (vars) => ({ tenCT: SHOW_NAME.split('\n').join(' '), lop: gradeNow(), mon: monOf(Q), ...vars });
+    const hostVars = (vars) => ({ tenCT: showName().split('\n').join(' '), lop: gradeNow(), mon: monOf(Q), ...vars });
     async function host(key, vars = {}, opts) {
       const r = run;
       const ln = mcLine(key, hostVars(vars));
@@ -1880,8 +1898,16 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (ln) fxRun('pre', ln.parts, ln.mc);
     }
     /** Tải trước câu hỏi q và bốn phương án. */
-    const preQ = (q) => { if (q) fxRun('pre', [sayQuestion(q), ...(q.o || []).map((_, i) => sayOption(q, i))], monOf(q)); };
-    async function speak(text, mc, opts) { const r = run; emit('say', text, mc); await mcSpeak(text, mc, opts); return live(r); }
+    const preQ = (q) => {
+      if (!q) return;
+      const opts = (q.o || []).map((_, i) => i);
+      fxRun('pre', [sayQuestion(q), ...opts.filter(i => !optEn(q, i)).map(i => sayOption(q, i))].filter(Boolean), monOf(q));
+      // câu tiếng Anh: phần tiếng Anh và phương án tiếng Anh tải bằng giọng Anh của MC ấy
+      if (q.m === 'en') fxRun('pre', [q.en, ...opts.filter(i => optEn(q, i)).map(i => sayOption(q, i))].filter(Boolean), EN_VOICE[monOf(q)]);
+    };
+    async function speak(text, mc, opts) { const r = run; emit('say', text, mc, null, opts?.voice, opts?.cap); await mcSpeak(text, mc, opts); return live(r); }
+    /** Giọng Anh của MC `mc` cho phần tiếng Anh. */
+    const enOpt = (mc, o = {}) => ({ ...o, voice: EN_VOICE[mc] || EN_VOICE[0] });
 
     /* ---------- Chương trình chung: một máy chủ trò, cả phòng thấy y như nhau ----------
        Máy chủ trò chạy mọi bước như khi chơi một mình, rồi gửi qua máy chủ phòng:
@@ -1927,7 +1953,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     let clapUntil = 0;   // FX.clap: khán phòng vỗ tay tới lúc này (performance.now)
     const FX = {
       // máy chủ trò đã tự làm (nói, âm thanh, góc máy, tiếng chốt): chỉ máy hiện theo làm
-      say: (text, mc, parts) => { if (following()) mcSpeak(text, mc, { parts }); },
+      say: (text, mc, parts, voice, cap) => { if (following()) mcSpeak(text, mc, { parts, ...(voice ? { voice } : {}), ...(cap ? { cap } : {}) }); },
       hush: () => mcStop(),   // cắt lời MC đang nói (hết giờ câu lúc MC còn mời khán phòng)
       sfx: (n, ...a) => { if (following()) SFX[n]?.(...a); },
       cam: (k) => { if (following()) cam(k); },
@@ -2173,7 +2199,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     function buildSlots(m) {
       // Khởi động: KD.all câu chung, cả 4 bạn cùng trả lời (lượt cá nhân / bấm chuông cũ: seg 'solo' / 'common', không dùng nữa)
       if (m === 'khoidong') return Array.from({ length: KD.all }, (_, k) => ({ seg: 'all', who: -1, first: k === 0 }));
-      if (m === 'tangtoc') return TT.types.map(type => ({ seg: 'speed', who: -1, type }));
+      if (m === 'tangtoc') return (isEnArena() ? EN_TT : TT.types).map(type => ({ seg: 'speed', who: -1, type }));
       // Về đích: bạn ít điểm đi trước (bằng điểm thì bục trước)
       if (m === 'vedich') return pods.map((_, i) => i).sort((a, b) => pods[a].score - pods[b].score || a - b).map(i => ({ seg: 'pick', who: i }));
       return [];
@@ -2182,8 +2208,9 @@ export function stage(app, onBack, { flow = false } = {}) {
       const grade = gradeNow();
       if (s.seg === 'speed') {
         // ngân hàng Tăng tốc HK I (bank/hk1/g<lớp>/tt.js, có hình vẽ) trước; thiếu thì sinh câu như cũ
-        const hq = arena && Math.random() < 0.8 ? arena.speed(s.type) : null;
+        const hq = arena && (arena.en || Math.random() < 0.8) ? arena.speed(s.type) : null;
         if (hq) return hq;
+        if (arena?.en) return (s.type === 'xep' && arena.one('order', 'en')) || arena.one('abcd', 'en', { round: 'kd' }) || speedQ(s.type, grade);
         if (s.type === 'facts' && arena && Math.random() < 0.5) {
           const q = arena.one('order', mAlt++ % 2 ? 'tv' : 'toan');
           if (q) return { ...q, tag: 'Sắp xếp' };
@@ -2313,9 +2340,15 @@ export function stage(app, onBack, { flow = false } = {}) {
       requestAnimationFrame(() => { if (!gone && Q) camX('screen'); }); // dải đáp án đã dựng: đo rồi mới khớp khung câu hỏi
       if (askKey && !(await host(askKey, askVars))) return;
       if (!(await speak(sayQuestion(Q), mon))) return;
+      // câu tiếng Anh: giọng Anh đọc phần tiếng Anh; câu nghe (ẩn chữ) đọc hai lần
+      if (Q.m === 'en' && Q.en) {
+        const enSay = enOpt(mon, Q.hide ? { cap: '🎧 Các bạn nghe kĩ…' } : {});   // câu nghe: phụ đề không lộ câu được đọc
+        if (!(await speak(Q.en, mon, enSay))) return;
+        if (Q.hide) { await wait(700); if (r !== run) return; if (!(await speak(Q.en, mon, { ...enSay, cap: '🎧 Nghe lại một lần nữa…' }))) return; }
+      }
       if (Q.kind === 'order' && !(await host('kindOrder'))) return;
       for (let i = 0; i < 4; i++) {
-        if (!(await speak(sayOption(Q, i), mon, { onStart: () => { shownOpts = Math.max(shownOpts, i + 1); paintOv(); sfx('option', i); } }))) return;
+        if (!(await speak(sayOption(Q, i), mon, { ...(optEn(Q, i) ? enOpt(mon) : {}), onStart: () => { shownOpts = Math.max(shownOpts, i + 1); paintOv(); sfx('option', i); } }))) return;
         if (shownOpts <= i) { shownOpts = i + 1; paintOv(); }
       }
       // hết lời MC mà khoảng đọc đề chưa hết: chờ cho bạn tự đọc đọc xong (cả phòng cùng chờ)
@@ -2469,7 +2502,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (mine.last !== qid && Q) {
         mine.last = qid;
         if (mineOk) mine.right++;
-        if (tried) mine.log.push({ t: topicOf(Q), m: Q.m === 'tv' ? 'tv' : 'toan', r: RK[mode] || '', ok: !!mineOk });
+        if (tried) mine.log.push({ t: topicOf(Q), m: Q.m === 'en' ? Q.sk || 'tu' : Q.m === 'tv' ? 'tv' : 'toan', r: RK[mode] || '', ok: !!mineOk });
       }
       if (mineOk) confetti(60);
       livePop();

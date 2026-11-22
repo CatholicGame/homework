@@ -8,6 +8,7 @@
  */
 import { speakLetters } from '../thanDong/quiz/mc.js';
 import { optTokens, sayTokens } from './figs.js';
+import { isEnArena } from './subject.js';
 
 export const MC_NAMES = ['Anh Minh', 'Chị Mai'];
 export const LETTER = ['a', 'bê', 'xê', 'đê'];
@@ -99,6 +100,14 @@ const SCRIPT = {
   bye: [0, 'Cảm ơn tất cả các bạn! Anh Minh và chị Mai hẹn gặp lại!'],
 };
 
+/* Đấu Trường Nhí Tiếng Anh (subject.js 'en'): lời giới thiệu môn khác, phần còn lại dùng chung. Anh Minh: Nghe + Từ vựng,
+   chị Mai: Ngữ pháp + Đọc hiểu (subject.js EN_SKILL_MC). */
+const SCRIPT_EN = {
+  openMe0: [0, 'Mình là anh Minh. Hôm nay mình sẽ cùng các bạn chinh phục những câu hỏi Nghe và Từ vựng tiếng Anh.', 'Mình là anh Minh, và những câu hỏi Nghe, Từ vựng tiếng Anh đang chờ các bạn đấy!'],
+  openMe1: [1, 'Còn mình là chị Mai, mình mang đến những câu hỏi Ngữ pháp và Đọc hiểu tiếng Anh.', 'Và mình là chị Mai. Ngữ pháp và Đọc hiểu tiếng Anh hôm nay sẽ thật thú vị!'],
+  ttRule: [0, 'Bốn câu thử thách tiếng Anh, cả bốn bạn cùng trả lời. Bạn nào đúng cũng được hai mươi điểm!'],
+};
+
 const NUM = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín', 'mười', 'mười một', 'mười hai'];
 const last = {}, planned = {};
 /* Giọng Azure ghép mảnh (dauTruong/mcVoice.js): câu có tên người chơi tách tại {ten} thành phần cố định + tên, mỗi mảnh một mp3
@@ -123,7 +132,7 @@ function partsOf(tpl, val) {
  * Câu đã chọn sẵn bằng mcPlan (để tải trước) thì dùng đúng câu ấy.
  */
 export function mcLine(key, vars = {}) {
-  const s = SCRIPT[key];
+  const s = (isEnArena() && SCRIPT_EN[key]) || SCRIPT[key];
   if (!s) return null;
   const [who, ...lines] = s;
   const val = (h) => {
@@ -180,13 +189,27 @@ const sayMath = (t) => speakLetters(sayEmoji(String(t).replace(/,\s*(?:…|\.{3}
 const sayText = (q, t) => (q.m === 'tv' ? sayTv(t) : sayMath(t));
 /** Câu hỏi MC đọc. */
 export function sayQuestion(q) {
-  if (q.say) return q.say;                       // ngân hàng ghi sẵn lời đọc (câu có hình, phép tính viết khác lời nói)
+  if (q.say) return q.say;                       // câu tiếng Anh: lời hướng dẫn tiếng Việt (phần tiếng Anh: q.en, giọng Anh)                       // ngân hàng ghi sẵn lời đọc (câu có hình, phép tính viết khác lời nói)
   if (q.tag === 'Dãy hình') return 'Các bạn quan sát dãy hình trên màn hình. Hình tiếp theo là hình nào?';
   return sayText(q, q.q);
 }
 /** Một phương án MC đọc ("a, 24 xăng-ti-mét"); câu xếp thứ tự đọc thẻ không có chữ cái. */
 export function sayOption(q, i) {
+  if (q.m === 'en') {
+    // câu tiếng Anh: phương án hình (emoji) không đọc; phương án tiếng Anh giọng Anh đọc "A. cat" (optEn); tiếng Việt như cũ
+    const o = String(q.o[i]);
+    if (!/\p{L}/u.test(o)) return '';
+    if (optEn(q, i)) return q.kind === 'order' ? o : `${'ABCD'[i]}. ${o}`;
+    return q.kind === 'order' ? o : `${LETTER[i]}, ${o}`;
+  }
   const toks = optTokens(q.o[i]);
   const t = toks ? sayTokens(toks) : sayText(q, q.o[i]);
   return q.kind === 'order' ? t : `${LETTER[i]}, ${t}`;
+}
+
+const VI_CHARS = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+/** Phương án i của câu tiếng Anh là chữ tiếng Anh (đọc bằng giọng Anh) chứ không phải nghĩa tiếng Việt / hình. */
+export function optEn(q, i) {
+  const o = String(q?.o?.[i] ?? '');
+  return q?.m === 'en' && /\p{L}/u.test(o) && !VI_CHARS.test(o);
 }

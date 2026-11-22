@@ -33,6 +33,7 @@ import {
   clockText, lookOfPupil, nextStart, pupilOfLook, stepAt, whenText,
 } from './rules.js';
 import { testRoom } from '../thanDong/engine/admin.js';
+import { arenaRoom } from './subject.js';
 import { audienceAt, podiumAt, rand01 } from './npc.js';
 import { statsHtml } from './matchStats.js';
 import { liveNow, roomNpc } from '../engine/liveCount.js';
@@ -617,7 +618,7 @@ export function startFlow({ root, api, grade, leave, home }) {
     else leave();
   });
   let okTimer = 0, rejoin = false;   // rejoin: tự chào lại (đổi tên), không phải rớt mạng
-  const roomKey = () => `arena-g${grade}`;
+  const roomKey = () => arenaRoom(grade);   // Tiếng Anh: arena-en-g<lớp> (subject.js)
   const hiState = () => ({ x: 0, y: 0, z: 0, h: 0, a: 'idle', k: 0, c: 0, w: 0, seat: mySeat, n: nick, o: pupil >= 0 ? lookOfPupil(pupil) : '', want, ready: meReady ? 1 : 0 });
   function placePeer(id) {
     const p = peers.get(id);
