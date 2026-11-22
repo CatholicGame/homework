@@ -246,6 +246,22 @@ export function injectGameStyles() {
     .g3g-summary-dots { display: flex; justify-content: center; gap: 0.4rem; font-size: 2rem; margin: 0.4rem 0; }
     .g3g-summary-stars { font-size: 1.4rem; font-weight: 800; color: #D97706; margin: 0.3rem 0; }
     .g3g-summary-best { color: #64748B; font-weight: 700; }
+    /* 💪 Thanh thành thạo (Luyện Tính) */
+    .g3g-mastery { display: flex; align-items: center; gap: 0.6em; width: 100%; max-width: 30rem; margin: 0.35rem auto; font-weight: 800; color: #9A3412; box-sizing: border-box; }
+    .g3g-mastery-label { flex: none; font-size: 0.95em; }
+    .g3g-mastery-track { flex: 1 1 0; min-width: 3rem; height: 0.85em; border-radius: 999px; background: #FFEDD5; border: 1.5px solid #FDBA74; overflow: hidden; }
+    .g3g-mastery-fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #FB923C, #F97316); transition: width 1.1s ease-out; }
+    .g3g-mastery-num { flex: none; text-align: right; white-space: nowrap; }
+    .g3g-mastery-rule { display: block; text-align: center; font-size: 0.85rem; font-weight: 700; color: #9A3412; opacity: 0.8; margin-top: -0.15rem; }
+    .g3g-mastery.is-done { color: #166534; }
+    .g3g-mastery.is-done .g3g-mastery-track { background: #DCFCE7; border-color: #86EFAC; }
+    .g3g-mastery.is-done .g3g-mastery-fill { background: linear-gradient(90deg, #4ADE80, #22C55E); }
+    .g3g-level .g3g-mastery { margin: 0.3rem 0 0; max-width: 22rem; font-size: 0.85rem; }
+    .g3g-hero-main > .g3g-mastery { font-size: 1.05rem; }
+    .g3g-summary .g3g-mastery { font-size: 1.15rem; }
+    .g3g-level-next { position: relative; outline: 3px solid #F97316; outline-offset: 2px; }
+    .g3g-next-flag { position: absolute; top: -0.75rem; right: 1rem; background: #F97316; color: #fff; font-weight: 800; font-size: 0.8rem; border-radius: 999px; padding: 0.05rem 0.7rem; box-shadow: 0 2px 0 #C2410C; }
+    @media (prefers-reduced-motion: reduce) { .g3g-mastery-fill { transition-duration: 0.6s; } }
 
     /* Bàn phím số */
     .g3g-keypad { background: #334155; border-radius: 1rem; padding: 0.55rem; width: 100%; max-width: 360px; box-sizing: border-box; margin: 0 auto; }

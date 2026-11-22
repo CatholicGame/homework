@@ -60,6 +60,41 @@ function saveBest(levelId, ok, total) {
   return false;
 }
 
+// ── 💪 Luyện đến thành thạo (Luyện Tính lớp 2–5, starPrefix drill…) ─────────────
+// Mỗi cấp một thanh điểm tích luỹ qua nhiều lượt: câu đúng ngay +1, câu sai −1 (không dưới 0).
+// Đủ MASTERY_GOAL thì cấp "🏅 Thành thạo" (giữ mãi), bảng kết quả mời sang cấp tiếp theo.
+const MASTERY_KEY = 'drill-mastery-v1';
+export const MASTERY_GOAL = 15;
+export const isDrillGame = (game) => /^drill\d*$/.test(game?.starPrefix || '');
+function loadMastery() {
+  try { return JSON.parse(localStorage.getItem(scopedKey(MASTERY_KEY))) || {}; } catch { return {}; }
+}
+/** { pts, done } của cấp (pts từ 0 đến MASTERY_GOAL). */
+export function masteryFor(levelId) {
+  const m = loadMastery()[levelId];
+  return { pts: Math.min(MASTERY_GOAL, m?.pts || 0), done: !!m?.done };
+}
+function addMastery(levelId, ok, fails) {
+  const all = loadMastery();
+  const prev = { pts: all[levelId]?.pts || 0, done: !!all[levelId]?.done };
+  const pts = prev.done ? MASTERY_GOAL : Math.max(0, Math.min(MASTERY_GOAL, prev.pts + ok - fails));
+  const done = prev.done || pts >= MASTERY_GOAL;
+  all[levelId] = { pts, done };
+  try { localStorage.setItem(scopedKey(MASTERY_KEY), JSON.stringify(all)); } catch { /* storage unavailable */ }
+  window.dispatchEvent(new CustomEvent('tth:data-changed'));
+  return { prev, pts, done, justDone: done && !prev.done };
+}
+/** Thanh thành thạo (dùng ở màn cấp, giới thiệu, kết quả). from: điểm cũ để thanh chạy tới điểm mới. */
+export function masteryBar(levelId, { pts, done, from, rule = false } = masteryFor(levelId)) {
+  const pct = (v) => Math.round((Math.min(v, MASTERY_GOAL) / MASTERY_GOAL) * 100);
+  return `
+    <span class="g3g-mastery${done ? ' is-done' : ''}">
+      <span class="g3g-mastery-label">${done ? '🏅 Thành thạo' : '💪 Thành thạo'}</span>
+      <span class="g3g-mastery-track"><span class="g3g-mastery-fill" style="width:${pct(from ?? pts)}%" data-to="${pct(pts)}"></span></span>
+      <b class="g3g-mastery-num">${done ? '✓' : `${pts}/${MASTERY_GOAL} điểm`}</b>
+    </span>${rule && !done ? `<span class="g3g-mastery-rule">Câu đúng ngay +1 điểm, câu sai −1 điểm. Đủ ${MASTERY_GOAL} điểm là thành thạo.</span>` : ''}`;
+}
+
 // ── Chế độ chơi: toàn màn hình; điện thoại tự chọn ngang / dọc ────────────────
 // Vào khi bấm "Chơi" (cần thao tác của bé nên gọi ngay trong click). Chỉ thoát toàn màn hình
 // nếu chính trò chơi đã bật nó. Không ép xoay: trên điện thoại có nút ngang / dọc ở thanh trên (nhớ lựa chọn).
@@ -242,8 +277,22 @@ export function playRound(app, { game, level, onExit, onNextLevel, onQuit = null
     }
     const newBest = saveBest(level.id, ok, total);
     const best = bestFor(level.id);
-    if (fails === 0) { sfx.fanfare(); rain(); } else sfx.ding();
-    const headline = fails === 0 ? 'Tuyệt vời! 🎉' : ok >= total / 2 ? 'Giỏi lắm! 👏' : 'Cố lên! 💪';
+    const drill = isDrillGame(game);
+    const mast = drill ? addMastery(level.id, ok, fails) : null;
+    // Lượt sau làm lại trước các dạng câu vừa sai (practiceGame đọc level.focus).
+    const focus = history.filter((h, k) => !results[k]).map(h => h?.task).filter(Boolean);
+    if (fails === 0 || mast?.justDone) { sfx.fanfare(); rain(); } else sfx.ding();
+    const headline = mast?.justDone ? 'Em đã thành thạo! 🏅' : fails === 0 ? 'Tuyệt vời! 🎉' : ok >= total / 2 ? 'Giỏi lắm! 👏' : 'Cố lên! 💪';
+    const left = mast ? MASTERY_GOAL - mast.pts : 0;
+    // Một bước tiếp theo rõ ràng: chưa thành thạo → Luyện tiếp; thành thạo → Cấp tiếp theo.
+    const goUp = !!onNextLevel && (!drill || mast.done);
+    const againLabel = !drill ? game.againText || 'Chơi lại (khách mới)'
+      : mast.done ? 'Luyện thêm' : `Luyện tiếp (còn ${left} điểm)`;
+    const tip = drill
+      ? (mast.justDone ? (onNextLevel ? 'Sang cấp tiếp theo để học dạng mới.' : 'Em đã thành thạo cấp cuối. Chọn cấp khác để ôn.')
+        : !mast.done && focus.length ? 'Lượt sau thầy cho em làm lại các dạng câu vừa sai trước.'
+          : !mast.done ? `Thêm ${left} điểm nữa là thành thạo cấp này.` : '')
+      : fails > total / 2 ? 'Em có thể thử cấp dễ hơn hoặc xem lại bài học rồi chơi tiếp.' : '';
     app.innerHTML = `
       <div class="g3g-wrap g3g-menu">${menuBackdrop()}
         <div class="g3g-card g3g-summary animate-fadeIn">
@@ -252,17 +301,23 @@ export function playRound(app, { game, level, onExit, onNextLevel, onQuit = null
           <p class="g3g-summary-line">${game.summaryText(ok, total)}</p>
           <div class="g3g-summary-dots">${results.map(r => `<span class="${r ? 'g3g-sum-ok' : 'g3g-sum-fail'}">${r ? '😊' : '😕'}</span>`).join('')}</div>
           ${gotStars ? `<p class="g3g-summary-stars">+${gotStars} ⭐</p>` : ''}
+          ${mast ? masteryBar(level.id, { pts: mast.pts, done: mast.done, from: mast.prev.pts }) : ''}
           <p class="g3g-summary-best">${newBest ? '🏆 Kỷ lục mới! ' : ''}Kỷ lục của em: ${best.ok}/${best.total}</p>
-          ${fails > total / 2 ? `<p class="g3g-tip">💡 Em có thể thử cấp dễ hơn hoặc xem lại bài học rồi chơi tiếp.</p>` : ''}
+          ${tip ? `<p class="g3g-tip">💡 ${tip}</p>` : ''}
           <div class="g3g-actions">
-            <button type="button" class="g3g-btn g3g-btn-primary" data-act="again">🔁 ${game.againText || 'Chơi lại (khách mới)'}</button>
-            ${onNextLevel ? `<button type="button" class="g3g-btn g3g-btn-secondary" data-act="up">⬆️ Cấp tiếp theo</button>` : ''}
+            ${goUp ? `<button type="button" class="g3g-btn g3g-btn-primary" data-act="up">⬆️ Cấp tiếp theo</button>` : ''}
+            <button type="button" class="g3g-btn ${goUp ? 'g3g-btn-secondary' : 'g3g-btn-primary'}" data-act="again">${drill && !mast.done ? '💪' : '🔁'} ${againLabel}</button>
+            ${onNextLevel && !goUp && !drill ? `<button type="button" class="g3g-btn g3g-btn-secondary" data-act="up">⬆️ Cấp tiếp theo</button>` : ''}
             <button type="button" class="g3g-btn g3g-btn-ghost" data-act="list">← Chọn cấp khác</button>
           </div>
         </div>
       </div>`;
     fitMenu(app);
-    app.querySelector('[data-act="again"]').onclick = () => playRound(app, { game, level, onExit, onNextLevel, onQuit });
+    // thanh thành thạo chạy từ điểm cũ tới điểm mới
+    const fill = app.querySelector('.g3g-mastery-fill');
+    if (fill) requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width = `${fill.dataset.to}%`; }));
+    const { focus: _old, ...base } = level;
+    app.querySelector('[data-act="again"]').onclick = () => playRound(app, { game, level: focus.length ? { ...base, focus } : base, onExit, onNextLevel, onQuit });
     app.querySelector('[data-act="up"]')?.addEventListener('click', () => { exitGameMode(); onNextLevel(); });
     app.querySelector('[data-act="list"]').onclick = () => { exitGameMode(); onExit(); };
   }

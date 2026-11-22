@@ -23,7 +23,7 @@ import { PIN_GAME } from './grade3Games/pinboard.js';
 import { TRAIN_GAME } from './grade3Games/train.js';
 import { GARDEN_GAME } from './grade3Games/garden.js';
 import { BIRD_GAMES_G3 } from './grade3Games/birds.js';
-import { playRound, bestFor } from './grade3Games/loop.js';
+import { playRound, bestFor, isDrillGame, masteryFor, masteryBar } from './grade3Games/loop.js';
 import { lessonText, stallLessonText, hasDoneAny, lessonUnits, bookName } from './grade3Games/lessons.js';
 import { NPCS, npcPic, cap, preloadNpcs } from './grade3Games/npc.js';
 import { injectGameStyles, menuBackdrop, fitMenu } from './grade3Games/styles.js';
@@ -267,6 +267,9 @@ export function renderGamesHub(app, ctx, start = null, {
   function showLevels(g, game) {
     fromLesson = false;
     fromTree = false;
+    // Luyện Tính: cấp đầu tiên chưa thành thạo được đánh dấu "👉 Học tiếp".
+    const drill = isDrillGame(game);
+    const nextId = drill ? game.levels.find(l => !masteryFor(l.id).done)?.id : null;
     shell(`
       ${solo ? topbar(hubTitle, { kicker, stars: true }) : topbar(`${game.icon} ${game.title}`, { kicker: g.single ? `${hubIcon} ${hubTitle}` : `${g.icon} ${g.title}` })}
       ${game.purpose ? `<p class="g3g-purpose">🎯 ${game.purpose}</p>` : ''}
@@ -281,11 +284,12 @@ export function renderGamesHub(app, ctx, start = null, {
         ${game.levels.map(lv => {
           const best = bestFor(lv.id);
           const done = hasDoneAny(lv, ctx);
+          const isNext = lv.id === nextId;
           return `
-            <button type="button" class="g3g-tile g3g-level" data-level="${lv.id}">
+            <button type="button" class="g3g-tile g3g-level${isNext ? ' g3g-level-next' : ''}" data-level="${lv.id}">${isNext ? '<span class="g3g-next-flag">👉 Học tiếp</span>' : ''}
               <span class="g3g-level-num">${lv.n}</span>
               <span class="g3g-tile-info"><strong>${lv.title}</strong><span>${lv.desc}</span>
-                <span class="g3g-tags"><i>📚 ${lessonText(lv, ctx, { short: true }) || lv.knowledge}</i>${done ? '<i class="g3g-tag-done">✓ Đã học</i>' : ''}${best ? `<i class="g3g-tag-best">🏆 ${best.ok}/${best.total}</i>` : ''}${game.tests?.(lv)?.length ? `<i>📝 ${game.tests(lv).length} đề</i>` : ''}</span></span>
+                <span class="g3g-tags"><i>📚 ${lessonText(lv, ctx, { short: true }) || lv.knowledge}</i>${done ? '<i class="g3g-tag-done">✓ Đã học</i>' : ''}${best ? `<i class="g3g-tag-best">🏆 ${best.ok}/${best.total}</i>` : ''}${game.tests?.(lv)?.length ? `<i>📝 ${game.tests(lv).length} đề</i>` : ''}</span>${drill ? masteryBar(lv.id) : ''}</span>
               <span class="g3g-go">▶</span>
             </button>`;
         }).join('')}
@@ -326,6 +330,7 @@ export function renderGamesHub(app, ctx, start = null, {
             <span class="g3g-goal-faces" aria-label="${lv.missions} ${game.unitWord}">${'<i>😊</i>'.repeat(lv.missions)}</span>
             ${best ? `<span class="g3g-goal-best">🏆 ${best.ok}/${best.total}</span>` : ''}
           </div>
+          ${isDrillGame(game) ? masteryBar(lv.id, { ...masteryFor(lv.id), rule: true }) : ''}
           <button type="button" class="g3g-btn g3g-btn-primary g3g-btn-big" data-act="play">▶ Chơi ngay!</button>
           ${testsRow(game, lv)}
           <div class="g3g-need-row">
