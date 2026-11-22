@@ -24,7 +24,7 @@ import { PUPILS, SEAT_IDS, COLS } from '../dauTruong/rules.js';
 import { lobbyRender } from '../dauTruong/lobby.js';
 import { loadArenaBank, speedQ, markSeen, qHash, seenForHost } from '../dauTruong/questions.js';
 import { drawQBody, optTokens, tokenCanvas, sayTokens } from '../dauTruong/figs.js';
-import { mcLine, mcPlan, sayQuestion, sayOption, optEn, LETTER, MC_NAMES } from '../dauTruong/mc.js';
+import { mcLine, mcPlan, sayQuestion, sayQuestionEn, needEnAfter, enSayParts, sayOption, optEn, LETTER, MC_NAMES } from '../dauTruong/mc.js';
 import { setArenaSubject, isEnArena, EN_VOICE, EN_SKILL, EN_TT } from '../dauTruong/subject.js';
 import { voiceMode, mcPrefetch, mcSpeak, mcStop, setMcListener, setMcRate, isMcMuted, setMcMuted } from '../dauTruong/mcVoice.js';
 import { certSvg, loadCertFonts, CERT_CSS } from '../dauTruong/cert.js';
@@ -36,6 +36,9 @@ import { awardFixedStars, getTotalStars } from '../engine/stars.js';
 import { arenaAnswer, showProgress } from '../engine/arenaStats.js';
 import { audienceAnswer, audienceAt, buzzPlan, decide, pickPackage, planShow, podiumAt, rand01, reactOf, steer, wantStar } from '../dauTruong/npc.js';
 
+/** Bản Tiếng Anh: tên kỹ năng / phần Tăng tốc trên khung câu hỏi của màn LED (viết tiếng Anh). */
+const EN_SKILL_LED = { nghe: 'LISTENING', tu: 'VOCABULARY', np: 'GRAMMAR', doc: 'READING' };
+const EN_TT_LED = { nghe: 'QUICK LISTENING', xep: 'WORD ORDER', doc: 'QUICK READING', tu: 'WORD PUZZLE' };
 /** Tên chương trình trên màn LED (tên tạm, chủ dự án chốt; '\n' = xuống dòng). Không dùng tên chương trình truyền hình có thật. */
 const showName = () => (isEnArena() ? 'Đấu Trường Nhí\nTiếng Anh' : 'Đấu Trường Nhí');
 /** Dòng phụ dưới tên (màn chờ, màn LED): chương trình dùng chung cho lớp 1–5, nên ghi lớp theo hồ sơ của bé đang xem
@@ -304,6 +307,8 @@ export function renderEn(app, onBack) {
  * Trả { dispose, api } (api: setMode, cam, seatPupil, seatCam, seatIds).
  */
 export function stage(app, onBack, { flow = false } = {}) {
+  /** Chữ trên màn LED / màn bục: bản Tiếng Anh viết tiếng Anh (người dùng 2026-11-22), bản Toán + Tiếng Việt giữ tiếng Việt. */
+  const EN = isEnArena(), L = (vi, en) => (EN ? en : vi);
   if (!document.getElementById('dt-stage-css')) {
     const st = document.createElement('style'); st.id = 'dt-stage-css'; st.textContent = CSS + CERT_CSS; document.head.appendChild(st);
   }
@@ -729,8 +734,8 @@ export function stage(app, onBack, { flow = false } = {}) {
       c.fillStyle = p.col.getStyle(); c.fillRect(0, 0, W, 16);
       c.fillStyle = '#fff'; c.font = '600 46px Segoe UI'; c.textAlign = 'center';
       if (!p.name) {   // bục chưa có ai: chờ MC mời
-        c.fillStyle = '#cfe0ff'; c.font = '700 54px Segoe UI'; c.fillText('Bục trống', W / 2, 150);
-        c.font = '600 34px Segoe UI'; c.fillText('Chờ MC mời lên', W / 2, 215);
+        c.fillStyle = '#cfe0ff'; c.font = '700 54px Segoe UI'; c.fillText(L('Bục trống', 'Empty'), W / 2, 150);
+        c.font = '600 34px Segoe UI'; c.fillText(L('Chờ MC mời lên', 'Waiting for the MC'), W / 2, 215);
         p.tex.needsUpdate = true; return;
       }
       // tới lượt / đang trả lời riêng / bấm chuông được quyền: khung vàng nhấp nháy quanh màn bục
@@ -743,8 +748,8 @@ export function stage(app, onBack, { flow = false } = {}) {
       c.fillText(`${p.star ? '⭐ ' : ''}${p.name}`, W / 2, 72);
       c.font = '800 130px Segoe UI'; c.fillStyle = '#ffd45c'; c.fillText(String(Math.round(p.shown)), W / 2, 210);
       c.font = '600 34px Segoe UI'; c.fillStyle = '#cfe0ff';
-      const label = st === 'locked' ? `Đã chốt ${p.lockAt.toFixed(1)} giây` : st === 'right' ? `Đúng! +${p.gain}` : st === 'wrong' ? (p.gain < 0 ? `Sai ${p.gain}` : 'Chưa đúng')
-        : st === 'think' ? 'Đang suy nghĩ…' : st === 'buzz' ? '🔔 Giành quyền!' : st === 'turn' ? 'Đến lượt' : '';
+      const label = st === 'locked' ? L(`Đã chốt ${p.lockAt.toFixed(1)} giây`, `Locked ${p.lockAt.toFixed(1)} s`) : st === 'right' ? L(`Đúng! +${p.gain}`, `Right! +${p.gain}`) : st === 'wrong' ? (p.gain < 0 ? L(`Sai ${p.gain}`, `Wrong ${p.gain}`) : L('Chưa đúng', 'Not quite'))
+        : st === 'think' ? L('Đang suy nghĩ…', 'Thinking…') : st === 'buzz' ? L('🔔 Giành quyền!', '🔔 Buzzed!') : st === 'turn' ? L('Đến lượt', 'Your turn') : '';
       c.fillText(label, W / 2, 272);
       if (st === 'think' && sec != null) { c.fillStyle = p.col.getStyle(); c.fillRect(30, 285, (W - 60) * sec, 8); }
       p.tex.needsUpdate = true;
@@ -871,7 +876,7 @@ export function stage(app, onBack, { flow = false } = {}) {
         c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = `800 ${Math.round(fs)}px Segoe UI`;
         c.fillText(s.who.name, x0, cy - fs * 0.55, w);
         c.fillStyle = '#ffd45c'; c.font = `800 ${Math.round(fs * 0.78)}px Segoe UI`;
-        c.fillText(`⭐ ${s.stars} sao`, x0, cy + fs * 0.55, w);
+        c.fillText(L(`⭐ ${s.stars} sao`, `⭐ ${s.stars} stars`), x0, cy + fs * 0.55, w);
       }
       s.tex.needsUpdate = true;
     }
@@ -1014,7 +1019,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       c.lineWidth = me ? 8 : 4; c.strokeStyle = me ? '#ffd36b' : 'rgba(130,185,255,.7)'; c.stroke();
       c.textAlign = 'center'; c.textBaseline = 'alphabetic';
       c.fillStyle = '#ffd45c'; c.font = '900 74px Segoe UI'; c.fillText(String(s.score), W / 2, 82);
-      c.fillStyle = '#fff'; c.font = '700 40px Segoe UI'; c.fillText(me ? `${s.name} (bạn)` : s.name, W / 2, 134, W - 36);
+      c.fillStyle = '#fff'; c.font = '700 40px Segoe UI'; c.fillText(me ? `${s.name} ${L('(bạn)', '(you)')}` : s.name, W / 2, 134, W - 36);
       s.tag.material.map.needsUpdate = true;
     }
     add(new THREE.BoxGeometry(1.2, 0.02, 7), M('#0d1a63'), 0, 0.01, 10.9); // lối đi giữa
@@ -1125,12 +1130,12 @@ export function stage(app, onBack, { flow = false } = {}) {
     /* ---------- Màn hình lớn ---------- */
     const ROUNDS = {
       idle:     { label: 'Chờ', title: showName().split('\n').join(' ').toUpperCase(), sub: showSub(), a: '#2fc8ff', b: '#7b5cff' },
-      open:     { label: 'Mở màn', title: 'MỞ MÀN', sub: 'Chào mừng 4 nhà thông thái nhí', a: '#ffc93c', b: '#2fc8ff' },
+      open:     { label: 'Mở màn', title: L('MỞ MÀN', 'OPENING'), sub: L('Chào mừng 4 nhà thông thái nhí', 'Welcome, our 4 little stars'), a: '#ffc93c', b: '#2fc8ff' },
       // sec: giây mỗi câu; aud: điểm khán giả trả lời đúng (Về đích: bằng điểm câu)
-      khoidong: { label: 'Khởi động', title: 'KHỞI ĐỘNG', sub: 'Cả 4 bạn cùng trả lời · đúng +10', a: '#21e6a3', b: '#2fc8ff', sec: 20, aud: 10 },
-      tangtoc:  { label: 'Tăng tốc', title: 'TĂNG TỐC', sub: '4 câu tư duy · cả 4 bạn cùng trả lời · đúng +20', a: '#ff8a2a', b: '#ff3d9a', sec: 30, aud: 20 },
-      vedich:   { label: 'Về đích', title: 'VỀ ĐÍCH', sub: 'Chọn gói câu hỏi · Ngôi sao hy vọng · giành quyền', a: '#ffc93c', b: '#a35cff', sec: 20, aud: 0 },
-      win:      { label: 'Trao giải', title: 'TRAO GIẢI', sub: 'Nhà thông thái nhí của buổi hôm nay', a: '#ffd45c', b: '#ff5d73' },
+      khoidong: { label: 'Khởi động', title: L('KHỞI ĐỘNG', 'WARM-UP'), sub: L('Cả 4 bạn cùng trả lời · đúng +10', 'All 4 players answer · right +10'), a: '#21e6a3', b: '#2fc8ff', sec: 20, aud: 10 },
+      tangtoc:  { label: 'Tăng tốc', title: L('TĂNG TỐC', 'SPEED-UP'), sub: L('4 câu tư duy · cả 4 bạn cùng trả lời · đúng +20', '4 English challenges · all 4 players answer · right +20'), a: '#ff8a2a', b: '#ff3d9a', sec: 30, aud: 20 },
+      vedich:   { label: 'Về đích', title: L('VỀ ĐÍCH', 'FINISH LINE'), sub: L('Chọn gói câu hỏi · Ngôi sao hy vọng · giành quyền', 'Choose a pack · Star of hope · Steal'), a: '#ffc93c', b: '#a35cff', sec: 20, aud: 0 },
+      win:      { label: 'Trao giải', title: L('TRAO GIẢI', 'AWARDS'), sub: L('Nhà thông thái nhí của buổi hôm nay', 'Today\'s little stars'), a: '#ffd45c', b: '#ff5d73' },
     };
     /* Luật từng vòng (docs/dau-truong/thiet-ke.md mục 5):
        Khởi động (như Đấu Trường của kinh-thanh, người dùng 2026-11-22): `all` câu chung, cả 4 bạn cùng trả lời một câu (seg 'all'),
@@ -1147,6 +1152,9 @@ export function stage(app, onBack, { flow = false } = {}) {
        vd10/20/30: câu Về đích theo điểm; answer: bấm chuông được quyền thì có bấy nhiêu giây chọn; steal: cửa sổ bấm chuông
        giành quyền (phản xạ, làm tròn 1 giây); pick / star: chọn gói, đặt sao. */
     const TIME = { khoidong: 15, tangtoc: 40, vd10: 30, vd20: 35, vd30: 45, answer: 15, steal: 5, pick: 15, star: 10 };
+    /* Bản Tiếng Anh (người dùng 2026-11-22): trẻ Việt Nam đang học tiếng Anh, đọc và nghe chậm hơn nhiều so với Toán / Tiếng Việt,
+       nên mỗi câu dài hơn hẳn: Khởi động 40 giây cố định mọi lớp, các vòng khác cộng thêm rồi vẫn nhân SLOW theo lớp. */
+    if (EN) Object.assign(TIME, { khoidong: 40, tangtoc: 55, vd10: 45, vd20: 50, vd30: 60, answer: 25, steal: 7 });
     const FIXED = new Set(['khoidong']);
     const SLOW = { 1: 1.5, 2: 1.3, 3: 1.15, 4: 1, 5: 1 };
     const gradeNow = () => (arena ? arena.grade : (getProfileGrade() || 3));
@@ -1180,7 +1188,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     let sentSeen = false;
     const arenaGrade = () => arena?.grade || (getProfileGrade() >= 1 && getProfileGrade() <= 5 ? getProfileGrade() : 3);
     loadArenaBank(getProfileGrade()).then(b => { arena = b; seenWait.splice(0).forEach(l => b.avoid(l)); scrDirty = true; }, () => { arena = false; });
-    const progressText = () => (arena?.en ? `Lớp ${arena.grade} · Tiếng Anh đến Tuần ${Math.min(35, arena.week)} · Nghe, Từ vựng, Ngữ pháp, Đọc hiểu` : arena ? `Lớp ${arena.grade} · Toán đến Bài ${arena.mathBai}${arena.hasTv ? ` · Tiếng Việt đến Tuần ${arena.handCount ? Math.min(35, arena.week) : arena.tvWeek}` : ' · chưa có câu Tiếng Việt lớp này'}` : '');
+    const progressText = () => (arena?.en ? `Grade ${arena.grade} · English up to Week ${Math.min(35, arena.week)} · Listening, Vocabulary, Grammar, Reading` : arena ? `Lớp ${arena.grade} · Toán đến Bài ${arena.mathBai}${arena.hasTv ? ` · Tiếng Việt đến Tuần ${arena.handCount ? Math.min(35, arena.week) : arena.tvWeek}` : ' · chưa có câu Tiếng Việt lớp này'}` : '');
     let mode = 'idle', timer = null, phase = 'none', t0 = 0, qT0 = 0;
     const RK = { khoidong: 'kd', tangtoc: 'tt', vedich: 'vd' };
     let qDone = 0;   // số câu đã lật cả buổi (khán giả: đúng x / qDone câu)
@@ -1208,7 +1216,7 @@ export function stage(app, onBack, { flow = false } = {}) {
     const needRead = () => voiceMode() === 'none' || [...readers.values()].some(Boolean);
     const READ_CPS = { 1: 5, 2: 6, 3: 8, 4: 10, 5: 12 };   // ký tự / giây trẻ tự đọc được (lớp 1 đánh vần chậm)
     const kidReadSec = (q) => {
-      const len = [sayQuestion(q), ...[0, 1, 2, 3].map(i => sayOption(q, i))].join(' ').length;
+      const len = [sayQuestionEn(q) || sayQuestion(q), ...[0, 1, 2, 3].map(i => sayOption(q, i))].join(' ').length;
       return Math.max(6, Math.min(45, Math.round(len / (READ_CPS[gradeNow()] || 8)) + 3));
     };
     const setTimer = (sec, start = performance.now()) => { t0 = start; timer = { id: ++tmId, total: sec, end: start + sec * 1000 }; };
@@ -1279,13 +1287,13 @@ export function stage(app, onBack, { flow = false } = {}) {
     function turnLine() {
       if (!sl) return null;
       const nm = (i) => pods[i].name.toUpperCase(), cl = (i) => pods[i].col.getStyle();
-      if (buzzer >= 0) return [`🔔 ${nm(buzzer)} GIÀNH QUYỀN TRẢ LỜI${Q?.val ? ` · ${Q.val} ĐIỂM` : ''}`, cl(buzzer)];
-      if (sl.seg === 'solo') { const [r, w] = soloTally(); return [`LƯỢT CÁ NHÂN · ${nm(turn)} · ĐÚNG ${r} · SAI ${w}`, cl(turn)]; }
-      if (sl.seg === 'common') return ['LƯỢT CHUNG · BẤM CHUÔNG GIÀNH QUYỀN · ĐÚNG +10 · SAI −5', '#ffd36b'];
-      if (sl.seg === 'all') return [`CẢ 4 BẠN CÙNG TRẢ LỜI · ĐÚNG +${KD.right}`, '#ffd36b'];
-      if (sl.seg === 'speed') return [`CẢ 4 BẠN CÙNG TRẢ LỜI · ĐÚNG +${TT.right}`, '#ffd36b'];
-      if (phase === 'steal' || phase === 'stealing') return [`GIÀNH QUYỀN! BẤM CHUÔNG TRONG ${secs('steal')} GIÂY`, '#ff8a9a'];
-      return [`${nm(turn)} · CÂU ${sl.qi + 1}/3 · ${sl.val} ĐIỂM${vd?.star ? ' · ⭐ NGÔI SAO HY VỌNG' : ''}`, cl(turn)];
+      if (buzzer >= 0) return [L(`🔔 ${nm(buzzer)} GIÀNH QUYỀN TRẢ LỜI${Q?.val ? ` · ${Q.val} ĐIỂM` : ''}`, `🔔 ${nm(buzzer)} RANG THE BELL${Q?.val ? ` · ${Q.val} POINTS` : ''}`), cl(buzzer)];
+      if (sl.seg === 'solo') { const [r, w] = soloTally(); return [L(`LƯỢT CÁ NHÂN · ${nm(turn)} · ĐÚNG ${r} · SAI ${w}`, `${nm(turn)}'S TURN · RIGHT ${r} · WRONG ${w}`), cl(turn)]; }
+      if (sl.seg === 'common') return [L('LƯỢT CHUNG · BẤM CHUÔNG GIÀNH QUYỀN · ĐÚNG +10 · SAI −5', 'OPEN ROUND · RING THE BELL · RIGHT +10 · WRONG −5'), '#ffd36b'];
+      if (sl.seg === 'all') return [L(`CẢ 4 BẠN CÙNG TRẢ LỜI · ĐÚNG +${KD.right}`, `ALL 4 PLAYERS ANSWER · RIGHT +${KD.right}`), '#ffd36b'];
+      if (sl.seg === 'speed') return [L(`CẢ 4 BẠN CÙNG TRẢ LỜI · ĐÚNG +${TT.right}`, `ALL 4 PLAYERS ANSWER · RIGHT +${TT.right}`), '#ffd36b'];
+      if (phase === 'steal' || phase === 'stealing') return [L(`GIÀNH QUYỀN! BẤM CHUÔNG TRONG ${secs('steal')} GIÂY`, `STEAL! RING THE BELL IN ${secs('steal')} SECONDS`), '#ff8a9a'];
+      return [L(`${nm(turn)} · CÂU ${sl.qi + 1}/3 · ${sl.val} ĐIỂM${vd?.star ? ' · ⭐ NGÔI SAO HY VỌNG' : ''}`, `${nm(turn)} · QUESTION ${sl.qi + 1}/3 · ${sl.val} POINTS${vd?.star ? ' · ⭐ STAR OF HOPE' : ''}`), cl(turn)];
     }
     /* Khung câu hỏi trên màn LED (toạ độ 1600 × 900): camera "Màn hình câu hỏi" khớp đúng khung này (fitScreen). */
     const CARD = { x: 50, y: 120, w: 1500, h: 700 };
@@ -1300,10 +1308,10 @@ export function stage(app, onBack, { flow = false } = {}) {
     /** Về đích trước câu: chọn gói (bốn ô gói) hoặc đặt Ngôi sao hy vọng. */
     function drawVdChoice(c, W, R) {
       const p = pods[vd.who];
-      drawCard(c, R, `LƯỢT CỦA ${p.name.toUpperCase()}`);
+      drawCard(c, R, L(`LƯỢT CỦA ${p.name.toUpperCase()}`, `${p.name.toUpperCase()}'S TURN`));
       c.fillStyle = '#fff'; c.shadowColor = 'rgba(0,0,0,.5)'; c.shadowBlur = 12;
       if (phase === 'pick' || phase === 'picked') {
-        c.font = '800 84px Segoe UI'; c.fillText(vd.pkg ? `Gói ${vd.pkg.pts} điểm` : 'Chọn gói câu hỏi', W / 2, CARD.y + 230);
+        c.font = '800 84px Segoe UI'; c.fillText(vd.pkg ? L(`Gói ${vd.pkg.pts} điểm`, `${vd.pkg.pts}-point pack`) : L('Chọn gói câu hỏi', 'Choose a pack'), W / 2, CARD.y + 230);
         c.shadowBlur = 0;
         VD.pkgs.forEach((k, j) => {
           const x = CARD.x + 70 + j * 345, y = CARD.y + 300, w = 320, h = 330, on = vd.pkg === k;
@@ -1314,11 +1322,11 @@ export function stage(app, onBack, { flow = false } = {}) {
         });
       } else {
         const val = sl.val;
-        c.font = '800 110px Segoe UI'; c.fillText(`Câu ${sl.qi + 1}/3 · ${val} điểm`, W / 2, CARD.y + 300);
+        c.font = '800 110px Segoe UI'; c.fillText(L(`Câu ${sl.qi + 1}/3 · ${val} điểm`, `Question ${sl.qi + 1}/3 · ${val} points`), W / 2, CARD.y + 300);
         c.shadowBlur = 0;
         c.font = '900 150px Segoe UI'; c.fillStyle = vd.star ? '#ffd45c' : 'rgba(255,255,255,.18)'; c.fillText('⭐', W / 2, CARD.y + 500);
         c.font = '700 54px Segoe UI'; c.fillStyle = vd.star ? '#ffd45c' : '#cfe0ff';
-        const t = vd.star ? `Ngôi sao hy vọng: đúng +${val * 2}, sai −${val}` : phase === 'star' ? 'Có đặt Ngôi sao hy vọng không?' : 'Không đặt Ngôi sao hy vọng';
+        const t = vd.star ? L(`Ngôi sao hy vọng: đúng +${val * 2}, sai −${val}`, `Star of hope: right +${val * 2}, wrong −${val}`) : phase === 'star' ? L('Có đặt Ngôi sao hy vọng không?', 'Use the star of hope?') : L('Không đặt Ngôi sao hy vọng', 'No star of hope');
         c.fillText(t, W / 2, CARD.y + 610, CARD.w - 120);
       }
     }
@@ -1343,21 +1351,21 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (!Q && vd && ['pick', 'picked', 'star', 'starred'].includes(phase)) { drawVdChoice(c, W, R); scrTex.needsUpdate = true; return; }
       if (!Q) {
         c.shadowColor = R.a; c.shadowBlur = 40; c.fillStyle = '#fff'; c.font = '900 170px Segoe UI'; c.fillText(R.title, W / 2, 430);
-        c.shadowBlur = 0; c.fillStyle = R.a; c.font = '600 60px Segoe UI'; c.fillText(phase === 'done' ? `Hết vòng · ${qTotal} câu` : phase === 'turn' ? (turn >= 0 ? `Lượt của ${pods[turn].name}` : 'Lượt chung · bấm chuông giành quyền') : R.sub, W / 2, 540, W - 100);
+        c.shadowBlur = 0; c.fillStyle = R.a; c.font = '600 60px Segoe UI'; c.fillText(phase === 'done' ? L(`Hết vòng · ${qTotal} câu`, `Round over · ${qTotal} questions`) : phase === 'turn' ? (turn >= 0 ? L(`Lượt của ${pods[turn].name}`, `${pods[turn].name}'s turn`) : L('Lượt chung · bấm chuông giành quyền', 'Open round · ring the bell')) : R.sub, W / 2, 540, W - 100);
         if (R.sec && arena) { c.fillStyle = '#cfe0ff'; c.font = '600 40px Segoe UI'; c.fillText(progressText(), W / 2, 630, W - 120); }
         if (mode === 'win') {
           const best = [...pods].sort((a, b) => b.score - a.score);
           c.font = '700 54px Segoe UI'; c.fillStyle = '#ffd45c';
           best.forEach((p, k) => c.fillText(`${k + 1}. ${p.name}  ${p.score}`, W / 2, 640 + k * 62));
           const fans = seats.filter(s => s.live && s.score > 0).sort((a, b) => b.score - a.score).slice(0, 3);
-          if (fans.length) { c.font = '600 36px Segoe UI'; c.fillStyle = '#cfe0ff'; c.fillText(`Khán giả xuất sắc: ${fans.map(s => `${s.name} ${s.score}`).join(' · ')}`, W / 2, 880, W - 100); }
+          if (fans.length) { c.font = '600 36px Segoe UI'; c.fillStyle = '#cfe0ff'; c.fillText(`${L('Khán giả xuất sắc', 'Top audience')}: ${fans.map(s => `${s.name} ${s.score}`).join(' · ')}`, W / 2, 880, W - 100); }
         }
         scrTex.needsUpdate = true; return;
       }
       // màn LED lúc có câu: CHỈ câu hỏi (đáp án là nút trên dải của máy người chơi), chữ to để đọc được khi camera áp sát
-      const what = Q.tag ? Q.tag.toUpperCase() : Q.m === 'en' ? (EN_SKILL[Q.sk] || 'Tiếng Anh').toUpperCase() : Q.m === 'tv' ? 'TIẾNG VIỆT' : Q.m === 'toan' ? 'TOÁN' : '';
+      const what = Q.m === 'en' ? (Q.tt ? EN_TT_LED[Q.tt] : EN_SKILL_LED[Q.sk] || 'ENGLISH') : Q.tag ? Q.tag.toUpperCase() : Q.m === 'tv' ? 'TIẾNG VIỆT' : Q.m === 'toan' ? 'TOÁN' : '';
       const [pn, pt] = qPos();
-      drawCard(c, R, `${what}${what ? ' · ' : ''}CÂU ${pn}/${pt}`);
+      drawCard(c, R, `${what}${what ? ' · ' : ''}${L('CÂU', 'QUESTION')} ${pn}/${pt}`);
       const tl = turnLine();
       if (tl) {
         // lượt của một bạn (cá nhân, Về đích, bấm chuông): dòng tên nhấp nháy để không ai lỡ lượt
@@ -1419,26 +1427,26 @@ export function stage(app, onBack, { flow = false } = {}) {
     function whoChip(i) {
       if (i < 0 || !pods[i]) return '';
       const me = role() === 'pod' && i === myPod;
-      return `<b class="dt-who${me ? ' is-me' : ''}" style="--c:${COLORS[i]}">${me ? `Em (${esc(pods[i].name)})` : esc(pods[i].name)}</b>`;
+      return `<b class="dt-who${me ? ' is-me' : ''}" style="--c:${COLORS[i]}">${me ? `${L('Em', 'You')} (${esc(pods[i].name)})` : esc(pods[i].name)}</b>`;
     }
     function segLabel() {
       if (!sl) return '';
-      return sl.seg === 'solo' ? `Lượt cá nhân · ${whoChip(turn)}` : sl.seg === 'common' ? 'Lượt chung' : sl.seg === 'all' ? 'Cả 4 bạn cùng trả lời' : sl.seg === 'speed' ? esc(Q?.tag || '') : `Lượt của ${whoChip(vd.who)}`;
+      return sl.seg === 'solo' ? `${L('Lượt cá nhân', 'Turn')} · ${whoChip(turn)}` : sl.seg === 'common' ? L('Lượt chung', 'Open round') : sl.seg === 'all' ? L('Cả 4 bạn cùng trả lời', 'All 4 players answer') : sl.seg === 'speed' ? esc(EN && Q?.tt ? EN_TT_LED[Q.tt] : Q?.tag || '') : `${L('Lượt của', 'Turn:')} ${whoChip(vd.who)}`;
     }
     function ptsLabel() {
-      if (role() === 'aud') return `Điểm của bạn ${meSeat.score} · đúng +${Q?.val || ROUNDS[mode].aud}`;
+      if (role() === 'aud') return L(`Điểm của bạn ${meSeat.score} · đúng +${Q?.val || ROUNDS[mode].aud}`, `Your points ${meSeat.score} · right +${Q?.val || ROUNDS[mode].aud}`);
       if (!sl) return '';
-      return sl.seg === 'solo' ? 'Đúng +10' : sl.seg === 'common' ? 'Đúng +10 · sai −5' : sl.seg === 'all' ? `Đúng +${KD.right}` : sl.seg === 'speed' ? `Đúng +${TT.right}`
-        : `${sl.val} điểm${vd?.star ? ' · ⭐ ×2' : ''}`;
+      return sl.seg === 'solo' ? L('Đúng +10', 'Right +10') : sl.seg === 'common' ? L('Đúng +10 · sai −5', 'Right +10 · wrong −5') : sl.seg === 'all' ? `${L('Đúng', 'Right')} +${KD.right}` : sl.seg === 'speed' ? `${L('Đúng', 'Right')} +${TT.right}`
+        : `${sl.val} ${L('điểm', 'points')}${vd?.star ? ' · ⭐ ×2' : ''}`;
     }
     // ngắn gọn (tên vòng đã có trên màn LED): giữa dải là chỗ của huy hiệu kết quả
     function metaLeft() {
       const [n, t] = qPos();
       const seg = segLabel();
-      return `Câu ${n}/${t}${seg ? ` · ${seg}` : ''}${tallyHtml()}`;
+      return `${L('Câu', 'Question')} ${n}/${t}${seg ? ` · ${seg}` : ''}${tallyHtml()}`;
     }
     const CLOCK = `<div class="ch-qov-clock" hidden><svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="qov-clk-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b8"/><stop offset="1" stop-color="#ffb03a"/></linearGradient><linearGradient id="qov-clk-r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb3bd"/><stop offset="1" stop-color="#ff3355"/></linearGradient></defs>
-          <circle class="is-bg" cx="32" cy="32" r="27"/><circle class="is-ticks" cx="32" cy="32" r="30.5" pathLength="60"/><circle class="is-fg" cx="32" cy="32" r="27" pathLength="100"/></svg><b></b><small>giây</small></div>`;
+          <circle class="is-bg" cx="32" cy="32" r="27"/><circle class="is-ticks" cx="32" cy="32" r="30.5" pathLength="60"/><circle class="is-fg" cx="32" cy="32" r="27" pathLength="100"/></svg><b></b><small>${L('giây', 'sec')}</small></div>`;
     function buildOv() {
       // phương án chỉ là hình (emoji, câu tiếng Anh chọn hình): chữ to (.dt-emo)
       const opt = (i) => `<button type="button" class="ch-qov-o is-wait${/\p{L}|\p{N}/u.test(Q.o[i]) ? '' : ' dt-emo'}" data-i="${i}" style="--i:${i}" disabled><i>${Q.kind === 'order' ? '' : 'ABCD'[i]}</i><span>${words(Q.o[i])}</span></button>`;
@@ -1462,16 +1470,16 @@ export function stage(app, onBack, { flow = false } = {}) {
       const btn = (k, i, body, dis = !mine) => `<button type="button" class="ch-qov-o is-pop${dis ? ' dt-info' : ''}" data-k="${k}"${dis ? ' disabled' : ''}><i>${i}</i><span>${body}</span></button>`;
       let rows;
       if (phase === 'pick') {
-        const b = VD.pkgs.map((k, j) => btn(j, k.pts, `Gói ${k.pts} điểm: ${k.v.join(' · ')}`));
+        const b = VD.pkgs.map((k, j) => btn(j, k.pts, L(`Gói ${k.pts} điểm: ${k.v.join(' · ')}`, `${k.pts}-point pack: ${k.v.join(' · ')}`)));
         rows = `<div class="ch-qov-row is-on">${b[0]}${b[1]}</div><div class="ch-qov-row is-on">${b[2]}${b[3]}</div>`;
       } else {
         const val = sl.val;
-        rows = `<div class="ch-qov-row is-on">${btn('star', '⭐', `Đặt Ngôi sao hy vọng`)}${btn('no', '▶', 'Không đặt, vào câu hỏi')}</div>
-          <div class="ch-qov-row is-on">${btn('', sl.qi + 1, `Câu ${sl.qi + 1}/3: ${val} điểm`, true)}${btn('', '⭐', `Có sao: đúng +${val * 2}, sai −${val}`, true)}</div>`;
+        rows = `<div class="ch-qov-row is-on">${btn('star', '⭐', L('Đặt Ngôi sao hy vọng', 'Use the star of hope'))}${btn('no', '▶', L('Không đặt, vào câu hỏi', 'No star, go to the question'))}</div>
+          <div class="ch-qov-row is-on">${btn('', sl.qi + 1, L(`Câu ${sl.qi + 1}/3: ${val} điểm`, `Question ${sl.qi + 1}/3: ${val} points`), true)}${btn('', '⭐', L(`Có sao: đúng +${val * 2}, sai −${val}`, `With star: right +${val * 2}, wrong −${val}`), true)}</div>`;
       }
-      const head = phase === 'pick' ? `Về đích · Lượt của ${whoChip(vd.who)} · chọn gói câu hỏi` : `Về đích · Lượt của ${whoChip(vd.who)} · Gói ${vd.pkg.pts}`;
+      const head = phase === 'pick' ? L(`Về đích · Lượt của ${whoChip(vd.who)} · chọn gói câu hỏi`, `Finish line · ${whoChip(vd.who)} · choose a pack`) : L(`Về đích · Lượt của ${whoChip(vd.who)} · Gói ${vd.pkg.pts}`, `Finish line · ${whoChip(vd.who)} · ${vd.pkg.pts}-point pack`);
       ov.innerHTML = `<div class="ch-qov-box">${CLOCK}${BELL}<b class="ch-qov-res" hidden></b>
-        <div class="ch-qov-meta"><div class="ch-qov-mleft"><span>${head}</span></div><span>${mine ? 'Bạn chọn' : `${esc(pods[vd.who].name)} đang chọn`}</span></div>
+        <div class="ch-qov-meta"><div class="ch-qov-mleft"><span>${head}</span></div><span>${mine ? L('Bạn chọn', 'Your choice') : L(`${esc(pods[vd.who].name)} đang chọn`, `${esc(pods[vd.who].name)} is choosing`)}</span></div>
         <div class="ch-qov-opts">${rows}</div></div>`;
       ov.classList.add('is-pickable');
       ov.querySelectorAll('[data-k]:not(:disabled)').forEach(b => {
@@ -1544,7 +1552,7 @@ export function stage(app, onBack, { flow = false } = {}) {
         }
         const vis = st ? '' : shown ? (el.classList.contains('is-wait') || el.classList.contains('is-pop') ? ' is-pop' : '') : ' is-wait';
         const sd = i === sidePick ? ` is-side${rev && i !== Q.a ? ' is-side-no' : ''}` : '';
-        el.className = `ch-qov-o${st}${vis}${sd}`;
+        el.className = `ch-qov-o${st}${vis}${sd}${Q && !/\p{L}|\p{N}/u.test(Q.o[i] ?? 'x') ? ' dt-emo' : ''}`;   // dt-emo: phương án chỉ là hình
         el.disabled = !open || !shown || (Q.kind === 'abcd' && k >= 0) || Q.out === i;
       });
       ov.querySelectorAll('.ch-qov-opts .ch-qov-row').forEach((row, r) => row.classList.toggle('is-on', phase !== 'read' || shownOpts > r * 2));
@@ -1553,13 +1561,13 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (ml && sl?.seg === 'solo') ml.innerHTML = metaLeft();
       const mr = ov.querySelector('.ch-qov-meta > span');
       const who = buzzer >= 0 ? buzzer : turn;
-      const note = phase === 'read' ? (voiceMode() === 'none' ? '📖 Em tự đọc đề, hết giờ đọc thì chọn' : 'Nghe MC đọc hết câu hỏi')
-        : rev ? (role() === 'aud' ? pods.filter((q, i) => takesPart(i)).map(q => `${q.name} ${q.gain > 0 ? `+${q.gain}` : q.gain < 0 ? q.gain : 'chưa đúng'}`).join(' · ') : '')
-        : role() === 'aud' && meSeat.ans != null ? (phase === 'audLast' ? 'Đã chọn, chờ các bạn khán phòng' : who >= 0 ? `Đã chọn, chờ ${pods[who].name} trả lời` : 'Đã chọn, chờ kết quả')
-        : role() === 'aud' && phase === 'audLast' ? `${who >= 0 ? pods[who].name : 'Thí sinh'} đã chốt, em chọn nhanh lên!`
-        : role() === 'pod' && (pods[myPod].state === 'locked' || sent === `${qid}:lock`) ? (phase === 'audLast' ? 'Đã chốt, chờ khán phòng chọn' : 'Đã chốt, chờ kết quả')
-        : sidePick >= 0 ? (who >= 0 ? `Đã chọn, chờ ${pods[who].name} trả lời` : 'Đã chọn, chờ kết quả')
-        : sideOpen ? 'Em cũng chọn được, không tính điểm' : '';
+      const note = phase === 'read' ? (voiceMode() === 'none' ? L('📖 Em tự đọc đề, hết giờ đọc thì chọn', '📖 Read the question, then choose') : L('Nghe MC đọc hết câu hỏi', 'Listen to the whole question'))
+        : rev ? (role() === 'aud' ? pods.filter((q, i) => takesPart(i)).map(q => `${q.name} ${q.gain > 0 ? `+${q.gain}` : q.gain < 0 ? q.gain : L('chưa đúng', 'not quite')}`).join(' · ') : '')
+        : role() === 'aud' && meSeat.ans != null ? (phase === 'audLast' ? L('Đã chọn, chờ các bạn khán phòng', 'Chosen, waiting for the audience') : who >= 0 ? L(`Đã chọn, chờ ${pods[who].name} trả lời`, `Chosen, waiting for ${pods[who].name}`) : L('Đã chọn, chờ kết quả', 'Chosen, waiting for the result'))
+        : role() === 'aud' && phase === 'audLast' ? L(`${who >= 0 ? pods[who].name : 'Thí sinh'} đã chốt, em chọn nhanh lên!`, `${who >= 0 ? pods[who].name : 'A player'} has locked in, choose fast!`)
+        : role() === 'pod' && (pods[myPod].state === 'locked' || sent === `${qid}:lock`) ? (phase === 'audLast' ? L('Đã chốt, chờ khán phòng chọn', 'Locked in, waiting for the audience') : L('Đã chốt, chờ kết quả', 'Locked in, waiting for the result'))
+        : sidePick >= 0 ? (who >= 0 ? L(`Đã chọn, chờ ${pods[who].name} trả lời`, `Chosen, waiting for ${pods[who].name}`) : L('Đã chọn, chờ kết quả', 'Chosen, waiting for the result'))
+        : sideOpen ? L('Em cũng chọn được, không tính điểm', 'You can choose too, just for fun') : '';
       if (mr) { mr.textContent = note || ptsLabel(); mr.classList.toggle('dt-note', !!note); }
       const res = ov.querySelector('.ch-qov-res');
       res.hidden = !rev;
@@ -1573,24 +1581,24 @@ export function stage(app, onBack, { flow = false } = {}) {
     function resultText() {
       if (role() === 'aud') {
         const ok = meSeat.ans === true, pts = Q.val || ROUNDS[mode].aud;
-        return ok ? ['is-ok', '✓', `Chính xác! +${pts}`] : ['is-no', '✕', meSeat.ans == null ? 'Hết giờ!' : 'Rất tiếc!'];
+        return ok ? ['is-ok', '✓', `${L('Chính xác!', 'Correct!')} +${pts}`] : ['is-no', '✕', meSeat.ans == null ? L('Hết giờ!', 'Time\'s up!') : L('Rất tiếc!', 'Oh no!')];
       }
       const me = pods[myPod];
       if (role() === 'pod' && takesPart(myPod)) {
-        if (me.state === 'right') return ['is-ok', '✓', `Chính xác! +${me.gain}`];
+        if (me.state === 'right') return ['is-ok', '✓', `${L('Chính xác!', 'Correct!')} +${me.gain}`];
         const late = Q.kind === 'order' ? picks.length < 4 : !picks.length;
-        return ['is-no', '✕', me.gain < 0 ? `Rất tiếc! ${me.gain}` : late ? 'Hết giờ!' : 'Rất tiếc!'];
+        return ['is-no', '✕', me.gain < 0 ? `${L('Rất tiếc!', 'Oh no!')} ${me.gain}` : late ? L('Hết giờ!', 'Time\'s up!') : L('Rất tiếc!', 'Oh no!')];
       }
       const won = pods.filter(p => p.gain > 0).sort((a, b) => b.gain - a.gain);
       if (role() === 'pod' && side.qid === qid) {
         const who = won.length ? ` · ${won.map(p => `${p.name} +${p.gain}`).join(' · ')}` : '';
-        return side.ok ? ['is-ok', '✓', `Em đúng!${who}`] : ['is-no', '✕', `Em chưa đúng${who}`];
+        return side.ok ? ['is-ok', '✓', `${L('Em đúng!', 'You\'re right!')}${who}`] : ['is-no', '✕', `${L('Em chưa đúng', 'Not quite')}${who}`];
       }
       if (won.length) return ['is-win', '✓', won.map(p => `${p.name} +${p.gain}`).join(' · ')];
       const lost = pods.filter(p => p.gain < 0);
       if (lost.length) return ['is-no', '✕', lost.map(p => `${p.name} ${p.gain}`).join(' · ')];
-      if (sl.seg === 'common' && buzzer < 0) return ['is-skip', '!', 'Không ai bấm chuông'];
-      return ['is-no', '✕', 'Chưa ai đúng'];
+      if (sl.seg === 'common' && buzzer < 0) return ['is-skip', '!', L('Không ai bấm chuông', 'Nobody rang the bell')];
+      return ['is-no', '✕', L('Chưa ai đúng', 'Nobody got it')];
     }
     let clkSec = -1;
     function paintClock() {
@@ -1603,7 +1611,8 @@ export function stage(app, onBack, { flow = false } = {}) {
       el.classList.toggle('is-read', reading);
       el.classList.toggle('is-aud', phase === 'audLast');   // thí sinh đã chốt: đồng hồ khán phòng (màu xanh lá)
       const small = el.querySelector('small');
-      if (small && small.textContent !== (reading ? 'đọc đề' : 'giây')) small.textContent = reading ? 'đọc đề' : 'giây';
+      const unit = reading ? L('đọc đề', 'read') : L('giây', 'sec');
+      if (small && small.textContent !== unit) small.textContent = unit;
       const left = Math.max(0, timer.end - performance.now()) / 1000;
       el.style.setProperty('--p', (left / timer.total).toFixed(3));
       const sec = Math.ceil(left);
@@ -1889,23 +1898,25 @@ export function stage(app, onBack, { flow = false } = {}) {
     async function host(key, vars = {}, opts) {
       const r = run;
       const ln = mcLine(key, hostVars(vars));
-      if (ln) { emit('say', ln.text, ln.mc, ln.parts); await mcSpeak(ln.text, ln.mc, { ...opts, parts: ln.parts }); }
+      // ln.voice: bản Tiếng Anh, MC nói giọng Anh (mảnh tên bạn chơi mang giọng Việt riêng, mc.js mcLine)
+      if (ln) { emit('say', ln.text, ln.mc, ln.parts, ln.voice); await mcSpeak(ln.text, ln.mc, { ...opts, parts: ln.parts, ...(ln.voice ? { voice: ln.voice } : {}) }); }
       return live(r);
     }
     /** Chọn sẵn câu MC sắp nói và tải trước giọng (cả phòng). Câu có tên: phần cố định và tên là các mp3 riêng (mc.js partsOf). */
     function preHost(key, vars = {}) {
       const ln = mcPlan(key, hostVars(vars));
-      if (ln) fxRun('pre', ln.parts, ln.mc);
+      if (ln) fxRun('pre', ln.parts, ln.voice || ln.mc);
     }
     /** Tải trước câu hỏi q và bốn phương án. */
     const preQ = (q) => {
       if (!q) return;
       const opts = (q.o || []).map((_, i) => i);
-      fxRun('pre', [sayQuestion(q), ...opts.filter(i => !optEn(q, i)).map(i => sayOption(q, i))].filter(Boolean), monOf(q));
-      // câu tiếng Anh: phần tiếng Anh và phương án tiếng Anh tải bằng giọng Anh của MC ấy
-      if (q.m === 'en') fxRun('pre', [q.en, ...opts.filter(i => optEn(q, i)).map(i => sayOption(q, i))].filter(Boolean), EN_VOICE[monOf(q)]);
+      const qEn = sayQuestionEn(q);
+      fxRun('pre', [qEn ? '' : sayQuestion(q), ...opts.filter(i => !optEn(q, i)).map(i => sayOption(q, i))].filter(Boolean), monOf(q));
+      // câu tiếng Anh: đề tiếng Anh (sayEn), phần tiếng Anh và phương án tiếng Anh tải bằng giọng Anh của MC ấy
+      if (q.m === 'en') fxRun('pre', [...(qEn ? enSayParts(qEn, monOf(q)).parts : []), needEnAfter(q) ? q.en : '', ...opts.filter(i => optEn(q, i)).map(i => sayOption(q, i))].filter(Boolean), EN_VOICE[monOf(q)]);
     };
-    async function speak(text, mc, opts) { const r = run; emit('say', text, mc, null, opts?.voice, opts?.cap); await mcSpeak(text, mc, opts); return live(r); }
+    async function speak(text, mc, opts) { const r = run; emit('say', text, mc, opts?.parts || null, opts?.voice, opts?.cap); await mcSpeak(text, mc, opts); return live(r); }
     /** Giọng Anh của MC `mc` cho phần tiếng Anh. */
     const enOpt = (mc, o = {}) => ({ ...o, voice: EN_VOICE[mc] || EN_VOICE[0] });
 
@@ -2339,12 +2350,16 @@ export function stage(app, onBack, { flow = false } = {}) {
       sfx('open');
       requestAnimationFrame(() => { if (!gone && Q) camX('screen'); }); // dải đáp án đã dựng: đo rồi mới khớp khung câu hỏi
       if (askKey && !(await host(askKey, askVars))) return;
-      if (!(await speak(sayQuestion(Q), mon))) return;
-      // câu tiếng Anh: giọng Anh đọc phần tiếng Anh; câu nghe (ẩn chữ) đọc hai lần
-      if (Q.m === 'en' && Q.en) {
-        const enSay = enOpt(mon, Q.hide ? { cap: '🎧 Các bạn nghe kĩ…' } : {});   // câu nghe: phụ đề không lộ câu được đọc
+      // câu tiếng Anh: MC đọc đề bằng tiếng Anh (sayEn, giọng Anh); câu dịch nghĩa sang tiếng Việt không có sayEn, đọc tiếng Việt
+      const qEn = sayQuestionEn(Q);
+      // «…» trong sayEn: chữ tiếng Việt (câu dịch nghĩa) đọc giọng Việt giữa câu giọng Anh
+      const qSay = qEn ? enSayParts(qEn, mon) : null;
+      if (!(await speak(qSay ? qSay.text : sayQuestion(Q), mon, qSay ? enOpt(mon, { parts: qSay.parts }) : undefined))) return;
+      // giọng Anh đọc phần tiếng Anh (sayEn đã gồm câu ấy thì thôi); câu nghe (ẩn chữ) đọc hai lần
+      if (needEnAfter(Q)) {
+        const enSay = enOpt(mon, Q.hide ? { cap: '🎧 Listen carefully…' } : {});   // câu nghe: phụ đề không lộ câu được đọc
         if (!(await speak(Q.en, mon, enSay))) return;
-        if (Q.hide) { await wait(700); if (r !== run) return; if (!(await speak(Q.en, mon, { ...enSay, cap: '🎧 Nghe lại một lần nữa…' }))) return; }
+        if (Q.hide) { await wait(700); if (r !== run) return; if (!(await speak(Q.en, mon, { ...enSay, cap: '🎧 Listen again…' }))) return; }
       }
       if (Q.kind === 'order' && !(await host('kindOrder'))) return;
       for (let i = 0; i < 4; i++) {
@@ -2747,6 +2762,27 @@ export function stage(app, onBack, { flow = false } = {}) {
     const liveCam = new THREE.PerspectiveCamera(40, 1, 0.1, 80);
     const _lv = new THREE.Vector3(), _ls = new THREE.Vector2();
     let liveKey = '', liveBox = '', liveCells = [];
+    /* Ô trực tiếp chỉ vẽ bục của bạn ấy (bục, nhân vật, chuông, màn điểm), cột đèn mừng, pháo giấy và đèn; sân khấu, bục bên
+       cạnh, MC, khán phòng, màn LED tắt trong lượt vẽ ô, nền là phông tối có quầng màu bục (như Đấu Trường của kinh-thanh:
+       người dùng 2026-11-22 không muốn thấy nền / chữ màn LED lẫn sau bạn ấy). */
+    const liveBg = COLORS.map(c => {
+      const cv = document.createElement('canvas'); cv.width = cv.height = 256;
+      const x = cv.getContext('2d');
+      const lin = x.createLinearGradient(0, 0, 0, 256); lin.addColorStop(0, '#0b1754'); lin.addColorStop(1, '#02040f');
+      x.fillStyle = lin; x.fillRect(0, 0, 256, 256);
+      const rad = x.createRadialGradient(128, 110, 4, 128, 110, 150); rad.addColorStop(0, c + '55'); rad.addColorStop(1, c + '00');
+      x.fillStyle = rad; x.fillRect(0, 0, 256, 256);
+      const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    });
+    function liveIsolate(i) {
+      const p = pods[i], keep = new Set([p.g, p.halo, p.haloPool, p.wave, confMesh]);
+      const saved = scene.children.map(o => o.visible);
+      scene.children.forEach(o => { if (!o.isLight && !keep.has(o)) o.visible = false; });
+      const bg = scene.background, fog = scene.fog;
+      scene.background = liveBg[i]; scene.fog = null;
+      return () => { scene.children.forEach((o, k) => { o.visible = saved[k]; }); scene.background = bg; scene.fog = fog; };
+    }
     function liveWho() {
       if (!sl || !ROUNDS[mode].sec || camCur !== 'screen' || camTo) return null;
       if (buzzer >= 0) return [buzzer];
@@ -2791,7 +2827,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (k !== liveKey) {
         liveKey = k;
         const rang = (i) => i === buzzer && who.length === 1;   // ô của bạn vừa bấm chuông: viền nháy màu bục, nhãn 🔔
-        liveEl.innerHTML = who.map(i => `<div class="dt-live-cell${rang(i) ? ' is-bell' : ''}" style="--c:${COLORS[i]}"><span class="dt-live-tag">${rang(i) ? '🔔 Giành quyền' : '<i></i>Trực tiếp'}</span><em class="dt-live-pop"></em><b class="dt-live-name"><span>${esc(pods[i].name)}</span><s></s></b></div>`).join('');
+        liveEl.innerHTML = who.map(i => `<div class="dt-live-cell${rang(i) ? ' is-bell' : ''}" style="--c:${COLORS[i]}"><span class="dt-live-tag">${rang(i) ? L('🔔 Giành quyền', '🔔 Buzzed') : `<i></i>${L('Trực tiếp', 'Live')}`}</span><em class="dt-live-pop"></em><b class="dt-live-name"><span>${esc(pods[i].name)}</span><s></s></b></div>`).join('');
         liveCells = [...liveEl.children].map((el, j) => ({ el, i: who[j], sc: el.querySelector('s'), shown: null }));
       }
       return true;
@@ -2811,10 +2847,12 @@ export function stage(app, onBack, { flow = false } = {}) {
     function aimLive(p, aspect) {
       // ô dẹt (nhiều ô): khung hẹp theo chiều cao, nâng lên ngang mặt bàn và mặt bạn ấy
       const g = p.g.position, ry = p.g.rotation.y, fx = Math.sin(ry), fz = Math.cos(ry), d = 4.6, flat = aspect > 1.4;
-      const tx = g.x - fx * 0.3, tz = g.z - fz * 0.3, ty = flat ? 1.85 : 1.62;
-      liveCam.position.set(tx + fx * d, ty + 0.35, tz + fz * d);
+      // khung nâng lên và rộng hơn một chút (như kinh-thanh): đầu bạn ấy có khoảng trống phía trên, nhãn "Trực tiếp" không che đầu
+      const tx = g.x - fx * 0.3, tz = g.z - fz * 0.3, ty = flat ? 2.02 : 1.78;
+      liveCam.position.set(tx + fx * d, ty + 0.3, tz + fz * d);
       liveCam.lookAt(tx, ty, tz);
-      const tanV = Math.max(flat ? 0.68 : 0.95, 0.88 / aspect) / d;
+      // khung gần hơn (như kinh-thanh): cao ~1,5 m quanh bạn ấy (ô dẹt ~1,2 m), ngang đủ mặt bàn
+      const tanV = Math.max(flat ? 0.6 : 0.76, 0.8 / aspect) / d;
       liveCam.fov = THREE.MathUtils.clamp(2 * Math.atan(tanV) * 180 / Math.PI, 18, 75);
       liveCam.aspect = aspect; liveCam.updateProjectionMatrix();
     }
@@ -2835,14 +2873,17 @@ export function stage(app, onBack, { flow = false } = {}) {
         const Wp = Math.round((r.width - 2 * b) * pr), Hp = Math.round((r.height - 2 * b) * pr);
         if (Wp < 8 || Hp < 8) return;
         aimLive(p, Wp / Hp);
+        const restore = liveIsolate(c.i);
         if (noSharp) {
           renderer.setViewport(X / pr, Y / pr, Wp / pr, Hp / pr); renderer.setScissor(X / pr, Y / pr, Wp / pr, Hp / pr);
           renderer.render(scene, liveCam);
+          restore();
           return;
         }
         // như cảnh chính (present): vẽ vào tấm đệm MSAA đúng ô đó, rồi phủ ra màn hình qua bộ lọc làm nét, chỉ trong ô
         sharpRT.viewport.set(X, Y, Wp, Hp); sharpRT.scissor.set(X, Y, Wp, Hp); sharpRT.scissorTest = true;
         renderer.setRenderTarget(sharpRT); renderer.render(scene, liveCam);
+        restore();
         renderer.setRenderTarget(null);
         renderer.setViewport(0, 0, size.x, size.y); renderer.setScissor(X / pr, Y / pr, Wp / pr, Hp / pr);
         renderer.render(sharpScene, sharpCam);

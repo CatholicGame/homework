@@ -6,6 +6,12 @@
  * { w: tuần 1–35, sk: 'nghe' | 'tu' | 'np' | 'doc', lv: 1–5, t: chủ đề (tiếng Việt, ngắn),
  *   q: chữ hiện trên màn LED (hướng dẫn tiếng Việt + phần tiếng Anh; câu nghe KHÔNG chứa câu được đọc),
  *   say: lời MC đọc bằng giọng Việt (phần hướng dẫn), en?: câu giọng Anh đọc sau lời MC,
+ *   sayEn: lời MC đọc đề bằng TIẾNG ANH (thay say; giọng Anh). BẮT BUỘC ở mọi câu (người dùng 2026-11-22: mọi hướng dẫn
+ *   tiếng Anh). Chữ tiếng Việt cần đọc (câu dịch nghĩa: "How do you say «thư viện» in English?") đặt trong «…», đọc giọng Việt.
+ *   Phương án tiếng Việt vẫn đọc giọng Việt.
+ *   qEn: chữ đề trên màn LED bằng TIẾNG ANH (thay q khi hiện; q vẫn là khoá câu). BẮT BUỘC. Giữ định dạng của q (emoji đầu
+ *   câu, "___", đoạn đọc trong ngoặc kép); chữ tiếng Việt cần hiện đặt trong «…» (hiện thành “…”). Câu nghe: không lộ en. Câu nghe (hide): sayEn chỉ là lời hướng dẫn, không lộ câu en. Câu khác: sayEn
+ *   gồm phần tiếng Anh cần nghe (chỗ trống đọc "blank"), chứa en thì en không đọc lại.
  *   hide?: true (câu nghe: `en` không hiện trên màn, lật đáp án mới hiện), o: [đúng, bẫy, nhiễu, nhiễu] (order: 4 mảnh theo
  *   thứ tự đúng), k?: 'order', ex: lời giải tiếng Việt, fig?: hình thẻ emoji { type: 'tokens', row | rows },
  *   tt?: 'nghe' | 'xep' | 'doc' | 'tu' (chỉ tt.js), pt?: 10 | 20 | 30 (chỉ vd.js) }
@@ -22,6 +28,8 @@ const SK = ['nghe', 'tu', 'np', 'doc'], TT = ['nghe', 'xep', 'doc', 'tu'];
 const MAX_Q = 200, MAX_O = 40, MAX_PIECE = 24, MAX_EX = 200, MAX_SAY = 300;
 const VI = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
 let errors = 0;
+const missQ = [];   // câu chưa có qEn (màn LED sẽ hiện đề tiếng Việt)
+const missing = [];   // câu chưa có sayEn (MC sẽ đọc lời tiếng Việt)
 const err = (f, i, q, msg) => { errors++; console.log(`${f} #${i} (${String(q?.q ?? '?').slice(0, 50)}): ${msg}`); };
 
 for (let g = 1; g <= 5; g++) for (const r of ['kd', 'tt', 'vd']) {
@@ -53,6 +61,29 @@ for (let g = 1; g <= 5; g++) for (const r of ['kd', 'tt', 'vd']) {
       const lim = q.k === 'order' ? MAX_PIECE : MAX_O;
       q.o.forEach(o => { if (String(o).length > lim) e(`phương án dài > ${lim}: ${o}`); });
     }
+    const viOpt = Array.isArray(q.o) && q.o.some(o => VI.test(String(o)));   // câu dịch nghĩa (chỉ để ghi chú)
+    if (q.sayEn != null) {
+      if (typeof q.sayEn !== 'string' || !q.sayEn.trim()) e('sayEn rỗng');
+      else {
+        if (VI.test(q.sayEn.replace(/«[^»]*»/g, ''))) e('sayEn có chữ tiếng Việt ngoài «…»');
+        if ((q.sayEn.match(/«/g) || []).length !== (q.sayEn.match(/»/g) || []).length) e('sayEn: «» không khớp');
+        if (/_{2,}/.test(q.sayEn)) e('sayEn còn "___" (đọc là "blank")');
+        if (q.sayEn.length > MAX_SAY) e('sayEn dài quá');
+        const n = (t) => String(t).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+        if (q.hide && q.en && n(q.en).length > 6 && n(q.sayEn).includes(n(q.en))) e('câu nghe: sayEn lộ câu en');
+      }
+    } else missing.push(`${f} #${i}: ${String(q.q).slice(0, 60)}${viOpt ? ' (dịch nghĩa)' : ''}`);
+    if (q.viSay != null) e('viSay đã bỏ: viết sayEn, chữ tiếng Việt trong «…»');
+    if (q.qEn == null) missQ.push(`${f} #${i}: ${String(q.q).slice(0, 60)}`);
+    else if (typeof q.qEn !== 'string' || !q.qEn.trim()) e('qEn rỗng');
+    else {
+      if (VI.test(q.qEn.replace(/«[^»]*»/g, ''))) e('qEn có chữ tiếng Việt ngoài «…»');
+      if ((q.qEn.match(/«/g) || []).length !== (q.qEn.match(/»/g) || []).length) e('qEn: «» không khớp');
+      if (q.qEn.length > MAX_Q + 60) e(`qEn dài ${q.qEn.length}`);
+      const n = (t) => String(t).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+      if (q.hide && q.en && n(q.en).length > 6 && n(q.qEn).includes(n(q.en))) e('câu nghe: qEn lộ câu en');
+      if (/_{2,}/.test(q.q) && !/_{2,}/.test(q.qEn)) e('q có "___" mà qEn không có');
+    }
     if (q.k != null && q.k !== 'order') e(`k lạ: ${q.k}`);
     if (!q.ex || q.ex.length > MAX_EX) e(`ex thiếu hoặc dài quá ${MAX_EX}`);
     if (q.fig && !(q.fig.type === 'tokens' && Array.isArray(q.fig.row || q.fig.rows))) e('fig chỉ nhận { type: "tokens", row | rows }');
@@ -72,6 +103,14 @@ for (let g = 1; g <= 5; g++) for (const r of ['kd', 'tt', 'vd']) {
     count[c] = (count[c] || 0) + 1;
   });
   console.log(`${f}: ${bank.length} câu${stats ? `  ${JSON.stringify(count)}` : ''}`);
+}
+if (missQ.length) {
+  console.log(`\n⚠️ ${missQ.length} câu chưa có qEn (màn LED hiện đề tiếng Việt)${args.includes('--missing') ? ':' : ', thêm --missing để xem'}`);
+  if (args.includes('--missing')) missQ.forEach(m => console.log('  qEn ' + m));
+}
+if (missing.length) {
+  console.log(`\n⚠️ ${missing.length} câu chưa có sayEn (MC sẽ đọc tiếng Việt)${args.includes('--missing') ? ':' : ', thêm --missing để xem'}`);
+  if (args.includes('--missing')) missing.forEach(m => console.log('  ' + m));
 }
 console.log(errors ? `\n❌ ${errors} lỗi` : '\n✅ Không có lỗi');
 process.exit(errors ? 1 : 0);

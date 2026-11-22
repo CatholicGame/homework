@@ -39,7 +39,8 @@ const normQ = (s) => String(s).toLowerCase().normalize('NFC').replace(/[\s“”
 export function qKey(q) {
   const right = (q.kind || q.k) === 'order' ? [...q.o].map(String).sort().join('|') : Number.isInteger(q.a) ? q.o[q.a] : q.o[0];
   // câu nghe tiếng Anh: cùng đề "🎧 Nghe và chọn…", khác câu được đọc (en) là câu khác
-  return `${normQ(q.q)}|=${normQ(right)}${q.fig ? `|${JSON.stringify(q.fig)}` : ''}${q.en ? `|${normQ(q.en)}` : ''}`;   // cùng đề "Hình tiếp theo là gì?" nhưng khác hình là câu khác
+  // q0: đề gốc (câu tiếng Anh hiện qEn trên màn, mã câu vẫn theo đề gốc để sổ đã gặp không lệch)
+  return `${normQ(q.q0 || q.q)}|=${normQ(right)}${q.fig ? `|${JSON.stringify(q.fig)}` : ''}${q.en ? `|${normQ(q.en)}` : ''}`;   // cùng đề "Hình tiếp theo là gì?" nhưng khác hình là câu khác
 }
 /** Mã cũ (đề + mọi phương án): sổ đã gặp ghi trước bản này và máy các bạn chưa cập nhật vẫn gửi mã cũ. */
 const qKeyOld = (q) => `${q.q}|${[...q.o].map(String).sort().join('|')}`;

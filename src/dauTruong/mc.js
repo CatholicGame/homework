@@ -100,13 +100,112 @@ const SCRIPT = {
   bye: [0, 'Cảm ơn tất cả các bạn! Anh Minh và chị Mai hẹn gặp lại!'],
 };
 
-/* Đấu Trường Nhí Tiếng Anh (subject.js 'en'): lời giới thiệu môn khác, phần còn lại dùng chung. Anh Minh: Nghe + Từ vựng,
-   chị Mai: Ngữ pháp + Đọc hiểu (subject.js EN_SKILL_MC). */
+/* Đấu Trường Nhí Tiếng Anh (subject.js 'en'): MC nói TIẾNG ANH mọi lời (người dùng 2026-11-22), giọng Anh của MC
+   (subject.js EN_VOICE: anh Minh Andrew, chị Mai Emma); tên bạn chơi {ten} đọc bằng giọng Việt của MC (mảnh riêng, mcLine).
+   Anh Minh: Nghe + Từ vựng, chị Mai: Ngữ pháp + Đọc hiểu (subject.js EN_SKILL_MC). Không dùng {tenCT} (tên tiếng Việt). */
 const SCRIPT_EN = {
-  openMe0: [0, 'Mình là anh Minh. Hôm nay mình sẽ cùng các bạn chinh phục những câu hỏi Nghe và Từ vựng tiếng Anh.', 'Mình là anh Minh, và những câu hỏi Nghe, Từ vựng tiếng Anh đang chờ các bạn đấy!'],
-  openMe1: [1, 'Còn mình là chị Mai, mình mang đến những câu hỏi Ngữ pháp và Đọc hiểu tiếng Anh.', 'Và mình là chị Mai. Ngữ pháp và Đọc hiểu tiếng Anh hôm nay sẽ thật thú vị!'],
-  ttRule: [0, 'Bốn câu thử thách tiếng Anh, cả bốn bạn cùng trả lời. Bạn nào đúng cũng được hai mươi điểm!'],
+  // ---------- Mở màn ----------
+  openHi: [0, 'Hello, everyone in grade {lop}! Welcome to our English quiz show!', 'Hello, everybody! Welcome, grade {lop}, to our English quiz show!'],
+  openMe0: [0, 'I\'m Minh. Today I\'ll bring you listening and vocabulary questions.', 'My name is Minh, and the listening and vocabulary questions are waiting for you!'],
+  openMe1: [1, 'And I\'m Mai. I\'ll bring you grammar and reading questions.', 'And I\'m Mai. Grammar and reading will be so much fun today!'],
+  openPlan: [1, 'There are three rounds today: Warm-up, Speed-up and Finish line. The audience answers too and gets points. Let\'s start!'],
+
+  // ---------- Chung cho mọi câu ----------
+  ask: ['mon', 'Question {so}.', 'Here is question {so}.'],
+  kindOrder: ['mon', 'Tap the cards in the right order.', 'Put the cards in the right order!'],
+  go: ['mon', 'Time starts now!', 'Go!', 'Please answer now!'],
+  goOne: ['mon', '{ten}, please answer!', '{ten}, your time starts now!'],
+  goBell: ['mon', 'If you know the answer, ring the bell!', 'The bell is open. Who is the fastest?'],
+  locked: ['mon', '{ten} has locked in an answer!', '{ten} has chosen!'],
+  lockedFast: ['mon', 'A very fast answer from {ten}!', '{ten} answers as fast as lightning!', 'So fast! {ten} has locked in.'],
+  allLock: ['mon', 'All four players have locked in!', 'Wow, all four have answered!'],
+  audLast: ['mon', '{ten} has locked in! Audience, a few seconds left!', '{ten} has chosen! Audience, hurry up!'],
+  audLastFast: ['mon', 'Lightning fast, {ten} has locked in! Audience, a few seconds left!', '{ten} was very quick! Audience, choose fast!'],
+  audLastAll: ['mon', 'All four have locked in! Audience, a few seconds left!', 'All four players are done! Audience, hurry up!'],
+  timeUp: ['mon', 'Time\'s up!', 'Time is over!'],
+  answer: ['mon', 'The correct answer is {chu}.', 'And the correct answer is {chu}!'],
+  answerShow: ['mon', 'And here is the right order.', 'Let\'s see the right order!'],
+  bellHit: ['mon', '{ten} rang the bell first! Please answer.', 'The {mau} bell! Go ahead, {ten}.'],
+  noBell: ['mon', 'Nobody rang the bell.', 'No one rang the bell.'],
+  audTop: [1, 'In the audience, {ten} is leading with {diem} points!', 'Audience, the leader right now is {ten}, with {diem} points!', 'Audience members with the right answer are glowing green. {ten} leads the audience with {diem} points!'],
+  audNone: [1, 'In the audience, everyone with the right answer is glowing green!'],
+
+  // ---------- Khởi động ----------
+  kdIntro: [1, 'Round one, Warm-up!', 'Let\'s begin the Warm-up round!'],
+  kdRule: [0, '{so} questions, all four players answer, {giay} seconds each. Every right answer gets ten points!', 'There are {so} questions. All four players answer each one in {giay} seconds. A right answer gets ten points!'],
+  allRight: ['mon', 'The answer is {chu}! All four are right, ten points each!', 'It\'s {chu}! All four players get ten points.'],
+  allSome: ['mon', 'The answer is {chu}! {soBan} players got it right, ten points each.', 'It\'s {chu}! {soBan} players get ten points.'],
+  allOne: ['mon', 'The answer is {chu}! Only {ten} got it right. Ten points for {ten}!', 'It\'s {chu}! Ten points for {ten}, the only right answer.'],
+  allNone: ['mon', 'The correct answer is {chu}. Nobody got this one.', 'Oh, the answer is {chu}. Good luck on the next one!'],
+  kdTurn: [0, '{ten}, it\'s your turn!', 'Now it\'s your turn, {ten}!'],
+  soloRight: ['mon', 'Correct, {chu}! Ten points for {ten}.', 'That\'s right, {chu}! {ten} gets ten points.'],
+  soloWrong: ['mon', 'Not quite, the answer is {chu}.', 'Oh, the correct answer is {chu}.'],
+  soloLate: ['mon', 'Time\'s up! The answer is {chu}.'],
+  kdCommon: [0, 'Open round! Listen to the whole question, then ring the bell. Right is ten points, wrong is minus five.'],
+  commonRight: ['mon', 'Correct, {chu}! {ten} gets ten points.', 'That\'s right, {chu}! Ten points for {ten}.'],
+  commonWrong: ['mon', 'Not quite, the answer is {chu}. {ten} loses five points.'],
+  kdEnd: [0, 'The Warm-up round is over. {ten} is leading with {diem} points!', 'That\'s the end of Warm-up! The leader is {ten}, with {diem} points.'],
+
+  // ---------- Tăng tốc ----------
+  ttIntro: [1, 'Round two, Speed-up!', 'Get ready, it\'s time for Speed-up!'],
+  ttRule: [0, 'Four English challenges, all four players answer. Every right answer gets twenty points!'],
+  ttAsk: ['mon', 'Question {so}, {loai}!'],
+  ttAll: [0, 'All four are right! Twenty points each!', 'Amazing, all four players get twenty points!'],
+  ttSome: [0, '{soBan} players got it right, twenty points each!', '{soBan} players are right, twenty points for each!'],
+  ttOne: [0, 'Only {ten} got it right! Twenty points for {ten}.', '{ten} is the only one who got it, twenty points!'],
+  ttNone: ['mon', 'Nobody got this one. Good luck on the next one!', 'That was a tough one. Nobody got it.'],
+  ttEnd: [0, 'Speed-up is over! {ten} is leading with {diem} points.', 'That\'s the end of Speed-up! The leader is {ten}, with {diem} points.'],
+
+  // ---------- Về đích ----------
+  vdIntro: [0, 'And now the final round, Finish line!', 'The last round, Finish line!'],
+  vdRule: [1, 'Each player chooses a pack of three questions: thirty, fifty, seventy or ninety points. With the star of hope, a right answer is double, a wrong answer loses those points.'],
+  vdRule2: [0, 'If the answer is wrong, the other three can ring the bell to steal. The player with the fewest points goes first!'],
+  vdTurn: [0, '{ten}, please choose your pack!', '{ten}, which pack do you want?'],
+  vdPicked: [0, 'The {goi} point pack!'],
+  vdBig: [0, 'The ninety point pack! So brave!'],
+  starAsk: [1, 'Question {so}, {diem} points. Do you want the star of hope?'],
+  starOn: [0, 'Star on! A right answer gets {diemX2} points.', 'The star of hope! {ten} is very confident.'],
+  vdAsk: ['mon', 'Question {so}, {diem} points.'],
+  vdRight: [0, 'Correct, {chu}! {ten} gets {diem} points.', 'That\'s right, {chu}! {diem} more points for {ten}.'],
+  vdRightX2: [0, 'Correct, {chu}! The star shines, {ten} gets {diemX2} points!'],
+  vdWrong: [0, '{ten}, not quite.', 'Not quite right.'],
+  vdWrongX2: [0, 'Oh no, {ten} loses {diem} points.'],
+  vdLate: [0, 'Time\'s up!'],
+  bellOpen: [0, 'Who wants to steal?', 'The bell is open!'],
+  stealRight: [0, 'Correct, {chu}! {ten} steals {diem} points.'],
+  stealWrong: [0, 'Not quite, the answer is {chu}. {ten} doesn\'t lose any points.'],
+
+  // ---------- Trao giải ----------
+  awardOpen: [0, 'And now, it\'s award time!', 'It\'s time to celebrate our winners!'],
+  rank4: [1, 'Fourth place goes to {ten}, with {diem} points. You tried really hard!'],
+  rank3: [1, 'Third place is {ten}, with {diem} points!'],
+  rank2: [0, 'Second place, {ten}, {diem} points!'],
+  champ: [0, 'And today\'s winner is {ten}!', 'Congratulations to today\'s champion, {ten}!'],
+  champPts: [1, '{ten} won {diem} points. Everyone, let\'s give a big hand!'],
+  audBest: [1, 'The best audience member today is {ten}, with {diem} points!'],
+  bye: [0, 'Thank you, everyone! See you next time from Minh and Mai!'],
 };
+/* Lời tiếng Anh: chỗ trống điền giá trị tiếng Anh (chữ cái đáp án, màu chuông, tên phần Tăng tốc). */
+const EN_VAL = {
+  chu: (v) => ('ABCD'[LETTER.indexOf(v)] || v),
+  mau: (v) => ({ 'đỏ': 'red', 'cam': 'orange', 'xanh lá': 'green', 'xanh dương': 'blue' }[v] || v),
+  loai: (v) => ({ 'nghe nhanh': 'quick listening', 'sắp xếp': 'word order', 'đọc nhanh': 'quick reading', 'đố từ': 'word puzzle' }[v] || v),
+};
+/** Giọng Anh Azure của MC (subject.js EN_VOICE). */
+const EN_KEY = ['enAndrew', 'enEmma'];
+/**
+ * Lời MC tiếng Anh có đoạn tiếng Việt trong «…» (câu dịch nghĩa: "How do you say «thư viện» in English?"):
+ * trả { text (bỏ «»), parts }: mảnh tiếng Anh đọc giọng Anh (voice của lần đọc), mảnh «…» đọc giọng Việt của MC `mc`.
+ */
+export function enSayParts(t, mc = 0) {
+  const parts = [];
+  String(t).split(/«([^»]*)»/).forEach((seg, k) => {
+    const x = seg.trim();
+    if (!/[\p{L}\p{N}]/u.test(x)) return;
+    parts.push(k % 2 ? { t: x, v: mc } : x);
+  });
+  return { text: String(t).replace(/[«»]/g, ''), parts };
+}
 
 const NUM = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín', 'mười', 'mười một', 'mười hai'];
 const last = {}, planned = {};
@@ -132,12 +231,14 @@ function partsOf(tpl, val) {
  * Câu đã chọn sẵn bằng mcPlan (để tải trước) thì dùng đúng câu ấy.
  */
 export function mcLine(key, vars = {}) {
-  const s = (isEnArena() && SCRIPT_EN[key]) || SCRIPT[key];
+  const en = isEnArena() && !!SCRIPT_EN[key];
+  const s = en ? SCRIPT_EN[key] : SCRIPT[key];
   if (!s) return null;
   const [who, ...lines] = s;
   const val = (h) => {
     let v = vars[h];
     if (v == null || v === '') return null;
+    if (en) return String(EN_VAL[h] ? EN_VAL[h](String(v)) : v);   // tiếng Anh: số để nguyên chữ số (giọng Anh tự đọc)
     if ((h === 'so' || h === 'soBan') && Number.isInteger(v) && v <= 12) v = NUM[v];
     return String(v);
   };
@@ -157,7 +258,11 @@ export function mcLine(key, vars = {}) {
   const up = (t) => t.replace(/^\p{Ll}/u, c => c.toUpperCase());
   const parts = partsOf(lines[i], val);
   if (parts.length) parts[0] = up(parts[0]);
-  return { mc: who === 'mon' ? (vars.mon ?? 0) : who, text: up(text), parts };
+  const mc = who === 'mon' ? (vars.mon ?? 0) : who;
+  if (!en) return { mc, text: up(text), parts };
+  // tiếng Anh: cả câu giọng Anh của MC, riêng mảnh tên bạn chơi đọc giọng Việt của MC ấy (tên tiếng Việt)
+  const name = lines[i].includes('{ten}') && vars.ten ? String(vars.ten).trim() : null;
+  return { mc, text: up(text), voice: EN_KEY[mc] || EN_KEY[0], parts: parts.map(t => (t === name ? { t, v: mc } : t)) };
 }
 /** Chọn sẵn câu của tình huống `key` (lần mcLine(key) kế tiếp nói đúng câu này) và trả về để tải trước giọng. */
 export function mcPlan(key, vars = {}) {
@@ -188,6 +293,15 @@ const sayTv = (t) => String(t).replace(/\s*\([^)]*\)/g, '').replace(/\s*(?:…|\
 const sayMath = (t) => speakLetters(sayEmoji(String(t).replace(/,\s*(?:…|\.{3})/g, '').replace(/(\p{L})\s*:\s*/gu, '$1, ')));
 const sayText = (q, t) => (q.m === 'tv' ? sayTv(t) : sayMath(t));
 /** Câu hỏi MC đọc. */
+/** Câu tiếng Anh: lời MC đọc đề bằng tiếng Anh (giọng Anh của MC); không có (câu dịch nghĩa sang tiếng Việt) thì null, đọc `say`. */
+export const sayQuestionEn = (q) => (q?.m === 'en' && q.sayEn) || null;
+/** Câu tiếng Anh có sayEn: còn phải đọc riêng `en` không (câu nghe luôn đọc; câu khác chỉ khi sayEn chưa chứa câu ấy). */
+export function needEnAfter(q) {
+  if (!(q?.m === 'en' && q.en)) return false;
+  if (q.hide || !q.sayEn) return true;
+  const n = (t) => String(t).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return !n(q.sayEn).includes(n(q.en));
+}
 export function sayQuestion(q) {
   if (q.say) return q.say;                       // câu tiếng Anh: lời hướng dẫn tiếng Việt (phần tiếng Anh: q.en, giọng Anh)                       // ngân hàng ghi sẵn lời đọc (câu có hình, phép tính viết khác lời nói)
   if (q.tag === 'Dãy hình') return 'Các bạn quan sát dãy hình trên màn hình. Hình tiếp theo là hình nào?';

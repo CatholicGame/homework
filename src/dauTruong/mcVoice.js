@@ -134,7 +134,11 @@ export function voiceMode() {
 /** Tải trước câu MC sắp đọc (một câu, hoặc mảng các câu / các mảnh của một câu): lúc đọc không phải chờ mạng. */
 export function mcPrefetch(text, mc = 0, { mute } = {}) {
   if ((mute ?? muted) || !canCloud()) return;
-  (Array.isArray(text) ? text : [text]).forEach((t) => { if (String(t || '').trim()) cloudUrl(t, mc).catch(() => {}); });
+  // mảnh { t, v }: tải bằng giọng v (Đấu Trường Tiếng Anh: tên / chữ tiếng Việt trong câu giọng Anh)
+  (Array.isArray(text) ? text : [text]).forEach((p) => {
+    const t = typeof p === 'object' && p ? p.t : p;
+    if (String(t || '').trim()) cloudUrl(t, typeof p === 'object' && p && p.v != null ? p.v : mc).catch(() => {});
+  });
 }
 
 /**
@@ -152,7 +156,8 @@ export function mcSpeak(text, mc = 0, { onStart, parts, rate: callRate, mute, vo
   const muted = mute ?? isMcMuted();
   const estimate = (t) => estimateAt(t, rate);
   text = String(text || '').trim();
-  parts = (parts?.length ? parts : [text]).map(t => String(t || '').trim()).filter(Boolean);
+  // mảnh: chữ, hoặc { t, v } đọc bằng giọng v riêng (Đấu Trường Tiếng Anh: tên bạn chơi / nghĩa tiếng Việt đọc giọng Việt giữa câu giọng Anh)
+  parts = (parts?.length ? parts : [text]).map(p => (typeof p === 'object' && p ? { t: String(p.t || '').trim(), v: p.v } : { t: String(p || '').trim() })).filter(p => p.t);
   if (!text) return Promise.resolve();
   const my = ++seq;
   pending?.();
@@ -185,7 +190,7 @@ export function mcSpeak(text, mc = 0, { onStart, parts, rate: callRate, mute, vo
     if (muted) { begin(); guard = setTimeout(finish, estimate(text)); return; }
     if (!canCloud()) { local(); return; }
     // câu ghép mảnh (phần cố định + tên, mc.js partsOf): chờ đủ mọi mảnh rồi mới phát, các mảnh nối liền không chờ mạng giữa chừng
-    Promise.all(parts.map(t => cloudUrl(t, cloudKey))).then((urls) => {
+    Promise.all(parts.map(p => cloudUrl(p.t, p.v != null ? p.v : cloudKey))).then((urls) => {
       if (done || my !== seq) { finish(); return; }
       const a = playerEl();
       try { synth?.cancel(); } catch { /* bỏ qua */ }
@@ -197,7 +202,7 @@ export function mcSpeak(text, mc = 0, { onStart, parts, rate: callRate, mute, vo
         a.playbackRate = rate; a.preservesPitch = true; a.defaultPlaybackRate = rate;
         a.play().then(() => {
           // phòng thẻ không báo onended: quá độ dài mảnh thì coi như xong
-          const len = isFinite(a.duration) && a.duration > 0 ? a.duration * 1000 / rate : estimate(parts[k]) * 1.6;
+          const len = isFinite(a.duration) && a.duration > 0 ? a.duration * 1000 / rate : estimate(parts[k].t) * 1.6;
           guard = setTimeout(finish, len + 2500);
         }, () => { if (!started) local(); else finish(); });   // trình duyệt chặn tự phát (chưa chạm lần nào): giọng của máy
       };

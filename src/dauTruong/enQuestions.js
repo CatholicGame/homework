@@ -2,8 +2,9 @@
  * Câu hỏi của 🏆 Đấu Trường Nhí TIẾNG ANH (subject.js 'en'). Ngân hàng soạn tay theo Tiếng Anh Global Success lớp 1–5:
  * bank/en/g<lớp>/kd.js (Khởi động), tt.js (Tăng tốc), vd.js (Về đích). Kiểm: `node scripts/dautruong-en-check.mjs`.
  *
- * Dòng soạn tay: { w, sk: 'nghe' | 'tu' | 'np' | 'doc', lv, t, q (chữ trên màn LED), say (MC đọc giọng Việt), en? (giọng Anh đọc
- * sau MC), hide? (câu nghe: `en` không hiện tới lúc lật), o: [đúng, bẫy, nhiễu, nhiễu] | 4 mảnh đúng thứ tự (k 'order'), ex, fig?,
+ * Dòng soạn tay: { w, sk: 'nghe' | 'tu' | 'np' | 'doc', lv, t, q (đề tiếng Việt gốc, khoá câu đã gặp), qEn (chữ đề trên màn LED,
+ * tiếng Anh; chữ tiếng Việt trong «…»), say (MC đọc giọng Việt), sayEn? (MC đọc đề bằng
+ * tiếng Anh thay cho say; bỏ trống ở câu dịch nghĩa sang tiếng Việt), en? (giọng Anh đọc sau MC), hide? (câu nghe: `en` không hiện tới lúc lật), o: [đúng, bẫy, nhiễu, nhiễu] | 4 mảnh đúng thứ tự (k 'order'), ex, fig?,
  * tt? (Tăng tốc), pt? (Về đích) }.
  * Câu trả về giống câu Toán / Tiếng Việt (questions.js) cộng thêm m: 'en', sk, say, en, hide, mc (MC đọc: 0 anh Minh, 1 chị Mai).
  *
@@ -20,18 +21,20 @@ const rnd = (n) => Math.floor(Math.random() * n);
 const pick = (a) => a[rnd(a.length)];
 function shuffle(a) { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
+/** Chữ đề trên màn LED: qEn (tiếng Anh, người dùng 2026-11-22); chữ tiếng Việt trong «…» hiện trong ngoặc kép. */
+const screenQ = (r) => (r.qEn ? r.qEn.replace(/«/g, '“').replace(/»/g, '”') : r.q);
 /** Dòng soạn tay → câu của game (xáo phương án; order: xáo các mảnh, a = thứ tự đúng). */
 export function enFromRow(r) {
-  const extra = { m: 'en', sk: r.sk, mc: EN_SKILL_MC[r.sk] ?? 0, level: r.lv, w: r.w, ex: r.ex, say: r.say, src: 'en',
+  const extra = { m: 'en', sk: r.sk, mc: EN_SKILL_MC[r.sk] ?? 0, level: r.lv, w: r.w, ex: r.ex, say: r.say, q0: r.q, ...(r.sayEn ? { sayEn: r.sayEn } : {}), src: 'en',
     t: r.t || EN_SKILL[r.sk], ...(r.en ? { en: r.en } : {}), ...(r.hide ? { hide: true } : {}), ...(r.fig ? { fig: r.fig } : {}),
     ...(r.tt ? { tt: r.tt, tag: EN_TT_TAG[r.tt] } : {}), ...(r.pt ? { pt: r.pt } : {}) };
   if ((r.k || 'abcd') === 'order') {
     let o;
     for (let i = 0; i < 10; i++) { o = shuffle(r.o); if (o.join() !== r.o.join()) break; }
-    return { kind: 'order', q: r.q, o, a: r.o.map(p => o.indexOf(p)), ...extra };
+    return { kind: 'order', q: screenQ(r), o, a: r.o.map(p => o.indexOf(p)), ...extra };
   }
   const o = shuffle(r.o);
-  return { kind: 'abcd', q: r.q, o, a: o.indexOf(r.o[0]), trap: o.indexOf(r.o[1]), ...extra };
+  return { kind: 'abcd', q: screenQ(r), o, a: o.indexOf(r.o[0]), trap: o.indexOf(r.o[1]), ...extra };
 }
 
 /* ---------- Câu Tăng tốc dự phòng (ngân hàng hết câu mới): xếp chữ cái thành từ ---------- */
@@ -50,7 +53,7 @@ export function enSpeedQ(type, grade = 3) {
   // chữ cái trùng (doll, book): a lấy lần lượt từng vị trí
   const left = o.map((x, i) => i), a = letters.map(ch => left.splice(left.findIndex(i => o[i] === ch), 1)[0]);
   return { kind: 'order', m: 'en', sk: 'tu', mc: 0, tag: EN_TT_TAG.xep, t: 'Đánh vần', level: 2,
-    q: 'Xếp các chữ cái thành từ đúng với hình.', say: 'Xếp các chữ cái thành từ đúng với hình.',
+    q: 'Put the letters in order to make the word for the picture.', say: 'Xếp các chữ cái thành từ đúng với hình.', sayEn: 'Put the letters in order to make the word for the picture.',
     fig: { type: 'tokens', row: [emo] }, o, a, ex: `Từ đúng là ${w}.` };
 }
 
