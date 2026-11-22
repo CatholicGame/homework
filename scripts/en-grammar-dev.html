@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>en grammar dev</title>
+<link rel="stylesheet" href="/src/styles/global.css" />
+<style>body { margin: 0; } #app { position: fixed; inset: 0; overflow: auto; }</style></head>
+<body><div id="app"></div>
+<script type="module">
+// Xem thử 📐 Ngữ pháp tiếng Anh (src/games/enGrammar.js).
+//   ?                              danh sách bài
+//   ?unit=g01&step=learn|practice  mở thẳng một bài
+//   &q=6                           câu số 6 (đếm từ 0) hỏi đầu tiên
+//   &auto=3                        tự trả lời 3 câu đầu (câu lẻ sai, câu chẵn đúng) để chụp giữa lượt; &auto=99 tới màn Xong
+addEventListener('error', e => { document.title = 'ERR ' + e.message; });
+addEventListener('unhandledrejection', e => { document.title = 'REJ ' + (e.reason && e.reason.stack || e.reason); });
+const p = new URLSearchParams(location.search);
+const { render } = await import('/src/games/enGrammar.js');
+const app = document.getElementById('app');
+render(app, () => { document.title = 'back'; }, { open: p.get('unit') ? { unit: p.get('unit'), step: p.get('step'), q: p.get('q') ?? undefined } : null });
+const auto = Number(p.get('auto') || 0);
+let n = 0;
+const tick = () => {
+  if (n >= auto) { document.title = 'app ok'; return; }
+  const next = app.querySelector('.eg-fb-next:not([hidden])');
+  if (next) { if (n + 1 < auto) next.click(); n++; return setTimeout(tick, 60); }
+  const opts = [...app.querySelectorAll('.eg-choices .eg-opt')];
+  const tiles = [...app.querySelectorAll('.eg-choices .eg-tile:not(.is-used)')];
+  const wrong = n % 2 === 0;
+  if (tiles.length) { tiles[0].click(); return setTimeout(tick, 40); }
+  if (opts.length) {
+    // dev: đoán đáp án đúng bằng parseQ không được vì xáo; bấm nút đầu hoặc nút cuối
+    (wrong ? opts[opts.length - 1] : opts[0]).click();
+  }
+  setTimeout(tick, 60);
+};
+if (auto) setTimeout(tick, 300); else setTimeout(() => { if (!/^(ERR|REJ)/.test(document.title)) document.title = 'app ok'; }, 500);
+</script></body></html>

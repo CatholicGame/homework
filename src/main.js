@@ -415,6 +415,7 @@ function navigate(gameId, opts = {}) {
     'memory-island': () => import('./games/memoryIsland.js'),
     'writing': () => import('./games/writing.js'),
     'english-reading': () => import('./games/englishReading.js'),
+    'english-grammar': () => import('./games/enGrammar.js'),
     'tv3-weekly': () => import('./games/tiengViet3.js'),
     'tv3-spell': () => import('./games/tv3Spell.js'),
     'tv3-tools': () => import('./games/tv3Tools.js'),

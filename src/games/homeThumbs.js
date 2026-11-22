@@ -261,6 +261,11 @@ SCENES['english-reading'] = (c) => room('#EFF6FF', { win: 60 }) + person(258, 19
   + notebook(126, 170, c, { left: [['Hello!'], ['I am Minh.']], right: [['/heˈloʊ/'], ['xin chào']], w: 168, h: 96 })
   + `<g transform="translate(200 34)">${shadow(0, 34, 40, 3)}<path d="M-46 -20 Q-46 -30 -36 -30 H36 Q46 -30 46 -20 V8 Q46 18 36 18 H18 L26 34 L4 18 H-36 Q-46 18 -46 8Z" fill="#fff" stroke="${LINE}" stroke-width="1"/>${txt(0, 0, 'Hello!', { s: 17, c: '#2563EB', w: 900 })}</g>`
   + star(40, 40, 9, '#60A5FA') + star(110, 26, 7);
+// Ngữ pháp tiếng Anh: bảng đen I am / He is / They are, bạn chỉ bảng
+SCENES['english-grammar'] = () => room('#F5F3FF', { win: null }) + board(26, 22, 196, 108, `${chalk(36, 50, 'I', 20, 'start')}${chalk(160, 50, 'am', 20, 'start')}
+      ${chalk(36, 80, 'He / She', 20, 'start')}${chalk(160, 80, 'is', 20, 'start')}${chalk(36, 110, 'They', 20, 'start')}${chalk(160, 110, 'are', 20, 'start')}
+      ${[44, 74, 104].map((y) => `<path d="M132 ${y} H152" stroke="#FDE047" stroke-width="2.4" stroke-linecap="round"/><path d="M147 ${y - 4} L153 ${y} L147 ${y + 4}" stroke="#FDE047" stroke-width="2.4" fill="none" stroke-linecap="round"/>`).join('')}`)
+  + person(268, 200, 'na', 'point', { s: 0.86, flip: true, mood: 'joy' }) + star(250, 30, 8) + star(300, 52, 6, '#A78BFA');
 // cùng cảnh cho các thẻ cùng loại
 SCENES.worksheet = SCENES.tests;
 SCENES['tv2-tools'] = SCENES['tv-tools'];

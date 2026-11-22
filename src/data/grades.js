@@ -22,6 +22,9 @@ const writing = (desc) => ({ id: 'writing', group: 'tiengviet', icon: '✍️', 
 // cùng một thẻ cho lớp 1–5, trang tự mở cấp hợp với lớp trong hồ sơ.
 const ENGLISH = { id: 'english-reading', group: 'tienganh', icon: '📖', color: '#2563EB', title: 'Đọc tiếng Anh', desc: '100 bài đọc ngắn từ dễ đến khó và 30 bài chủ đề (bạn từ hành tinh khác, chuyện nhân văn, nhân vật lịch sử Việt Nam): nghe đọc, chạm từ xem nghĩa, ngữ pháp, trả lời câu hỏi, chép chính tả' };
 
+// 📐 Ngữ pháp tiếng Anh cho bé (games/enGrammar.js, dữ liệu src/data/enGrammar/units.js): 28 bài, 5 chặng, mỗi bài Học, Luyện, Xong.
+const EN_GRAMMAR = { id: 'english-grammar', group: 'tienganh', icon: '📐', color: '#7C3AED', title: 'Ngữ pháp tiếng Anh', desc: '28 bài ngắn từ am, is, are tới so sánh, quá khứ, tương lai: xem cách dùng có hình, nghe câu mẫu, luyện 8 câu bằng nút to' };
+
 // `important: true` = thẻ có nhãn "⭐ Quan trọng" ở trang chủ (Luyện Tính, đặt ngay sau Bản đồ kiến thức).
 // `hidden: true` = ẩn với mọi người (kể cả admin), vẫn mở được bằng #id.
 // 🏆 Đấu Trường Nhí: mở cho mọi người (lớp 1–5) từ 2026-11-09, `live` = thẻ LIVE to đầu tab Trò chơi. Thiết kế docs/dau-truong/thiet-ke.md.
@@ -57,6 +60,7 @@ export const GRADES = [
       SPELL,
       writing('Viết 1 đến 3 câu theo đề, cô giáo chấm, chỉ lỗi chính tả, nhắc viết hoa đầu câu và dấu chấm cuối câu'),
       ENGLISH,
+      EN_GRAMMAR,
       ...LIFE,
     ],
   },
@@ -76,6 +80,7 @@ export const GRADES = [
       SPELL,
       writing('Viết vài câu theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
       ENGLISH,
+      EN_GRAMMAR,
       ...LIFE,
     ],
   },
@@ -98,6 +103,7 @@ export const GRADES = [
       SPELL,
       writing('Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
       ENGLISH,
+      EN_GRAMMAR,
       ...LIFE,
     ],
   },
@@ -116,6 +122,7 @@ export const GRADES = [
       SPELL,
       writing('Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
       ENGLISH,
+      EN_GRAMMAR,
       ...LIFE,
     ],
   },
@@ -133,6 +140,7 @@ export const GRADES = [
       SPELL,
       writing('Viết đoạn văn theo đề, cô giáo chấm điểm, chỉ lỗi chính tả, gợi ý từ ngữ hay để em sửa bài'),
       ENGLISH,
+      EN_GRAMMAR,
       ...LIFE,
     ],
   },
