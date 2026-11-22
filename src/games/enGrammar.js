@@ -4,6 +4,7 @@
  * Danh sách: nút to "Học tiếp" + 5 chặng, mỗi bài một thẻ (số, hình, tên Việt, mẫu câu tiếng Anh, sao).
  * Một bài có 3 bước, thanh bước ở trên chạm qua lại được:
  *   1 👀 Học   luật một câu, bảng ghép màu (I → am), câu mẫu có hình, chạm để nghe, mẹo nhớ
+ *              🎮 Thử xem (cả 28 bài, src/games/enGrammar/demos.js): hình vẽ đổi theo nút bé chạm, câu đổi theo và được đọc
  *   2 ✋ Luyện 8 câu, mỗi màn một câu, chọn bằng nút to, chấm ngay: chọn từ / chọn câu / xếp chữ / đúng hay sai.
  *              Sai thì hiện đáp án + lý do một dòng, câu sai được hỏi lại một lần ở cuối.
  *   3 ⭐ Xong  sao theo số câu đúng ngay lần đầu, Làm lại / Bài tiếp
@@ -19,6 +20,7 @@ import { scopedKey } from '../engine/auth.js';
 import { awardFixedStars } from '../engine/stars.js';
 import { getProfileGrade } from '../engine/profile.js';
 import { playSfx } from '../engine/sfx.js';
+import { DEMOS } from './enGrammar/demos.js';
 
 const STORE = 'engram-v1';
 const STEPS = [
@@ -32,6 +34,11 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 const shuffle = (a) => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const reduced = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+/** Chữ tiếng Anh (không dấu tiếng Việt, có chữ cái) thì chạm để nghe. */
+const isEnText = (t) => /[A-Za-z]/.test(t) && !/[À-ỹĐđ]/.test(t);
+/** Đọc gọn cho máy: "He · She · It" → "He, She, It", bỏ "..." và mũi tên. */
+const spoken = (t) => t.replace(/\s*[·/]\s*/g, ', ').replace(/\.{3}|…/g, '').replace(/\s*→\s*/g, ', ').trim();
+const sayAttr = (t) => (isEnText(t) ? ` data-say="${esc(spoken(t))}"` : '');
 /** *từ* → chữ tô màu */
 const rich = (s) => esc(s).replace(/\*(.+?)\*/g, '<b class="eg-k" lang="en">$1</b>');
 
@@ -65,6 +72,8 @@ export function parseQ(src) {
   const whole = !before && !after; // chọn cả câu
   return { kind: whole ? 'sentence' : 'pick', pic, before, after, opts, answer: opts[0], why, full: whole ? opts[0] : `${before} ${opts[0]} ${after}`.replace(/\s+([.?!,])/g, '$1').trim() };
 }
+/** Số hình emoji (👨‍👩‍👧 là một hình). */
+const emojiCount = (t) => (typeof Intl !== 'undefined' && Intl.Segmenter ? [...new Intl.Segmenter().segment(t)].length : [...t].length);
 const starsOf = (right, total) => (right >= total * 0.9 ? 3 : right >= total * 0.6 ? 2 : 1);
 
 export function render(app, onBack, ctx = {}) {
@@ -179,10 +188,11 @@ export function render(app, onBack, ctx = {}) {
       <div class="eg-learn">
         <div class="eg-learn-in">
           <section class="eg-pattern">
-            <p class="eg-pattern-en" lang="en">${esc(u.en)}</p>
+            <p class="eg-pattern-en" lang="en">${u.en.split(/\s*·\s*/).map((p) => `<span class="eg-say"${sayAttr(p)}>${esc(p)}</span>`).join('<i aria-hidden="true"> · </i>')}</p>
             <div class="eg-rule"><span class="eg-owl" aria-hidden="true">🦉</span><p>${rich(u.rule)}</p></div>
           </section>
-          ${u.table ? `<section class="eg-table" style="--cols:${cols}">${u.table.map((r) => `<div class="eg-trow">${r.map((c, i) => `${i ? '<span class="eg-arrow" aria-hidden="true">→</span>' : ''}<span class="eg-chip${i ? ' is-key' : ''}" lang="en">${esc(c)}</span>`).join('')}</div>`).join('')}</section>` : ''}
+          ${DEMOS[u.id] ? '<section class="eg-demo"></section>' : ''}
+          ${u.table ? `<section class="eg-table" style="--cols:${cols}">${u.table.map((r) => `<div class="eg-trow">${r.map((c, i) => `${i ? '<span class="eg-arrow" aria-hidden="true">→</span>' : ''}<span class="eg-chip${i ? ' is-key' : ''}"${sayAttr(c)}${isEnText(c) ? ' lang="en" role="button" tabindex="0"' : ''}>${esc(c)}</span>`).join('')}</div>`).join('')}</section>` : ''}
           <h2 class="eg-h">🔊 Chạm để nghe</h2>
           <section class="eg-exs">${ex.map((e, i) => `
             <button type="button" class="eg-ex" data-i="${i}">
@@ -190,7 +200,7 @@ export function render(app, onBack, ctx = {}) {
               <span class="eg-ex-t"><span class="eg-ex-en" lang="en">${rich(e.en)}</span><small>${esc(e.vi)}</small></span>
               <span class="eg-ex-say" aria-hidden="true">🔊</span>
             </button>`).join('')}</section>
-          ${u.tip ? `<p class="eg-tip"><b>💡 Mẹo nhớ</b> ${esc(u.tip)}</p>` : ''}
+          ${u.tip ? `<p class="eg-tip"><b>💡 Mẹo nhớ</b> ${rich(u.tip)}</p>` : ''}
         </div>
       </div>
       <div class="eg-bottom"><button type="button" class="eg-big eg-gopractice">✋ Luyện tập ▶</button></div>`;
@@ -198,7 +208,75 @@ export function render(app, onBack, ctx = {}) {
       view.querySelectorAll('.eg-ex').forEach((x) => x.classList.toggle('is-saying', x === b));
       sayEn(ex[b.dataset.i].en.replace(/\*/g, ''));
     }));
+    // chữ tô màu trong lời giảng, mẹo nhớ: cũng chạm để nghe
+    view.querySelectorAll('.eg-rule .eg-k, .eg-tip .eg-k').forEach((b) => { if (isEnText(b.textContent)) { b.dataset.say = spoken(b.textContent); b.setAttribute('role', 'button'); b.tabIndex = 0; } });
+    prefetchEn([...view.querySelectorAll('[data-say]')].map((b) => b.dataset.say), { low: true });
+    const sayIt = (el) => {
+      view.querySelectorAll('.is-saying[data-say]').forEach((x) => x.classList.remove('is-saying'));
+      el.classList.add('is-saying');
+      setTimeout(() => el.classList.remove('is-saying'), 900);
+      sayEn(el.dataset.say);
+    };
+    view.querySelector('.eg-learn').addEventListener('click', (e) => { const el = e.target.closest('[data-say]'); if (el) sayIt(el); });
+    view.querySelector('.eg-learn').addEventListener('keydown', (e) => { const el = e.target.closest('[data-say]'); if (el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); sayIt(el); } });
     view.querySelector('.eg-gopractice').onclick = next;
+    if (DEMOS[u.id]) demo(view.querySelector('.eg-demo'), DEMOS[u.id]);
+  }
+
+  /* 🎮 Thử xem: hình + hàng nút + câu đổi theo (src/games/enGrammar/demos.js). Hình vẽ lại mỗi lần chạm; phần tử data-k
+     trùng tên trượt từ chỗ cũ sang chỗ mới, phần tử mới nảy ra. */
+  function demo(host, D) {
+    const st = { ...D.init };
+    const all = [];
+    const walk = (i, cur) => { if (i === D.groups.length) { all.push(D.say(cur).en.replace(/\*/g, '')); return; } D.groups[i].opts.forEach((o) => walk(i + 1, { ...cur, [D.groups[i].key]: o.v })); };
+    walk(0, {});
+    prefetchEn(all);
+    host.innerHTML = `
+      <h2 class="eg-demo-h">🎮 Thử xem: chạm nút để đổi hình</h2>
+      <div class="eg-demo-in">
+        <div class="eg-demo-pic"><svg viewBox="0 0 480 300" role="img" aria-label="Hình minh hoạ"></svg></div>
+        <div class="eg-demo-side">
+          ${D.groups.map((g, gi) => `<div class="eg-demo-btns" data-g="${gi}">${g.opts.map((o, oi) => `<button type="button" class="eg-demo-btn" data-o="${oi}"><b lang="en">${esc(o.label)}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ''}</button>`).join('')}</div>`).join('')}
+          <div class="eg-demo-say"><p lang="en"></p><small></small></div>
+        </div>
+      </div>`;
+    const svg = host.querySelector('svg'), sayP = host.querySelector('.eg-demo-say p'), sayVi = host.querySelector('.eg-demo-say small');
+    const paint = (animate) => {
+      const old = new Map();
+      if (animate) svg.querySelectorAll('[data-k]').forEach((e) => old.set(e.dataset.k, e.getBoundingClientRect()));
+      svg.innerHTML = D.draw(st);
+      const line = D.say(st);
+      sayP.innerHTML = rich(line.en);
+      sayVi.textContent = line.vi;
+      host.querySelectorAll('.eg-demo-btns').forEach((row) => {
+        const g = D.groups[row.dataset.g];
+        row.querySelectorAll('.eg-demo-btn').forEach((b) => b.classList.toggle('is-on', g.opts[b.dataset.o].v === st[g.key]));
+      });
+      if (!animate) return;
+      const unit = 480 / (svg.getBoundingClientRect().width || 480); // px màn → đơn vị SVG
+      const ms = reduced() ? 180 : 520;
+      svg.querySelectorAll('[data-k]').forEach((e) => {
+        const o = old.get(e.dataset.k), n = e.getBoundingClientRect();
+        if (o && (Math.abs(o.left - n.left) > 1 || Math.abs(o.top - n.top) > 1)) {
+          e.animate?.([{ transform: `translate(${(o.left - n.left) * unit}px, ${(o.top - n.top) * unit}px)` }, { transform: 'none' }], { duration: ms, easing: 'cubic-bezier(.3,1.3,.5,1)' });
+        } else if (!o) {
+          e.style.transformBox = 'fill-box'; e.style.transformOrigin = '50% 100%';
+          e.animate?.(reduced() ? [{ opacity: 0 }, { opacity: 1 }] : [{ transform: 'scale(0)' }, { transform: 'scale(1.12)' }, { transform: 'none' }], { duration: ms * 0.8, easing: 'ease-out' });
+        }
+      });
+      sayP.animate?.([{ opacity: 0.2 }, { opacity: 1 }], { duration: 260 });
+    };
+    host.querySelectorAll('.eg-demo-btns').forEach((row) => row.addEventListener('click', (e) => {
+      const b = e.target.closest('.eg-demo-btn');
+      if (!b) return;
+      const g = D.groups[row.dataset.g];
+      st[g.key] = g.opts[b.dataset.o].v;
+      playSfx('tap', { vol: 0.4 });
+      paint(true);
+      sayEn(D.say(st).en.replace(/\*/g, ''));
+    }));
+    host.querySelector('.eg-demo-say').addEventListener('click', () => sayEn(D.say(st).en.replace(/\*/g, '')));
+    paint(false);
   }
 
   // ── ✋ Luyện ──
@@ -255,6 +333,7 @@ export function render(app, onBack, ctx = {}) {
       choices.className = `eg-choices is-${q.kind}`;
       fixEl.innerHTML = '&nbsp;'; fixEl.classList.remove('is-on');
       picEl.textContent = q.pic;
+      picEl.style.setProperty('--n', Math.max(1, emojiCount(q.pic))); // 3 hình thì mỗi hình nhỏ lại cho vừa bảng
       board.classList.toggle('is-retry', wrongOnce.has(cur.i));
       ({ pick: askPick, sentence: askSentence, order: askOrder, tf: askTf })[q.kind](cur, q);
       anim(board, [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], 260);
@@ -309,6 +388,7 @@ export function render(app, onBack, ctx = {}) {
       choices.querySelectorAll('.eg-tile').forEach((src) => src.addEventListener('click', () => {
         if (choices.classList.contains('is-locked') || src.classList.contains('is-used')) return;
         playSfx('tap', { vol: 0.4 });
+        sayEn(src.textContent);
         const el = document.createElement('button');
         el.type = 'button';
         el.className = 'eg-tile is-placed';
