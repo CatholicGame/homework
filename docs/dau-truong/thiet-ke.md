@@ -180,20 +180,19 @@ chương trình vẫn chạy theo phụ đề, chờ đủ thời gian đọc.
 
 | | |
 |---|---|
-| Lượt cá nhân | Mỗi thí sinh lần lượt trả lời **câu riêng** của mình (**6 câu mỗi bạn**), ba bục kia mờ đèn. Đúng +10, sai / hết giờ 0 |
-| Lượt chung | Sau lượt cá nhân (bản mẫu: 4 câu): cả 4 bạn thấy câu, **bấm chuông giành quyền**; ai bấm trước được MC gọi tên rồi chọn đáp án. Đúng +10, **sai −5**. Không ai bấm thì qua câu |
-| Thời gian | **15 giây mọi lớp**, đếm sau khi MC đọc xong đề và bốn phương án. Người phải trả lời đã chốt (lượt cá nhân) hoặc người giành quyền đã chọn thì **lật ngay**, bỏ thời gian còn lại |
+| Luật (người dùng 2026-11-22, như Đấu Trường của kinh-thanh) | **6 câu chung**: cả 4 thí sinh cùng trả lời **một câu**, không còn lượt cá nhân hay bấm chuông. **Ai đúng +10**, sai / hết giờ 0 (không trừ). MC nói gộp đáp án và kết quả ("Đáp án là bê! Có 3 bạn trả lời đúng…"). Bảng điểm sau câu thứ 6 |
+| Thời gian | **15 giây mọi lớp**, đếm sau khi MC đọc xong đề và bốn phương án. Cả 4 bạn đã chốt thì **lật ngay**, bỏ thời gian còn lại |
 | Câu | Xen kẽ Toán / Tiếng Việt theo tiến độ học (mục 7). Dạng chọn 1 trong 4 |
 | Hiệu ứng | Màu **xanh ngọc + lam**; bục đến lượt viền vàng, đèn rọi mạnh; bấm chuông: chuông và vòng bục nháy màu của bạn ấy, màn LED ghi "🔔 … giành quyền trả lời" |
 
-### 5.2 Tăng tốc (4 câu tư duy, ai nhanh hơn)
+### 5.2 Tăng tốc (4 câu tư duy, cả 4 cùng trả lời)
 
 | | |
 |---|---|
 | Câu | **4 câu**, mỗi câu một dạng: **dãy số** (số tiếp theo), **dãy hình** (hình màu lặp / tăng dần), **sắp xếp dữ kiện** (ví dụ "Lan cao hơn Mai… xếp từ thấp đến cao", hoặc xếp số / ghép câu), **tư duy / suy luận hình ảnh** (thứ trong tuần, ai cao nhất, đếm chân, tuổi, phép tính bằng hình quả 🍎 + 🍌). Sinh theo lớp (`speedQ` trong `src/dauTruong/questions.js`) |
 | Thời gian | Theo lớp (mục 5.0, lớp 4–5: 40 giây); cả 4 bạn đã chốt thì lật ngay |
 | Ai chơi | **Cả 4 thí sinh cùng trả lời** |
-| Điểm | Đúng xếp theo **thời gian chốt**: nhanh nhất +40, rồi +30, +20, +10. Sai 0 |
+| Điểm | **Ai đúng +20** (người dùng 2026-11-22, như kinh-thanh: bỏ xếp theo thời gian chốt +40 +30 +20 +10). Sai 0 |
 | Hiệu ứng | Màu **cam + hồng**, đèn quét nhanh; màn LED ghi dạng câu ("DÃY HÌNH · CÂU 2/4"); lật: từng tiếng "ting" theo thứ tự chốt |
 
 ### 5.3 Về đích (chọn gói, Ngôi sao hy vọng, giành quyền)

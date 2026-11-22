@@ -1,6 +1,6 @@
 /**
  * Lời hai MC của 🏆 Đấu Trường Nhí: anh Minh (mc 0, vest) và chị Mai (mc 1, áo dài). Lời gốc ở docs/dau-truong/kich-ban-mc.md,
- * sửa theo luật vòng thi mới (thiet-ke.md mục 5: Khởi động cá nhân + chuông, Tăng tốc 4 câu tư duy, Về đích gói + Ngôi sao hy vọng).
+ * sửa theo luật vòng thi mới (thiet-ke.md mục 5: Khởi động 6 câu chung, Tăng tốc 4 câu tư duy, Về đích gói + Ngôi sao hy vọng).
  *
  * SCRIPT[key] = [người nói, ...các câu]; người nói: 0 anh Minh, 1 chị Mai, 'mon' = MC của môn câu đang hỏi (Toán 0, Tiếng Việt 1).
  * Chỗ trống {ten} {diem}… điền từ vars; câu thiếu biến thì bỏ, chọn câu khác. Nguyên tắc lời: ngắn khi đang thi, không chê,
@@ -44,7 +44,12 @@ const SCRIPT = {
 
   // ---------- Khởi động ----------
   kdIntro: [1, 'Vòng thứ nhất, Khởi động!', 'Chúng ta bước vào vòng Khởi động!'],
-  kdRule: [0, 'Mỗi bạn {so} câu riêng, mỗi câu {giay} giây. Đúng được mười điểm!'],
+  kdRule: [0, '{so} câu hỏi, cả bốn bạn cùng trả lời, mỗi câu {giay} giây. Bạn nào đúng cũng được mười điểm!', 'Có {so} câu, bốn bạn cùng trả lời từng câu trong {giay} giây. Ai đúng được mười điểm!'],
+  // câu chung Khởi động (seg 'all'): lời gộp đáp án + kết quả
+  allRight: ['mon', 'Đáp án là {chu}! Cả bốn bạn đều đúng, mỗi bạn mười điểm!', 'Đúng là {chu}! Bốn bạn cùng được mười điểm.'],
+  allSome: ['mon', 'Đáp án là {chu}! Có {soBan} bạn trả lời đúng, mỗi bạn mười điểm.', 'Đúng là {chu}! {soBan} bạn được mười điểm.'],
+  allOne: ['mon', 'Đáp án là {chu}! Chỉ có {ten} trả lời đúng, mười điểm cho {ten}!', 'Đúng là {chu}! Mười điểm cho {ten}, bạn duy nhất trả lời đúng.'],
+  allNone: ['mon', 'Đáp án đúng là {chu}. Câu này chưa bạn nào trả lời đúng.', 'Tiếc quá, đáp án là {chu}. Câu sau cố lên!'],
   kdTurn: [0, 'Mời {ten}!', 'Đến lượt {ten}!'],
   soloRight: ['mon', 'Đúng rồi, {chu}! Mười điểm cho {ten}.', 'Chính xác, {chu}! {ten} được mười điểm.'],
   soloWrong: ['mon', 'Chưa đúng, đáp án là {chu}.', 'Tiếc quá, đáp án đúng là {chu}.'],
@@ -56,10 +61,11 @@ const SCRIPT = {
 
   // ---------- Tăng tốc ----------
   ttIntro: [1, 'Vòng thứ hai, Tăng tốc!', 'Chuẩn bị nào, vòng Tăng tốc đã tới!'],
-  ttRule: [0, 'Bốn câu tư duy, cả bốn bạn cùng trả lời. Đúng và nhanh nhất được bốn mươi điểm, rồi ba mươi, hai mươi, mười.'],
+  ttRule: [0, 'Bốn câu tư duy, cả bốn bạn cùng trả lời. Bạn nào đúng cũng được hai mươi điểm!'],
   ttAsk: ['mon', 'Câu {so}, {loai}!'],
-  ttFast: [0, 'Nhanh nhất là {ten}, chỉ {giay} giây! Bốn mươi điểm!', 'Wow, {ten} chỉ cần {giay} giây. Bốn mươi điểm cho {ten}!'],
-  ttSome: [0, 'Có {soBan} bạn trả lời đúng. Ai nhanh hơn thì nhiều điểm hơn!'],
+  ttAll: [0, 'Cả bốn bạn đều đúng! Mỗi bạn hai mươi điểm!', 'Tuyệt vời, bốn bạn cùng được hai mươi điểm!'],
+  ttSome: [0, 'Có {soBan} bạn trả lời đúng, mỗi bạn hai mươi điểm!', '{soBan} bạn làm đúng, hai mươi điểm cho mỗi bạn!'],
+  ttOne: [0, 'Chỉ có {ten} làm đúng! Hai mươi điểm cho {ten}.', '{ten} là bạn duy nhất làm đúng, được hai mươi điểm!'],
   ttNone: ['mon', 'Câu này chưa bạn nào làm đúng. Câu sau cố lên!', 'Câu này khó quá, chưa ai chinh phục được.'],
   ttEnd: [0, 'Kết thúc vòng Tăng tốc! {ten} đang dẫn đầu với {diem} điểm.', 'Tăng tốc đã xong! Người dẫn đầu là {ten}, {diem} điểm.'],
 
@@ -138,7 +144,11 @@ export function mcLine(key, vars = {}) {
   delete planned[key];
   const [i, text] = cands.find(([k]) => k === want) || fresh[Math.floor(Math.random() * fresh.length)];
   last[key] = i;
-  return { mc: who === 'mon' ? (vars.mon ?? 0) : who, text, parts: partsOf(lines[i], val) };
+  // câu mở đầu bằng số đọc thành chữ ("{so} câu hỏi…" → "sáu câu hỏi…"): viết hoa chữ đầu câu
+  const up = (t) => t.replace(/^\p{Ll}/u, c => c.toUpperCase());
+  const parts = partsOf(lines[i], val);
+  if (parts.length) parts[0] = up(parts[0]);
+  return { mc: who === 'mon' ? (vars.mon ?? 0) : who, text: up(text), parts };
 }
 /** Chọn sẵn câu của tình huống `key` (lần mcLine(key) kế tiếp nói đúng câu này) và trả về để tải trước giọng. */
 export function mcPlan(key, vars = {}) {
