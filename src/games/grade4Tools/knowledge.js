@@ -1,9 +1,15 @@
 /**
- * Điểm kiến thức cốt lõi từng Bài Toán 4 Tập Một (SGK Kết nối tri thức), Bài 1–37, cùng cách đánh số Bài với
+ * Điểm kiến thức cốt lõi từng Bài Toán 4 (SGK Kết nối tri thức), Tập Một Bài 1–37 ở đây, Tập Hai Bài 38–73 ở knowledge/*.js, cùng cách đánh số Bài với
  * Toán 4 công cụ (catalog.js). Dùng cho Kiểm tra theo lộ trình lớp 4 (src/data/routeTests/g4): mỗi câu ghi
  * `bai` + `point` = chỉ số một dòng trong `points` (docs/kiem-tra-lo-trinh.md mục 2).
  * Chỉ Bài dạy kiến thức mới có mục; Luyện tập chung, Thực hành và trải nghiệm, Ôn tập không có.
  */
+
+import { K_TAP2CALC } from './knowledge/tap2calc.js';
+import { K_TAP2PROPS } from './knowledge/tap2props.js';
+import { K_TAP2STATS } from './knowledge/tap2stats.js';
+import { K_TAP2FRAC } from './knowledge/tap2frac.js';
+import { K_TAP2FRACOPS } from './knowledge/tap2fracops.js';
 
 export const KNOWLEDGE4 = {
   // ── Chủ đề 1: Ôn tập và bổ sung ──────────────────────────────────────────
@@ -187,4 +193,6 @@ export const KNOWLEDGE4 = {
       '<b>Hình thoi</b> có hai cặp cạnh đối diện song song và bốn cạnh bằng nhau.',
     ],
   },
+  // Tập Hai
+  ...K_TAP2CALC, ...K_TAP2PROPS, ...K_TAP2STATS, ...K_TAP2FRAC, ...K_TAP2FRACOPS,
 };

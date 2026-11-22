@@ -14,6 +14,8 @@ const BOOKS = [
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom', logLevel: 'error' });
 globalThis.window ??= globalThis;
 globalThis.localStorage ??= { getItem: () => null, setItem() {}, removeItem() {} };
+// mã giao diện gọi addEventListener lúc nạp module (vd. dauTruong/mcVoice.js): giả lập cho Node
+globalThis.addEventListener ??= () => {}; globalThis.removeEventListener ??= () => {}; globalThis.dispatchEvent ??= () => true;
 const out = {};
 for (const b of BOOKS) {
   const units = [];

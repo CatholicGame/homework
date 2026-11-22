@@ -14,9 +14,15 @@ import { CALC_LESSONS } from './calc.js';
 import { PARITY_LESSONS } from './parity.js';
 import { EXPR_LESSONS } from './expr.js';
 import { BAR_LESSONS } from './bars.js';
+import { CALC2_LESSONS } from './tap2calc.js';
+import { PROPS2_LESSONS } from './tap2props.js';
+import { STATS_LESSONS } from './tap2stats.js';
+import { FRAC_LESSONS } from './tap2frac.js';
+import { FRACOPS_LESSONS } from './tap2fracops.js';
 import { lessonByN } from '../catalog.js';
 
-const CONTENT = { ...NUMBER_LESSONS, ...ANGLE_LESSONS, ...LINE_LESSONS, ...SHAPE_LESSONS, ...MASS_LESSONS, ...AREA_LESSONS, ...TIME_LESSONS, ...CALC_LESSONS, ...PARITY_LESSONS, ...EXPR_LESSONS, ...BAR_LESSONS };
+const CONTENT = { ...NUMBER_LESSONS, ...ANGLE_LESSONS, ...LINE_LESSONS, ...SHAPE_LESSONS, ...MASS_LESSONS, ...AREA_LESSONS, ...TIME_LESSONS, ...CALC_LESSONS, ...PARITY_LESSONS, ...EXPR_LESSONS, ...BAR_LESSONS,
+  ...CALC2_LESSONS, ...PROPS2_LESSONS, ...STATS_LESSONS, ...FRAC_LESSONS, ...FRACOPS_LESSONS };
 
 export const exploreOf = (n) => CONTENT[n]?.explore || null;
 

@@ -28,14 +28,20 @@ export function practiceGame(lesson, tasks, book = G4_BOOK) {
     summaryText: (ok, total) => `Em làm đúng ngay ${ok}/${total} câu.`,
     makeMission(rng, level, history) {
       // Đổi dạng câu lần lượt (trộn thứ tự một lần cho cả ván) để 5 câu khác nhau.
-      if (!history.length) this._order = rng.shuffle(tasks.map((_, i) => i));
+      // level.focus (Luyện Tính, lượt sau): các dạng câu vừa sai làm trước.
+      if (!history.length) {
+        const order = rng.shuffle(tasks.map((_, i) => i));
+        const weak = new Set(level?.focus || []);
+        this._order = [...order.filter(i => weak.has(tasks[i].id)), ...order.filter(i => !weak.has(tasks[i].id))];
+      }
       const order = this._order || tasks.map((_, i) => i);
       const ti = order[history.length % order.length], task = tasks[ti];
       const seen = new Set(history.map(h => h?.key).filter(Boolean));
       let m;
       for (let k = 0; k < 40; k++) { m = task.make(rng); if (!seen.has(`${task.id}:${JSON.stringify(m)}`)) break; }
       // ti: vị trí dạng câu (bài trộn có thể có hai dạng trùng id, tìm theo id sẽ lấy nhầm dạng)
-      return { ...m, task: task.id, ti, order, key: `${task.id}:${JSON.stringify(m)}` };
+      // Trường riêng của khung có tiền tố _ (trừ task, ti, key) để không đè dữ liệu câu (vd. câu có trường "order").
+      return { ...m, task: task.id, ti, _order: order, key: `${task.id}:${JSON.stringify(m)}` };
     },
     mountMission(stage, m, level, api) {
       const own = tasks[m.ti] || tasks.find(x => x.id === m.task);
@@ -186,7 +192,7 @@ function injectPracticeStyles() {
       .g4-pboard:has(.g4-tool:empty):has(.g4-choices:empty) .g4-q { font-size: min(10cqh, 9cqi); }
       /* nút chọn (chỉ có đề): chữ theo bề ngang tờ giấy, như đề */
       .g4-pboard:has(.g4-tool:empty) .g4-choice { font-size: min(6.4cqh, 7cqi); }
-      .g4-pboard:has(.g4-tool:empty) .g4-choices-long .g4-choice { font-size: min(3.8cqh, 5.2cqi); }
+      .g4-pboard:has(.g4-tool:empty) .g4-choices-long .g4-choice { font-size: min(4.6cqh, 6.2cqi); }
       .g4-ref { font-size: min(3.6cqh, 4.4cqi); }
       .g4-ref-x, .g4-ref .g4-ref-t { display: none; }
     }

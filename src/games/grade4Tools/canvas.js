@@ -87,8 +87,11 @@ function injectCanvasStyles() {
     .g4v-svg { flex: 1; min-height: 0; width: 100%; height: 100%; font-family: 'Baloo 2', sans-serif; user-select: none; }
     .g4v-svg text { font-family: 'Baloo 2', sans-serif; }
     .g4v-tile { cursor: pointer; }
-    .g4v-tl { font-weight: 800; fill: ${INK}; text-anchor: middle; dominant-baseline: middle; }
-    .g4v-t { font-weight: 800; fill: ${INK}; text-anchor: middle; }
+    .g4v-tl { font-weight: 800; text-anchor: middle; dominant-baseline: middle; }
+    .g4v-tl:not([fill]) { fill: ${INK}; }
+    /* thuộc tính fill="…" trên <text> được giữ (CSS chỉ tô màu mực khi không có) */
+    .g4v-t { font-weight: 800; text-anchor: middle; }
+    .g4v-t:not([fill]) { fill: ${INK}; }
     @media (orientation: portrait) { .g4v-cap { font-size: min(4.6cqh, 6.4cqi); } }
   `);
 }

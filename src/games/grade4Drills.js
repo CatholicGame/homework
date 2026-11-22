@@ -24,7 +24,6 @@ import { how, TEACHER } from './grade3Drills/kit.js';
 import { practiceGame } from './grade4Tools/practice.js';
 import { tasksOf } from './grade4Tools/lessons/index.js';
 import { lessonByN, pagesText } from './grade4Tools/catalog.js';
-import { FRACTION_DRILL_LEVELS } from './grade5Tools/lessons/fractions.js';
 
 // ── ✍️ Cộng, trừ số nhiều chữ số ─────────────────────────────────────────────────────────────────────
 const carries = (op, a, b) => columnSteps(op, a, b).filter(s => s.kind === 'carry').length;
@@ -138,13 +137,11 @@ export const DIV4_GAME = {
 
 // ── Các dạng câu Thực hành của Toán 4 công cụ, ghép thành cấp ────────────────────────────────────────
 const G4_BOOK = { label: 'Toán 4', lessonByN, pagesText, starPrefix: 'drill4', idPrefix: 'd4', comma: false };
-// Câu phân số lấy của Toán 5 công cụ: không ghi dòng "📖 SGK" (số bài trong câu là của sách lớp 5).
-const NO_REF_BOOK = { ...G4_BOOK, lessonByN: () => null };
 
 /** Các dạng câu Thực hành của bài n (chỉ các mã `ids`, theo thứ tự, nếu có). */
 const pick = (n, ...ids) => {
   const all = tasksOf(n);
-  return ids.length ? ids.map(id => all.find(t => t.id === id)) : all;
+  return ids.length ? ids.map((id) => all.find(t => t.id === id) || (() => { throw new Error(`Luyện Tính 4: Bài ${n} không có dạng câu ${id}`); })()) : all;
 };
 
 /**
@@ -196,6 +193,10 @@ export const EXPR4_GAME = taskDrill({
       sgk: [24], say: 'Đổi chỗ các số hạng thì tổng không đổi!', tasks: pick(24, 'blank', 'blanka') },
     { id: 'd4-expr-3', n: 3, title: 'Tính thuận tiện', desc: 'Vd. 98 + 145 + 2 = 145 + (98 + 2) = 245.', knowledge: 'tính chất giao hoán, kết hợp',
       sgk: [24], say: 'Tìm hai số cộng lại được số tròn chục, tròn trăm, cộng chúng trước!', tasks: pick(24, 'conv', 'conv4') },
+    { id: 'd4-expr-4', n: 4, title: 'Giao hoán, kết hợp của phép nhân', desc: 'Vd. 25 × 7 × 4 = 7 × (25 × 4) = 700.', knowledge: 'phép nhân',
+      sgk: [40], say: 'Tìm hai số nhân với nhau được số tròn chục, tròn trăm, nhân chúng trước!', tasks: pick(40) },
+    { id: 'd4-expr-5', n: 5, title: 'Nhân một số với một tổng', desc: 'Vd. 27 × 6 + 73 × 6 = (27 + 73) × 6 = 600.', knowledge: 'tính chất giao hoán, kết hợp của phép nhân',
+      sgk: [42], say: 'a × (b + c) = a × b + a × c!', tasks: pick(42) },
   ],
 });
 
@@ -210,6 +211,40 @@ export const WORD4_GAME = taskDrill({
       sgk: [25], say: 'Bớt phần hơn đi thì còn hai phần bằng nhau!', tasks: pick(25) },
     { id: 'd4-word-3', n: 3, title: 'Trộn các dạng', desc: 'Ba bước tính và tổng, hiệu.', knowledge: 'tìm hai số biết tổng và hiệu',
       sgk: [5, 25], say: 'Đọc kĩ đề: biết tổng và hiệu, hay biết từng số?', tasks: [...pick(5), ...pick(25)], missions: 6 },
+    { id: 'd4-word-4', n: 4, title: 'Lời văn nhân, chia', desc: 'Mua hàng, chia đều, xếp hàng, có số dư.', knowledge: 'nhân, chia số nhiều chữ số',
+      sgk: [38, 39, 43, 44], say: 'Đọc đề, chọn phép nhân hay phép chia!', tasks: [...pick(38, 'm1word', 'm1money'), ...pick(39, 'd1rem', 'd1money'), ...pick(43, 'm2word'), ...pick(44, 'd2word')] },
+    { id: 'd4-word-5', n: 5, title: 'Tìm số trung bình cộng', desc: 'Vd. (13 + 14 + 18) : 3 = 15.', knowledge: 'cộng, chia',
+      sgk: [46], say: 'Tính tổng các số, rồi chia cho số các số hạng!', tasks: pick(46) },
+    { id: 'd4-word-6', n: 6, title: 'Rút về đơn vị', desc: 'Tìm giá trị một phần, rồi nhiều phần hoặc số phần.', knowledge: 'nhân, chia',
+      sgk: [47], say: 'Tìm một phần trước bằng phép chia!', tasks: pick(47) },
+  ],
+});
+
+export const NHAM4_GAME = taskDrill({
+  id: 'd4-nham', icon: '🔟', title: 'Tính nhẩm, ước lượng',
+  purpose: 'Giúp em nhân, chia nhẩm với 10, 100, 1 000, với số tròn chục, và ước lượng kết quả phép tính.',
+  howTo: how(['🔟', 'Thêm, bớt 0'], ['🧠', 'Tính nhẩm'], ['🎯', 'Ước lượng'], ['✅', 'Đúng hết']),
+  levels: [
+    { id: 'd4-nham-1', n: 1, title: 'Nhân, chia với 10, 100, 1 000', desc: 'Vd. 36 × 100 = 3 600; 47 000 : 1 000 = 47.', knowledge: 'hàng và lớp',
+      sgk: [41], say: 'Nhân với 10 thì thêm một chữ số 0, chia cho 10 thì bớt một chữ số 0!', tasks: pick(41) },
+    { id: 'd4-nham-2', n: 2, title: 'Số tròn chục, tròn trăm', desc: 'Vd. 24 × 30 = 720; 450 : 90 = 5.', knowledge: 'nhân, chia với 10, 100, 1 000',
+      sgk: [43, 44], say: 'Nhân, chia phần khác 0 trước, rồi thêm hoặc gạch chữ số 0!', tasks: [...pick(43, 'm2tens'), ...pick(44, 'd2zero')] },
+    { id: 'd4-nham-3', n: 3, title: 'Ước lượng', desc: 'Làm tròn rồi tính nhẩm: 5 978 + 2 967 ≈ 9 000.', knowledge: 'làm tròn số',
+      sgk: [45], say: 'Làm tròn các số trước, rồi tính nhẩm!', tasks: pick(45) },
+  ],
+});
+
+export const STATS4_GAME = taskDrill({
+  id: 'd4-stats', icon: '📈', title: 'Thống kê, xác suất',
+  purpose: 'Giúp em đọc dãy số liệu, đọc và vẽ biểu đồ cột, kiểm đếm số lần xuất hiện của một sự kiện.',
+  howTo: how(['📋', 'Đọc số liệu'], ['📊', 'Biểu đồ cột'], ['🎲', 'Kiểm đếm'], ['✅', 'Đúng hết']),
+  levels: [
+    { id: 'd4-stats-1', n: 1, title: 'Dãy số liệu', desc: 'Số thứ mấy, lớn nhất, bé nhất, sắp xếp, trung bình.', knowledge: 'so sánh, trung bình cộng',
+      sgk: [49], say: 'Đọc từng số liệu theo đúng thứ tự!', tasks: pick(49) },
+    { id: 'd4-stats-2', n: 2, title: 'Biểu đồ cột', desc: 'Đọc số trên cột, so sánh, vẽ cột cho đúng bảng.', knowledge: 'dãy số liệu',
+      sgk: [50], say: 'Gióng đỉnh cột sang trục số để đọc!', tasks: pick(50) },
+    { id: 'd4-stats-3', n: 3, title: 'Số lần xuất hiện', desc: 'Tung đồng xu, gieo xúc xắc, kiểm đếm bằng vạch.', knowledge: 'kiểm đếm',
+      sgk: [51], say: 'Mỗi lần xảy ra thì gạch một vạch!', tasks: pick(51) },
   ],
 });
 
@@ -243,14 +278,26 @@ export const ANGLE4_GAME = taskDrill({
 
 export const FRAC4_GAME = taskDrill({
   id: 'd4-frac', icon: '🍫', title: 'Phân số',
-  purpose: 'Giúp em rút gọn, quy đồng mẫu số, cộng trừ phân số khác mẫu số, nhân, chia phân số, tìm phân số của một số.',
-  howTo: how(['✂️', 'Rút gọn'], ['🍫', 'Quy đồng'], ['➕', 'Tính'], ['✅', 'Đúng hết']),
-  book: NO_REF_BOOK,
+  purpose: 'Giúp em đọc, viết phân số, rút gọn, quy đồng, so sánh, cộng, trừ, nhân, chia phân số và tìm phân số của một số.',
+  howTo: how(['🍕', 'Đọc phân số'], ['✂️', 'Rút gọn'], ['🍫', 'Quy đồng'], ['➕', 'Tính']),
+  // id cấp giữ nguyên (sao, kỷ lục, thành thạo): d4-frac-1 cộng trừ, d4-frac-2 nhân chia; n là thứ tự hiện.
   levels: [
-    { id: 'd4-frac-1', n: 1, title: 'Quy đồng, cộng trừ', desc: 'Vd. 1/5 + 1/2; 2/5 − 1/4; 3 − 11/8; rút gọn 12/18.', knowledge: 'tính chất cơ bản của phân số',
-      say: 'Khác mẫu số thì quy đồng trước rồi mới cộng, trừ!', tasks: FRACTION_DRILL_LEVELS[0].tasks },
-    { id: 'd4-frac-2', n: 2, title: 'Nhân, chia phân số', desc: 'Vd. 2/3 × 4/5; 3/4 : 2/5; 3/4 của 20.', knowledge: 'cộng, trừ phân số',
-      say: 'Chia cho một phân số là nhân với phân số đảo ngược!', tasks: FRACTION_DRILL_LEVELS[1].tasks },
+    { id: 'd4-frac-3', n: 1, title: 'Khái niệm phân số', desc: 'Tô hình, đọc, viết phân số; tử số, mẫu số.', knowledge: 'chia thành phần bằng nhau',
+      sgk: [53], say: 'Mẫu số là số phần bằng nhau, tử số là số phần đã tô!', tasks: pick(53) },
+    { id: 'd4-frac-4', n: 2, title: 'Phân số và phép chia', desc: 'Vd. 3 : 4 = 3/4; 18 : 9 = 18/9 = 2.', knowledge: 'khái niệm phân số',
+      sgk: [54], say: 'Số bị chia là tử số, số chia là mẫu số!', tasks: pick(54) },
+    { id: 'd4-frac-5', n: 3, title: 'Tính chất cơ bản, rút gọn', desc: 'Vd. 2/3 = 4/6; 20/35 = 4/7.', knowledge: 'phân số và phép chia',
+      sgk: [55, 56], say: 'Nhân hoặc chia cả tử số và mẫu số cho cùng một số!', tasks: [...pick(55), ...pick(56)], missions: 6 },
+    { id: 'd4-frac-6', n: 4, title: 'Quy đồng mẫu số', desc: 'Vd. 2/3 và 5/6 thành 4/6 và 5/6.', knowledge: 'tính chất cơ bản của phân số',
+      sgk: [57], say: 'Tìm mẫu số chung, rồi nhân cả tử số và mẫu số!', tasks: pick(57) },
+    { id: 'd4-frac-7', n: 5, title: 'So sánh phân số', desc: 'Cùng mẫu số, so sánh với 1, khác mẫu số.', knowledge: 'quy đồng mẫu số',
+      sgk: [58], say: 'Cùng mẫu số thì tử số lớn hơn, phân số lớn hơn!', tasks: pick(58) },
+    { id: 'd4-frac-1', n: 6, title: 'Cộng, trừ phân số', desc: 'Vd. 3/8 + 2/8 = 5/8; 1/4 + 3/8 = 5/8.', knowledge: 'quy đồng mẫu số',
+      sgk: [60, 61], say: 'Khác mẫu số thì quy đồng trước rồi mới cộng, trừ!', tasks: [...pick(60), ...pick(61)], missions: 6 },
+    { id: 'd4-frac-2', n: 7, title: 'Nhân, chia phân số', desc: 'Vd. 4/5 × 2/3 = 8/15; 3/4 : 2/5 = 3/4 × 5/2.', knowledge: 'cộng, trừ phân số',
+      sgk: [63, 64], say: 'Chia cho một phân số là nhân với phân số đảo ngược!', tasks: [...pick(63), ...pick(64)], missions: 6 },
+    { id: 'd4-frac-8', n: 8, title: 'Phân số của một số', desc: 'Vd. 2/3 của 12 là 12 : 3 × 2 = 8.', knowledge: 'nhân, chia phân số',
+      sgk: [65], say: 'Chia cho mẫu số, rồi nhân với tử số!', tasks: pick(65) },
   ],
 });
 
@@ -266,13 +313,13 @@ export const DRILL4_LIST = [
   tool('word', WORD4_GAME, 'Bài toán ba bước tính, tìm hai số khi biết tổng và hiệu bằng sơ đồ đoạn thẳng.', ['Ba bước tính', 'Tổng và hiệu']),
   tool('unit', UNIT4_GAME, 'Đổi, so sánh, tính với yến, tạ, tấn, dm², m², mm², giây, thế kỉ.', ['Yến, tạ, tấn', 'm², dm², mm²', 'Thế kỉ']),
   tool('angle', ANGLE4_GAME, 'Đặt thước đo góc, đọc số đo, phân biệt góc nhọn, góc tù, góc bẹt.', ['Thước đo góc', 'Nhọn, tù, bẹt']),
-  tool('frac', FRAC4_GAME, 'Rút gọn, quy đồng, cộng, trừ, nhân, chia phân số.', ['Quy đồng', 'Khác mẫu số', 'Nhân, chia']),
+  tool('nham', NHAM4_GAME, 'Nhân, chia nhẩm với 10, 100, 1 000 và số tròn chục, ước lượng kết quả.', ['Thêm, bớt chữ số 0', 'Ước lượng']),
+  tool('stats', STATS4_GAME, 'Dãy số liệu, biểu đồ cột, số lần xuất hiện của một sự kiện.', ['Biểu đồ cột', 'Kiểm đếm']),
+  tool('frac', FRAC4_GAME, 'Khái niệm, rút gọn, quy đồng, so sánh, cộng, trừ, nhân, chia phân số, phân số của một số.', ['Rút gọn', 'Quy đồng', 'So sánh', 'Phân số của một số']),
   tool('shark', SHARK4_GAME, 'Cá mập mang phép tính bơi tới: tính nhẩm số tới ba chữ số, gõ đúng kết quả để bắn trúng!', ['Tính nhẩm', 'Nhân, chia với 10, 100', 'Tính nhanh']),
   tool('ufo', UFO4_GAME, 'Đĩa bay mang ổ khoá có số bị giấu: chọn đúng viên đạn, số thay vào ổ khoá là thấy đúng sai!', ['Biểu thức chứa chữ', 'Tìm x']),
 ];
 
-// Tên bài SGK Toán 4 (KNTT) Tập Hai mà cây 🌳 cần; Tập Một lấy từ UNIT_INFO (tool4).
-const SGK4_TAP2 = { 38: 'Nhân với số có một chữ số', 39: 'Chia cho số có một chữ số', 43: 'Nhân với số có hai chữ số', 44: 'Chia cho số có hai chữ số' };
 
 export function render(app, onBack) {
   // 🎮 Trò chơi tăng cường trong cây 🌳: chạm Cấp → tải trò chơi, mở thẳng cấp đó (chỉ phép tính của bài), quay lại về Luyện Tính.
@@ -292,7 +339,7 @@ export function render(app, onBack) {
     openUnit() {}, onBack,
   }, null, {
     games: DRILL4_LIST, kicker: '🧮 Toán 4', title: 'Luyện Tính', icon: '🧮', unitFocus: null,
-    lessonTree: { games, split: 37, titleOf: (n) => UNIT_INFO[`tool4:bai-${n}`]?.[1] || SGK4_TAP2[n] },
+    lessonTree: { games, split: 37, titleOf: (n) => UNIT_INFO[`tool4:bai-${n}`]?.[1] || lessonByN(n)?.title },
     lead: 'Luyện số lớn, phép tính, đơn vị đo, phân số như cách học ở lớp. Mỗi lượt là số mới!',
     levelLead: 'Chọn cấp. Cấp nào cũng làm được!',
   });

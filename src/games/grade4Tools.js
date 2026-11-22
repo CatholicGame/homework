@@ -1,10 +1,10 @@
 /**
- * 🧰 Toán 4: Học bằng công cụ (Tập Một, SGK Kết nối tri thức). Thiết kế: docs/lop_4/thiet-ke-cong-cu-tap1.md.
- * Danh sách 7 chủ đề, Bài 1–37 → mỗi bài: ① Khám phá (thầy hướng dẫn từng bước trên công cụ, không chấm)
+ * 🧰 Toán 4: Học bằng công cụ (SGK Kết nối tri thức). Thiết kế: docs/lop_4/thiet-ke-cong-cu-tap1.md, thiet-ke-cong-cu-tap2.md.
+ * Tập Một chủ đề 1–7 (Bài 1–37), Tập Hai chủ đề 8–13 (Bài 38–73) → mỗi bài: ① Khám phá (thầy hướng dẫn từng bước trên công cụ, không chấm)
  * và ② Thực hành (5 câu, sao 'tool4:bai-N'). Bài Luyện tập chung / Ôn tập chỉ có Thực hành (trộn các bài).
  */
 
-import { TOPICS, TOOLS, lessonByN, pagesText } from './grade4Tools/catalog.js';
+import { TOPICS, TOOLS, lessonByN, pagesText, tapName } from './grade4Tools/catalog.js';
 import { exploreOf, tasksOf } from './grade4Tools/lessons/index.js';
 import { mountToolSearch } from './grade4Tools/search.js';
 import { runExplore, loadSeen } from './grade4Tools/frame.js';
@@ -25,6 +25,10 @@ export function render(app, onBack, { open } = {}) {
   preloadNpcs();
   let lastN = null;
   const search = { q: '' }; // 🔎 chữ đang tìm, giữ khi vào bài rồi quay lại
+  // Tab 📗 Tập Một / 📘 Tập Hai: nhớ tab đã chọn (tiện riêng từng máy, không cần đồng bộ).
+  const TAP_KEY = 'g4tools-tap-v1';
+  let tap = (() => { try { return +localStorage.getItem(TAP_KEY) === 2 ? 2 : 1; } catch { return 1; } })();
+  const setTap = (v) => { tap = v; try { localStorage.setItem(TAP_KEY, String(v)); } catch { /* storage unavailable */ } };
 
   function shell(inner) {
     app.innerHTML = `<div class="g3g-wrap g3g-menu g4h" data-zmax="1.4">${menuBackdrop()}<div class="g3g-screen animate-fadeIn">${inner}</div></div>`;
@@ -40,11 +44,21 @@ export function render(app, onBack, { open } = {}) {
   function showList() {
     const seen = loadSeen();
     shell(`
-      ${topbar('Học bằng công cụ', '🧰 Toán 4 · Tập Một')}
+      ${topbar('Học bằng công cụ', '🧰 Toán 4')}
       <p class="g3g-lead">Mỗi bài có công cụ để em tự tay thử: bảng hàng, tia số, thước đo góc, ê ke… Khám phá trước, rồi thực hành.</p>
       ${GRADE4_GAMES ? '<button type="button" class="g4h-games" data-act="games"><span>🎮</span><strong>Trò chơi tăng cường</strong><small>Dùng kiến thức đã học để làm việc thật!</small></button>' : ''}
+      <div class="g4h-tabs" role="tablist">
+        ${[1, 2].map((v) => {
+          const ls = TOPICS.filter(t => t.tap === v).flatMap(t => t.lessons);
+          const done = ls.filter(l => hasEarned(`tool4:${l.id}`)).length;
+          return `<button type="button" class="g4h-tabbtn" role="tab" data-tap="${v}" aria-selected="${tap === v}">
+            <strong>${v === 1 ? '📗' : '📘'} ${tapName({ tap: v })}</strong>
+            <small>Bài ${ls[0].n}–${ls[ls.length - 1].n} · ⭐ ${done}/${ls.length}</small>
+          </button>`;
+        }).join('')}
+      </div>
       ${TOPICS.map(t => `
-        <section class="g4h-topic">
+        <section class="g4h-topic" data-tap="${t.tap}">
           <h2 class="g4h-th"><span class="g4h-tn">Chủ đề ${t.num}</span>${t.title}</h2>
           <div class="g4h-list">
             ${t.lessons.map(l => {
@@ -59,6 +73,16 @@ export function render(app, onBack, { open } = {}) {
             }).join('')}
           </div>
         </section>`).join('')}`);
+    const wrap = app.querySelector('.g4h');
+    wrap.dataset.tap = tap;
+    app.querySelectorAll('.g4h-tabbtn').forEach(b => {
+      b.onclick = () => {
+        setTap(+b.dataset.tap);
+        wrap.dataset.tap = tap;
+        app.querySelectorAll('.g4h-tabbtn').forEach(x => x.setAttribute('aria-selected', String(+x.dataset.tap === tap)));
+        app.querySelector('.g4h-tabs')?.scrollIntoView({ block: 'start' });
+      };
+    });
     app.querySelector('[data-act="back"]').onclick = onBack;
     app.querySelector('[data-act="games"]')?.addEventListener('click', () => openGames(null, showList));
     app.querySelectorAll('.g4h-tile[data-n]').forEach(b => { b.onclick = () => showLesson(lessonByN(+b.dataset.n)); });
@@ -68,6 +92,7 @@ export function render(app, onBack, { open } = {}) {
 
   function showLesson(l) {
     lastN = l.n;
+    if (l.tap && l.tap !== tap) setTap(l.tap);
     const ex = exploreOf(l.n);
     const tasks = tasksOf(l.n);
     const seen = loadSeen()[l.id];
@@ -78,8 +103,8 @@ export function render(app, onBack, { open } = {}) {
         <div class="g4h-icon">${toolIcons(l)}</div>
         <h2 class="g4h-title">${l.title}</h2>
         <div class="g4h-tools g4h-tools-c">${l.tools.length ? l.tools.map(k => `<i>${TOOLS[k].icon} ${TOOLS[k].name}</i>`).join('') : '<i>📝 Luyện tập: trộn các bài đã học</i>'}</div>
-        <div class="g4h-sgk">📖 SGK Toán 4 Tập Một, ${pagesText(l)}</div>
-        ${l.mix ? `<div class="g4h-mix"><span>Kiến thức ở các bài:</span>${l.mix.map(k => { const m = lessonByN(k); return `<i><b>Bài ${m.n}</b> ${m.title} · tr. ${m.pages[0]}</i>`; }).join('')}</div>` : ''}
+        <div class="g4h-sgk">📖 SGK Toán 4 ${tapName(l)}, ${pagesText(l)}</div>
+        ${l.mix ? `<div class="g4h-mix"><span>Kiến thức ở các bài:</span>${l.mix.map(k => { const m = lessonByN(k); return `<i><b>Bài ${m.n}</b> ${m.title} · ${m.tap === l.tap ? '' : `${tapName(m)} `}tr. ${m.pages[0]}</i>`; }).join('')}</div>` : ''}
         <div class="g4h-go">
           ${ex ? `<button type="button" class="g4h-big g4h-ex" data-act="explore"><span class="g4h-big-i">🔎</span><span><strong>Khám phá</strong><small>Thầy hướng dẫn từng bước, em tự tay làm trên công cụ${seen ? ' · ✓ đã xem' : ''}</small></span></button>` : ''}
           ${tasks.length ? `<button type="button" class="g4h-big g4h-pr" data-act="practice"><span class="g4h-big-i">✏️</span><span><strong>Thực hành</strong><small>5 câu, mỗi lần số mới${hasEarned(`tool4:${l.id}`) ? ' · ⭐ đã nhận sao' : ''}</small></span></button>` : ''}
@@ -146,6 +171,19 @@ export function exploreIn(host, n, onExit) {
 function injectHubStyles() {
   css('g4-hub', `
     .g4h-topic { margin: 1.1rem 0 0.4rem; }
+    /* Tab Tập Một / Tập Hai: dính đầu màn khi cuộn; đang tìm thì hiện cả hai tập */
+    .g4h-tabs { position: sticky; top: 0; z-index: 5; display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin: 0.3rem 0 0.9rem; padding: 0.4rem; border-radius: 1.2rem;
+      background: rgba(224,242,254,0.92); backdrop-filter: blur(4px); }
+    .g4h-tabbtn { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; border: 2px solid #BAE6FD; border-radius: 1rem; padding: 0.55rem 0.5rem; background: #fff; cursor: pointer;
+      font-family: inherit; color: #0C4A6E; box-shadow: 0 4px 0 #BAE6FD; transition: transform .12s, box-shadow .12s, background .15s; }
+    .g4h-tabbtn strong { font-family: 'Baloo 2', sans-serif; font-size: 1.35rem; font-weight: 800; line-height: 1.15; }
+    .g4h-tabbtn small { font-size: 0.9rem; font-weight: 700; color: #64748B; }
+    .g4h-tabbtn[aria-selected="true"] { background: #0EA5E9; border-color: #0284C7; color: #fff; box-shadow: 0 4px 0 #0369A1; }
+    .g4h-tabbtn[aria-selected="true"] small { color: #E0F2FE; }
+    .g4h-tabbtn:active { transform: translateY(3px); box-shadow: 0 1px 0 #0369A1; }
+    .g4h[data-tap="1"]:not(:has(.g4h-search.ls-has)) .g4h-topic[data-tap="2"],
+    .g4h[data-tap="2"]:not(:has(.g4h-search.ls-has)) .g4h-topic[data-tap="1"] { display: none; }
+    .g4h:has(.g4h-search.ls-has) .g4h-tabbtn { opacity: 0.55; }
     .g4h-th { display: flex; align-items: center; gap: 0.6rem; font-size: 1.25rem; font-weight: 800; color: #1E3A5F; margin: 0 0 0.6rem; }
     .g4h-tn { background: #F97316; color: #fff; border-radius: 999px; padding: 0.1rem 0.75rem; font-size: 0.95rem; box-shadow: 0 3px 0 #C2410C; white-space: nowrap; }
     .g4h-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 0.7rem 0.9rem; }
