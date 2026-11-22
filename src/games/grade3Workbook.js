@@ -4473,9 +4473,38 @@ export function renderWorkbook(app, onBack, cfg) {
   injectStyles();
 
   // ── INTRO / UNIT MENU ──────────────────────────────────────────────────────
+  // cfg.volumes = [{ n, name, sub }] (sách chia tập, u.vol): tab chọn tập trên danh sách, mỗi tập một dòng "Cả tập".
+  // Tab mở đầu = tập vừa chọn (lưu), else tập của bài vừa mở; tìm kiếm vẫn tìm cả sách.
+  const VOLS = cfg.volumes || null;
+  const volKey = `${cfg.lastUnitKey}:vol`;
+  const volOf = (uid) => (uid?.startsWith('all@') ? +uid.slice(4) : UNITS.find(u => u.id === uid)?.vol);
+  let curVol = null;
+  function startVol() {
+    let v = null;
+    try { v = +localStorage.getItem(volKey); } catch { /* storage unavailable */ }
+    if (!VOLS.some(x => x.n === v)) v = volOf(getLastUnit()) || VOLS[0].n;
+    return v;
+  }
   function showIntro() {
     app.removeAttribute('data-no-i18n');
     const totalQ = UNITS.reduce((s, u) => s + u.questions.length, 0);
+    if (VOLS && curVol == null) curVol = startVol();
+    const unitStars = (u) => u.questions.reduce((acc, q, i) => {
+      acc.max += getQuestionStars(starKey(u.id, i), q);
+      acc.got += earnedFor(starKey(u.id, i));
+      return acc;
+    }, { got: 0, max: 0 });
+    const volInfo = VOLS ? VOLS.map(v => {
+      const us = UNITS.filter(u => u.vol === v.n);
+      const st = us.map(unitStars).reduce((a, b) => ({ got: a.got + b.got, max: a.max + b.max }), { got: 0, max: 0 });
+      return { ...v, units: us, q: us.reduce((s, u) => s + u.questions.length, 0), st, from: us[0]?.number, to: us[us.length - 1]?.number };
+    }) : null;
+    const allRow = (uid, title, sub, vol) => `
+            <button class="gw-unit-row gw-unit-all${vol && vol !== curVol ? ' gw-vol-off' : ''}" data-unit="${uid}"${vol ? ` data-vol="${vol}"` : ''}>
+              <span class="gw-unit-badge" style="background:#334155">📋</span>
+              <span class="gw-unit-info"><strong>${title}</strong><span class="gw-unit-sub">${sub}</span></span>
+              <span class="gw-unit-arrow">›</span>
+            </button>`;
     app.innerHTML = `
       <div class="e3-wrap gw-app">
         <div class="e3-intro animate-fadeIn gw-intro-wide">
@@ -4488,20 +4517,24 @@ export function renderWorkbook(app, onBack, cfg) {
           ${gamesOn ? `<button type="button" class="gw-games-btn" id="gw-games-btn">🎮 Trò chơi tăng cường <span>chơi để luyện bài đã học</span></button>` : ''}
 
           <div class="e3-section-label">${cfg.menuLabel}</div>
+          ${volInfo ? `<div class="gw-vol-tabs" role="tablist">${volInfo.map(v => {
+            const pct = v.st.max ? Math.round(100 * v.st.got / v.st.max) : 0;
+            return `
+            <button type="button" class="gw-vol-tab${v.n === curVol ? ' is-on' : ''}" role="tab" aria-selected="${v.n === curVol}" data-vol="${v.n}">
+              <span class="gw-vol-name">${v.name}</span>
+              <span class="gw-vol-sub">${v.sub} · ${cfg.unitWord[0].toUpperCase()}${cfg.unitWord.slice(1)} ${v.from}–${v.to}</span>
+              <span class="gw-vol-prog" title="${v.st.got}/${v.st.max} sao"><i style="width:${pct}%"></i></span>
+              <span class="gw-vol-stars">⭐ ${v.st.got}/${v.st.max}</span>
+            </button>`;
+          }).join('')}</div>` : ''}
           <div class="gw-unit-list">
-            <button class="gw-unit-row gw-unit-all" data-unit="all">
-              <span class="gw-unit-badge" style="background:#334155">📋</span>
-              <span class="gw-unit-info"><strong>Tất cả</strong><span class="gw-unit-sub">${totalQ} câu, ${UNITS.length} ${cfg.unitWord} hiện có</span></span>
-              <span class="gw-unit-arrow">›</span>
-            </button>
+            ${volInfo
+              ? volInfo.map(v => allRow(`all@${v.n}`, `Cả ${v.name}`, `${v.q} câu, ${v.units.length} ${cfg.unitWord} (${v.sub})`, v.n)).join('')
+              : allRow('all', 'Tất cả', `${totalQ} câu, ${UNITS.length} ${cfg.unitWord} hiện có`)}
             ${UNITS.map((u, idx) => {
               const color = PALETTE[idx % PALETTE.length];
               const sum = getUnitSummary(u);
-              const starSum = u.questions.reduce((acc, q, i) => {
-                acc.max += getQuestionStars(starKey(u.id, i), q);
-                acc.got += earnedFor(starKey(u.id, i));
-                return acc;
-              }, { got: 0, max: 0 });
+              const starSum = unitStars(u);
               const badges = [
                 sum.solvedCount ? `✓ ${sum.solvedCount}/${sum.total}` : `${sum.total} câu`,
                 `⭐ ${starSum.got}/${starSum.max}`,
@@ -4520,9 +4553,17 @@ export function renderWorkbook(app, onBack, cfg) {
                     ${stalls.map(({ stall, level }) => `<span class="gw-unit-game" role="button" tabindex="0" data-stall="${stall.id}" data-level="${level.id}" title="Chơi ${stall.title}" aria-label="Chơi ${stall.title}">${stall.icon}</span>`).join('')}
                   </span>` : '';
               // Sách chia chương (u.chapter): dòng tên chương trước bài đầu tiên của chương.
-              const chapter = u.chapter && u.chapter !== UNITS[idx - 1]?.chapter ? `<div class="gw-unit-chapter">${u.chapter}</div>` : '';
+              // Chương nằm vắt qua hai tập: tên chương lặp lại ở đầu tập sau, kèm "(tiếp theo)".
+              const prev = UNITS[idx - 1];
+              const off = VOLS && u.vol !== curVol ? ' gw-vol-off' : '';
+              const vAttr = VOLS ? ` data-vol="${u.vol}"` : '';
+              const newVol = VOLS && u.vol !== prev?.vol;
+              const cont = newVol && u.chapter === prev?.chapter ? ' (tiếp theo)' : '';
+              const [, cTag, cName] = (u.chapter || '').match(/^(Chương [^.]+)\.\s*(.+)$/) || [];
+              const cHtml = cTag ? `<span class="gw-ch-tag">${cTag}${cont}</span><span class="gw-ch-name">${cName}</span>` : `${u.chapter}${cont}`;
+              const chapter = u.chapter && (u.chapter !== prev?.chapter || newVol) ? `<div class="gw-unit-chapter${cTag ? ' gw-ch2' : ''}${off}"${vAttr}>${cHtml}</div>` : '';
               return `${chapter}
-                <button class="gw-unit-row" data-unit="${u.id}">
+                <button class="gw-unit-row${off}" data-unit="${u.id}"${vAttr}>
                   <span class="gw-unit-badge" style="background:${color}">${u.number}</span>
                   <span class="gw-unit-info"><strong>${cfg.unitName(u)}</strong><span class="gw-unit-sub">${badges}</span></span>${gamesChip}
                   <span class="gw-unit-arrow">›</span>${gamesChip ? '<span class="gw-unit-break" aria-hidden="true"></span>' : ''}
@@ -4548,6 +4589,17 @@ export function renderWorkbook(app, onBack, cfg) {
 
     // Trò chơi tăng cường (bật / tắt bằng cờ GRADE3_GAMES — src/data/features.js — hoặc cfg.gamesEnabled).
     if (gamesOn) app.querySelector('#gw-games-btn').onclick = () => openGames();
+
+    app.querySelectorAll('.gw-vol-tab').forEach(t => {
+      t.onclick = () => {
+        curVol = +t.dataset.vol;
+        try { localStorage.setItem(volKey, String(curVol)); } catch { /* storage unavailable */ }
+        app.querySelectorAll('.gw-vol-tab').forEach(x => { const on = +x.dataset.vol === curVol; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', String(on)); });
+        app.querySelectorAll('.gw-unit-list [data-vol]').forEach(e => e.classList.toggle('gw-vol-off', +e.dataset.vol !== curVol));
+        const list = app.querySelector('.gw-unit-list');
+        if (list) list.scrollTop = 0;
+      };
+    });
 
     app.querySelector('#e3-back-btn').onclick = onBack;
     mountUnitSearch();
@@ -4628,12 +4680,17 @@ export function renderWorkbook(app, onBack, cfg) {
   // at: mở thẳng câu thứ at của bài (từ kết quả tìm kiếm)
   function openUnit(uid, at = 0) {
     setLastUnit(uid);
-    if (uid === 'all') {
-      const totalQ = UNITS.reduce((s, u) => s + u.questions.length, 0);
-      activeQuestions = UNITS.flatMap(u => { const slots = storeSlots(u.questions); return u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: slots[i] })); });
-      activeTitle = `Tất cả: ${totalQ} câu`;
+    const isAll = uid === 'all' || uid.startsWith('all@');
+    if (isAll) {
+      // 'all@<tập>' = cả một tập (sách chia tập)
+      const vol = uid.startsWith('all@') ? +uid.slice(4) : null;
+      const units = vol ? UNITS.filter(u => u.vol === vol) : UNITS;
+      const totalQ = units.reduce((s, u) => s + u.questions.length, 0);
+      activeQuestions = units.flatMap(u => { const slots = storeSlots(u.questions); return u.questions.map((q, i) => ({ ...q, __unitId: u.id, __qIdx: slots[i] })); });
+      const vName = vol && VOLS?.find(v => v.n === vol)?.name;
+      activeTitle = vName ? `Cả ${vName}: ${totalQ} câu` : `Tất cả: ${totalQ} câu`;
       activeColor = '#34D399';
-      activeUnitIds = UNITS.map(u => u.id);
+      activeUnitIds = units.map(u => u.id);
     } else {
       const unitIdx = UNITS.findIndex(u => u.id === uid);
       const u = UNITS[unitIdx];
@@ -4644,7 +4701,7 @@ export function renderWorkbook(app, onBack, cfg) {
       activeUnitIds = [u.id];
     }
     resetProgress();
-    current = uid === 'all' ? 0 : Math.max(0, Math.min(at, activeQuestions.length - 1));
+    current = isAll ? 0 : Math.max(0, Math.min(at, activeQuestions.length - 1));
     qlistFilter = { unit: '', sec: '' };
     showQuestion();
   }
@@ -4656,7 +4713,7 @@ export function renderWorkbook(app, onBack, cfg) {
     const last = getLastUnit();
     if (!last) return;
     const card = [...app.querySelectorAll('.gw-unit-row')].find(b => b.dataset.unit === last);
-    if (!card) return;
+    if (!card || card.classList.contains('gw-vol-off')) return;
     const unitIdx = UNITS.findIndex(u => u.id === last);
     card.style.setProperty('--gw-flash', unitIdx >= 0 ? PALETTE[unitIdx % PALETTE.length] : '#0EA5E9');
     requestAnimationFrame(() => {
@@ -7134,6 +7191,34 @@ function injectStyles() {
     .gw-book-table { border-collapse: collapse; margin: 0.5rem 0; font-size: 0.95em; }
     .gw-book-table th, .gw-book-table td { border: 1.5px solid #94A3B8; padding: 0.3rem 0.7rem; text-align: center; }
     .gw-book-table th { background: #F1F5F9; font-weight: 700; }
+    .gw-unit-list:not(.gw-searching) .gw-vol-off { display: none; }
+    /* Tab tập: một khối segmented, tab chọn nổi lên nền trắng; tab, ô tìm, danh sách cùng một độ rộng. */
+    .gw-vol-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 0 0 0.5rem; background: #EEF2F7; border-radius: 1.1rem; }
+    .gw-intro-wide:has(.gw-vol-tabs) .ls-box { max-width: none; margin: 0.25rem 0 0.75rem; }
+    .gw-intro-wide:has(.gw-vol-tabs) .ls-note { max-width: none; }
+    .gw-vol-tab { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 0.6rem; row-gap: 0.15rem; padding: 0.6rem 0.9rem 0.65rem; border: 0; border-radius: 0.85rem; background: transparent; color: #64748B; cursor: pointer; font-family: inherit; text-align: left; transition: background 0.15s, color 0.15s, box-shadow 0.15s; -webkit-tap-highlight-color: transparent; }
+    .gw-vol-tab:focus { outline: none; }
+    .gw-vol-tab:focus-visible { outline: 3px solid #A5B4FC; outline-offset: 1px; }
+    .gw-vol-name { font-size: 1.08rem; font-weight: 800; color: inherit; }
+    .gw-vol-sub { grid-column: 1; font-size: 0.8rem; font-weight: 600; color: #94A3B8; }
+    .gw-vol-prog { grid-column: 1 / -1; height: 5px; margin-top: 0.3rem; border-radius: 99px; background: #E2E8F0; overflow: hidden; }
+    .gw-vol-prog i { display: block; height: 100%; min-width: 0; border-radius: inherit; background: linear-gradient(90deg, #FBBF24, #F59E0B); }
+    .gw-vol-stars { grid-column: 2; grid-row: 1 / span 2; font-size: 0.8rem; font-weight: 700; color: #94A3B8; white-space: nowrap; }
+    .gw-vol-tab:hover:not(.is-on) { background: rgba(255,255,255,.55); color: #334155; }
+    .gw-vol-tab.is-on { background: #fff; color: #1E293B; box-shadow: 0 1px 2px rgba(15,23,42,.08), 0 4px 12px rgba(15,23,42,.08); }
+    .gw-vol-tab.is-on .gw-vol-sub { color: #64748B; }
+    .gw-vol-tab.is-on .gw-vol-stars { color: #B45309; }
+    .gw-intro-wide:has(.gw-searching) .gw-vol-tab { opacity: 0.5; pointer-events: none; }
+    @media (max-width: 480px) {
+      .gw-vol-tab { grid-template-columns: 1fr; padding: 0.55rem 0.7rem 0.6rem; }
+      .gw-vol-stars { grid-column: 1; grid-row: auto; font-size: 0.75rem; }
+      .gw-vol-sub { font-size: 0.74rem; }
+    }
+    /* Đầu chương: nhãn "Chương ba" màu + tên chương, căn trái, có vạch ngăn. */
+    .gw-unit-chapter.gw-ch2 { display: flex; flex-direction: column; gap: 0.15rem; margin: 1.1rem 0.1rem 0.15rem; padding-top: 0.9rem; border-top: 1px solid #E2E8F0; text-align: left; }
+    .gw-unit-list > .gw-unit-chapter.gw-ch2:not(.gw-vol-off):is(.gw-unit-all + *, .gw-unit-all + .gw-unit-all + *) { border-top: 0; padding-top: 0.2rem; }
+    .gw-ch-tag { align-self: flex-start; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #4F46E5; background: #EEF2FF; padding: 0.15rem 0.55rem; border-radius: 99px; }
+    .gw-ch-name { font-size: 1rem; font-weight: 800; color: #1E293B; line-height: 1.35; }
     .gw-unit-chapter { margin: 0.9rem 0.2rem 0.1rem; font-weight: 800; font-size: 0.95rem; color: #475569; letter-spacing: 0.02em; }
     .gw-match-col { display: flex; flex-direction: column; justify-content: space-around; gap: 0.6rem; min-width: 0; }
     .gw-match-col > .gw-match-item { flex: 1 1 auto; height: auto; }

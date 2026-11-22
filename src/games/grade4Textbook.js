@@ -35,6 +35,8 @@ const TEXTBOOK4_CONFIG = {
   compactSlots: true,
   // 📘 Kiến thức / 🔎 Khám phá trên bài tập (lớp phủ): grade4Textbook/related.js.
   related: relatedFor,
+  // Hai tab Tập 1 | Tập 2 trên danh sách bài (u.vol từ catalog.js, chia theo học kì).
+  volumes: [{ n: 1, name: 'Tập 1', sub: 'Học kì I' }, { n: 2, name: 'Tập 2', sub: 'Học kì II' }],
 };
 
 export function render(app, onBack, { open } = {}) {

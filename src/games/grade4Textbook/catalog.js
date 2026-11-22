@@ -75,9 +75,15 @@ const RAW = [
   ]],
 ];
 
+// Sách in một quyển; app chia hai tập theo học kì (phân phối chương trình): Tập 2 bắt đầu từ "Ki-lô-mét vuông"
+// (tuần 19, sách trang 99), Tập 1 hết ở bài Luyện tập chung ngay trước đó (sau Dấu hiệu chia hết cho 3).
+const TAP2_FIRST = 'Ki-lô-mét vuông';
+
 let n = 0;
-/** [{ id: 'bai-1', number: 1, page: 3, title, chapter }] — 175 bài. */
+let vol = 1;
+/** [{ id: 'bai-1', number: 1, page: 3, title, chapter, vol }] — 175 bài, vol 1 | 2. */
 export const CATALOG = RAW.flatMap(([chapter, list]) => list.map(([page, title]) => {
   n++;
-  return { id: `bai-${n}`, number: n, page, title, chapter };
+  if (title === TAP2_FIRST) vol = 2;
+  return { id: `bai-${n}`, number: n, page, title, chapter, vol };
 }));
