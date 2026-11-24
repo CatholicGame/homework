@@ -108,12 +108,13 @@ export async function requestVocab({ prompt, grade }) {
 }
 
 /**
- * Đọc tiếng Anh: nhờ cô xem câu bé viết (code đã chấm sai) có cũng đúng không.
- * kind 'ask' | 'rewrite'; task = câu trả lời cho sẵn / đề + câu gốc; model = đáp án của sách.
+ * Đọc tiếng Anh / 📐 Ngữ pháp bước ✍️ Viết: nhờ cô xem câu bé viết (code đã chấm sai) có cũng đúng không.
+ * kind 'ask' | 'rewrite' (Đọc tiếng Anh) | 'translate' | 'free' (Ngữ pháp: dịch câu Việt / tự đặt câu, focus = cấu trúc đang học);
+ * task = câu trả lời cho sẵn / đề + câu gốc / câu tiếng Việt / yêu cầu; model = đáp án mẫu.
  * → { ok, fix, explain }. Lỗi như requestReview.
  */
-export async function requestEnglishCheck({ kind, task, model, text, grade }) {
-  return askTeacher({ mode: 'english', kind, task, model, text, grade }, 'verdict');
+export async function requestEnglishCheck({ kind, task, model, text, grade, focus }) {
+  return askTeacher({ mode: 'english', kind, task, model, text, grade, ...(focus ? { focus } : {}) }, 'verdict');
 }
 
 async function askTeacher(payload, field) {

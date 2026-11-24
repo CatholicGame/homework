@@ -305,3 +305,60 @@
 .eg-tfsent.is-fixline.is-ok .eg-mv-t.is-key { background: var(--ok-soft); border-color: var(--ok); box-shadow: 0 3px 0 color-mix(in srgb, var(--ok) 55%, #fff); color: var(--ok); }
 .eg-fix .eg-was { color: var(--bad); font-size: .8em; }
 .eg-line.is-fixed { border-color: var(--ok); background: var(--ok-soft); }
+
+/* ✍️ Viết (src/games/enGrammar/write.js): cùng 4 vùng cố định như màn Luyện; vùng nút thành ô gõ + nút Kiểm tra */
+.eg-prog i.skip { background: #E2E8F0; border-color: #94A3B8; }
+.eg-wboard { grid-template-rows: minmax(0, 1fr) auto auto auto; gap: 1.6cqh; }
+.eg-vi { margin: 0; font-weight: 900; line-height: 1.3; font-size: max(1.25rem, min(9cqh, 6.4cqi)); }
+.eg-vi .eg-k { color: var(--c); }
+.eg-use { margin: 0; color: var(--sub); font-weight: 700; font-size: max(.95rem, min(5cqh, 3.6cqi)); }
+.eg-use b { color: var(--c); font-weight: 900; }
+/* chữ gợi ý: giữ chỗ hai hàng từ đầu, bấm 💡 mới hiện */
+.eg-hints { visibility: hidden; box-sizing: border-box; width: 100%; height: calc(2 * 2.5rem + 8px); overflow: hidden;
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-content: center; }
+.eg-hints.is-on { visibility: visible; }
+.eg-hint { font: inherit; font-weight: 800; font-size: 1.1rem; height: 2.5rem; padding: 0 14px; cursor: pointer; border-radius: 12px;
+  background: #EFF6FF; color: #1E3A8A; border: 1px solid #93C5FD; box-shadow: 0 3px 0 #93C5FD; }
+.eg-hint:active { transform: translateY(2px); box-shadow: 0 1px 0 #93C5FD; }
+.eg-hint.is-used { opacity: .45; }
+.eg-choices.is-write { flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.eg-wrow { display: flex; gap: 10px; width: min(100%, 860px); }
+.eg-in {
+  flex: 1 1 0; min-width: 0; box-sizing: border-box; height: clamp(56px, 9vh, 72px); padding: 0 18px; border-radius: 18px;
+  font: inherit; font-weight: 800; font-size: clamp(1.2rem, 4.4vw, 1.7rem); color: var(--ink); background: #fff;
+  border: 3px solid #fff; box-shadow: 0 5px 0 #15803D; outline: none;
+}
+.eg-in:focus { border-color: var(--c); }
+.eg-in::placeholder { color: #94A3B8; font-weight: 700; }
+.eg-in.is-ok { border-color: var(--ok); background: var(--ok-soft); color: #166534; }
+.eg-in.is-bad { border-color: #D97706; background: #FEF3C7; color: #92400E; }
+.eg-in:disabled { opacity: 1; -webkit-text-fill-color: currentColor; }
+.eg-wbtn {
+  flex: none; font: inherit; font-weight: 900; cursor: pointer; border-radius: 18px; border: 2px solid #CBD5E1;
+  background: #fff; color: var(--ink); box-shadow: 0 5px 0 #94A3B8;
+}
+.eg-wbtn:active { transform: translateY(3px); box-shadow: 0 2px 0 #94A3B8; }
+.eg-hint-btn { width: clamp(56px, 9vh, 72px); font-size: 1.6rem; }
+.eg-check { width: min(100%, 860px); height: clamp(50px, 8vh, 64px); font-size: clamp(1.15rem, 4vw, 1.5rem); color: #fff; opacity: .55;
+  background: var(--c); border-color: var(--c); box-shadow: 0 5px 0 color-mix(in srgb, var(--c) 60%, #000); }
+.eg-check.is-ready { opacity: 1; }
+.eg-choices.is-locked .eg-wbtn { cursor: default; opacity: .55; }
+.eg-fb.is-wait { background: #EFF6FF; }
+.eg-fb.is-wait .eg-fb-t { color: #1E40AF; }
+@media (orientation: landscape) and (min-width: 760px) {
+  .eg-choices.is-write { flex-direction: row; }
+  .eg-wrow { width: auto; flex: 0 1 760px; }
+  .eg-check { width: auto; height: clamp(56px, 9vh, 72px); padding: 0 28px; }
+}
+/* 4 bước trên máy hẹp: bỏ hình, thu đệm cho vừa một hàng */
+.eg-unit, .eg-view, .eg-play { min-width: 0; }
+.eg-step { min-width: 0; flex: 0 1 auto; white-space: nowrap; }
+@media (max-width: 520px) {
+  .eg-steps { gap: 4px; padding: 6px 8px; }
+  .eg-step { padding: 4px 8px 4px 4px; gap: 4px; font-size: .9rem; min-height: 40px; }
+  .eg-step b { width: 24px; height: 24px; }
+  .eg-step > span, .eg-step-line { display: none; }
+}
+.eg-wboard .eg-pic { font-size: min(24cqh, 26cqi, calc(72cqi / var(--n))); align-self: center; }
+.eg-write { grid-template-columns: minmax(0, 1fr); }
+.eg-in { width: 0; }

@@ -9,7 +9,9 @@
  *   2 ✋ Luyện 8 câu, mỗi màn một câu, chọn bằng nút to, chấm ngay: chọn từ / chọn câu / xếp chữ / đúng hay sai.
  *              Sai thì hiện đáp án + lý do một dòng, câu sai được hỏi lại một lần ở cuối.
  *              🎬 Câu Đúng/Sai có câu sai: câu tự biến thành câu đúng (movie.js diffTiles + flipTo); xếp chữ sai: thẻ tự bay về đúng thứ tự.
- *   3 ⭐ Xong  sao theo số câu đúng ngay lần đầu, Làm lại / Bài tiếp
+ *   3 ✍️ Viết  bé tự gõ câu tiếng Anh: 3 câu dịch Việt → Anh + 1 câu tự đặt (src/games/enGrammar/write.js, dữ liệu
+ *              src/data/enGrammar/write.js). Khớp câu mẫu thì đúng ngay, lệch thì cô DeepSeek chấm (api/writing/review.js).
+ *   4 ⭐ Xong  sao theo số câu đúng ngay lần đầu (Luyện + Viết), Làm lại / Bài tiếp
  * Màn Luyện chia vùng cố định từ đầu (tiến độ, bảng câu trên cảnh vẽ, vùng nút, thanh nhắc) nên không nhảy bố cục trong lượt.
  * Sao: lần đầu xong bài được 2 sao, khoá engram<lớp>:<bài> (BOOK_GRADE trong engine/stars.js).
  * Tiến độ: localStorage scopedKey('engram-v1') = { last, units: { [id]: { best: 1..3 } } } (đồng bộ cloudSync.js).
@@ -29,6 +31,8 @@ import { FLYERS_DEMOS } from './enGrammar/demosFlyers.js';
 
 import { mountMovie, flipTo, tilesHtml, diffTiles } from './enGrammar/movie.js';
 import { ANIMS } from '../data/enGrammar/anims.js';
+import { writeItems } from '../data/enGrammar/write.js';
+import { mountWrite } from './enGrammar/write.js';
 
 const DEMOS = { ...DEMOS_BASE, ...STARTERS_DEMOS, ...MOVERS_DEMOS, ...FLYERS_DEMOS };
 
@@ -36,6 +40,7 @@ const STORE = 'engram-v1';
 const STEPS = [
   { id: 'learn', icon: '👀', name: 'Học' },
   { id: 'practice', icon: '✋', name: 'Luyện' },
+  { id: 'write', icon: '✍️', name: 'Viết' },
   { id: 'done', icon: '⭐', name: 'Xong' },
 ];
 const PRAISE = ['Đúng rồi!', 'Giỏi quá!', 'Chính xác!', 'Hay lắm!'];
@@ -167,9 +172,13 @@ export function render(app, onBack, ctx = {}) {
     root.addEventListener('pointerdown', () => unlockSpeech(), { once: true });
     app.querySelector('.eg-back').onclick = showList;
     let result = null; // { right, total } sau khi luyện xong
+    let written = null; // { right, total } sau khi viết xong
+    const wItems = writeItems(u.id);
     const go = (id) => {
       stopEn(); stopView?.(); stopView = null;
-      if (id === 'done' && !result) id = 'practice';
+      if (id === 'write' && !wItems.length) id = 'done';
+      if (id === 'done' && !written && wItems.length) id = result ? 'write' : 'practice';
+      if (id === 'done' && !result && !written) id = 'practice';
       root.querySelectorAll('.eg-step').forEach((b) => {
         const i = STEPS.findIndex((s) => s.id === b.dataset.s), cur = STEPS.findIndex((s) => s.id === id);
         b.classList.toggle('is-on', i === cur);
@@ -178,13 +187,23 @@ export function render(app, onBack, ctx = {}) {
       view.innerHTML = '';
       view.scrollTop = 0;
       if (id === 'learn') stopView = learn(view, u, ex, () => go('practice'));
-      else if (id === 'practice') stopView = practice(view, u, (r) => { result = r; finish(u, r); go('done'); });
-      else done(view, u, result, () => { result = null; go('practice'); }, () => go('learn'));
+      else if (id === 'practice') stopView = practice(view, u, (r) => { result = r; go(wItems.length ? 'write' : 'done'); });
+      else if (id === 'write') {
+        stopView = mountWrite(view, u, wItems, {
+          esc, rich, shuffle, pick, reduced, sayEn, stopEn, playSfx, scene: SCENE, grade,
+          onEnd: (w) => { written = w; finish(u, sum(result, written)); go('done'); },
+        });
+      } else {
+        if (!wItems.length) finish(u, result);
+        done(view, u, sum(result, written), () => { result = null; written = null; go('practice'); }, () => go('learn'), { result, written });
+      }
     };
     root.querySelectorAll('.eg-step').forEach((b) => b.addEventListener('click', () => go(b.dataset.s)));
     go(STEPS.some((s) => s.id === stepId) ? stepId : 'learn');
   }
 
+  /** Cộng điểm Luyện và Viết (một trong hai có thể chưa làm). */
+  function sum(a, b) { return { right: (a?.right || 0) + (b?.right || 0), total: Math.max(1, (a?.total || 0) + (b?.total || 0)) }; }
   function finish(u, { right, total }) {
     store = loadStore();
     const rec = store.units[u.id] || (store.units[u.id] = {});
@@ -485,7 +504,7 @@ export function render(app, onBack, ctx = {}) {
   }
 
   // ── ⭐ Xong ──
-  function done(view, u, r, again, relearn) {
+  function done(view, u, r, again, relearn, parts = {}) {
     const n = starsOf(r.right, r.total);
     const next = UNITS[UNITS.indexOf(u) + 1];
     view.innerHTML = `
@@ -493,7 +512,7 @@ export function render(app, onBack, ctx = {}) {
         <div class="eg-done-card">
           <div class="eg-done-stars">${[1, 2, 3].map((k) => `<i class="${k <= n ? 'on' : ''}">★</i>`).join('')}</div>
           <h2>${n === 3 ? 'Tuyệt vời!' : n === 2 ? 'Làm tốt lắm!' : 'Cố lên, em làm được!'}</h2>
-          <p>Đúng ngay lần đầu <b>${r.right}/${r.total}</b> câu</p>
+          <p>Đúng ngay lần đầu: ${parts.result ? `✋ Luyện <b>${parts.result.right}/${parts.result.total}</b>` : ''}${parts.result && parts.written ? ' · ' : ''}${parts.written ? `✍️ Viết <b>${parts.written.right}/${parts.written.total}</b>` : ''}${!parts.result && !parts.written ? `<b>${r.right}/${r.total}</b> câu` : ''}</p>
           <div class="eg-done-btns">
             ${n < 3 ? '<button type="button" class="eg-big eg-ghost eg-relearn">👀 Xem lại cách dùng</button>' : ''}
             <button type="button" class="eg-big eg-ghost eg-again">🔁 Luyện lại</button>
