@@ -2,7 +2,7 @@
  * Deploy máy chủ phòng (`npm run deploy` trong realtime/) CHỈ KHI không có người thật nào trong phòng (luật của chủ dự án,
  * 2026-11-10): deploy khởi động lại mọi Durable Object, ai đang ở sảnh chờ / đang thi / đang xem đều bị ngắt.
  *
- * Hỏi /status/<phòng> của mọi phòng app dùng (Đấu Trường arena-g1…5, Ai tài năng nhất studio-g1…5, cả phòng thử -test, khu
+ * Hỏi /status/<phòng> của mọi phòng app dùng (Đấu Trường arena-g1…5 và arena-en-g1…5, Ai tài năng nhất studio-g1…5, cả phòng thử -test, khu
  * saigon; mỗi khoá thêm phòng tách ~2…~20). `here` = số kết nối thật (bạn ảo chạy trên máy chủ trò, không phải kết nối).
  * Còn người: không deploy (thoát mã 1). Không hỏi được phòng nào (mất mạng, sai địa chỉ): cũng không deploy.
  *   node deploy-safe.mjs            kiểm tra rồi deploy
@@ -18,7 +18,7 @@ const args = process.argv.slice(2);
 const WAIT = args.includes('--wait'), CHECK = args.includes('--check');
 const INST_MAX = 20;   // src/thanDong/church/net.js ROOMS_MAX
 const KEYS = [
-  ...[1, 2, 3, 4, 5].flatMap(g => [`arena-g${g}`, `arena-g${g}-test`, `studio-g${g}`, `studio-g${g}-test`]),
+  ...[1, 2, 3, 4, 5].flatMap(g => [`arena-g${g}`, `arena-g${g}-test`, `arena-en-g${g}`, `arena-en-g${g}-test`, `studio-g${g}`, `studio-g${g}-test`]),
   'saigon',
 ];
 
