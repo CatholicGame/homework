@@ -153,6 +153,55 @@
 .enr-word-vi { font-weight: 800; color: #334155; }
 .enr-word-ex { color: var(--en-sub); font-size: .95rem; display: flex; align-items: center; gap: 6px; }
 .enr-word-ex .enr-say { width: 30px; height: 30px; font-size: .85rem; }
+/* Từ mở rộng: thẻ nhỏ, hình to ở trên */
+.enr-h-n { font-size: .8rem; font-weight: 700; color: var(--en-sub); margin-left: 6px; }
+.enr-wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 156px), 1fr)); gap: 10px; }
+.enr-wcard { background: #fff; border: 1px solid var(--en-edge); border-radius: 16px; padding: 10px 10px 12px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; }
+.enr-wcard-pic { font-size: 3rem; line-height: 1.1; }
+.enr-wcard-w { display: inline-flex; align-items: center; gap: 6px; }
+.enr-wcard-w b { font-size: 1.2rem; }
+.enr-wcard-w .enr-say { width: 32px; height: 32px; font-size: .85rem; }
+.enr-wcard .enr-ipa { font-size: .9rem; }
+.enr-wcard .enr-word-ex { font-size: .85rem; justify-content: center; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.enr-wcard .enr-word-ex .enr-say { width: 26px; height: 26px; font-size: .75rem; }
+
+/* 🔤 Đánh vần: ô chữ + thẻ chữ cái to, dễ chạm */
+.enr-spell { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.enr-spell-top { display: flex; align-items: center; gap: 14px; }
+.enr-spell-pic { font-size: 4rem; line-height: 1; }
+.enr-spell-info { display: flex; flex-direction: column; }
+.enr-spell-vi { font-size: 1.25rem; font-weight: 800; }
+.enr-spell-n { color: var(--en-sub); font-size: .9rem; }
+.enr-spell-say { width: 48px; height: 48px; font-size: 1.3rem; }
+.enr-spell-slots, .enr-spell-tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.enr-spell-slot, .enr-spell-gap {
+  width: 44px; height: 52px; border-radius: 10px; font: inherit; font-size: 1.6rem; font-weight: 800; color: var(--en-ink);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.enr-spell-slot { border: 2px dashed #93C5FD; background: #fff; cursor: pointer; padding: 0; }
+.enr-spell-slot.is-full { border-style: solid; border-color: #60A5FA; background: var(--en-blue-soft); }
+.enr-spell-slot.is-hint { border-color: #F59E0B; background: #FFFBEB; cursor: default; }
+.enr-spell-slot.is-bad { border-color: var(--en-bad); background: var(--en-bad-soft); color: var(--en-bad); }
+.enr-spell.is-ok .enr-spell-slot { border-color: var(--en-ok); background: var(--en-ok-soft); color: #166534; }
+.enr-spell-gap { width: auto; min-width: 14px; }
+.enr-spell-gap.is-space { width: 18px; }
+.enr-spell-tile {
+  width: 52px; height: 52px; border-radius: 12px; border: 1px solid #93C5FD; background: #fff; color: #1E3A8A;
+  font: inherit; font-size: 1.6rem; font-weight: 800; cursor: pointer; padding: 0; box-shadow: 0 2px 0 #BFDBFE;
+}
+.enr-spell-tile:active { background: #DBEAFE; }
+.enr-spell-tile:disabled { opacity: .25; cursor: default; box-shadow: none; }
+.enr-spell-tools { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.enr-spell-tools button {
+  font: inherit; font-weight: 700; min-height: 44px; padding: 6px 14px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--en-edge); background: #fff; color: var(--en-sub);
+}
+.enr-spell-end { font-size: 1.15rem; font-weight: 800; color: var(--en-ok); margin: 8px 0; }
+@media (max-width: 520px) {
+  .enr-spell-slot, .enr-spell-gap { width: 34px; height: 44px; font-size: 1.3rem; }
+  .enr-spell-tile { width: 44px; height: 44px; font-size: 1.35rem; }
+  .enr-spell-gap { width: auto; }
+}
 
 /* ✏️ Điền từ: khung từ dính trên đầu thẻ, câu có ô trống nằm trong dòng chữ */
 .enr-bank {
@@ -292,3 +341,15 @@
 .enr-gdots { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 3px; max-width: 84px; }
 .enr-gdots i { width: 9px; height: 9px; border-radius: 50%; background: var(--br); }
 @media (max-width: 520px) { .enr-gtable { font-size: .85rem; } .enr-gtable th, .enr-gtable td { padding: 6px 4px; } .enr-gdots { max-width: 40px; } .enr-gdots i { width: 7px; height: 7px; } }
+
+/* 🃏 Thẻ từ: tab phụ (không tính tiến độ), nút Ôn từ ở danh sách, lối sang tab từ phần Từ vựng */
+.enr-part.is-extra:not(.is-on) { background: #FFFBEB; border-color: #FDE68A; color: #92400E; }
+.enr-due { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; margin-left: 4px; border-radius: 99px; background: #F59E0B; color: #fff; font-size: .8rem; }
+.enr-tocards {
+  font: inherit; cursor: pointer; width: 100%; margin-top: 18px; display: flex; align-items: center; gap: 12px; text-align: left;
+  background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 16px; padding: 12px 16px; color: #78350F;
+}
+.enr-tocards > :first-child { font-size: 1.8rem; }
+.enr-tocards > :nth-child(2) { flex: 1; display: flex; flex-direction: column; }
+.enr-tocards small { color: #92400E; font-weight: 600; }
+.enr-tocards:active { background: #FEF3C7; }

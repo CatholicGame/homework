@@ -33,6 +33,10 @@ export const lessonById = (id) => LESSONS.find((l) => l.id === id);
 export const loadGloss = (lesson) =>
   import(`./gloss/${dataFileOf(lesson)}.js`).then((m) => m.default[lesson.id] || { words: {}, phrases: {} });
 
+/** Từ vựng mở rộng của một bài ({ more: [], topics: [{ name, words }] }), words/<file>.js; chưa có thì rỗng. */
+export const loadWords = (lesson) =>
+  import(`./words/${dataFileOf(lesson)}.js`).then((m) => m.default[lesson.id] || { more: [], topics: [] }).catch(() => ({ more: [], topics: [] }));
+
 /** Câu hỏi phần 🎤 Nói của một bài (speak/level<n>.js), cấp chưa có thì []. */
 export const loadSpeak = (lesson) =>
   import(`./speak/${dataFileOf(lesson)}.js`).then((m) => m.default[lesson.id] || []).catch(() => []);

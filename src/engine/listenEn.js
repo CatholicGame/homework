@@ -10,19 +10,26 @@ export const canRecord = () => typeof window !== 'undefined' && !!navigator.medi
 
 /**
  * Nghe một lượt nói.
- * long = true (kể lại): máy dừng sau một quãng lặng thì tự nghe tiếp, ghép các đoạn, tới khi bé bấm dừng hoặc quá maxMs.
+ * Bé tự bấm dừng khi nói xong. Trình duyệt tắt sau quãng lặng thì máy tự nghe tiếp, ghép các đoạn.
+ * Chỉ tự ngắt khi bé không nói gì suốt quietMs (tính từ lúc bấm 🎤 hoặc từ chữ cuối cùng), hoặc quá maxMs.
  * onText(chữ đang nghe) gọi liên tục; onEnd({ text, alts, error }) gọi một lần.
  * alts: các cách nghe khác của đoạn cuối (để chấm rộng tay, máy hay nghe nhầm giọng trẻ).
  * @returns {() => void} dừng (vẫn gọi onEnd với chữ đã nghe được)
  */
-export function listenEn({ long = false, maxMs = long ? 90_000 : 20_000, onText, onEnd } = {}) {
+export function listenEn({ long = false, maxMs = long ? 180_000 : 90_000, quietMs = 20_000, onText, onEnd } = {}) {
   if (!SR) { onEnd?.({ text: '', alts: [], error: 'unsupported' }); return () => {}; }
-  let done = '', alts = [], stopped = false, ended = false, rec = null, heard = false;
+  let done = '', alts = [], stopped = false, ended = false, rec = null, heard = false, quiet = null;
   const finish = (error) => {
     if (ended) return;
     ended = true;
     clearTimeout(timer);
+    clearTimeout(quiet);
     onEnd?.({ text: done.trim(), alts, error: heard ? null : error || null });
+  };
+  // Đếm lại quãng im mỗi khi nghe được chữ; im đủ quietMs thì tự ngắt
+  const hush = () => {
+    clearTimeout(quiet);
+    quiet = setTimeout(() => stop(), quietMs);
   };
   const start = () => {
     rec = new SR();
@@ -37,13 +44,14 @@ export function listenEn({ long = false, maxMs = long ? 90_000 : 20_000, onText,
       const last = e.results[e.results.length - 1];
       if (last.isFinal) alts = [...last].slice(1).map((a) => a.transcript);
       if (part.trim()) heard = true;
+      hush();
       onText?.(`${done} ${part}`.replace(/\s+/g, ' ').trim());
     };
     rec.onerror = (e) => { error = e.error; };
     rec.onend = () => {
       done = `${done} ${part}`;
-      // Lặng một lúc: câu ngắn thì xong; kể lại thì nghe tiếp (trừ khi lỗi quyền / mạng hoặc bé đã bấm dừng)
-      if (long && !stopped && !['not-allowed', 'service-not-allowed', 'network', 'audio-capture'].includes(error)) {
+      // Trình duyệt tự tắt khi lặng (no-speech, hay bé ngừng giữa câu): nghe tiếp, trừ khi lỗi quyền / mạng hoặc đã dừng
+      if (!stopped && !['not-allowed', 'service-not-allowed', 'network', 'audio-capture', 'aborted'].includes(error)) {
         try { start(); return; } catch { /* trình duyệt không cho nghe lại ngay */ }
       }
       finish(error);
@@ -51,6 +59,7 @@ export function listenEn({ long = false, maxMs = long ? 90_000 : 20_000, onText,
     rec.start();
   };
   const timer = setTimeout(() => stop(), maxMs);
+  hush();
   try { start(); } catch { finish('start'); }
   function stop() {
     if (stopped) return;

@@ -7,16 +7,18 @@
  * Một bài: 9 phần (tab trên đầu, nút "Phần tiếp" góc dưới phải):
  *   🎧 Nghe   máy đọc cả bài (tô câu đang đọc, chữ mờ tới khi bấm Hiện chữ), 2 câu hỏi nghe
  *   📖 Đọc    chạm từ → IPA, nghĩa theo ngữ cảnh, đọc to (engine/readingGloss.js)
- *   📚 Từ vựng thẻ từ + chọn nghĩa đúng
+ *   📚 Từ vựng 8 từ của bài, chọn nghĩa đúng, 🔤 đánh vần bằng thẻ chữ (từ mở rộng words/<cấp>.js nằm ở tab 🃏 Thẻ từ)
  *   ✏️ Điền từ câu trong bài bỏ trống từ vựng (englishFill.js), chọn từ trong khung hoặc gõ, Kiểm tra một lần
  *   📐 Ngữ pháp  giải thích, công thức, câu mẫu
  *   ❓ Trả lời 5 câu    🙋 Đặt câu hỏi    🎤 Nói  bé tự nói về bài và về mình (speak/level<n>.js, engine/listenEn.js)
  *   ✍️ Viết  chép chính tả, sắp xếp từ, viết lại câu
+ *   🃏 Thẻ từ (tab riêng, không tính tiến độ) ôn mọi từ của bài theo lặp lại ngắt quãng (englishCards.js);
+ *   nút 🃏 Ôn từ ở danh sách ôn chung từ của các bài đã mở.
  * Làm xong một phần (mọi câu đúng) thì được sao một lần: khoá enread<lớp>:<bài>:<phần> (BOOK_GRADE trong engine/stars.js).
  * Tiến độ: localStorage scopedKey('enread-v1') = { level, lessons: { [id]: { [phần]: 1 } } } (đồng bộ cloudSync.js).
  */
 import '../styles/english.css';
-import { LEVELS, THEMES, LESSONS, loadGloss, loadSpeak } from '../data/englishReading/index.js';
+import { LEVELS, THEMES, LESSONS, loadGloss, loadSpeak, loadWords } from '../data/englishReading/index.js';
 import { renderGlossText } from '../engine/readingGloss.js';
 // Ảnh bìa thẻ bài: một khung của truyện hoạt hình (scripts/story-thumbs.mjs → src/assets/english-thumbs/en-NNN.jpg)
 const THUMBS = Object.fromEntries(Object.entries(import.meta.glob('../assets/english-thumbs/*.jpg', { eager: true, query: '?url', import: 'default' }))
@@ -32,6 +34,7 @@ import { norm, speakCheck } from './englishCheck.js';
 import { fillItems, fillMatch } from './englishFill.js';
 import { grammarHtml } from './englishGrammar.js';
 import { BRANCHES } from '../data/englishReading/grammarMap.js';
+import { mountCards, lessonDeck, mergedDeck, dueCount, loadCards } from './englishCards.js';
 
 const STORE = 'enread-v1';
 const PARTS = [
@@ -45,6 +48,9 @@ const PARTS = [
   { id: 'speak', icon: '🎤', name: 'Nói', stars: 2 },
   { id: 'write', icon: '✍️', name: 'Viết', stars: 3 },
 ];
+// 🃏 Thẻ từ: tab riêng sau 9 phần, không tính tiến độ, không sao (games/englishCards.js)
+const TAB_CARDS = { id: 'cards', icon: '🃏', name: 'Thẻ từ' };
+const ALL_TABS = [...PARTS, TAB_CARDS];
 const LEVEL_FOR = { 1: 'hợp với lớp 1–3', 2: 'hợp với lớp 3–4', 3: 'hợp với lớp 4–5', 4: 'hợp với lớp 5–6', 5: 'hợp với lớp 6 trở lên' };
 const LEVEL_OF_GRADE = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4 };
 
@@ -115,7 +121,7 @@ export function render(app, onBack, ctx = {}) {
 
   // ctx.open = { lesson: 'en-021', part: 'answer' }: mở thẳng một bài (scripts/english-reading-dev.html?app=1)
   const start = ctx.open?.lesson && LESSONS.find((L) => L.id === ctx.open.lesson);
-  if (start) { level = start.pack || start.level; showLesson(start, ctx.open.part); } else showList();
+  if (start) { level = start.pack || start.level; showLesson(start, ctx.open.part); } else if (ctx.open?.review) showReview(); else showList();
   return () => { cleanup(); setEnVoice(); }; // rời trang: giọng mặc định cho chỗ khác
 
   function frame({ back, backLabel, title, right = '', sub = '' }, body) {
@@ -156,13 +162,16 @@ export function render(app, onBack, ctx = {}) {
         <span class="enr-dots" aria-label="${n}/${PARTS.length} phần">${PARTS.map((p) => `<i class="${d[p.id] ? 'on' : ''}"></i>`).join('')}</span>
       </button>`;
     }).join('');
+    const due = dueCount();
+    const reviewBtn = `<button type="button" class="enr-mapbtn enr-reviewbtn">🃏 Ôn từ${due ? ` <b class="enr-due">${due}</b>` : ''}</button>`;
     const bar = theme
-      ? `<div class="enr-lvbar"><p class="enr-lvinfo">${esc(theme.note)} Mỗi bài có ${PARTS.length} phần như các cấp.</p></div>`
+      ? `<div class="enr-lvbar"><p class="enr-lvinfo">${esc(theme.note)} Mỗi bài có ${PARTS.length} phần như các cấp.</p>${reviewBtn}</div>`
       : `<div class="enr-lvbar"><p class="enr-lvinfo">Cấp ${lv.level} · ${esc(lv.cefr)} · ${LEVEL_FOR[lv.level]}. Mỗi bài có ${PARTS.length} phần: ${PARTS.map((p) => p.name.toLowerCase()).join(', ')}.</p>
-       <button type="button" class="enr-mapbtn">🗺️ Bản đồ ngữ pháp Cấp ${lv.level}</button></div>`;
+       <button type="button" class="enr-mapbtn enr-gmapbtn">🗺️ Bản đồ ngữ pháp Cấp ${lv.level}</button>${reviewBtn}</div>`;
     const body = frame({ back: () => { cleanup(); onBack(); }, backLabel: '← Trang chủ', title: '📖 Đọc tiếng Anh', sub: tabs },
       `${bar}<div class="enr-grid">${cards}</div>`);
-    body.querySelector('.enr-mapbtn')?.addEventListener('click', () => showMap());
+    body.querySelector('.enr-gmapbtn')?.addEventListener('click', () => showMap());
+    body.querySelector('.enr-reviewbtn').addEventListener('click', () => showReview());
     app.querySelectorAll('.enr-level').forEach((b) => b.addEventListener('click', () => {
       level = /^\d+$/.test(b.dataset.lv) ? Number(b.dataset.lv) : b.dataset.lv;
       store = loadStore(); store.level = level; saveStore(store);
@@ -170,6 +179,22 @@ export function render(app, onBack, ctx = {}) {
     }));
     app.querySelector('.enr-level.is-on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     body.querySelectorAll('.enr-card').forEach((c) => c.addEventListener('click', () => showLesson(LESSONS.find((L) => L.id === c.dataset.id))));
+  }
+
+  // ── 🃏 Ôn từ chung: mọi từ của các bài em đã mở (có phần đã xong, hoặc đã có từ trong kho thẻ) ──
+  function showReview() {
+    lessonBack = showList;
+    store = loadStore();
+    const cards = loadCards();
+    const inCards = new Set(Object.values(cards.w).map((r) => r.l));
+    const opened = LESSONS.filter((L) => Object.keys(doneOf(L.id)).length || inCards.has(L.id));
+    const body = frame({ back: showList, backLabel: '← Danh sách', title: '🃏 Ôn từ' }, '');
+    const host = document.createElement('div');
+    body.appendChild(host);
+    disposers.push(mountCards(host, {
+      getDeck: () => mergedDeck(opened),
+      empty: '<p class="enr-lvinfo">Em mở một bài đọc và học phần 📚 Từ vựng trước, rồi quay lại đây ôn từ.</p>',
+    }));
   }
 
   // ── 🗺️ Bản đồ ngữ pháp của một cấp: điểm ngữ pháp xếp theo nhánh, ✓ đã học (xong phần 📐), bảng các nhánh qua 5 cấp ──
@@ -241,8 +266,9 @@ export function render(app, onBack, ctx = {}) {
     prefetchEn((L.vocab || []).map((v) => v.word), { low: true });
     store = loadStore();
     const d = doneOf(L.id);
-    const part = PARTS.find((p) => p.id === partId) || PARTS.find((p) => !d[p.id]) || PARTS[0];
-    const tabs = `<nav class="enr-parts" role="tablist">${PARTS.map((p) => `<button type="button" role="tab" class="enr-part${p.id === part.id ? ' is-on' : ''}${d[p.id] ? ' is-done' : ''}" data-p="${p.id}" aria-selected="${p.id === part.id}"><span aria-hidden="true">${p.icon}</span>${p.name}${d[p.id] ? ' ✓' : ''}</button>`).join('')}</nav>`;
+    const part = ALL_TABS.find((p) => p.id === partId) || PARTS.find((p) => !d[p.id]) || PARTS[0];
+    const tabBtn = (p) => `<button type="button" role="tab" class="enr-part${p === TAB_CARDS ? ' is-extra' : ''}${p.id === part.id ? ' is-on' : ''}${d[p.id] ? ' is-done' : ''}" data-p="${p.id}" aria-selected="${p.id === part.id}"><span aria-hidden="true">${p.icon}</span>${p.name}${d[p.id] ? ' ✓' : ''}</button>`;
+    const tabs = `<nav class="enr-parts" role="tablist">${PARTS.map(tabBtn).join('')}<span class="enr-tabsep" aria-hidden="true"></span>${tabBtn(TAB_CARDS)}</nav>`;
     const n = PARTS.filter((p) => d[p.id]).length;
     const body = frame({
       back: () => (lessonBack || showList)(), backLabel: lessonBack === showMap ? '← Bản đồ' : '← Danh sách',
@@ -260,6 +286,11 @@ export function render(app, onBack, ctx = {}) {
       el.dataset.p = p.id;
       body.appendChild(el);
       const pane = { el, hide: [], top: 0 };
+      if (p === TAB_CARDS) { // không phần tiếp, không tính xong
+        el.dataset.wide = '1';
+        disposers.push(mountCards(el, { getDeck: () => lessonDeck(L), wall: true }));
+        return pane;
+      }
       const nextPart = PARTS[PARTS.indexOf(p) + 1];
       const nav = document.createElement('div');
       nav.className = 'enr-nav';
@@ -283,7 +314,7 @@ export function render(app, onBack, ctx = {}) {
       return pane;
     }
     function show(id) {
-      const p = PARTS.find((x) => x.id === id) || part;
+      const p = ALL_TABS.find((x) => x.id === id) || part;
       if (cur === p.id) return;
       const old = panes.get(cur);
       if (old) {
@@ -488,8 +519,10 @@ export function render(app, onBack, ctx = {}) {
   }
 
   // ── 📚 Từ vựng ──
+  /* Thẻ từ của bài (vocab, có câu ví dụ), chọn nghĩa đúng, 🔤 đánh vần bằng thẻ chữ. Từ mở rộng (words/<cấp>.js) ôn ở tab 🃏.
+     Xong phần = chọn nghĩa đúng hết + đánh vần hết từ của bài. */
   function vocab(body, L, gloss, done) {
-    head(body, '📚 Từ mới');
+    head(body, '📚 Từ mới của bài');
     const ipaOf = (w) => gloss.words?.[w.toLowerCase()]?.ipa || gloss.phrases?.[w.toLowerCase()]?.ipa || '';
     const grid = document.createElement('section');
     grid.className = 'enr-vocab';
@@ -502,18 +535,191 @@ export function render(app, onBack, ctx = {}) {
       </div>`).join('');
     body.appendChild(grid);
     bindSay(grid);
+
+    let left = 2, anyRevealed = false;
+    const ok2 = (rev) => { anyRevealed ||= rev; if (--left === 0) done(anyRevealed); };
+
     head(body, 'Chọn nghĩa đúng');
     const box = document.createElement('section');
     box.className = 'enr-card-box';
     body.appendChild(box);
     bindSay(box);
-    const ok = group(box, L.vocab.length, done);
+    const ok = group(box, L.vocab.length, ok2);
     L.vocab.forEach((v, i) => {
       const others = shuffle(L.vocab.filter((x) => x !== v)).slice(0, 2).map((x) => x.vi);
       const opts = shuffle([v.vi, ...others]);
       question(box, { type: 'mc', q: v.word, options: opts, answer: opts.indexOf(v.vi) }, i, ok);
     });
     box.querySelectorAll('.enr-opt').forEach((b) => b.removeAttribute('lang')); // nghĩa là tiếng Việt
+
+    head(body, '🔤 Đánh vần');
+    body.insertAdjacentHTML('beforeend', '<p class="enr-help">Nghe từ, nhìn hình rồi chạm các chữ cái theo đúng thứ tự (hoặc gõ bàn phím). Chạm một ô đã điền để bỏ chữ đó.</p>');
+    const spellBox = document.createElement('section');
+    spellBox.className = 'enr-card-box enr-spell';
+    body.appendChild(spellBox);
+    const core = L.vocab.map((v) => ({ word: v.word, vi: v.vi, emoji: v.emoji }));
+    spellGame(spellBox, core, { decoys: (L.level || 1) >= 3 ? 2 : 0, onCore: (rev) => ok2(rev) });
+    const extra = document.createElement('div'); // lối sang tab 🃏, vẽ khi tải xong
+    body.appendChild(extra);
+
+    // Từ mở rộng (từ khác trong bài, Học thêm) ôn ở tab 🃏 Thẻ từ, không bắt buộc
+    loadWords(L).then((w) => {
+      const n = (w.more?.length || 0) + (w.topics || []).reduce((k, t) => k + t.words.length, 0);
+      if (!n || !extra.isConnected) return;
+      extra.innerHTML = `<button type="button" class="enr-tocards"><span aria-hidden="true">🃏</span><span><b>Còn ${n} từ nữa trong bài và chủ đề</b><small>Ôn bằng thẻ từ, lúc nào cũng được</small></span><span aria-hidden="true">▶</span></button>`;
+      extra.firstChild.addEventListener('click', () => lessonView?.show('cards'));
+    });
+  }
+
+  /**
+   * 🔤 Đánh vần một từ một lượt: hình + nghĩa + 🔊, ô chữ, thẻ chữ xáo trộn (cấp 3+ thêm chữ nhiễu).
+   * Điền đủ thì chấm ngay: đúng → đọc từ, sang từ sau; sai → ô sai đỏ rồi trả chữ về. 💡 điền giúp một chữ đúng.
+   * Hết danh sách bắt buộc gọi onCore(đã dùng gợi ý); sau đó luyện thêm các từ addMore().
+   */
+  function spellGame(host, core, { decoys = 0, onCore }) {
+    const queue = core.map((w) => ({ ...w, core: true }));
+    let more = [], idx = 0, cur = null, slots = [], tiles = [], hinted = false, coreHinted = false, coreDone = false, locked = false;
+    const isLetter = (c) => /[a-z]/i.test(c);
+    host.innerHTML = `
+      <div class="enr-spell-top">
+        <span class="enr-spell-pic" aria-hidden="true"></span>
+        <div class="enr-spell-info"><span class="enr-spell-vi"></span><span class="enr-spell-n"></span></div>
+        <button type="button" class="enr-say enr-spell-say" aria-label="Nghe từ">🔊</button>
+      </div>
+      <div class="enr-spell-slots" lang="en"></div>
+      <div class="enr-spell-tiles" lang="en"></div>
+      <div class="enr-spell-tools">
+        <button type="button" class="enr-spell-back" aria-label="Xoá chữ cuối">⌫</button>
+        <button type="button" class="enr-spell-hint">💡 Gợi ý</button>
+        <button type="button" class="enr-spell-skip">Từ khác ▶</button>
+      </div>
+      <p class="enr-fb" aria-live="polite"></p>`;
+    const $ = (s) => host.querySelector(s);
+    const fb = $('.enr-fb');
+    const say = () => { unlockSpeech(); sayEn(cur.word); };
+    $('.enr-spell-say').addEventListener('click', say);
+
+    function load(w) {
+      cur = w; hinted = false; locked = false;
+      const chars = [...w.word];
+      slots = chars.map((c) => (isLetter(c) ? { c, tile: null } : { c, fixed: true }));
+      const letters = chars.filter(isLetter);
+      const pool = 'abcdefghijklmnopqrstuvwxyz'.split('').filter((c) => !letters.includes(c));
+      const extraL = shuffle(pool).slice(0, decoys);
+      tiles = shuffle([...letters, ...extraL]).map((c) => ({ c, used: false }));
+      $('.enr-spell-pic').textContent = w.emoji || '';
+      $('.enr-spell-vi').textContent = w.vi;
+      const coreLeft = queue.filter((x) => x.core).length;
+      $('.enr-spell-n').textContent = w.core ? `Từ của bài ${core.length - coreLeft + 1}/${core.length}` : 'Luyện thêm';
+      $('.enr-spell-skip').hidden = !!w.core;
+      host.classList.remove('is-ok', 'is-wrong');
+      fb.textContent = '';
+      draw();
+    }
+    function draw() {
+      $('.enr-spell-slots').innerHTML = slots.map((s, i) => (s.fixed
+        ? `<span class="enr-spell-gap${s.c === ' ' ? ' is-space' : ''}">${s.c === ' ' ? '' : esc(s.c)}</span>`
+        : `<button type="button" class="enr-spell-slot${s.tile != null ? ' is-full' : ''}${s.bad ? ' is-bad' : ''}${s.hint ? ' is-hint' : ''}" data-i="${i}">${s.tile != null ? esc(tiles[s.tile].c) : ''}</button>`)).join('');
+      $('.enr-spell-tiles').innerHTML = tiles.map((t, i) => `<button type="button" class="enr-spell-tile" data-i="${i}"${t.used ? ' disabled' : ''}>${esc(t.c)}</button>`).join('');
+    }
+    function put(ti) {
+      if (locked || tiles[ti].used) return;
+      const s = slots.find((x) => !x.fixed && x.tile == null);
+      if (!s) return;
+      s.tile = ti; s.bad = false; tiles[ti].used = true;
+      draw();
+      if (slots.every((x) => x.fixed || x.tile != null)) check();
+    }
+    function take(si) {
+      const s = slots[si];
+      if (locked || !s || s.fixed || s.tile == null || s.hint) return;
+      tiles[s.tile].used = false; s.tile = null; s.bad = false;
+      draw();
+    }
+    function check() {
+      const bad = slots.filter((s) => !s.fixed && tiles[s.tile].c.toLowerCase() !== s.c.toLowerCase());
+      if (!bad.length) {
+        locked = true;
+        host.classList.add('is-ok');
+        fb.textContent = PRAISE[Math.floor(Math.random() * PRAISE.length)];
+        unlockSpeech(); sayEn(cur.word);
+        setTimeout(next, 1300);
+        return;
+      }
+      bad.forEach((s) => { s.bad = true; });
+      draw();
+      shake($('.enr-spell-slots'));
+      fb.textContent = 'Chữ tô đỏ chưa đúng, em chọn lại.';
+      locked = true;
+      setTimeout(() => {
+        if (!host.isConnected) return;
+        bad.forEach((s) => { tiles[s.tile].used = false; s.tile = null; s.bad = false; });
+        locked = false;
+        fb.textContent = '';
+        draw();
+      }, 800);
+    }
+    function hint() {
+      if (locked) return;
+      // bỏ chữ sai đang nằm trên ô, rồi điền chữ đúng vào ô trống đầu tiên
+      const s = slots.find((x) => !x.fixed && (x.tile == null || tiles[x.tile].c.toLowerCase() !== x.c.toLowerCase()));
+      if (!s) return;
+      if (s.tile != null) { tiles[s.tile].used = false; s.tile = null; }
+      let ti = tiles.findIndex((t) => !t.used && t.c.toLowerCase() === s.c.toLowerCase());
+      if (ti < 0) { // chữ đúng đang nằm ở ô sau: lấy về
+        const other = slots.find((x) => !x.fixed && x !== s && x.tile != null && !x.hint && tiles[x.tile].c.toLowerCase() === s.c.toLowerCase());
+        if (!other) return;
+        ti = other.tile; other.tile = null; tiles[ti].used = false;
+      }
+      hinted = true;
+      s.tile = ti; s.hint = true; tiles[ti].used = true;
+      draw();
+      if (slots.every((x) => x.fixed || x.tile != null)) check();
+    }
+    function next() {
+      if (!host.isConnected) return;
+      if (cur.core) {
+        coreHinted ||= hinted;
+        queue.shift();
+        if (!queue.some((x) => x.core) && !coreDone) {
+          coreDone = true;
+          onCore(coreHinted);
+        }
+      } else idx++;
+      const w = queue[0] || (more.length ? more[idx % more.length] : null);
+      if (!w) { host.innerHTML = '<p class="enr-spell-end">🎉 Em đã đánh vần xong các từ của bài!</p>'; return; }
+      load(w);
+      say();
+    }
+    host.addEventListener('click', (e) => {
+      const t = e.target.closest('.enr-spell-tile');
+      if (t) { put(Number(t.dataset.i)); return; }
+      const s = e.target.closest('.enr-spell-slot');
+      if (s) { take(Number(s.dataset.i)); return; }
+      if (e.target.closest('.enr-spell-back')) {
+        const last = [...slots].reverse().find((x) => !x.fixed && x.tile != null && !x.hint);
+        if (last) take(slots.indexOf(last));
+      } else if (e.target.closest('.enr-spell-hint')) hint();
+      else if (e.target.closest('.enr-spell-skip')) { idx++; load(more[idx % more.length]); say(); }
+    });
+    // Gõ bàn phím khi phần Từ vựng đang mở
+    const onKey = (e) => {
+      if (!host.isConnected || host.closest('.enr-pane')?.hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (/^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName)) return;
+      if (e.key === 'Backspace') { e.preventDefault(); host.querySelector('.enr-spell-back')?.click(); return; }
+      if (e.key.length !== 1 || !isLetter(e.key)) return;
+      const ti = tiles.findIndex((t) => !t.used && t.c.toLowerCase() === e.key.toLowerCase());
+      if (ti >= 0) put(ti);
+    };
+    document.addEventListener('keydown', onKey);
+    disposers.push(() => document.removeEventListener('keydown', onKey));
+    load(queue[0]);
+    return {
+      addMore(list) {
+        const seen = new Set(core.map((w) => w.word.toLowerCase()));
+        more = shuffle(list.filter((w) => !seen.has(w.word.toLowerCase()) && seen.add(w.word.toLowerCase())));
+      },
+    };
   }
 
   // ── ✏️ Điền từ: câu trong bài bỏ trống từ vựng. Chạm từ trong khung → điền vào chỗ trống đang chọn (hoặc gõ).

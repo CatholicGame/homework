@@ -19,7 +19,8 @@
 //   ?id=en-001                     chỉ bài đọc + bấm từ (src/engine/readingGloss.js), có danh sách chuyển bài
 //   ?id=en-021&w=gets              tự bấm vào từ "gets" đầu tiên (để chụp màn hình)
 //   ?app=1                         trang thật của app (src/games/englishReading.js): danh sách cấp
-//   ?app=1&id=en-021&part=answer   mở thẳng bài + phần (listen / read / vocab / grammar / answer / ask / write)
+//   ?app=1&id=en-021&part=answer   mở thẳng bài + phần (listen / read / vocab / grammar / answer / ask / write / cards = 🃏 Thẻ từ)
+//   ?app=1&review=1                🃏 Ôn từ chung (từ của các bài đã mở)
 //   ?app=1&id=en-021&part=listen&beat=4   truyện hoạt hình: diễn câu 5 (&at=1 chỉ dựng trạng thái trước câu 5)
 // Chụp: chrome --headless=new --force-prefers-reduced-motion --screenshot=out.png --window-size=500,900 --virtual-time-budget=8000 "<url>"
 //   (cửa sổ không màn hình rộng tối thiểu 500px)
@@ -32,7 +33,7 @@ if (p.get('app')) {
   app.id = 'app';
   document.body.appendChild(app);
   const { render } = await import('/src/games/englishReading.js');
-  render(app, () => { document.title = 'back'; }, { open: p.get('id') ? { lesson: p.get('id'), part: p.get('part') } : null });
+  render(app, () => { document.title = 'back'; }, { open: p.get('id') ? { lesson: p.get('id'), part: p.get('part') } : p.get('review') ? { review: 1 } : null });
   setTimeout(() => { if (!/^(ERR|REJ)/.test(document.title)) document.title = 'app ok'; }, 500);
   // &beat=4: tự diễn câu 5 của truyện hoạt hình (&at=1: chỉ dựng trạng thái trước câu đó, không diễn)
   if (p.get('beat')) {

@@ -42,7 +42,7 @@ Từ mới chỉ được dùng nếu đã học ở bài trước hoặc nằm 
 |---|---|---|---|
 | 1 | 🎧 **Nghe** | nghe cả bài (giọng đọc máy, chậm / thường), mỗi câu sáng lên khi đọc; sau đó trả lời 2 câu nghe không nhìn chữ | `text`, `questions[].listen = true` |
 | 2 | 📖 **Đọc** | đọc to theo, chạm vào từ để xem nghĩa | `text`, `vocab` |
-| 3 | 📚 **Từ vựng** | thẻ từ: hình (emoji), nghĩa, câu ví dụ; trò ghép từ – nghĩa | `vocab[]` |
+| 3 | 📚 **Từ vựng** | thẻ từ: hình (emoji), nghĩa, câu ví dụ; từ mở rộng (từ khác trong bài + 1–3 nhóm chủ đề, mỗi bài ~24–36 từ); chọn nghĩa đúng; 🔤 đánh vần bằng thẻ chữ (từ của bài bắt buộc, rồi luyện thêm từ mở rộng). Xong phần = chọn nghĩa + đánh vần hết từ của bài | `vocab[]`, `words/<cấp>.js` { more, topics } (kiểm bằng scripts/check-english-words.mjs) |
 | 3b | ✏️ **Điền từ** | câu lấy từ bài, bỏ trống từ vựng đúng dạng trong bài (pets, gets up, cooked); chạm từ trong khung để điền hoặc gõ, điền hết mới Kiểm tra; ô sai tô đỏ, một ô sai 2 lần thì có Xem đáp án | tự sinh từ `text` + `vocab` (src/games/englishFill.js, kiểm bằng scripts/check-english-fill.mjs) |
 | 4 | 📐 **Ngữ pháp** | đọc giải thích ngắn bằng tiếng Việt, xem mẫu câu, các câu trong bài có điểm ngữ pháp được tô màu | `grammar` |
 | 5 | ❓ **Trả lời câu hỏi** | 5 câu: chọn đáp án, Đúng/Sai, trả lời ngắn | `questions[]` |
