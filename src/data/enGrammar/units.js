@@ -485,31 +485,32 @@ const BANK = [
 ];
 
 export const LEVELS = [
-  { id: 'starters', icon: '🌱', name: 'Starters', cefr: 'Pre A1', note: 'Câu đầu tiên: am is are, có, của ai, đang làm, hằng ngày, mời và rủ' },
-  { id: 'movers', icon: '🚲', name: 'Movers', cefr: 'A1', note: 'Chuyện đã qua, so sánh, phải làm, muốn làm, câu nối dài hơn' },
-  { id: 'flyers', icon: '✈️', name: 'Flyers', cefr: 'A2', note: 'Tương lai, đã từng, nên, có thể, câu hỏi đuôi, nếu' },
+  { id: 'starters', icon: '🌱', name: 'Starters', cefr: 'Pre A1', color: '#15803D', note: 'Câu đầu tiên: am is are, có, của ai, đang làm, hằng ngày, mời và rủ' },
+  { id: 'movers', icon: '🚲', name: 'Movers', cefr: 'A1', color: '#C2410C', note: 'Chuyện đã qua, so sánh, phải làm, muốn làm, câu nối dài hơn' },
+  { id: 'flyers', icon: '✈️', name: 'Flyers', cefr: 'A2', color: '#7C3AED', note: 'Tương lai, đã từng, nên, có thể, câu hỏi đuôi, nếu' },
 ];
 
 const STAGE_LIST = [
   // Starters (Pre A1)
-  { id: 's1', level: 'starters', icon: '🧱', name: 'Câu đầu tiên', note: 'am, is, are; a, an; số nhiều; đếm được', color: '#2563EB', ids: ['g01', 'g02', 'g03', 'g04', 'g05', 'g38'] },
-  { id: 's2', level: 'starters', icon: '👉', name: 'Chỉ và tả', note: 'this, these, there is, tính từ', color: '#059669', ids: ['g06', 'g07', 'g08', 'g11'] },
-  { id: 's3', level: 'starters', icon: '🎒', name: 'Có gì, của ai', note: "have, have got, my, me, mine, Tom's", color: '#0D9488', ids: ['g09', 'g35', 'g10', 'g29', 'g30', 'g31'] },
-  { id: 's4', level: 'starters', icon: '⏰', name: 'Bây giờ và hằng ngày', note: 'can, hiện tại đơn, đang làm, in on under, at on in', color: '#0891B2', ids: ['g12', 'g36', 'g13', 'g14', 'g15', 'g16', 'g17', 'g26'] },
-  { id: 's5', level: 'starters', icon: '💬', name: 'Hỏi, mời và rủ', note: "từ hỏi, some any, Let's, like + ing, would like", color: '#4F46E5', ids: ['g25', 'g37', 'g24', 'g32', 'g33', 'g34'] },
+  { id: 's1', level: 'starters', icon: '🧱', name: 'Câu đầu tiên', note: 'am, is, are; a, an; số nhiều; đếm được', ids: ['g01', 'g02', 'g03', 'g04', 'g05', 'g38'] },
+  { id: 's2', level: 'starters', icon: '👉', name: 'Chỉ và tả', note: 'this, these, there is, tính từ', ids: ['g06', 'g07', 'g08', 'g11'] },
+  { id: 's3', level: 'starters', icon: '🎒', name: 'Có gì, của ai', note: "have, have got, my, me, mine, Tom's", ids: ['g09', 'g35', 'g10', 'g29', 'g30', 'g31'] },
+  { id: 's4', level: 'starters', icon: '⏰', name: 'Bây giờ và hằng ngày', note: 'can, hiện tại đơn, đang làm, in on under, at on in', ids: ['g12', 'g36', 'g13', 'g14', 'g15', 'g16', 'g17', 'g26'] },
+  { id: 's5', level: 'starters', icon: '💬', name: 'Hỏi, mời và rủ', note: "từ hỏi, some any, Let's, like + ing, would like", ids: ['g25', 'g37', 'g24', 'g32', 'g33', 'g34'] },
   // Movers (A1)
-  { id: 's6', level: 'movers', icon: '📜', name: 'Chuyện hôm qua', note: 'was were, -ed, did, could, when', color: '#B45309', ids: ['g18', 'g19', 'g20', 'g21', 'g39', 'g48'] },
-  { id: 's7', level: 'movers', icon: '🐘', name: 'So sánh và cách làm', note: 'bigger, the biggest, quickly, always', color: '#C2410C', ids: ['g23', 'g44', 'g45'] },
-  { id: 's8', level: 'movers', icon: '🎯', name: 'Phải, muốn, để', note: 'must, have to, want to, to + mục đích, give me', color: '#BE123C', ids: ['g40', 'g41', 'g42', 'g43', 'g53'] },
-  { id: 's9', level: 'movers', icon: '🔗', name: 'Hỏi và nối câu', note: 'because, Why, who which where, Shall I, How about', color: '#A16207', ids: ['g27', 'g47', 'g46', 'g49', 'g50', 'g51', 'g52'] },
+  { id: 's6', level: 'movers', icon: '📜', name: 'Chuyện hôm qua', note: 'was were, -ed, did, could, when', ids: ['g18', 'g19', 'g20', 'g21', 'g39', 'g48'] },
+  { id: 's7', level: 'movers', icon: '🐘', name: 'So sánh và cách làm', note: 'bigger, the biggest, quickly, always', ids: ['g23', 'g44', 'g45'] },
+  { id: 's8', level: 'movers', icon: '🎯', name: 'Phải, muốn, để', note: 'must, have to, want to, to + mục đích, give me', ids: ['g40', 'g41', 'g42', 'g43', 'g53'] },
+  { id: 's9', level: 'movers', icon: '🔗', name: 'Hỏi và nối câu', note: 'because, Why, who which where, Shall I, How about', ids: ['g27', 'g47', 'g46', 'g49', 'g50', 'g51', 'g52'] },
   // Flyers (A2)
-  { id: 's10', level: 'flyers', icon: '🔮', name: 'Sắp tới và có thể', note: 'going to, will, might, should, Shall we', color: '#7C3AED', ids: ['g22', 'g28', 'g57', 'g58', 'g59'] },
-  { id: 's11', level: 'flyers', icon: '🕰️', name: 'Đang làm, đã từng', note: 'was doing, have done, just, yet', color: '#9333EA', ids: ['g54', 'g55', 'g56'] },
-  { id: 's12', level: 'flyers', icon: '🌟', name: 'Câu dài hơn', note: 'if, so, before, câu hỏi đuôi, look like, made of', color: '#C026D3', ids: ['g61', 'g62', 'g60', 'g63', 'g64'] },
+  { id: 's10', level: 'flyers', icon: '🔮', name: 'Sắp tới và có thể', note: 'going to, will, might, should, Shall we', ids: ['g22', 'g28', 'g57', 'g58', 'g59'] },
+  { id: 's11', level: 'flyers', icon: '🕰️', name: 'Đang làm, đã từng', note: 'was doing, have done, just, yet', ids: ['g54', 'g55', 'g56'] },
+  { id: 's12', level: 'flyers', icon: '🌟', name: 'Câu dài hơn', note: 'if, so, before, câu hỏi đuôi, look like, made of', ids: ['g61', 'g62', 'g60', 'g63', 'g64'] },
 ];
 
 const BY_ID = new Map([...BANK, ...STARTERS_NEW, ...MOVERS_NEW, ...FLYERS_NEW].map((u) => [u.id, u]));
-export const STAGES = STAGE_LIST.map(({ ids, ...s }) => ({ ...s, units: ids.map((id) => BY_ID.get(id)) }));
+// Màu theo cấp: mọi chặng trong một cấp cùng một màu (đỡ rối mắt).
+export const STAGES = STAGE_LIST.map(({ ids, ...s }) => ({ ...s, color: LEVELS.find((l) => l.id === s.level).color, units: ids.map((id) => BY_ID.get(id)) }));
 
 export const UNITS = STAGES.flatMap((s) => s.units.map((u) => ({ ...u, stage: s, level: LEVELS.find((l) => l.id === s.level) })));
 UNITS.forEach((u, i) => { u.no = i + 1; });

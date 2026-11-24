@@ -1,4 +1,4 @@
-/* 📐 Ngữ pháp tiếng Anh cho bé (games/enGrammar.js). Thẻ trắng viền mảnh, chữ đậm to, mỗi chặng một màu (--c). */
+/* 📐 Ngữ pháp tiếng Anh cho bé (games/enGrammar.js). Thẻ trắng viền mảnh, chữ đậm to, mỗi cấp một màu (--c). */
 .eg {
   --ink: #0F172A; --sub: #475569; --edge: #E2E8F0; --ok: #16A34A; --ok-soft: #DCFCE7; --bad: #DC2626; --bad-soft: #FEE2E2;
   --c: #2563EB;
@@ -18,59 +18,48 @@
 .eg-listbody { box-sizing: border-box; max-width: 1180px; margin: 0 auto; padding: 16px 16px 60px; }
 .eg-hero {
   width: 100%; display: flex; align-items: center; gap: 16px; text-align: left; font: inherit; cursor: pointer;
-  padding: 16px 20px; border-radius: 22px; border: 0; color: #fff;
-  background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 70%, #000));
-  box-shadow: 0 6px 0 color-mix(in srgb, var(--c) 55%, #000);
+  padding: 14px 18px; border-radius: 20px; border: 0; color: #fff; background: var(--c);
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--c) 60%, #000);
 }
-.eg-hero:active { transform: translateY(4px); box-shadow: 0 2px 0 color-mix(in srgb, var(--c) 55%, #000); }
-.eg-hero-ic { flex: none; width: 72px; height: 72px; display: grid; place-items: center; font-size: 44px; border-radius: 20px; background: #fff; }
+.eg-hero:active { transform: translateY(4px); box-shadow: 0 1px 0 color-mix(in srgb, var(--c) 60%, #000); }
+.eg-hero-no { flex: none; width: 58px; height: 58px; display: grid; place-items: center; border-radius: 50%; background: #fff; color: var(--c); font-size: 1.6rem; font-weight: 900; }
 .eg-hero-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.eg-hero-t small { font-size: .95rem; font-weight: 700; opacity: .9; }
-.eg-hero-t strong { font-size: clamp(1.3rem, 4.4vw, 1.8rem); font-weight: 900; line-height: 1.15; }
-.eg-hero-t em { font-style: normal; font-weight: 700; font-size: 1.05rem; opacity: .95; }
-.eg-hero-go { flex: none; width: 56px; height: 56px; display: grid; place-items: center; border-radius: 50%; background: #fff; color: var(--c); font-size: 1.5rem; }
-.eg-how { display: flex; gap: 6px; justify-content: center; list-style: none; padding: 0; margin: 14px 0 6px; }
-.eg-how li { display: flex; align-items: center; gap: 4px; padding: 6px 10px; white-space: nowrap; border-radius: 999px; background: #fff; border: 1px solid var(--edge); color: var(--sub); font-weight: 700; font-size: .92rem; }
-.eg-how b { font-size: 1.1rem; }
-.eg-level { margin-top: 26px; padding: 14px 14px 16px; border-radius: 22px; background: var(--lv-bg); border: 1px solid var(--lv-edge); }
-.eg-level-starters { --lv: #15803D; --lv-bg: #F0FDF4; --lv-edge: #BBF7D0; }
-.eg-level-movers { --lv: #C2410C; --lv-bg: #FFF7ED; --lv-edge: #FED7AA; }
-.eg-level-flyers { --lv: #7C3AED; --lv-bg: #F5F3FF; --lv-edge: #DDD6FE; }
-.eg-level-h { display: flex; align-items: center; gap: 12px; }
-.eg-level-ic { flex: none; width: 54px; height: 54px; display: grid; place-items: center; font-size: 32px; border-radius: 16px; background: #fff; border: 1px solid var(--lv-edge); }
-.eg-level-h > div { flex: 1; min-width: 0; }
-.eg-level-h h2 { margin: 0; font-size: 1.45rem; font-weight: 900; color: var(--lv); }
-.eg-level-h h2 small { margin-left: 6px; padding: 2px 8px; border-radius: 999px; font-size: .8rem; font-weight: 800; color: #fff; background: var(--lv); vertical-align: middle; }
-.eg-level-h p { margin: 2px 0 0; color: var(--sub); font-size: .92rem; }
-.eg-level-h .eg-stage-n { color: var(--lv); }
-.eg-level .eg-stage:first-of-type { margin-top: 14px; }
-.eg-stage { margin-top: 22px; }
-.eg-stage > header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.eg-stage-ic { flex: none; width: 46px; height: 46px; display: grid; place-items: center; font-size: 26px; border-radius: 14px; background: color-mix(in srgb, var(--c) 14%, #fff); }
-.eg-stage h3 { margin: 0; font-size: 1.15rem; font-weight: 900; color: color-mix(in srgb, var(--c) 80%, #000); }
-.eg-stage p { margin: 2px 0 0; color: var(--sub); font-size: .9rem; }
-.eg-stage > header > div { flex: 1; min-width: 0; }
-.eg-stage-n { flex: none; font-weight: 800; color: var(--c); }
-.eg-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.eg-hero-t small { font-size: .92rem; font-weight: 700; opacity: .9; }
+.eg-hero-t strong { font-size: clamp(1.25rem, 4.2vw, 1.7rem); font-weight: 900; line-height: 1.15; }
+.eg-hero-t em { font-style: normal; font-weight: 700; font-size: 1.02rem; opacity: .92; }
+.eg-hero-go { flex: none; width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50%; background: rgba(255, 255, 255, .22); color: #fff; font-size: 1.4rem; }
+
+/* cấp Starters / Movers / Flyers: không tô nền, chỉ tiêu đề có màu và thanh tiến độ mảnh */
+.eg-level { margin-top: 30px; }
+.eg-level-h { display: flex; align-items: center; gap: 14px; padding-bottom: 8px; border-bottom: 2px solid color-mix(in srgb, var(--c) 30%, #fff); }
+.eg-level-h h2 { flex: none; display: flex; align-items: center; gap: 8px; margin: 0; font-size: 1.5rem; font-weight: 900; color: var(--c); }
+.eg-level-h h2 small { padding: 2px 8px; border-radius: 999px; font-size: .78rem; font-weight: 800; color: var(--c); background: color-mix(in srgb, var(--c) 12%, #fff); }
+.eg-level-bar { flex: 1; height: 6px; border-radius: 3px; background: #E2E8F0; overflow: hidden; }
+.eg-level-bar i { display: block; height: 100%; background: var(--c); border-radius: 3px; }
+.eg-level-n { flex: none; font-weight: 800; color: var(--sub); font-size: .95rem; }
+.eg-stage { margin-top: 18px; }
+.eg-stage h3 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; font-size: 1.05rem; font-weight: 800; color: var(--ink); }
+.eg-stage h3 span { color: var(--c); font-weight: 900; }
+.eg-stage h3 em { margin-left: auto; font-style: normal; font-weight: 700; font-size: .9rem; color: var(--sub); }
+.eg-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
 .eg-card {
-  position: relative; display: flex; align-items: center; gap: 10px; text-align: left; font: inherit; cursor: pointer;
-  padding: 12px 14px; min-height: 76px; border-radius: 18px; background: #fff; color: var(--ink);
-  border: 1px solid var(--edge); box-shadow: 0 3px 0 var(--edge);
+  position: relative; display: flex; align-items: center; gap: 12px; text-align: left; font: inherit; cursor: pointer;
+  padding: 10px 14px; min-height: 64px; border-radius: 14px; background: #fff; color: var(--ink); border: 1px solid var(--edge);
 }
-.eg-card:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--edge); }
-.eg-card.is-next { border-color: var(--c); box-shadow: 0 3px 0 var(--c), inset 0 0 0 1px var(--c); }
+.eg-card:hover { border-color: color-mix(in srgb, var(--c) 45%, #fff); }
+.eg-card:active { transform: translateY(1px); }
+.eg-card.is-next { border: 2px solid var(--c); padding: 9px 13px; }
 .eg-card-no {
-  flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%;
-  background: color-mix(in srgb, var(--c) 12%, #fff); color: var(--c); font-weight: 900; font-size: .95rem;
+  flex: none; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--c) 35%, #fff); color: var(--c); font-weight: 900; font-size: .95rem;
 }
-.eg-card.is-done .eg-card-no { background: var(--ok); color: #fff; }
-.eg-card-ic { flex: none; font-size: 34px; line-height: 1; }
-.eg-card-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.eg-card-t strong { font-size: 1.05rem; font-weight: 800; line-height: 1.2; }
-.eg-card-t small { color: var(--c); font-weight: 700; font-size: .88rem; }
-.eg-card-go { flex: none; padding: 6px 10px; border-radius: 999px; background: var(--c); color: #fff; font-weight: 800; font-size: .85rem; }
+.eg-card.is-next .eg-card-no { background: var(--c); border-color: var(--c); color: #fff; }
+.eg-card.is-done .eg-card-no { background: var(--ok); border-color: var(--ok); color: #fff; }
+.eg-card-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.eg-card-t strong { font-size: 1.02rem; font-weight: 800; line-height: 1.25; }
+.eg-card-t small { color: var(--sub); font-weight: 600; font-size: .86rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .eg-stars { flex: none; display: flex; gap: 1px; font-style: normal; }
-.eg-stars i { font-style: normal; color: #E2E8F0; font-size: 1.1rem; }
+.eg-stars i { font-style: normal; color: #E2E8F0; font-size: 1rem; }
 .eg-stars i.on { color: #F59E0B; }
 
 /* ── Một bài: khung cao bằng màn, vùng dưới thanh bước tự chia ── */
@@ -272,7 +261,6 @@
 .eg-done p b { color: var(--ink); }
 .eg-done-btns { display: grid; gap: 12px; }
 
-@media (max-width: 400px) { .eg-how li { font-size: .82rem; padding: 5px 8px; } }
 @media (max-height: 560px) and (orientation: landscape) {
   .eg-choices { height: 120px; padding: 8px 16px; }
   .eg-fb { height: 60px; }

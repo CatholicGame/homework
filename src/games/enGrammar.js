@@ -1,7 +1,7 @@
 /**
  * 📐 Ngữ pháp tiếng Anh cho bé (thẻ english-grammar, tab 🌍 Tiếng Anh, lớp 1–5). Dữ liệu: src/data/enGrammar/units.js.
  *
- * Danh sách: nút to "Học tiếp" + 3 cấp Cambridge (Starters, Movers, Flyers), mỗi cấp vài chặng, mỗi bài một thẻ (số, hình, tên Việt, mẫu câu tiếng Anh, sao).
+ * Danh sách: nút to "Học tiếp" + 3 cấp Cambridge (Starters, Movers, Flyers), mỗi cấp một màu, vài chặng, mỗi bài một thẻ gọn (số, tên Việt, mẫu câu tiếng Anh, sao).
  * Một bài có 3 bước, thanh bước ở trên chạm qua lại được:
  *   1 👀 Học   luật một câu, bảng ghép màu (I → am), câu mẫu có hình, chạm để nghe, mẹo nhớ
  *              🎬 Câu biến hình (src/games/enGrammar/movie.js, kịch bản src/data/enGrammar/anims.js): thẻ chữ chuyển động qua từng bước
@@ -105,13 +105,13 @@ export function render(app, onBack, ctx = {}) {
     const doneN = UNITS.filter(best).length;
     const next = UNITS.find((u) => !best(u)) || UNITS[0];
     const starRow = (n) => `<span class="eg-stars" aria-label="${n} sao">${[1, 2, 3].map((k) => `<i class="${k <= n ? 'on' : ''}">★</i>`).join('')}</span>`;
+    // Thẻ bài gọn: số bài (học xong thì ✓), tên tiếng Việt, mẫu câu tiếng Anh, sao. Không emoji, mỗi cấp một màu.
     const card = (u) => {
       const b = best(u), isNext = u === next;
       return `<button type="button" class="eg-card${b ? ' is-done' : ''}${isNext ? ' is-next' : ''}" data-id="${u.id}" style="--c:${u.stage.color}">
         <span class="eg-card-no">${b ? '✓' : u.no}</span>
-        <span class="eg-card-ic" aria-hidden="true">${u.icon}</span>
         <span class="eg-card-t"><strong>${esc(u.vi)}</strong><small lang="en">${esc(u.en)}</small></span>
-        ${b ? starRow(b) : isNext ? '<span class="eg-card-go">Học ▶</span>' : ''}
+        ${b ? starRow(b) : ''}
       </button>`;
     };
     app.innerHTML = `
@@ -123,25 +123,21 @@ export function render(app, onBack, ctx = {}) {
         </header>
         <main class="eg-listbody">
           <button type="button" class="eg-hero" data-id="${next.id}" style="--c:${next.stage.color}">
-            <span class="eg-hero-ic" aria-hidden="true">${next.icon}</span>
-            <span class="eg-hero-t"><small>${doneN ? 'Học tiếp' : 'Bắt đầu'} · <span lang="en">${next.level.name}</span> · Bài ${next.no}</small><strong>${esc(next.vi)}</strong><em lang="en">${esc(next.en)}</em></span>
+            <span class="eg-hero-no">${next.no}</span>
+            <span class="eg-hero-t"><small>${doneN ? 'Học tiếp' : 'Bắt đầu'} · <span lang="en">${next.level.name}</span></small><strong>${esc(next.vi)}</strong><em lang="en">${esc(next.en)}</em></span>
             <span class="eg-hero-go">▶</span>
           </button>
-          <ol class="eg-how" aria-label="Cách học">
-            <li><b>👀</b>Xem cách dùng</li><li><b>✋</b>Luyện 8 câu</li><li><b>⭐</b>Nhận sao</li>
-          </ol>
           ${LEVELS.map((l) => {
             const ls = STAGES.filter((s) => s.level === l.id);
             const lu = ls.flatMap((s) => s.units);
-            return `<div class="eg-level eg-level-${l.id}">
-              <header class="eg-level-h"><span class="eg-level-ic" aria-hidden="true">${l.icon}</span><div><h2 lang="en">${esc(l.name)} <small>${esc(l.cefr)}</small></h2><p>${esc(l.note)}</p></div><span class="eg-stage-n">${lu.filter(best).length}/${lu.length}</span></header>
-              ${ls.map((s) => {
-                const n = s.units.filter(best).length;
-                return `<section class="eg-stage" style="--c:${s.color}">
-                  <header><span class="eg-stage-ic" aria-hidden="true">${s.icon}</span><div><h3>Chặng ${STAGES.indexOf(s) + 1}: ${esc(s.name)}</h3><p>${esc(s.note)}</p></div><span class="eg-stage-n">${n}/${s.units.length}</span></header>
+            const dn = lu.filter(best).length;
+            return `<div class="eg-level" style="--c:${l.color}">
+              <header class="eg-level-h"><h2><span lang="en">${esc(l.name)}</span><small>${esc(l.cefr)}</small></h2>
+                <span class="eg-level-bar" aria-hidden="true"><i style="width:${(dn / lu.length) * 100}%"></i></span><span class="eg-level-n">${dn}/${lu.length}</span></header>
+              ${ls.map((s) => `<section class="eg-stage">
+                  <h3><span>Chặng ${STAGES.indexOf(s) + 1}</span>${esc(s.name)}<em>${s.units.filter(best).length}/${s.units.length}</em></h3>
                   <div class="eg-cards">${s.units.map((u) => card(UNITS.find((x) => x.id === u.id))).join('')}</div>
-                </section>`;
-              }).join('')}
+                </section>`).join('')}
             </div>`;
           }).join('')}
         </main>
