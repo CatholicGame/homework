@@ -157,7 +157,8 @@ export function mcSpeak(text, mc = 0, { onStart, parts, rate: callRate, mute, vo
   const estimate = (t) => estimateAt(t, rate);
   text = String(text || '').trim();
   // mảnh: chữ, hoặc { t, v } đọc bằng giọng v riêng (Đấu Trường Tiếng Anh: tên bạn chơi / nghĩa tiếng Việt đọc giọng Việt giữa câu giọng Anh)
-  parts = (parts?.length ? parts : [text]).map(p => (typeof p === 'object' && p ? { t: String(p.t || '').trim(), v: p.v } : { t: String(p || '').trim() })).filter(p => p.t);
+  // gap: nghỉ bấy nhiêu ms trước mảnh này (hội thoại tiếng Anh: hai người nói lần lượt, mc.js enTalkParts)
+  parts = (parts?.length ? parts : [text]).map(p => (typeof p === 'object' && p ? { t: String(p.t || '').trim(), v: p.v, gap: p.gap } : { t: String(p || '').trim() })).filter(p => p.t);
   if (!text) return Promise.resolve();
   const my = ++seq;
   pending?.();
@@ -207,7 +208,14 @@ export function mcSpeak(text, mc = 0, { onStart, parts, rate: callRate, mute, vo
         }, () => { if (!started) local(); else finish(); });   // trình duyệt chặn tự phát (chưa chạm lần nào): giọng của máy
       };
       a.onplaying = begin;
-      a.onended = () => { if (done || my !== seq) return; if (++k < urls.length) playPart(); else finish(); };
+      a.onended = () => {
+        if (done || my !== seq) return;
+        if (++k >= urls.length) { finish(); return; }
+        const gap = +parts[k].gap || 0;
+        if (!gap) { playPart(); return; }
+        clearTimeout(guard);
+        guard = setTimeout(() => { if (!done && my === seq) playPart(); }, gap / rate);
+      };
       a.onerror = () => { if (!started) local(); else finish(); };
       playPart();
     }, () => {

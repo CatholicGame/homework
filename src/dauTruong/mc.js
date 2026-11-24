@@ -207,6 +207,25 @@ export function enSayParts(t, mc = 0) {
   return { text: String(t).replace(/[«»]/g, ''), parts };
 }
 
+/**
+ * Câu nghe dạng hội thoại ("Girl: What is this? Boy: It is a car."): tách theo lượt nói, mỗi người một giọng Azure, bỏ nhãn
+ * "Girl:" khỏi lời đọc, giữa hai lượt nghỉ một nhịp như hai người nói chuyện thật. Bạn nữ: Emma, bạn nam: Andrew, người lớn
+ * (mẹ, cô giáo, bác sĩ): Jenny, nên hai người trong một đoạn luôn khác giọng. Không có nhãn người nói: null (đọc như cũ).
+ */
+const TALK_VOICE = { Girl: 'enEmma', Mai: 'enEmma', Lan: 'enEmma', Boy: 'enAndrew', Nam: 'enAndrew',
+  Mum: 'enUS', Teacher: 'enUS', Doctor: 'enUS', Woman: 'enUS', Man: 'enAndrew' };
+export const TALK_GAP = 450;
+export function enTalkParts(en) {
+  const segs = String(en || '').split(new RegExp(`(?:^|\\s+)(${Object.keys(TALK_VOICE).join('|')}):\\s+`));
+  if (segs.length < 3 || segs[0].trim()) return null;   // phải mở đầu bằng nhãn người nói
+  const parts = [];
+  for (let k = 1; k < segs.length; k += 2) {
+    const t = segs[k + 1].trim();
+    if (t) parts.push({ t, v: TALK_VOICE[segs[k]], ...(parts.length ? { gap: TALK_GAP } : {}) });
+  }
+  return parts.length ? { text: parts.map(p => p.t).join(' '), parts } : null;
+}
+
 const NUM = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín', 'mười', 'mười một', 'mười hai'];
 const last = {}, planned = {};
 /* Giọng Azure ghép mảnh (dauTruong/mcVoice.js): câu có tên người chơi tách tại {ten} thành phần cố định + tên, mỗi mảnh một mp3

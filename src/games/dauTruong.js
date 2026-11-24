@@ -24,7 +24,7 @@ import { PUPILS, SEAT_IDS, COLS } from '../dauTruong/rules.js';
 import { lobbyRender } from '../dauTruong/lobby.js';
 import { loadArenaBank, speedQ, markSeen, qHash, seenForHost } from '../dauTruong/questions.js';
 import { drawQBody, optTokens, tokenCanvas, sayTokens } from '../dauTruong/figs.js';
-import { mcLine, mcPlan, sayQuestion, sayQuestionEn, needEnAfter, enSayParts, sayOption, optEn, LETTER, MC_NAMES } from '../dauTruong/mc.js';
+import { mcLine, mcPlan, sayQuestion, sayQuestionEn, needEnAfter, enSayParts, enTalkParts, sayOption, optEn, LETTER, MC_NAMES } from '../dauTruong/mc.js';
 import { setArenaSubject, isEnArena, EN_VOICE, EN_SKILL, EN_TT } from '../dauTruong/subject.js';
 import { voiceMode, mcPrefetch, mcSpeak, mcStop, setMcListener, setMcRate, isMcMuted, setMcMuted } from '../dauTruong/mcVoice.js';
 import { certSvg, loadCertFonts, CERT_CSS } from '../dauTruong/cert.js';
@@ -1914,7 +1914,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       const qEn = sayQuestionEn(q);
       fxRun('pre', [qEn ? '' : sayQuestion(q), ...opts.filter(i => !optEn(q, i)).map(i => sayOption(q, i))].filter(Boolean), monOf(q));
       // câu tiếng Anh: đề tiếng Anh (sayEn), phần tiếng Anh và phương án tiếng Anh tải bằng giọng Anh của MC ấy
-      if (q.m === 'en') fxRun('pre', [...(qEn ? enSayParts(qEn, monOf(q)).parts : []), needEnAfter(q) ? q.en : '', ...opts.filter(i => optEn(q, i)).map(i => sayOption(q, i))].filter(Boolean), EN_VOICE[monOf(q)]);
+      if (q.m === 'en') fxRun('pre', [...(qEn ? enSayParts(qEn, monOf(q)).parts : []), ...(needEnAfter(q) ? enTalkParts(q.en)?.parts || [q.en] : []), ...opts.filter(i => optEn(q, i)).map(i => sayOption(q, i))].filter(Boolean), EN_VOICE[monOf(q)]);
     };
     async function speak(text, mc, opts) { const r = run; emit('say', text, mc, opts?.parts || null, opts?.voice, opts?.cap); await mcSpeak(text, mc, opts); return live(r); }
     /** Giọng Anh của MC `mc` cho phần tiếng Anh. */
@@ -2357,9 +2357,12 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (!(await speak(qSay ? qSay.text : sayQuestion(Q), mon, qSay ? enOpt(mon, { parts: qSay.parts }) : undefined))) return;
       // giọng Anh đọc phần tiếng Anh (sayEn đã gồm câu ấy thì thôi); câu nghe (ẩn chữ) đọc hai lần
       if (needEnAfter(Q)) {
-        const enSay = enOpt(mon, Q.hide ? { cap: '🎧 Listen carefully…' } : {});   // câu nghe: phụ đề không lộ câu được đọc
-        if (!(await speak(Q.en, mon, enSay))) return;
-        if (Q.hide) { await wait(700); if (r !== run) return; if (!(await speak(Q.en, mon, { ...enSay, cap: '🎧 Listen again…' }))) return; }
+        // hội thoại ("Girl: … Boy: …"): mỗi người một giọng, không đọc nhãn, nghỉ một nhịp giữa hai lượt (mc.js enTalkParts)
+        const talk = enTalkParts(Q.en);
+        const enSay = enOpt(mon, { ...(Q.hide ? { cap: '🎧 Listen carefully…' } : talk ? { cap: Q.en } : {}), ...(talk ? { parts: talk.parts } : {}) });   // câu nghe: phụ đề không lộ câu được đọc
+        const enText = talk ? talk.text : Q.en;
+        if (!(await speak(enText, mon, enSay))) return;
+        if (Q.hide) { await wait(talk ? 1000 : 700); if (r !== run) return; if (!(await speak(enText, mon, { ...enSay, cap: '🎧 Listen again…' }))) return; }
       }
       if (Q.kind === 'order' && !(await host('kindOrder'))) return;
       for (let i = 0; i < 4; i++) {
