@@ -1,10 +1,10 @@
 /**
  * 📐 Ngữ pháp tiếng Anh cho bé (thẻ english-grammar, tab 🌍 Tiếng Anh, lớp 1–5). Dữ liệu: src/data/enGrammar/units.js.
  *
- * Danh sách: nút to "Học tiếp" + 5 chặng, mỗi bài một thẻ (số, hình, tên Việt, mẫu câu tiếng Anh, sao).
+ * Danh sách: nút to "Học tiếp" + 3 cấp Cambridge (Starters, Movers, Flyers), mỗi cấp vài chặng, mỗi bài một thẻ (số, hình, tên Việt, mẫu câu tiếng Anh, sao).
  * Một bài có 3 bước, thanh bước ở trên chạm qua lại được:
  *   1 👀 Học   luật một câu, bảng ghép màu (I → am), câu mẫu có hình, chạm để nghe, mẹo nhớ
- *              🎮 Thử xem (cả 28 bài, src/games/enGrammar/demos.js): hình vẽ đổi theo nút bé chạm, câu đổi theo và được đọc
+ *              🎮 Thử xem (cả 64 bài: demos.js g01–g28, demosMore.js, demosMovers.js, demosFlyers.js): hình vẽ đổi theo nút bé chạm, câu đổi theo và được đọc
  *   2 ✋ Luyện 8 câu, mỗi màn một câu, chọn bằng nút to, chấm ngay: chọn từ / chọn câu / xếp chữ / đúng hay sai.
  *              Sai thì hiện đáp án + lý do một dòng, câu sai được hỏi lại một lần ở cuối.
  *   3 ⭐ Xong  sao theo số câu đúng ngay lần đầu, Làm lại / Bài tiếp
@@ -14,13 +14,18 @@
  * Xem thử: scripts/en-grammar-dev.html?unit=g01&step=practice
  */
 import '../styles/en-grammar.css';
-import { STAGES, UNITS } from '../data/enGrammar/units.js';
+import { LEVELS, STAGES, UNITS } from '../data/enGrammar/units.js';
 import { sayEn, stopEn, unlockSpeech, prefetchEn } from '../engine/speakEn.js';
 import { scopedKey } from '../engine/auth.js';
 import { awardFixedStars } from '../engine/stars.js';
 import { getProfileGrade } from '../engine/profile.js';
 import { playSfx } from '../engine/sfx.js';
-import { DEMOS } from './enGrammar/demos.js';
+import { DEMOS as DEMOS_BASE } from './enGrammar/demos.js';
+import { STARTERS_DEMOS } from './enGrammar/demosMore.js';
+import { MOVERS_DEMOS } from './enGrammar/demosMovers.js';
+import { FLYERS_DEMOS } from './enGrammar/demosFlyers.js';
+
+const DEMOS = { ...DEMOS_BASE, ...STARTERS_DEMOS, ...MOVERS_DEMOS, ...FLYERS_DEMOS };
 
 const STORE = 'engram-v1';
 const STEPS = [
@@ -114,18 +119,25 @@ export function render(app, onBack, ctx = {}) {
         <main class="eg-listbody">
           <button type="button" class="eg-hero" data-id="${next.id}" style="--c:${next.stage.color}">
             <span class="eg-hero-ic" aria-hidden="true">${next.icon}</span>
-            <span class="eg-hero-t"><small>${doneN ? 'Học tiếp' : 'Bắt đầu'} · Bài ${next.no}</small><strong>${esc(next.vi)}</strong><em lang="en">${esc(next.en)}</em></span>
+            <span class="eg-hero-t"><small>${doneN ? 'Học tiếp' : 'Bắt đầu'} · <span lang="en">${next.level.name}</span> · Bài ${next.no}</small><strong>${esc(next.vi)}</strong><em lang="en">${esc(next.en)}</em></span>
             <span class="eg-hero-go">▶</span>
           </button>
           <ol class="eg-how" aria-label="Cách học">
             <li><b>👀</b>Xem cách dùng</li><li><b>✋</b>Luyện 8 câu</li><li><b>⭐</b>Nhận sao</li>
           </ol>
-          ${STAGES.map((s, i) => {
-            const n = s.units.filter(best).length;
-            return `<section class="eg-stage" style="--c:${s.color}">
-              <header><span class="eg-stage-ic" aria-hidden="true">${s.icon}</span><div><h2>Chặng ${i + 1}: ${esc(s.name)}</h2><p>${esc(s.note)}</p></div><span class="eg-stage-n">${n}/${s.units.length}</span></header>
-              <div class="eg-cards">${s.units.map((u) => card(UNITS.find((x) => x.id === u.id))).join('')}</div>
-            </section>`;
+          ${LEVELS.map((l) => {
+            const ls = STAGES.filter((s) => s.level === l.id);
+            const lu = ls.flatMap((s) => s.units);
+            return `<div class="eg-level eg-level-${l.id}">
+              <header class="eg-level-h"><span class="eg-level-ic" aria-hidden="true">${l.icon}</span><div><h2 lang="en">${esc(l.name)} <small>${esc(l.cefr)}</small></h2><p>${esc(l.note)}</p></div><span class="eg-stage-n">${lu.filter(best).length}/${lu.length}</span></header>
+              ${ls.map((s) => {
+                const n = s.units.filter(best).length;
+                return `<section class="eg-stage" style="--c:${s.color}">
+                  <header><span class="eg-stage-ic" aria-hidden="true">${s.icon}</span><div><h3>Chặng ${STAGES.indexOf(s) + 1}: ${esc(s.name)}</h3><p>${esc(s.note)}</p></div><span class="eg-stage-n">${n}/${s.units.length}</span></header>
+                  <div class="eg-cards">${s.units.map((u) => card(UNITS.find((x) => x.id === u.id))).join('')}</div>
+                </section>`;
+              }).join('')}
+            </div>`;
           }).join('')}
         </main>
       </div>`;
@@ -342,7 +354,7 @@ export function render(app, onBack, ctx = {}) {
     // chọn từ điền chỗ trống
     function askPick(cur, q) {
       const w = Math.max(...q.opts.map((o) => o.length));
-      qEl.innerHTML = `<p class="eg-sent" lang="en">${esc(q.before)} <span class="eg-slot" style="min-width:${w + 1.5}ch">&nbsp;</span> ${esc(q.after)}</p>`;
+      qEl.innerHTML = `<p class="eg-sent" lang="en">${esc(q.before)} <span class="eg-slot" style="min-width:${w + 1.5}ch">&nbsp;</span>${/^[.?!,]/.test(q.after) ? '' : ' '}${esc(q.after)}</p>`;
       choices.innerHTML = shuffle(q.opts).map((o) => `<button type="button" class="eg-opt" lang="en">${esc(o)}</button>`).join('');
       hint(wrongOnce.has(cur.i) ? '🔁 Làm lại câu này' : '👆 Chọn từ đúng điền vào chỗ trống');
       const slot = qEl.querySelector('.eg-slot');

@@ -651,3 +651,6 @@ export const DEMOS = {
   g23, g26,
   g28: timeline([T('today', 'It *is* rainy today.', 'Hôm nay trời mưa.', '🌧️'), T('tomorrow', 'It *will be* sunny tomorrow.', 'Mai trời sẽ nắng.', '☀️')]),
 };
+
+// Dùng chung cho demosMore.js (bài g29–g64).
+export { G, k, at, FONT, label, bubble, spot, shadow, outdoor, indoor, duck, ball, box, table, house, kite, bag, dashed, NUM, NUM_VI, S, elephant, mouse, giftBox, apple, egg, umbrella, bus, bike, bird, fish, penguin, iceCream, carrot, pizza, banana, turtle, tv, rock, badge, heart, sea, motion, bigWord, clock, week };

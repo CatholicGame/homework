@@ -32,10 +32,22 @@
 .eg-how { display: flex; gap: 6px; justify-content: center; list-style: none; padding: 0; margin: 14px 0 6px; }
 .eg-how li { display: flex; align-items: center; gap: 4px; padding: 6px 10px; white-space: nowrap; border-radius: 999px; background: #fff; border: 1px solid var(--edge); color: var(--sub); font-weight: 700; font-size: .92rem; }
 .eg-how b { font-size: 1.1rem; }
+.eg-level { margin-top: 26px; padding: 14px 14px 16px; border-radius: 22px; background: var(--lv-bg); border: 1px solid var(--lv-edge); }
+.eg-level-starters { --lv: #15803D; --lv-bg: #F0FDF4; --lv-edge: #BBF7D0; }
+.eg-level-movers { --lv: #C2410C; --lv-bg: #FFF7ED; --lv-edge: #FED7AA; }
+.eg-level-flyers { --lv: #7C3AED; --lv-bg: #F5F3FF; --lv-edge: #DDD6FE; }
+.eg-level-h { display: flex; align-items: center; gap: 12px; }
+.eg-level-ic { flex: none; width: 54px; height: 54px; display: grid; place-items: center; font-size: 32px; border-radius: 16px; background: #fff; border: 1px solid var(--lv-edge); }
+.eg-level-h > div { flex: 1; min-width: 0; }
+.eg-level-h h2 { margin: 0; font-size: 1.45rem; font-weight: 900; color: var(--lv); }
+.eg-level-h h2 small { margin-left: 6px; padding: 2px 8px; border-radius: 999px; font-size: .8rem; font-weight: 800; color: #fff; background: var(--lv); vertical-align: middle; }
+.eg-level-h p { margin: 2px 0 0; color: var(--sub); font-size: .92rem; }
+.eg-level-h .eg-stage-n { color: var(--lv); }
+.eg-level .eg-stage:first-of-type { margin-top: 14px; }
 .eg-stage { margin-top: 22px; }
 .eg-stage > header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
 .eg-stage-ic { flex: none; width: 46px; height: 46px; display: grid; place-items: center; font-size: 26px; border-radius: 14px; background: color-mix(in srgb, var(--c) 14%, #fff); }
-.eg-stage h2 { margin: 0; font-size: 1.15rem; font-weight: 900; color: color-mix(in srgb, var(--c) 80%, #000); }
+.eg-stage h3 { margin: 0; font-size: 1.15rem; font-weight: 900; color: color-mix(in srgb, var(--c) 80%, #000); }
 .eg-stage p { margin: 2px 0 0; color: var(--sub); font-size: .9rem; }
 .eg-stage > header > div { flex: 1; min-width: 0; }
 .eg-stage-n { flex: none; font-weight: 800; color: var(--c); }

@@ -22,8 +22,8 @@ const writing = (desc) => ({ id: 'writing', group: 'tiengviet', icon: '✍️', 
 // cùng một thẻ cho lớp 1–5, trang tự mở cấp hợp với lớp trong hồ sơ.
 const ENGLISH = { id: 'english-reading', group: 'tienganh', icon: '📖', color: '#2563EB', title: 'Đọc tiếng Anh', desc: '100 bài đọc ngắn từ dễ đến khó và 30 bài chủ đề (bạn từ hành tinh khác, chuyện nhân văn, nhân vật lịch sử Việt Nam): nghe đọc, chạm từ xem nghĩa, ngữ pháp, trả lời câu hỏi, chép chính tả' };
 
-// 📐 Ngữ pháp tiếng Anh cho bé (games/enGrammar.js, dữ liệu src/data/enGrammar/units.js): 28 bài, 5 chặng, mỗi bài Học, Luyện, Xong.
-const EN_GRAMMAR = { id: 'english-grammar', group: 'tienganh', icon: '📐', color: '#7C3AED', title: 'Ngữ pháp tiếng Anh', desc: '28 bài ngắn từ am, is, are tới so sánh, quá khứ, tương lai: xem cách dùng có hình, nghe câu mẫu, luyện 8 câu bằng nút to' };
+// 📐 Ngữ pháp tiếng Anh cho bé (games/enGrammar.js, dữ liệu src/data/enGrammar/units.js): 64 bài theo chuẩn Cambridge Starters, Movers, Flyers; mỗi bài Học, Luyện, Xong.
+const EN_GRAMMAR = { id: 'english-grammar', group: 'tienganh', icon: '📐', color: '#7C3AED', title: 'Ngữ pháp tiếng Anh', desc: '64 bài theo chuẩn Cambridge Starters, Movers, Flyers: xem cách dùng có hình, nghe câu mẫu, luyện 8 câu bằng nút to' };
 
 // `important: true` = thẻ có nhãn "⭐ Quan trọng" ở trang chủ (Luyện Tính, đặt ngay sau Bản đồ kiến thức).
 // `hidden: true` = ẩn với mọi người (kể cả admin), vẫn mở được bằng #id.
