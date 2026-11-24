@@ -124,6 +124,14 @@ export const KNOWLEDGE_MAP = {
     C('hinh', 'g5-tron', '⭕', 'Đường tròn', 'Chu vi = d × 3,14; diện tích = r × r × 3,14.', { tool5: '27-28' }),
     C('do', 'g5-don-vi-stp', '📏', 'Số đo viết dạng số thập phân', 'Đổi số đo độ dài, khối lượng ra số thập phân.', { tool5: '8,12,34' }),
     C('do', 'g5-dien-tich', '🌾', 'km², héc-ta, bảng đơn vị diện tích', 'Mỗi đơn vị diện tích gấp 100 lần đơn vị bé hơn liền sau.', { tool5: '15-18' }),
+    C('giai', 'g5-ti-so', '🟦', 'Tỉ số, tổng tỉ, hiệu tỉ', 'Tỉ số a : b; tìm hai số khi biết tổng (hiệu) và tỉ số bằng sơ đồ phần bằng nhau.', { tool5: '36,38-39,70' }),
+    C('giai', 'g5-phan-tram', '💯', 'Tỉ số phần trăm', 'Tìm tỉ số phần trăm của hai số; tìm giá trị phần trăm của một số; máy tính cầm tay.', { tool5: '40-43' }),
+    C('do', 'g5-ti-le-ban-do', '📍', 'Tỉ lệ bản đồ', 'Độ dài thật = độ dài trên bản đồ × mẫu số của tỉ lệ.', { tool5: '37' }),
+    C('do', 'g5-the-tich', '🧊', 'Thể tích, cm³, dm³, m³', 'Đếm hình lập phương; mỗi đơn vị thể tích gấp 1 000 lần đơn vị bé hơn liền sau.', { tool5: '45-48' }),
+    C('hinh', 'g5-hinh-khoi', '📦', 'Hình hộp, hình lập phương, hình trụ', 'Hình khai triển; diện tích xung quanh, toàn phần; thể tích V = a × b × c.', { tool5: '49-55,71' }),
+    C('do', 'g5-thoi-gian', '⏱️', 'Số đo thời gian', 'Đổi đơn vị; cộng, trừ, nhân, chia số đo thời gian.', { tool5: '56-58' }),
+    C('giai', 'g5-chuyen-dong', '🚗', 'Chuyển động đều', 'v = s : t; s = v × t; t = s : v.', { tool5: '59-62,73' }),
+    C('tk', 'g5-bieu-do-quat', '🥧', 'Số liệu, biểu đồ hình quạt tròn', 'Thu thập, sắp xếp số liệu; đọc biểu đồ hình quạt tròn; tỉ số số lần lặp lại.', { tool5: '63-67,74' }),
   ],
 };
 

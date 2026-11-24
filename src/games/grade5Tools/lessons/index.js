@@ -11,9 +11,14 @@ import { UNIT_LESSONS } from './units.js';
 import { CALC_LESSONS } from './calc.js';
 import { DIV_LESSONS } from './calcDiv.js';
 import { SHAPE_LESSONS } from './shapes.js';
+import { RATIO_LESSONS } from './tap2ratio.js';
+import { VOLUME_LESSONS } from './tap2volume.js';
+import { TIME_LESSONS } from './tap2time.js';
+import { STATS_LESSONS } from './tap2stats.js';
 import { lessonByN } from '../catalog.js';
 
-const CONTENT = { ...REVIEW_LESSONS, ...FRACTION_LESSONS, ...DECIMAL_LESSONS, ...UNIT_LESSONS, ...CALC_LESSONS, ...DIV_LESSONS, ...SHAPE_LESSONS };
+const CONTENT = { ...REVIEW_LESSONS, ...FRACTION_LESSONS, ...DECIMAL_LESSONS, ...UNIT_LESSONS, ...CALC_LESSONS, ...DIV_LESSONS, ...SHAPE_LESSONS,
+  ...RATIO_LESSONS, ...VOLUME_LESSONS, ...TIME_LESSONS, ...STATS_LESSONS };
 
 export const exploreOf = (n) => CONTENT[n]?.explore || null;
 

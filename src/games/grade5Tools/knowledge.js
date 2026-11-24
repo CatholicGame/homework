@@ -8,6 +8,10 @@
 
 import { fr } from '../grade4Textbook/demos/util.js';
 import { TOPICS } from './catalog.js';
+import { K5_RATIO } from './knowledge/tap2ratio.js';
+import { K5_VOLUME } from './knowledge/tap2volume.js';
+import { K5_TIME } from './knowledge/tap2time.js';
+import { K5_STATS } from './knowledge/tap2stats.js';
 
 const pg = (p) => `SGK Toán 5 Tập Một, trang ${p}`;
 const mx = (w, a, b) => `<span class="k5-mx">${w}${fr(a, b)}</span>`;
@@ -324,4 +328,4 @@ const TEACH = {
 const MIX = {};
 TOPICS.forEach((t) => t.lessons.forEach((l) => { if (l.mix) MIX[l.n] = { title: l.title, see: l.mix }; }));
 
-export const KNOWLEDGE5 = { ...MIX, ...TEACH };
+export const KNOWLEDGE5 = { ...MIX, ...TEACH, ...K5_RATIO, ...K5_VOLUME, ...K5_TIME, ...K5_STATS };

@@ -20,6 +20,8 @@ export const UNIT_KINDS = {
   mass: { per: 1, lead: 1, units: [['tấn', 'tấn'], ['tạ', 'tạ'], ['yến', 'yến'], ['kg', 'ki-lô-gam'], ['hg', 'héc-tô-gam'], ['dag', 'đề-ca-gam'], ['g', 'gam']] },
   area: { per: 2, lead: 0, units: [['km²', 'ki-lô-mét vuông'], ['ha', 'héc-ta'], ['dam²', '', true], ['m²', 'mét vuông'], ['dm²', 'đề-xi-mét vuông'], ['cm²', 'xăng-ti-mét vuông'], ['mm²', 'mi-li-mét vuông']] },
   vol: { per: 1, lead: 1, units: [['l', 'lít'], ['dl', '', true], ['cl', '', true], ['ml', 'mi-li-lít']] },
+  // Thể tích (Toán 5 Tập Hai Bài 46, 47): mỗi đơn vị ba ô, bậc gấp 1 000
+  cube: { per: 3, lead: 0, units: [['m³', 'mét khối'], ['dm³', 'đề-xi-mét khối'], ['cm³', 'xăng-ti-mét khối']] },
 };
 /** Chỉ số đơn vị theo tên: unitIdx('len', 'cm') → 5. */
 export const unitIdx = (kind, name) => UNIT_KINDS[kind].units.findIndex(u => u[0] === name);
@@ -27,6 +29,7 @@ export const unitIdx = (kind, name) => UNIT_KINDS[kind].units.findIndex(u => u[0
 export const unitSay = (kind, name) => UNIT_KINDS[kind].units[unitIdx(kind, name)][1];
 /** "3 m² 6 dm²" → "3 mét vuông 6 đề-xi-mét vuông" (giọng đọc). */
 export const sayUnits = (s) => s
+  .replace(/dm³/g, ' đề-xi-mét khối').replace(/cm³/g, ' xăng-ti-mét khối').replace(/m³/g, ' mét khối')
   .replace(/km²/g, ' ki-lô-mét vuông').replace(/dm²/g, ' đề-xi-mét vuông').replace(/cm²/g, ' xăng-ti-mét vuông').replace(/mm²/g, ' mi-li-mét vuông').replace(/m²/g, ' mét vuông')
   .replace(/\bha\b/g, 'héc-ta').replace(/\bkm\b/g, 'ki-lô-mét').replace(/\bhm\b/g, 'héc-tô-mét').replace(/\bdam\b/g, 'đề-ca-mét').replace(/\bdm\b/g, 'đề-xi-mét')
   .replace(/\bcm\b/g, 'xăng-ti-mét').replace(/\bmm\b/g, 'mi-li-mét').replace(/\bkg\b/g, 'ki-lô-gam').replace(/\bg\b/g, 'gam').replace(/\bml\b/g, 'mi-li-lít').replace(/\bl\b/g, 'lít')
@@ -60,7 +63,7 @@ export function createUnits(host, { kind = 'len', from = 0, to = null, top = tru
     <div class="g5u g5u-${kind}" style="--n:${N}">
       ${top ? '<div class="g5u-top"><div class="g5u-chips"></div><span class="g5u-eq">=</span><div class="g5u-res">&nbsp;</div></div>' : ''}
       <div class="g5u-tab">
-        ${per === 2 ? '<div class="g5u-per">mỗi đơn vị <b>2 ô</b> · gấp <b>100</b> lần</div>' : `<div class="g5u-per">mỗi đơn vị <b>1 ô</b> · gấp <b>10</b> lần</div>`}
+        <div class="g5u-per">mỗi đơn vị <b>${per} ô</b> · gấp <b>${['10', '100', '1 000'][per - 1]}</b> lần</div>
         <div class="g5u-grid">
           ${K.units.slice(from, last + 1).map((u, k) => {
             const i = from + k;

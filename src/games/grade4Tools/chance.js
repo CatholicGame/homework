@@ -255,7 +255,7 @@ const DEVICES = {
 
 /**
  * Thí nghiệm + bảng kiểm đếm.
- *   device: 'wheel' | 'box' | 'pens' | 'coin' | 'die' | 'boxes'; dev: tham số đồ vật (sectors, balls, pens, items).
+ *   device: 'wheel' | 'box' | 'pens' | 'coin' | 'die' | 'boxes' | hàm(dev) → { act, html, sample, play, reset, out }; dev: tham số đồ vật (sectors, balls, pens, items).
  *   events: [{ label, art (svg 40×40), test(chi tiết) }]; trials: số lần; manual: số lần làm tay trước khi bật "Làm nhanh".
  *   rig: dãy sự kiện định sẵn (Khám phá: đúng 9 đỏ, 11 vàng như sách).
  * Sự kiện phát ra: 'rolled' (k), 'mark' (k), 'wrong' (k chạm, k đúng), 'early' (chạm hàng khi chưa có kết quả), 'done'.
@@ -263,7 +263,7 @@ const DEVICES = {
 export function createChance(host, { device, dev = {}, events, trials = 10, manual = 3, style = 'square', rig = null, rng = Math.random, explore = false, head = 'Sự kiện', fastLabel = '⏩ Làm nhanh' }) {
   injectChanceStyles();
   const t = emitter({});
-  const D = DEVICES[device](dev);
+  const D = typeof device === 'function' ? device(dev) : DEVICES[device](dev); // hàm: đồ vật riêng của sách khác (cùng giao diện DEVICES)
   const K = events.length, groups = Math.ceil(trials / 5);
   host.innerHTML = `<div class="g4ce ${explore ? 'g4ce-ex' : ''}" style="--k:${K}">
       <div class="g4ce-dev">

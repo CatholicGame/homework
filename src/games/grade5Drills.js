@@ -17,6 +17,10 @@ import { how, TEACHER } from './grade3Drills/kit.js';
 import { BOOK5 } from './grade5Tools.js';
 import { SHIFT_DRILL_TASKS, UNIT_DRILL_TASKS } from './grade5Tools/lessons/units.js';
 import { FRACTION_DRILL_LEVELS } from './grade5Tools/lessons/fractions.js';
+import { RATIO_DRILL_LEVELS } from './grade5Tools/lessons/tap2ratio.js';
+import { STATS_DRILL_LEVELS } from './grade5Tools/lessons/tap2stats.js';
+import { TIME_DRILL_LEVELS } from './grade5Tools/lessons/tap2time.js';
+import { VOLUME_DRILL_LEVELS } from './grade5Tools/lessons/tap2volume.js';
 
 /**
  * Trò Luyện Tính từ các dạng câu Thực hành (task của grade5Tools/lessons): mỗi cấp là một nhóm task, chạy bằng
@@ -72,6 +76,40 @@ export const FRACTION_GAME = taskDrill({
   ],
 });
 
+// ── Tập Hai ──────────────────────────────────────────────────────────────────────────────────────────
+export const RATIO_GAME = taskDrill({
+  id: 'd5-ratio', icon: '🟦', title: 'Tỉ số, phần trăm',
+  purpose: 'Giúp em tìm tỉ số, tỉ số phần trăm, giá trị phần trăm, tỉ lệ bản đồ và giải bài toán tổng tỉ, hiệu tỉ bằng sơ đồ.',
+  howTo: how(['🟦', 'Vẽ sơ đồ'], ['🔢', 'Đếm số phần'], ['➗', 'Tìm 1 phần'], ['✅', 'Đúng hết']),
+  levels: RATIO_DRILL_LEVELS,
+});
+
+export const VOLUME_GAME = taskDrill({
+  id: 'd5-vol', icon: '🧊', title: 'Thể tích, hình khối',
+  purpose: 'Giúp em đếm thể tích bằng hình lập phương, đổi m³, dm³, cm³ (mỗi bậc gấp 1 000), tính diện tích xung quanh, toàn phần và thể tích hình hộp, hình lập phương.',
+  howTo: how(['🧊', 'Đếm theo lớp'], ['🪜', 'Gấp 1 000'], ['📦', 'Mặt nào tính'], ['✅', 'Đúng hết']),
+  levels: VOLUME_DRILL_LEVELS,
+});
+const timeLv = (pre) => TIME_DRILL_LEVELS.filter(lv => lv.id.startsWith(pre)).map((lv, i) => ({ ...lv, n: i + 1 }));
+export const TIME_GAME = taskDrill({
+  id: 'd5-time', icon: '⏱️', title: 'Số đo thời gian',
+  purpose: 'Giúp em đổi đơn vị đo thời gian, cộng, trừ, nhân, chia số đo thời gian: đủ 60 phút thì đổi thành 1 giờ, thiếu thì mượn 1 giờ = 60 phút.',
+  howTo: how(['⏱️', 'Thẳng cột đơn vị'], ['6️⃣0️⃣', 'Đủ 60 thì đổi'], ['↩️', 'Mượn 1 giờ'], ['✅', 'Đúng hết']),
+  levels: timeLv('d5-time'),
+});
+export const MOVE_GAME = taskDrill({
+  id: 'd5-move', icon: '🚗', title: 'Chuyển động đều',
+  purpose: 'Giúp em tính vận tốc, quãng đường, thời gian của chuyển động đều, nhớ cho các đơn vị khớp nhau.',
+  howTo: how(['🚗', 'v = s : t'], ['🛣️', 's = v × t'], ['⏱️', 't = s : v'], ['✅', 'Đúng hết']),
+  levels: timeLv('d5-move'),
+});
+export const STATS_GAME = taskDrill({
+  id: 'd5-stats', icon: '🥧', title: 'Số liệu, biểu đồ quạt',
+  purpose: 'Giúp em kiểm đếm, sắp xếp số liệu, đọc biểu đồ hình quạt tròn và viết tỉ số số lần xảy ra của một sự kiện.',
+  howTo: how(['📋', 'Đếm số liệu'], ['🥧', 'Cả hình 100%'], ['🎲', 'Số lần / tổng'], ['✅', 'Đúng hết']),
+  levels: STATS_DRILL_LEVELS,
+});
+
 // ── Hub ───────────────────────────────────────────────────────────────────────────────────────────────
 const tool = (id, game, desc, tags) => ({ id, icon: game.icon, title: game.title, desc, tags, single: true, stalls: [{ game }] });
 
@@ -83,6 +121,11 @@ export const DRILL5_LIST = [
   tool('div', DDIV_GAME, 'Chia số thập phân: viết dấu phẩy ở thương, thêm 0 vào số dư, chia cho số thập phân.', ['Dấu phẩy ở thương', 'Thương có chữ số 0', 'Chia cho số thập phân']),
   tool('shift', SHIFT_GAME, 'Nhân, chia nhẩm với 10; 100; 1 000 và 0,1; 0,01; 0,001.', ['Chuyển dấu phẩy']),
   tool('unit', UNIT_GAME, 'Viết số đo độ dài, khối lượng, diện tích dưới dạng số thập phân.', ['Chữ số 0 giữ chỗ']),
+  tool('ratio', RATIO_GAME, 'Tỉ số, tỉ số phần trăm, tỉ lệ bản đồ, tìm hai số khi biết tổng (hiệu) và tỉ số.', ['Sơ đồ', 'Phần trăm', 'Bản đồ']),
+  tool('vol', VOLUME_GAME, 'Thể tích, đơn vị đo thể tích, diện tích xung quanh, toàn phần, thể tích hình hộp, hình lập phương.', ['cm³ dm³ m³', 'Sxq Stp', 'V = a × b × c']),
+  tool('time', TIME_GAME, 'Đổi đơn vị đo thời gian; cộng, trừ, nhân, chia số đo thời gian.', ['Đổi 60', 'Giờ thập phân']),
+  tool('move', MOVE_GAME, 'Vận tốc, quãng đường, thời gian của chuyển động đều.', ['km/giờ', 'Đổi đơn vị']),
+  tool('stats', STATS_GAME, 'Bảng số liệu, biểu đồ hình quạt tròn, tỉ số số lần lặp lại một sự kiện.', ['Kiểm đếm', 'Biểu đồ quạt', 'Tỉ số']),
   tool('frac', FRACTION_GAME, 'Cộng, trừ phân số khác mẫu số, nhân, chia phân số, hỗn số.', ['Quy đồng', 'Hỗn số']),
 ];
 
@@ -94,7 +137,7 @@ export function render(app, onBack) {
   }, null, {
     games: DRILL5_LIST, kicker: '🧮 Toán 5', title: 'Luyện Tính', icon: '🧮', unitFocus: null,
     lessonTree: { split: 35, titleOf: (n) => UNIT_INFO[`tool5:bai-${n}`]?.[1] },
-    lead: 'Luyện tính với số thập phân và phân số. Mỗi lượt là số mới!',
+    lead: 'Luyện tính số thập phân, phân số, tỉ số phần trăm, thể tích, thời gian và chuyển động. Mỗi lượt là số mới!',
     levelLead: 'Chọn cấp. Cấp nào cũng làm được!',
   });
 }
