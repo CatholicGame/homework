@@ -2421,6 +2421,43 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (ns?.seg === 'pick') preHost('vdTurn', { ten: nameOf(ns.who), diem: pods[ns.who].score });
       if (ns && ns.seg !== 'pick' && nextQ?.slot !== ns) { nextQ = { slot: ns, q: takeQ(ns) }; preQ(nextQ.q); }
     }
+    /**
+     * Người thật (mình và các bạn thật, trên bục lẫn dưới khán phòng) đã đưa đáp án hết thì bạn ảo không bắt cả phòng chờ:
+     * bạn ảo còn đang nghĩ chốt dồn trong khoảng 1–2 giây (lần lượt từng bạn), khán giả ảo cũng chọn nốt. Câu bấm chuông mà chỉ
+     * còn bạn ảo được bấm: bạn định bấm thì bấm sớm, không ai bấm thì đồng hồ rút còn chừng 1,5 giây. Mỗi câu, mỗi bước một lần.
+     * Phòng không có người thật nào trả lời câu này (chỉ xem) thì để bạn ảo nghĩ theo nhịp thường.
+     */
+    let hurried = '';
+    function hurryBots(now, el, qel) {
+      if (!['think', 'answer', 'steal'].includes(phase)) return;
+      const key = `${qid}|${phase}`;
+      if (hurried === key) return;
+      // bước này bạn thật trên bục nào còn phải làm gì: chốt (lượt mình / câu chung, hoặc đã bấm chuông), hay còn được bấm chuông
+      const bell = (phase === 'think' && sl.seg === 'common') || phase === 'steal';
+      const realPods = pods.map((p, i) => i).filter(i => !isBot(i) && (bell ? (phase === 'think' || i !== turn) : phase === 'answer' ? i === buzzer : answers(i)));
+      if (bell && realPods.length) return;          // bạn thật còn được bấm chuông: đang đua, không giục
+      const realSeats = seats.filter(s => s.live && (s.real || s.mine));
+      // không có bạn thật nào phải trả lời: chỉ giục khi mình (đứng bục, câu không phải lượt mình) đã trả lời ké
+      if (!realPods.length && !realSeats.length && !(role() === 'pod' && side.qid === qid)) return;
+      if (realPods.some(i => pods[i].state !== 'locked') || realSeats.some(s => s.ans == null)) return;
+      hurried = key;
+      let k = 0;
+      const soon = () => 0.5 + 0.55 * k++ + Math.random() * 0.4;
+      if (bell) {
+        const cand = pods.map((p, i) => i).filter(i => isBot(i) && (phase === 'think' || i !== turn) && Number.isFinite(pods[i].buzzAt));
+        if (cand.length) cand.forEach(i => { pods[i].buzzAt = Math.min(pods[i].buzzAt, el + soon()); });
+        else if (timer) timer.end = Math.min(timer.end, now + 1500);
+      } else {
+        pods.forEach((p, i) => {
+          if (!isBot(i)) return;
+          const waiting = phase === 'answer' ? i === buzzer && p.state === 'buzz' : answers(i) && p.state === 'think';
+          if (waiting && Number.isFinite(p.plan)) p.plan = Math.min(p.plan, el + soon());
+        });
+      }
+      // khán giả ảo định chọn câu này thì chọn nốt cho kịp lúc lật
+      seats.forEach(s => { if (s.live && !s.mine && !s.real && s.ans == null && Number.isFinite(s.plan)) s.plan = Math.min(s.plan, qel + Math.random() * 1.5); });
+      scrDirty = true;
+    }
     /** Mỗi khung hình lúc đang đếm giờ: bạn máy chốt / bấm chuông, khán giả trả lời, hết giờ hay đủ người thì MC đóng câu. */
     function stepRound(now) {
       if (!timer || !TIMED.has(phase)) return;
@@ -2428,6 +2465,7 @@ export function stage(app, onBack, { flow = false } = {}) {
       if (phase === 'pick') { if (up) choosePkg(1); return; }
       if (phase === 'star') { if (up) setStar(false); return; }
       const qel = (now - qT0) / 1000;
+      hurryBots(now, el, qel);
       seats.forEach(s => { if (s.live && !s.mine && !s.real && s.ans == null && qel >= s.plan) s.ans = s.ok; });
       if (phase === 'audLast') { if (up || !audWaiting()) closeQ(null); return; }
       if (phase === 'think') {
