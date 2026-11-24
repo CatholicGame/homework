@@ -4,9 +4,11 @@
  * Danh sách: nút to "Học tiếp" + 3 cấp Cambridge (Starters, Movers, Flyers), mỗi cấp vài chặng, mỗi bài một thẻ (số, hình, tên Việt, mẫu câu tiếng Anh, sao).
  * Một bài có 3 bước, thanh bước ở trên chạm qua lại được:
  *   1 👀 Học   luật một câu, bảng ghép màu (I → am), câu mẫu có hình, chạm để nghe, mẹo nhớ
+ *              🎬 Câu biến hình (src/games/enGrammar/movie.js, kịch bản src/data/enGrammar/anims.js): thẻ chữ chuyển động qua từng bước
  *              🎮 Thử xem (cả 64 bài: demos.js g01–g28, demosMore.js, demosMovers.js, demosFlyers.js): hình vẽ đổi theo nút bé chạm, câu đổi theo và được đọc
  *   2 ✋ Luyện 8 câu, mỗi màn một câu, chọn bằng nút to, chấm ngay: chọn từ / chọn câu / xếp chữ / đúng hay sai.
  *              Sai thì hiện đáp án + lý do một dòng, câu sai được hỏi lại một lần ở cuối.
+ *              🎬 Câu Đúng/Sai có câu sai: câu tự biến thành câu đúng (movie.js diffTiles + flipTo); xếp chữ sai: thẻ tự bay về đúng thứ tự.
  *   3 ⭐ Xong  sao theo số câu đúng ngay lần đầu, Làm lại / Bài tiếp
  * Màn Luyện chia vùng cố định từ đầu (tiến độ, bảng câu trên cảnh vẽ, vùng nút, thanh nhắc) nên không nhảy bố cục trong lượt.
  * Sao: lần đầu xong bài được 2 sao, khoá engram<lớp>:<bài> (BOOK_GRADE trong engine/stars.js).
@@ -15,7 +17,7 @@
  */
 import '../styles/en-grammar.css';
 import { LEVELS, STAGES, UNITS } from '../data/enGrammar/units.js';
-import { sayEn, stopEn, unlockSpeech, prefetchEn } from '../engine/speakEn.js';
+import { sayEn, sayEnSeq, stopEn, unlockSpeech, prefetchEn } from '../engine/speakEn.js';
 import { scopedKey } from '../engine/auth.js';
 import { awardFixedStars } from '../engine/stars.js';
 import { getProfileGrade } from '../engine/profile.js';
@@ -24,6 +26,9 @@ import { DEMOS as DEMOS_BASE } from './enGrammar/demos.js';
 import { STARTERS_DEMOS } from './enGrammar/demosMore.js';
 import { MOVERS_DEMOS } from './enGrammar/demosMovers.js';
 import { FLYERS_DEMOS } from './enGrammar/demosFlyers.js';
+
+import { mountMovie, flipTo, tilesHtml, diffTiles } from './enGrammar/movie.js';
+import { ANIMS } from '../data/enGrammar/anims.js';
 
 const DEMOS = { ...DEMOS_BASE, ...STARTERS_DEMOS, ...MOVERS_DEMOS, ...FLYERS_DEMOS };
 
@@ -176,7 +181,7 @@ export function render(app, onBack, ctx = {}) {
       });
       view.innerHTML = '';
       view.scrollTop = 0;
-      if (id === 'learn') learn(view, u, ex, () => go('practice'));
+      if (id === 'learn') stopView = learn(view, u, ex, () => go('practice'));
       else if (id === 'practice') stopView = practice(view, u, (r) => { result = r; finish(u, r); go('done'); });
       else done(view, u, result, () => { result = null; go('practice'); }, () => go('learn'));
     };
@@ -203,7 +208,8 @@ export function render(app, onBack, ctx = {}) {
             <p class="eg-pattern-en" lang="en">${u.en.split(/\s*·\s*/).map((p) => `<span class="eg-say"${sayAttr(p)}>${esc(p)}</span>`).join('<i aria-hidden="true"> · </i>')}</p>
             <div class="eg-rule"><span class="eg-owl" aria-hidden="true">🦉</span><p>${rich(u.rule)}</p></div>
           </section>
-          ${DEMOS[u.id] ? '<section class="eg-demo"></section>' : ''}
+          ${ANIMS[u.id] ? '<section class="eg-demo eg-mv"></section>' : ''}
+          ${DEMOS[u.id] ? '<section class="eg-demo eg-try"></section>' : ''}
           ${u.table ? `<section class="eg-table" style="--cols:${cols}">${u.table.map((r) => `<div class="eg-trow">${r.map((c, i) => `${i ? '<span class="eg-arrow" aria-hidden="true">→</span>' : ''}<span class="eg-chip${i ? ' is-key' : ''}"${sayAttr(c)}${isEnText(c) ? ' lang="en" role="button" tabindex="0"' : ''}>${esc(c)}</span>`).join('')}</div>`).join('')}</section>` : ''}
           <h2 class="eg-h">🔊 Chạm để nghe</h2>
           <section class="eg-exs">${ex.map((e, i) => `
@@ -232,7 +238,9 @@ export function render(app, onBack, ctx = {}) {
     view.querySelector('.eg-learn').addEventListener('click', (e) => { const el = e.target.closest('[data-say]'); if (el) sayIt(el); });
     view.querySelector('.eg-learn').addEventListener('keydown', (e) => { const el = e.target.closest('[data-say]'); if (el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); sayIt(el); } });
     view.querySelector('.eg-gopractice').onclick = next;
-    if (DEMOS[u.id]) demo(view.querySelector('.eg-demo'), DEMOS[u.id]);
+    if (DEMOS[u.id]) demo(view.querySelector('.eg-try'), DEMOS[u.id]);
+    const stopMovie = ANIMS[u.id] ? mountMovie(view.querySelector('.eg-mv'), ANIMS[u.id], { rich, esc, sayEnSeq, stopEn, prefetchEn, playSfx, reduced }) : null;
+    return () => stopMovie?.();
   }
 
   /* 🎮 Thử xem: hình + hàng nút + câu đổi theo (src/games/enGrammar/demos.js). Hình vẽ lại mỗi lần chạm; phần tử data-k
@@ -301,6 +309,9 @@ export function render(app, onBack, ctx = {}) {
     const total = items.length;
     const wrongOnce = new Set();
     let right = 0, pos = 0, timer = 0, alive = true;
+    let laters = [];
+    const later = (fn, ms) => { laters.push(setTimeout(() => { if (alive) fn(); }, ms)); };
+    const clearLater = () => { laters.forEach(clearTimeout); laters = []; };
     view.innerHTML = `
       <div class="eg-play">
         <div class="eg-prog" aria-hidden="true">${items.map(() => '<i></i>').join('')}</div>
@@ -337,7 +348,7 @@ export function render(app, onBack, ctx = {}) {
     nextBtn.onclick = () => { stopEn(); pos++; step(); };
 
     function step() {
-      clearTimeout(timer);
+      clearTimeout(timer); clearLater();
       if (!alive) return;
       if (pos >= queue.length) { onEnd({ right, total }); return; }
       const cur = queue[pos], q = cur.q;
@@ -424,9 +435,25 @@ export function render(app, onBack, ctx = {}) {
           if (!ok) {
             shake(line);
             fixEl.innerHTML = `<span lang="en">✓ ${esc(q.answer)}</span>`; fixEl.classList.add('is-on');
-          }
-          verdict(ok, cur, ok ? '' : 'Câu đúng ở trên bảng.');
-          sayEn(q.answer);
+            // 🎬 các thẻ tự bay về đúng thứ tự
+            later(() => {
+              const els = placed.map((p) => p.el), pool = [...els];
+              const order = q.words.map((w) => { const e = pool.find((x) => x.textContent === w); pool.splice(pool.indexOf(e), 1); return e; });
+              const rects = new Map(els.map((e) => [e, e.getBoundingClientRect()]));
+              order.forEach((e) => line.appendChild(e));
+              line.classList.remove('is-bad'); line.classList.add('is-fixed');
+              const calm = reduced();
+              order.forEach((e) => {
+                const a = rects.get(e), b = e.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
+                if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+                e.animate(calm || Math.abs(dx) < 60
+                  ? [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }]
+                  : [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: `translate(${dx / 2}px, ${dy / 2 - 40}px)`, offset: 0.5 }, { transform: 'none' }], { duration: calm ? 760 : 680, easing: 'cubic-bezier(.45,.05,.35,1)' });
+              });
+              later(() => sayEn(q.answer), 760);
+            }, 700);
+          } else sayEn(q.answer);
+          verdict(ok, cur, ok ? '' : 'Xem các chữ bay về đúng chỗ.');
         }
       }));
     }
@@ -442,17 +469,23 @@ export function render(app, onBack, ctx = {}) {
         choices.querySelector(q.ok ? '.eg-yes' : '.eg-no').classList.add('is-ok');
         if (!ok) { b.classList.add('is-bad'); shake(b); }
         if (q.ok) { sent.classList.add('is-ok'); sayEn(q.shown); } else {
-          sent.classList.add('is-wrong');
-          fixEl.innerHTML = `<span lang="en">✓ ${esc(q.fix)}</span>`; fixEl.classList.add('is-on');
-          popIn(fixEl);
-          sayEn(q.fix);
+          // 🎬 câu sai tự biến thành câu đúng: chữ sai loé rồi đổi, chữ thừa bay đi, chữ thiếu rơi vào
+          const { from, to } = diffTiles(q.shown, q.fix);
+          sent.classList.add('is-wrong', 'eg-mv-line', 'is-fixline');
+          sent.innerHTML = tilesHtml(from, esc);
+          fixEl.innerHTML = `<span lang="en" class="eg-was">✗ <s>${esc(q.shown)}</s></span>`; fixEl.classList.add('is-on');
+          later(() => {
+            sent.classList.remove('is-wrong'); sent.classList.add('is-ok');
+            const ms = flipTo(sent, tilesHtml(to, esc), { calm: reduced(), later });
+            later(() => sayEn(q.fix), ms + 80);
+          }, 650);
         }
         verdict(ok, cur, q.ok ? (ok ? 'Câu này đúng.' : 'Câu này đúng mà.') : (ok ? 'Câu sửa đúng ở trên.' : 'Câu này sai. Câu đúng ở trên.'));
       }));
     }
 
     step();
-    return () => { alive = false; clearTimeout(timer); };
+    return () => { alive = false; clearTimeout(timer); clearLater(); };
   }
 
   // ── ⭐ Xong ──
