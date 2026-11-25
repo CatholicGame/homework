@@ -73,7 +73,8 @@ export function ask(f, { box, answer, max = String(answer).length + 1, hint, say
   // Đáp án là chuỗi "3,25" (số thập phân, Toán 5): so theo giá trị (3,250 = 3,25), hiện đúng như em gõ.
   const isDec = typeof answer === 'string';
   const val = (s) => Number(String(s).replace(',', '.'));
-  const show = (s) => (isDec ? fmtDec(s) : fmt(+s));
+  // Em gõ dấu phẩy cả khi đáp án là số nguyên (bàn phím Toán 5 luôn có ","): hiện và chấm như số thập phân, không ra NaN.
+  const show = (s) => (isDec || String(s).includes(',') ? fmtDec(s) : fmt(+s));
   if (import.meta.env.DEV) window.__g4ans = { kind: 'ask', answer: String(answer), pad: f.pad };
   let wrong = 0;
   return new Promise((res) => {
@@ -81,7 +82,7 @@ export function ask(f, { box, answer, max = String(answer).length + 1, hint, say
       max,
       onType: (s) => { box.textContent = s ? show(s) : ''; },
       onSubmit: (s) => {
-        if (isDec ? Math.abs(val(s) - val(answer)) < 1e-9 : +s === answer) {
+        if (Math.abs(val(s) - val(answer)) < 1e-9) {
           box.textContent = isDec ? fmtDec(s) : fmt(answer);
           box.classList.add('g4-box-ok');
           setActive(f.board, null);
@@ -95,7 +96,7 @@ export function ask(f, { box, answer, max = String(answer).length + 1, hint, say
         shake(box);
         f.pad.clear();
         box.textContent = '';
-        const h = typeof hint === 'function' ? hint(isDec ? val(s) : +s, wrong) : hint;
+        const h = typeof hint === 'function' ? hint(val(s), wrong) : hint;
         if (h) f.hint(h);
       },
     });
